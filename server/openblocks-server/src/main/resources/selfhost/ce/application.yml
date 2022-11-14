@@ -1,0 +1,34 @@
+auth:
+  email:
+    enable: true
+
+spring:
+  data:
+    mongodb:
+      authentication-database: admin
+      auto-index-creation: false
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+
+server:
+  compression:
+    enabled: true
+  forward-headers-strategy: NATIVE
+  http2:
+    enabled: true
+  port: 8080
+  shutdown: graceful
+
+common:
+  cookie-name: OPENBLOCKS_CE_SELFHOST_TOKEN
+  product: openblocks
+  domain:
+    default-value: openblocks.dev
+  cloud: false
+  version: 1.0.21
+  block-hound-enable: false
+
+material:
+  mongodb-grid-fs:
+    bucket-name: material

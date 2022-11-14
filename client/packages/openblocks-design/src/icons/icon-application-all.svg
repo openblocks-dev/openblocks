@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect x="0" y="0" width="16" height="16"/>
+    <g transform="translate(1.500000, 1.500000)" stroke="currentColor" stroke-width="1.5">
+      <rect x="0.75" y="0.75" width="4.5" height="4.5" rx="1"/>
+      <rect transform="translate(3.000000, 10.000000) scale(1, -1) translate(-3.000000, -10.000000) " x="0.75" y="7.75" width="4.5" height="4.5" rx="1"/>
+      <rect transform="translate(10.000000, 3.000000) scale(-1, 1) translate(-10.000000, -3.000000) " x="7.75" y="0.75" width="4.5" height="4.5" rx="1"/>
+      <rect transform="translate(10.000000, 10.000000) scale(-1, -1) translate(-10.000000, -10.000000) " x="7.75" y="7.75" width="4.5" height="4.5" rx="1"/>
+    </g>
+  </g>
+</svg>

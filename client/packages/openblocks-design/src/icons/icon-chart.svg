@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="48px" height="48px" viewBox="0 0 48 48" version="1.1">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g transform="translate(6.000000, 11.500000)" stroke="#D7D9E0" stroke-linecap="round" stroke-width="2">
+      <line x1="-2.00715996e-17" y1="0.5" x2="36" y2="0.5"/>
+      <line x1="-2.00715996e-17" y1="8.5" x2="36" y2="8.5"/>
+      <line x1="2.70913881e-14" y1="16.5" x2="36" y2="16.5"/>
+      <line x1="2.70913881e-14" y1="24.5" x2="36" y2="24.5"/>
+    </g>
+    <g transform="translate(11.000000, 10.000000)" fill="#3377FF">
+      <path d="M11,0 L15,0 C15.5522847,-1.01453063e-16 16,0.44771525 16,1 L16,25 L16,25 L10,25 L10,1 C10,0.44771525 10.4477153,7.67586877e-16 11,0 Z"/>
+      <path d="M1,13 L5,13 C5.55228475,13 6,13.4477153 6,14 L6,25 L6,25 L0,25 L0,14 C-6.76353751e-17,13.4477153 0.44771525,13 1,13 Z"/>
+      <path d="M21,6 L25,6 C25.5522847,6 26,6.44771525 26,7 L26,25 L26,25 L20,25 L20,7 C20,6.44771525 20.4477153,6 21,6 Z"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,22 @@
+{
+  "class": "com.openblocks.domain.folder.model.Folder",
+  "data": [
+    {
+      "id": "folder01",
+      "organizationId": "org01",
+      "name": "folder01"
+    },
+    {
+      "id": "folder02",
+      "organizationId": "org01",
+      "name": "folder02",
+      "createdBy": "user01"
+    },
+    {
+      "id": "folder03",
+      "organizationId": "org01",
+      "name": "folder03",
+      "createdBy": "user01"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g transform="translate(1.500000, 0.700000)" stroke="currentColor" stroke-width="1.5">
+      <rect x="9.75" y="0.75" width="4" height="4" rx="1"/>
+      <rect x="12.25" y="7.25" width="4" height="4" rx="1"/>
+      <line x1="11.5" y1="9.3" x2="4.84057239e-13" y2="9.3" stroke-linecap="round"/>
+      <polyline stroke-linecap="round" stroke-linejoin="round" points="9.5 2.8 4.99595574 2.8 2.99628079 9.3"/>
+      <polyline stroke-linecap="round" stroke-linejoin="round" transform="translate(4.000000, 12.550000) scale(1, -1) translate(-4.000000, -12.550000) " points="8 9.3 2.99626572 9.3 0 15.8"/>
+      <rect x="8.55" y="13.75" width="4" height="4" rx="1"/>
+    </g>
+  </g>
+</svg>

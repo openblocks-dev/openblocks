@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "experimentalDecorators": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "declarationDir": "types",
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "jsx": "react-jsx",
+    "baseUrl": "./src",
+    "paths": {
+      "*": [
+        "*",
+        "../../openblocks/src/*",
+        "../../openblocks-comps/src/*",
+        "../../openblocks-design/src/*"
+      ],
+      "@openblocks-ee/*": ["../../openblocks/src/*"]
+    }
+  },
+  "exclude": ["../openblocks/src/ee/*"],
+  "include": ["src", "../openblocks/src", "../openblocks-comps/src", "../openblocks-design/src"]
+}

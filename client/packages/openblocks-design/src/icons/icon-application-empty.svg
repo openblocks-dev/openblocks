@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120px" height="120px" viewBox="0 0 120 120" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient x1="50%" y1="56.3651333%" x2="21.875%" y2="100%" id="icon-application-empty_svg__a">
+      <stop stop-color="#F3F7FE" offset="0%"/>
+      <stop stop-color="#E2ECFE" offset="100%"/>
+    </linearGradient>
+    <linearGradient x1="50%" y1="50%" x2="-6.92154667e-13%" y2="100%" id="icon-application-empty_svg__b">
+      <stop stop-color="#E3F1FF" offset="0%"/>
+      <stop stop-color="#B2CCFF" offset="100%"/>
+    </linearGradient>
+  </defs>
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g transform="translate(15.000000, 0.000000)">
+      <path d="M8,0 L49,0 C51.209139,-4.05812251e-16 53,1.790861 53,4 L53,34 C53,37.3137085 55.6862915,40 59,40 L86,40 C88.209139,40 90,41.790861 90,44 L90,112 C90,116.418278 86.418278,120 82,120 L8,120 C3.581722,120 2.31743984e-15,116.418278 0,112 L0,8 C-5.41083001e-16,3.581722 3.581722,-1.85291076e-15 8,0 Z" fill="url(#icon-application-empty_svg__a)"/>
+      <path d="M62.4142136,3.41421356 L89.5857864,30.5857864 C90.366835,31.366835 90.366835,32.633165 89.5857864,33.4142136 C89.2107137,33.7892863 88.7020059,34 88.1715729,34 L65,34 C61.6862915,34 59,31.3137085 59,28 L59,4.82842712 C59,3.72385763 59.8954305,2.82842712 61,2.82842712 C61.530433,2.82842712 62.0391408,3.03914081 62.4142136,3.41421356 Z" fill="url(#icon-application-empty_svg__b)"/>
+    </g>
+  </g>
+</svg>

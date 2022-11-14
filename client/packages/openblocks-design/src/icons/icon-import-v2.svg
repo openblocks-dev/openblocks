@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect x="0" y="0" width="16" height="16"/>
+    <g transform="translate(3.000000, 3.500000)" stroke="#222222" stroke-linecap="round" stroke-width="1.5">
+      <g transform="translate(6.490827, 3.561908) scale(1, -1) translate(-6.490827, -3.561908) translate(2.981654, 0.000000)">
+        <path d="M2.1545232,1.77927881 C3.33152123,1.99933166 4.35069841,2.55488722 5.21205473,3.44594548 C6.07341105,4.33700374 6.67550811,5.56296062 7.01834591,7.12381613" transform="translate(4.586435, 4.451547) scale(-1, -1) translate(-4.586435, -4.451547) "/>
+        <g transform="translate(2.012121, 2.044180) rotate(20.000000) translate(-2.012121, -2.044180) translate(0.456566, 0.434985)">
+          <line x1="0.777777778" y1="0.804597701" x2="0.777777778" y2="3.2183908"/>
+          <line x1="0.777777778" y1="0.804597701" x2="3.11111111" y2="0.804597701"/>
+        </g>
+      </g>
+      <polyline stroke-linejoin="round" points="9.66666667 7.24137931 9.66666667 10 5.62512999e-15 10 6.43929354e-15 -1.38316425e-14 3.33333333 -2.22044605e-15"/>
+    </g>
+  </g>
+</svg>

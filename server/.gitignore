@@ -1,0 +1,36 @@
+.DS_Store
+.idea
+*.iml
+.env
+.vscode/*
+
+dist/**
+target/**
+.idea/**
+**/.idea
+**/target
+**/dist
+*.iml
+node_modules
+.settings/**
+**/.settings
+**/.classpath
+**/.project
+**/.factorypath
+
+*.env
+dependency-reduced-pom.xml
+.run/**
+logs/**
+tmp/**
+/openblocks-server/logs/
+
+
+# to ignore the node_modeules folder
+node_modules
+# to ignore the package-lock.json file
+package-lock.json
+
+# test coverage
+coverage-summary.json
+app/client/cypress/locators/Widgets.json

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g transform="translate(1.000000, 3.000000)">
+      <rect stroke="#D7D9E0" stroke-width="1.5" fill="#EFEFF0" x="0.75" y="0.75" width="44.5" height="40.5" rx="3"/>
+      <g transform="translate(17.000000, 0.000000)">
+        <path d="M26,0.75 C26.6213203,0.75 27.1838203,1.00183983 27.5909903,1.40900974 C27.9981602,1.81617966 28.25,2.37867966 28.25,3 L28.25,3 L28.25,39 C28.25,39.6213203 27.9981602,40.1838203 27.5909903,40.5909903 C27.1838203,40.9981602 26.6213203,41.25 26,41.25 L26,41.25 L0.75,41.25 L0.75,0.75 Z" stroke="#D7D9E0" stroke-width="1.5" fill="#FFFFFF"/>
+        <line x1="1" y1="13" x2="28" y2="13" stroke="#D7D9E0" stroke-width="1.5" stroke-linecap="round"/>
+        <rect fill="#3377FF" x="17" y="5" width="7" height="4" rx="1"/>
+        <g transform="translate(5.000000, 4.000000)" stroke="#8B8FA3" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4.21875" y1="0.78125" x2="0.78125" y2="4.21875"/>
+          <line x1="4.21875" y1="0.78125" x2="0.78125" y2="4.21875" transform="translate(2.500000, 2.500000) scale(-1, 1) translate(-2.500000, -2.500000) "/>
+        </g>
+        <rect fill="#D7D9E0" x="5" y="17" width="19" height="4" rx="1"/>
+        <rect fill="#D7D9E0" x="5" y="33" width="16" height="4" rx="1"/>
+        <rect fill="#D7D9E0" x="5" y="25" width="12" height="4" rx="1"/>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16px" height="16px" viewBox="0 0 16 16" version="1.1">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="13.5" y1="2.5" x2="2.5" y2="13.5" stroke="currentColor" stroke-width="1.5"/>
+    <line x1="13.5" y1="2.5" x2="2.5" y2="13.5" stroke="currentColor" stroke-width="1.5" transform="translate(8.000000, 8.000000) scale(-1, 1) translate(-8.000000, -8.000000) "/>
+  </g>
+</svg>

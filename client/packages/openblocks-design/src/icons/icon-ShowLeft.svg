@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g transform="translate(5.000000, 5.000000)" stroke="#FFFFFF" stroke-width="1.5">
+      <rect x="0.75" y="0.75" width="16.5" height="16.5" rx="2"/>
+      <line x1="7.5" y1="1.5" x2="7.5" y2="16.5" stroke-linecap="square"/>
+      <line x1="1.5" y1="7" x2="4.5" y2="7" stroke-linecap="round"/>
+      <line x1="1.5" y1="10.5" x2="4.5" y2="10.5" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>

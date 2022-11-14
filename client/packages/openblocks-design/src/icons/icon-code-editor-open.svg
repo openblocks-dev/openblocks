@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="8px" height="8px" viewBox="0 0 8 8" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#B8B9BF" stroke-width="1.5">
+      <g transform="translate(2.517767, 2.517767) scale(-1, 1) translate(-2.517767, -2.517767) translate(0.500000, 0.500000)">
+        <line x1="3.53553391" y1="0.5" x2="-3.92523115e-17" y2="4.03553391" transform="translate(1.767767, 2.267767) rotate(0.000000) translate(-1.767767, -2.267767) "/>
+        <line x1="3.53553391" y1="0.5" x2="3.53553391" y2="3"/>
+        <line x1="3.53553391" y1="0.5" x2="1.03553391" y2="0.5"/>
+      </g>
+      <polyline points="2.5 7.00241028 7 7.00241028 7 2.5"/>
+    </g>
+  </g>
+</svg>

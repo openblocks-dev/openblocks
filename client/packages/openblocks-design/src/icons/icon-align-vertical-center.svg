@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16px" height="16px" viewBox="0 0 16 16" version="1.1">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+    <g transform="translate(8.000000, 8.000000) rotate(90.000000) translate(-8.000000, -8.000000) translate(1.500000, 3.250000)" stroke="#8B8FA3" stroke-width="1.5">
+      <line x1="6.5" y1="-5.53723734e-14" x2="6.5" y2="9.5"/>
+      <g transform="translate(8.500000, 2.878680)">
+        <line x1="4.5" y1="2.12132034" x2="0" y2="2.12132034" transform="translate(2.250000, 2.121320) scale(-1, 1) translate(-2.250000, -2.121320) "/>
+        <line x1="2.12132034" y1="2.12132034" x2="1.54205509e-17" y2="4.24264069" transform="translate(1.060660, 3.181981) scale(-1, 1) translate(-1.060660, -3.181981) "/>
+        <line x1="2.12132034" y1="2.12132034" x2="8.4112096e-17" y2="2.66354971e-17" transform="translate(1.060660, 1.060660) scale(-1, 1) translate(-1.060660, -1.060660) "/>
+      </g>
+      <g transform="translate(2.250000, 5.000000) scale(-1, 1) translate(-2.250000, -5.000000) translate(0.000000, 2.878680)">
+        <line x1="4.5" y1="2.12132034" x2="0" y2="2.12132034" transform="translate(2.250000, 2.121320) scale(-1, 1) translate(-2.250000, -2.121320) "/>
+        <line x1="2.12132034" y1="2.12132034" x2="1.54205509e-17" y2="4.24264069" transform="translate(1.060660, 3.181981) scale(-1, 1) translate(-1.060660, -3.181981) "/>
+        <line x1="2.12132034" y1="2.12132034" x2="8.4112096e-17" y2="2.66354971e-17" transform="translate(1.060660, 1.060660) scale(-1, 1) translate(-1.060660, -1.060660) "/>
+      </g>
+    </g>
+  </g>
+</svg>

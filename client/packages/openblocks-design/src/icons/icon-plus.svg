@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+    <g transform="translate(2.666667, 2.666667)" stroke="#333333" stroke-width="1.5">
+      <line x1="0" y1="5.33333333" x2="10.6666667" y2="5.33333333"/>
+      <line x1="1.8334413e-15" y1="5.33333333" x2="10.6666667" y2="5.33333333" transform="translate(5.333333, 5.333333) rotate(90.000000) translate(-5.333333, -5.333333) "/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,47 @@
+{
+  "name": "openblocks-sdk",
+  "version": "0.0.1",
+  "type": "module",
+  "files": [
+    "dist",
+    "tsconfig.json"
+  ],
+  "main": "./dist/openblocks-sdk.js",
+  "types": "src/index.ts",
+  "module": "./dist/openblocks-sdk.js",
+  "exports": {
+    ".": {
+      "import": "./dist/openblocks-sdk.js",
+      "require": "./dist/openblocks-sdk.js"
+    },
+    "./dist/style.css": {
+      "import": "./dist/style.css"
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "type": "NODE_OPTIONS=--max_old_space_size=4096 tsc --project .",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.2",
+    "@rollup/plugin-json": "^5.0.1",
+    "@rollup/plugin-node-resolve": "^14.1.0",
+    "@rollup/plugin-replace": "^5.0.1",
+    "@rollup/plugin-url": "^7.0.0",
+    "@svgr/rollup": "^6.3.1",
+    "openblocks-dev-utils": "workspace:^",
+    "rollup": "^2",
+    "rollup-plugin-cleaner": "^1.0.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-globals": "^1.4.0",
+    "rollup-plugin-polyfill-node": "^0.10.2",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript": "^1.0.1",
+    "typescript": "^4.8.4"
+  },
+  "dependencies": {
+    "openblocks": "workspace:^",
+    "vite": "^3.2.3"
+  }
+}

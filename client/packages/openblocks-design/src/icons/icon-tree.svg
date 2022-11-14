@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect stroke="#D7D9E0" stroke-width="1.5" fill="#FFFFFF" x="0.75" y="3.75" width="46.5" height="40.5" rx="3"/>
+    <g transform="translate(6.000000, 8.000000)">
+      <g>
+        <rect fill="#D7D9E0" x="12" y="0.5" width="24" height="7" rx="1"/>
+        <g>
+          <rect fill="#8B8FA3" x="0" y="0" width="8" height="8" rx="1.5"/>
+          <g transform="translate(2.222222, 2.222222)" stroke="#FFFFFF" stroke-linecap="round" stroke-width="1.5">
+            <line x1="3.10862447e-14" y1="1.77777778" x2="3.55555556" y2="1.77777778"/>
+          </g>
+        </g>
+      </g>
+      <g transform="translate(7.000000, 12.000000)">
+        <rect fill="#D7D9E0" x="12" y="0.5" width="17" height="7" rx="1"/>
+        <g>
+          <rect fill="#8B8FA3" x="0" y="0" width="8" height="8" rx="1.5"/>
+          <g transform="translate(2.222222, 2.222222)" stroke="#FFFFFF" stroke-linecap="round" stroke-width="1.5">
+            <line x1="3.10862447e-14" y1="1.77777778" x2="3.55555556" y2="1.77777778"/>
+            <line x1="1.97243633e-14" y1="1.77777778" x2="3.55555556" y2="1.77777778" transform="translate(1.777778, 1.777778) rotate(90.000000) translate(-1.777778, -1.777778) "/>
+          </g>
+        </g>
+      </g>
+      <g transform="translate(7.000000, 24.000000)">
+        <rect fill="#D7D9E0" x="12" y="0.5" width="17" height="7" rx="1"/>
+        <g>
+          <rect fill="#8B8FA3" x="0" y="0" width="8" height="8" rx="1.5"/>
+          <g transform="translate(2.222222, 2.222222)" stroke="#FFFFFF" stroke-linecap="round" stroke-width="1.5">
+            <line x1="3.10862447e-14" y1="1.77777778" x2="3.55555556" y2="1.77777778"/>
+            <line x1="1.97243633e-14" y1="1.77777778" x2="3.55555556" y2="1.77777778" transform="translate(1.777778, 1.777778) rotate(90.000000) translate(-1.777778, -1.777778) "/>
+          </g>
+        </g>
+      </g>
+      <g transform="translate(1.500000, 11.500000)" stroke="#D7D9E0" stroke-linecap="round" stroke-width="2">
+        <polyline stroke-linejoin="round" points="5.28743715e-14 -1.07566967e-20 0 16.5 2.5 16.5"/>
+        <line x1="0.5" y1="4.5" x2="2.5" y2="4.5"/>
+      </g>
+    </g>
+  </g>
+</svg>

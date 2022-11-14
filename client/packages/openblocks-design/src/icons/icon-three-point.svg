@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g transform="translate(3.000000, 8.500000)" fill="currentColor">
+      <ellipse cx="1.50130662" cy="1.5" rx="1.50130662" ry="1.5"/>
+      <ellipse cx="7.00391986" cy="1.5" rx="1.50130662" ry="1.5"/>
+      <ellipse cx="12.5013066" cy="1.5" rx="1.50130662" ry="1.5"/>
+    </g>
+  </g>
+</svg>

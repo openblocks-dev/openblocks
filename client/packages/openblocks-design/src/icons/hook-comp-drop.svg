@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="160px" height="160px" viewBox="0 0 160 160" version="1.1">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect x="0" y="0" width="160" height="160"/>
+    <g transform="translate(22.000000, 84.000000)" fill="#4965F2">
+      <path d="M116,15 L116,47 C116,48.6568542 114.656854,50 113,50 L3,50 C1.34314575,50 -2.41183085e-16,48.6568542 0,47 L0,15 C-2.02906125e-16,13.3431458 1.34314575,12 3,12 L113,12 C114.656854,12 116,13.3431458 116,15 Z" fill-rule="nonzero"/>
+      <rect x="15" y="0" width="30" height="16" rx="3"/>
+      <rect x="71" y="0" width="30" height="16" rx="3"/>
+    </g>
+    <g transform="translate(22.000000, 32.000000)" fill="#3377FF">
+      <path d="M54,12 L54,38 C54,39.6568542 52.6568542,41 51,41 L3,41 C1.34314575,41 1.97926296e-15,39.6568542 0,38 L0,12 C-2.02906125e-16,10.3431458 1.34314575,9 3,9 L51,9 C52.6568542,9 54,10.3431458 54,12 Z" fill-rule="nonzero"/>
+      <rect x="12" y="0" width="30" height="16" rx="3"/>
+    </g>
+    <g transform="translate(117.000000, 46.500000) rotate(15.000000) translate(-117.000000, -46.500000) translate(90.000000, 26.000000)" fill="#9ABCFF">
+      <path d="M54,12 L54,38 C54,39.6568542 52.6568542,41 51,41 L3,41 C1.34314575,41 1.97926296e-15,39.6568542 0,38 L0,12 C-2.02906125e-16,10.3431458 1.34314575,9 3,9 L51,9 C52.6568542,9 54,10.3431458 54,12 Z" fill-rule="nonzero"/>
+      <rect x="12" y="0" width="30" height="16" rx="3"/>
+    </g>
+    <g transform="translate(79.797490, 12.500000)" stroke="#9ABCFF" stroke-linecap="round" stroke-width="3">
+      <line x1="16.7025098" y1="-8.83131951e-18" x2="16.7025098" y2="6"/>
+      <line x1="7.95250978" y1="-0.0669872981" x2="7.95250978" y2="8.9330127" transform="translate(7.952510, 4.433013) rotate(-35.000000) translate(-7.952510, -4.433013) "/>
+      <line x1="2.50658322" y1="7.71133863" x2="3.19162847" y2="13.6721031" transform="translate(2.849106, 10.691721) rotate(-61.000000) translate(-2.849106, -10.691721) "/>
+    </g>
+  </g>
+</svg>

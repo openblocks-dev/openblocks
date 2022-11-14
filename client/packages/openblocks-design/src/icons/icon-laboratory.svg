@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="20px" viewBox="0 0 20 20" version="1.1">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g>
+      <rect x="0" y="0" width="20" height="20"/>
+      <g transform="translate(3.000000, 3.000000)" stroke="#8B8FA3" stroke-width="1.5">
+        <path d="M4.5,0.5 L4.5,4.5 L0.723606798,12.0527864 C0.476617549,12.5467649 0.676841896,13.1474379 1.17082039,13.3944272 C1.30967583,13.4638549 1.46278889,13.5 1.61803399,13.5 L12.381966,13.5 C12.9342508,13.5 13.381966,13.0522847 13.381966,12.5 C13.381966,12.3447549 13.3458209,12.1916418 13.2763932,12.0527864 L9.5,4.5 L9.5,4.5 L9.5,0.5 L4.5,0.5 Z" stroke-linecap="square" stroke-linejoin="round"/>
+        <line x1="2.5" y1="8.9360992" x2="10.8434252" y2="7.23327801" stroke-linecap="round"/>
+        <line x1="2.5" y1="0.5" x2="11.5" y2="0.5" stroke-linecap="round"/>
+      </g>
+    </g>
+  </g>
+</svg>

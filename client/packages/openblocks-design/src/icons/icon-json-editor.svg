@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect stroke="#D7D9E0" stroke-width="1.5" fill="#FFFFFF" x="0.75" y="3.75" width="46.5" height="40.5" rx="3"/>
+    <g transform="translate(5.000000, 8.000000)">
+      <rect fill="#EFEFF0" x="17" y="19" width="21" height="5" rx="1"/>
+      <g transform="translate(5.949747, 25.449747) rotate(45.000000) translate(-5.949747, -25.449747) translate(4.199747, 20.199747)" stroke="#8B8FA3" stroke-width="1.5">
+        <path d="M0.933333333,1.02648706e-13 L2.56666667,1.02648706e-13 C3.08213243,1.02442994e-13 3.5,0.417867567 3.5,0.933333333 L3.5,8.68083143 C3.5,8.96861726 3.36723835,9.24031045 3.14019903,9.41715455 L1.75,10.5 L1.75,10.5 L0.359800967,9.41715455 C0.132761653,9.24031045 -2.22716523e-14,8.96861726 -2.28620074e-14,8.68083143 L-2.28620074e-14,0.933333333 C-2.29251338e-14,0.417867567 0.417867567,1.02410328e-13 0.933333333,1.02648706e-13 Z" stroke-linejoin="round"/>
+        <line x1="0.199741036" y1="2.97575079" x2="3.34290529" y2="2.98618518" stroke-linecap="square"/>
+      </g>
+      <rect fill="#EFEFF0" x="17" y="27" width="17.1818182" height="5" rx="1"/>
+      <rect fill="#EFEFF0" x="0" y="0" width="38" height="16" rx="2"/>
+      <g transform="translate(6.500000, 4.000000)" fill="#8B8FA3" font-family="Helvetica-Bold, Helvetica" font-size="9" font-weight="bold" line-spacing="9">
+        <text>
+                    <tspan x="0" y="9">J</tspan>
+                </text>
+        <text>
+                    <tspan x="5" y="9">S</tspan>
+                </text>
+        <text>
+                    <tspan x="11" y="9">O</tspan>
+                </text>
+        <text>
+                    <tspan x="18" y="9">N</tspan>
+                </text>
+      </g>
+    </g>
+  </g>
+</svg>

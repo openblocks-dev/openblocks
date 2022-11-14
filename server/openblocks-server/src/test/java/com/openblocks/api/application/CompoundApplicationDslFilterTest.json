@@ -1,0 +1,195 @@
+{
+  "ui": {
+    "compType": "nav",
+    "comp": {
+      "items": [
+        {
+          "label": "吕慧超的新应用 1",
+          "hidden": "",
+          "app": {
+            "appId": "app01",
+            "error": "错误请求。",
+            "inputs": {
+            },
+            "events": [
+            ],
+            "autoHeight": "auto",
+            "hidden": ""
+          },
+          "icon": "",
+          "hideWhenNoPermission": true,
+          "queryParam": [
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "hashParam": [
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "items": [
+          ]
+        },
+        {
+          "label": "吕慧超的新应用 2",
+          "hidden": "",
+          "app": {
+            "appId": "app02",
+            "error": "",
+            "autoHeight": "auto",
+            "hidden": ""
+          },
+          "icon": "",
+          "hideWhenNoPermission": true,
+          "queryParam": [
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "hashParam": [
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "items": [
+            {
+              "label": "吕慧超的新应用 3",
+              "hidden": "",
+              "app": {
+                "appId": "app03",
+                "error": "",
+                "autoHeight": "auto",
+                "hidden": ""
+              },
+              "icon": "",
+              "hideWhenNoPermission": false,
+              "queryParam": [
+                {
+                  "key": "",
+                  "value": ""
+                }
+              ],
+              "hashParam": [
+                {
+                  "key": "",
+                  "value": ""
+                }
+              ],
+              "items": [
+              ]
+            },
+            {
+              "label": "吕慧超的新应用 4",
+              "hidden": "",
+              "app": {
+                "appId": "app04",
+                "error": "",
+                "autoHeight": "auto",
+                "hidden": ""
+              },
+              "icon": "",
+              "hideWhenNoPermission": true,
+              "queryParam": [
+                {
+                  "key": "",
+                  "value": ""
+                }
+              ],
+              "hashParam": [
+                {
+                  "key": "",
+                  "value": ""
+                }
+              ],
+              "items": [
+              ]
+            }
+          ]
+        },
+        {
+          "label": "吕慧超的新应用 5",
+          "hidden": "",
+          "app": {
+            "appId": "app05",
+            "error": "",
+            "autoHeight": "auto",
+            "hidden": ""
+          },
+          "icon": "",
+          "hideWhenNoPermission": true,
+          "queryParam": [
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "hashParam": [
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "items": [
+            {
+              "label": "吕慧超的新应用 6",
+              "hidden": "",
+              "app": {
+                "appId": "app06",
+                "error": "",
+                "autoHeight": "auto",
+                "hidden": ""
+              },
+              "icon": "",
+              "hideWhenNoPermission": true,
+              "queryParam": [
+                {
+                  "key": "",
+                  "value": ""
+                }
+              ],
+              "hashParam": [
+                {
+                  "key": "",
+                  "value": ""
+                }
+              ],
+              "items": [
+              ]
+            },
+            {
+              "label": "吕慧超的新应用 7",
+              "hidden": "",
+              "app": {
+                "appId": "app07",
+                "error": "",
+                "autoHeight": "auto",
+                "hidden": ""
+              },
+              "icon": "",
+              "hideWhenNoPermission": true,
+              "queryParam": [
+                {
+                  "key": "",
+                  "value": ""
+                }
+              ],
+              "hashParam": [
+                {
+                  "key": "",
+                  "value": ""
+                }
+              ],
+              "items": [
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

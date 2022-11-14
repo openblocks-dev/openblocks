@@ -1,0 +1,71 @@
+#custom-select() {
+  background: #ffffff;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 8px 0 8px 8px;
+
+  .ant-select-item-option {
+    align-items: center;
+  }
+
+  .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+    background-color: transparent;
+  }
+
+  .ant-select-item:hover {
+    background-color: #f2f7fc;
+  }
+
+  // when selected opened
+  .ant-select-single.ant-select-open .ant-select-selection-item {
+    color: rgba(0, 0, 0, 0.85);
+  }
+
+  .ant-select-item {
+    height: fit-content;
+    min-height: unset;
+    padding: 8px;
+    border-radius: 4px;
+  }
+
+  .ant-select-item-option-selected {
+    font-weight: unset !important;
+    color: #4965f2;
+    background-color: transparent;
+  }
+
+  .rc-virtual-list-holder {
+    overflow-y: overlay !important;
+
+    > div {
+      margin-right: 8px;
+    }
+
+    &::-webkit-scrollbar {
+      width: 16px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border: 5px solid transparent;
+      background-clip: content-box;
+      border-radius: 9999px;
+      background-color: rgba(139, 143, 163, 0.2);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(139, 143, 163, 0.5);
+    }
+  }
+}
+
+.custom-ant-select-dropdown {
+  #custom-select();
+}
+
+.ob-dropdown-control-select {
+  #custom-select();
+
+  .ant-select-item {
+    padding: 7px;
+  }
+}

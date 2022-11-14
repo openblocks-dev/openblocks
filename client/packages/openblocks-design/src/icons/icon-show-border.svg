@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="icon-show-border_svg__a" x="1" y="1" width="14" height="14" rx="2"/>
+    <mask id="icon-show-border_svg__b" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="14" height="14" fill="white">
+      <use xlink:href="#icon-show-border_svg__a"/>
+    </mask>
+  </defs>
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <use stroke="currentColor" mask="url(#icon-show-border_svg__b)" stroke-width="2" stroke-dasharray="2,1" xlink:href="#icon-show-border_svg__a"/>
+    <g transform="translate(4.500000, 4.500000)" fill="currentColor">
+      <rect x="0" y="0" width="3" height="3" rx="0.5"/>
+      <rect x="0" y="4" width="3" height="3" rx="0.5"/>
+      <rect x="4" y="0" width="3" height="3" rx="0.5"/>
+      <rect x="4" y="4" width="3" height="3" rx="0.5"/>
+    </g>
+  </g>
+</svg>

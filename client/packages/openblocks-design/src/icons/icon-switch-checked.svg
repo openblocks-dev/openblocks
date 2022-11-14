@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="12px" viewBox="0 0 24 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g transform="translate(-747.000000, -474.000000)">
+      <g transform="translate(419.000000, 180.000000)">
+        <g transform="translate(210.000000, 278.000000)">
+          <g transform="translate(8.000000, 8.000000)">
+            <g transform="translate(110.000000, 8.000000)">
+              <rect fill="#5740FF" x="0" y="0" width="24" height="12" rx="6"/>
+              <circle fill="#FFFFFF" cx="18" cy="6" r="4.2"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

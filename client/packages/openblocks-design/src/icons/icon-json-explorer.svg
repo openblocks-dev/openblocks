@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect stroke="#D7D9E0" stroke-width="1.5" fill="#FFFFFF" x="0.75" y="3.75" width="46.5" height="40.5" rx="3"/>
+    <g transform="translate(5.000000, 8.000000)">
+      <g transform="translate(19.000000, 26.000000)"/>
+      <rect fill="#EFEFF0" x="17" y="19" width="21" height="5" rx="1"/>
+      <rect fill="#EFEFF0" x="17" y="27" width="15.2727273" height="5" rx="1"/>
+      <g transform="translate(2.000000, 21.000000)" fill-rule="nonzero">
+        <path d="M5,7.5 C3.5493633,7.5 2.03043547,6.62892856 0.443216449,4.88678571 C-0.147738816,4.2379326 -0.147738816,3.2620674 0.443216449,2.61321429 C2.02933399,0.871071439 3.54936333,0 5,0 C6.45063667,0 7.96956451,0.871071439 9.55678355,2.61321429 C10.1477388,3.2620674 10.1477388,4.2379326 9.55678355,4.88678571 C7.97066599,6.62892856 6.45063667,7.5 5,7.5 Z" fill="#8B8FA3"/>
+        <path d="M5,5.625 C6.06208606,5.625 6.92307692,4.78553391 6.92307692,3.75 C6.92307692,2.71446609 6.06208606,1.875 5,1.875 C3.93791394,1.875 3.07692308,2.71446609 3.07692308,3.75 C3.07692308,4.78553391 3.93791394,5.625 5,5.625 Z" fill="#FFFFFF"/>
+      </g>
+      <rect fill="#EFEFF0" x="0" y="0" width="38" height="16" rx="2"/>
+      <g transform="translate(6.500000, 4.000000)" fill="#8B8FA3" font-family="Helvetica-Bold, Helvetica" font-size="9" font-weight="bold" line-spacing="9">
+        <text>
+                    <tspan x="0" y="9">J</tspan>
+                </text>
+        <text>
+                    <tspan x="5" y="9">S</tspan>
+                </text>
+        <text>
+                    <tspan x="11" y="9">O</tspan>
+                </text>
+        <text>
+                    <tspan x="18" y="9">N</tspan>
+                </text>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,35 @@
+demo:
+  datasource:
+    mysql:
+      host: 127.0.0.1
+      password: 123456
+      port: 3306
+      timeout: 8s
+      username: root
+
+common:
+  domain:
+    default-value: skipCheck
+  encrypt:
+    password: abcd
+    salt: abcd
+  cloud: false
+  security:
+    cors-allowed-domains:
+      - '*'
+  version: 1.0.20
+  block-hound-enable: false
+
+material:
+  mongodb-grid-fs:
+    bucket-name: material
+
+auth:
+  mobile:
+    enable: true
+  email:
+    enable: true
+
+spring:
+  redis:
+    url: redis://localhost:6369

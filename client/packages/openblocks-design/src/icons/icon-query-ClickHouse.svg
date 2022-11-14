@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g transform="translate(2.000000, 2.000000)" fill-rule="nonzero">
+      <polygon fill="#FF0000" points="0 10.5 1.44464667 10.5 1.44464667 12 0 12"/>
+      <path d="M10.1111111,0 L10.1111111,12 L8.6666667,12 L8.6666667,0 L10.1111111,0 Z M7.22222222,0 L7.22222222,12 L5.77777778,12 L5.77777778,0 L7.22222222,0 Z M13,4.875 L13,7.125 L11.5555556,7.125 L11.5555556,4.875 L13,4.875 Z M4.33333335,0 L4.33333335,12 L2.88888889,12 L2.88888889,0 L4.33333335,0 Z M1.44444445,0 L1.44444445,10.5 L0,10.5 L0,0 L1.44444445,0 Z" fill="#FFCC00"/>
+    </g>
+  </g>
+</svg>

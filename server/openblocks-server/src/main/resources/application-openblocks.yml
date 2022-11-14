@@ -1,0 +1,43 @@
+auth:
+  email:
+    enable: true
+
+spring:
+  data:
+    mongodb:
+      authentication-database: admin
+      auto-index-creation: false
+      uri:
+  redis:
+    url:
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+
+server:
+  compression:
+    enabled: true
+  forward-headers-strategy: NATIVE
+  http2:
+    enabled: true
+  port: 8080
+  shutdown: graceful
+
+common:
+  cookie-name: LOCAL_TACO_TOKEN
+  product: openblocks
+  domain:
+    default-value: skipCheck
+  encrypt:
+    password: openblocks
+    salt: openblocks
+  cloud: true
+  security:
+    cors-allowed-domains:
+      - '*'
+  version: 1.0.21
+  block-hound-enable: false
+
+material:
+  mongodb-grid-fs:
+    bucket-name: material

@@ -1,0 +1,19 @@
+{
+  "configInstance": {
+    "integer": 999,
+    "integerError": "fefe",
+    "string": "999",
+    "json": {
+      "json": "999"
+    },
+    "list": [
+      999
+    ],
+    "stringList": [
+      "999"
+    ],
+    "map": {
+      "map": 999
+    }
+  }
+}

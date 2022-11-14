@@ -1,0 +1,298 @@
+import {
+  AbstractComp,
+  CompAction,
+  CompActionTypes,
+  CompParams,
+  changeValueAction,
+  customAction,
+  Node,
+  ValueAndMsg,
+} from "openblocks-core";
+import { setFieldsNoTypeCheck } from "util/objectUtils";
+import { DeleteInputIcon } from "openblocks-design";
+import styled from "styled-components";
+import { ReactNode, useCallback, useState } from "react";
+import { BlockGrayLabel, TacoButton } from "openblocks-design";
+import { ControlParams } from "./controlParams";
+import { StringControl } from "./codeControl";
+import { SwitchJsIcon, SwitchWrapper } from "openblocks-design";
+import { ControlPropertyViewWrapper } from "openblocks-design";
+import {
+  getDescription,
+  getIconPath,
+  getIconViewByPath,
+  getIconViewByValue,
+  iconPrefix,
+  IconSelect,
+  IconSelectBase,
+  removeQuote,
+} from "openblocks-design";
+import { EditorState, EditorView } from "base/codeEditor/codeMirror";
+import { CodeEditorTooltipContainer } from "base/codeEditor/codeEditor";
+import { iconRegexp, iconWidgetClass } from "base/codeEditor/extensions/iconExtension";
+import { i18nObjs, trans } from "i18n";
+
+const ButtonWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+`;
+const ButtonIconWrapper = styled.div`
+  display: flex;
+  font-size: 16px;
+`;
+const ButtonText = styled.div`
+  margin: 0 4px;
+  flex: 1;
+  width: 0px;
+  line-height: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+`;
+const StyledDeleteInputIcon = styled(DeleteInputIcon)`
+  margin-left: auto;
+  cursor: pointer;
+
+  &:hover circle {
+    fill: #8b8fa3;
+  }
+`;
+
+const StyledImage = styled.img`
+  height: 1em;
+  color: currentColor;
+`;
+
+const IconPicker = (props: {
+  value: string;
+  onChange: (value: string) => void;
+  label?: ReactNode;
+}) => {
+  const path = getIconPath(props.value);
+  const icon = getIconViewByPath(path);
+  const description = getDescription(path);
+  return (
+    <IconSelect
+      onChange={props.onChange}
+      label={props.label}
+      searchKeywords={i18nObjs.iconSearchKeywords}
+    >
+      <TacoButton style={{ width: "100%" }}>
+        {icon ? (
+          <ButtonWrapper>
+            <ButtonIconWrapper>{icon}</ButtonIconWrapper>
+            <ButtonText title={description}>{description}</ButtonText>
+            <StyledDeleteInputIcon
+              onClick={(e) => {
+                props.onChange("");
+                e.stopPropagation();
+              }}
+            />
+          </ButtonWrapper>
+        ) : (
+          <BlockGrayLabel label={trans("iconControl.selectIcon")} />
+        )}
+      </TacoButton>
+    </IconSelect>
+  );
+};
+
+function onClickIcon(e: React.MouseEvent, v: EditorView) {
+  for (let t = e.target as HTMLElement | null; t; t = t.parentElement) {
+    if (t.classList.contains(iconWidgetClass)) {
+      const pos = v.posAtDOM(t);
+      const result = iconRegexp.exec(v.state.doc.sliceString(pos));
+      if (result) {
+        const from = pos + result.index;
+        return { from, to: from + result[0].length };
+      }
+    }
+  }
+}
+
+function cardRichContent(s: string) {
+  let result = s.match(iconRegexp);
+  if (result) {
+    const nodes: React.ReactNode[] = [];
+    let pos = 0;
+    for (const iconStr of result) {
+      const i = s.indexOf(iconStr, pos);
+      if (i >= 0) {
+        nodes.push(s.slice(pos, i));
+        nodes.push(<span key={i}>{getIconViewByValue(iconStr) ?? iconStr}</span>);
+        pos = i + iconStr.length;
+      }
+    }
+    nodes.push(s.slice(pos));
+    return nodes;
+  }
+  return s;
+}
+
+type Range = {
+  from: number;
+  to: number;
+};
+
+function IconCodeEditor(props: {
+  codeControl: InstanceType<typeof StringControl>;
+  params: ControlParams;
+}) {
+  const [visible, setVisible] = useState(false);
+  const [range, setRange] = useState<Range>();
+  const widgetPopup = useCallback(
+    (v: EditorView) => (
+      <IconSelectBase
+        onChange={(value) => {
+          const r: Range = range ?? v.state.selection.ranges[0] ?? { from: 0, to: 0 };
+          const insert = '"' + value + '"';
+          setRange({ ...r, to: r.from + insert.length });
+          v.dispatch({ changes: { ...r, insert } });
+        }}
+        visible={visible}
+        setVisible={setVisible}
+        trigger="contextMenu"
+        parent={document.querySelector<HTMLElement>(`${CodeEditorTooltipContainer}`)}
+        searchKeywords={i18nObjs.iconSearchKeywords}
+      />
+    ),
+    [visible, range]
+  );
+  const onClick = useCallback((e: React.MouseEvent, v: EditorView) => {
+    const r = onClickIcon(e, v);
+    if (r) {
+      setVisible(true);
+      setRange(r);
+    }
+  }, []);
+  const extraOnChange = useCallback((state: EditorState) => {
+    // popover should hide on change
+    setVisible(false);
+    setRange(undefined);
+  }, []);
+  return props.codeControl.codeEditor({
+    ...props.params,
+    enableIcon: true,
+    widgetPopup,
+    onClick,
+    extraOnChange,
+    cardRichContent,
+    cardTips: (
+      <>
+        {trans("iconControl.insertImage")}
+        <TacoButton style={{ display: "inline" }} onClick={() => setVisible(true)}>
+          {trans("iconControl.insertIcon")}
+        </TacoButton>
+      </>
+    ),
+  });
+}
+
+function isSelectValue(value: any) {
+  return !value || (typeof value === "string" && value.startsWith(iconPrefix));
+}
+
+type ChangeModeAction = {
+  useCodeEditor: boolean;
+};
+
+export class IconControl extends AbstractComp<ReactNode, string, Node<ValueAndMsg<string>>> {
+  private readonly useCodeEditor: boolean;
+  private readonly codeControl: InstanceType<typeof StringControl>;
+
+  constructor(params: CompParams<string>) {
+    super(params);
+    this.useCodeEditor = !isSelectValue(params.value);
+    this.codeControl = new StringControl(params);
+  }
+
+  override getView(): ReactNode {
+    const value = this.codeControl.getView();
+    const view = getIconViewByValue(value);
+    if (view) {
+      return view;
+    }
+    return <StyledImage src={value} alt="" />;
+  }
+
+  override getPropertyView(): ReactNode {
+    throw new Error("Method not implemented.");
+  }
+
+  changeModeAction() {
+    return customAction<ChangeModeAction>({ useCodeEditor: !this.useCodeEditor });
+  }
+
+  propertyView(params: ControlParams): ReactNode {
+    const jsContent = (
+      <SwitchJsIcon
+        checked={this.useCodeEditor}
+        onChange={() => this.dispatch(this.changeModeAction())}
+      >
+        {this.useCodeEditor && <IconCodeEditor codeControl={this.codeControl} params={params} />}
+      </SwitchJsIcon>
+    );
+    if (this.useCodeEditor) {
+      return <SwitchWrapper label={params.label} tooltip={params.tooltip} lastNode={jsContent} />;
+    }
+    return (
+      <ControlPropertyViewWrapper {...params} lastNode={jsContent}>
+        {!this.useCodeEditor && (
+          <IconPicker
+            value={this.codeControl.getView()}
+            onChange={(x) => this.dispatchChangeValueAction(x)}
+            label={params.label}
+          />
+        )}
+      </ControlPropertyViewWrapper>
+    );
+  }
+
+  override toJsonValue(): string {
+    if (this.useCodeEditor) {
+      return this.codeControl.toJsonValue();
+    }
+    // in select mode, don't save editor's original value when saving
+    const v = removeQuote(this.codeControl.getView());
+    return isSelectValue(v) ? v : "";
+  }
+
+  override reduce(action: CompAction): this {
+    switch (action.type) {
+      case CompActionTypes.CUSTOM: {
+        const useCodeEditor = (action.value as ChangeModeAction).useCodeEditor;
+        let codeControl = this.codeControl;
+        if (!this.useCodeEditor && useCodeEditor) {
+          // value should be transformed when switching to editor from select mode
+          const value = this.codeControl.toJsonValue();
+          if (value && isSelectValue(value)) {
+            codeControl = codeControl.reduce(changeValueAction(`{{ "${value}" }}`));
+          }
+        }
+        return setFieldsNoTypeCheck(this, { useCodeEditor, codeControl });
+      }
+      case CompActionTypes.CHANGE_VALUE: {
+        const useCodeEditor = this.useCodeEditor ? true : !isSelectValue(action.value);
+        const codeControl = this.codeControl.reduce(action);
+        if (useCodeEditor !== this.useCodeEditor || codeControl !== this.codeControl) {
+          return setFieldsNoTypeCheck(this, { useCodeEditor, codeControl });
+        }
+        return this;
+      }
+    }
+    const codeControl = this.codeControl.reduce(action);
+    if (codeControl !== this.codeControl) {
+      return setFieldsNoTypeCheck(this, { codeControl });
+    }
+    return this;
+  }
+
+  override nodeWithoutCache() {
+    return this.codeControl.nodeWithoutCache();
+  }
+
+  exposingNode() {
+    return this.codeControl.exposingNode();
+  }
+}

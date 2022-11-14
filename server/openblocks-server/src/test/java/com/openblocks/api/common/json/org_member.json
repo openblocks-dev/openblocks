@@ -1,0 +1,13 @@
+{
+  "class": "com.openblocks.infra.birelation.BiRelation",
+  "data": [
+    {
+      "id": "org_member01",
+      "bizType": "ORG_MEMBER",
+      "sourceId": "org01",
+      "targetId": "user01",
+      "relation": "admin",
+      "state": "NORMAL"
+    }
+  ]
+}

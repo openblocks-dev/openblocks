@@ -1,0 +1,156 @@
+import { changeChildAction, DispatchType, RecordConstructorToView } from "openblocks-core";
+import { UICompBuilder } from "comps/generators/uiCompBuilder";
+import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
+import { Section, sectionNames } from "openblocks-design";
+import { TreeSelect } from "antd";
+import { useEffect } from "react";
+import styled from "styled-components";
+import { styleControl } from "comps/controls/styleControl";
+import { TreeSelectStyle, TreeSelectStyleType } from "comps/controls/styleControlConstants";
+import { LabelControl } from "comps/controls/labelControl";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import {
+  advancedSection,
+  expandSection,
+  formSection,
+  intersectSection,
+  treeCommonChildren,
+  treeDataPropertyView,
+  TreeNameConfigs,
+  useTree,
+  valuePropertyView,
+} from "./treeUtils";
+import { getStyle } from "../selectInputComp/selectCompConstants";
+import { selectInputValidate } from "../selectInputComp/selectInputConstants";
+import { ValueFromOption } from "openblocks-design";
+import { StringControl } from "comps/controls/codeControl";
+import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
+import { BoolControl } from "comps/controls/boolControl";
+import { stateComp } from "comps/generators/simpleGenerators";
+import { trans } from "i18n";
+import { allowClearPropertyView, placeholderPropertyView } from "comps/utils/propertyUtils";
+
+const StyledTreeSelect = styled(TreeSelect)<{ $style: TreeSelectStyleType }>`
+  width: 100%;
+  ${(props) => props.$style && getStyle(props.$style)}
+`;
+
+const selectTypeOptions = [
+  { label: trans("tree.singleSelect"), value: "single" },
+  { label: trans("tree.multiSelect"), value: "multi" },
+  { label: trans("tree.checkbox"), value: "check" },
+] as const;
+
+const checkedStrategyOptions = [
+  { label: trans("tree.showAll"), value: "all" },
+  { label: trans("tree.showParent"), value: "parent" },
+  { label: trans("tree.showChild"), value: "child" },
+] as const;
+
+const childrenMap = {
+  ...treeCommonChildren,
+  selectType: dropdownControl(selectTypeOptions, "single"),
+  checkedStrategy: dropdownControl(checkedStrategyOptions, "parent"),
+  label: LabelControl,
+  placeholder: StringControl,
+  // TODO: more event
+  onEvent: SelectEventHandlerControl,
+  allowClear: BoolControl,
+  inputValue: stateComp<string>(""), // search value
+  style: styleControl(TreeSelectStyle),
+};
+
+function getCheckedStrategy(v: ValueFromOption<typeof checkedStrategyOptions>) {
+  switch (v) {
+    case "all":
+      return TreeSelect.SHOW_ALL;
+    case "parent":
+      return TreeSelect.SHOW_PARENT;
+    case "child":
+      return TreeSelect.SHOW_CHILD;
+  }
+}
+
+const TreeCompView = (
+  props: RecordConstructorToView<typeof childrenMap> & { dispatch: DispatchType }
+) => {
+  const { treeData, selectType, value, expanded, style } = props;
+  const isSingle = selectType === "single";
+  useEffect(() => {
+    if (isSingle && value.value.length > 1) {
+      value.onChange(value.value.slice(0, 1));
+    }
+  }, [selectType]);
+  useTree(props);
+  return props.label({
+    required: props.required,
+    ...selectInputValidate(props),
+    style: style,
+    children: (
+      <StyledTreeSelect
+        key={selectType}
+        $style={style}
+        dropdownMatchSelectWidth={false}
+        disabled={props.disabled}
+        placeholder={props.placeholder}
+        allowClear={props.allowClear}
+        fieldNames={{ label: "label", value: "value" }}
+        treeData={treeData}
+        multiple={!isSingle}
+        value={isSingle ? value.value[0] : value.value}
+        treeCheckable={selectType === "check"}
+        showCheckedStrategy={getCheckedStrategy(props.checkedStrategy)}
+        treeLine={props.showLine ? { showLeafIcon: props.showLeafIcon } : false}
+        treeExpandedKeys={expanded.value}
+        onTreeExpand={(keys) => {
+          expanded.onChange(keys);
+        }}
+        onChange={(keys) => {
+          value.onChange(Array.isArray(keys) ? keys : keys !== undefined ? [keys] : []);
+          props.onEvent("change");
+        }}
+        onSearch={(value) => {
+          props.dispatch(changeChildAction("inputValue", value));
+        }}
+        onFocus={() => props.onEvent("focus")}
+        onBlur={() => props.onEvent("blur")}
+      />
+    ),
+  });
+};
+
+let TreeBasicComp = (function () {
+  return new UICompBuilder(childrenMap, (props, dispatch) => (
+    <TreeCompView {...props} dispatch={dispatch} />
+  ))
+    .setPropertyViewFn((children) => (
+      <>
+        <Section name={sectionNames.basic}>
+          {treeDataPropertyView(children)}
+          {children.selectType.propertyView({ label: trans("tree.selectType") })}
+          {valuePropertyView(children)}
+          {children.selectType.getView() === "check" &&
+            children.checkedStrategy.propertyView({ label: trans("tree.checkedStrategy") })}
+          {placeholderPropertyView(children)}
+        </Section>
+        {formSection(children)}
+        {children.label.getPropertyView()}
+        {expandSection(children)}
+        {intersectSection(children, children.onEvent.getPropertyView())}
+        {advancedSection(children, allowClearPropertyView(children))}
+        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+      </>
+    ))
+    .build();
+})();
+
+TreeBasicComp = class extends TreeBasicComp {
+  override autoHeight(): boolean {
+    return true;
+  }
+};
+
+export const TreeSelectComp = withExposingConfigs(TreeBasicComp, [
+  ...TreeNameConfigs,
+  new NameConfig("inputValue", trans("select.inputValueDesc")),
+]);

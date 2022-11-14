@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16px" height="16px" viewBox="0 0 16 16" version="1.1">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+    <g transform="translate(8.250000, 8.000000) rotate(90.000000) translate(-8.250000, -8.000000) translate(3.000000, 3.250000)" stroke="#8B8FA3" stroke-width="1.5">
+      <line x1="0.5" y1="-8.78926561e-17" x2="0.5" y2="9.5"/>
+      <g transform="translate(3.500000, 2.525126)">
+        <line x1="7" y1="2.47487373" x2="5.2846616e-14" y2="2.47487373" transform="translate(3.500000, 2.474874) scale(-1, 1) translate(-3.500000, -2.474874) "/>
+        <line x1="2.47487373" y1="2.47487373" x2="-3.30439342e-17" y2="4.94974747" transform="translate(1.237437, 3.712311) scale(-1, 1) translate(-1.237437, -3.712311) "/>
+        <line x1="2.47487373" y1="2.47487373" x2="-6.21494932e-17" y2="2.61682076e-17" transform="translate(1.237437, 1.237437) scale(-1, 1) translate(-1.237437, -1.237437) "/>
+      </g>
+    </g>
+  </g>
+</svg>

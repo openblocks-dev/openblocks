@@ -1,0 +1,49 @@
+{
+  "class": "com.openblocks.domain.user.model.User",
+  "data": [
+    {
+      "id": "user01",
+      "name": "Iron Man",
+      "raw_password": "love u 3000 times",
+      "password": "$2a$10$BtkFQKxc/zMplmhomPKqZu.THmDFPo6JCz5NtPNB5hIWmXghrV0Iq",
+      "connections": [
+        {
+          "source": "EMAIL",
+          "rawId": "iron@avengers.com"
+        }
+      ]
+    },
+    {
+      "id": "user02",
+      "name": "Captain",
+      "raw_password": "hail hydra",
+      "password": "$2a$10$9ZAsa5Jw86oHdzHAwtEFHuyOFYGdhnNgSXKll1gOrPEtxpTNrffci",
+      "connections": [
+        {
+          "source": "EMAIL",
+          "rawId": "captain@avengers.com"
+        }
+      ]
+    },
+    {
+      "id": "user03",
+      "name": "Thor",
+      "connections": [
+        {
+          "source": "EMAIL",
+          "rawId": "thor@avengers.com"
+        }
+      ]
+    },
+    {
+      "id": "user04",
+      "name": "Hulk",
+      "connections": [
+        {
+          "source": "EMAIL",
+          "rawId": "hulk@avengers.com"
+        }
+      ]
+    }
+  ]
+}

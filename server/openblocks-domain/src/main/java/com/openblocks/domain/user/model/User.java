@@ -1,0 +1,76 @@
+package com.openblocks.domain.user.model;
+
+import static com.google.common.base.Suppliers.memoize;
+import static com.openblocks.infra.util.AssetUtils.toAssetPath;
+
+import java.util.Set;
+import java.util.function.Supplier;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.openblocks.sdk.constants.AuthSourceConstants;
+import com.openblocks.sdk.models.HasIdAndAuditing;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+
+@Getter
+@Setter
+@ToString
+@Document
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class User extends HasIdAndAuditing {
+
+    private String name;
+
+    private String avatar;
+
+    private String tpAvatarLink;
+
+    private UserState state;
+
+    private Boolean isEnabled = true;
+
+    // used in form login
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
+
+    @Transient
+    Boolean isAnonymous = false;
+
+    private Set<Connection> connections;
+
+    @Transient
+    @JsonIgnore
+    private Supplier<String> avatarUrl = memoize(() -> StringUtils.isNotBlank(avatar) ? toAssetPath(avatar) : tpAvatarLink);
+
+    @Transient
+    @JsonIgnore
+    private Boolean isNewUser = false;
+
+    private boolean hasSetNickname;
+
+    @Transient
+    @JsonIgnore
+    public boolean isAnonymous() {
+        return Boolean.TRUE.equals(isAnonymous);
+    }
+
+    @JsonIgnore
+    public String getAvatarUrl() {
+        return avatarUrl.get();
+    }
+
+    @JsonIgnore
+    public boolean hasBoundPhone() {
+        return connections.stream().anyMatch(con -> AuthSourceConstants.PHONE.equals(con.getSource()));
+    }
+
+}

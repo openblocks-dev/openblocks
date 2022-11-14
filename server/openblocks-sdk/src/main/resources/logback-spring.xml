@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <contextName>openblocks-logback</contextName>
+    <property name="pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %level %class{50}#%M:%L %X{userId} %X{httpMethod} %X{path} [%thread]: %msg %n"/>
+    <property name="LOG_HOME" value="./logs"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE-INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/main.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/main.log.%d.%i</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC-FILE-INFO" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>2000</queueSize>
+        <appender-ref ref="FILE-INFO"/>
+    </appender>
+
+    <appender name="QUERY-ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/query-error.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/query-error.log.%d.%i</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${pattern}</pattern>
+        </encoder>
+    </appender>
+    <appender name="ASYNC-QUERY-ERROR" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>2000</queueSize>
+        <appender-ref ref="QUERY-ERROR"/>
+    </appender>
+
+    <logger name="queryError" level="ERROR" additivity="false">
+        <appender-ref ref="QUERY-ERROR"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC-FILE-INFO"/>
+    </root>
+
+</configuration>

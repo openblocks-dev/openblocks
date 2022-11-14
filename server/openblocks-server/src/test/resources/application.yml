@@ -1,0 +1,20 @@
+spring:
+  mongodb:
+    embedded:
+      version: 4.0.2
+  main:
+    allow-circular-references: true
+  redis:
+    url: redis://localhost:6370
+
+server:
+  port: 8080
+
+demo:
+  datasource:
+    mysql:
+      password: 123
+      port: 3306
+      timeout: 100
+      username: 123
+      host: localhost

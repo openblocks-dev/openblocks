@@ -1,0 +1,23 @@
+<svg width="48" height="48" viewBox="0 0 151 102" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g clip-path="url(#icon-grid_svg__a)">
+    <path d="M20.1331 0.609375H10.0664V101.609H20.1331V0.609375Z" fill="#F5F5F5"/>
+    <path d="M60.3987 0.609375H50.332V101.609H60.3987V0.609375Z" fill="#F5F5F5"/>
+    <path d="M100.666 0.609375H90.5996V101.609H100.666V0.609375Z" fill="#F5F5F5"/>
+    <path d="M40.2659 0.609375H30.1992V101.609H40.2659V0.609375Z" fill="#F5F5F5"/>
+    <path d="M80.5335 0.609375H70.4668V101.609H80.5335V0.609375Z" fill="#F5F5F5"/>
+    <path d="M120.799 0.609375H110.732V101.609H120.799V0.609375Z" fill="#F5F5F5"/>
+    <path d="M140.932 0.609375H130.865V101.609H140.932V0.609375Z" fill="#F5F5F5"/>
+    <path d="M148.564 1.09473H2.43472C1.35865 1.09473 0.486328 1.96433 0.486328 3.03703V99.1813C0.486328 100.254 1.35865 101.124 2.43472 101.124H148.564C149.64 101.124 150.512 100.254 150.512 99.1813V3.03703C150.512 1.96433 149.64 1.09473 148.564 1.09473Z" stroke="#D9D9D9"/>
+    <g style="mix-blend-mode:multiply">
+      <path d="M100.666 16.1475H10.0664V86.0705H100.666V16.1475Z" fill="#BAE7FF"/>
+    </g>
+    <g style="mix-blend-mode:multiply">
+      <path d="M140.932 16.1475H110.732V86.0705H140.932V16.1475Z" fill="#BAE7FF"/>
+    </g>
+  </g>
+  <defs>
+    <clipPath id="icon-grid_svg__a">
+      <rect width="151" height="101" fill="white" transform="translate(0 0.609375)"/>
+    </clipPath>
+  </defs>
+</svg>

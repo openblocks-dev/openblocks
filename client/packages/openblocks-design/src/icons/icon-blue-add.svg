@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="8px" height="8px" viewBox="0 0 8 8" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+    <g transform="translate(-1376.000000, -559.000000)" stroke="#4965F2" stroke-width="1.5">
+      <g transform="translate(1052.000000, 48.000000)">
+        <g transform="translate(76.000000, 462.000000)">
+          <g transform="translate(16.000000, 46.000000)">
+            <g transform="translate(230.000000, 1.000000)">
+              <g transform="translate(3.000000, 3.000000)">
+                <line x1="0" y1="3" x2="6" y2="3"/>
+                <line x1="0" y1="3" x2="6" y2="3" transform="translate(3.000000, 3.000000) rotate(90.000000) translate(-3.000000, -3.000000) "/>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,10 @@
+{
+  "name": "es-test",
+  "type": "es",
+  "organizationId": "123",
+  "datasourceConfig": {
+    "connectionString": "http://localhost:9200/",
+    "index": "user",
+    "usingSsl": false
+  }
+}

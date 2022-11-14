@@ -1,0 +1,35 @@
+{
+  "mainEntryPointFilePath": "<projectFolder>/lib/dts/index.d.ts",
+  "apiReport": {
+    // turn off
+    "enabled": false
+  },
+  "docModel": {
+    // turn off
+    "enabled": false
+  },
+  "dtsRollup": {
+    // Whether to generate the .d.ts rollup file.
+    "enabled": true,
+    // Where we wanna create our .d.ts rollup
+    "untrimmedFilePath": "<projectFolder>/lib/index.d.ts"
+  },
+  "messages": {
+    // turn off various warnings, that might not be useful right now
+    // check the official docs for more!
+    "extractorMessageReporting": {
+      "default": {
+        "logLevel": "none"
+      },
+      "ae-forgotten-export": {
+        "logLevel": "none"
+      },
+      // Disable this validation at your own risk:  Processing an incorrect file type
+      // may lead to other errors.  Function bodies may incorrectly get emitted in the
+      // .d.ts rollup.
+      "ae-wrong-input-file-type": {
+        "logLevel": "none"
+      }
+    }
+  }
+}

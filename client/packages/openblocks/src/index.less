@@ -1,0 +1,71 @@
+@import "antd/dist/antd.less";
+@import "react-grid-layout/css/styles.css";
+@import "simplebar/dist/simplebar.min.css";
+@import "openblocks-design/src/index.less";
+
+// fixme: move into comps
+@import "github-markdown-css/github-markdown-light.css";
+@import "react-quill/dist/quill.snow.css";
+@import "tui-image-editor/dist/tui-image-editor.css";
+@import "tui-color-picker/dist/tui-color-picker.min.css";
+
+.cssTransforms {
+  transition: none !important;
+}
+
+.openblocks-app-root, // used for app run in shadow dom, don't delete!
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "Segoe UI", "PingFang SC",
+    "Microsoft Yahei", "Hiragino Sans GB", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+/* Clear PopOver inner padding */
+.ant-popover-inner-content {
+  padding: 0;
+}
+/* Clear PopOver arrow*/
+.ant-popover-arrow {
+  display: none;
+}
+.ant-popover-inner {
+  border-radius: 8px;
+}
+
+.ant-table .react-resizable {
+  position: relative;
+  background-clip: padding-box;
+}
+
+.ant-table .react-resizable-handle {
+  position: absolute;
+  width: 10px;
+  height: 100%;
+  bottom: 0;
+  right: -5px;
+  cursor: col-resize;
+  z-index: 1;
+  background-image: none;
+}
+/*tooltip inner border radius*/
+.ant-tooltip-inner {
+  border-radius: 4px;
+}
+.ant-tooltip-placement-top .ant-tooltip-arrow {
+  display: none;
+}
+/* message border radius */
+.ant-message .ant-message-notice .ant-message-notice-content {
+  border-radius: 6px;
+}
+
+@font-face {
+  font-family: "RobotoMono";
+  src: url("./RobotoMono.ttf");
+}

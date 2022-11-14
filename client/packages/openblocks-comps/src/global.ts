@@ -1,0 +1,1 @@
+import "../../openblocks/src/global";

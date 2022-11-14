@@ -1,0 +1,24 @@
+{
+  "name": "openblocks-cli-template-typescript",
+  "version": "0.0.2",
+  "scripts": {
+    "start": "openblocks-cli start",
+    "build": "openblocks-cli build"
+  },
+  "openblocks": {
+    "description": "",
+    "comps": {
+      "hello_world": {
+        "name": "__i18n_helloWorldCompName__",
+        "icon": "./icons/hello_world.png"
+      }
+    }
+  },
+  "dependencies": {
+    "openblocks-cli": "workspace:^",
+    "openblocks-sdk": "workspace:^"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4"
+  }
+}

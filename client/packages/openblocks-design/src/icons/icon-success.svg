@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="12px" height="12px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g>
+      <circle fill="#079968" cx="8" cy="8" r="8"/>
+      <polyline stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(8.348076, 7.799038) scale(-1, 1) rotate(30.000000) translate(-8.348076, -7.799038) " points="11.3480762 6.29903811 10.6059754 9.29903811 5.34807621 7.90588799"/>
+    </g>
+  </g>
+</svg>

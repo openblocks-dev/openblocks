@@ -1,0 +1,75 @@
+{
+  "class": "com.openblocks.domain.application.model.Application",
+  "data": [
+    {
+      "id": "app01",
+      "name": "app01",
+      "orgId": "org01",
+      "applicationType": 1,
+      "applicationStatus": "NORMAL"
+    },
+    {
+      "id": "app02",
+      "name": "app02",
+      "orgId": "org01",
+      "applicationType": 1,
+      "applicationStatus": "NORMAL"
+    },
+    {
+      "id": "app03",
+      "name": "app03",
+      "orgId": "org01",
+      "applicationType": 1,
+      "applicationStatus": "RECYCLED"
+    },
+    {
+      "id": "app04",
+      "name": "app04",
+      "orgId": "org01",
+      "applicationType": 1,
+      "applicationStatus": "DELETED"
+    },
+    {
+      "id": "app05",
+      "name": "app05",
+      "orgId": "org01",
+      "applicationType": 1,
+      "applicationStatus": "NORMAL"
+    },
+    {
+      "id": "app06",
+      "name": "app06",
+      "orgId": "org01",
+      "applicationType": 1,
+      "applicationStatus": "NORMAL"
+    },
+    {
+      "id": "app07",
+      "name": "app07",
+      "orgId": "org01",
+      "applicationType": 1,
+      "applicationStatus": "NORMAL"
+    },
+    {
+      "id": "app08",
+      "name": "app08",
+      "orgId": "org01",
+      "applicationType": 1,
+      "applicationStatus": "NORMAL"
+    },
+    {
+      "id": "app09",
+      "name": "app09",
+      "orgId": "org01",
+      "applicationType": 1,
+      "applicationStatus": "NORMAL"
+    },
+    {
+      "id": "app10",
+      "name": "app10",
+      "orgId": "org01",
+      "applicationType": 1,
+      "applicationStatus": "NORMAL"
+    }
+  ]
+}

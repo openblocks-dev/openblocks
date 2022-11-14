@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g transform="translate(4.000000, 3.363281)">
+      <rect fill="#D7D9E0" x="12" y="2.13671875" width="18" height="6" rx="1"/>
+      <rect fill="#D7D9E0" x="0" y="32.1367188" width="30" height="6" rx="1"/>
+      <rect fill="#D7D9E0" x="0" y="12.1367188" width="40" height="6" rx="1"/>
+      <g transform="translate(0.193359, 0.000000)" fill="#8B8FA3" fill-rule="nonzero">
+        <polygon points="6.99609375 0 6.99609375 1.52929688 4.41210938 1.52929688 4.41210938 8.63671875 2.59570312 8.63671875 2.59570312 1.52929688 0 1.52929688 0 0"/>
+      </g>
+      <rect fill="#D7D9E0" x="0" y="22.1367188" width="40" height="6" rx="1"/>
+    </g>
+  </g>
+</svg>

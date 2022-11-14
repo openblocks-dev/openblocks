@@ -1,0 +1,10 @@
+{
+  "class": "com.openblocks.domain.group.model.Group",
+  "data": [
+    {
+      "id": "group01",
+      "name": "group01",
+      "organizationId": "org01"
+    }
+  ]
+}

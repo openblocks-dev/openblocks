@@ -1,0 +1,15 @@
+{
+  "class": "com.openblocks.domain.organization.model.Organization",
+  "data": [
+    {
+      "id": "org01",
+      "name": "The Avengers",
+      "state": "ACTIVE",
+      "organizationDomain": {
+        "domain": "avengers.com",
+        "authConfigs": [
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+package com.openblocks.infra.perf;
+
+public enum PerfEvent {
+    API_ERROR_CODE,
+    PLUGIN_ERROR_CODE,
+    IO_HEART_BEAT,
+    AUDIT_LOG_BATCH_INSERT,
+    SERVER_LOG_BATCH_INSERT,
+    SEND_SMS,
+    CLIENT_BASED_CONNECTION_CREATE,
+    CLIENT_BASED_CONNECTION_REMOVE,
+    CLIENT_BASED_CONNECTION_SIZE,
+
+    HIKARI_POOL_TOTAL_CONNECTIONS,
+    HIKARI_POOL_ACTIVE_CONNECTIONS,
+    HIKARI_POOL_WAITING_CONNECTIONS,
+    HIKARI_POOL_IDLE_CONNECTIONS,
+    ;
+
+    public String perfKey() {
+        return name().toLowerCase();
+    }
+}

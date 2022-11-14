@@ -1,0 +1,1 @@
+export { QueryComp } from "./queryComp";

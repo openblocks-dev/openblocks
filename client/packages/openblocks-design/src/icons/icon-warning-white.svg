@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16px" height="16px" viewBox="0 0 16 16" version="1.1">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g>
+      <circle fill="#FEECD9" cx="8" cy="8" r="8"/>
+      <g transform="translate(6.750000, 2.750000)" fill="#FA9C3F">
+        <circle cx="1.25" cy="9.25" r="1.25"/>
+        <rect x="0.25" y="0" width="2" height="6.5" rx="1"/>
+      </g>
+    </g>
+  </g>
+</svg>

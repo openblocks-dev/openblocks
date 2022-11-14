@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="12px" height="12px" viewBox="0 0 12 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect x="0" y="0" width="12" height="12"/>
+    <g transform="translate(3.000000, 3.000000) scale(1, -1) translate(-3.000000, -3.000000) translate(1.125000, 1.125000)" stroke="#8B8FA3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <line x1="3.375" y1="0.375" x2="-4.54775106e-14" y2="3.75" transform="translate(1.687500, 2.062500) scale(-1, 1) rotate(-90.000000) translate(-1.687500, -2.062500) "/>
+      <line x1="3.375" y1="0.375" x2="3.375" y2="2.625"/>
+      <line x1="3.375" y1="0.375" x2="1.125" y2="0.375"/>
+    </g>
+    <g transform="translate(9.062500, 9.062500) scale(1, -1) translate(-9.062500, -9.062500) translate(7.125000, 7.125000)" stroke="#8B8FA3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <line x1="3.875" y1="9.06219544e-15" x2="0.5" y2="3.375" transform="translate(2.187500, 1.687500) scale(-1, 1) rotate(-90.000000) translate(-2.187500, -1.687500) "/>
+      <line x1="2.75" y1="3.375" x2="0.5" y2="3.375" transform="translate(1.625000, 3.375000) rotate(0.000000) translate(-1.625000, -3.375000) "/>
+      <line x1="0.5" y1="1.125" x2="0.5" y2="3.375" transform="translate(0.500000, 2.250000) rotate(0.000000) translate(-0.500000, -2.250000) "/>
+    </g>
+  </g>
+</svg>
