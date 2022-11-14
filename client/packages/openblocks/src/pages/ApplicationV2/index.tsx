@@ -131,7 +131,7 @@ const CreateFolderIcon = styled.div`
 `;
 
 const DivStyled = styled.div`
-  @media screen and (max-width: 500px), (max-height: 500px) {
+  @media screen and (max-width: 500px) {
     .ant-layout-sider {
       visibility: hidden;
       padding: 0;

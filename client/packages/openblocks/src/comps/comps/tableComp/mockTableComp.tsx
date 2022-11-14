@@ -51,7 +51,7 @@ const tableInitValue = {
 const tableData = {
   ...tableInitValue,
   data: JSON.stringify(i18nObjs.table.defaultData, null, " "),
-  columns: i18nObjs.table.columns.map(({ key, title }) => newPrimaryColumn(key, title)),
+  columns: i18nObjs.table.columns.map((t) => newPrimaryColumn(t.key, t.title, t.isTag)),
 };
 export const MockTableComp = withDefault(TableComp, tableData);
 

@@ -26,7 +26,7 @@ import { currentOrgAdmin, currentOrgAdminOrDev } from "util/permissionUtils";
 import { trans } from "i18n";
 import { isEE } from "util/envUtils";
 import { showSwitchOrg } from "@openblocks-ee/pages/common/customerService";
-import { isSmallScreen } from "util/commonUtils";
+import { checkIsMobile } from "util/commonUtils";
 
 const ProfileWrapper = styled.div`
   display: flex;
@@ -138,7 +138,7 @@ export default function ProfileDropdown(props: DropDownProps) {
   const handleClick = (e: any) => {
     if (e.key === "profile") {
       // click the profile, while not close the dropdown
-      if (isSmallScreen) {
+      if (checkIsMobile(window.innerWidth)) {
         return;
       }
       dispatch(profileSettingModalVisible(true));
@@ -174,7 +174,7 @@ export default function ProfileDropdown(props: DropDownProps) {
           <ProfileImage source={avatarUrl} userName={username} side={48} />
           <StyledNameLabel>
             <CommonTextLabel2 title={username}>{username}</CommonTextLabel2>
-            {!isSmallScreen && <EditIcon style={{ position: "absolute", right: 0, top: 0 }} />}
+            {!checkIsMobile(window.innerWidth) && <EditIcon style={{ position: "absolute", right: 0, top: 0 }} />}
           </StyledNameLabel>
           {currentOrg && (
             <CommonGrayLabel
@@ -192,7 +192,7 @@ export default function ProfileDropdown(props: DropDownProps) {
           )}
         </ProfileWrapper>
       </Menu.Item>
-      {!isSmallScreen && currentOrgAdminOrDev(props.user) && (
+      {!checkIsMobile(window.innerWidth) && currentOrgAdminOrDev(props.user) && (
         <Menu.Item key="setting">{trans("profile.orgSettings")}</Menu.Item>
       )}
       {orgs && orgs.length > 0 && showSwitchOrg(props.user) && (
@@ -212,7 +212,7 @@ export default function ProfileDropdown(props: DropDownProps) {
               </MenuItem>
             );
           })}
-          {!isSmallScreen && (
+          {!checkIsMobile(window.innerWidth) && (
             <>
               <Menu.Divider />
               <Menu.Item key="newOrganization" icon={<AddIcon />}>
@@ -222,7 +222,7 @@ export default function ProfileDropdown(props: DropDownProps) {
           )}
         </StyledDropdownSubMenu>
       )}
-      {!isSmallScreen && isEE() && currentOrgAdmin(props.user) && (
+      {!checkIsMobile(window.innerWidth) && isEE() && currentOrgAdmin(props.user) && (
         <Menu.Item key="audit">{trans("profile.auditLogs")}</Menu.Item>
       )}
       <Menu.Item key="logout">{trans("profile.logout")}</Menu.Item>

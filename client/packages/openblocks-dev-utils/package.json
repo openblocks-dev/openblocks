@@ -2,6 +2,5 @@
   "name": "openblocks-dev-utils",
   "version": "0.0.1",
   "type": "module",
-  "description": "Openblocks dev utils for openblocks build process and openblocks-cli",
-  "license": "MIT"
+  "description": "Openblocks dev utils for openblocks build process and openblocks-cli"
 }

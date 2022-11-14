@@ -29,7 +29,7 @@ import { Layers } from "../../constants/Layers";
 import { CreateDropdown } from "./CreateDropdown";
 import { trans } from "../../i18n";
 import { isFetchingFolderElements } from "../../redux/selectors/folderSelector";
-import { isSmallScreen } from "util/commonUtils";
+import { checkIsMobile } from "util/commonUtils";
 
 const Wrapper = styled.div`
   display: flex;
@@ -45,6 +45,9 @@ const HeaderWrapper = styled.div`
   padding: 0 36px;
   align-items: center;
   flex-shrink: 0;
+  @media screen and (max-width: 500px) {
+    padding: 0 24px;
+  }
 `;
 
 const OperationWrapper = styled.div`
@@ -55,6 +58,9 @@ const OperationWrapper = styled.div`
   height: 32px;
   padding: 0 36px;
   margin: 8px 0 0;
+  @media screen and (max-width: 500px) {
+    padding: 0 24px;
+  }
 `;
 
 const ContentWrapper = styled.div`
@@ -79,7 +85,7 @@ const OperationRightWrapper = styled.div`
   align-items: center;
   flex-shrink: 0;
   margin-left: auto;
-  @media screen and (max-width: 500px), (max-height: 500px) {
+  @media screen and (max-width: 500px) {
     > Button {
       display: none;
     }
@@ -157,7 +163,7 @@ const SkeletonStyle = styled(Skeleton)`
       margin-right: 120px;
     }
   }
-  @media screen and (max-width: 500px), (max-height: 500px) {
+  @media screen and (max-width: 500px) {
     .ant-skeleton-content .ant-skeleton-paragraph > li {
       max-width: calc(100vw - 72px);
       min-width: calc(100vw - 72px);
@@ -174,7 +180,7 @@ const EmptyView = styled.div`
   align-items: center;
   flex-grow: 1;
   padding-top: 120px;
-  @media screen and (max-width: 500px), (max-height: 500px) {
+  @media screen and (max-width: 500px) {
     > div,
     > button {
       display: none;
@@ -199,7 +205,7 @@ const LayoutSwitcher = styled.div`
     background-color: #f5f5f6;
   }
 
-  @media screen and (max-width: 500px), (max-height: 500px) {
+  @media screen and (max-width: 500px) {
     display: none;
   }
 `;
@@ -243,7 +249,7 @@ export function HomeLayout(props: HomeLayoutProps) {
   const [filterBy, setFilterBy] = useState<HomeResKey>("All");
   const [searchValue, setSearchValue] = useState("");
   const [layout, setLayout] = useState<HomeLayoutType>(
-    isSmallScreen ? "card" : getHomeLayout()
+    checkIsMobile(window.innerWidth) ? "card" : getHomeLayout()
   );
 
   useEffect(() => saveHomeLayout(layout), [layout]);

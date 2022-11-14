@@ -31,6 +31,5 @@
     "lib/index.js",
     "lib/index.d.ts"
   ],
-  "author": "ioc",
-  "license": "MIT"
+  "author": "ioc"
 }

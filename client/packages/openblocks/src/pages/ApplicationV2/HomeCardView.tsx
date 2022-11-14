@@ -11,8 +11,9 @@ const ApplicationCardsWrapper = styled.div`
   grid-column-gap: 112px;
   margin: 48px 26px 80px;
   overflow: hidden;
-  @media screen and (max-width: 500px), (max-height: 500px) {
+  @media screen and (max-width: 500px) {
     display: block;
+    margin: 48px 18px 80px;
   }
 `;
 

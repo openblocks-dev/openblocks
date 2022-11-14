@@ -46,7 +46,7 @@ export const enObj: I18nObjects = {
       { key: "id", title: "ID" },
       { key: "name", title: "Name" },
       { key: "date", title: "Date" },
-      { key: "department", title: "Department" },
+      { key: "department", title: "Department", isTag: true },
     ],
     defaultData: [
       {

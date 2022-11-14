@@ -133,12 +133,13 @@ export function newCustomColumn(): ConstructorToDataType<typeof ColumnComp> {
  */
 export function newPrimaryColumn(
   key: string,
-  title?: string
+  title?: string,
+  isTag?: boolean
 ): ConstructorToDataType<typeof ColumnComp> {
   return {
     title: title ?? key,
     dataIndex: key,
     isCustom: false,
-    render: { compType: "text", comp: { text: "{{currentCell}}" } },
+    render: { compType: isTag ? "tag" : "text", comp: { text: "{{currentCell}}" } },
   };
 }

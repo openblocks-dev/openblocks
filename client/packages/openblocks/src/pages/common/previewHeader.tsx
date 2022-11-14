@@ -85,7 +85,7 @@ const EditBtn = styled(TacoButton)`
 
 const Wrapper = styled.div`
   display: inherit;
-  @media screen and (max-width: 500px), (max-height: 500px) {
+  @media screen and (max-width: 500px) {
     > div:nth-of-type(1),
     > button {
       display: none;

@@ -16,7 +16,7 @@ import {
 } from "../../util/homeResUtils";
 import { HomeResOptions } from "./HomeResOptions";
 import { trans } from "../../i18n";
-import { isSmallScreen } from "util/commonUtils";
+import { checkIsMobile } from "util/commonUtils";
 import history from "util/history";
 import { APPLICATION_VIEW_URL } from "constants/routesURL";
 
@@ -25,7 +25,7 @@ const EditButton = styled(TacoButton)`
   height: 24px;
   padding: 5px 12px;
   margin-right: 12px;
-  @media screen and (max-width: 500px), (max-height: 500px) {
+  @media screen and (max-width: 500px) {
     display: none;
   }
 `;
@@ -46,7 +46,7 @@ const ExecButton = styled(TacoButton)`
     border: 1px solid #c2d6ff;
     color: #315efb;
   }
-  @media screen and (max-width: 500px), (max-height: 500px) {
+  @media screen and (max-width: 500px) {
     margin-right: 0;
     display: none;
   }
@@ -81,10 +81,11 @@ const Card = styled.div`
       opacity: 1;
     }
   }
-  @media screen and (max-width: 500px), (max-height: 500px) {
+  @media screen and (max-width: 500px) {
     button {
       opacity: 1;
     }
+    padding: 0;
   }
 `;
 
@@ -160,7 +161,7 @@ const AppTimeOwnerInfoLabel = styled.div`
 const OperationWrapper = styled.div`
   display: flex;
   align-items: center;
-  @media screen and (max-width: 500px), (max-height: 500px) {
+  @media screen and (max-width: 500px) {
     > svg {
       display: none;
     }
@@ -189,16 +190,16 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
         )}
         <CardInfo
           onClick={(e) => {
-            if (isSmallScreen) {
-              history.push(APPLICATION_VIEW_URL(res.id, "view"));
-              return;
-            }
             if (appNameEditing) {
               return;
             }
             if (res.type === HomeResTypeEnum.Folder) {
               handleFolderViewClick(res.id);
             } else {
+              if (checkIsMobile(window.innerWidth)) {
+                history.push(APPLICATION_VIEW_URL(res.id, "view"));
+                return;
+              }
               res.isEditable ? handleAppEditClick(e, res.id) : handleAppViewClick(res.id);
             }
           }}

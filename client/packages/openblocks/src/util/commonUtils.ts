@@ -66,6 +66,3 @@ export async function loadScript(src: string) {
 export function checkIsMobile(width?: number) {
   return !_.isNil(width) && width <= 500;
 }
-
-// landscape orientation and portrait
-export const isSmallScreen = window.innerWidth < 500 || window.innerHeight < 500;

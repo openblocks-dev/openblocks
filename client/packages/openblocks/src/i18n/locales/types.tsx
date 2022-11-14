@@ -7,7 +7,7 @@ export type I18nObjects = {
     defaultFormData: JSONObject;
   };
   table: {
-    columns: { key: string; title: string }[];
+    columns: { key: string; title: string; isTag?: boolean }[];
     defaultData: JSONObject[];
   };
   editorTutorials: {
