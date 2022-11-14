@@ -8,7 +8,7 @@
 </p>
 </div>
 
-<img src="https://3434528005-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FpL1Hcv4CAzkEXttydyWt%2Fuploads%2FrNzTjsVNjZzTutAYC7Md%2Fimg_v2_34465665-d081-43bd-9513-24b05755198g.gif?alt=media&token=a850499f-e6f4-4ef2-97db-8f08eaf66477"/>
+<img src="/docs/.gitbook/assets/Bu2fpz1h01.gif"/>
 
 ## 📢 Use Openblocks in 3 steps
 1. Connect to any data sources or APIs.
