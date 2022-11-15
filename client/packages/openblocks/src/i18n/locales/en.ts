@@ -375,7 +375,7 @@ export const en = {
     timeout: "Timeout after",
     timeoutTooltip:
       "The default unit is ms. The maximum value is {maxSeconds} seconds. The default value is {defaultSeconds} seconds. The unit is ms and s.",
-    periodic: "Perform this query periodically",
+    periodic: "Run this query periodically",
     periodicTime: "Period",
     periodicTimeTooltip:
       "Period between successive executions. Default unit: milliseconds (ms), default: {defaultSeconds} seconds, supported input unit: ms(ms), s(second)",
