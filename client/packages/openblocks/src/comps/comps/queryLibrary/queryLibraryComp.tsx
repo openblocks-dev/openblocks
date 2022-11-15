@@ -135,7 +135,6 @@ const PropertyView = (props: {
                       ),
                     confirmBtnType: "delete",
                     okText: trans("delete"),
-                    autoFocusButton: "ok",
                   })
                 }
               >

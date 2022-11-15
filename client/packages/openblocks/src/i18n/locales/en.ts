@@ -1539,6 +1539,8 @@ export const en = {
     setPassword: "Set password",
     alreadySetPassword: "Already set pass",
     setPassPlaceholder: "You can login with password",
+    setPassAfterBind: "You can set password After Account bind",
+    socialConnections: "Social Connections",
   },
   shortcut: {
     shortcutList: "Keyboard shortcuts",

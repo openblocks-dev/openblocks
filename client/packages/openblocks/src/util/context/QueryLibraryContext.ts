@@ -1,7 +1,4 @@
-import {
-  QueryLibraryComp,
-  QueryLibraryCompType,
-} from "../../comps/comps/queryLibrary/queryLibraryComp";
+import { QueryLibraryCompType } from "../../comps/comps/queryLibrary/queryLibraryComp";
 import { NameGenerator } from "../../comps/utils";
 import { checkName } from "../../comps/utils/rename";
 import React from "react";

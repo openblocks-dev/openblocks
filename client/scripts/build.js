@@ -61,8 +61,6 @@ buildVars.forEach(({ name, defaultValue }) => {
   shell.env[name] = shell.env[name] ?? defaultValue;
 });
 
-console.log(shell.env);
-
 console.log();
 console.log(chalk.cyan`clear module build dir...`);
 shell.rm("-rf", `${moduleBuildDir}/*`);

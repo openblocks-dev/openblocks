@@ -9,7 +9,7 @@ import {
   ValueAndMsg,
 } from "openblocks-core";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
-import { DeleteInputIcon } from "openblocks-design";
+import { DeleteInputIcon, useIconViewByPath, useIconViewByValue } from "openblocks-design";
 import styled from "styled-components";
 import { ReactNode, useCallback, useState } from "react";
 import { BlockGrayLabel, TacoButton } from "openblocks-design";
@@ -20,8 +20,6 @@ import { ControlPropertyViewWrapper } from "openblocks-design";
 import {
   getDescription,
   getIconPath,
-  getIconViewByPath,
-  getIconViewByValue,
   iconPrefix,
   IconSelect,
   IconSelectBase,
@@ -70,7 +68,7 @@ const IconPicker = (props: {
   label?: ReactNode;
 }) => {
   const path = getIconPath(props.value);
-  const icon = getIconViewByPath(path);
+  const icon = useIconViewByPath(path);
   const description = getDescription(path);
   return (
     <IconSelect
@@ -111,6 +109,11 @@ function onClickIcon(e: React.MouseEvent, v: EditorView) {
   }
 }
 
+function IconSpan(props: { value: string }) {
+  const view = useIconViewByValue(props.value);
+  return <span>{view ?? props.value}</span>;
+}
+
 function cardRichContent(s: string) {
   let result = s.match(iconRegexp);
   if (result) {
@@ -120,7 +123,7 @@ function cardRichContent(s: string) {
       const i = s.indexOf(iconStr, pos);
       if (i >= 0) {
         nodes.push(s.slice(pos, i));
-        nodes.push(<span key={i}>{getIconViewByValue(iconStr) ?? iconStr}</span>);
+        nodes.push(<IconSpan key={i} value={iconStr} />);
         pos = i + iconStr.length;
       }
     }
@@ -145,6 +148,7 @@ function IconCodeEditor(props: {
     (v: EditorView) => (
       <IconSelectBase
         onChange={(value) => {
+          console.info(value);
           const r: Range = range ?? v.state.selection.ranges[0] ?? { from: 0, to: 0 };
           const insert = '"' + value + '"';
           setRange({ ...r, to: r.from + insert.length });
@@ -197,6 +201,15 @@ type ChangeModeAction = {
   useCodeEditor: boolean;
 };
 
+function IconControlView(props: { value: string }) {
+  const { value } = props;
+  const view = useIconViewByValue(value);
+  if (view) {
+    return <>{view}</>;
+  }
+  return <StyledImage src={value} alt="" />;
+}
+
 export class IconControl extends AbstractComp<ReactNode, string, Node<ValueAndMsg<string>>> {
   private readonly useCodeEditor: boolean;
   private readonly codeControl: InstanceType<typeof StringControl>;
@@ -209,11 +222,7 @@ export class IconControl extends AbstractComp<ReactNode, string, Node<ValueAndMs
 
   override getView(): ReactNode {
     const value = this.codeControl.getView();
-    const view = getIconViewByValue(value);
-    if (view) {
-      return view;
-    }
-    return <StyledImage src={value} alt="" />;
+    return <IconControlView value={value} />;
   }
 
   override getPropertyView(): ReactNode {

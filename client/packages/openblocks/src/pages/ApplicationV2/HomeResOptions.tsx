@@ -81,7 +81,6 @@ export const HomeResOptions = (props: {
                 }),
               confirmBtnType: "delete",
               okText: trans("delete"),
-              autoFocusButton: "ok",
             });
           },
         },
@@ -116,7 +115,6 @@ export const HomeResOptions = (props: {
                 }),
               confirmBtnType: "delete",
               okText: trans("delete"),
-              autoFocusButton: "ok",
             });
           },
         },

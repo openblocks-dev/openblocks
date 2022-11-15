@@ -4,6 +4,7 @@ import react from "@vitejs/plugin-react";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 import svgrPlugin from "vite-plugin-svgr";
 import checker from "vite-plugin-checker";
+import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
 import chalk from "chalk";
 import { ViteMinifyPlugin as minifyHtml } from "vite-plugin-minify";
@@ -18,6 +19,7 @@ const nodeEnv = process.env.NODE_ENV ?? "development";
 const edition = process.env.REACT_APP_EDITION;
 const isEE = edition === "enterprise";
 const isDev = nodeEnv === "development";
+const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 
 if (!apiProxyTarget && isDev) {
   console.log();
@@ -112,7 +114,15 @@ export const viteConfig: UserConfig = {
     },
   },
   plugins: [
-    checker({ typescript: true }),
+    checker({
+      typescript: true,
+      eslint: {
+        lintCommand: 'eslint --quiet "./src/**/*.{ts,tsx}"',
+        dev: {
+          logLevel: ["error"],
+        },
+      },
+    }),
     react({
       babel: {
         parserOpts: {
@@ -139,7 +149,8 @@ export const viteConfig: UserConfig = {
     }),
     openBlocksGlobalsPlugin(),
     minifyHtml(),
-  ],
+    isVisualizerEnabled && visualizer(),
+  ].filter(Boolean),
 };
 
 export default defineConfig(viteConfig);

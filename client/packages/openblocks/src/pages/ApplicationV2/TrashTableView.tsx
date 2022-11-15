@@ -155,7 +155,6 @@ export const TrashTableView = (props: { resources: HomeRes[] }) => {
                         }),
                       confirmBtnType: "delete",
                       okText: trans("delete"),
-                      autoFocusButton: "ok",
                     })
                   }
                   style={{ marginLeft: "12px", width: "76px" }}

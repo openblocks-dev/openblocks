@@ -220,7 +220,6 @@ export const LeftNav = (props: {
                                   dispatch(deleteQueryLibrary({ queryLibraryId: q.id })),
                                 confirmBtnType: "delete",
                                 okText: trans("delete"),
-                                autoFocusButton: "ok",
                               })
                             }
                           >

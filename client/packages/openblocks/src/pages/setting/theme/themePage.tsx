@@ -1,7 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
 import { AppState } from "redux/reducers";
-import FreeLimitTag from "pages/common/freeLimitTag";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import {
   CommonSettingResponseData,
@@ -10,7 +9,7 @@ import {
 } from "api/commonSettingApi";
 import { message } from "antd";
 import ThemeList from "./themeList";
-import { DETAIL_TYPE, MENU_TYPE, themeTemplateList } from "./themeConstant";
+import { DETAIL_TYPE, MENU_TYPE } from "./themeConstant";
 import CreateModal from "./createModal";
 import history from "util/history";
 import { THEME_DETAIL } from "constants/routesURL";

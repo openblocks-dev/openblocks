@@ -1,7 +1,6 @@
 import { Button, Divider, Table } from "antd";
 import { ThemeDetail } from "api/commonSettingApi";
 import { ScrollBar } from "openblocks-design";
-import { backgroundToBorder, defaultTheme } from "comps/controls/styleControlConstants";
 import { CustomModal, TacoButton, TacoInput } from "openblocks-design";
 import { darkenColor, isDarkColor } from "openblocks-design";
 import styled, { css } from "styled-components";

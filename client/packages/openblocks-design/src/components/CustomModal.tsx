@@ -178,7 +178,8 @@ const DEFAULT_PROPS = {
   showOkButton: true,
   showCancelButton: true,
   showBackLink: false,
-};
+  autoFocusButton: 'ok',
+} as const;
 
 function CustomModalRender(props: CustomModalProps & ModalFuncProps) {
   return (
@@ -229,7 +230,6 @@ CustomModal.confirm = (props: {
   okText?: string;
   style?: React.CSSProperties;
   bodyStyle?: React.CSSProperties;
-  autoFocusButton?: null | "ok" | "cancel";
 }): any => {
   const defaultConfirmProps: ModalFuncProps = {
     ...DEFAULT_PROPS,
@@ -243,7 +243,6 @@ CustomModal.confirm = (props: {
       minHeight: "72px",
       marginTop: "24px",
     },
-    autoFocusButton: props.autoFocusButton,
   };
   // create model
   const model = AntdModal.confirm({

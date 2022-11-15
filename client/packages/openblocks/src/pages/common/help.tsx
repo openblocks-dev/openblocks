@@ -168,9 +168,6 @@ const changeLogDocUrl = trans("docUrls.changeLog");
 const introVideoUrl = trans("docUrls.introVideo");
 
 export function HelpDropdown(props: HelpDropdownProps) {
-  if (!showHelpDropdown(props.isEdit || false)) {
-    return null;
-  }
   const [showHelp, setShowHelp] = useState(true);
   const [version, setVersion] = useState("");
   const dispatch = useDispatch();
@@ -358,7 +355,7 @@ export function HelpDropdown(props: HelpDropdownProps) {
     />
   );
 
-  if (!showHelp) {
+  if (!showHelp || !showHelpDropdown(props.isEdit || false)) {
     return null;
   }
 

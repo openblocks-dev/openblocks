@@ -177,7 +177,6 @@ export class GridCompOperator {
         onConfirm: deleteFunc,
         confirmBtnType: "delete",
         okText: trans("delete"),
-        autoFocusButton: "ok",
       });
     } else {
       deleteFunc();

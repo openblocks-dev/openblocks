@@ -21,9 +21,9 @@ import {
   perfClear,
   perfMark,
 } from "util/perfUtils";
-import { useMount } from "react-use";
+import { useMount, useUnmount } from "react-use";
 import { fetchQueryLibraryDropdown } from "../../redux/reduxActions/queryLibraryActions";
-import { setGlobalSettings } from "comps/utils/globalSettings";
+import { clearGlobalSettings, setGlobalSettings } from "comps/utils/globalSettings";
 
 export default function AppEditor() {
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
@@ -48,6 +48,10 @@ export default function AppEditor() {
 
   useMount(() => {
     perfMark(MarkAppEditorMounted);
+  });
+
+  useUnmount(() => {
+    clearGlobalSettings();
   });
 
   // fetch dsl

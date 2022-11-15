@@ -1,12 +1,11 @@
-import { far } from "@fortawesome/free-regular-svg-icons";
-import { fas } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { IconDefinition } from "@fortawesome/free-regular-svg-icons";
 import { Popover } from "antd";
 import { TacoInput } from "components/tacoInput";
 import { Tooltip } from "components/toolTip";
 import { trans } from "i18n/design";
 import _ from "lodash";
-import { ReactNode, useCallback, useMemo, useRef, useState } from "react";
+import { ReactNode, useEffect, useCallback, useMemo, useRef, useState } from "react";
 import Draggable from "react-draggable";
 import { List, ListRowProps } from "react-virtualized";
 import styled from "styled-components";
@@ -109,17 +108,27 @@ const IconItemContainer = styled.div`
   }
 `;
 
-const allIcons = Object.fromEntries(
-  Object.entries({ solid: fas, regular: far }).flatMap(([type, pack]) =>
-    Object.entries(pack).map(([k, v]) => [type + "/" + (k.startsWith("fa") ? k.slice(2) : k), v])
-  )
-);
+async function getAllIcons() {
+  const [{ far }, { fas }] = await Promise.all([
+    import("@fortawesome/free-regular-svg-icons"),
+    import("@fortawesome/free-solid-svg-icons"),
+  ]);
+
+  return Object.fromEntries(
+    Object.entries({ solid: fas, regular: far }).flatMap(([type, pack]) =>
+      Object.entries(pack).map(([k, v]) => [type + "/" + (k.startsWith("fa") ? k.slice(2) : k), v])
+    )
+  );
+}
 
 function getName(path: string) {
   return path.slice(path.lastIndexOf("/") + 1);
 }
 
-const allPaths = Object.values(_.groupBy(Object.keys(allIcons), getName)).flatMap((v) => v);
+async function getAllPaths() {
+  const allIcons = await getAllIcons();
+  return Object.values(_.groupBy(Object.keys(allIcons), getName)).flatMap((v) => v);
+}
 
 export const iconPrefix = "/icon:";
 
@@ -132,7 +141,7 @@ export function getIconPath(value?: string) {
   return v.startsWith(iconPrefix) ? v.slice(iconPrefix.length) : "";
 }
 
-export function getIconViewByPath(path: string) {
+function getIconViewByPath(allIcons: Record<string, IconDefinition>, path: string) {
   if (!path) {
     return;
   }
@@ -142,8 +151,27 @@ export function getIconViewByPath(path: string) {
   }
 }
 
-export function getIconViewByValue(value?: string) {
-  return getIconViewByPath(getIconPath(value));
+export function useIconViewByPath(path: string) {
+  const [view, setView] = useState<ReactNode>(null);
+  useEffect(() => {
+    getAllIcons().then((icons) => {
+      setView(getIconViewByPath(icons, path));
+    });
+  }, [path]);
+  return view;
+}
+
+async function getIconViewByValue(value?: string) {
+  const icons = await getAllIcons();
+  return getIconViewByPath(icons, getIconPath(value));
+}
+
+export function useIconViewByValue(value?: string) {
+  const [view, setView] = useState<ReactNode>(null);
+  useEffect(() => {
+    getIconViewByValue(value).then((v) => setView(v));
+  }, [value]);
+  return view;
 }
 
 export function getDescription(path: string) {
@@ -154,7 +182,7 @@ export function getDescription(path: string) {
     .trim();
 }
 
-function search(searchText: string, searchKeywords?: Record<string, string>) {
+function search(allPaths: string[], searchText: string, searchKeywords?: Record<string, string>) {
   const tokens = searchText
     .toLowerCase()
     .split(/\s+/g)
@@ -173,11 +201,22 @@ const IconPopup = (props: {
   searchKeywords?: Record<string, string>;
 }) => {
   const [searchText, setSearchText] = useState("");
-  const searchResults = useMemo(() => search(searchText, props.searchKeywords), [searchText]);
+  const [allPaths, setAllPaths] = useState<string[]>([]);
+  const [allIcons, setAllIcons] = useState<Record<string, IconDefinition>>({});
+  const searchResults = useMemo(
+    () => search(allPaths, searchText, props.searchKeywords),
+    [searchText, allPaths]
+  );
   const onChangeRef = useRef(props.onChange);
   onChangeRef.current = props.onChange;
   const onChangeIcon = useCallback((path: string) => onChangeRef.current(iconPrefix + path), []);
   const columnNum = 8;
+
+  useEffect(() => {
+    getAllPaths().then(setAllPaths);
+    getAllIcons().then(setAllIcons);
+  }, []);
+
   const rowRenderer = useCallback(
     (p: ListRowProps) => (
       <IconRow key={p.key} style={p.style}>
@@ -189,14 +228,20 @@ const IconPopup = (props: {
             align={{ offset: [0, -7, 0, 0] }}
             destroyTooltipOnHide
           >
-            <IconItemContainer tabIndex={0} onClick={() => onChangeIcon(path)}>
-              {getIconViewByPath(path)}
+            <IconItemContainer
+              tabIndex={0}
+              onClick={() => {
+                console.info(path);
+                onChangeIcon(path);
+              }}
+            >
+              {getIconViewByPath(allIcons, path)}
             </IconItemContainer>
           </Tooltip>
         ))}
       </IconRow>
     ),
-    [searchResults, onChangeIcon]
+    [searchResults, allIcons, onChangeIcon]
   );
   return (
     <Draggable handle=".dragHandle">

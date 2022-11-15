@@ -7,7 +7,7 @@ import {
   ViewUpdate,
   WidgetType,
 } from "@codemirror/view";
-import { getIconViewByValue } from "openblocks-design";
+import { useIconViewByValue } from "openblocks-design";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 
@@ -31,6 +31,11 @@ const IconContainer = styled.div`
 
 export const iconWidgetClass = "cm-icon-widget-cls";
 
+function IconElement(props: { value: string }) {
+  const view = useIconViewByValue(props.value);
+  return <IconContainer className={iconWidgetClass}>{view}</IconContainer>;
+}
+
 class IconWidget extends WidgetType {
   constructor(readonly value: string) {
     super();
@@ -42,10 +47,7 @@ class IconWidget extends WidgetType {
 
   toDOM() {
     let wrap = document.createElement("span");
-    ReactDOM.render(
-      <IconContainer className={iconWidgetClass}>{getIconViewByValue(this.value)}</IconContainer>,
-      wrap
-    );
+    ReactDOM.render(<IconElement value={this.value} />, wrap);
     return wrap;
   }
 
