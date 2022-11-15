@@ -13,7 +13,7 @@
 ## 📢 Use Openblocks in 3 steps
 1. Connect to any data sources or APIs.
 2. Build UI with 50+ components.
-3. Share with collegues and customers.
+3. Share with colleagues and customers.
 ## 💡 Why Openblocks
 It's cumbersome to create a single app. You had to design user interfaces, write code in multiple languages and frameworks, and understand how all of that code works together.
 
