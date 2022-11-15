@@ -232,6 +232,15 @@ const Wrapper = styled.div`
   }
 `;
 
+const Prefix = styled.div`
+  display: inline-flex;
+  align-items: center;
+  margin-right: 4px;
+  &.module svg {
+    visibility: visible;
+  }
+`;
+
 function HeaderProfile(props: { user: User }) {
   const { user } = props;
   const fetchingUser = useSelector(isFetchingUser);
@@ -326,7 +335,15 @@ export default function Header(props: HeaderProps) {
             />
           }
         >
-          <EditTextWrapper style={{ width: "fit-content", maxWidth: "288px" }}>
+          <EditTextWrapper
+            style={{ width: "fit-content", maxWidth: "288px" }}
+            disabled={showAppSnapshot}
+          >
+            {isModule && (
+              <Prefix className="module">
+                <ModuleIcon />
+              </Prefix>
+            )}
             <TextWrapper className={"taco-edit-text-body"}>{application?.name ?? ""}</TextWrapper>
             <PackUpIconStyled style={{ visibility: showAppSnapshot ? "hidden" : "visible" }} />
           </EditTextWrapper>

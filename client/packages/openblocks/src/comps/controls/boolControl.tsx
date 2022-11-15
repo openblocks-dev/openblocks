@@ -24,7 +24,7 @@ export class BoolPureControl extends SimpleComp<boolean> {
 
   propertyView(params: ControlParams & { type?: "switch" | "checkbox" }): ReactNode {
     return (
-      <SwitchWrapper {...params} type="inline">
+      <SwitchWrapper {...params}>
         {params.type === "checkbox" ? (
           <CheckBox
             style={{ marginRight: "8px" }}
@@ -86,19 +86,20 @@ class BoolControl extends AbstractComp<boolean, DataType, Node<ValueAndMsg<boole
         onChange={() => {
           this.dispatch(this.changeModeAction());
         }}
-      >
-        {this.useCodeEditor && this.codeControl.codeEditor(params)}
-      </SwitchJsIcon>
+      />
     );
     return (
-      <SwitchWrapper label={params.label} tooltip={params.tooltip} lastNode={jsContent}>
-        {!this.useCodeEditor && (
-          <Switch
-            value={this.getView()}
-            onChange={(x) => this.dispatchChangeValueAction(x)}
-          ></Switch>
-        )}
-      </SwitchWrapper>
+      <>
+        <SwitchWrapper label={params.label} tooltip={params.tooltip} lastNode={jsContent}>
+          {!this.useCodeEditor && (
+            <Switch
+              value={this.getView()}
+              onChange={(x) => this.dispatchChangeValueAction(x)}
+            ></Switch>
+          )}
+        </SwitchWrapper>
+        {this.useCodeEditor && this.codeControl.codeEditor(params)}
+      </>
     );
   }
 

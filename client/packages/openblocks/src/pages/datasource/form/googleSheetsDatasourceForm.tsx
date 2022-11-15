@@ -5,6 +5,9 @@ import { DatasourceNameFormInputItem, GeneralSettingFormSectionLabel } from "../
 import { trans } from "i18n";
 import { DatasourceForm, FormInputPasswordItem, FormSection } from "openblocks-design";
 
+/**
+ * todo check service account
+ */
 export const GoogleSheetsDatasourceForm = (props: DatasourceFormProps) => {
   const { form, datasource } = props;
   const datasourceConfig = datasource?.datasourceConfig as GoogleSheetsConfig;

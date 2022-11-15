@@ -11,11 +11,10 @@ interface Ishow {
   show?: string;
 }
 
-export const SwitchStyle: any = styled.input`
+const SwitchStyle: any = styled.input`
   display: inline-block;
   width: 24px;
   height: 14px;
-  position: relative;
   background-color: #dedede;
   border-radius: 7px;
   background-clip: content-box;
@@ -24,7 +23,6 @@ export const SwitchStyle: any = styled.input`
   caret-color: transparent;
   user-select: none;
   outline: none;
-  top: 50%;
   transform: translateY(18%);
   transition: all 0.4s ease;
 
@@ -56,103 +54,30 @@ export const SwitchStyle: any = styled.input`
 `;
 
 const SwitchDiv = styled.div<{
-  type?: "inline" | "updown" | "inline-code";
   placement?: ControlPlacement;
 }>`
+  display: flex;
+  align-items: center;
   ${(props) => {
-    switch (props.type) {
-      case "inline-code":
-        return css`
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: space-between;
-        `;
-      case "inline":
-        return css`
-          display: flex;
-          align-items: center;
-          ${() => {
-            if (props.placement === "bottom") {
-              return css`
-                margin-left: 112px;
-              `;
-            }
-          }}
-        `;
-      case "updown":
-        return css`
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          margin-top: 4px;
-
-          &:first-child {
-            margin: 0;
-          }
-        `;
-      default:
-        return css``;
+    if (props.placement === "bottom") {
+      return css`
+        margin-left: 112px;
+      `;
     }
   }}
 `;
 
-interface ILabel {
-  border?: boolean;
-  type?: "inline" | "updown" | "inline-code";
-}
+const LabelDiv = styled.div`
+  flex: 1;
+`;
+const SwitchLastNode = styled.div`
+  display: flex;
+  align-items: center;
+`;
 
-const LabelDiv = styled.div<ILabel>`
-  ${(props) => {
-    switch (props.type) {
-      case "inline":
-        return css`
-          display: inline-block;
-        `;
-      case "inline-code":
-        return `
-            flex: 0 0 96px;
-          `;
-      case "updown":
-        return css`
-          display: block;
-        `;
-      default:
-        return css`
-          width: fit-content;
-          display: inline-block;
-        `;
-    }
-  }}
-`;
-const SwitchLastNode = styled.div<{
-  type?: "inline" | "updown" | "inline-code";
-}>`
-  ${(props) => {
-    switch (props.type) {
-      case "inline":
-        return css`
-          display: inline;
-        `;
-      case "inline-code":
-        return `
-            flex:1 1 auto;
-          `;
-      case "updown":
-        return css`
-          display: inline;
-        `;
-      default:
-        return css`
-          display: inline;
-        `;
-    }
-  }}
-`;
 const IconCss = css`
   height: 20px;
   width: 20px;
-  float: right;
   margin-top: 1px;
 
   :hover {
@@ -186,27 +111,18 @@ export const Switch = (props: SwitchProps) => {
       type="checkbox"
       checked={props.value}
       onClick={() => props.onChange(!props.value)}
-      onChange={() => {}} // remove warning
+      onChange={() => {}}
       {...inputChanges}
-    ></SwitchStyle>
+    />
   );
 };
 
-export const SwitchJsIcon = (props: {
-  checked: boolean;
-  onChange: (value: boolean) => void;
-  children: JSX.Element | React.ReactNode;
-}) => {
+export const SwitchJsIcon = (props: { checked: boolean; onChange: (value: boolean) => void }) => {
   const toggleShow = () => {
     props.onChange(!props.checked);
   };
   const Icon = props.checked ? JsIcon : JsIconGray;
-  return (
-    <>
-      <Icon onClick={toggleShow} />
-      {props.checked && props.children}
-    </>
-  );
+  return <Icon onClick={toggleShow} />;
 };
 
 export const SwitchWrapper = (props: {
@@ -214,22 +130,21 @@ export const SwitchWrapper = (props: {
   tooltip?: ReactNode;
   children?: JSX.Element | React.ReactNode;
   lastNode?: JSX.Element | React.ReactNode; // the latter node
-  type?: "inline" | "updown" | "inline-code";
   placement?: ControlPlacement;
 }) => {
   const tooltip = props.tooltip;
   const label = props.label;
   return (
-    <SwitchDiv type={props.type} placement={props.placement}>
+    <SwitchDiv placement={props.placement}>
       {props.children}
       {label ? (
-        <LabelDiv type={props.type}>
+        <LabelDiv>
           <ToolTipLabel title={tooltip} label={label} />
         </LabelDiv>
       ) : (
         <></>
       )}
-      <SwitchLastNode type={props.type}>{props.lastNode}</SwitchLastNode>
+      <SwitchLastNode>{props.lastNode}</SwitchLastNode>
     </SwitchDiv>
   );
 };

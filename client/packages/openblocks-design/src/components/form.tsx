@@ -2,7 +2,7 @@ import { Form, Input, InputProps, Radio, Select } from "antd";
 import { ReactNode } from "react";
 import { CheckBox } from "./checkBox";
 import { CustomSelect } from "./customSelect";
-import { labelCss } from "./Label";
+import { EllipsisTextCss, labelCss } from "./Label";
 import { ToolTipLabel } from "./toolTip";
 import styled from "styled-components";
 import { ReactComponent as Star } from "icons/icon-star.svg";
@@ -11,7 +11,6 @@ import _ from "lodash";
 import { KeyValueList } from "./keyValueList";
 import { DropdownIcon, OptionsType, ValueFromOption } from "./Dropdown";
 import { RadioGroupProps } from "antd/lib/radio/interface";
-import { EllipsisTextCss } from "./Label";
 
 export type FormSize = "middle" | "small";
 
@@ -60,7 +59,7 @@ const StartIcon = styled(Star)`
 const LabelDiv = styled.div<{ width?: number }>`
   display: flex;
   justify-content: flex-start;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   margin-right: 8px;
   width: ${(props) => props.width || 122}px;

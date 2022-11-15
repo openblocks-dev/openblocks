@@ -20,7 +20,7 @@ export const DetailContainer = styled(ThemeContent)`
 export const Title = styled.div`
   font-size: 18px;
   margin: 0 12px 21px 12px;
-  font-family: PingFangSC-Medium;
+  font-weight: 500;
   color: #222;
   line-height: 1;
   display: flex;

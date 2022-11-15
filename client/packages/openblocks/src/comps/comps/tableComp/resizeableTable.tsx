@@ -1,17 +1,27 @@
 import { Table } from "antd";
 import { ColumnType, TableProps } from "antd/es/table";
-import { defaultTheme, TableStyleType } from "comps/controls/styleControlConstants";
+import {
+  defaultTheme,
+  handleToHoverRow,
+  handleToSelectedRow,
+  TableStyleType,
+} from "comps/controls/styleControlConstants";
 import { darkenColor } from "openblocks-design";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Resizable } from "react-resizable";
 import styled, { css } from "styled-components";
 import { useUserViewMode } from "util/hooks";
+import { RowColorViewType } from "comps/comps/tableComp/tableTypes";
+
+function genLinerGradient(color: string) {
+  return `linear-gradient(${color}, ${color})`;
+}
 
 const getStyle = (style: TableStyleType) => {
-  const background = `linear-gradient(${style.background}, ${style.background})`;
-  const selectedRowBackground = `linear-gradient(${style.selectedRowBackground}, ${style.selectedRowBackground})`;
-  const hoverRowBackground = `linear-gradient(${style.hoverRowBackground}, ${style.hoverRowBackground})`;
-  const alternateBackground = `linear-gradient(${style.alternateBackground}, ${style.alternateBackground})`;
+  const background = genLinerGradient(style.background);
+  const selectedRowBackground = genLinerGradient(style.selectedRowBackground);
+  const hoverRowBackground = genLinerGradient(style.hoverRowBackground);
+  const alternateBackground = genLinerGradient(style.alternateBackground);
   return css`
     border-color: ${style.border};
     border-radius: ${style.radius};
@@ -107,7 +117,20 @@ const TableTh = styled.th<{ width?: number }>`
   word-break: keep-all;
   ${(props) => props.width && `width: ${props.width}px`};
 `;
+
+const TableTd = styled.td<{ background: string }>`
+  ${(props) =>
+    props.background &&
+    `
+      background: ${props.background} !important;
+   `};
+`;
+
 const MinColumnWidth = 55;
+const RowContext = React.createContext<{
+  hover: boolean;
+  selected: boolean;
+}>({ hover: false, selected: false });
 
 const ResizeableTitle = (props: any) => {
   const { onResize, onResizeStop, width, viewModeResizable, ...restProps } = props;
@@ -159,7 +182,60 @@ type CustomColumnType<RecordType> = ColumnType<RecordType> & {
 type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | "columns"> & {
   columns: CustomColumnType<RecordType>[];
   viewModeResizable: boolean;
+  rowColor: RowColorViewType;
 };
+
+function TableCellView(props: {
+  record: any;
+  title: string;
+  rowColor: RowColorViewType;
+  rowIndex: number;
+  children: any;
+}) {
+  const { record, title, rowIndex, rowColor, children, ...restProps } = props;
+  const rowContext = useContext(RowContext);
+  if (!record) {
+    return <td {...restProps}>{children}</td>;
+  }
+  const color = rowColor({
+    currentRow: record.record,
+    currentIndex: rowIndex,
+    currentOriginalIndex: record.index,
+    columnTitle: title,
+  });
+  let background = "";
+  if (color) {
+    background = genLinerGradient(color);
+  }
+  if (color && rowContext.selected) {
+    background = genLinerGradient(handleToSelectedRow(color)) + "," + background;
+  }
+  if (color && rowContext.hover) {
+    background = genLinerGradient(handleToHoverRow(color)) + "," + background;
+  }
+  return (
+    <TableTd {...restProps} background={background}>
+      {children}
+    </TableTd>
+  );
+}
+
+function TableRowView(props: any) {
+  const [hover, setHover] = useState(false);
+  const [selected, setSelected] = useState(false);
+  return (
+    <RowContext.Provider value={{ hover: hover, selected: selected }}>
+      <tr
+        {...props}
+        tabIndex={-1}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onFocus={() => setSelected(true)}
+        onBlur={() => setSelected(false)}
+      ></tr>
+    </RowContext.Provider>
+  );
+}
 
 /**
  * A table with adjustable column width, width less than 0 means auto column width
@@ -174,6 +250,12 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
     return {
       ...col,
       width: width && width > 0 ? width : -1,
+      onCell: (record: RecordType, rowIndex: any) => ({
+        record,
+        title: col.title as any,
+        rowColor: props.rowColor,
+        rowIndex: rowIndex,
+      }),
       onHeaderCell: (column: any) => ({
         width: column.width,
         title: column.title,
@@ -205,6 +287,10 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
         header: {
           cell: ResizeableTitle,
         },
+        body: {
+          cell: TableCellView,
+          row: TableRowView,
+        },
       }}
       {...props}
       pagination={false}
@@ -233,6 +319,7 @@ export const TableWrapper = styled.div<{
       .ant-table-content {
         table {
           border-top: unset;
+
           td {
             ${(props) =>
               props.$size &&

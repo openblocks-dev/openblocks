@@ -25,9 +25,9 @@ export const FormDataPropertyView = (children: FormDataComp) => (
             {editorState?.findUIParentContainer(name, "form") && (
               <Section name={trans("form")}>
                 {children.formDataKey.propertyView({
-                  label: trans("formComp.label"),
+                  label: trans("formComp.name"),
                   placeholder: name,
-                  tooltip: trans("formComp.labelTooltip"),
+                  tooltip: trans("formComp.nameTooltip"),
                 })}
               </Section>
             )}

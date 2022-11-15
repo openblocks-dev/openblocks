@@ -435,8 +435,9 @@ export const en = {
     saveSuccessfully: "Saved",
     database: "Database",
     cloudHosting:
-      "The code maker cloud is deployed in the Aliyun computer room. You cannot access your local service through 127.0.0.1/localhost. Try connecting to a public network service or reverse proxy your local service to a public network environment.",
-    notCloudHosting: `The code maker image uses Bridge mode by default, so it cannot access host services through 127.0.0.1/localhost. To access host services, see`,
+      "Cloud-hosted Openblocks cannot access your local services with 127.0.0.1 or localhost. Try to connect public network data sources or use a reverse proxy fronting your private services.",
+    notCloudHosting:
+      "For docker hosted deployment, Openblocks uses bridge networks, so 127.0.0.1 and localhost are invalid for host addresses. To visit data sources on your local machine, please refer to this",
     howToAccessHostDocLink: "How do I access the host API/DB",
     returnList: "Return",
     chooseDatasourceType: "Choose data source type",
@@ -1018,6 +1019,12 @@ export const en = {
     dataDesc: "The raw data used in the current table",
     rowSelectChange: "Row select change",
     rowClick: "Row click",
+    rowColor: "Row color",
+    rowColorDesc:
+      "Conditionally set the row color based on the optional variables:\n" +
+      "currentRow, currentOriginalIndex, currentIndex, columnTitle. \n" +
+      "For example:\n" +
+      `'{{ currentRow.id > 3 ? "green" : "red" }}'`,
   },
   image: {
     src: "Image source",
@@ -1246,8 +1253,8 @@ export const en = {
     noTableFound: "No tables were found in this data source, please select another data source",
     noColumnFound: "No supported column was found in this table. Please select another table",
     formTitle: "Form title",
-    label: "Label",
-    labelTooltip:
+    name: "Name",
+    nameTooltip:
       "The attribute name in the data of the form, when left blank, defaults to the component name",
     notSupportMethod: " Not supported methods: ",
     notValidForm: "The form is not valid",
@@ -1763,8 +1770,10 @@ export const en = {
     aboutUs: "",
     changeLog: "",
     introVideo: "",
-    useHost: "",
-    eventHandlerSlowdown: "",
+    useHost:
+      "https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach",
+    eventHandlerSlowdown:
+      "https://docs.openblocks.dev/build-apps/event-handlers#debounce-and-throttle",
   },
   datasourceTutorial: {
     mysql: "",

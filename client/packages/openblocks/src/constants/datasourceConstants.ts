@@ -9,7 +9,7 @@ export const databasePlugins: Partial<DatasourceType>[] = [
   "mssql",
   "oracle",
   "clickHouse",
-  // "googleSheets",
+  "googleSheets",
 ];
 
 export const apiPluginsForQueryLibrary: Partial<DatasourceType>[] = ["restApi", "smtp"];

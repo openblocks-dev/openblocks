@@ -408,6 +408,29 @@ export const ColorCodeControl = codeControl<string>(
   }
 );
 
+export const ColorOrBoolCodeControl = codeControl<string>(
+  (value: unknown) => {
+    const valueString = toString(value);
+    if (valueString === "true") {
+      // true default red
+      return "red";
+    }
+    if (valueString === "" || valueString === "false") {
+      return "";
+    }
+    if (isValidColor(valueString)) {
+      return toHex(valueString);
+    }
+    if (isThemeColorKey(valueString)) {
+      return valueString;
+    }
+    throw new Error(`the argument must be type CSS color or Boolean`);
+  },
+  {
+    expectedType: "CSS Colors",
+  }
+);
+
 export const RadiusControl = codeControl<string>(
   (value: unknown) => {
     const valueString = toString(value);

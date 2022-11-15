@@ -15,9 +15,11 @@ import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 import { getDatasourceTutorial } from "@openblocks-ee/util/tutorialUtils";
 
 const Wrapper = styled.div`
+  display: flex;
+  justify-content: center;
   width: 100%;
   height: 100%;
-  min-width: 600px;
+  min-width: min-content;
   background-color: #ffffff;
 `;
 

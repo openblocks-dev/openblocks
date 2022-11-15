@@ -1,18 +1,24 @@
-import { dropdownControl, MultiCompBuilder } from "openblocks-sdk";
+import {
+  AlignBottom,
+  AlignClose,
+  AlignRight,
+  dropdownControl,
+  MultiCompBuilder,
+} from "openblocks-sdk";
 import { LegendComponentOption } from "echarts";
 import { trans } from "i18n/comps";
 
 const LegendPositionOptions = [
   {
-    label: trans("chart.bottom"),
+    label: <AlignBottom />,
     value: "bottom",
   },
   {
-    label: trans("chart.right"),
+    label: <AlignRight />,
     value: "right",
   },
   {
-    label: trans("chart.close"),
+    label: <AlignClose />,
     value: "close",
   },
 ] as const;

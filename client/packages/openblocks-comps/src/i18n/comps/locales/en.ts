@@ -32,9 +32,6 @@ export const en = {
     timeAxis: "Time axis",
     logAxis: "Log axis",
     auto: "Default",
-    bottom: "Bottom",
-    right: "Right",
-    close: "Close",
     legendPosition: "Legend position",
     basicLine: "Basic line",
     stackedLine: "Stacked line",
@@ -72,6 +69,8 @@ export const en = {
     diamond: "Diamond",
     pin: "Pin",
     arrow: "Arrow",
+    pointColorLabel: "Point color",
+    pointColorTooltip: `Set the point color according to the series name and current point value, optional variables: seriesName, value. Example: '{{value < 25000 ? "red" : "green"}}'`,
   },
   imageEditor: {
     defaultSrc: "",

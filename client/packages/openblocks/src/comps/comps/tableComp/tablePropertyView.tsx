@@ -135,6 +135,7 @@ export function tablePropertyView(children: TableChildrenType) {
       </Section>
       <Section name={sectionNames.style}>
         {children.style.getPropertyView()}
+        {children.rowColor.getPropertyView()}
         {children.size.propertyView({
           label: trans("table.tableSize"),
           radioButton: true,

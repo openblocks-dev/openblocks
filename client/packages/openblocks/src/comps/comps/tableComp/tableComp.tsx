@@ -23,7 +23,7 @@ import _ from "lodash";
 import { saveDataAsFile } from "util/fileUtils";
 import { ResizeableTable, TableWrapper } from "./resizeableTable";
 import { tablePropertyView } from "./tablePropertyView";
-import { RecordType, tableChildrenMap, TableChildrenView } from "./tableTypes";
+import { RecordType, RowColorComp, tableChildrenMap, TableChildrenView } from "./tableTypes";
 import {
   columnsToAntdFormat,
   getDisplayData,
@@ -101,6 +101,7 @@ function TableView(props: {
   return (
     <TableWrapper $style={style} $hideFooterBar={hideFooterBar} $size={compChildren.size.getView()}>
       <ResizeableTable<RecordType>
+        rowColor={compChildren.rowColor.getView() as any}
         {...compChildren.selection.getView()(compChildren.onEvent.getView())}
         bordered={!compChildren.hideBordered.getView()}
         onChange={(pagination, filters, sorter, extra) => {
@@ -236,7 +237,7 @@ let TableTmpComp = class extends TableTmpInitComp {
   }
 
   override reduce(action: CompAction): this {
-    const comp = super.reduce(action);
+    let comp = super.reduce(action);
     if (action.type === CompActionTypes.CUSTOM) {
       // If a new custom column is added, then update it as well
       const columnAdded =
@@ -251,6 +252,18 @@ let TableTmpComp = class extends TableTmpInitComp {
       const nextRowExample = tableDataRowExample(comp.children.data.getView());
       const doGene = comp.shouldGenerateColumn(comp, nextRowExample);
       if (comp.children.data !== this.children.data && !_.isEqual(prevRowExample, nextRowExample)) {
+        // update rowColor context
+        comp = comp.setChild(
+          "rowColor",
+          comp.children.rowColor.reduce(
+            RowColorComp.changeContextDataAction({
+              currentRow: nextRowExample,
+              currentIndex: 0,
+              currentOriginalIndex: 0,
+              columnTitle: nextRowExample ? Object.keys(nextRowExample)[0] : undefined,
+            })
+          )
+        );
         // data change
         setTimeout(() => {
           comp.children.columns.dispatchDataChanged(nextRowExample || {}, doGene);

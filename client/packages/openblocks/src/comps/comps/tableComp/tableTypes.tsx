@@ -3,14 +3,18 @@ import {
   RecordConstructorToComp,
   RecordConstructorToView,
 } from "openblocks-core";
-import { BoolCodeControl, JSONObjectArrayControl } from "comps/controls/codeControl";
+import {
+  BoolCodeControl,
+  ColorOrBoolCodeControl,
+  JSONObjectArrayControl,
+} from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { uiChildren } from "comps/generators/uiCompBuilder";
 import { PaginationControl } from "./paginationControl";
 import { SelectionControl } from "./selectionControl";
 import { ColumnListComp } from "comps/comps/tableComp/column/tableColumnListComp";
-import { stateComp, valueComp } from "comps/generators";
+import { MultiCompBuilder, stateComp, valueComp, withContext } from "comps/generators";
 import { TableToolbarComp } from "comps/comps/tableComp/tableToolbarComp";
 import { styleControl } from "comps/controls/styleControl";
 import { TableStyle } from "comps/controls/styleControlConstants";
@@ -54,6 +58,26 @@ export type SortValue = {
 
 const TableEventControl = eventHandlerControl(TableEventOptions);
 
+export const RowColorComp = withContext(
+  new MultiCompBuilder({ color: ColorOrBoolCodeControl }, (props) => props.color)
+    .setPropertyViewFn((children) =>
+      children.color.propertyView({
+        label: trans("table.rowColor"),
+        tooltip: trans("table.rowColorDesc"),
+      })
+    )
+    .build(),
+  ["currentRow", "currentIndex", "currentOriginalIndex", "columnTitle"] as const
+);
+
+// fixme, should be infer from RowColorComp, but withContext type incorrect
+export type RowColorViewType = (param: {
+  currentRow: any;
+  currentIndex: number;
+  currentOriginalIndex: number;
+  columnTitle: string;
+}) => string;
+
 export const tableChildrenMap = {
   hideBordered: BoolControl,
   hideHeader: BoolControl,
@@ -70,6 +94,7 @@ export const tableChildrenMap = {
   dataRowExample: stateComp<JSONObject | null>(null),
   onEvent: TableEventControl,
   loading: BoolCodeControl,
+  rowColor: RowColorComp,
 };
 const uiChildrenMap = uiChildren(tableChildrenMap);
 export type TableChildrenType = RecordConstructorToComp<typeof uiChildrenMap>;

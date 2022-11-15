@@ -10,6 +10,8 @@ test("evalFunc", () => {
 
 describe("evalScript", () => {
   it("get", () => {
+    expect(evalScript("btoa('hello')", {})).toBe("aGVsbG8=");
+    expect(evalScript("atob('aGVsbG8=')", {})).toBe("hello");
     expect(evalScript("isNaN(3)", {})).toBe(false);
     expect(evalScript("NaN", {})).toBe(NaN);
     expect(evalScript("undefined", {})).toBe(undefined);

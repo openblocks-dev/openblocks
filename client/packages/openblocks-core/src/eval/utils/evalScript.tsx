@@ -122,7 +122,11 @@ function createMockWindow() {
           log.log(`[Sandbox] access ${String(p)} on mock window, return mock object`);
           return createBlackHole();
         }
-        return Reflect.get(window, p);
+        const ret = Reflect.get(window, p);
+        if (typeof ret === "function" && !ret.prototype) {
+          return ret.bind(window);
+        }
+        return ret;
       },
     }
   );
@@ -190,6 +194,10 @@ function proxySandbox(context: any, methods?: EvalMethods, options?: SandBoxOpti
         }
         try {
           const ret = Reflect.get(window, p);
+
+          if (typeof ret === "function" && !ret.prototype) {
+            return ret.bind(window);
+          }
 
           // get DOM element by id, serializing may cause error
           if (isDomElement(ret) && refErrWhenNotExist) {

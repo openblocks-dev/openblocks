@@ -117,10 +117,10 @@ export function chartPropertyView(
             {children.yConfig.getPropertyView()}
           </>
         )}
-        {children.chartConfig.getPropertyView()}
         {children.legendConfig.getPropertyView()}
         {hiddenPropertyView(children)}
       </Section>
+      <Section name={sectionNames.style}>{children.chartConfig.getPropertyView()}</Section>
     </>
   );
 

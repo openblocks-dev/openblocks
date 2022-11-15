@@ -97,7 +97,7 @@
     "xlsx": "^0.18.5"
   },
   "scripts": {
-    "supportedBrowsers": "yarn dlx browserslist-useragent-regexp --allowHigherVersions 'chrome >=69,edge>=101,Safari>=13,android>=4.4.3,ios>=12,ChromeAndroid>=100'",
+    "supportedBrowsers": "yarn dlx browserslist-useragent-regexp --allowHigherVersions '>0.2%,not dead,not op_mini all,chrome >=69'",
     "start": "REACT_APP_LOG_LEVEL=debug REACT_APP_ENV=local vite",
     "build": "vite build && cp ../../VERSION ./build/VERSION",
     "preview": "vite preview",

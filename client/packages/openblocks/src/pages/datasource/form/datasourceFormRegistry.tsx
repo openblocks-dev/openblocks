@@ -37,5 +37,5 @@ export const DatasourceFormRegistry: Partial<Record<DatasourceType, DatasourceFo
   smtp: { form: SMTPDatasourceForm },
   oracle: { form: OracleDatasourceForm, whitelist: true },
   clickHouse: { form: ClickHouseDatasourceForm, whitelist: true },
-  googleSheets: { form: GoogleSheetsDatasourceForm },
+  googleSheets: { enableTest: false, form: GoogleSheetsDatasourceForm },
 };

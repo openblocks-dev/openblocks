@@ -238,12 +238,15 @@ export class IconControl extends AbstractComp<ReactNode, string, Node<ValueAndMs
       <SwitchJsIcon
         checked={this.useCodeEditor}
         onChange={() => this.dispatch(this.changeModeAction())}
-      >
-        {this.useCodeEditor && <IconCodeEditor codeControl={this.codeControl} params={params} />}
-      </SwitchJsIcon>
+      />
     );
     if (this.useCodeEditor) {
-      return <SwitchWrapper label={params.label} tooltip={params.tooltip} lastNode={jsContent} />;
+      return (
+        <>
+          <SwitchWrapper label={params.label} tooltip={params.tooltip} lastNode={jsContent} />
+          {this.useCodeEditor && <IconCodeEditor codeControl={this.codeControl} params={params} />}
+        </>
+      );
     }
     return (
       <ControlPropertyViewWrapper {...params} lastNode={jsContent}>

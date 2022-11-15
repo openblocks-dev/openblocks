@@ -1058,7 +1058,11 @@ function createMockWindow() {
                 log.log("[Sandbox] access ".concat(String(p), " on mock window, return mock object"));
                 return createBlackHole();
             }
-            return Reflect.get(window, p);
+            var ret = Reflect.get(window, p);
+            if (typeof ret === "function" && !ret.prototype) {
+                return ret.bind(window);
+            }
+            return ret;
         },
     });
 }
@@ -1106,6 +1110,9 @@ function proxySandbox(context, methods, options) {
                 }
                 try {
                     var ret = Reflect.get(window, p);
+                    if (typeof ret === "function" && !ret.prototype) {
+                        return ret.bind(window);
+                    }
                     // get DOM element by id, serializing may cause error
                     if (isDomElement(ret) && refErrWhenNotExist) {
                         throw new ReferenceError(p.toString() + " not exist");

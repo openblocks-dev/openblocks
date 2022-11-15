@@ -50,48 +50,42 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
   const [authType, setAuthType] = useState(datasourceConfig?.authConfig?.type);
   // const [grantType, setGrantType] = useState(oauthConfig?.grantType ?? "authorization_code");
 
+  const UsernameFormItem = (
+    <FormInputItem
+      name={"username"}
+      label="Username"
+      initialValue={(datasourceConfig?.authConfig as any)?.username}
+      required={true}
+      rules={[{ required: true, message: trans("query.userNameRequiredMessage") }]}
+      labelWidth={142}
+    />
+  );
+
+  const PasswordFormItem = (
+    <FormInputItem
+      name={"password"}
+      label="Password"
+      initialValue={(datasourceConfig?.authConfig as any)?.password}
+      required={true}
+      rules={[{ required: !datasourceConfig, message: trans("query.passwordRequiredMessage") }]}
+      labelWidth={142}
+    />
+  );
+
   const showAuthItem = (type: AuthType) => {
     switch (type) {
       case "BASIC_AUTH":
         return (
           <>
-            <FormInputItem
-              name={"username"}
-              label="Username"
-              initialValue={(datasourceConfig?.authConfig as any)?.username}
-              required={true}
-              rules={[{ required: true, message: trans("query.userNameRequiredMessage") }]}
-            />
-            <FormInputItem
-              name={"password"}
-              label="Password"
-              initialValue={(datasourceConfig?.authConfig as any)?.password}
-              required={true}
-              rules={[
-                { required: !datasourceConfig, message: trans("query.passwordRequiredMessage") },
-              ]}
-            />
+            {UsernameFormItem}
+            {PasswordFormItem}
           </>
         );
       case "DIGEST_AUTH":
         return (
           <>
-            <FormInputItem
-              name={"username"}
-              label="Username"
-              initialValue={(datasourceConfig?.authConfig as any)?.username}
-              required={true}
-              rules={[{ required: true, message: trans("query.userNameRequiredMessage") }]}
-            />
-            <FormInputItem
-              name={"password"}
-              label="Password"
-              initialValue={(datasourceConfig?.authConfig as any)?.password}
-              required={true}
-              rules={[
-                { required: !datasourceConfig, message: trans("query.passwordRequiredMessage") },
-              ]}
-            />
+            {UsernameFormItem}
+            {PasswordFormItem}
           </>
         );
     }

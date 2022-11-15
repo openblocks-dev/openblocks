@@ -24,7 +24,7 @@ import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 const Wrapper = styled.div<{ readOnly?: boolean }>`
   display: flex;
   flex-direction: column;
-  width: 240px;
+  width: 264px;
   height: 100%;
   border-right: 1px solid #e1e3eb;
   ${(props) => {
