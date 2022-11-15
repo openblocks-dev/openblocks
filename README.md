@@ -41,7 +41,7 @@ Openblocks wants to take a step forward. More specifically, Openblocks is
 ## 🏆 Comparisons
 ### Openblocks vs Retool
 - Openblocks is open-source. You don't need to worry about vendor lock-in or being stuck with an outdated version of the software.
-- In Openblocks, developers can create and use their own components instead of depending on offical updates.
+- In Openblocks, developers can create and use their own components instead of depending on official updates.
 - Openblocks supports left menu navigation (like most sites do). Retool has header navigation only.
 ### Openblocks vs Appsmith, Tooljet
 - Openblocks has more components and richer configuration than Appsmith and Tooljet.
