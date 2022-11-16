@@ -29,9 +29,6 @@ public class GoogleSheetsReadDataRequest implements GoogleSheetsActionRequest {
 
     @Override
     public boolean hasInvalidData() {
-        /*
-        这里判断的时候先不判断range是否为空，因为按照retool的做法可能按照limit与offset
-         */
         return StringUtils.isAnyBlank(spreadsheetId, sheetName);
     }
 }

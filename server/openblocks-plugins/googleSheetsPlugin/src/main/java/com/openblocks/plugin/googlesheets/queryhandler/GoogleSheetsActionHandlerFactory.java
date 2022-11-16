@@ -25,7 +25,7 @@ public class GoogleSheetsActionHandlerFactory {
     public static GoogleSheetsActionHandler getGoogleSheetsActionHandler(String actionType) {
         GoogleSheetsActionHandler googleSheetsActionHandler = HANDLER_MAP.get(actionType);
         if (googleSheetsActionHandler == null) {
-            throw new PluginException(QUERY_ARGUMENT_ERROR, "非法谷歌表查询类型" + actionType);
+            throw new PluginException(QUERY_ARGUMENT_ERROR, "GOOGLESHEETS_QUERY_PARAM_ERROR", actionType);
         }
         return googleSheetsActionHandler;
     }

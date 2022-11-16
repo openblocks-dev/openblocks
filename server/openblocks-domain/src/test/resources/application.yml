@@ -7,12 +7,21 @@ demo:
       timeout: 8s
       username: root
 
+spring:
+  redis:
+    url: redis://localhost:6369
+  mongodb:
+    embedded:
+      version: 4.0.2
+  main:
+    allow-circular-references: true
+
 common:
   domain:
     default-value: skipCheck
   encrypt:
-    password: abcd
-    salt: abcd
+    password: openblocks.dev
+    salt: openblocks.dev
   cloud: false
   security:
     cors-allowed-domains:
@@ -29,7 +38,3 @@ auth:
     enable: true
   email:
     enable: true
-
-spring:
-  redis:
-    url: redis://localhost:6369

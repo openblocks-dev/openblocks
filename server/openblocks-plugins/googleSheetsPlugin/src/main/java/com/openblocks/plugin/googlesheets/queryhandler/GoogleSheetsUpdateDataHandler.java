@@ -66,7 +66,6 @@ public class GoogleSheetsUpdateDataHandler extends GoogleSheetsActionHandler {
             throw new RuntimeException(e);
         }
 
-        //同样的从changeSet拿出数据。
         List<List<Object>> collect;
         List<Object> headerList = values1.get(0);
         if (values2 == null) {
@@ -92,16 +91,12 @@ public class GoogleSheetsUpdateDataHandler extends GoogleSheetsActionHandler {
             }
         }
         if (Boolean.FALSE.equals(validValues)) {
-            /*想在这里回传给前端一个错误信息
-             * Could not map request back to existing data，目前看来是不能成功的
-             * */
-            throw new PluginException(GOOGLESHEETS_EMPTY_QUERY_PARAM, "GOOGLESHEETS_QUERY_PARAM_ERROR");
+            throw new PluginException(GOOGLESHEETS_EMPTY_QUERY_PARAM, "GOOGLESHEETS_QUERY_PARAM_EMPTY");
         }
         final List<Object> tempObjects = new ArrayList<>(returnMap.values());
         collect = List.of(tempObjects);
         ValueRange requestBody = new ValueRange();
         requestBody.setMajorDimension("ROWS");
-        //        requestBody.setRange(range);
         requestBody.setValues(collect);
         Update request;
         UpdateValuesResponse response;

@@ -27,7 +27,7 @@ public class TemplateService {
         return templateRepository.findByApplicationIdIn(applicationIds);
     }
 
-    public Flux<Template> getByApplicationId(String applicationId) {
+    public Mono<Template> getByApplicationId(String applicationId) {
         return templateRepository.findByApplicationId(applicationId);
     }
 }

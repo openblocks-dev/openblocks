@@ -26,11 +26,12 @@ public class FormAuthRequest implements AuthRequest {
     public Mono<AuthorizedUser> auth(AuthRequestContext authRequestContext) {
         FormAuthRequestContext context = (FormAuthRequestContext) authRequestContext;
         return userService.findBySourceAndId(context.getSource(), context.getLoginId())
+                .switchIfEmpty(ofError(BizError.INVALID_PASSWORD, "INVALID_EMAIL_OR_PASSWORD"))
                 .flatMap(user -> {
                     String raw = context.getPassword();
                     String encoded = user.getPassword();
                     if (!encryptionService.matchPassword(raw, encoded)) {
-                        return ofError(BizError.INVALID_PASSWORD, "INVALID_PASSWORD");
+                        return ofError(BizError.INVALID_PASSWORD, "INVALID_EMAIL_OR_PASSWORD");
                     }
                     AuthorizedUser authorizedUser = AuthorizedUser.builder()
                             .source(context.getSource())

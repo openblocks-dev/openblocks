@@ -21,8 +21,6 @@ import lombok.Setter;
 public class GoogleSheetsUpdateDataRequest implements GoogleSheetsActionRequest {
     private String spreadsheetId;
     private String sheetName;
-
-    //记住
     private int rowIndex;
     private String rowIndexString;
     private SheetChangeSet changeSet;

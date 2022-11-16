@@ -59,6 +59,8 @@ import com.openblocks.domain.permission.service.ResourcePermissionService;
 import com.openblocks.domain.permission.solution.SuggestAppAdminSolution;
 import com.openblocks.domain.plugin.service.DatasourceMetaInfoService;
 import com.openblocks.domain.solutions.TemplateSolution;
+import com.openblocks.domain.template.model.Template;
+import com.openblocks.domain.template.service.TemplateService;
 import com.openblocks.domain.user.service.UserService;
 import com.openblocks.infra.util.TupleUtils;
 import com.openblocks.sdk.constants.Authentication;
@@ -120,6 +122,8 @@ public class ApplicationApiService {
     private DatasourceMetaInfoService datasourceMetaInfoService;
     @Autowired
     private CompoundApplicationDslFilter compoundApplicationDslFilter;
+    @Autowired
+    private TemplateService templateService;
 
     public Mono<ApplicationView> create(CreateApplicationRequest createApplicationRequest) {
 
@@ -273,11 +277,13 @@ public class ApplicationApiService {
                         .delayUntil(application -> checkApplicationStatus(application, NORMAL)))
                 .zipWhen(tuple -> applicationService.getAllDependentModulesFromApplication(tuple.getT2(), true), TupleUtils::merge)
                 .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT2().getOrganizationId()), TupleUtils::merge)
+                .zipWith(getTemplateIdFromApplicationId(applicationId), TupleUtils::merge)
                 .map(tuple -> {
                     ResourcePermission permission = tuple.getT1();
                     Application application = tuple.getT2();
                     List<Application> dependentModules = tuple.getT3();
                     Map<String, Object> commonSettings = tuple.getT4();
+                    String templateId = tuple.getT5();
                     Map<String, Map<String, Object>> dependentModuleDsl = dependentModules.stream()
                             .collect(Collectors.toMap(Application::getId, app -> sanitizeDsl(app.getLiveApplicationDsl()), (a, b) -> b));
                     return ApplicationView.builder()
@@ -285,6 +291,7 @@ public class ApplicationApiService {
                             .applicationDSL(sanitizeDsl(application.getLiveApplicationDsl()))
                             .moduleDSL(dependentModuleDsl)
                             .orgCommonSettings(commonSettings)
+                            .templateId(templateId)
                             .build();
                 })
                 .delayUntil(applicationView -> {
@@ -292,6 +299,16 @@ public class ApplicationApiService {
                         return compoundApplicationDslFilter.removeSubAppsFromCompoundDsl(applicationView.getApplicationDSL());
                     }
                     return Mono.empty();
+                });
+    }
+
+    private Mono<String> getTemplateIdFromApplicationId(String applicationId) {
+        return templateService.getByApplicationId(applicationId)
+                .map(Template::getId)
+                .defaultIfEmpty("")
+                .onErrorResume(e -> {
+                    log.error("get template from applicationId error", e);
+                    return Mono.just("");
                 });
     }
 

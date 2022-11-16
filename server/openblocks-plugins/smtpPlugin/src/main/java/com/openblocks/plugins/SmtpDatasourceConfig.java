@@ -7,8 +7,8 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.openblocks.sdk.config.SerializeConfig.JsonViews;
 import com.openblocks.sdk.models.DatasourceConnectionConfig;
 
 import lombok.Builder;
@@ -24,7 +24,7 @@ public class SmtpDatasourceConfig implements DatasourceConnectionConfig {
     @Nullable
     private final String username;
     @Nullable
-    @JsonProperty(access = Access.WRITE_ONLY)
+    @JsonView(JsonViews.Internal.class)
     private String password;
 
     @Override

@@ -7,8 +7,8 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.ObjectUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.openblocks.sdk.config.SerializeConfig.JsonViews;
 
 import lombok.Getter;
 
@@ -18,7 +18,7 @@ import lombok.Getter;
 @Getter
 public final class BasicAuthConfig extends AuthConfig {
     private final String username;
-    @JsonProperty(access = Access.WRITE_ONLY)
+    @JsonView(JsonViews.Internal.class)
     private String password;
 
     @JsonCreator

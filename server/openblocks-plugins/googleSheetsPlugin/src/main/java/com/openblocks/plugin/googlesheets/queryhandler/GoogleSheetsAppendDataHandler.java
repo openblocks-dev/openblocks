@@ -51,9 +51,6 @@ public class GoogleSheetsAppendDataHandler extends GoogleSheetsActionHandler {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        /*
-        获得第一行数据
-         */
         List<List<Object>> collect = null;
         List<Object> firstRow = values.get(0);
 
@@ -75,9 +72,8 @@ public class GoogleSheetsAppendDataHandler extends GoogleSheetsActionHandler {
                         .map(entry -> tempMap.getOrDefault(entry, null) == null ? "" : tempMap.getOrDefault(entry, null))
                         .collect(Collectors.toCollection(LinkedList::new));
                 collect = List.of(row);
-                //                googleSheetsActionRequest.setRealData(newMap);
             } else {
-                throw new PluginException(GOOGLESHEETS_EMPTY_QUERY_PARAM, "GOOGLESHEETS_QUERY_PARAM_ERROR");
+                throw new PluginException(GOOGLESHEETS_EMPTY_QUERY_PARAM, "GOOGLESHEETS_QUERY_PARAM_EMPTY");
             }
         }
         ValueRange requestBody = new ValueRange();

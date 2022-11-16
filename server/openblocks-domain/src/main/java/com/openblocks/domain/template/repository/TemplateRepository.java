@@ -20,5 +20,5 @@ public interface TemplateRepository extends ReactiveMongoRepository<Template, St
 
     Flux<Template> findByApplicationIdIn(Collection<String> applicationId);
 
-    Flux<Template> findByApplicationId(String applicationId);
+    Mono<Template> findByApplicationId(String applicationId);
 }
