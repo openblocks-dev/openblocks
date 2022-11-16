@@ -1,7 +1,7 @@
 import { createReducer } from "util/reducerUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/reduxActionConstants";
 import { DatasourceInfo, DatasourceStructure } from "api/datasourceApi";
-import { Datasource } from "@openblocks-ee/api/datasourceApi";
+import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 
 export interface DatasourceDataState {
   data: DatasourceInfo[];

@@ -29,6 +29,9 @@ const stringComps: CompConfig[] = [
 const numberComps: CompConfig[] = [
   {
     type: "numberInput",
+    compInitData: {
+      allowNull: true,
+    },
   },
   {
     type: "slider",

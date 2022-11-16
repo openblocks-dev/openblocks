@@ -7,11 +7,11 @@ import { GenericApiResponse } from "api/apiResponses";
 import { all, put, takeEvery } from "redux-saga/effects";
 import { AxiosResponse } from "axios";
 import { DatasourceApi, DatasourceInfo, DatasourceStructure } from "api/datasourceApi";
-import { Datasource } from "@openblocks-ee/api/datasourceApi";
 import { FetchDatasourcePayload } from "redux/reduxActions/datasourceActions";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
 import { message } from "antd";
+import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 
 export function* fetchDatasourceSaga(action: EvaluationReduxAction<FetchDatasourcePayload>) {
   const { organizationId } = action.payload;

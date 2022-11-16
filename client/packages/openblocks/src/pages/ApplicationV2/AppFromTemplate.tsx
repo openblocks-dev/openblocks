@@ -9,6 +9,7 @@ import React, { useEffect } from "react";
 import { CommonTextLabel } from "openblocks-design";
 import styled from "styled-components";
 import { trans } from "i18n";
+import { ERROR_CODES } from "constants/apiConstants";
 
 const CreateDiv = styled.div`
   display: flex;
@@ -33,7 +34,9 @@ export default function AppFromTemplate() {
       })
       .catch((e) => {
         message.error(trans("home.importError", { message: e.message }));
-        history.replace(ALL_APPLICATIONS_URL);
+        if (e.code !== ERROR_CODES.REQUEST_NOT_AUTHORISED) {
+          history.replace(ALL_APPLICATIONS_URL);
+        }
       });
   }, [templateId]);
 

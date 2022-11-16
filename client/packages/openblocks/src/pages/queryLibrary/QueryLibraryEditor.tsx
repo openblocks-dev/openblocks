@@ -40,8 +40,8 @@ import { getDataSource } from "../../redux/selectors/datasourceSelectors";
 import {
   apiPluginsForQueryLibrary,
   databasePlugins,
+  Datasource,
 } from "@openblocks-ee/constants/datasourceConstants";
-import { Datasource } from "@openblocks-ee/api/datasourceApi";
 
 const Wrapper = styled.div`
   display: flex;

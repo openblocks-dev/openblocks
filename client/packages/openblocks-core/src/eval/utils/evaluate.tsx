@@ -85,15 +85,46 @@ export function changeDependName(
 }
 
 function rename(segment: string, oldName: string, name: string) {
-  return segment.replace(/[a-zA-Z_$][a-zA-Z_$0-9.[\]]*/g, (s) => {
-    if (s === oldName) {
-      return name;
-    }
-    if (s.startsWith(oldName + ".")) {
-      return name + "." + s.substring(oldName.length + 1);
-    }
-    return s;
+  const accessors = [".", "["];
+  const regStrList = ["[a-zA-Z_$][a-zA-Z_$0-9.[\\]]*", "(?<=\\[)[a-zA-Z_][a-zA-Z_0-9.]*"];
+
+  let ret = segment;
+  for (const regStr of regStrList) {
+    const reg = new RegExp(regStr, "g");
+    ret = ret.replace(reg, (s) => {
+      if (s === oldName) {
+        return name;
+      }
+      for (const accessor of accessors) {
+        if (s.startsWith(oldName + accessor)) {
+          return name + accessor + s.substring(oldName.length + accessor.length);
+        }
+      }
+      return s;
+    });
+  }
+
+  return ret;
+}
+
+function getIdentifiers(jsSnippet: string): string[] {
+  const ret: string[] = [];
+  const commonReg = /[a-zA-Z_$][a-zA-Z_$0-9.[\]]*/g;
+  const commonIds = jsSnippet.match(commonReg);
+  if (commonIds) {
+    ret.push(...commonIds);
+  }
+
+  const indexIds: string[] = [];
+  (jsSnippet.match(/\[[a-zA-Z_][a-zA-Z_0-9\[\].]*\]/g) || []).forEach((i) => {
+    indexIds.push(...getIdentifiers(i.slice(1, -1)));
   });
+  ret.push(...indexIds);
+
+  if (ret.length === 0) {
+    return [jsSnippet];
+  }
+  return ret;
 }
 
 function parseDepends(
@@ -101,7 +132,7 @@ function parseDepends(
   exposingNodes: Record<string, Node<unknown>>
 ): Map<Node<unknown>, string[]> {
   const depends: Map<Node<unknown>, string[]> = new Map();
-  const identifiers = jsSnippet.match(/[a-zA-Z_$][a-zA-Z_$0-9.[\]]*/g) || [jsSnippet];
+  const identifiers = getIdentifiers(jsSnippet);
   identifiers.forEach((identifier) => {
     const subpaths = _.toPath(identifier);
     const dependAndPath = getDependNode(subpaths, exposingNodes);
@@ -118,7 +149,7 @@ function parseTopDepends(
   exposingNodes: Record<string, Node<unknown>>
 ): Map<Node<unknown>, string> {
   const depends: Map<Node<unknown>, string> = new Map();
-  const identifiers = jsSnippet.match(/[a-zA-Z_$][a-zA-Z_$0-9.[\]]*/g) || [jsSnippet];
+  const identifiers = getIdentifiers(jsSnippet);
   identifiers.forEach((identifier) => {
     const subpaths = _.toPath(identifier).slice(0, 1);
     const dependAndPath = getDependNode(subpaths, exposingNodes);

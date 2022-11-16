@@ -382,7 +382,7 @@ export function CodeEditor(props: CodeEditorProps) {
         {expandable && (
           <CodeEditorPanel
             breadcrumb={[props.label ?? ""]}
-            editor={<CodeEditorForPanel {...props} styleName="window" />}
+            editor={<CodeEditorForPanel {...props} styleName="window" showLineNum />}
             onVisibleChange={(visible) => setDisabled(visible)}
           />
         )}

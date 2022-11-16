@@ -37,3 +37,7 @@ export const isFetchingAppDetail = (state: AppState): boolean => {
 export const isApplicationPublishing = (state: AppState): boolean => {
   return state.ui.application.loadingStatus.applicationPublishing;
 };
+
+export const getTemplateId = (state: AppState): any => {
+  return state.ui.application.templateId;
+};

@@ -4,10 +4,10 @@ import {
   ReduxActionWithCallbacks,
   ReduxActionWithoutPayload,
 } from "constants/reduxActionConstants";
-import { Datasource } from "@openblocks-ee/api/datasourceApi";
 import { LibraryQuery, LibraryQueryPublishRequest } from "../../api/queryLibraryApi";
 import { AxiosResponse } from "axios";
 import { GenericApiResponse } from "../../api/apiResponses";
+import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 
 export const fetchQueryLibrary = (): ReduxActionWithoutPayload => {
   return {

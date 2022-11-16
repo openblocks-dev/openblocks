@@ -16,6 +16,7 @@ export interface CodeEditorControlParams {
   tooltipContainer?: HTMLElement;
   expandable?: boolean;
   onFocus?: (focused: boolean) => void;
+  showLineNum?: boolean;
 
   enableIcon?: boolean;
   widgetPopup?: (v: EditorView) => ReactNode;
@@ -23,6 +24,7 @@ export interface CodeEditorControlParams {
   extraOnChange?: (state: EditorState) => void;
   cardRichContent?: (s: string) => ReactNode;
   cardTips?: ReactNode;
+  enableMetaCompletion?: boolean;
 }
 
 export interface CodeEditorProps extends CodeEditorControlParams {
@@ -42,7 +44,6 @@ export interface CodeEditorProps extends CodeEditorControlParams {
   segments?: { value: string; success: boolean }[];
 
   bordered?: boolean;
-  showLineNum?: boolean;
 }
 
 export const MetaDataContext = React.createContext<Record<string, string> | undefined>(undefined);

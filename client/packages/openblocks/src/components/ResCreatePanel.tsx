@@ -1,4 +1,3 @@
-import { Datasource } from "@openblocks-ee/api/datasourceApi";
 import { AddIcon, CloseIcon, CustomModalProps, ScrollBar } from "openblocks-design";
 import { BottomShadow, GreyTextColor, TabActiveColor } from "constants/style";
 import { trans } from "i18n";
@@ -13,6 +12,7 @@ import { LargeBottomResIconWrapper } from "util/bottomResUtils";
 import { PageType } from "../constants/pageConstants";
 import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { SizeType } from "antd/lib/config-provider/SizeContext";
+import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 
 const Wrapper = styled.div<{ placement: PageType }>`
   width: 100%;

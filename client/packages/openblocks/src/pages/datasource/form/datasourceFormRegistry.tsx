@@ -12,7 +12,7 @@ import { OracleDatasourceForm } from "./oracleDatasourceForm";
 import { ClickHouseDatasourceForm } from "./clickhouseDatasourceForm";
 import { GoogleSheetsDatasourceForm } from "./googleSheetsDatasourceForm";
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
-import { Datasource } from "@openblocks-ee/api/datasourceApi";
+import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 
 export interface DatasourceFormProps {
   form: FormInstance;

@@ -2,11 +2,14 @@ import { MultiCompBuilder, withPropertyViewFn } from "comps/generators";
 import { ParamsStringControl, ParamsJsonControl } from "../../controls/paramsControl";
 import { FunctionProperty, toQueryView } from "../queryCompUtils";
 import { withTypeAndChildrenAbstract } from "../../generators/withType";
-import { CompAction, changeValueAction } from "openblocks-core";
-import { DispatchType, MultiBaseComp } from "openblocks-core";
-import { QueryConfigItemWrapper, QueryConfigLabel, QueryConfigWrapper } from "openblocks-design";
+import { changeValueAction, CompAction, DispatchType, MultiBaseComp } from "openblocks-core";
+import {
+  Dropdown,
+  QueryConfigItemWrapper,
+  QueryConfigLabel,
+  QueryConfigWrapper,
+} from "openblocks-design";
 import { BoolPureControl } from "../../controls/boolControl";
-import { Dropdown } from "openblocks-design";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { TableNameComp } from "./tableNameComp";
 import { ChangeSetComp, ChangeSetTypeDropdown } from "./changeSetComp";
@@ -179,6 +182,7 @@ const SQLQueryPropertyView = (props: { children: ChildrenType; dispatch: Dispatc
           placeholder: "SELECT * FROM users;",
           styleName: "medium",
           language: "sql",
+          enableMetaCompletion: true,
         })
       ) : (
         <>

@@ -3,7 +3,7 @@ import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCo
 import { trans } from "i18n";
 import { ColumnValueTooltip } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 import { formatPropertyView } from "comps/utils/propertyUtils";
-import moment from "moment/moment";
+import moment from "moment";
 import { DATE_FORMAT, DateParser } from "util/dateTimeUtils";
 import { withDefault } from "comps/generators";
 

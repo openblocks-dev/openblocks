@@ -80,10 +80,11 @@ class LibsComp extends list(SimpleStringControl) implements RunAndClearable<stri
     const scripts: Promise<void>[] = [];
     const appLibs = this.getView().map((i) => i.getView());
     this.externalLibs.concat(appLibs).forEach((url) => {
-      if (!/^https?.+\.js$/.test(url)) {
+      const trimUrl = url.trim();
+      if (!/^https?.+\.js$/.test(trimUrl)) {
         return;
       }
-      scripts.push(this.loadScript(url));
+      scripts.push(this.loadScript(trimUrl));
     });
 
     return Promise.allSettled(scripts);

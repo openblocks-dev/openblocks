@@ -1,6 +1,5 @@
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { DataSourceTypeInfo } from "../../api/datasourceApi";
-import { Datasource } from "@openblocks-ee/api/datasourceApi";
 import { AddIcon, DocIcon, ModalFooterWrapper, TacoButton } from "openblocks-design";
 import styled from "styled-components";
 import { Button } from "antd";
@@ -16,6 +15,7 @@ import { getDatasourceTutorial } from "@openblocks-ee/util/tutorialUtils";
 import { useSelector } from "react-redux";
 import { getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
 import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
+import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 
 const EditButton = styled(Button)`
   font-size: 13px;

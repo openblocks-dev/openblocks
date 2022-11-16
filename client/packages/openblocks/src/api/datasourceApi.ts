@@ -5,7 +5,7 @@ import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "../constants/apiConstants";
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 import { JSONArray } from "../util/jsonTypes";
 import { AuthType, HttpOAuthGrantType } from "../pages/datasource/form/httpDatasourceForm";
-import { Datasource as FinalDatasource } from "@openblocks-ee/api/datasourceApi";
+import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 
 // FIXME(zhangqinyao): extract a common config
 export interface MysqlConfig {
@@ -98,21 +98,8 @@ export type DatasourceConfigType =
   | OracleConfig
   | GoogleSheetsConfig;
 
-export interface Datasource {
-  id: string;
-  name: string;
-  type: DatasourceType;
-  organizationId: string;
-  datasourceConfig: DatasourceConfigType;
-  // USER_CREATED(0):  user self create
-  // SYSTEM_TEMPLATE(1) for example: onboard datasource、template datasource
-  // SYSTEM_PREDEFINED(2) for example: rest api empty datasource
-  creationSource: 0 | 1 | 2;
-  createTime: number;
-}
-
 export interface DatasourceInfo {
-  datasource: FinalDatasource;
+  datasource: Datasource;
   edit: boolean;
   creatorName?: string;
 }
@@ -150,27 +137,27 @@ export class DatasourceApi extends Api {
   }
 
   static createDatasource(
-    datasourceConfig: Partial<FinalDatasource>
-  ): AxiosPromise<GenericApiResponse<FinalDatasource>> {
+    datasourceConfig: Partial<Datasource>
+  ): AxiosPromise<GenericApiResponse<Datasource>> {
     return Api.post(DatasourceApi.url, datasourceConfig);
   }
 
   static testDatasource(
-    datasourceConfig: Partial<FinalDatasource>
-  ): AxiosPromise<GenericApiResponse<FinalDatasource>> {
+    datasourceConfig: Partial<Datasource>
+  ): AxiosPromise<GenericApiResponse<Datasource>> {
     return Api.post(`${DatasourceApi.url}/test`, datasourceConfig, undefined, {
       timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
     });
   }
 
   static updateDatasource(
-    datasourceConfig: Partial<FinalDatasource>,
+    datasourceConfig: Partial<Datasource>,
     id: string
-  ): AxiosPromise<GenericApiResponse<FinalDatasource>> {
+  ): AxiosPromise<GenericApiResponse<Datasource>> {
     return Api.put(DatasourceApi.url + `/${id}`, datasourceConfig);
   }
 
-  static deleteDatasource(id: string): AxiosPromise<GenericApiResponse<FinalDatasource>> {
+  static deleteDatasource(id: string): AxiosPromise<GenericApiResponse<Datasource>> {
     return Api.delete(DatasourceApi.url + `/${id}`);
   }
 

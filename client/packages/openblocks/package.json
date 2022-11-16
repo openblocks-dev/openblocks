@@ -36,7 +36,6 @@
     "antd": "4.22.8",
     "antd-img-crop": "^4.0.2",
     "axios": "^0.21.1",
-    "big.js": "^6.2.1",
     "buffer": "^6.0.3",
     "clsx": "^1.2.1",
     "copy-to-clipboard": "^3.3.1",

@@ -89,7 +89,7 @@ export function buildQueryCommand<ChildrenCompMap extends Record<string, Comp<un
 }
 
 export function onlyManualTrigger(type: ResourceType) {
-  return type === "js";
+  return false;
 }
 
 export function getTriggerType(comp: any): TriggerType {

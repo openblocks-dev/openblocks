@@ -4655,13 +4655,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/big.js@npm:^6.1.5":
-  version: 6.1.5
-  resolution: "@types/big.js@npm:6.1.5"
-  checksum: 5eb1472c1fb05fef37971aed449aa8dbe485fde1ca1c316911ae8cbd437ecd1f3a56964fc7d439bdcbe8e2585ec3febabc205d291177d5a0119bafaf872604b8
-  languageName: node
-  linkType: hard
-
 "@types/core-js@npm:^2.5.5":
   version: 2.5.5
   resolution: "@types/core-js@npm:2.5.5"
@@ -6294,13 +6287,6 @@ __metadata:
   version: 5.2.2
   resolution: "big.js@npm:5.2.2"
   checksum: b89b6e8419b097a8fb4ed2399a1931a68c612bce3cfd5ca8c214b2d017531191070f990598de2fc6f3f993d91c0f08aa82697717f6b3b8732c9731866d233c9e
-  languageName: node
-  linkType: hard
-
-"big.js@npm:^6.2.1":
-  version: 6.2.1
-  resolution: "big.js@npm:6.2.1"
-  checksum: 0b234a2fd56c52bed2798ed2020bcab6fef5e9523b99a05406ad071d1aed6ee97ada9fb8de9576092da74c68825c276e19015743b8d1baea269b60a5c666b0cd
   languageName: node
   linkType: hard
 
@@ -13769,7 +13755,6 @@ __metadata:
     antd: 4.22.8
     antd-img-crop: ^4.0.2
     axios: ^0.21.1
-    big.js: ^6.2.1
     buffer: ^6.0.3
     clsx: ^1.2.1
     copy-to-clipboard: ^3.3.1
@@ -17542,7 +17527,6 @@ __metadata:
     "@testing-library/react": ^12.0.0
     "@testing-library/user-event": ^13.2.1
     "@types/ali-oss": ^6.16.4
-    "@types/big.js": ^6.1.5
     "@types/file-saver": ^2.0.5
     "@types/jest": ^29.2.2
     "@types/mime": ^2.0.3

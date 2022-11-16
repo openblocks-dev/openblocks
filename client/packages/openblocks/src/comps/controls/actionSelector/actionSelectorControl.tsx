@@ -33,6 +33,7 @@ import { TriggerModuleEventActionComp } from "./triggerModuleEventAction";
 import { EditorContext } from "comps/editorState";
 import { useContext } from "react";
 import { trans } from "i18n";
+import { RunScriptAction } from "./runScript";
 
 const SlowdownOptions = [
   { label: trans("eventHandler.debounce"), value: "debounce" },
@@ -71,6 +72,7 @@ const ActionMap = {
   empty: EmptyAction,
   executeQuery: ExecuteQueryAction,
   executeComp: ExecuteCompAction,
+  runScript: RunScriptAction,
   setTempState: SetTempStateAction,
   triggerModuleEvent: TriggerModuleEventActionComp,
   openAppPage: OpenAppPageAction,
@@ -85,7 +87,7 @@ const ActionMap = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ASSERT_TYPE: Record<string, CompConstructor<() => any>> = ActionMap;
 
-export const ActionOptions = [
+export const ActionOptions: { label: string; value: keyof typeof ActionMap }[] = [
   {
     label: trans("eventHandler.noSelect"),
     value: "empty",
@@ -97,6 +99,10 @@ export const ActionOptions = [
   {
     label: trans("eventHandler.controlComp"),
     value: "executeComp",
+  },
+  {
+    label: trans("eventHandler.runScript"),
+    value: "runScript",
   },
   {
     label: trans("eventHandler.setTempState"),
@@ -126,7 +132,7 @@ export const ActionOptions = [
     label: trans("eventHandler.export"),
     value: "download",
   },
-] as const;
+];
 
 type ActionValue = typeof ActionOptions[number]["value"];
 
@@ -159,7 +165,7 @@ interface PropertyViewProps {
 function ActionSelectorControlPropertyView(props: PropertyViewProps) {
   const { comp, placement, label } = props;
   const editorState = useContext(EditorContext);
-  const eventHandlerSlowdownUrl = trans("docUrls.eventHandlerSlowdown")
+  const eventHandlerSlowdownUrl = trans("docUrls.eventHandlerSlowdown");
   return (
     <>
       <Dropdown

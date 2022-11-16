@@ -7,7 +7,7 @@ import { TacoButton } from "openblocks-design";
 import { TextEditIcon } from "openblocks-design";
 import AppPermissionDialog from "pages/ApplicationV2/components/AppPermissionDialog";
 import { useSelector } from "react-redux";
-import { currentApplication } from "redux/selectors/applicationSelector";
+import { currentApplication, getTemplateId } from "redux/selectors/applicationSelector";
 import { getCurrentUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import history from "util/history";
@@ -42,17 +42,25 @@ const LogoIcon = styled(Logo)`
 `;
 
 const LoginBtn = styled(TacoButton)`
-  width: 64px;
+  min-width: 60px;
+  padding: 0;
   height: 28px;
   margin-right: 4px;
 `;
+
+const CloneBtn = styled(TacoButton)`
+  min-width: 60px;
+  height: 28px;
+`;
+
 const PreviewBtn = styled(TacoButton)`
   color: #ffffff;
   background: #8b8fa34c;
   border: none;
   height: 28px;
-  padding: 4px 13px;
   margin-right: 8px;
+  min-width: 60px;
+  padding: 0;
   cursor: pointer;
 
   &:hover {
@@ -77,7 +85,7 @@ const EditIcon = styled(TextEditIcon)`
 `;
 
 const EditBtn = styled(TacoButton)`
-  width: 62px;
+  min-width: 60px;
   height: 28px;
   margin-right: 24px;
   padding: 0;
@@ -91,20 +99,23 @@ const Wrapper = styled.div`
       display: none;
     }
   }
-`
+`;
 
 function HeaderProfile(props: { user: User }) {
   const { user } = props;
   const fetchingUser = useSelector(isFetchingUser);
+  const templateId = useSelector(getTemplateId);
   if (fetchingUser) {
     return <Skeleton.Avatar shape="circle" size={28} />;
   }
   return (
     <div>
       {user.isAnonymous ? (
-        <LoginBtn buttonType="primary" onClick={() => history.push(AUTH_LOGIN_URL)}>
-          {trans("userAuth.login")}
-        </LoginBtn>
+        !templateId ? (
+          <LoginBtn buttonType="primary" onClick={() => history.push(AUTH_LOGIN_URL)}>
+            {trans("userAuth.login")}
+          </LoginBtn>
+        ) : null
       ) : (
         <ProfileDropdown user={user} profileSide={28} fontSize={12} />
       )}
@@ -116,6 +127,7 @@ export const PreviewHeader = () => {
   const user = useSelector(getCurrentUser);
   const application = useSelector(currentApplication);
   const applicationId = useApplicationId();
+  const templateId = useSelector(getTemplateId);
   if (useTemplateViewMode()) {
     return <></>;
   }
@@ -134,7 +146,12 @@ export const PreviewHeader = () => {
       {canManageApp(user, application) && (
         <AppPermissionDialog
           applicationId={applicationId}
-          trigger={<PreviewBtn>{SHARE_TITLE}{""}</PreviewBtn>}
+          trigger={
+            <PreviewBtn>
+              {SHARE_TITLE}
+              {""}
+            </PreviewBtn>
+          }
         />
       )}
 
@@ -150,6 +167,17 @@ export const PreviewHeader = () => {
           <EditIcon />
           {trans("edit")}
         </EditBtn>
+      )}
+      {!!templateId && (
+        <CloneBtn
+          style={{ marginRight: !user.isAnonymous ? "24px" : "" }}
+          buttonType="primary"
+          onClick={() => {
+            window.open(trans("template.cloneUrl") + templateId);
+          }}
+        >
+          {trans("header.clone")}
+        </CloneBtn>
       )}
       <HeaderProfile user={user} />
     </Wrapper>

@@ -304,7 +304,7 @@ export function useChangeExtension(
 }
 
 export function useCompletionSources(props: CodeEditorProps) {
-  const { language, codeType, exposingData } = props;
+  const { language, codeType, exposingData, enableMetaCompletion } = props;
   const context = useContext(QueryContext); // FIXME: temporarily handle, expect to delete after the backend supports eval
   // auto-completion for comp exposing
   const exposingSource = useMemo(() => new ExposingCompletionSource(), []);
@@ -334,15 +334,15 @@ export function useCompletionSources(props: CodeEditorProps) {
       if (ternServer) {
         sources.push(ternServer);
       }
-      if (language === "sql") {
-        sources.push(sqlSource);
-      }
+    }
+    if (enableMetaCompletion) {
+      sources.push(sqlSource);
     }
     return sources.map((c) => {
       c.setIsFunction(codeType === "Function");
       return c.completionSource;
     });
-  }, [language, codeType, exposingSource, ternServer, sqlSource]);
+  }, [enableMetaCompletion, language, codeType, exposingSource, ternServer, sqlSource]);
   return completionSources;
 }
 

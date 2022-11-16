@@ -545,19 +545,47 @@ function changeDependName(unevaledValue, oldName, name, isFunction) {
         .join("");
 }
 function rename(segment, oldName, name) {
-    return segment.replace(/[a-zA-Z_$][a-zA-Z_$0-9.[\]]*/g, function (s) {
-        if (s === oldName) {
-            return name;
-        }
-        if (s.startsWith(oldName + ".")) {
-            return name + "." + s.substring(oldName.length + 1);
-        }
-        return s;
+    var accessors = [".", "["];
+    var regStrList = ["[a-zA-Z_$][a-zA-Z_$0-9.[\\]]*", "(?<=\\[)[a-zA-Z_][a-zA-Z_0-9.]*"];
+    var ret = segment;
+    for (var _i = 0, regStrList_1 = regStrList; _i < regStrList_1.length; _i++) {
+        var regStr = regStrList_1[_i];
+        var reg = new RegExp(regStr, "g");
+        ret = ret.replace(reg, function (s) {
+            if (s === oldName) {
+                return name;
+            }
+            for (var _i = 0, accessors_1 = accessors; _i < accessors_1.length; _i++) {
+                var accessor = accessors_1[_i];
+                if (s.startsWith(oldName + accessor)) {
+                    return name + accessor + s.substring(oldName.length + accessor.length);
+                }
+            }
+            return s;
+        });
+    }
+    return ret;
+}
+function getIdentifiers(jsSnippet) {
+    var ret = [];
+    var commonReg = /[a-zA-Z_$][a-zA-Z_$0-9.[\]]*/g;
+    var commonIds = jsSnippet.match(commonReg);
+    if (commonIds) {
+        ret.push.apply(ret, commonIds);
+    }
+    var indexIds = [];
+    (jsSnippet.match(/\[[a-zA-Z_][a-zA-Z_0-9\[\].]*\]/g) || []).forEach(function (i) {
+        indexIds.push.apply(indexIds, getIdentifiers(i.slice(1, -1)));
     });
+    ret.push.apply(ret, indexIds);
+    if (ret.length === 0) {
+        return [jsSnippet];
+    }
+    return ret;
 }
 function parseDepends(jsSnippet, exposingNodes) {
     var depends = new Map();
-    var identifiers = jsSnippet.match(/[a-zA-Z_$][a-zA-Z_$0-9.[\]]*/g) || [jsSnippet];
+    var identifiers = getIdentifiers(jsSnippet);
     identifiers.forEach(function (identifier) {
         var subpaths = _.toPath(identifier);
         var dependAndPath = getDependNode(subpaths, exposingNodes);
@@ -570,7 +598,7 @@ function parseDepends(jsSnippet, exposingNodes) {
 }
 function parseTopDepends(jsSnippet, exposingNodes) {
     var depends = new Map();
-    var identifiers = jsSnippet.match(/[a-zA-Z_$][a-zA-Z_$0-9.[\]]*/g) || [jsSnippet];
+    var identifiers = getIdentifiers(jsSnippet);
     identifiers.forEach(function (identifier) {
         var subpaths = _.toPath(identifier).slice(0, 1);
         var dependAndPath = getDependNode(subpaths, exposingNodes);

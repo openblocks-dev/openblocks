@@ -54,6 +54,7 @@ export interface ApplicationDetail {
   applicationDSL: JSONValue;
   moduleDSL: Record<string, JSONValue>;
   orgCommonSettings?: CommonSettingResponseData;
+  templateId?: string;
 }
 
 export interface AppPermissionItem {

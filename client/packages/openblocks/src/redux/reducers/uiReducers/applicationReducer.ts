@@ -299,6 +299,7 @@ const usersReducer = createReducer(initialState, {
   ): ApplicationReduxState => ({
     ...state,
     currentApplication: action.payload.applicationInfoView,
+    templateId: action.payload.templateId,
     loadingStatus: {
       ...state.loadingStatus,
       fetchingAppDetail: false,
@@ -322,6 +323,7 @@ export interface ApplicationReduxState {
   recycleList: ApplicationMeta[];
   appPermissionInfo?: AppPermissionInfo;
   currentApplication?: ApplicationMeta;
+  templateId?: string;
   loadingStatus: {
     deletingApplication: boolean;
     isFetchingHomeData: boolean; // fetching app list

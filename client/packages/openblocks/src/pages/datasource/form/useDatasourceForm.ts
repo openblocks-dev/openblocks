@@ -1,6 +1,5 @@
 import { Form, message } from "antd";
 import { DatasourceApi } from "../../../api/datasourceApi";
-import { Datasource } from "@openblocks-ee/api/datasourceApi";
 import _ from "lodash";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,6 +7,7 @@ import { getCurrentUser } from "../../../redux/selectors/usersSelectors";
 import { createDatasource, updateDatasource } from "../../../redux/reduxActions/datasourceActions";
 import { trans } from "i18n";
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
+import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 
 export function useDatasourceForm() {
   const [testLoading, setTestLoading] = useState(false);

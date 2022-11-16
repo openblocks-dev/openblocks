@@ -11,7 +11,11 @@ import {
 } from "openblocks-design";
 import { trans } from "i18n";
 import { useState } from "react";
-import { DatasourceNameFormInputItem, GeneralSettingFormSectionLabel } from "../form";
+import {
+  DatasourceNameFormInputItem,
+  encryptedPlaceholder,
+  GeneralSettingFormSectionLabel,
+} from "../form";
 import { DatasourceFormProps } from "./datasourceFormRegistry";
 
 const AuthTypeOptions = [
@@ -69,6 +73,7 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
       required={true}
       rules={[{ required: !datasourceConfig, message: trans("query.passwordRequiredMessage") }]}
       labelWidth={142}
+      placeholder={props.datasource ? encryptedPlaceholder : "••••••••••••"}
     />
   );
 

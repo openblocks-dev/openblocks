@@ -1,6 +1,6 @@
 export const en = {
   productName: "Openblocks",
-  productDesc: "Quickly build internal systems",
+  productDesc: "Build internal tools fast, with no limitations",
   notSupportedBrowser:
     "Your current browser may have compatibility issues. For a better user experience, it is recommended to use the latest version of the Chrome browser.",
   create: "Create",
@@ -180,6 +180,8 @@ export const en = {
     runQuery: "Run query",
     selectQuery: "Select query",
     controlComp: "Control component",
+    runScript: "Run JavaScript",
+    runScriptPlaceHolder: "Write code here",
     component: "Component",
     method: "Method",
     setTempState: "Set temporary state",
@@ -1608,6 +1610,7 @@ export const en = {
     appSettings: "App settings",
     preview: "Preview",
     editError: "History preview mode, no operation is supported.",
+    clone: "Clone",
   },
   userAuth: {
     registerByEmail: "Sign up",
@@ -1791,5 +1794,8 @@ export const en = {
   },
   customComponent: {
     entryUrl: "https://custom-component.openblocks.dev/index.html",
+  },
+  template: {
+    cloneUrl: "/apps/template-import/",
   },
 };

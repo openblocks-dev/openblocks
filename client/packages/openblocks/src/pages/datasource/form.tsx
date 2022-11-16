@@ -1,4 +1,3 @@
-import { Datasource } from "@openblocks-ee/api/datasourceApi";
 import {
   FormCheckboxItem,
   FormInputItem,
@@ -8,6 +7,7 @@ import {
 import { trans } from "i18n";
 import { toNumber } from "lodash";
 import { useHostCheck } from "./form/useHostCheck";
+import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 
 export const GeneralSettingFormSectionLabel = () => {
   return <FormSectionLabel>{trans("query.generalSetting")}</FormSectionLabel>;

@@ -1,5 +1,5 @@
 import { FunctionControl } from "comps/controls/codeControl";
-import { MultiCompBuilder, withDefault } from "comps/generators";
+import { MultiCompBuilder } from "comps/generators";
 import { QueryResult } from "./queryComp";
 import { QueryTutorials } from "util/tutorialUtils";
 import { DocLink } from "openblocks-design";
@@ -9,7 +9,7 @@ import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "../../constants/query
 
 export const JSQuery = (function () {
   const childrenMap = {
-    script: withDefault(FunctionControl, "return 1 + 1"),
+    script: FunctionControl,
   };
   return new MultiCompBuilder(childrenMap, (props) => {
     const { orgCommonSettings } = getGlobalSettings();
@@ -38,10 +38,9 @@ export const JSQuery = (function () {
       return (
         <>
           {children.script.propertyView({
+            placeholder: "return 1 + 1",
             placement: "bottom",
             styleName: "medium",
-            width: "100%",
-            // language: "sql", // It cannot be set to sql directly, but should be set to sql when the resource type selected by the user is a database
           })}
           {QueryTutorials.js && (
             <DocLink href={QueryTutorials.js}>{trans("query.jsQueryDocLink")}</DocLink>

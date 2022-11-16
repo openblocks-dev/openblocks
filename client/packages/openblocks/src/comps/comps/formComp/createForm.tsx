@@ -24,8 +24,8 @@ import { uiCompRegistry } from "comps/uiCompRegistry";
 import { arrayMove, SortableContainer, SortableElement, SortableHandle } from "react-sortable-hoc";
 import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { trans } from "i18n";
-import { Datasource } from "@openblocks-ee/api/datasourceApi";
 import log from "loglevel";
+import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 
 const OpenDialogButton = styled.span`
   :hover {

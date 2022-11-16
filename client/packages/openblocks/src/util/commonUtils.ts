@@ -3,8 +3,9 @@ import moment from "moment";
 import { getMomentLocale } from "i18n/momentLocale";
 import _ from "lodash";
 
-import "moment/locale/en-gb";
-import "moment/locale/zh-cn";
+// https://github.com/vitejs/vite/discussions/7492#discussioncomment-2449310
+import "moment/dist/locale/en-gb";
+import "moment/dist/locale/zh-cn";
 
 export function initApp() {
   moment.locale(getMomentLocale());

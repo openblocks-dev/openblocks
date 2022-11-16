@@ -1,7 +1,6 @@
 import { withPropertyViewFn, withTypeAndChildren } from "comps/generators";
 import { Dropdown, ValueFromOption } from "openblocks-design";
-import { CompAction, changeValueAction } from "openblocks-core";
-import { CompConstructor } from "openblocks-core";
+import { changeValueAction, CompAction, CompConstructor } from "openblocks-core";
 import { dropdownControl } from "../controls/dropdownControl";
 import {
   ParamsJsonControl,
@@ -33,35 +32,45 @@ const LimitOptions = [
   },
 ] as const;
 
+const QueryField = withPropertyViewFn(ParamsJsonControl, (comp) =>
+  comp.propertyView({
+    label: "Query",
+    placement: "bottom",
+    placeholder: `{
+  rating : {$gte : 9}
+}`,
+    styleName: "medium",
+    enableMetaCompletion: true,
+  })
+);
+
+const LimitInputField = withPropertyViewFn(ParamsPositiveNumberControl, (comp) =>
+  comp.propertyView({
+    label: "Limit",
+    placement: "bottom",
+    placeholder: "10",
+  })
+);
+
+const LimitDropdownField = withPropertyViewFn(dropdownControl(LimitOptions, "SINGLE"), (comp) => (
+  <>{comp.propertyView({ label: "Limit", placement: "bottom" })}</>
+));
+
 const CommandMap: Record<
   ValueFromOption<typeof CommandOptions>,
   CompConstructor<FunctionProperty[]>
 > = {
   FIND: buildQueryCommand({
-    query: withPropertyViewFn(ParamsJsonControl, (comp) =>
-      comp.propertyView({
-        label: "Query",
-        placement: "bottom",
-        placeholder: `{
-  rating : {$gte : 9}
-}`,
-        styleName: "medium",
-      })
-    ),
+    query: QueryField,
     projection: withPropertyViewFn(ParamsJsonControl, (comp) =>
       comp.propertyView({
         label: "Projection",
         placement: "bottom",
         placeholder: "{name : 1}",
+        enableMetaCompletion: true,
       })
     ),
-    limit: withPropertyViewFn(ParamsPositiveNumberControl, (comp) =>
-      comp.propertyView({
-        label: "Limit",
-        placement: "bottom",
-        placeholder: "10",
-      })
-    ),
+    limit: LimitInputField,
     skip: withPropertyViewFn(ParamsPositiveNumberControl, (comp) =>
       comp.propertyView({
         label: "Skip",
@@ -74,6 +83,7 @@ const CommandMap: Record<
         label: "Sort",
         placement: "bottom",
         placeholder: "{name : 1}",
+        enableMetaCompletion: true,
       })
     ),
   }),
@@ -87,20 +97,12 @@ const CommandMap: Record<
     user: "abc123", 
 }]`,
         styleName: "medium",
+        enableMetaCompletion: true,
       })
     ),
   }),
   UPDATE: buildQueryCommand({
-    query: withPropertyViewFn(ParamsJsonControl, (comp) =>
-      comp.propertyView({
-        label: "Query",
-        placement: "bottom",
-        placeholder: `{
-  rating : {$gte : 9}
-}`,
-        styleName: "medium",
-      })
-    ),
+    query: QueryField,
     update: withPropertyViewFn(ParamsJsonControl, (comp) =>
       comp.propertyView({
         label: "Update",
@@ -109,55 +111,26 @@ const CommandMap: Record<
   $inc : {score: 1}
 }`,
         styleName: "medium",
+        enableMetaCompletion: true,
       })
     ),
-    limit: withPropertyViewFn(dropdownControl(LimitOptions, "SINGLE"), (comp) => (
-      <>{comp.propertyView({ label: "Limit", placement: "bottom" })}</>
-    )),
+    limit: LimitDropdownField,
   }),
   DELETE: buildQueryCommand({
-    query: withPropertyViewFn(ParamsJsonControl, (comp) =>
-      comp.propertyView({
-        label: "Query",
-        placement: "bottom",
-        placeholder: `{
-  rating : {$gte : 9}
-}`,
-        styleName: "medium",
-      })
-    ),
-    limit: withPropertyViewFn(dropdownControl(LimitOptions, "SINGLE"), (comp) => (
-      <>{comp.propertyView({ label: "Limit", placement: "bottom" })}</>
-    )),
+    query: QueryField,
+    limit: LimitDropdownField,
   }),
   COUNT: buildQueryCommand({
-    query: withPropertyViewFn(ParamsJsonControl, (comp) =>
-      comp.propertyView({
-        label: "Query",
-        placement: "bottom",
-        placeholder: `{
-  rating : {$gte : 9}
-}`,
-        styleName: "medium",
-      })
-    ),
+    query: QueryField,
   }),
   DISTINCT: buildQueryCommand({
-    query: withPropertyViewFn(ParamsJsonControl, (comp) =>
-      comp.propertyView({
-        label: "Query",
-        placement: "bottom",
-        placeholder: `{
-  rating : {$gte : 9}
-}`,
-        styleName: "medium",
-      })
-    ),
+    query: QueryField,
     key: withPropertyViewFn(ParamsStringControl, (comp) =>
       comp.propertyView({
         label: "Key",
         placement: "bottom",
         placeholder: "name",
+        enableMetaCompletion: true,
       })
     ),
   }),
@@ -171,15 +144,10 @@ const CommandMap: Record<
   { $group: { _id: "$team", count: { $sum: 1 } } }
 ]`,
         styleName: "medium",
+        enableMetaCompletion: true,
       })
     ),
-    limit: withPropertyViewFn(ParamsPositiveNumberControl, (comp) =>
-      comp.propertyView({
-        label: "Limit",
-        placement: "bottom",
-        placeholder: "10",
-      })
-    ),
+    limit: LimitInputField,
   }),
   RAW: buildQueryCommand({
     command: withPropertyViewFn(ParamsJsonControl, (comp) =>
@@ -191,6 +159,7 @@ const CommandMap: Record<
   { $group: { _id: "$tags", count: { $sum : 1 }}}
 ]`,
         styleName: "medium",
+        enableMetaCompletion: true,
       })
     ),
   }),
@@ -236,6 +205,7 @@ export class MongoQuery extends MongoQueryTmp {
             {this.children.collection.propertyView({
               label: "Collection",
               placement: "bottom",
+              enableMetaCompletion: true,
             })}
           </>
         )}

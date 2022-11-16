@@ -19,14 +19,12 @@ import {
   NameConfigRequired,
   withExposingConfigs,
 } from "comps/generators/withExposing";
-import { Section, sectionNames } from "openblocks-design";
-import _, { isEmpty, isNaN } from "lodash";
+import { Section, sectionNames, ValueFromOption } from "openblocks-design";
 import { useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { RecordConstructorToView } from "openblocks-core";
 import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
 import { UICompBuilder, withDefault } from "../../generators";
-import Big from "big.js";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { MethodConfigFocus, withMethodExposing } from "../../generators/withMethodExposing";
 import { RefControl } from "../../controls/refControl";
@@ -95,39 +93,75 @@ const InputNumber = styled(AntdInputNumber)<{
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
-const toBig = (value: string) => {
-  const num = numberParser(value);
-  return isEmpty(num) ? Big(0) : Big(num);
-};
-
 const FormatterOptions = [
   {
     label: trans("numberInput.standard"),
     value: "standard",
-    formatter: (allowNull: boolean, precision: number, value: string): string =>
-      isEmpty(value) ? (allowNull ? "" : "0") : toBig(value).toFixed(precision),
-    parser: (value?: string): string => value ?? "",
   },
   {
     label: trans("numberInput.percent"),
     value: "percent",
-    formatter: (allowNull: boolean, precision: number, value: string): string =>
-      isEmpty(value) ? (allowNull ? "" : "0") : `${toBig(value).toFixed(precision)}%`,
-    parser: (value?: string) => (isEmpty(value) ? "" : Number(value) / 100),
   },
 ] as const;
 
-const thousandsSeparatorFormatter = (value: string | number): string => {
+type Formatter = ValueFromOption<typeof FormatterOptions>;
+
+function parseNumber(value: string, allowNull?: boolean) {
+  // only keep numbers, decimal points, minus signs
+  const v = value.replace(/[^\d.-]/g, "");
+  if (v) {
+    const num = Number(v);
+    if (isFinite(num)) {
+      return num;
+    }
+  }
+  return allowNull ? null : 0;
+}
+
+function addThousandsSeparator(value: string) {
   // https://stackoverflow.com/questions/51568821/works-in-chrome-but-breaks-in-safari-invalid-regular-expression-invalid-group
   // value?.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") ?? "0";
   // safari does not support backward search, so divide the integer part by the decimal point and add it
   const parts = value.toString().split(".");
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   return parts.join(".");
-};
-const numberParser = (value: string) => value.replace(/[^\d.-]/g, ""); // keep only numbers, decimal points, minus signs
+}
 
-const valueInfoMap = _.fromPairs(FormatterOptions.map((option) => [option.value, option]));
+function format(
+  value: string,
+  allowNull: boolean,
+  formatter: Formatter,
+  precision: number,
+  thousandsSeparator: boolean
+) {
+  const num = parseNumber(value, allowNull);
+  if (num === null) {
+    return "";
+  }
+  let v = num.toFixed(precision);
+  if (thousandsSeparator) {
+    v = addThousandsSeparator(v);
+  }
+  switch (formatter) {
+    case "standard":
+      return v;
+    case "percent":
+      return v + "%";
+  }
+}
+
+function toNumberValue(value: string, allowNull: boolean, formatter: Formatter) {
+  const num = parseNumber(value, allowNull);
+  if (num === null) {
+    return null;
+  }
+  switch (formatter) {
+    case "standard":
+      return num;
+    case "percent":
+      return num / 100;
+  }
+}
 
 type ValidationParams = {
   value: { value: string };
@@ -137,43 +171,35 @@ type ValidationParams = {
   max?: number;
   customRule: string;
 };
-const validate = (
-  props: ValidationParams
-): {
+
+function validate(props: ValidationParams): {
   validateStatus: "success" | "warning" | "error" | "";
   help?: string;
-} => {
+} {
   if (props.customRule) {
     return { validateStatus: "error", help: props.customRule };
   }
-  if (props.allowNull && props.required && isEmpty(props.value.value)) {
-    return { validateStatus: "error", help: trans("prop.required") };
-  }
-  if (!numberParser(props.value.value)) {
+  const value = parseNumber(props.value.value, props.allowNull);
+  if (value === null) {
+    if (props.required) {
+      return { validateStatus: "error", help: trans("prop.required") };
+    }
     return { validateStatus: "" };
   }
-
-  const value = toBig(props.value.value);
-  if (props.max !== undefined && value.gt(props.max)) {
+  if (props.max !== undefined && value > props.max) {
     return {
       validateStatus: "error",
-      help: trans("validationDesc.maxValue", {
-        value: value.toString(),
-        max: props.max,
-      }),
+      help: trans("validationDesc.maxValue", { value, max: props.max }),
     };
   }
-  if (props.min !== undefined && value.lt(props.min)) {
+  if (props.min !== undefined && value < props.min) {
     return {
       validateStatus: "error",
-      help: trans("validationDesc.minValue", {
-        value: value.toString(),
-        min: props.min,
-      }),
+      help: trans("validationDesc.minValue", { value, min: props.min }),
     };
   }
   return { validateStatus: "" };
-};
+}
 
 const UndefinedNumberControl = codeControl<number | undefined>((value: any) => {
   if (typeof value === "number") {
@@ -184,7 +210,7 @@ const UndefinedNumberControl = codeControl<number | undefined>((value: any) => {
 });
 
 const childrenMap = {
-  value: stringExposingStateControl("value"), // It is more convenient for string to handle various states, save the original input here
+  value: stringExposingStateControl("value"), // It is more convenient for string to handle various states, save raw input here
   placeholder: StringControl,
   disabled: BoolCodeControl,
   readOnly: BoolControl,
@@ -211,23 +237,23 @@ const childrenMap = {
 const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) => {
   const ref = useRef<HTMLInputElement | null>(null);
   const [editing, setEditing] = useState(false);
-
-  const formatterFn = (initValue: string) => {
-    const value = valueInfoMap[props.formatter].formatter(
-      props.allowNull,
-      props.precision,
-      initValue
-    );
-    return props.thousandsSeparator ? thousandsSeparatorFormatter(value) : value;
-  };
-
   return (
     <InputNumber
       ref={(input) => {
         props.viewRef(input);
         ref.current = input;
       }}
-      value={editing ? props.value.value : formatterFn(numberParser(props.value.value))}
+      value={
+        editing
+          ? props.value.value
+          : format(
+              props.value.value,
+              props.allowNull,
+              props.formatter,
+              props.precision,
+              props.thousandsSeparator
+            )
+      }
       controls={props.controls}
       step={props.step}
       disabled={props.disabled}
@@ -238,25 +264,18 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       $style={props.style}
       onPressEnter={() => props.onEvent("submit")}
       onChangeCapture={(e: any) => {
-        // save full input if triggered here
-        let value = e.target.value?.toString() ?? "";
-        value = value.replace("。", "."); // replace Chinese period
-        props.value.onChange(value);
+        setEditing(true);
+        props.value.onChange((e.target.value?.toString() ?? "").replace("。", "."));
       }}
       onStep={(_, info) => {
         // since percentage mode needs to be handled manually
-        const { type } = info;
-        let offset = Number(info.offset);
-        if (type === "down") {
-          offset = Number(offset) * -1;
-        }
-        const initValue = toBig(props.value.value).plus(offset);
-        const value = formatterFn(initValue.toString()); // direct format after step
-        props.value.onChange(value);
+        const v =
+          (parseNumber(props.value.value) || 0) +
+          (info.type === "up" ? 1 : -1) * Number(info.offset);
+        props.value.onChange(v.toString());
       }}
       onChange={() => props.onEvent("change")}
       onFocus={() => {
-        setEditing(true);
         props.onEvent("focus");
       }}
       onBlur={() => {
@@ -348,14 +367,7 @@ export const NumberInputComp = withExposingConfigs(NumberInputTmp2Comp, [
     name: "value",
     desc: trans("export.inputValueDesc"),
     depKeys: ["value", "allowNull", "formatter"],
-    func: (input) => {
-      const value = input.value;
-      const num = Number(valueInfoMap[input.formatter].parser(numberParser(value)));
-      if (isEmpty(value) || isNaN(num)) {
-        return input.allowNull ? null : 0;
-      }
-      return num;
-    },
+    func: (input) => toNumberValue(input.value, input.allowNull, input.formatter),
   }),
   NameConfigPlaceHolder,
   NameConfigRequired,
