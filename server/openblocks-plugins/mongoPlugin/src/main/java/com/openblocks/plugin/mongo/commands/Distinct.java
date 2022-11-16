@@ -50,18 +50,18 @@ public class Distinct extends MongoCommand {
     }
 
     @Override
-    public Boolean isValid() {
+    public boolean isValid() {
         if (!super.isValid()) {
-            return Boolean.FALSE;
+            return false;
         }
 
         if (StringUtils.isNotBlank(key)) {
-            return Boolean.TRUE;
+            return true;
         }
 
         fieldNamesWithNoConfiguration.add("Key/Field");
 
-        return Boolean.FALSE;
+        return false;
     }
 
     @Override

@@ -18,6 +18,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 
 import com.openblocks.api.application.view.ApplicationInfoView;
 import com.openblocks.api.application.view.ApplicationInfoView.ApplicationInfoViewBuilder;
@@ -41,6 +42,7 @@ import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.model.UserStatus;
 import com.openblocks.domain.user.service.UserService;
 import com.openblocks.domain.user.service.UserStatusService;
+import com.openblocks.infra.util.NetworkUtils;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -79,12 +81,13 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
     private UserApplicationInteractionService userApplicationInteractionService;
 
     @Override
-    public Mono<UserProfileView> buildUserProfileView(User user) {
+    public Mono<UserProfileView> buildUserProfileView(User user, ServerWebExchange exchange) {
 
         if (user.isAnonymous()) {
             return Mono.just(UserProfileView.builder()
                     .isAnonymous(true)
                     .username(user.getName())
+                    .ip(NetworkUtils.getRemoteIp(exchange))
                     .build()
             );
         }
@@ -131,6 +134,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .userStatus(userStatus.getStatusMap())
                                         .isOrgDev(isOrgDev)
                                         .createdTimeMs(user.getCreatedAt().toEpochMilli())
+                                        .ip(NetworkUtils.getRemoteIp(exchange))
                                         .build();
                             });
                 });

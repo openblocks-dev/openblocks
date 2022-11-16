@@ -64,9 +64,9 @@ public class Aggregate extends MongoCommand {
     }
 
     @Override
-    public Boolean isValid() {
+    public boolean isValid() {
         if (!super.isValid()) {
-            return Boolean.FALSE;
+            return false;
         }
 
         if (StringUtils.isNullOrEmpty(pipeline)) {

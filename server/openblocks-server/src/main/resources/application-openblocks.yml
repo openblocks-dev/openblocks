@@ -35,7 +35,7 @@ common:
   security:
     cors-allowed-domains:
       - '*'
-  version: 1.0.21
+  version: 1.1.0
   block-hound-enable: false
 
 material:

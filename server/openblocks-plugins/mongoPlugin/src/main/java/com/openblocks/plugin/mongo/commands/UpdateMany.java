@@ -64,13 +64,13 @@ public class UpdateMany extends MongoCommand {
     }
 
     @Override
-    public Boolean isValid() {
+    public boolean isValid() {
         if (!super.isValid()) {
-            return Boolean.FALSE;
+            return false;
         }
 
         if (StringUtils.isNotBlank(query) && StringUtils.isNotBlank(update)) {
-            return Boolean.TRUE;
+            return true;
         }
 
         // Not adding smart defaults for query due to data impact
@@ -81,7 +81,7 @@ public class UpdateMany extends MongoCommand {
         if (StringUtils.isBlank(update)) {
             fieldNamesWithNoConfiguration.add("Update");
         }
-        return Boolean.FALSE;
+        return false;
     }
 
     @Override

@@ -40,10 +40,11 @@ public class PostgresDatasourceConfig implements DatasourceConnectionConfig {
     private final Long port;
     private final boolean usingSsl;
     private final boolean readonly;
+    private final boolean enableTurnOffPreparedStatement;
 
     @JsonCreator
     private PostgresDatasourceConfig(String database, String username, String password, String host, Long port,
-            boolean usingSsl, boolean readonly) {
+            boolean usingSsl, boolean readonly, boolean enableTurnOffPreparedStatement) {
         this.database = database;
         this.username = username;
         this.password = password;
@@ -51,6 +52,7 @@ public class PostgresDatasourceConfig implements DatasourceConnectionConfig {
         this.host = host;
         this.port = port;
         this.readonly = readonly;
+        this.enableTurnOffPreparedStatement = enableTurnOffPreparedStatement;
     }
 
     public static PostgresDatasourceConfig buildFrom(Map<String, Object> requestMap) {
@@ -77,6 +79,10 @@ public class PostgresDatasourceConfig implements DatasourceConnectionConfig {
         return StringUtils.trimToEmpty(host);
     }
 
+    public boolean isEnableTurnOffPreparedStatement() {
+        return enableTurnOffPreparedStatement;
+    }
+
     @VisibleForTesting
     public PostgresDatasourceConfigBuilder toBuilder() {
         return builder()
@@ -86,7 +92,8 @@ public class PostgresDatasourceConfig implements DatasourceConnectionConfig {
                 .usingSsl(usingSsl)
                 .host(host)
                 .port(port)
-                .readonly(readonly);
+                .readonly(readonly)
+                .enableTurnOffPreparedStatement(enableTurnOffPreparedStatement);
     }
 
     @Override
@@ -101,7 +108,8 @@ public class PostgresDatasourceConfig implements DatasourceConnectionConfig {
                 updatedPostgresConfig.getHost(),
                 updatedPostgresConfig.getPort(),
                 updatedPostgresConfig.isUsingSsl(),
-                updatedPostgresConfig.isReadonly());
+                updatedPostgresConfig.isReadonly(),
+                updatedPostgresConfig.isEnableTurnOffPreparedStatement());
     }
 
     @Override

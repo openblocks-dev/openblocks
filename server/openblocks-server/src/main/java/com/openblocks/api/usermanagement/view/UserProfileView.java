@@ -46,4 +46,5 @@ public class UserProfileView {
 
     private long createdTimeMs;
 
+    private String ip;
 }

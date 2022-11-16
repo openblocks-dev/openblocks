@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -41,6 +42,7 @@ public class Connection {
     private Set<String> orgIds;
 
     @Nullable
+    @JsonProperty(access = Access.WRITE_ONLY)
     private ConnectionAuthToken authConnectionAuthToken;
 
     private Map<String, Object> rawUserInfo;

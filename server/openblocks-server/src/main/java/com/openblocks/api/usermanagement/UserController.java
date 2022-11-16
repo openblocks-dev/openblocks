@@ -62,7 +62,7 @@ public class UserController {
     public Mono<ResponseView<?>> getUserProfile(ServerWebExchange exchange) {
         String domain = UriUtils.getRefererDomain(exchange);
         return sessionUserService.getVisitor()
-                .flatMap(userHomeApiService::buildUserProfileView)
+                .flatMap(user -> userHomeApiService.buildUserProfileView(user, exchange))
                 .flatMap(view -> orgApiService.checkOrganizationDomain(domain)
                         .flatMap(OrganizationDomainCheckResult::buildOrganizationDomainCheckView)
                         .switchIfEmpty(Mono.just(ResponseView.success(view))));
@@ -88,7 +88,7 @@ public class UserController {
     }
 
     @PutMapping
-    public Mono<ResponseView<UserProfileView>> update(@RequestBody UpdateUserRequest updateUserRequest) {
+    public Mono<ResponseView<UserProfileView>> update(@RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange) {
         return sessionUserService.getVisitorId()
                 .flatMap(uid -> {
                     User updateUser = new User();
@@ -98,7 +98,7 @@ public class UserController {
                     }
                     return userService.update(uid, updateUser);
                 })
-                .flatMap(userHomeApiService::buildUserProfileView)
+                .flatMap(user -> userHomeApiService.buildUserProfileView(user, exchange))
                 .map(ResponseView::success);
     }
 

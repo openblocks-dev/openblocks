@@ -38,8 +38,10 @@ import com.openblocks.domain.query.service.QueryExecutionService;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.service.UserService;
 import com.openblocks.sdk.exception.BizError;
+import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.QueryExecutionResult;
 import com.openblocks.sdk.query.QueryVisitorContext;
+import com.openblocks.sdk.util.UriUtils;
 
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Timed;
@@ -208,13 +210,18 @@ public class LibraryQueryApiService {
                     String userId = orgMember.getUserId();
                     BaseQuery baseQuery = tuple.getT2();
                     Datasource datasource = tuple.getT3();
-                    QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port, cookies, Mono.empty());
+                    Mono<List<Property>> paramsAndHeadersInheritFromLogin =
+                            getParamsAndHeadersInheritFromLogin(userId, orgId, UriUtils.getRefererDomain(exchange));
+                    QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port, cookies, paramsAndHeadersInheritFromLogin);
                     Map<String, Object> queryConfig = baseQuery.getQueryConfig();
                     String timeoutStr = baseQuery.getTimeoutStr();
                     return queryExecutionService.executeQuery(datasource, queryConfig, queryExecutionRequest.paramMap(), timeoutStr,
                                     queryVisitorContext
                             )
                             .timed()
+                            .doOnNext(timed -> onNextOrError(queryExecutionRequest, queryVisitorContext, baseQuery, datasource,
+                                    timed.elapsed().toMillis(), true))
+                            .doOnError(throwable -> onNextOrError(queryExecutionRequest, queryVisitorContext, baseQuery, datasource, 0, false))
                             .map(Timed::get);
                 });
     }
@@ -226,5 +233,14 @@ public class LibraryQueryApiService {
             return libraryQueryRecordService.getById(libraryQueryCombineId.libraryQueryRecordId())
                     .map(LibraryQueryRecord::getQuery);
         }
+    }
+
+    protected Mono<List<Property>> getParamsAndHeadersInheritFromLogin(String userId, String orgId, String domain) {
+        return Mono.empty();
+    }
+
+    protected void onNextOrError(QueryExecutionRequest queryExecutionRequest, QueryVisitorContext queryVisitorContext, BaseQuery baseQuery,
+            Datasource datasource, long executeTime, boolean success) {
+        // do nothing
     }
 }

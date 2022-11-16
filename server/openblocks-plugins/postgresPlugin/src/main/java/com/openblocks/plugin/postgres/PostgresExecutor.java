@@ -73,6 +73,8 @@ public class PostgresExecutor extends BlockingQueryExecutor<PostgresDatasourceCo
         return PostgresQueryContext.builder()
                 .query(postgresQueryConfig.getSql())
                 .requestParams(requestParams)
+                .disablePreparedStatement(datasourceConfig.isEnableTurnOffPreparedStatement() &&
+                        postgresQueryConfig.isDisablePreparedStatement())
                 .build();
     }
 
@@ -358,6 +360,8 @@ public class PostgresExecutor extends BlockingQueryExecutor<PostgresDatasourceCo
                 }
             }
             case STRING -> preparedStatement.setString(index, String.valueOf(value));
+            default -> {
+            }
         }
     }
 

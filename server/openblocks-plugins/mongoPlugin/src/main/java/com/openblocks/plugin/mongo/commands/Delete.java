@@ -57,18 +57,18 @@ public class Delete extends MongoCommand {
     }
 
     @Override
-    public Boolean isValid() {
+    public boolean isValid() {
         if (!super.isValid()) {
-            return Boolean.FALSE;
+            return false;
         }
 
         if (StringUtils.isNotBlank(query)) {
-            return Boolean.TRUE;
+            return true;
         }
 
         // Not adding smart defaults for query due to data impact
         fieldNamesWithNoConfiguration.add("Query");
-        return Boolean.FALSE;
+        return false;
     }
 
     @Override

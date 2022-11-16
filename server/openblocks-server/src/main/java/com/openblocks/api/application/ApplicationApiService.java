@@ -74,6 +74,10 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ApplicationApiService {
 
+    private static final String LIBRARY_QUERY_DATASOURCE_TYPE = "libraryQuery";
+    private static final String JS_DATASOURCE_TYPE = "js";
+    private static final String VIEW_DATASOURCE_TYPE = "view";
+
     @Autowired
     private ApplicationService applicationService;
 
@@ -515,6 +519,11 @@ public class ApplicationApiService {
         Map<String, Object> queryMap = (Map<String, Object>) query;
         Object compType = ((Map<?, ?>) query).get("compType");
         if (!(compType instanceof String datasourceType)) {
+            return queryMap;
+        }
+        if (LIBRARY_QUERY_DATASOURCE_TYPE.equalsIgnoreCase(datasourceType) ||
+                JS_DATASOURCE_TYPE.equalsIgnoreCase(datasourceType) ||
+                VIEW_DATASOURCE_TYPE.equalsIgnoreCase(datasourceType)) {
             return queryMap;
         }
         var queryExecutor = datasourceMetaInfoService.getQueryExecutor(datasourceType);

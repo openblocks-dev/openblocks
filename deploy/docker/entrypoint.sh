@@ -15,7 +15,7 @@ init_configuration() {
     if ! [ -e "$YML_PATH" ]; then
         echo "yml configuration not exist"
         mkdir -p "$CONFIG_PATH"
-        cp /env/application-selfhost.yml $CONFIG_PATH/
+        cp /env2/application-selfhost.yml $CONFIG_PATH/
     fi
 }
 

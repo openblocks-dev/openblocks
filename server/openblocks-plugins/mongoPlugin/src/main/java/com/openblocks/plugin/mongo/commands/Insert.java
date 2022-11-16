@@ -51,17 +51,17 @@ public class Insert extends MongoCommand {
     }
 
     @Override
-    public Boolean isValid() {
+    public boolean isValid() {
         if (!super.isValid()) {
-            return Boolean.FALSE;
+            return false;
         }
 
         if (StringUtils.isNotBlank(documents)) {
-            return Boolean.TRUE;
+            return true;
         }
 
         fieldNamesWithNoConfiguration.add("Documents");
-        return Boolean.FALSE;
+        return false;
     }
 
     @Override

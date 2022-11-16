@@ -65,7 +65,7 @@ COPY --from=jre-build /build/jre /app
 ARG JAR_FILE=/openblocks-server/openblocks-server/target/openblocks-server-1.0-SNAPSHOT.jar
 ARG PLUGIN_JARS=/openblocks-server/openblocks-plugins/*/target/*.jar
 
-RUN mkdir -p /openblocks /openblocks/plugins /var/www/openblocks
+RUN mkdir -p /openblocks /openblocks/plugins /var/www/openblocks /env2
 
 COPY --from=build-server ${JAR_FILE} /openblocks/server.jar
 COPY --from=build-server ${PLUGIN_JARS} /openblocks/plugins/
@@ -87,7 +87,7 @@ COPY ./deploy/docker/templates/supervisord/*  /etc/supervisor/conf.d/
 
 # copy application.yml
 COPY ./server/openblocks-server/src/main/resources/selfhost/ce/application.yml /env/
-COPY ./server/openblocks-server/src/main/resources/selfhost/ce/application-selfhost.yml /env/
+COPY ./server/openblocks-server/src/main/resources/selfhost/ce/application-selfhost.yml /env2/
 
 # Add bootstrapfile
 # COPY ./entrypoint.sh /

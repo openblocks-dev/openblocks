@@ -66,12 +66,12 @@ public abstract class MongoCommand {
         timeoutMs = MapUtils.getInteger(formData, "timeout", DEFAULT_VALUE);
     }
 
-    public Boolean isValid() {
+    public boolean isValid() {
         if (StringUtils.isBlank(this.collection)) {
             fieldNamesWithNoConfiguration.add(COLLECTION);
-            return Boolean.FALSE;
+            return false;
         }
-        return Boolean.TRUE;
+        return true;
     }
 
     public Document parseCommand() {
