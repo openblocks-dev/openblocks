@@ -22,10 +22,10 @@ mkdir openblocks
 cd openblocks
 ```
 
-## Docker-Compose (Recommend)
+## Deploy
 
-### Deploy
-
+{% tabs %}
+{% tab title="Docker-Compose (Recommend)" %}
 Follow the steps below:
 
 1. Download the configuration file by clicking [docker-compose.yml](https://cdn-files.openblocks.dev/docker-compose.yml) or running the curl command: `curl https://cdn-files.openblocks.dev/docker-compose.yml -o $PWD/docker-compose.yml`
@@ -40,9 +40,23 @@ Follow the steps below:
 
 
     <figure><img src="../.gitbook/assets/check-logs-ce.png" alt=""><figcaption></figcaption></figure>
+{% endtab %}
 
-### Update
+{% tab title="Docker" %}
+Run the command below:
 
+{% code overflow="wrap" %}
+```powershell
+docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
+```
+{% endcode %}
+{% endtab %}
+{% endtabs %}
+
+## Update
+
+{% tabs %}
+{% tab title="Docker-Compose" %}
 Run the following commands to update to the latest Openblocks image:
 
 ```powershell
@@ -50,21 +64,9 @@ docker-compose pull
 docker-compose rm -fsv openblocks
 docker-compose up -d
 ```
+{% endtab %}
 
-## Docker
-
-### Deploy
-
-Run this command to deploy Openblocks on premise:
-
-{% code overflow="wrap" %}
-```powershell
-docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
-```
-{% endcode %}
-
-### Update
-
+{% tab title="Docker" %}
 Run the following commands to update to the latest Openblocks image:
 
 {% code overflow="wrap" %}
@@ -74,6 +76,8 @@ docker rm -fv openblocks
 docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
 ```
 {% endcode %}
+{% endtab %}
+{% endtabs %}
 
 ## Sign up
 
