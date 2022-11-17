@@ -32,14 +32,14 @@ Follow the steps below:
 2.  Start the Docker container by running this command: `docker-compose up -d` ;\
     The docker image, about 400 MB, is downloaded during the initial start-up.
 
-    <figure><img src=".gitbook/assets/download-ce.png" alt=""><figcaption></figcaption></figure>
+    <figure><img src="../.gitbook/assets/download-ce.png" alt=""><figcaption></figcaption></figure>
 
     After downloading, it usually takes less than 30 seconds to start the service.
 3.  Check the logs by running this command: `docker logs -f openblocks` ;\
     When you see `frontend`, `backend`, `redis`, and `mongo` `entered the RUNNING state`, the Openblocks service has officially started:\
 
 
-    <figure><img src=".gitbook/assets/check-logs-ce.png" alt=""><figcaption></figcaption></figure>
+    <figure><img src="../.gitbook/assets/check-logs-ce.png" alt=""><figcaption></figcaption></figure>
 
 ### Update
 
@@ -79,4 +79,4 @@ docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks"
 
 Visit **http://localhost:3000** and click **Sign up**. Openblocks will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
 
-<figure><img src=".gitbook/assets/after-deployment.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/after-deployment.png" alt=""><figcaption></figcaption></figure>

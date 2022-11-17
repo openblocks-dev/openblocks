@@ -2,7 +2,7 @@
 
 In Openblocks, event handlers are responsible for collecting and processing events from components and queries, and executing subsequent actions. For example, for a **Button** component, you can add an event handler to trigger the **Run query** action **** in response to the button **Click** event.
 
-<figure><img src="../.gitbook/assets/image (8).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (19).png" alt=""><figcaption></figcaption></figure>
 
 Set event handlers wisely to provide a reactive and responsive user experience (UX). For example, triggering a **get-all** query after **insert-new-data** query finishes enables table automatically refresh.
 
@@ -32,7 +32,7 @@ Running a query can result in success or failure, so queries have two events: **
 
 There are a number of event handler actions available in Openblocks for handling different scenarios. Set them in the **Action** dropdown list in an event handler.
 
-![](<../.gitbook/assets/image (9).png>)
+![](<../.gitbook/assets/image (1).png>)
 
 {% hint style="info" %}
 See [advanced](event-handlers.md#advanced) on this page to know advanced settings.
@@ -48,7 +48,7 @@ Trigger the selected query.
 
 To control a component, select a component in the **Component** dropdown list and call one of its methods in the **Method** dropdown list.
 
-![](<../.gitbook/assets/image (29).png>)
+![](<../.gitbook/assets/image (17).png>)
 
 ### Set temporary state
 

@@ -6,7 +6,7 @@ Queries support you to read data from or write data to your data sources. You ca
 
 You can connect to a data source that was already in your data source library or create a new one. For detailed information, see [Data source basics](../data-sources/data-source-basics.md).
 
-<figure><img src="../.gitbook/assets/image (12).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (31).png" alt=""><figcaption></figcaption></figure>
 
 ## Create a query
 

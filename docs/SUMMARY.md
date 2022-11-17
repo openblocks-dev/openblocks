@@ -1,7 +1,8 @@
 # Table of contents
 
 * [Openblocks overview](README.md)
-* [Self-hosting](self-hosting.md)
+* [Self-hosting](self-hosting/README.md)
+  * [Access local database or API](self-hosting/access-local-database-or-api.md)
 * [Security](security.md)
 
 ## Data sources
