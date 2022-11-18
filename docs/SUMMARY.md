@@ -20,3 +20,8 @@
 * [App editor](build-apps/app-editor.md)
 * [Event handlers](build-apps/event-handlers.md)
 * [Version and release management](build-apps/version-and-release-management.md)
+
+## Workspace management
+
+* [Members and groups](workspace-management/members-and-groups.md)
+* [Permissions for resources](workspace-management/permissions-for-resources.md)

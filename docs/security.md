@@ -15,7 +15,7 @@ Yes, it is very safe for the following reasons:
 * All sensitive credentials, such as database passwords, are encrypted with [AES-256 encryption](https://en.wikipedia.org/wiki/Advanced\_Encryption\_Standard).
 * All sensitive credentials will never be sent to the browser from the server. They are only used in server side and are never exposed to the browser, the browser will display "Encrypted on the server side" as a placeholder.
 
-<figure><img src=".gitbook/assets/image (3).png" alt=""><figcaption></figcaption></figure>
+<figure><img src=".gitbook/assets/image (3) (1).png" alt=""><figcaption></figcaption></figure>
 
 ## Other security measures within Openblocks
 

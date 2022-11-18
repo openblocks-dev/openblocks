@@ -4,7 +4,7 @@ Queries support you to read data from or write data to your data sources. You ca
 
 ## Connect to a data source
 
-You can connect to a data source that was already in your data source library or create a new one. For detailed information, see [Data source basics](../data-sources/data-source-basics.md).
+You can connect to a data source that was already in your data source library or create a new one. For detailed information, see [data-source-basics.md](../data-sources/data-source-basics.md "mention").
 
 <figure><img src="../.gitbook/assets/image (31).png" alt=""><figcaption></figcaption></figure>
 
@@ -48,15 +48,12 @@ When Openblocks detects your query statement switches from reading to writing da
 
 ## Notification tab and Advanced tab
 
-In notification and advanced tabs, you can configure settings regarding notifications, timeout, periodic run, and more. Settings in **Notification** tab and **Advanced** vary based on trigger mode of your query.\
+In notification and advanced tabs, you can configure settings regarding notifications, timeout, periodic run, and more. Settings in **Notification** tab and **Advanced** vary based on trigger mode of your query.
 
-
-| **Tab**          | **Settings**                                | **Inputs change or on page load** | **Manual invoked** |
-| ---------------- | ------------------------------------------- | --------------------------------- | ------------------ |
-| **Notification** | Display a Success message after running     | 🚫                                | ✅                  |
-|                  | Display a Failure message after running     | ✅                                 | ✅                  |
-| **Advanced**     | Display a confirmation modal before running | <p>🚫<br></p>                     | ✅                  |
-|                  | Set timeout for query running               | ✅                                 | ✅                  |
-|                  | Perform query periodically                  | ✅                                 | 🚫                 |
-
-\
+| Tab              | Settings                                    | Inputs change or on page load | Manually invoked |
+| ---------------- | ------------------------------------------- | :---------------------------: | :--------------: |
+| **Notification** | Display a Success message after running     |               🚫              |         ✅        |
+|                  | Display a Failure message after running     |               ✅               |         ✅        |
+| **Advanced**     | Display a confirmation modal before running |         <p>🚫<br></p>         |         ✅        |
+|                  | Set timeout for query running               |               ✅               |         ✅        |
+|                  | Perform query periodically                  |               ✅               |        🚫        |

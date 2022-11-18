@@ -26,7 +26,7 @@ Different components have different events. For example, **Button** components o
 
 Running a query can result in success or failure, so queries have two events: **Success** or **Failure**. You can add event handlers to queries in Query editor.
 
-<figure><img src="../.gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (3).png" alt=""><figcaption></figcaption></figure>
 
 ## Actions
 
@@ -52,7 +52,7 @@ To control a component, select a component in the **Component** dropdown list an
 
 ### Set temporary state
 
-Store data in a [temporary state](broken-reference).&#x20;
+Store data in a temporary state.&#x20;
 
 ### Go to app
 
