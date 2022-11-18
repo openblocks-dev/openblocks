@@ -9,6 +9,8 @@
 
 * [Data source basics](data-sources/data-source-basics.md)
 * [Configure IP allowlists](data-sources/configure-ip-allowlists.md)
+* [Connect to databases](data-sources/connect-to-databases/README.md)
+  * [Google Sheets](data-sources/connect-to-databases/google-sheets.md)
 
 ## Queries
 

@@ -20,19 +20,19 @@ Different components have different events. For example, **Button** components o
 
 **Input** components have **Change**, **Focus**, **Blur**, and **Submit** events.
 
-<figure><img src="../.gitbook/assets/image (10).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (10) (1).png" alt=""><figcaption></figcaption></figure>
 
 ### Query events
 
 Running a query can result in success or failure, so queries have two events: **Success** or **Failure**. You can add event handlers to queries in Query editor.
 
-<figure><img src="../.gitbook/assets/image (3).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (38).png" alt=""><figcaption></figcaption></figure>
 
 ## Actions
 
 There are a number of event handler actions available in Openblocks for handling different scenarios. Set them in the **Action** dropdown list in an event handler.
 
-![](<../.gitbook/assets/image (1).png>)
+![](<../.gitbook/assets/image (1) (1).png>)
 
 {% hint style="info" %}
 See [advanced](event-handlers.md#advanced) on this page to know advanced settings.
@@ -42,7 +42,7 @@ See [advanced](event-handlers.md#advanced) on this page to know advanced setting
 
 Trigger the selected query.
 
-![](<../.gitbook/assets/image (7).png>)
+![](<../.gitbook/assets/image (7) (1).png>)
 
 ### Control components
 
@@ -69,7 +69,7 @@ In the **User list** app, click **See info** to navigate to the **User info** ap
 
 1.  The **User list** app passes `{{currentRow.id}}` in the table row as a URL Query parameter to the **User info** app.
 
-    <figure><img src="../.gitbook/assets/image (20).png" alt=""><figcaption></figcaption></figure>
+    <figure><img src="../.gitbook/assets/image (20) (1).png" alt=""><figcaption></figcaption></figure>
 2.  The URL field of the **User info** app global variable will automatically resolve the URL requested by the app. In this case, the value of `url.query` is `{"id":3}`, so the query will retrieve the corresponding user info via `{{url.query.id}}`. See the figure below.
 
     <figure><img src="../.gitbook/assets/image (14).png" alt=""><figcaption></figcaption></figure>
@@ -78,7 +78,7 @@ In the **User list** app, click **See info** to navigate to the **User info** ap
 
 Navigate to an external URL.
 
-![](<../.gitbook/assets/image (6).png>)
+![](<../.gitbook/assets/image (6) (1).png>)
 
 ### Show notification
 
@@ -90,7 +90,7 @@ Show a floating notification of informational, success, warning, or error messag
 
 Copy a value to the clipboard.
 
-![](<../.gitbook/assets/image (35).png>)
+![](<../.gitbook/assets/image (35) (1).png>)
 
 ### Export data
 

@@ -14,7 +14,7 @@ App history versions are only accessible to editors and admins.
 
 You can view any version of your previous drafts. Click **Preview** **>** **History**.
 
-![](<../.gitbook/assets/image (11).png>)
+![](<../.gitbook/assets/image (11) (1).png>)
 
 ### Restore a history version
 
@@ -31,6 +31,6 @@ Apps are usually upgraded on a regular basis to include new features, improve bu
 
 By default, end users interact with the latest version of your app. Once you finalize the sketch for a newer version of your app, you can proceed to publish it. Click **Preview > Publish**.
 
-![](<../.gitbook/assets/image (13).png>)
+![](<../.gitbook/assets/image (13) (1).png>)
 
 Now the newly released version becomes live for all end users, and all your future updates will not affect the live version until you publish again.

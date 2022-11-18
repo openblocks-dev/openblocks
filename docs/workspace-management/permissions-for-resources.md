@@ -34,7 +34,7 @@ The available roles and their corresponding permissions are listed in the table 
 
 If you want to make an app public and accessible to all users (including anonymous users), you can toggle the **Make the app public** switch in **Share** settings.
 
-![](../.gitbook/assets/image.png)
+![](<../.gitbook/assets/image (22).png>)
 
 ## Data sources
 

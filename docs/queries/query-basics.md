@@ -6,7 +6,7 @@ Queries support you to read data from or write data to your data sources. You ca
 
 You can connect to a data source that was already in your data source library or create a new one. For detailed information, see [data-source-basics.md](../data-sources/data-source-basics.md "mention").
 
-<figure><img src="../.gitbook/assets/image (31).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (31) (1).png" alt=""><figcaption></figcaption></figure>
 
 ## Create a query
 
@@ -16,13 +16,13 @@ The UI of query editor varies when you choose different types of data sources. B
 
 Openblocks evaluates your query statement with JavaScript code inside `{{ }}` in real-time, and the result is displayed below in a floating box, so you can use it to check the correctness of the query statement.
 
-<figure><img src="../.gitbook/assets/image (36).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (36) (1).png" alt=""><figcaption></figcaption></figure>
 
 ## Metadata
 
 You can view the metadata of databases such as PostgreSQL, MongoDB and MySQL. Click **Metadata**, then the database tables and their fields are displayed in a tree structure. Metadata is useful for writing queries and it enables auto-suggestion while you typing.
 
-![](<../.gitbook/assets/image (23).png>)![](<../.gitbook/assets/image (26).png>)
+![](<../.gitbook/assets/image (23).png>)![](<../.gitbook/assets/image (26) (1).png>)
 
 ## Trigger when
 

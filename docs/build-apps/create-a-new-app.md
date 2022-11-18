@@ -16,10 +16,10 @@ Only workspace **admins** and members of **Developers** group can create apps.
 
 Click your app name and select **Export to JSON**, the app will be exported to a JSON file.
 
-<figure><img src="../.gitbook/assets/image (22).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (22) (1).png" alt=""><figcaption></figcaption></figure>
 
 ### Import an app
 
 You can import an existing app in a JSON format by clicking **New > Import**.
 
-<figure><img src="../.gitbook/assets/image (5).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (5) (1).png" alt=""><figcaption></figcaption></figure>
