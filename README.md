@@ -68,3 +68,4 @@ You can access Openblocks from [cloud-hosted version](https://cloud.openblocks.d
 ## 📝 Examples(WIP)
 - [Basic CRUD](https://cloud.openblocks.dev/apps/6374b8dbc23a1103804cc23e/view)
 - [Simple table horizontal scroll and pagination demo](https://cloud.openblocks.dev/apps/6377695dc54c5224c70e9770/view)
+- [Pagination with temporary state demo](https://cloud.openblocks.dev/apps/6379cdd9f02c6e6ecc1d37ff/view)
