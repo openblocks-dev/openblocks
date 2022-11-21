@@ -65,25 +65,25 @@ Now let's take **cowsay** as an example and import it on app-level and workspace
 
 ### Import on App-level
 
-Navigate to the left sidebar, click <img src="../.gitbook/assets/image (1).png" alt="" data-size="line"> > **Other** > **Scripts and style** > **Add a library**. Then paste the **cowsay** link here.
+Navigate to the left sidebar, click <img src="../../.gitbook/assets/image (1).png" alt="" data-size="line"> > **Other** > **Scripts and style** > **Add a library**. Then paste the **cowsay** link here.
 
-<figure><img src="../.gitbook/assets/Add a library (2).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Add a library (2).png" alt=""><figcaption></figcaption></figure>
 
 Now you can write code in **JS query** to test its usage with `cowsay.say`:
 
-<figure><img src="../.gitbook/assets/write code in JS query (2).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/write code in JS query (2).png" alt=""><figcaption></figcaption></figure>
 
 or in component **Properties**:
 
-<figure><img src="../.gitbook/assets/or in Properties (2).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/or in Properties (2).png" alt=""><figcaption></figcaption></figure>
 
 And since you have set up cowsay just for **Openblocks's new application 1,** you can not use cowsay in another app.
 
-<figure><img src="../.gitbook/assets/in another app (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/in another app (1).png" alt=""><figcaption></figcaption></figure>
 
 ### Import on Workspace-level libraries
 
 Navigate to **Workspace settings** > **Advanced** > **JavaScript library** > **Add a library**. Then paste the **cowsay** link here and click **Save**. Now you can use **cowsay** library **** in any app of your workspace.\
-![](<../.gitbook/assets/Import on  Workspace-level libraries (1).png>)
+![](<../../.gitbook/assets/Import on  Workspace-level libraries (1).png>)
 
-<figure><img src="../.gitbook/assets/Import on  Workspace-level libraries-advanced.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Import on  Workspace-level libraries-advanced.png" alt=""><figcaption></figcaption></figure>

@@ -21,7 +21,8 @@
 * [Create a new app](build-apps/create-a-new-app.md)
 * [App editor](build-apps/app-editor.md)
 * [Event handlers](build-apps/event-handlers.md)
-* [Use third-party libraries](build-apps/use-third-party-libraries.md)
+* [Write JavaScript](build-apps/write-javascript/README.md)
+  * [Use third-party libraries](build-apps/write-javascript/use-third-party-libraries.md)
 * [Version and release management](build-apps/version-and-release-management.md)
 
 ## Workspace management
