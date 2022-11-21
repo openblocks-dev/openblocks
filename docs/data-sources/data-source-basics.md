@@ -1,6 +1,6 @@
 # Data source basics
 
-Data source is where you manage credentials and make connections to various popular databases such as PostgreSQL, MongoDB, Elasticsearch and all kinds of internal or third party APIs.&#x20;
+Data source is where you manage credentials and make connections to various popular databases such as PostgreSQL, MongoDB, Elasticsearch and all kinds of internal or third-party APIs.&#x20;
 
 Openblocks stores your credentials securely and does not store any data from your requests or responses. It only serves as a proxy between client side and your data sources.
 
