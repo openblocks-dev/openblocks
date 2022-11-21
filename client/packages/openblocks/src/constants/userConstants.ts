@@ -1,15 +1,11 @@
 import { Org, RoleIdType } from "./orgConstants";
+import { JSONObject, JSONValue } from "util/jsonTypes";
 
 export const ANONYMOUS_USERNAME = "anonymous";
 
 // official support auth source, user custom auth source is dynamic string
 export const UserConnectionSource = {
-  phone: "PHONE",
   email: "EMAIL",
-  wechat: "WECHAT",
-  feishu: "FEISHU",
-  wecom: "WECOM",
-  dingTalk: "DING_TALK",
   google: "GOOGLE",
   github: "GITHUB",
 };
@@ -17,6 +13,7 @@ export const UserConnectionSource = {
 export type UserConnection = {
   source: string;
   name: string;
+  rawUserInfo?: JSONObject;
 };
 
 export type BaseUserInfo = {
@@ -30,6 +27,7 @@ export type BaseUserInfo = {
   hasSetNickname?: boolean;
   orgDev: boolean; // is the org's developer?
   createdTimeMs: number;
+  ip?: string;
   userStatus: {
     newUserGuidance: boolean;
     olderUserNonDevPopup: boolean;
@@ -58,3 +56,14 @@ export const DefaultCurrentUserDetails: User = {
 };
 
 export type UserStatusType = keyof BaseUserInfo["userStatus"];
+
+export const getUserConnectionInfo = (user: User) => {
+  const connectionInfo: JSONObject = {};
+  user.connections?.forEach((c) => {
+    // filter email
+    if (c.source !== UserConnectionSource.email) {
+      connectionInfo[c.source] = c.rawUserInfo ? c.rawUserInfo : {};
+    }
+  });
+  return connectionInfo;
+};

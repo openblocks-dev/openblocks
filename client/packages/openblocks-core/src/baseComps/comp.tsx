@@ -9,8 +9,6 @@ export type OptionalNodeType = Node<unknown> | undefined;
 export type DispatchType = (action: CompAction) => void;
 
 /**
- * Comp architecture: https://codemore.feishu.cn/wiki/wikcngXolZsjqCjIpRA5M6sw65f
- * FIXME: replace as a github page
  */
 export interface Comp<
   ViewReturn = any,

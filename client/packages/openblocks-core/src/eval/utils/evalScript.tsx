@@ -111,6 +111,9 @@ function createMockWindow() {
   return new Proxy(
     {},
     {
+      has() {
+        return true;
+      },
       set(target, p, newValue) {
         return Reflect.set(target, p, newValue);
       },
@@ -125,6 +128,10 @@ function createMockWindow() {
         const ret = Reflect.get(window, p);
         if (typeof ret === "function" && !ret.prototype) {
           return ret.bind(window);
+        }
+        // get DOM element by id, serializing may cause error
+        if (isDomElement(ret)) {
+          return undefined;
         }
         return ret;
       },
@@ -143,7 +150,6 @@ interface SandBoxOption {
    * disable all limit, like running in host
    */
   disableLimit?: boolean;
-  refErrWhenNotExist?: boolean;
 }
 
 function isDomElement(obj: any): boolean {
@@ -151,7 +157,7 @@ function isDomElement(obj: any): boolean {
 }
 
 function proxySandbox(context: any, methods?: EvalMethods, options?: SandBoxOption) {
-  const { refErrWhenNotExist = true, disableLimit = false } = options || {};
+  const { disableLimit = false } = options || {};
   const isProtectedVar = (key: PropertyKey) => {
     return key in context || key in (methods || {}) || globalVarNames.has(key);
   };
@@ -169,6 +175,10 @@ function proxySandbox(context: any, methods?: EvalMethods, options?: SandBoxOpti
         return target;
       }
 
+      if (globalVarNames.has(p)) {
+        return disableLimit ? window : target;
+      }
+
       if (p in context) {
         return immutable(
           Reflect.get(context, p, receiver),
@@ -176,44 +186,11 @@ function proxySandbox(context: any, methods?: EvalMethods, options?: SandBoxOpti
         );
       }
 
-      if (p in target) {
-        return Reflect.get(target, p, receiver);
+      if (disableLimit) {
+        return Reflect.get(window, p);
       }
 
-      if (p in window) {
-        if (disableLimit) {
-          return Reflect.get(window, p);
-        }
-        if (typeof p === "string" && blacklist.has(p)) {
-          log.log(`[Sandbox] access unPermitted global attr: ${String(p)}, return mock object`);
-          return createBlackHole();
-        }
-        if (globalVarNames.has(p)) {
-          // return receiver;
-          return target;
-        }
-        try {
-          const ret = Reflect.get(window, p);
-
-          if (typeof ret === "function" && !ret.prototype) {
-            return ret.bind(window);
-          }
-
-          // get DOM element by id, serializing may cause error
-          if (isDomElement(ret) && refErrWhenNotExist) {
-            throw new ReferenceError(p.toString() + " not exist");
-          }
-          return ret;
-        } catch (e) {
-          throw new ReferenceError("can't get " + p.toString());
-        }
-      }
-
-      if (refErrWhenNotExist) {
-        throw new ReferenceError(p.toString() + " not exist");
-      }
-
-      return undefined;
+      return Reflect.get(target, p, receiver);
     },
 
     set(target, p, value, receiver) {
@@ -236,6 +213,7 @@ function proxySandbox(context: any, methods?: EvalMethods, options?: SandBoxOpti
       }
       return Reflect.deleteProperty(target, p);
     },
+
     setPrototypeOf(target, v) {
       throw new Error("can't invoke setPrototypeOf");
     },

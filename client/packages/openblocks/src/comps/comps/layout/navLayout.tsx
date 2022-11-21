@@ -79,7 +79,7 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
           label: label,
           title: label,
           key: item.getItemKey(),
-          icon: item.children.icon.getView(),
+          icon: <span>{item.children.icon.getView()}</span>,
           ...(subItems.length > 0 && { children: getMenuItem(subItems) }),
         };
       });

@@ -13605,6 +13605,7 @@ __metadata:
     file-loader: ^6.2.0
     fs-extra: ^10.1.0
     html-webpack-plugin: ^5.5.0
+    openblocks-dev-utils: "workspace:^"
     react-json-view: ^1.21.3
     typescript: ^4.8.4
     vite: ^3.2.3
@@ -13700,7 +13701,6 @@ __metadata:
     "@rollup/plugin-replace": ^5.0.1
     "@rollup/plugin-url": ^7.0.0
     "@svgr/rollup": ^6.3.1
-    openblocks: "workspace:^"
     openblocks-dev-utils: "workspace:^"
     rollup: ^2
     rollup-plugin-cleaner: ^1.0.0
@@ -13714,7 +13714,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"openblocks@workspace:^, openblocks@workspace:packages/openblocks":
+"openblocks@workspace:packages/openblocks":
   version: 0.0.0-use.local
   resolution: "openblocks@workspace:packages/openblocks"
   dependencies:

@@ -76,6 +76,7 @@ class TransformerAsBottomRes extends TransformerItemCompBase implements BottomRe
     const name = this.name();
     const success = !valueAndMsg.hasError();
     return {
+      success: success,
       title: `${name} ${
         success ? trans("transformer.previewSuccess") : trans("transformer.previewFail")
       }`,
@@ -84,15 +85,19 @@ class TransformerAsBottomRes extends TransformerItemCompBase implements BottomRe
       data: valueAndMsg.value,
     };
   }
+
   order(): number {
     return this.children.order.getView();
   }
+
   type(): BottomResTypeEnum {
     return BottomResTypeEnum.Transformer;
   }
+
   name(): string {
     return this.children.name.getView();
   }
+
   icon(): ReactNode {
     return getBottomResIcon(BottomResTypeEnum.Transformer);
   }
@@ -121,6 +126,7 @@ export class TransformerListComp extends TransformerListCompBase implements Bott
     });
     return result;
   }
+
   items() {
     return this.getView() as unknown as BottomResComp[];
   }

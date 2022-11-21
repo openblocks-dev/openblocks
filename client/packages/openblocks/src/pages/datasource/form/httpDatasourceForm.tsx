@@ -17,6 +17,7 @@ import {
   GeneralSettingFormSectionLabel,
 } from "../form";
 import { DatasourceFormProps } from "./datasourceFormRegistry";
+import { useHostCheck } from "./useHostCheck";
 
 const AuthTypeOptions = [
   { label: "None", value: "NO_AUTH" },
@@ -53,6 +54,8 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
 
   const [authType, setAuthType] = useState(datasourceConfig?.authConfig?.type);
   // const [grantType, setGrantType] = useState(oauthConfig?.grantType ?? "authorization_code");
+
+  const hostRule = useHostCheck();
 
   const UsernameFormItem = (
     <FormInputItem
@@ -114,7 +117,7 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
           required={true}
           placeholder={"https://xxx.com"}
           initialValue={datasourceConfig?.url}
-          rules={UrlRules}
+          rules={[...UrlRules, hostRule]}
           labelWidth={142}
         />
         <FormKeyValueItem

@@ -15,7 +15,7 @@ import { checkEmailValid } from "util/stringUtils";
 import styled from "styled-components";
 import { requiresUnAuth } from "./authHOC";
 import { useLocation } from "react-router-dom";
-import { UserConnectionSource } from "constants/userConstants";
+import { UserConnectionSource } from "@openblocks-ee/constants/userConstants";
 import { trans } from "i18n";
 import { authRespValidate, checkPassWithMsg } from "pages/userAuth/authUtils";
 import { useSelector } from "react-redux";

@@ -1,6 +1,6 @@
 import "core-js/actual";
 import { trans } from "i18n";
-import { isCurrentBrowserSupported } from "./utils/browser";
+import { isCurrentBrowserSupported } from "./util/browser";
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!isCurrentBrowserSupported()) {

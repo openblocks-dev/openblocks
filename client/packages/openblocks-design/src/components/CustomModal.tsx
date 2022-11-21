@@ -143,6 +143,7 @@ function ModalFooter(props: {
     <>
       {showCancelButton && (
         <TacoButton
+          style={{ minWidth: "64px" }}
           onClick={onCancel}
           autoFocus={autoFocusButton === "cancel"}
           {...cancelButtonProps}
@@ -152,6 +153,7 @@ function ModalFooter(props: {
       )}
       {showOkButton && (
         <TacoButton
+          style={{ minWidth: "64px" }}
           onClick={onOk}
           autoFocus={autoFocusButton === "ok"}
           buttonType={okButtonType ?? "primary"}
@@ -178,7 +180,7 @@ const DEFAULT_PROPS = {
   showOkButton: true,
   showCancelButton: true,
   showBackLink: false,
-  autoFocusButton: 'ok',
+  autoFocusButton: "ok",
 } as const;
 
 function CustomModalRender(props: CustomModalProps & ModalFuncProps) {

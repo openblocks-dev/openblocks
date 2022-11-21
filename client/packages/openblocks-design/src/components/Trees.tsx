@@ -4,11 +4,12 @@ import { DataNode, TreeProps } from "antd/lib/tree";
 import DirectoryTree from "antd/lib/tree/DirectoryTree";
 
 export const Treediv = styled.div<{ $height?: number }>`
-  margin-left: 24px;
+  padding-left: 24px;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow: hidden;
 
   &::before {
     content: "";
@@ -18,7 +19,7 @@ export const Treediv = styled.div<{ $height?: number }>`
     height: calc(100% - 12px);
     top: 0px;
     bottom: 0px;
-    left: -16px;
+    left: 8px;
     border-left: 1.5px solid #d7d9e0;
     border-radius: 8px;
   }

@@ -1075,6 +1075,9 @@ function createBlackHole() {
 }
 function createMockWindow() {
     return new Proxy({}, {
+        has: function () {
+            return true;
+        },
         set: function (target, p, newValue) {
             return Reflect.set(target, p, newValue);
         },
@@ -1090,6 +1093,10 @@ function createMockWindow() {
             if (typeof ret === "function" && !ret.prototype) {
                 return ret.bind(window);
             }
+            // get DOM element by id, serializing may cause error
+            if (isDomElement(ret)) {
+                return undefined;
+            }
             return ret;
         },
     });
@@ -1102,7 +1109,7 @@ function isDomElement(obj) {
     return obj instanceof Element || obj instanceof HTMLCollection;
 }
 function proxySandbox(context, methods, options) {
-    var _a = options || {}, _b = _a.refErrWhenNotExist, refErrWhenNotExist = _b === void 0 ? true : _b, _c = _a.disableLimit, disableLimit = _c === void 0 ? false : _c;
+    var _a = (options || {}).disableLimit, disableLimit = _a === void 0 ? false : _a;
     var isProtectedVar = function (key) {
         return key in context || key in (methods || {}) || globalVarNames.has(key);
     };
@@ -1118,43 +1125,16 @@ function proxySandbox(context, methods, options) {
             if (p === "toJSON") {
                 return target;
             }
+            if (globalVarNames.has(p)) {
+                return disableLimit ? window : target;
+            }
             if (p in context) {
                 return immutable(Reflect.get(context, p, receiver), methods ? Reflect.get(methods, p) : undefined);
             }
-            if (p in target) {
-                return Reflect.get(target, p, receiver);
+            if (disableLimit) {
+                return Reflect.get(window, p);
             }
-            if (p in window) {
-                if (disableLimit) {
-                    return Reflect.get(window, p);
-                }
-                if (typeof p === "string" && blacklist.has(p)) {
-                    log.log("[Sandbox] access unPermitted global attr: ".concat(String(p), ", return mock object"));
-                    return createBlackHole();
-                }
-                if (globalVarNames.has(p)) {
-                    // return receiver;
-                    return target;
-                }
-                try {
-                    var ret = Reflect.get(window, p);
-                    if (typeof ret === "function" && !ret.prototype) {
-                        return ret.bind(window);
-                    }
-                    // get DOM element by id, serializing may cause error
-                    if (isDomElement(ret) && refErrWhenNotExist) {
-                        throw new ReferenceError(p.toString() + " not exist");
-                    }
-                    return ret;
-                }
-                catch (e) {
-                    throw new ReferenceError("can't get " + p.toString());
-                }
-            }
-            if (refErrWhenNotExist) {
-                throw new ReferenceError(p.toString() + " not exist");
-            }
-            return undefined;
+            return Reflect.get(target, p, receiver);
         },
         set: function (target, p, value, receiver) {
             if (isProtectedVar(p)) {

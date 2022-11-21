@@ -48,7 +48,8 @@ const TagsControl = codeControl<Array<string> | string>(
 );
 
 function getTagColor(text: string) {
-  return colors[hashToNum(text) % colors.length];
+  const index = Math.abs(hashToNum(text)) % colors.length;
+  return colors[index];
 }
 
 export const ColumnTagsComp = (function () {

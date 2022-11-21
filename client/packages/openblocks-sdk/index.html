@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Openblocks SDK</title>
+    <style>
+      .demo-title {
+        text-align: center;
+      }
+      .demo {
+        overflow: auto;
+        padding: 10px;
+      }
+      .ops {
+        padding: 10px;
+      }
+      .ops button {
+        margin-right: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="demo-title">Use in vanilla app</h1>
+    <div id="app1" class="demo"></div>
+    <div id="app1-ops" class="ops">
+      <button data-key="setModuleInputs">setModuleInputs</button>
+      <button data-key="invokeMethod">invokeMethod</button>
+    </div>
+
+    <h1 class="demo-title">Use in React app</h1>
+    <div id="app2" class="demo"></div>
+    <script type="module" src="index.tsx"></script>
+  </body>
+</html>

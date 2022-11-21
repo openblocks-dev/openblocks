@@ -6,7 +6,7 @@ import styled from "styled-components";
 import UserApi from "api/userApi";
 import { useRedirectUrl } from "util/hooks";
 import { checkEmailValid, checkPhoneValid } from "util/stringUtils";
-import { UserConnectionSource } from "constants/userConstants";
+import { UserConnectionSource } from "@openblocks-ee/constants/userConstants";
 import { trans } from "i18n";
 import { authRespValidate } from "pages/userAuth/authUtils";
 import { requiresUnAuth } from "pages/userAuth/authHOC";

@@ -104,7 +104,7 @@ export const viteConfig: UserConfig = {
   server: {
     open: true,
     cors: true,
-    port: 3000,
+    port: 8000,
     host: "0.0.0.0",
     proxy: {
       "/api": {

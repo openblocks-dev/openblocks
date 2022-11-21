@@ -1,6 +1,6 @@
 {
   "name": "openblocks-sdk",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "type": "module",
   "files": [
     "dist",
@@ -20,8 +20,7 @@
   },
   "scripts": {
     "build": "vite build",
-    "type": "NODE_OPTIONS=--max_old_space_size=4096 tsc --project .",
-    "prepare": "husky install"
+    "start": "vite"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^22.0.2",
@@ -41,7 +40,6 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
-    "openblocks": "workspace:^",
     "vite": "^3.2.3"
   }
 }

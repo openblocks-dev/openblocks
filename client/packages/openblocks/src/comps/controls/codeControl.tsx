@@ -58,7 +58,7 @@ interface CodeControlParams<T> extends CodeNodeOptions {
 export function codeControl<
   T extends JSONValue | RegExp | undefined | Function | Record<string, unknown>
 >(transformFn: (value: unknown) => T, codeControlParams?: CodeControlParams<T>) {
-  const { defaultValue, defaultCode, codeType, evalWithMethods } = codeControlParams || {};
+  const { defaultValue, defaultCode, codeType, evalWithMethods = false } = codeControlParams || {};
   const transform = transformWrapper(transformFn, defaultValue);
 
   class CodeControl extends AbstractComp<T, string, Node<ValueAndMsg<T>>> {
@@ -459,11 +459,7 @@ export const FunctionControl = codeControl<Function>(
 export const TransformerCodeControl = codeControl<JSONValue>(
   (value) => {
     if (typeof value === "function") {
-      try {
-        return value();
-      } catch (e) {
-        return "";
-      }
+      return value();
     }
     return undefined;
   },

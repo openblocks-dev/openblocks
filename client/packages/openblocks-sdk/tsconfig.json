@@ -31,5 +31,11 @@
     }
   },
   "exclude": ["../openblocks/src/ee/*"],
-  "include": ["src", "../openblocks/src", "../openblocks-comps/src", "../openblocks-design/src"]
+  "include": [
+    "src",
+    "index.tsx",
+    "../openblocks/src",
+    "../openblocks-comps/src",
+    "../openblocks-design/src"
+  ]
 }

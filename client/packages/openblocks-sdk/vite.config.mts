@@ -11,7 +11,6 @@ buildVars.forEach(({ name, defaultValue }) => {
   define[name] = JSON.stringify(process.env[name] || defaultValue);
 });
 
-// https://vitejs.dev/config/
 export const viteConfig: UserConfig = {
   define,
   assetsInclude: ["**/*.md"],
@@ -30,9 +29,8 @@ export const viteConfig: UserConfig = {
       name: "Openblocks",
       fileName: "openblocks-sdk",
     },
-    // cssCodeSplit: true,
     rollupOptions: {
-      external: ["react", "react-dom", "axios"],
+      // external: ["react", "react-dom", "axios"],
       output: {
         chunkFileNames: "[hash].js",
       },
@@ -43,6 +41,14 @@ export const viteConfig: UserConfig = {
           return false;
         }
         return "auto";
+      },
+    },
+  },
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:3000",
+        changeOrigin: false,
       },
     },
   },

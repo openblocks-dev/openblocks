@@ -5,9 +5,10 @@ import { spawn } from "node:child_process";
 import { writeFileSync, existsSync } from "node:fs";
 import chalk from "chalk";
 import { createCommand } from "commander";
-import { readJson } from "openblocks-dev-utils/util.js";
+import { readJson, currentDirName } from "openblocks-dev-utils/util.js";
 
-const pkg = readJson("./package.json");
+const currentDir = currentDirName(import.meta.url);
+const pkg = readJson(path.resolve(currentDir, "./package.json"));
 
 const isUsingYarn = (process.env.npm_config_user_agent || "").indexOf("yarn") === 0;
 const cliPackageName = "openblocks-cli";
@@ -104,6 +105,7 @@ async function createProject(projectName, options) {
     if (force) {
       fs.emptyDirSync(root);
     } else {
+      console.log();
       console.error(`${root} is not empty`);
       process.exit(1);
     }

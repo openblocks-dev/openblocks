@@ -1,14 +1,12 @@
 import { HomeResTypeEnum } from "../../types/homeRes";
 import { AppImport } from "./components/AppImport";
-import { ImportIconV2 } from "openblocks-design";
-import { PackUpIcon } from "openblocks-design";
+import { ImportIconV2, PackUpIcon, TacoButton } from "openblocks-design";
 import React, { useState } from "react";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
 import { HomeResInfo } from "../../util/homeResUtils";
 import { createAppItemClass } from "../tutorials/HomeTutorialsV2";
 import styled from "styled-components";
 import { Dropdown as AntdDropdown, Menu as AntdMenu } from "antd";
-import { TacoButton } from "openblocks-design";
 import { HomeLayoutMode } from "./HomeLayout";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "../../redux/selectors/usersSelectors";
@@ -23,6 +21,7 @@ const Dropdown = styled(AntdDropdown)`
 
 const CreateDropdownMenu = styled(AntdMenu)`
   width: fit-content;
+  min-width: 110px;
   padding: 8px;
   background: #ffffff;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);

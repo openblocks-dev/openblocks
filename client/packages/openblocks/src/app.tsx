@@ -40,8 +40,8 @@ import { loadComps } from "comps";
 import { fetchHomeData } from "redux/reduxActions/applicationActions";
 import { initApp } from "util/commonUtils";
 import ApplicationHome from "./pages/ApplicationV2";
-import { hasQueryParam } from "index.sdk";
 import { favicon } from "@openblocks-ee/assets/images";
+import { hasQueryParam } from "util/urlUtils";
 
 const Wrapper = (props: { children: React.ReactNode }) => {
   return <ConfigProvider locale={getAntdLocale(language)}>{props.children}</ConfigProvider>;

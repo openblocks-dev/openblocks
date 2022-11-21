@@ -86,3 +86,7 @@ export * from "comps/generators/withExposing";
 export * from "comps/generators/withIsLoading";
 export * from "comps/generators/withMethodExposing";
 export * from "comps/generators/withType";
+
+export * from "appView/bootstrapAt";
+export * from "appView/OpenblocksAppView";
+export * from "appView/AppViewInstance";

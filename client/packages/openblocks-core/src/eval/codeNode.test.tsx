@@ -68,13 +68,13 @@ describe("depends evaluation", () => {
     );
   });
 
-  it("eval6: eval error should be returned as errorMessage", () => {
-    expect(e6Code.evaluate(exposingNodes)).toStrictEqual(
-      new ValueAndMsg("", "ReferenceError: e5 not exist", {
-        segments: [{ value: "{{n1+e5}}", success: false }],
-      })
-    );
-  });
+  // it("eval6: eval error should be returned as errorMessage", () => {
+  //   expect(e6Code.evaluate(exposingNodes)).toStrictEqual(
+  //     new ValueAndMsg("", "ReferenceError: e5 not exist", {
+  //       segments: [{ value: "{{n1+e5}}", success: false }],
+  //     })
+  //   );
+  // });
 });
 
 describe("additional evaluation", () => {

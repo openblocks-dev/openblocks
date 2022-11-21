@@ -42,12 +42,13 @@ const LibListWrapper = styled.div`
 `;
 
 function runScript(code: string, inHost?: boolean) {
+  console.info(inHost);
   if (inHost) {
     runScriptInHost(code);
     return;
   }
   try {
-    evalFunc(code, {}, {}, { refErrWhenNotExist: false });
+    evalFunc(code, {}, {});
   } catch (e) {
     log.error(e);
   }
@@ -103,15 +104,19 @@ class LibsComp extends list(SimpleStringControl) implements RunAndClearable<stri
 
 class ScriptComp extends CodeTextControl implements RunAndClearable<string> {
   runInHost: boolean = false;
-  async run(id: string, externalScript: string = "", runInHost: boolean = false) {
-    if (externalScript) {
-      runScript(externalScript, runInHost);
-    }
+  runPreloadScript() {
     const code = this.getView();
     if (!code) {
       return;
     }
-    runScript(code, runInHost);
+    runScript(code, this.runInHost);
+  }
+  async run(id: string, externalScript: string = "", runInHost: boolean = false) {
+    this.runInHost = runInHost;
+    if (externalScript) {
+      runScript(externalScript, runInHost);
+    }
+    this.runPreloadScript();
   }
   async clear(): Promise<any> {
     clearMockWindow();
@@ -194,12 +199,10 @@ function LibsTabPane(props: { libsComp: ChildrenInstance["libs"] }) {
   );
 }
 
-function JavaScriptTabPane(props: { comp: ConstructorToComp<typeof CodeTextControl> }) {
-  const javascript = props.comp.getView();
-
+function JavaScriptTabPane(props: { comp: ConstructorToComp<typeof ScriptComp> }) {
   useEffect(() => {
-    runScript(javascript);
-  }, [javascript]);
+    props.comp.runPreloadScript();
+  }, [props.comp]);
 
   const codePlaceholder = `window.name = 'Tom';\nwindow.greet = () => "hello world";`;
 

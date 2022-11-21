@@ -4,7 +4,7 @@ import { EsDatasourceForm } from "./esDatasourceForm";
 import { SMTPDatasourceForm } from "./smtpDatasourceForm";
 import { FormInstance } from "antd";
 import { MysqlDatasourceForm } from "./mysqlDatasourceForm";
-import { MSSQLDatasourceForm } from "./MSSQLDatasourceForm";
+import { MSSQLDatasourceForm } from "./mssqlDatasourceForm";
 import { MongoDatasourceForm } from "./mongoDatasourceForm";
 import { PostgresqlDatasourceForm } from "./postgresqlDatasourceForm";
 import { FormSize } from "openblocks-design";

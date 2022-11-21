@@ -13,3 +13,11 @@ window.resizeTo = function resizeTo(width, height) {
     outerHeight: height,
   }).dispatchEvent(new this.Event("resize"));
 };
+
+window.ResizeObserver = function () {
+  return {
+    observe: () => {},
+    unobserve: () => {},
+    disconnect: () => {},
+  };
+};

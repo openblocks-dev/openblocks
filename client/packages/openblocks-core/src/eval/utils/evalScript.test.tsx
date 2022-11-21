@@ -6,6 +6,10 @@ test("evalFunc", () => {
   expect(() =>
     evalFunc("setTimeout(() => {});", {}, undefined, { disableLimit: true })
   ).not.toThrow();
+  expect(evalFunc("return window.setTimeout", {}, {})).not.toBe(window.setTimeout);
+  expect(evalFunc("return window.setTimeout", {}, {}, { disableLimit: true })).toBe(
+    window.setTimeout
+  );
 });
 
 describe("evalScript", () => {
@@ -33,6 +37,11 @@ describe("evalScript", () => {
     expect(evalScript("input1.value.vwfe", context)).toBe(undefined);
     expect(evalScript("a[0]", { a: [] })).toBe(undefined);
 
+    expect(evalScript("abc", {})).toBeUndefined();
+    expect(evalScript("setTimeout in window", {})).toBe(true);
+    expect(evalScript("WebSocket in window", {})).toBe(true);
+    expect(evalScript("anything in window", {})).toBe(true);
+    expect(evalScript("window.someThingNotExisted", {})).toBe(undefined);
     expect(evalScript("JSON.stringify(1+2)", {})).toBe("3");
 
     // mock window doesn't need to throw
@@ -45,8 +54,6 @@ describe("evalScript", () => {
     expect(() => evalScript("document", {})).not.toThrow();
     expect(() => evalScript("location", {})).not.toThrow();
     expect(() => evalScript("setTimeout(() => {})", {})).not.toThrow();
-
-    expect(() => evalScript("abc", {})).toThrow();
   });
 
   it("set", () => {

@@ -44,6 +44,7 @@ import { useApplicationId } from "util/hooks";
 import { canManageApp } from "util/permissionUtils";
 import ProfileDropdown from "./profileDropdown";
 import { Logo, LogoWithName } from "@openblocks-ee/assets/images";
+import { HeaderStartDropdown } from "./headerStartDropdown";
 
 const StyledLink = styled.a`
   display: flex;
@@ -307,47 +308,12 @@ export default function Header(props: HeaderProps) {
           />
         </Wrapper>
       ) : (
-        <DropdownStyled
-          placement="bottomLeft"
-          trigger={["click"]}
-          disabled={showAppSnapshot}
-          overlay={
-            <DropdownMenuStyled
-              style={{ minWidth: "136px", maxWidth: "288px", borderRadius: "4px" }}
-              onClick={(e) => {
-                if (e.key === "edit") {
-                  setEdieName(true);
-                  setEditing(true);
-                } else if (e.key === "export") {
-                  exportApplicationAsJSONFile(applicationId);
-                }
-              }}
-              items={[
-                {
-                  key: "edit",
-                  label: <CommonTextLabel>{trans("header.editName")}</CommonTextLabel>,
-                },
-                {
-                  key: "export",
-                  label: <CommonTextLabel>{trans("header.export")}</CommonTextLabel>,
-                },
-              ]}
-            />
-          }
-        >
-          <EditTextWrapper
-            style={{ width: "fit-content", maxWidth: "288px" }}
-            disabled={showAppSnapshot}
-          >
-            {isModule && (
-              <Prefix className="module">
-                <ModuleIcon />
-              </Prefix>
-            )}
-            <TextWrapper className={"taco-edit-text-body"}>{application?.name ?? ""}</TextWrapper>
-            <PackUpIconStyled style={{ visibility: showAppSnapshot ? "hidden" : "visible" }} />
-          </EditTextWrapper>
-        </DropdownStyled>
+        <HeaderStartDropdown
+          setEdit={() => {
+            setEdieName(true);
+            setEditing(true);
+          }}
+        />
       )}
       {showAppSnapshot && <ViewOnlyLabel>{trans("header.viewOnly")}</ViewOnlyLabel>}
     </>

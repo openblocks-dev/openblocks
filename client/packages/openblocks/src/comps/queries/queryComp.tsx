@@ -145,10 +145,15 @@ QueryCompTmp = class extends QueryCompTmp {
     target["debounceExecute"]();
   }
 
+  private runningDependNodes() {
+    const childrenNodes = this.childrenNode();
+    return fromRecord(_.omit(childrenNodes, "onEvent"));
+  }
+
   override extraNode() {
     return {
       node: {
-        queryDepFetchInfo: new FetchCheckNode(fromRecord(this.childrenNode())),
+        queryDepFetchInfo: new FetchCheckNode(this.runningDependNodes()),
       },
       updateNodeFields: (value: any) => {
         const fetchInfo = value.queryDepFetchInfo as FetchInfo;
@@ -418,6 +423,7 @@ QueryCompTmp = class extends QueryCompTmp implements BottomResComp {
     const success = this.children.success.getView();
     const errorMessage = success ? "" : this.children.message.getView();
     return {
+      success: success,
       errorMessage,
       title: `${name} ${success ? trans("query.execSuccess") : trans("query.execFail")}`,
       dataType: this.resultDataType(),

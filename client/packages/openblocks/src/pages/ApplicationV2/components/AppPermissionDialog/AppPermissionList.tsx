@@ -250,8 +250,12 @@ function AppInviteView(props: { appId: string }) {
   );
 }
 
-function AppShareView(props: { applicationId: string; permissionInfo: AppPermissionInfo }) {
-  const { applicationId, permissionInfo } = props;
+function AppShareView(props: {
+  applicationId: string;
+  permissionInfo: AppPermissionInfo;
+  isModule: boolean;
+}) {
+  const { applicationId, permissionInfo, isModule } = props;
   const [isPublic, setPublic] = useState(permissionInfo.publicToAll);
   useEffect(() => {
     setPublic(permissionInfo.publicToAll);
@@ -271,7 +275,7 @@ function AppShareView(props: { applicationId: string; permissionInfo: AppPermiss
                 message.error(e.message);
               });
           }}
-          label={trans("home.appPublicMessage")}
+          label={isModule ? trans("home.modulePublicMessage") : trans("home.appPublicMessage")}
         />
       </PermissionSwitchWrapper>
       {isPublic && <AppInviteView appId={applicationId} />}
@@ -283,7 +287,7 @@ export function AppPermissionList() {
   const appPermissionInfo = useSelector(getAppPermissionInfo);
   const { applicationId, changeContent, setModalVisible } = useContext(AppPermissionModalContext);
   const { appType } = useContext(ExternalEditorContext);
-  const showShareView = appType === AppTypeEnum.Application;
+  const isModule = appType === AppTypeEnum.Module;
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -299,13 +303,15 @@ export function AppPermissionList() {
 
   return (
     <>
-      {showShareView && (
-        <AppShareView applicationId={applicationId} permissionInfo={appPermissionInfo} />
-      )}
+      <AppShareView
+        isModule={isModule}
+        applicationId={applicationId}
+        permissionInfo={appPermissionInfo}
+      />
       <CommonTextLabel style={{ marginBottom: "4px" }}>
         {trans("home.memberPermissionList")}
       </CommonTextLabel>
-      <UserPermissionUl height={showShareView ? 201 : 272}>
+      <UserPermissionUl height={201}>
         {creator && (
           <PermissionLiItem isCreator permissionItem={creator} applicationId={applicationId} />
         )}

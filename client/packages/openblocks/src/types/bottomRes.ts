@@ -18,6 +18,7 @@ export interface BottomResListComp {
 export type BottomResCompResultDataType = "json" | "table" | "text" | "function";
 
 export interface BottomResCompResult {
+  success: boolean;
   title?: ReactNode;
   errorMessage?: string;
   data: any;

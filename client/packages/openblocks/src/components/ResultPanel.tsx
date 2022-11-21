@@ -7,9 +7,8 @@ import { isObjectLike, isPlainObject } from "lodash";
 import ReactJson from "react-json-view";
 import { Layers } from "constants/Layers";
 import { BottomResComp, BottomResCompResult } from "types/bottomRes";
-import { CloseIcon, ErrorIcon, SuccessIcon } from "openblocks-design";
+import { CloseIcon, ErrorIcon, SuccessIcon, Switch } from "openblocks-design";
 import { DarkActiveTextColor, GreyTextColor } from "constants/style";
-import { Switch } from "openblocks-design";
 import { trans } from "i18n";
 
 const Wrapper = styled.div<{ bottom?: number }>`
@@ -180,7 +179,7 @@ export const BottomResultPanel = (props: BottomResultPanelProps) => {
   });
 
   const { header, body } = useResultPanel({
-    ...(result ?? { data: "", dataType: "text" }),
+    ...(result ?? { data: "", dataType: "text", success: true }),
     onClose: () => editorState.setShowResultCompName(undefined),
   });
 
@@ -234,7 +233,7 @@ export const QueryLibraryResultPanel = (props: { comp: BottomResComp; onClose: (
   const result = props.comp?.result();
 
   const { header, body } = useResultPanel({
-    ...(result ?? { data: "", dataType: "text" }),
+    ...(result ?? { data: "", dataType: "text", success: true }),
     onClose: props.onClose,
   });
 
@@ -256,7 +255,7 @@ const TimeLabel = styled.span`
 `;
 
 function useResultPanel(params: BottomResCompResult & { onClose: () => void }) {
-  const { errorMessage, dataType, data, title, runTime } = params;
+  const { success, errorMessage, dataType, data, title, runTime } = params;
 
   const [toJson, setToJson] = useState(false);
 
@@ -335,7 +334,7 @@ function useResultPanel(params: BottomResCompResult & { onClose: () => void }) {
     header: (
       <>
         <HeaderTitle>
-          <IconWrapper>{!errorMessage ? <SuccessIcon /> : <ErrorIcon />}</IconWrapper>
+          <IconWrapper>{success ? <SuccessIcon /> : <ErrorIcon />}</IconWrapper>
           {title}
           {runTime ? (
             <TimeLabel>

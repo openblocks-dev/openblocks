@@ -51,9 +51,21 @@ function fixOldData(oldData: any) {
   return oldData;
 }
 
+/**
+ * Compatible with old data 2022-11-18
+ */
+function fixOldDataSecond(oldData: any) {
+  if (oldData && oldData.hasOwnProperty("default")) {
+    return {
+      ...oldData,
+      value: oldData.default,
+    };
+  }
+  return oldData;
+}
+
 const childrenMap = {
   value: jsonValueExposingStateControl("value", defaultData),
-  default: jsonValueControl(defaultData),
   onEvent: ChangeEventHandlerControl,
   label: withDefault(LabelControl, { position: "column" }),
   style: styleControl(JsonEditorStyle),
@@ -63,10 +75,6 @@ const childrenMap = {
 
 let JsonEditorTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
-    const [value, setValue] = useState("");
-    useEffect(() => {
-      setValue(JSON.stringify(props.default, null, 2));
-    }, [props.default]);
     const handleChange = (v: JSONValue) => {
       props.value.onChange(v);
       props.onEvent("change");
@@ -78,10 +86,9 @@ let JsonEditorTmpComp = (function () {
           <Editor
             height="100%"
             defaultLanguage="json"
-            value={value}
+            value={JSON.stringify(props.value.value, null, 2)}
             loading=""
             onChange={(v: string | undefined) => {
-              setValue(v || "");
               try {
                 handleChange(JSON.parse(v === undefined ? "" : v));
               } catch (error) {}
@@ -110,7 +117,7 @@ let JsonEditorTmpComp = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.default.propertyView({ label: trans("prop.defaultValue") })}
+            {children.value.propertyView({ label: trans("prop.defaultValue") })}
           </Section>
           <FormDataPropertyView {...children} />
           {children.label.getPropertyView()}
@@ -124,6 +131,8 @@ let JsonEditorTmpComp = (function () {
 })();
 
 JsonEditorTmpComp = migrateOldData(JsonEditorTmpComp, fixOldData);
+
+JsonEditorTmpComp = migrateOldData(JsonEditorTmpComp, fixOldDataSecond);
 
 JsonEditorTmpComp = class extends JsonEditorTmpComp {
   override autoHeight(): boolean {

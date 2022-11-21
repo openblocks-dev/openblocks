@@ -121,6 +121,12 @@ export interface GetContainerParams<T extends CompConstructor> {
   initialValue?: JSONValue;
   reduceContext?: PartialReduceContext;
   initHandler?: (comp: InstanceType<T>) => Promise<InstanceType<T>>;
+
+  /**
+   * pre process all actions
+   * action will be dropped if return false
+   */
+  actionPreInterceptor?: (action: CompAction) => boolean;
 }
 
 /**
@@ -128,7 +134,7 @@ export interface GetContainerParams<T extends CompConstructor> {
  * notice: keep this code unmanaged by react
  */
 export function getCompContainer<T extends CompConstructor>(params: GetContainerParams<T>) {
-  const { Comp, initialValue, initHandler, reduceContext } = params;
+  const { Comp, initialValue, initHandler, actionPreInterceptor, reduceContext } = params;
 
   if (!initialValue) {
     return null;
@@ -176,6 +182,10 @@ export function getCompContainer<T extends CompConstructor>(params: GetContainer
     dispatch(action?: CompAction) {
       if (!this.initialized) {
         throw new Error("comp container is not initialized");
+      }
+      if (action && actionPreInterceptor?.(action) === false) {
+        log.info("action dropped because of preInterceptor return false", action);
+        return;
       }
       // action is not necessarily jsonObject, not serializable, see how to log later
       if (action?.type !== CompActionTypes.UPDATE_NODES_V2) {

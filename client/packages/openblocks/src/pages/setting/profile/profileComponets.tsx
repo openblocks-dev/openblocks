@@ -10,7 +10,7 @@ import {
 import { TacoButton } from "openblocks-design";
 import { PackUpIcon } from "openblocks-design";
 import ProfileImage from "pages/common/profileImage";
-import { User, UserConnectionSource } from "constants/userConstants";
+import { User } from "constants/userConstants";
 import { replaceMiddleWithStar } from "util/stringUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "redux/selectors/usersSelectors";
@@ -225,11 +225,7 @@ export function ProfileInfoItem(props: {
 
 export function getConnectedName(user: User, source: string) {
   const connectionIfo = user.connections?.find((u) => u.source === source);
-  const connectName = connectionIfo?.name && replaceMiddleWithStar(connectionIfo.name);
-  if (connectName && source === UserConnectionSource.phone) {
-    return "+86" + connectName;
-  }
-  return connectName;
+  return connectionIfo?.name ? replaceMiddleWithStar(connectionIfo.name) : "";
 }
 
 export function HeadNameFiled() {

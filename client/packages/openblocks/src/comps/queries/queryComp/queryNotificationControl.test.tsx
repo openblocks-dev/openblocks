@@ -1,7 +1,7 @@
 import { message } from "antd";
-import { evalAndReduce } from "index.sdk";
 import { QueryNotificationControl } from "./queryNotificationControl";
 import { trans } from "../../../i18n";
+import { evalAndReduce } from "comps/utils";
 
 const param = {
   value: {

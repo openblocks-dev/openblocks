@@ -1,7 +1,7 @@
 {
   "name": "openblocks-cli",
   "description": "CLI tool used to start build publish openblocks components",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "bin": "./index.js",
   "type": "module",
   "exports": {
@@ -25,6 +25,7 @@
     "file-loader": "^6.2.0",
     "fs-extra": "^10.1.0",
     "html-webpack-plugin": "^5.5.0",
+    "openblocks-dev-utils": "workspace:^",
     "react-json-view": "^1.21.3",
     "vite": "^3.2.3"
   },

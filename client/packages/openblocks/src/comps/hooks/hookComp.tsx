@@ -1,8 +1,4 @@
-import {
-  hookToStateComp,
-  simpleValueComp,
-  simpleValueGetterComp,
-} from "comps/generators/hookToComp";
+import { hookToStateComp, simpleValueComp } from "comps/generators/hookToComp";
 import _ from "lodash";
 import moment from "moment";
 import { useInterval, useTitle, useWindowSize } from "react-use";
@@ -21,8 +17,7 @@ import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { Section, sectionNames } from "openblocks-design";
 import { CompName } from "components/CompName";
 import { EditorContext } from "comps/editorState";
-import { changeChildAction } from "openblocks-core";
-import { ConstructorToComp } from "openblocks-core";
+import { changeChildAction, ConstructorToComp } from "openblocks-core";
 import { HookCompConstructor, HookCompMapRawType, HookCompType } from "comps/hooks/hookCompTypes";
 import { getAllCompItems } from "comps/comps/containerBase/utils";
 import UrlParamsHookComp from "./UrlParamsHookComp";
@@ -34,8 +29,11 @@ import { useSelector } from "react-redux";
 import { getCurrentUser } from "redux/selectors/usersSelectors";
 import { getOrgGroups } from "redux/selectors/orgSelectors";
 import { trans } from "i18n";
-import { UserConnectionSource } from "constants/userConstants";
 import { fullAvatarUrl } from "util/urlUtils";
+import {
+  getUserConnectionInfo,
+  UserConnectionSource,
+} from "@openblocks-ee/constants/userConstants";
 
 window._ = _;
 window.moment = moment;
@@ -55,6 +53,7 @@ const CurrentUserHookComp = hookToStateComp(() => {
       name: user.username,
       avatarUrl: fullAvatarUrl(user.avatarUrl),
       email: emailConnection ? emailConnection.name : "",
+      ip: user.ip ?? "",
       groups: groups
         .filter((g) => !g.allUsersGroup)
         .map((g) => {
@@ -63,6 +62,7 @@ const CurrentUserHookComp = hookToStateComp(() => {
             groupName: g.groupName,
           };
         }),
+      connectionInfo: getUserConnectionInfo(user),
     };
   }, [user, groups]);
 });

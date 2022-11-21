@@ -1,15 +1,7 @@
 import React from "react";
-import {
-  DatasourceForm,
-  FormCheckboxItem,
-  FormInputItem,
-  FormInputPasswordItem,
-  FormSection,
-} from "openblocks-design";
-import { toNumber } from "lodash";
+import { DatasourceForm, FormCheckboxItem, FormInputItem, FormSection } from "openblocks-design";
 import { MysqlConfig } from "../../../api/datasourceApi";
 import { DatasourceFormProps } from "./datasourceFormRegistry";
-import { useHostCheck } from "./useHostCheck";
 import {
   DatabaseFormInputItem,
   GeneralSettingFormSectionLabel,
@@ -24,8 +16,6 @@ import { trans } from "i18n";
 export const MysqlDatasourceForm = (props: DatasourceFormProps) => {
   const { form, datasource } = props;
   const datasourceConfig = datasource?.datasourceConfig as MysqlConfig;
-
-  const hostRule = useHostCheck();
 
   return (
     <DatasourceForm form={form} preserve={false} style={{ gap: "12px" }}>

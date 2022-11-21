@@ -24,6 +24,7 @@ import {
 import { useMount, useUnmount } from "react-use";
 import { fetchQueryLibraryDropdown } from "../../redux/reduxActions/queryLibraryActions";
 import { clearGlobalSettings, setGlobalSettings } from "comps/utils/globalSettings";
+import { fetchFolderElements } from "redux/reduxActions/folderActions";
 
 export default function AppEditor() {
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
@@ -68,6 +69,7 @@ export default function AppEditor() {
     if (orgId) {
       if (params.viewMode === "edit") {
         dispatch(fetchDataSourceTypes({ organizationId: orgId }));
+        dispatch(fetchFolderElements({}));
       }
     }
   }, [dispatch, orgId, params.viewMode]);
