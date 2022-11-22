@@ -81,7 +81,7 @@ And since you have set up cowsay just for **Openblocks's new application 1,** yo
 
 <figure><img src="../.gitbook/assets/in another app (1).png" alt=""><figcaption></figcaption></figure>
 
-### Import on Workspace-level libraries
+### Import on Workspace-level
 
 Navigate to **Workspace settings** > **Advanced** > **JavaScript library** > **Add a library**. Then paste the **cowsay** link here and click **Save**. Now you can use **cowsay** library **** in any app of your workspace.\
 ![](<../.gitbook/assets/Import on  Workspace-level libraries (1).png>)
