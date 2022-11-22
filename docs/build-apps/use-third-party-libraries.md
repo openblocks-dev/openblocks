@@ -58,10 +58,13 @@ Openblocks supports setting up preloaded JavaScript and libraries which can be *
 {% endhint %}
 
 \
-Now let's take **cowsay** as an example and import it on app-level and workspace-level.
+Now let's take [<mark style="color:blue;">**cowsay**</mark>](https://github.com/piuccio/cowsay) as an example and import it on app-level and workspace-level.
 
-* GitHub page: [https://github.com/piuccio/cowsay](https://github.com/piuccio/cowsay)
-* Library link: [https://unpkg.com/cowsay@1.5.0/build/cowsay.umd.js](https://unpkg.com/cowsay@1.5.0/build/cowsay.umd.js)
+Library link:
+
+```url
+https://unpkg.com/cowsay@1.5.0/build/cowsay.umd.js
+```
 
 ### Import on App-level
 
