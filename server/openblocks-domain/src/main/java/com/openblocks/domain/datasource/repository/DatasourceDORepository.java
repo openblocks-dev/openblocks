@@ -11,5 +11,7 @@ public interface DatasourceDORepository extends ReactiveMongoRepository<Datasour
 
     Flux<DatasourceDO> findAllByOrganizationId(String organizationId);
 
+    Mono<DatasourceDO> findByOrganizationIdAndTypeAndCreationSource(String organizationId, String type, int creationSource);
+
     Mono<Long> countByOrganizationId(String organizationId);
 }

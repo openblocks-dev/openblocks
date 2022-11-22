@@ -20,7 +20,7 @@ public abstract class AbstractAuthConfig {
         this.sourceName = sourceName;
     }
 
-    public abstract AuthType getAuthType();
+    public abstract String getAuthType();
 
     public boolean enableAuth() {
         return true;
@@ -30,18 +30,5 @@ public abstract class AbstractAuthConfig {
     }
 
     public void doDecrypt(Function<String, String> decryptFunc) {
-    }
-
-    public enum AuthType {
-        OAUTH2,// custom oauth2
-        CAS,
-        GOOGLE,
-        GITHUB,
-        WECHAT,
-        WECOM,
-        FEISHU,
-        DING_TALK,
-        PHONE,
-        FORM,
     }
 }

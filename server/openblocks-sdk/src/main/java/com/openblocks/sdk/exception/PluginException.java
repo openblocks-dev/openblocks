@@ -8,12 +8,13 @@ import com.openblocks.sdk.util.LocaleUtils;
 import lombok.Getter;
 
 @Getter
-public class PluginException extends RuntimeException implements BaseException {
+public class PluginException extends BaseException {
     private final PluginError error;
     private final String messageKey;
-    private final Object[] args;
+    private final transient Object[] args;
 
     public PluginException(PluginError errorCode, String messageKey, Object... args) {
+        super(LocaleUtils.getMessage(Locale.ENGLISH, messageKey, args));
         Preconditions.checkNotNull(errorCode);
         this.error = errorCode;
         this.messageKey = messageKey;
@@ -22,7 +23,7 @@ public class PluginException extends RuntimeException implements BaseException {
 
     @Override
     public String getMessage() {
-        return LocaleUtils.getMessage(Locale.US, messageKey, args);
+        return LocaleUtils.getMessage(Locale.ENGLISH, messageKey, args);
     }
 
     public String getLocaleMessage(Locale locale) {

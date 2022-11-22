@@ -3,5 +3,8 @@ package com.openblocks.sdk.exception;
 /**
  * marker interface
  */
-public interface BaseException {
+public class BaseException extends RuntimeException {
+    public BaseException(String message) {
+        super(message);
+    }
 }

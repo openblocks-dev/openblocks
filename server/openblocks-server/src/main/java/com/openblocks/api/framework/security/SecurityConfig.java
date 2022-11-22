@@ -4,6 +4,7 @@ package com.openblocks.api.framework.security;
 import static com.openblocks.infra.constant.Url.APPLICATION_URL;
 import static com.openblocks.infra.constant.Url.CONFIG_URL;
 import static com.openblocks.infra.constant.Url.CUSTOM_AUTH;
+import static com.openblocks.infra.constant.Url.GROUP_URL;
 import static com.openblocks.infra.constant.Url.INVITATION_URL;
 import static com.openblocks.infra.constant.Url.QUERY_URL;
 import static com.openblocks.infra.constant.Url.STATE_URL;
@@ -12,6 +13,8 @@ import static com.openblocks.sdk.constants.Authentication.ANONYMOUS_USER;
 import static com.openblocks.sdk.constants.Authentication.ANONYMOUS_USER_ID;
 
 import java.util.List;
+
+import javax.annotation.Nonnull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +35,6 @@ import com.openblocks.api.framework.filter.UserSessionPersistenceFilter;
 import com.openblocks.api.home.SessionUserService;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.infra.constant.NewUrl;
-import com.openblocks.infra.constant.Url;
 import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.util.CookieHelper;
 
@@ -58,6 +60,7 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
+
         http.cors()
                 .configurationSource(buildCorsConfigurationSource())
                 .and()
@@ -75,12 +78,14 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, CUSTOM_AUTH + "/form/login"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, INVITATION_URL + "/**"), // invitation
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, CUSTOM_AUTH + "/logout"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONFIG_URL), // system config
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.HEAD, STATE_URL + "/healthCheck"),
+                        // used in public viewed apps
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONFIG_URL), // system config
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/*/view"), // application view
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/me"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.GROUP_URL + "/list"), // application view
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, GROUP_URL + "/list"), // application view
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, QUERY_URL + "/execute"), // application view
+
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/api/proxy"), // application view
 
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.CUSTOM_AUTH + "/otp/send"),
@@ -121,15 +126,44 @@ public class SecurityConfig {
      * enable CORS
      */
     private CorsConfigurationSource buildCorsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(commonConfig.getSecurity().getAllCorsAllowedDomains());
-        configuration.setAllowedMethods(List.of("*"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
+        CorsConfiguration skipCheckCorsForAll = skipCheckCorsForAll();
+        CorsConfiguration skipCheckCorsForAllowListDomains = skipCheckCorsForAllowListDomains();
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration(USER_URL + "/me", skipCheckCorsForAll);
+        source.registerCorsConfiguration(CONFIG_URL, skipCheckCorsForAll);
+        source.registerCorsConfiguration(GROUP_URL + "/list", skipCheckCorsForAll);
+        source.registerCorsConfiguration(QUERY_URL + "/execute", skipCheckCorsForAll);
+        source.registerCorsConfiguration(APPLICATION_URL + "/*/view", skipCheckCorsForAll);
+
+        source.registerCorsConfiguration(NewUrl.USER_URL + "/me", skipCheckCorsForAll);
+        source.registerCorsConfiguration(NewUrl.CONFIG_URL, skipCheckCorsForAll);
+        source.registerCorsConfiguration(NewUrl.GROUP_URL + "/list", skipCheckCorsForAll);
+        source.registerCorsConfiguration(NewUrl.QUERY_URL + "/execute", skipCheckCorsForAll);
+        source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/*/view", skipCheckCorsForAll);
+
+        source.registerCorsConfiguration("/**", skipCheckCorsForAllowListDomains);
         return source;
+    }
+
+    @Nonnull
+    private CorsConfiguration skipCheckCorsForAll() {
+        CorsConfiguration skipForAllowlistDomains = new CorsConfiguration();
+        skipForAllowlistDomains.setAllowedOriginPatterns(List.of("*"));
+        skipForAllowlistDomains.setAllowedMethods(List.of("*"));
+        skipForAllowlistDomains.setAllowedHeaders(List.of("*"));
+        skipForAllowlistDomains.setAllowCredentials(true);
+        return skipForAllowlistDomains;
+    }
+
+    @Nonnull
+    private CorsConfiguration skipCheckCorsForAllowListDomains() {
+        CorsConfiguration skipForAllowlistDomains = new CorsConfiguration();
+        skipForAllowlistDomains.setAllowedOriginPatterns(commonConfig.getSecurity().getAllCorsAllowedDomains());
+        skipForAllowlistDomains.setAllowedMethods(List.of("*"));
+        skipForAllowlistDomains.setAllowedHeaders(List.of("*"));
+        skipForAllowlistDomains.setAllowCredentials(true);
+        return skipForAllowlistDomains;
     }
 
     @Bean

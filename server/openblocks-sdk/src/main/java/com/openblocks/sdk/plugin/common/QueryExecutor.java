@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.pf4j.ExtensionPoint;
 
+import com.openblocks.sdk.exception.BizException;
 import com.openblocks.sdk.exception.PluginCommonError;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.models.DatasourceConnectionConfig;
@@ -15,6 +16,7 @@ import com.openblocks.sdk.models.DatasourceStructure;
 import com.openblocks.sdk.models.QueryExecutionResult;
 import com.openblocks.sdk.query.QueryExecutionContext;
 import com.openblocks.sdk.query.QueryVisitorContext;
+import com.openblocks.sdk.util.ExceptionUtils;
 
 import reactor.core.publisher.Mono;
 
@@ -37,7 +39,11 @@ public interface QueryExecutor<ConnectionConfig extends DatasourceConnectionConf
             throw ofPluginException(PluginCommonError.INVALID_QUERY_SETTINGS, "INVALID_QUERY_SETTINGS", e.getMessage());
         }
 
-        return buildQueryExecutionContext(connectionConfig, queryConfig, requestParams, queryVisitorContext);
+        try {
+            return buildQueryExecutionContext(connectionConfig, queryConfig, requestParams, queryVisitorContext);
+        } catch (Exception e) {
+            throw ExceptionUtils.wrapException(PluginCommonError.INVALID_QUERY_SETTINGS, "QUERY_ARGUMENT_ERROR", e);
+        }
     }
 
     /**
@@ -54,7 +60,7 @@ public interface QueryExecutor<ConnectionConfig extends DatasourceConnectionConf
 
         return executeQuery(connection, context)
                 .onErrorMap(e -> {
-                    if (e instanceof PluginException) {
+                    if (e instanceof PluginException || e instanceof BizException) {
                         return e;
                     }
                     return new PluginException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e.getMessage());

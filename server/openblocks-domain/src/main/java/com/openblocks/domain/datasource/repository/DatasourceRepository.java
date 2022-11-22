@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.openblocks.domain.datasource.model.Datasource;
+import com.openblocks.domain.datasource.model.DatasourceCreationSource;
 import com.openblocks.domain.datasource.model.DatasourceDO;
 import com.openblocks.domain.datasource.model.DatasourceStatus;
 import com.openblocks.domain.encryption.EncryptionService;
@@ -38,6 +39,12 @@ public class DatasourceRepository {
 
     public Mono<Datasource> findById(String datasourceId) {
         return repository.findById(datasourceId)
+                .map(this::convertToDomainObjectAndDecrypt);
+    }
+
+    public Mono<Datasource> findSystemPredefinedDatasourceByOrgIdAndType(String organizationId, String type) {
+        return repository.findByOrganizationIdAndTypeAndCreationSource(organizationId, type,
+                        DatasourceCreationSource.SYSTEM_PREDEFINED.getValue())
                 .map(this::convertToDomainObjectAndDecrypt);
     }
 

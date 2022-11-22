@@ -92,6 +92,7 @@ public enum BizError {
     CANNOT_FIND_ENTERPRISE_ORG(500, 5613),
     AUTH_ERROR(400, 5614),
     AUTH_REFRESH_ERROR(400, 5615),
+    LOGIN_EXPIRED(401, 5616),
 
 
     // asset related, code range 5700 - 5799

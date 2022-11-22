@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import com.openblocks.sdk.auth.AbstractAuthConfig.AuthType;
 import com.openblocks.sdk.exception.BizException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +27,7 @@ public class AuthRequestFactoryFacade implements AuthRequestFactory {
     @Autowired
     private List<AuthRequestFactory> authRequestFactories;
 
-    private final Map<AuthType, AuthRequestFactory> authRequestFactoryMap = new HashMap<>();
+    private final Map<String, AuthRequestFactory> authRequestFactoryMap = new HashMap<>();
 
     @PostConstruct
     public void init() {
@@ -36,17 +35,11 @@ public class AuthRequestFactoryFacade implements AuthRequestFactory {
             if (authRequestFactory instanceof AuthRequestFactoryFacade) {
                 continue;
             }
-            for (AuthType authType : authRequestFactory.supportedAuthTypes()) {
+            for (String authType : authRequestFactory.supportedAuthTypes()) {
                 if (authRequestFactoryMap.containsKey(authType)) {
                     throw new RuntimeException(String.format("duplicate authRequestFactory found for same authType: %s", authType));
                 }
                 authRequestFactoryMap.put(authType, authRequestFactory);
-            }
-        }
-        //
-        for (AuthType authType : AuthType.values()) {
-            if (!authRequestFactoryMap.containsKey(authType)) {
-                log.warn("can not find authRequestFactory for authType: {}", authType);
             }
         }
     }
@@ -63,7 +56,7 @@ public class AuthRequestFactoryFacade implements AuthRequestFactory {
     }
 
     @Override
-    public Set<AuthType> supportedAuthTypes() {
+    public Set<String> supportedAuthTypes() {
         return new HashSet<>(0);
     }
 }

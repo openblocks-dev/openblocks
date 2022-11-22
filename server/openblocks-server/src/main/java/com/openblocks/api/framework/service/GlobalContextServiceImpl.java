@@ -20,6 +20,6 @@ public class GlobalContextServiceImpl implements GlobalContextService {
                 .map(languageRanges -> languageRanges.iterator().next())
                 .map(LanguageRange::getRange)
                 .map(Locale::forLanguageTag)
-                .orElse(Locale.US);
+                .orElse(Locale.ENGLISH);
     }
 }

@@ -64,7 +64,10 @@ import com.openblocks.sdk.exception.PluginException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class MustacheHelper {
+public final class MustacheHelper {
+
+    private MustacheHelper() {
+    }
 
     /**
      * find ? with quotes around '?' or "?"
@@ -286,7 +289,6 @@ public class MustacheHelper {
         return RjsonMustacheParser.renderMustacheJson(jsonStr, paramMap);
     }
 
-    @SuppressWarnings("DuplicatedCode")
     public static String renderMustacheString(String template, Map<String, ?> paramMap) {
         if (isBlank(template)) {
             return template;

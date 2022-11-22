@@ -1,5 +1,6 @@
 package com.openblocks.plugin.restapi.model;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,7 +23,7 @@ import reactor.core.publisher.Mono;
 @Builder
 public class RestApiQueryExecutionContext extends QueryExecutionContext {
 
-    private String url;
+    private URI uri;
     private HttpMethod httpMethod;
 
     @Setter
@@ -42,8 +43,8 @@ public class RestApiQueryExecutionContext extends QueryExecutionContext {
     @Getter
     private Mono<List<Property>> authTokenMono;
 
-    public String getUrl() {
-        return url;
+    public URI getUri() {
+        return uri;
     }
 
     public String getQueryBody() {

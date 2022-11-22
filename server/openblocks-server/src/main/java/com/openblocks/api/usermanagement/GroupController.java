@@ -3,7 +3,6 @@ package com.openblocks.api.usermanagement;
 import static com.openblocks.sdk.util.ExceptionUtils.ofError;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -19,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.openblocks.api.framework.view.ResponseView;
 import com.openblocks.api.home.SessionUserService;
 import com.openblocks.api.usermanagement.view.AddMemberRequest;
@@ -46,11 +43,6 @@ import reactor.util.function.Tuple2;
 @RequestMapping(value = {Url.GROUP_URL, NewUrl.GROUP_URL})
 public class GroupController {
 
-    private static final List<Map<String, String>> GROUP_ROLE_DESC = ImmutableList.of(
-            ImmutableMap.of("key", MemberRole.MEMBER.getValue(), "value", "群组成员"),
-            ImmutableMap.of("key", MemberRole.ADMIN.getValue(), "value", "群组管理员")
-    );
-
     @Autowired
     private GroupApiService groupApiService;
     @Autowired
@@ -66,13 +58,7 @@ public class GroupController {
     public Mono<ResponseView<GroupView>> create(@Valid @RequestBody CreateGroupRequest newGroup) {
         return groupApiService.create(newGroup)
                 .delayUntil(group -> businessEventPublisher.publishGroupCreateEvent(group))
-                .flatMap(GroupView::from)
-                .map(ResponseView::success);
-    }
-
-    @GetMapping("/roles")
-    public Mono<ResponseView<List<Map<String, String>>>> getOrgRoleDescriptions() {
-        return Mono.just(GROUP_ROLE_DESC)
+                .flatMap(group -> GroupView.from(group, MemberRole.ADMIN.getValue()))
                 .map(ResponseView::success);
     }
 

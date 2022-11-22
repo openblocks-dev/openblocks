@@ -1,7 +1,6 @@
 package com.openblocks.api.usermanagement;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -19,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.openblocks.api.authentication.dto.OrganizationDomainCheckResult;
 import com.openblocks.api.framework.view.ResponseView;
 import com.openblocks.api.usermanagement.view.OrgMemberListView;
@@ -28,7 +25,6 @@ import com.openblocks.api.usermanagement.view.OrgView;
 import com.openblocks.api.usermanagement.view.UpdateOrgRequest;
 import com.openblocks.api.usermanagement.view.UpdateRoleRequest;
 import com.openblocks.api.util.BusinessEventPublisher;
-import com.openblocks.domain.organization.model.MemberRole;
 import com.openblocks.domain.organization.model.Organization;
 import com.openblocks.domain.organization.model.Organization.OrganizationCommonSettings;
 import com.openblocks.domain.plugin.DatasourceMetaInfo;
@@ -42,11 +38,6 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping(value = {Url.ORGANIZATION_URL, NewUrl.ORGANIZATION_URL})
 public class OrganizationController {
-
-    private static final List<Map<String, String>> ORG_ROLE_DESC = ImmutableList.of(
-            ImmutableMap.of("key", MemberRole.MEMBER.getValue(), "value", "企业成员"),
-            ImmutableMap.of("key", MemberRole.ADMIN.getValue(), "value", "企业管理员")
-    );
 
     @Autowired
     private OrgApiService orgApiService;
@@ -78,12 +69,6 @@ public class OrganizationController {
     @DeleteMapping("/{orgId}/logo")
     public Mono<ResponseView<Boolean>> deleteLogo(@PathVariable String orgId) {
         return orgApiService.deleteLogo(orgId)
-                .map(ResponseView::success);
-    }
-
-    @GetMapping("/roles")
-    public Mono<ResponseView<List<Map<String, String>>>> getOrgRoleDescriptions() {
-        return Mono.just(ORG_ROLE_DESC)
                 .map(ResponseView::success);
     }
 

@@ -170,10 +170,15 @@ public class DatasourceServiceImpl implements DatasourceService {
     }
 
     @Override
+    public Mono<Datasource> findSystemPredefinedDatasource(String organizationId, String datasourceType) {
+        return repository.findSystemPredefinedDatasourceByOrgIdAndType(organizationId, datasourceType);
+    }
+
+    @Override
     public Mono<Boolean> delete(String datasourceId) {
         return stillUsedInApplications(datasourceId)
                 .flatMap(stillUsedInApplications -> {
-                    if (stillUsedInApplications) {
+                    if (Boolean.TRUE.equals(stillUsedInApplications)) {
                         return Mono.error(new BizException(BizError.DATASOURCE_DELETE_FAIL_DUE_TO_REMAINING_QUERIES,
                                 "DATASOURCE_DELETE_FAIL_DUE_TO_REMAINING_QUERIES"));
                     }

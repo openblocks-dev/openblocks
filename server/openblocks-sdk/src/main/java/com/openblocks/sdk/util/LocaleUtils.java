@@ -4,6 +4,8 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.openblocks.sdk.constants.GlobalContext;
 import com.openblocks.sdk.models.LocaleMessage;
 
@@ -11,7 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.util.context.ContextView;
 
 @Slf4j
-public class LocaleUtils {
+public final class LocaleUtils {
+    private LocaleUtils() {
+    }
 
     public static String getMessage(Locale locale, LocaleMessage localeMessage) {
         return getMessage(locale, localeMessage.messageKey(), localeMessage.args());
@@ -21,7 +25,8 @@ public class LocaleUtils {
 
         try {
             ResourceBundle eeBundle = ResourceBundle.getBundle("locale_ee", locale);
-            if (eeBundle.getLocale() == locale && eeBundle.containsKey(key.trim())) {
+            if (StringUtils.equals(eeBundle.getLocale().getLanguage(), locale.getLanguage())
+                    && eeBundle.containsKey(key.trim())) {
                 return eeBundle.getString(key.trim());
             }
         } catch (Exception e) {
@@ -41,6 +46,6 @@ public class LocaleUtils {
     }
 
     public static Locale getDefaultLocale() {
-        return Locale.US;
+        return Locale.ENGLISH;
     }
 }

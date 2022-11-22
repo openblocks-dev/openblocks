@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.domain.datasource.model.DatasourceConnectionHolder;
+import com.openblocks.domain.datasource.model.TokenBasedConnection;
 import com.openblocks.domain.datasource.model.TokenBasedConnectionHolder;
 import com.openblocks.domain.datasource.repository.TokenBasedConnectionRepository;
 import com.openblocks.domain.datasource.service.DatasourceConnectionPool;
@@ -60,8 +61,7 @@ public class TokenBasedConnectionPool implements DatasourceConnectionPool {
             throw new BizException(DATASOURCE_TYPE_ERROR, "DATASOURCE_CONNECTION_TYPE_ERROR", connection.getClass().getSimpleName());
         }
 
-        com.openblocks.domain.datasource.model.TokenBasedConnection
-                tokenBasedConnection = new com.openblocks.domain.datasource.model.TokenBasedConnection();
+        TokenBasedConnection tokenBasedConnection = new TokenBasedConnection();
         tokenBasedConnection.setDatasourceId(datasourceId);
         tokenBasedConnection.setTokenDetail(connectionDetail);
         return connectionRepository.saveConnection(tokenBasedConnection, datasourceId)

@@ -83,4 +83,8 @@ public class Organization extends HasIdAndAuditing implements EncryptRequired, D
 
     public static class OrganizationCommonSettings extends HashMap<String, Object> {
     }
+
+    public long getCreateTime() {
+        return createdAt != null ? createdAt.toEpochMilli() : 0;
+    }
 }

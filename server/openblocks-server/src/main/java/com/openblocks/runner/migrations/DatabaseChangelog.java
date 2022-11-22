@@ -143,6 +143,13 @@ public class DatabaseChangelog {
                 makeIndex("libraryQueryId").sparse());
     }
 
+    @ChangeSet(order = "013", id = "update-datasource-idnexes", author = "")
+    public void updateDatasourceIndex(MongockTemplate mongoTemplate) {
+        dropIndexIfExists(mongoTemplate, Datasource.class, "organization_datasource_compound_index");
+        ensureIndexes(mongoTemplate, Datasource.class,
+                makeIndex("organizationId", "name").named("organization_datasource_index"));
+    }
+
     public static Index makeIndex(String... fields) {
         if (fields.length == 1) {
             return new Index(fields[0], Sort.Direction.ASC).named(fields[0]);

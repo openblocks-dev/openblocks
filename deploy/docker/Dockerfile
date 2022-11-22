@@ -26,7 +26,7 @@ LABEL maintainer="openblocks"
 # Update APT packages - Base Layer  python-setuptools
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
   apt-get install --no-install-recommends -y \
-  supervisor curl nginx wget netcat software-properties-common gettext python3-pip git gnupg vim iputils-ping \
+  supervisor curl nginx wget netcat software-properties-common gettext python3-pip git gnupg vim iputils-ping gosu\
   && add-apt-repository ppa:redislabs/redis \
   && apt-get remove -y git python3-pip \
   && apt-get clean \
@@ -67,16 +67,16 @@ ARG PLUGIN_JARS=/openblocks-server/openblocks-plugins/*/target/*.jar
 
 RUN mkdir -p /openblocks /openblocks/plugins /var/www/openblocks /env2
 
-COPY --from=build-server ${JAR_FILE} /openblocks/server.jar
-COPY --from=build-server ${PLUGIN_JARS} /openblocks/plugins/
+COPY --from=build-server ${JAR_FILE} /openblocks/server/server.jar
+COPY --from=build-server ${PLUGIN_JARS} /openblocks/server/plugins/
 
 
 # copy tace-fe build
-COPY --from=build-client /openblocks-client/packages/openblocks/build/ /var/www/openblocks/
+COPY --from=build-client /openblocks-client/packages/openblocks/build/ /openblocks/client/
 
 # copy nginx conf
-COPY ./deploy/docker/templates/nginx/* /openblocks-nginx/
-COPY ./deploy/docker/scripts/start-nginx.sh /openblocks-nginx/start-nginx.sh
+COPY ./deploy/docker/templates/nginx/* /openblocks/nginx/
+COPY ./deploy/docker/scripts/start-nginx.sh /openblocks/nginx/start-nginx.sh
 
 # copy redis conf
 COPY ./deploy/docker/templates/redis.conf /etc/redis/redis.conf
@@ -86,16 +86,15 @@ COPY ./deploy/docker/templates/supervisord.conf /etc/supervisor/supervisord.conf
 COPY ./deploy/docker/templates/supervisord/*  /etc/supervisor/conf.d/
 
 # copy application.yml
-COPY ./server/openblocks-server/src/main/resources/selfhost/ce/application.yml /env/
-COPY ./server/openblocks-server/src/main/resources/selfhost/ce/application-selfhost.yml /env2/
+COPY ./server/openblocks-server/src/main/resources/selfhost/ce/application.yml /openblocks/env/
+COPY ./server/openblocks-server/src/main/resources/selfhost/ce/application-selfhost.yml /openblocks/env2/
 
 # Add bootstrapfile
-# COPY ./entrypoint.sh /
-COPY ./deploy/docker/entrypoint.sh /
-RUN chmod +x /entrypoint.sh
+COPY ./deploy/docker/entrypoint.sh /openblocks/
+RUN chmod +x /openblocks/entrypoint.sh
 
 EXPOSE 3000
 
-ENTRYPOINT [ "sh" , "/entrypoint.sh" ]
+ENTRYPOINT [ "sh" , "/openblocks/entrypoint.sh" ]
 CMD ["/usr/bin/supervisord", "-n" , "-c" , "/etc/supervisor/supervisord.conf"]
 

@@ -34,3 +34,4 @@ package-lock.json
 # test coverage
 coverage-summary.json
 app/client/cypress/locators/Widgets.json
+/openblocks-domain/logs/

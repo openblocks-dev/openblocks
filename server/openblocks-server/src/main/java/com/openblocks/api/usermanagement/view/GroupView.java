@@ -17,8 +17,10 @@ public class GroupView {
     private String groupName;
     private boolean allUsersGroup;
     private boolean isDevGroup;
+    private String visitorRole;
+    private long createTime;
 
-    public static Mono<GroupView> from(Group group) {
+    public static Mono<GroupView> from(Group group, String memberRole) {
         return Mono.deferContextual(contextView -> {
             Locale locale = LocaleUtils.getLocale(contextView);
             GroupView groupView = GroupView.builder()
@@ -26,6 +28,8 @@ public class GroupView {
                     .groupName(group.getName(locale))
                     .allUsersGroup(group.isAllUsersGroup())
                     .isDevGroup(group.isDevGroup())
+                    .createTime(group.getCreateTime())
+                    .visitorRole(memberRole)
                     .build();
             return Mono.just(groupView);
         });

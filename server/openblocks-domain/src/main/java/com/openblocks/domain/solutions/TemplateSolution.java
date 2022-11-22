@@ -1,5 +1,6 @@
 package com.openblocks.domain.solutions;
 
+import static com.openblocks.domain.datasource.model.DatasourceCreationSource.SYSTEM_PREDEFINED;
 import static com.openblocks.sdk.exception.BizError.TEMPLATE_NOT_CORRECT;
 import static com.openblocks.sdk.exception.BizError.TEMPLATE_NOT_EXIST;
 import static com.openblocks.sdk.util.ExceptionUtils.deferredError;
@@ -11,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -113,16 +116,29 @@ public class TemplateSolution {
     private Mono<String> doCopyDatasource(String organizationId, String datasourceId, String visitorId) {
         return datasourceService.getById(datasourceId)
                 .flatMap(datasource -> {
-                    Datasource copyDatasource = new Datasource();
-                    copyDatasource.setName(generateCopyDatasourceName(datasource.getName()));
-                    copyDatasource.setType(datasource.getType());
-                    copyDatasource.setDetailConfig(datasource.getDetailConfig());
-                    copyDatasource.setCreationSource(DatasourceCreationSource.SYSTEM_TEMPLATE.getValue());
-                    copyDatasource.setOrganizationId(organizationId);
-                    return datasourceService.create(copyDatasource, visitorId)
-                            .map(Datasource::getId);
+                    // find existing predefined data source
+                    if (datasource.getCreationSource() == SYSTEM_PREDEFINED.getValue()) {
+                        return datasourceService.findSystemPredefinedDatasource(organizationId, datasource.getType())
+                                .map(Datasource::getId)
+                                // create new if not found
+                                .switchIfEmpty(Mono.defer(() -> createNewDatasourceFrom(organizationId, visitorId, datasource)));
+                    }
+                    return createNewDatasourceFrom(organizationId, visitorId, datasource);
                 });
 
+    }
+
+    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
+    @Nonnull
+    private Mono<String> createNewDatasourceFrom(String organizationId, String visitorId, Datasource datasource) {
+        Datasource copyDatasource = new Datasource();
+        copyDatasource.setName(generateCopyDatasourceName(datasource.getName()));
+        copyDatasource.setType(datasource.getType());
+        copyDatasource.setDetailConfig(datasource.getDetailConfig());
+        copyDatasource.setCreationSource(DatasourceCreationSource.SYSTEM_TEMPLATE.getValue());
+        copyDatasource.setOrganizationId(organizationId);
+        return datasourceService.create(copyDatasource, visitorId)
+                .map(Datasource::getId);
     }
 
     private String generateCopyDatasourceName(String name) {

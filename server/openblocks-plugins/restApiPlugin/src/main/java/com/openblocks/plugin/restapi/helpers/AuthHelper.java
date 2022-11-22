@@ -17,7 +17,10 @@ import com.openblocks.sdk.plugin.restapi.auth.BasicAuthConfig;
 import me.vzhilin.auth.DigestAuthenticator;
 import me.vzhilin.auth.parser.ChallengeResponse;
 
-public class AuthHelper {
+public final class AuthHelper {
+
+    private AuthHelper() {
+    }
 
     public static Consumer<HttpHeaders> basicAuth(BasicAuthConfig basicAuthConfig) {
         return httpHeaders -> httpHeaders.setBasicAuth(basicAuthConfig.getUsername(), basicAuthConfig.getPassword());

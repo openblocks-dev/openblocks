@@ -78,4 +78,8 @@ public class Group extends HasIdAndAuditing implements Comparable<Group> {
     public int compareTo(@Nonnull Group o) {
         return COMPARATOR.compare(this, o);
     }
+
+    public long getCreateTime() {
+        return createdAt != null ? createdAt.toEpochMilli() : 0;
+    }
 }

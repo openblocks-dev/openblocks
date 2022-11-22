@@ -1,6 +1,8 @@
 package com.openblocks.sdk.exception;
 
-public interface PluginError {
+import java.io.Serializable;
+
+public interface PluginError extends Serializable {
 
     String name();
 

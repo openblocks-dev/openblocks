@@ -7,9 +7,9 @@ spring:
     mongodb:
       authentication-database: admin
       auto-index-creation: false
-      uri:
+      uri: mongodb://localhost:27017/openblocks?socketTimeoutMS=5000
   redis:
-    url:
+    url: redis://localhost:6379
   main:
     allow-bean-definition-overriding: true
     allow-circular-references: true
@@ -24,7 +24,7 @@ server:
   shutdown: graceful
 
 common:
-  cookie-name: LOCAL_TACO_TOKEN
+  cookie-name: LOCAL_OPENBLOCKS_TOKEN
   product: openblocks
   domain:
     default-value: skipCheck

@@ -1,6 +1,6 @@
 server {
     listen 3000 default_server;
-    root /var/www/openblocks;
+    root /openblocks/client;
     location / {
         try_files $uri /index.html;
 

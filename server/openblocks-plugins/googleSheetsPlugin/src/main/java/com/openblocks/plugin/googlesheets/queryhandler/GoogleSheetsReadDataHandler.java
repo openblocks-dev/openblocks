@@ -67,11 +67,9 @@ public class GoogleSheetsReadDataHandler extends GoogleSheetsActionHandler {
         Pattern findOffsetRowPattern = Pattern.compile("(\\d+):");
         String range = valueRange.getRange();
         List<List<Object>> values = valueRange.getValues();
-        //接下来为了应对筛选数据带来的行数不对应的情况
         Matcher matcher = findOffsetRowPattern.matcher(range);
         matcher.find();
         final int rowOffset = Integer.parseInt(matcher.group(1));
-        //为了应对某行中有的数据为空
         int valueSize = 0;
         for (int i = 0; i < values.size(); i++) {
             valueSize = Math.max(valueSize, values.get(i).size());
@@ -100,7 +98,6 @@ public class GoogleSheetsReadDataHandler extends GoogleSheetsActionHandler {
         return valueMap;
     }
 
-    //为了包容空值
     public Set<String> pardonHeaders(List<Object> headers, int valueSize) {
         final Set<String> headerSet = new LinkedHashSet<>();
         int headerSize = headers.size();

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import com.openblocks.sdk.auth.AbstractAuthConfig;
 import com.openblocks.sdk.auth.EmailAuthConfig;
-import com.openblocks.sdk.auth.PhoneAuthConfig;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +21,6 @@ import lombok.Setter;
 public class AuthProperties {
 
     private Email email = new Email();
-    private Mobile mobile = new Mobile();
 
     @Setter
     public static class Email {
@@ -39,24 +37,11 @@ public class AuthProperties {
         }
     }
 
-    @Setter
-    public static class Mobile {
-        /**
-         * enable login
-         */
-        @Getter
-        private boolean enable = false;
-    }
-
     public List<AbstractAuthConfig> getAuthConfigs() {
         List<AbstractAuthConfig> authConfigs = new ArrayList<>();
         if (email.isEnable() || email.isEnableRegister()) {
             EmailAuthConfig email = new EmailAuthConfig(this.email.isEnable(), this.email.isEnableRegister());
             authConfigs.add(email);
-        }
-        if (mobile.isEnable()) {
-            PhoneAuthConfig phone = new PhoneAuthConfig(this.mobile.isEnable());
-            authConfigs.add(phone);
         }
         return authConfigs;
     }

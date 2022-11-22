@@ -1,12 +1,12 @@
 package com.openblocks.api.usermanagement;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static com.openblocks.sdk.exception.BizError.CANNOT_LEAVE_GROUP;
 import static com.openblocks.sdk.exception.BizError.CANNOT_REMOVE_MYSELF;
 import static com.openblocks.sdk.exception.BizError.INVALID_GROUP_ID;
-import static com.openblocks.sdk.exception.BizError.NOT_AUTHORIZED;
 import static com.openblocks.sdk.util.ExceptionUtils.deferredError;
 import static com.openblocks.sdk.util.ExceptionUtils.ofError;
+import static com.openblocks.sdk.util.StreamUtils.collectList;
+import static com.openblocks.sdk.util.StreamUtils.collectMap;
 import static java.util.Collections.emptyList;
 
 import java.util.List;
@@ -34,7 +34,6 @@ import com.openblocks.domain.organization.model.OrgMember;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.service.UserService;
 import com.openblocks.sdk.exception.BizError;
-import com.openblocks.sdk.util.StreamUtils;
 
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -42,6 +41,7 @@ import reactor.util.function.Tuple2;
 @Service
 public class GroupApiService {
 
+    private static final String NOT_AUTHORIZED = "NOT_AUTHORIZED";
     @Autowired
     private SessionUserService sessionUserService;
     @Autowired
@@ -65,19 +65,19 @@ public class GroupApiService {
             if (groupMember.isValid()) {
                 return Mono.just(MemberRole.MEMBER);
             }
-            return ofError(NOT_AUTHORIZED, "NOT_AUTHORIZED");
+            return ofError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED);
         });
 
         return groupAndOrgMemberInfo
                 .filter(this::hasReadPermission)
-                .switchIfEmpty(deferredError(NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED))
                 .flatMap(groupMember -> groupMemberService.getGroupMembers(groupId, page, count))
                 .<List<GroupMemberView>> flatMap(members -> {
                     if (members.isEmpty()) {
                         return Mono.just(emptyList());
                     }
 
-                    List<String> userIds = StreamUtils.collectList(members, GroupMember::getUserId);
+                    List<String> userIds = collectList(members, GroupMember::getUserId);
                     Mono<Map<String, User>> userMapMono = userService.getByIds(userIds);
                     return userMapMono.map(map ->
                             members.stream()
@@ -132,7 +132,7 @@ public class GroupApiService {
     public Mono<Boolean> addGroupMember(String groupId, String newUserId, String roleName) {
         return getGroupAndOrgMemberInfo(groupId)
                 .filter(this::hasManagePermission)
-                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED))
                 .flatMap(tuple -> {
                     String orgId = tuple.getT2().getOrgId();
                     return groupMemberService.addMember(orgId, groupId, newUserId, MemberRole.fromValue(roleName));
@@ -142,7 +142,7 @@ public class GroupApiService {
     public Mono<Boolean> updateRoleForMember(String groupId, UpdateRoleRequest updateRoleRequest) {
         return getGroupAndOrgMemberInfo(groupId)
                 .filter(this::hasManagePermission)
-                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED))
                 .then(groupMemberService.updateMemberRole(groupId,
                         updateRoleRequest.getUserId(),
                         MemberRole.fromValue(updateRoleRequest.getRole())));
@@ -174,15 +174,20 @@ public class GroupApiService {
                                 if (orgMember.isAdmin()) {
                                     return groupService.getByOrgId(orgId)
                                             .sort()
-                                            .flatMapSequential(GroupView::from)
+                                            .flatMapSequential(group -> GroupView.from(group, MemberRole.ADMIN.getValue()))
                                             .collectList();
                                 }
-                                return groupMemberService.getUserAllGroupIds(orgMember.getUserId())
-                                        .flatMapMany(ids -> groupService.getByIds(newHashSet(ids)))
-                                        .filter(it -> it.getOrganizationId().equals(orgId))
-                                        .sort()
-                                        .flatMapSequential(GroupView::from)
-                                        .collectList();
+                                return groupMemberService.getUserGroupMembers(orgMember.getUserId())
+                                        .flatMap(groupMembers -> {
+                                            List<String> groupIds = collectList(groupMembers, GroupMember::getGroupId);
+                                            Map<String, GroupMember> groupMemberMap = collectMap(groupMembers, GroupMember::getGroupId, it -> it);
+                                            return groupService.getByIds(groupIds)
+                                                    .filter(it -> it.getOrganizationId().equals(orgId))
+                                                    .sort()
+                                                    .flatMapSequential(group -> GroupView.from(group,
+                                                            groupMemberMap.get(group.getId()).getRole().getValue()))
+                                                    .collectList();
+                                        });
                             });
 
                 });
@@ -191,8 +196,8 @@ public class GroupApiService {
     public Mono<Boolean> deleteGroup(String groupId) {
         return getGroupAndOrgMemberInfo(groupId)
                 .filter(this::hasManagePermission)
-                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
-                .filterWhen(__ -> groupService.getById(groupId)
+                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED))
+                .filterWhen(ignored -> groupService.getById(groupId)
                         .map(Group::isNotSystemGroup))
                 .switchIfEmpty(deferredError(BizError.CANNOT_DELETE_SYSTEM_GROUP, "CANNOT_DELETE_SYSTEM_GROUP"))
                 .then(groupService.delete(groupId)
@@ -204,7 +209,7 @@ public class GroupApiService {
     public Mono<Group> create(CreateGroupRequest createGroupRequest) {
         return sessionUserService.getVisitorOrgMemberCache()
                 .filter(OrgMember::isAdmin)
-                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED))
                 .transform(bizThresholdChecker::checkMaxGroupCount)
                 .flatMap(orgMember -> {
                     String orgId = orgMember.getOrgId();
@@ -219,7 +224,7 @@ public class GroupApiService {
     public Mono<Boolean> update(String groupId, UpdateGroupRequest updateGroupRequest) {
         return getGroupAndOrgMemberInfo(groupId)
                 .filter(this::hasManagePermission)
-                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED))
                 .flatMap(it -> {
                     Group updateGroup = new Group();
                     updateGroup.setId(groupId);
@@ -231,7 +236,7 @@ public class GroupApiService {
     public Mono<Boolean> removeUser(String groupId, String userId) {
         return getGroupAndOrgMemberInfo(groupId)
                 .filter(this::hasManagePermission)
-                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED))
                 .flatMap(tuple -> {
                     String currentUserId = tuple.getT2().getUserId();
                     if (currentUserId.equals(userId)) {

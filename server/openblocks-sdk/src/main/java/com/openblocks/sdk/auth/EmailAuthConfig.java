@@ -24,7 +24,7 @@ public class EmailAuthConfig extends AbstractAuthConfig {
     }
 
     @Override
-    public AuthType getAuthType() {
-        return AuthType.FORM;
+    public String getAuthType() {
+        return AuthTypeConstants.FORM;
     }
 }

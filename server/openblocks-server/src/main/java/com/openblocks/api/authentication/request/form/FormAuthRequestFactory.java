@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import com.openblocks.api.authentication.request.AuthRequest;
 import com.openblocks.api.authentication.request.AuthRequestContext;
 import com.openblocks.api.authentication.request.AuthRequestFactory;
-import com.openblocks.sdk.auth.AbstractAuthConfig.AuthType;
+import com.openblocks.sdk.auth.AuthTypeConstants;
 
 import reactor.core.publisher.Mono;
 
@@ -24,7 +24,7 @@ public class FormAuthRequestFactory implements AuthRequestFactory {
     }
 
     @Override
-    public Set<AuthType> supportedAuthTypes() {
-        return Set.of(AuthType.FORM);
+    public Set<String> supportedAuthTypes() {
+        return Set.of(AuthTypeConstants.FORM);
     }
 }

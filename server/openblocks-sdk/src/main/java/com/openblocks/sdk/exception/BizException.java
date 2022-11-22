@@ -7,14 +7,14 @@ import com.openblocks.sdk.util.LocaleUtils;
 import lombok.Getter;
 
 @Getter
-public class BizException extends RuntimeException implements BaseException {
+public class BizException extends BaseException {
 
     private final BizError error;
     private final String messageKey;
     private final transient Object[] args;
 
     public BizException(BizError error, String messageKey, Object... args) {
-        super(LocaleUtils.getMessage(Locale.US, messageKey, args));
+        super(LocaleUtils.getMessage(Locale.ENGLISH, messageKey, args));
         this.error = error;
         this.messageKey = messageKey;
         this.args = args;
@@ -30,7 +30,7 @@ public class BizException extends RuntimeException implements BaseException {
 
     @Override
     public String getMessage() {
-        return error == null ? super.getMessage() : LocaleUtils.getMessage(Locale.US, messageKey, args);
+        return error == null ? super.getMessage() : LocaleUtils.getMessage(Locale.ENGLISH, messageKey, args);
     }
 
     public String getMessage(Locale locale) {

@@ -4,11 +4,11 @@
     "comp": {
       "items": [
         {
-          "label": "吕慧超的新应用 1",
+          "label": "application 1",
           "hidden": "",
           "app": {
             "appId": "app01",
-            "error": "错误请求。",
+            "error": "error request.",
             "inputs": {
             },
             "events": [
@@ -34,7 +34,7 @@
           ]
         },
         {
-          "label": "吕慧超的新应用 2",
+          "label": "application 2",
           "hidden": "",
           "app": {
             "appId": "app02",
@@ -58,7 +58,7 @@
           ],
           "items": [
             {
-              "label": "吕慧超的新应用 3",
+              "label": "application 3",
               "hidden": "",
               "app": {
                 "appId": "app03",
@@ -84,7 +84,7 @@
               ]
             },
             {
-              "label": "吕慧超的新应用 4",
+              "label": "application 4",
               "hidden": "",
               "app": {
                 "appId": "app04",
@@ -112,7 +112,7 @@
           ]
         },
         {
-          "label": "吕慧超的新应用 5",
+          "label": "application 5",
           "hidden": "",
           "app": {
             "appId": "app05",
@@ -136,7 +136,7 @@
           ],
           "items": [
             {
-              "label": "吕慧超的新应用 6",
+              "label": "application 6",
               "hidden": "",
               "app": {
                 "appId": "app06",
@@ -162,7 +162,7 @@
               ]
             },
             {
-              "label": "吕慧超的新应用 7",
+              "label": "application 7",
               "hidden": "",
               "app": {
                 "appId": "app07",

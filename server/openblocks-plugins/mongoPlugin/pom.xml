@@ -9,7 +9,6 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.openblocks.plugins</groupId>
     <artifactId>mongoPlugin</artifactId>
     <version>1.0-SNAPSHOT</version>
 

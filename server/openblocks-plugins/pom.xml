@@ -91,5 +91,6 @@
         <module>smtpPlugin</module>
         <module>clickHousePlugin</module>
         <module>googleSheetsPlugin</module>
+        <module>oraclePlugin</module>
     </modules>
 </project>

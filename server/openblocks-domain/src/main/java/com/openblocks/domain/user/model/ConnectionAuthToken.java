@@ -9,17 +9,17 @@ public class ConnectionAuthToken {
 
     private String accessToken;
     // in seconds
-    private long expireAt;
+    private Long expireAt;
     private String refreshToken;
     // in seconds
-    private long refreshTokenExpireAt;
+    private Long refreshTokenExpireAt;
     private String source;
 
     public boolean isAccessTokenExpired() {
-        return expireAt < System.currentTimeMillis() / 1000;
+        return expireAt == null || expireAt < System.currentTimeMillis() / 1000;
     }
 
     public boolean isRefreshTokenExpired() {
-        return refreshTokenExpireAt < System.currentTimeMillis() / 1000;
+        return refreshTokenExpireAt == null || refreshTokenExpireAt < System.currentTimeMillis() / 1000;
     }
 }
