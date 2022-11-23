@@ -57,6 +57,17 @@ docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks"
 {% endtab %}
 {% endtabs %}
 
+{% hint style="info" %}
+By default the supervisor will run under the user <mark style="background-color:yellow;">`uid=9001`</mark>. You can specify the uid by adding a docker environment variable <mark style="background-color:yellow;">`LOCAL_USER_ID`</mark> and setting its value.
+
+* Docker-compose: Add an environment variable <mark style="background-color:yellow;">`LOCAL_USER_ID`</mark> in <mark style="background-color:yellow;">`docker-compose.yml`</mark> downloaded in your working directory.\
+  ![](../.gitbook/assets/local-user-id.png)\
+  After modifying the YML file, you may need to delete your current container and start a new one.\
+
+* Docker: Add an environment variable <mark style="background-color:yellow;">`LOCAL_USER_ID`</mark> to the deploying command, as shown below:\
+  <mark style="background-color:yellow;">`docker run -d --name openblocks -e LOCAL_USER_ID = YOUR_USER_ID -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce`</mark>
+{% endhint %}
+
 ## Update
 
 {% tabs %}
