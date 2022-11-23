@@ -91,6 +91,14 @@ public class DatasourceMetaInfoServiceImpl implements DatasourceMetaInfoService 
             .connectionPool(ClientBasedConnectionPool.class)
             .build();
 
+    private static final DatasourceMetaInfo ORACLE = DatasourceMetaInfo.builder()
+            .type("oracle")
+            .displayName("Oracle")
+            .pluginExecutorKey("oracle-plugin")
+            .hasStructureInfo(true)
+            .connectionPool(ClientBasedConnectionPool.class)
+            .build();
+
     private static final DatasourceMetaInfo SMTP = DatasourceMetaInfo.builder()
             .type(ConfigTypes.SMTP)
             .displayName("SMTP")
