@@ -15,6 +15,7 @@
 ## Queries
 
 * [Query basics](queries/query-basics.md)
+* [Query library](queries/query-library.md)
 
 ## Build apps
 

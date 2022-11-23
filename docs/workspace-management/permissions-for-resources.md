@@ -1,12 +1,12 @@
 ---
 description: >-
-  Manage permissions for apps, modules, queries, data sources and folders in
+  Manage permissions for apps, modules, queries, data sources, and folders in
   your workspace.
 ---
 
 # Permissions for resources
 
-Openblocks implements [Role-based Access Control](https://en.wikipedia.org/wiki/Role-based\_access\_control) (RBAC) by assigning a set of permissions to different roles. These permissions determine the actions users can take on resources, including apps, modules, queries, data sources and folders.&#x20;
+Openblocks implements [Role-based Access Control](https://en.wikipedia.org/wiki/Role-based\_access\_control) (RBAC) by assigning a set of permissions to different roles. These permissions determine the actions users can take on resources, including apps, modules, queries, data sources, and folders.&#x20;
 
 Only workspace admins and members of Developers group are allowed to create resources. For workspace admins, they are in fact the owner of all resources.
 
