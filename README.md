@@ -69,3 +69,5 @@ You can access Openblocks from [cloud-hosted version](https://cloud.openblocks.d
 - [Basic CRUD](https://cloud.openblocks.dev/apps/6374b8dbc23a1103804cc23e/view)
 - [Simple table horizontal scroll and pagination demo](https://cloud.openblocks.dev/apps/6377695dc54c5224c70e9770/view)
 - [Pagination with temporary state demo](https://cloud.openblocks.dev/apps/6379cdd9f02c6e6ecc1d37ff/view)
+- [Import third-party JS lib demo](https://cloud.openblocks.dev/apps/637a1797c54c5224c70efed3/view)
+- [Custom Echarts demo](https://cloud.openblocks.dev/apps/63779dd6c54c5224c70ea537/view), from [source](https://echarts.apache.org/examples/en/editor.html?c=area-stack)
