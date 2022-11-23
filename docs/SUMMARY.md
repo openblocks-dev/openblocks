@@ -25,6 +25,7 @@
 * [Write JavaScript](build-apps/write-javascript/README.md)
   * [Use third-party libraries](build-apps/use-third-party-libraries.md)
 * [Version and release management](build-apps/version-and-release-management.md)
+* [Use Markdown](build-apps/use-markdown.md)
 
 ## Workspace management
 
