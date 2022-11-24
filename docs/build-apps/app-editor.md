@@ -63,6 +63,6 @@ Queries link data sources to your apps and perform CRUD (create, read, update, a
 
 The component and property pane is located on the right of the window. Drag components onto the canvas from the **Insert** tab and edit the properties of the components in the **Properties** tab.
 
-<img src="../.gitbook/assets/image (33).png" alt="" data-size="original">![](<../.gitbook/assets/image (4).png>)
+<img src="../.gitbook/assets/image (33).png" alt="" data-size="original">![](<../.gitbook/assets/image (4) (1).png>)
 
 When a component is selected on the canvas, the **Properties** tab will be activated automatically and display properties of that component.

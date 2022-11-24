@@ -24,6 +24,8 @@
 * [Event handlers](build-apps/event-handlers.md)
 * [Write JavaScript](build-apps/write-javascript/README.md)
   * [Use third-party libraries](build-apps/use-third-party-libraries.md)
+* [Component guides](build-apps/component-guides/README.md)
+  * [Option lists](build-apps/component-guides/option-lists.md)
 * [Version and release management](build-apps/version-and-release-management.md)
 * [Use Markdown](build-apps/use-markdown.md)
 
