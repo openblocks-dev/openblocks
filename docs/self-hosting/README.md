@@ -57,16 +57,49 @@ docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks"
 {% endtab %}
 {% endtabs %}
 
-{% hint style="info" %}
-By default the supervisor will run under the user <mark style="background-color:yellow;">`uid=9001`</mark>. You can specify the uid by adding a docker environment variable <mark style="background-color:yellow;">`LOCAL_USER_ID`</mark> and setting its value.
+### Run as non-root user
 
-* Docker-compose: Add an environment variable <mark style="background-color:yellow;">`LOCAL_USER_ID`</mark> in <mark style="background-color:yellow;">`docker-compose.yml`</mark> downloaded in your working directory.\
-  ![](../.gitbook/assets/local-user-id.png)\
-  After modifying the YML file, you may need to delete your current container and start a new one.\
+By default the supervisor will run under the user `uid=9001`. You can specify the uid by adding a docker environment variable `LOCAL_USER_ID` and setting its value.
 
-* Docker: Add an environment variable <mark style="background-color:yellow;">`LOCAL_USER_ID`</mark> to the deploying command, as shown below:\
-  <mark style="background-color:yellow;">`docker run -d --name openblocks -e LOCAL_USER_ID = YOUR_USER_ID -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce`</mark>
-{% endhint %}
+{% tabs %}
+{% tab title="Docker-Compose" %}
+Add an environment variable `LOCAL_USER_ID` in `docker-compose.yml` downloaded in your working directory.\
+<img src="../.gitbook/assets/local-user-id.png" alt="" data-size="original">
+{% endtab %}
+
+{% tab title="Docker" %}
+Add an environment variable `LOCAL_USER_ID` to the deploying command, as shown below:
+
+{% code overflow="wrap" %}
+```docker
+docker run -d --name openblocks -e LOCAL_USER_ID = YOUR_USER_ID -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
+```
+{% endcode %}
+{% endtab %}
+{% endtabs %}
+
+### Install SSL certificate
+
+With an SSL certificate, you can securely visit self-hosted Openblocks with HTTPS protocol. Here are the steps to install your SSL certificate before starting a container:
+
+{% tabs %}
+{% tab title="Docker-Compose" %}
+1. Copy `fullchain.pem` and `privkey.pem` to the `$PWD/stacks/ssl` directory.
+2. In `$PWD/docker-compose.yml`, change the value of `ports` to `"3443:3443"`.\
+   ![](../.gitbook/assets/ssl-certificates.png)
+{% endtab %}
+
+{% tab title="Docker" %}
+1. Copy `fullchain.pem` and `privkey.pem` to the `$PWD/stacks/ssl` directory.
+2. Change the `ports` of the deploying command to `3443:3443`, as shown below:
+
+{% code overflow="wrap" %}
+```
+docker run -d --name openblocks -p 3443:3443 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
+```
+{% endcode %}
+{% endtab %}
+{% endtabs %}
 
 ## Update
 
