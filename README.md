@@ -64,6 +64,7 @@ You can access Openblocks from [cloud-hosted version](https://cloud.openblocks.d
 ## 💪 Contributing
 - Language support: If you have experience with a language that isn't currently supported by our product, send us a pull request.
 - Create and share components or demos: If you've created something that might be useful to others, add the link here.
+- [Frontend contributing guide](https://github.com/openblocks-dev/openblocks/tree/develop/client)
 
 ## 📝 Examples(WIP)
 - [Basic CRUD](https://cloud.openblocks.dev/apps/6374b8dbc23a1103804cc23e/view)
