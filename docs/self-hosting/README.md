@@ -50,7 +50,7 @@ Follow the steps below:
 Run the command below:
 
 {% code overflow="wrap" %}
-```powershell
+```bash
 docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
 ```
 {% endcode %}
@@ -71,7 +71,7 @@ Add an environment variable `LOCAL_USER_ID` in `docker-compose.yml` downloaded i
 Add an environment variable `LOCAL_USER_ID` to the deploying command, as shown below:
 
 {% code overflow="wrap" %}
-```docker
+```bash
 docker run -d --name openblocks -e LOCAL_USER_ID = YOUR_USER_ID -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
 ```
 {% endcode %}
@@ -94,7 +94,7 @@ With an SSL certificate, you can securely visit self-hosted Openblocks with HTTP
 2. Change the `ports` of the deploying command to `3443:3443`, as shown below:
 
 {% code overflow="wrap" %}
-```
+```bash
 docker run -d --name openblocks -p 3443:3443 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
 ```
 {% endcode %}
@@ -107,7 +107,7 @@ docker run -d --name openblocks -p 3443:3443 -v "$PWD/stacks:/openblocks-stacks"
 {% tab title="Docker-Compose" %}
 Run the following commands to update to the latest Openblocks image:
 
-```powershell
+```bash
 docker-compose pull
 docker-compose rm -fsv openblocks
 docker-compose up -d
@@ -118,7 +118,7 @@ docker-compose up -d
 Run the following commands to update to the latest Openblocks image:
 
 {% code overflow="wrap" %}
-```powershell
+```bash
 docker pull openblocksdev/openblocks-ce
 docker rm -fv openblocks
 docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
