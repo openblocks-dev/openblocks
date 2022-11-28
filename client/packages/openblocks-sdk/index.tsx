@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import ReactDOM from "react-dom";
+import ReactDOM, { flushSync } from "react-dom";
 import { AppViewInstance, bootstrapAppAt, OpenblocksAppView } from "./src/index";
 
 const url = new URL(location.href);

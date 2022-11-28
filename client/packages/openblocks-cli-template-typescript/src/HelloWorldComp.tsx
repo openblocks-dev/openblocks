@@ -1,5 +1,5 @@
-import { Button } from "antd";
 import {
+  antd,
   UICompBuilder,
   numberExposingStateControl,
   Section,
@@ -10,6 +10,8 @@ import {
   eventHandlerControl,
   withMethodExposing,
 } from "openblocks-sdk";
+
+const { Button } = antd;
 
 const childrenMap = {
   value: numberExposingStateControl("value", 10),

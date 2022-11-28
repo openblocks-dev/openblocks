@@ -15,6 +15,7 @@ const Wrapper = styled.div<{ dragging: boolean; isOver: boolean; dropInAsSub: bo
   background-color: #ffffff;
   align-items: center;
   opacity: ${(props) => (props.dragging ? "0.5" : 1)};
+
   &::after {
     content: "";
     display: ${(props) => (props.isOver ? "block" : "none")};
@@ -26,17 +27,20 @@ const Wrapper = styled.div<{ dragging: boolean; isOver: boolean; dropInAsSub: bo
     background-color: #315efb;
     bottom: -5px;
   }
+
   .draggable-handle-icon {
     &:hover,
     &:focus {
       cursor: grab;
     }
+
     &,
     & > svg {
       width: 16px;
       height: 16px;
     }
   }
+
   .draggable-text {
     color: #333;
     font-size: 13px;
@@ -45,15 +49,20 @@ const Wrapper = styled.div<{ dragging: boolean; isOver: boolean; dropInAsSub: bo
     display: flex;
     align-items: center;
     flex: 1;
+    overflow: hidden;
+    cursor: pointer;
+
     & > div {
-      height: 100%;
-      width: 100%;
-      display: flex;
-      align-items: center;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      display: inline-block;
     }
   }
+
   .draggable-extra-icon {
     cursor: pointer;
+
     &,
     & > svg {
       width: 16px;

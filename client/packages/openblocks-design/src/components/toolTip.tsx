@@ -72,14 +72,14 @@ const PreButton = styled(Button)`
 
   &,
   :focus {
-    background-color: #556ff2;
-    border-color: #556ff2;
+    background-color: #6179f2;
+    border-color: #6179f2;
     color: #ffffff;
   }
 
   :hover {
-    background-color: #6d83f2;
-    border-color: #6d83f2;
+    background-color: #798df2;
+    border-color: #798df2;
     color: #ffffff;
   }
 `;

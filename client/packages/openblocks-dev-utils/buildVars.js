@@ -35,4 +35,8 @@ export const buildVars = [
     name: "REACT_APP_IMPORT_MAP",
     defaultValue: "{}",
   },
+  {
+    name: "REACT_APP_SERVER_IPS",
+    defaultValue: "",
+  },
 ];

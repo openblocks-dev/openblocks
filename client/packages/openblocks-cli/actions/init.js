@@ -76,15 +76,15 @@ export default async function initAction(options) {
 
   appPackageJson.openblocks = templatePackageJson.openblocks || {};
   appPackageJson.scripts = {
-    start: "openblocks-cli start",
+    start: "vite",
     build: "openblocks-cli build",
   };
   fs.writeFileSync(paths.appPackageJson, JSON.stringify(appPackageJson, null, 2));
   console.log("package.json updated");
 
-  const notCopiedFiles = ["package.json", "README.md", "README-template.md"];
+  const notCopiedFiles = ["package.json", "README.md", "README-template.md", "node_modules"];
   fs.copySync(templateDir, "./", {
-    filter: (src) => notCopiedFiles.every((i) => !src.endsWith(i)),
+    filter: (src) => notCopiedFiles.every((i) => !src.startsWith(`${templateDir}/${i}`)),
   });
   fs.copyFile(`${templateDir}/README-template.md`, "./README.md");
   console.log("template files copied");

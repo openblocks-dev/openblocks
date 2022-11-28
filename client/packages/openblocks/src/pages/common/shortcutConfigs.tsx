@@ -50,19 +50,19 @@ export const allShortcutGroups: ShortcutGroupConfig[] = [
     shortcuts: [
       {
         name: trans("shortcut.toggleLeftPanel"),
-        keys: [{ mod: true, key: "b" }],
+        keys: [{ mod: true, key: "B" }],
         target: "global",
         action: "toggleLeftPanel",
       },
       {
         name: trans("shortcut.toggleBottomPanel"),
-        keys: [{ mod: true, key: "j" }],
+        keys: [{ mod: true, key: "J" }],
         target: "global",
         action: "toggleBottomPanel",
       },
       {
         name: trans("shortcut.toggleRightPanel"),
-        keys: [{ mod: true, key: "u" }],
+        keys: [{ mod: true, key: "U" }],
         target: "global",
         action: "toggleRightPanel",
       },
@@ -74,19 +74,19 @@ export const allShortcutGroups: ShortcutGroupConfig[] = [
       },
       {
         name: trans("shortcut.preview"),
-        keys: [{ mod: true, shift: true, key: "p" }],
+        keys: [{ mod: true, shift: true, key: "P" }],
         target: "global",
         action: "preview",
       },
       {
         name: trans("shortcut.undo"),
-        keys: [{ mod: true, key: "z" }],
+        keys: [{ mod: true, key: "Z" }],
         target: "global",
         action: "undo",
       },
       {
         name: trans("shortcut.redo"),
-        keys: [{ mod: true, shift: true, key: "z" }],
+        keys: [{ mod: true, shift: true, key: "Z" }],
         target: "global",
         action: "redo",
       },
@@ -99,25 +99,25 @@ export const allShortcutGroups: ShortcutGroupConfig[] = [
       { name: trans("shortcut.multiSelect"), keys: [{ mod: true, click: true }] },
       {
         name: trans("shortcut.selectAll"),
-        keys: [{ mod: true, key: "a" }],
+        keys: [{ mod: true, key: "A" }],
         target: "editor",
         action: "selectAllComps",
       },
       {
         name: trans("shortcut.copy"),
-        keys: [{ mod: true, key: "c" }],
+        keys: [{ mod: true, key: "C" }],
         target: "editor",
         action: "copyComps",
       },
       {
         name: trans("shortcut.cut"),
-        keys: [{ mod: true, key: "x" }],
+        keys: [{ mod: true, key: "X" }],
         target: "editor",
         action: "cutComps",
       },
       {
         name: trans("shortcut.paste"),
-        keys: [{ mod: true, key: "v" }],
+        keys: [{ mod: true, key: "V" }],
         target: "editor",
         action: "pasteComps",
       },
@@ -151,7 +151,7 @@ export const allShortcutGroups: ShortcutGroupConfig[] = [
   {
     name: trans("shortcut.editBox"),
     shortcuts: [
-      { name: trans("shortcut.formatting"), keys: [{ mod: true, key: "l" }] },
+      { name: trans("shortcut.formatting"), keys: [{ mod: true, key: "L" }] },
       { name: trans("shortcut.openInLeftPanel"), keys: [{ mod: true, click: true }] },
     ],
   },

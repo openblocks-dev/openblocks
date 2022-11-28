@@ -18,13 +18,17 @@
     "jsx": "react-jsx",
     "baseUrl": "src",
     "paths": {
+      "openblocks-sdk": [
+        "../../openblocks/src/index.sdk.ts",
+        "../node_modules/openblocks-sdk/src/openblocks/index.sdk.ts"
+      ],
       "*": [
         "*",
         "../../openblocks/src/*",
         "../../openblocks-sdk/src/*",
-        "../node_modules/openblocks-sdk/src/*"
+        "../node_modules/openblocks-sdk/src/openblocks/*"
       ]
     }
   },
-  "include": ["src"]
+  "include": ["src", "index.tsx"]
 }

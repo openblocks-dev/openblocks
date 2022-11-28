@@ -263,13 +263,13 @@ export const DatasourceEditPage = () => {
               </div>
 
               <span>{trans("query.address")}</span>
-              <IPWrapper>
-                54.149.191.117 <CopyTextButton text={"54.149.191.117"} />
-              </IPWrapper>
-              <IPWrapper>
-                54.149.191.117
-                <CopyTextButton text={"54.149.191.117"} />
-              </IPWrapper>
+              {REACT_APP_SERVER_IPS.split(",")
+                .filter((s) => s)
+                .map((ip, i) => (
+                  <IPWrapper key={i}>
+                    {ip} <CopyTextButton text={ip} />
+                  </IPWrapper>
+                ))}
             </Whitelist>
           )}
         </Body>

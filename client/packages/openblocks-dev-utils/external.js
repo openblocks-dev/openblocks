@@ -60,7 +60,8 @@ export const getAllLibGlobalVarNames = () => {
 };
 
 export const libsImportCode = () => {
-  const lines = [];
+  const importLines = [];
+  const assignLines = [];
   libs.forEach((i) => {
     let name = i;
     let merge = false;
@@ -74,13 +75,13 @@ export const libsImportCode = () => {
 
     const varName = getLibGlobalVarName(name);
     if (merge) {
-      lines.push(`import * as ${varName}_named_exports from '${from}';`);
-      lines.push(`import ${varName} from '${from}';`);
-      lines.push(`Object.assign(${varName}, ${varName}_named_exports);`);
+      importLines.push(`import * as ${varName}_named_exports from '${from}';`);
+      importLines.push(`import ${varName} from '${from}';`);
+      assignLines.push(`Object.assign(${varName}, ${varName}_named_exports);`);
     } else {
-      lines.push(`import * as ${varName} from '${from}';`);
+      importLines.push(`import * as ${varName} from '${from}';`);
     }
-    lines.push(`window.${varName} = ${varName};\n`);
+    assignLines.push(`window.${varName} = ${varName};`);
   });
-  return lines.join("\n");
+  return importLines.concat(assignLines).join("\n");
 };

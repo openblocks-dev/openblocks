@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from "react";
-import { Button, Space, Input, Form } from "antd";
+import React, { useState, useMemo, ChangeEvent } from "react";
 import ReactJson from "react-json-view";
-import { useCompInstance } from "openblocks-sdk";
+import { UICompLayoutInfo } from "comps/uiCompRegistry";
+import { Comp, customAction } from "openblocks-core";
+import { Button, Space, Input, Form } from "antd";
 import styled from "styled-components";
-import { customAction } from "openblocks-core";
+import { useCompInstance, GetContainerParams } from "comps/utils/useCompInstance";
 
 const Container = styled.div`
   display: flex;
@@ -83,11 +84,16 @@ const Container = styled.div`
   }
 `;
 
-export default function CompRunner(props) {
-  const { compFactory, layoutInfo } = props;
-  const [methodParams, setMethodParams] = useState([]);
+interface IProps {
+  compFactory: Comp<any>;
+  layoutInfo: UICompLayoutInfo;
+}
 
-  const handleChangeMethodParams = (e) => {
+export function CompPlayground(props: IProps) {
+  const { compFactory, layoutInfo } = props;
+  const [methodParams, setMethodParams] = useState<string[]>([]);
+
+  const handleChangeMethodParams = (e: ChangeEvent<HTMLTextAreaElement>) => {
     try {
       const v = JSON.parse(e.target.value);
       if (Array.isArray(v)) {
@@ -100,7 +106,7 @@ export default function CompRunner(props) {
     }
   };
 
-  const containerParams = useMemo(
+  const containerParams: GetContainerParams<any> = useMemo(
     () => ({
       Comp: compFactory,
       initialValue: {},

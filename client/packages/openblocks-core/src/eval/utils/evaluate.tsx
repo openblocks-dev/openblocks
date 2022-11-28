@@ -86,7 +86,7 @@ export function changeDependName(
 
 function rename(segment: string, oldName: string, name: string) {
   const accessors = [".", "["];
-  const regStrList = ["[a-zA-Z_$][a-zA-Z_$0-9.[\\]]*", "(?<=\\[)[a-zA-Z_][a-zA-Z_0-9.]*"];
+  const regStrList = ["[a-zA-Z_$][a-zA-Z_$0-9.[\\]]*", "\\[[a-zA-Z_][a-zA-Z_0-9.]*"];
 
   let ret = segment;
   for (const regStr of regStrList) {
@@ -95,11 +95,28 @@ function rename(segment: string, oldName: string, name: string) {
       if (s === oldName) {
         return name;
       }
+      let origin = oldName;
+      let target = name;
+      let matched = false;
+
+      if (s.startsWith(`[${origin}`)) {
+        origin = `[${origin}`;
+        target = `[${name}`;
+        matched = true;
+      }
+
       for (const accessor of accessors) {
-        if (s.startsWith(oldName + accessor)) {
-          return name + accessor + s.substring(oldName.length + accessor.length);
+        if (s.startsWith(origin + accessor)) {
+          matched = true;
+          target = target + accessor + s.substring(origin.length + accessor.length);
+          break;
         }
       }
+
+      if (matched) {
+        return target;
+      }
+
       return s;
     });
   }

@@ -8,9 +8,9 @@ import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
 import chalk from "chalk";
 import { ViteMinifyPlugin as minifyHtml } from "vite-plugin-minify";
-import { libsImportCode } from "openblocks-dev-utils/external";
 import { ensureLastSlash } from "openblocks-dev-utils/util";
 import { buildVars } from "openblocks-dev-utils/buildVars";
+import { globalDepPlugin } from "openblocks-dev-utils/globalDepPlguin";
 
 dotenv.config();
 
@@ -27,23 +27,6 @@ if (!apiProxyTarget && isDev) {
   console.log(chalk.cyan`Start with command: API_PROXY_TARGET=\{backend-api-addr\} yarn start`);
   console.log();
   process.exit(1);
-}
-
-function openBlocksGlobalsPlugin() {
-  const virtualModuleId = "virtual:globals";
-  return {
-    name: "openblocks-global-plugin",
-    resolveId(id: string) {
-      if (id === virtualModuleId) {
-        return id;
-      }
-    },
-    load(id: string) {
-      if (id === virtualModuleId) {
-        return libsImportCode();
-      }
-    },
-  };
 }
 
 const define = {};
@@ -147,7 +130,7 @@ export const viteConfig: UserConfig = {
         ref: true,
       },
     }),
-    openBlocksGlobalsPlugin(),
+    globalDepPlugin(),
     minifyHtml(),
     isVisualizerEnabled && visualizer(),
   ].filter(Boolean),

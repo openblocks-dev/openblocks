@@ -1,3 +1,4 @@
+import { trans } from "i18n";
 import React from "react";
 import { HTMLAttributes } from "react";
 import { isMac } from "./commonUtils";
@@ -8,7 +9,7 @@ export function modKeyPressed(
   return isMac ? e.metaKey : e.ctrlKey;
 }
 
-const modKey = isMac ? "⌘" : "CTRL";
+const modKey = isMac ? "⌘" : "Ctrl";
 export const undoKey = `${modKey} Z`;
 export const pasteKey = `${modKey} V`;
 
@@ -30,51 +31,143 @@ export type KeyConfig = {
   notFilterInput?: boolean;
 };
 
-export function configKeyString(c: KeyConfig) {
-  return keyString(c.mod && isMac, c.ctrl || (c.mod && !isMac), c.alt, c.shift, c.key);
+const eventCodeMap: Record<string, string> = {
+  Backquote: "`",
+  Minus: "-",
+  Equal: "=",
+  BracketLeft: "[",
+  BracketRight: "]",
+  Backslash: "\\",
+  Semicolon: ";",
+  Quote: "'",
+  Comma: ",",
+  Period: ".",
+  Slash: "/",
+  NumpadAdd: "+",
+  NumpadSubtract: "-",
+  NumpadMultiply: "*",
+  NumpadDivide: "/",
+  NumpadEqual: "=",
+  NumpadDecimal: ".",
+  NumpadComma: ",",
+  NumpadEnter: "Enter",
+  // ignore modifiers
+  MetaLeft: "",
+  MetaRight: "",
+  OSLeft: "",
+  OSRight: "",
+  ControlLeft: "",
+  ControlRight: "",
+  AltLeft: "",
+  AltRight: "",
+  ShiftLeft: "",
+  ShiftRight: "",
+};
+
+const codePrefixes = ["Key", "Digit", "Numpad"];
+
+function normalizeKey(e: React.KeyboardEvent | KeyboardEvent) {
+  // only shift+(single character)
+  if (e.shiftKey && !(e.metaKey || e.ctrlKey || e.altKey) && e.key.length === 1) {
+    const charCode = e.key.charCodeAt(0);
+    // ASCII character (exclude space), use upper case
+    if (charCode > 32 && charCode < 127) {
+      return e.key.toUpperCase();
+    }
+    // converts CJK fullwidth characters to halfwidth characters (fix key when using CJK input method).
+    if (charCode > 65280 && charCode < 65375) {
+      return String.fromCharCode(charCode - 65248).toUpperCase();
+    }
+  }
+  const code = e.code;
+  const v = eventCodeMap[code];
+  if (v !== undefined) {
+    return v;
+  }
+  for (const p of codePrefixes) {
+    if (code.length === p.length + 1 && code.startsWith(p)) {
+      return code.slice(p.length);
+    }
+  }
+  return code;
+}
+
+// store shortcut in DSL, not change it
+function normalizeShortcut(
+  mod: boolean,
+  metaKey?: boolean,
+  ctrlKey?: boolean,
+  altKey?: boolean,
+  shiftKey?: boolean,
+  key = ""
+): string {
+  return [
+    ...(mod ? ["Mod"] : [metaKey ? "Meta" : "", ctrlKey ? "Ctrl" : ""]),
+    altKey ? "Alt" : "",
+    // If press only shift+(single character), shift is ignored.
+    shiftKey && (mod || metaKey || ctrlKey || altKey || key.length !== 1) ? "Shift" : "",
+    key,
+  ]
+    .filter((t) => t)
+    .join(" ");
 }
 
 export function eventKeyString(e: React.KeyboardEvent | KeyboardEvent) {
-  return keyString(
-    e.metaKey,
-    e.ctrlKey,
-    e.altKey,
-    // keep shift + modifier the same as modifier
-    e.shiftKey && (e.metaKey || e.ctrlKey || e.altKey),
-    convertKey(e.key)
+  return normalizeShortcut(false, e.metaKey, e.ctrlKey, e.altKey, e.shiftKey, normalizeKey(e));
+}
+
+export function configKeyString(c: KeyConfig) {
+  return normalizeShortcut(
+    false,
+    c.mod && isMac,
+    c.ctrl || (c.mod && !isMac),
+    c.alt,
+    c.shift,
+    c.key
   );
 }
 
-function convertKey(s: string) {
-  if (s.length === 1) {
-    // transform Chinese chars to Latin chars, partly fix the key problem using Chinese input method software.
-    const code = s.charCodeAt(0);
-    if (code === 12288) {
-      return String.fromCharCode(32);
-    }
-    if (code > 65280 && code < 65375) {
-      return String.fromCharCode(code - 65248);
-    }
-  }
-  return s;
+export function eventToShortcut(e: React.KeyboardEvent | KeyboardEvent) {
+  // In Mac, press command means Mod (Command - Mac, Ctrl - other)
+  return normalizeShortcut(
+    isMac && e.metaKey,
+    e.metaKey,
+    e.ctrlKey,
+    e.altKey,
+    e.shiftKey,
+    normalizeKey(e)
+  );
 }
 
-function keyString(
-  meta?: boolean,
-  ctrl?: boolean,
-  alt?: boolean,
-  shift?: boolean,
-  key?: string
-): string {
-  return [
-    meta ? "meta" : "",
-    ctrl ? "ctrl" : "",
-    alt ? "alt" : "",
-    shift ? "shift" : "",
-    key ? key.toLowerCase() : "",
-  ]
-    .filter((t) => t)
-    .join("+");
+export function shortcutToKeyString(shortcut: string) {
+  return shortcut
+    .split(" ")
+    .map((s) => (s === "Mod" ? (isMac ? "Meta" : "Ctrl") : s))
+    .join(" ");
+}
+
+const displayKey: Record<string, string> = {
+  Mod: "Mod ",
+  Meta: isMac ? "⌘" : "Meta ",
+  Ctrl: "⌃",
+  Alt: "⌥",
+  Shift: "⇧",
+  Space: trans("customShortcut.space"),
+  Enter: "⏎",
+  Escape: "ESC",
+  Delete: "DEL",
+  ArrowLeft: "←",
+  ArrowRight: "→",
+  ArrowUp: "↑",
+  ArrowDown: "↓",
+};
+
+export function readableShortcut(shortcut: string) {
+  return shortcut
+    .split(" ")
+    .map((s) => displayKey[s] ?? s)
+    .join("")
+    .trim();
 }
 
 export function isFilterInputTarget(e: React.KeyboardEvent | KeyboardEvent) {

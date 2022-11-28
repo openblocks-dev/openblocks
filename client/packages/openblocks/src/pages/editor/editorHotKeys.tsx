@@ -17,7 +17,7 @@ import { preview } from "constants/routesURL";
 import { useApplicationId } from "util/hooks";
 
 type Props = {
-  children: JSX.Element;
+  children: React.ReactNode;
   disabled?: boolean;
 };
 
@@ -129,6 +129,7 @@ export function EditorGlobalHotKeys(props: GlobalProps) {
         toggleShortcutList,
         applicationId
       );
+      editorState.getAppSettingsComp().children.customShortcuts.handleKeyEvent(e);
     },
     [editorState, editorHistory, togglePanel, toggleShortcutList, applicationId]
   );
@@ -198,5 +199,20 @@ export function EditorHotKeys(props: Props) {
       style={{ width: "100%", height: "100%" }}
       children={props.children}
     />
+  );
+}
+
+export function CustomShortcutWrapper(props: { children: React.ReactNode }) {
+  const editorState = useContext(EditorContext);
+  const handleCustomShortcut = useCallback(
+    (e: KeyboardEvent) => {
+      editorState.getAppSettingsComp().children.customShortcuts.handleKeyEvent(e);
+    },
+    [editorState]
+  );
+  return (
+    <GlobalShortcutsWrapper onKeyDownCapture={handleCustomShortcut}>
+      {props.children}
+    </GlobalShortcutsWrapper>
   );
 }

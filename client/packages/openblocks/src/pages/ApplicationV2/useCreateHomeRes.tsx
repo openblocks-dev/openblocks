@@ -1,7 +1,6 @@
 import { ApplicationDetail, AppTypeEnum } from "../../constants/applicationConstants";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback } from "react";
-import { AppTypeInfo } from "../../components/CreateAppButton";
 import { HomeResTypeEnum } from "../../types/homeRes";
 import { getNextEntityName } from "../../util/stringUtils";
 import { createApplication } from "../../redux/reduxActions/applicationActions";
@@ -15,12 +14,13 @@ import history from "../../util/history";
 import { buildAppRouteWithState } from "../../constants/routesURL";
 import { useCreateFolder } from "./useCreateFolder";
 import { trans } from "i18n";
+import { HomeResInfo } from "util/homeResUtils";
 
-const newAppPrefix = (userName: string, appType: AppTypeEnum = AppTypeEnum.Application) => {
+export const newAppPrefix = (userName: string, appType: AppTypeEnum = AppTypeEnum.Application) => {
   if (appType === AppTypeEnum.NavLayout) {
-    return trans("home.newNavLayout", { userName: userName, name: AppTypeInfo[appType].name });
+    return trans("home.newNavLayout", { userName: userName, name: HomeResInfo[appType].name });
   }
-  return trans("home.newApp", { userName: userName, name: AppTypeInfo[appType].name });
+  return trans("home.newApp", { userName: userName, name: HomeResInfo[appType].name });
 };
 
 export function useCreateHomeRes() {

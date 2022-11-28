@@ -1,3 +1,6 @@
+import * as styledNameExports from "styled-components";
+import styledDefault from "styled-components";
+
 export * from "redux/store/store";
 
 // util
@@ -43,6 +46,7 @@ export * from "comps/utils";
 
 // design
 export * from "openblocks-design";
+export * from "openblocks-core";
 
 // controls
 export * from "comps/controls/alignControl";
@@ -90,3 +94,9 @@ export * from "comps/generators/withType";
 export * from "appView/bootstrapAt";
 export * from "appView/OpenblocksAppView";
 export * from "appView/AppViewInstance";
+
+export * from "ide/CompIde";
+export * from "ide/CompPlayground";
+
+export * as antd from "antd";
+export const styled = { ...styledDefault, ...styledNameExports };

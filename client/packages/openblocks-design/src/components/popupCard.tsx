@@ -2,7 +2,7 @@ import { Alert, Card } from "antd";
 import { CopyTextButton } from "./copyTextButton";
 import { CSSProperties, ReactNode, useState } from "react";
 import styled from "styled-components";
-import { SuccessIcon, ErrorIcon } from "icons";
+import { ErrorIcon, SuccessIcon } from "icons";
 
 const StyledCard = styled(Card)<{ backcolor: string }>`
   z-index: 3;
@@ -24,9 +24,11 @@ const StyledCard = styled(Card)<{ backcolor: string }>`
 `;
 const Contain = styled.div`
   position: relative;
+
   .ant-card-small > .ant-card-head > .ant-card-head-wrapper > .ant-card-extra {
     padding: 0;
   }
+
   .ant-card-small > .ant-card-head {
     padding: 10px 16px 0px 16px;
     font-weight: normal;
@@ -36,6 +38,7 @@ const Contain = styled.div`
     border-bottom: none;
     min-height: 31px;
   }
+
   .ant-card-small > .ant-card-body {
     padding: 0px 0px 10px 0px;
 
@@ -44,17 +47,21 @@ const Contain = styled.div`
     line-height: 13px;
     overflow: auto;
   }
+
   .ant-alert {
     padding: 0;
     font-size: 13px;
   }
+
   .ant-card-small > .ant-card-head > .ant-card-head-wrapper > .ant-card-head-title {
     padding: 0;
   }
+
   .ant-alert-success {
     background: transparent;
     border: none;
   }
+
   .ant-alert-error {
     background: transparent;
     border: none;
@@ -68,9 +75,11 @@ const Content = styled.div`
   max-height: 108px;
   overflow: auto;
   scrollbar-gutter: stable;
+
   &::-webkit-scrollbar {
     width: 16px;
   }
+
   &::-webkit-scrollbar-thumb {
     border: 5px solid transparent;
     background-clip: content-box;
@@ -78,6 +87,7 @@ const Content = styled.div`
     background-color: rgba(139, 143, 163, 0.2);
     min-height: 30px;
   }
+
   &::-webkit-scrollbar-thumb:hover {
     background-color: rgba(139, 143, 163, 0.36);
   }
@@ -87,6 +97,9 @@ const Tips = styled.div`
   padding: 4px 0 0 16px;
   border-top: 1px solid #82bf99;
 `;
+
+const MAX_CONTENT_LENGTH = 3000;
+
 interface PopupCardProps {
   editorFocus?: boolean;
   title?: string;
@@ -126,7 +139,12 @@ export function PopupCard(props: PopupCardProps) {
               setPopupHovered(false);
             }}
           >
-            <Content>{props.richContent ?? props.content}</Content>
+            <Content>
+              {props.richContent ??
+                (props.content?.length && props.content?.length > MAX_CONTENT_LENGTH
+                  ? props.content?.substring(0, MAX_CONTENT_LENGTH) + "..."
+                  : props.content)}
+            </Content>
             {props.tips && <Tips>{props.tips}</Tips>}
           </StyledCard>
         </Contain>

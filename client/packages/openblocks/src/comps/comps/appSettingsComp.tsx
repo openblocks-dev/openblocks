@@ -4,15 +4,15 @@ import { dropdownInputSimpleControl } from "comps/controls/dropdownInputSimpleCo
 import { MultiCompBuilder, valueComp } from "comps/generators";
 import { AddIcon, Dropdown } from "openblocks-design";
 import { EllipsisSpan } from "pages/setting/theme/styledComponents";
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { getDefaultTheme, getThemeList } from "redux/selectors/commonSettingSelectors";
 import styled, { css } from "styled-components";
-import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { trans } from "i18n";
 import { GreyTextColor } from "constants/style";
 import { Divider } from "antd";
 import { THEME_SETTING } from "constants/routesURL";
+import { CustomShortcutsComp } from "./customShortcutsComp";
 
 const TITLE = trans("appSetting.title");
 const USER_DEFINE = "__USER_DEFINE";
@@ -157,6 +157,7 @@ const DividerStyled = styled(Divider)`
 const childrenMap = {
   maxWidth: dropdownInputSimpleControl(OPTIONS, USER_DEFINE, "1920"),
   themeId: valueComp<string>(DEFAULT_THEMEID),
+  customShortcuts: CustomShortcutsComp,
 };
 type ChildrenInstance = RecordConstructorToComp<typeof childrenMap> & {
   themeList: ThemeType[];
@@ -164,7 +165,6 @@ type ChildrenInstance = RecordConstructorToComp<typeof childrenMap> & {
 };
 
 function AppSettingsModal(props: ChildrenInstance) {
-  const { showAppSettingModal, changeExternalState } = useContext(ExternalEditorContext);
   const { themeList, defaultTheme, themeId, maxWidth } = props;
   const THEME_OPTIONS = themeList?.map((theme) => ({
     label: theme.name,
@@ -236,6 +236,7 @@ function AppSettingsModal(props: ChildrenInstance) {
             );
           }}
         />
+        {props.customShortcuts.getPropertyView()}
       </DivStyled>
     </SettingsStyled>
   );

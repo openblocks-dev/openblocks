@@ -4,8 +4,7 @@ import { build } from "vite";
 import { writeFileSync, existsSync, readFileSync } from "fs";
 import { resolve } from "path";
 import paths from "../config/paths.js";
-import viteConfig from "../config/vite.config.js";
-import { logBug } from "../util/log.js";
+import "../util/log.js";
 
 const { copySync } = fsExtra;
 const packageJSON = JSON.parse(readFileSync(paths.appPackageJson).toString());
@@ -74,8 +73,8 @@ export default async function buildAction(options) {
   console.log("");
   console.cyan("Building...");
 
-  const output = await build(viteConfig);
-  console.log(output);
+  const viteConfig = await import(paths.appViteConfigJs).default;
+  await build(viteConfig);
 
   // write package.json
   packageJSON.openblocks.entry = "index.js";

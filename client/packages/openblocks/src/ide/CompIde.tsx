@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Menu } from "antd";
+import { CompPlayground } from "./CompPlayground";
 import styled from "styled-components";
-import pkg from "__user-pkg-json__";
-import compFactories from "__user-dev-comps__";
-import CompRunner from "./CompPlayground";
+import { UICompLayoutInfo } from "comps/uiCompRegistry";
 
-const comps = pkg?.openblocks?.comps || {};
+window.__OPENBLOCKS_DEV__ = {};
 
 const Container = styled.div`
   display: flex;
@@ -35,13 +34,6 @@ const Main = styled.div`
   flex-direction: row;
 `;
 
-const SideBarTitle = styled.div`
-  line-height: 28px;
-  font-weight: bold;
-  padding-left: 8px;
-  padding-top: 8px;
-`;
-
 const SideBar = styled.div`
   width: 200px;
   background-color: #fff;
@@ -55,39 +47,50 @@ const SideBar = styled.div`
 
 const Content = styled.div`
   flex: 1;
-  /* padding: 16px; */
   height: calc(100vh - 48px);
 `;
 
-const items = Object.keys(comps).map((i) => ({
-  key: i,
-  label: i,
-}));
+export interface CompMeta {
+  name: string;
+  layoutInfo?: UICompLayoutInfo;
+}
 
-export default function App() {
-  const [currentCompName, setCurrentCompName] = useState(Object.keys(comps)[0]);
-  const layoutInfo = comps[currentCompName]?.layoutInfo || { w: 5, h: 5 };
+export interface CompIDEProps {
+  compMap: Record<string, any>;
+  compMeta: Record<string, CompMeta>;
+  packageName: string;
+  packageVersion: string;
+}
+
+export function CompIDE(props: CompIDEProps) {
+  const { compMap, compMeta, packageName, packageVersion } = props;
+  const [currentCompName, setCurrentCompName] = useState<string>(Object.keys(compMeta)[0]);
+  const layoutInfo = compMeta[currentCompName]?.layoutInfo || { w: 5, h: 5 };
+
+  const items = Object.keys(compMeta).map((i) => ({
+    key: i,
+    label: i,
+  }));
 
   return (
     <Container>
       <Header>
         <div className="pkg-name">
-          <span className="name">{pkg.name}</span>
-          <span className="version"> - Version: {pkg.version}</span>
+          <span className="name">{packageName}</span>
+          <span className="version"> - Version: {packageVersion}</span>
         </div>
       </Header>
       <Main>
         <SideBar>
           <Menu
-            onSelect={(k) => setCurrentCompName(k)}
+            onSelect={(k) => setCurrentCompName(k.selectedKeys[0])}
             selectedKeys={[currentCompName]}
-            mode="inline"
-            defaultSelectedKeys={["4"]}
             items={items}
+            mode="inline"
           />
         </SideBar>
         <Content>
-          <CompRunner compFactory={compFactories?.[currentCompName]} layoutInfo={layoutInfo} />
+          <CompPlayground compFactory={compMap[currentCompName]} layoutInfo={layoutInfo} />
         </Content>
       </Main>
     </Container>

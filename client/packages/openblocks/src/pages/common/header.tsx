@@ -279,7 +279,7 @@ export default function Header(props: HeaderProps) {
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
   const selectedSnapshot = useSelector(getSelectedAppSnapshot);
   const { appType } = useContext(ExternalEditorContext);
-  const [editName, setEdieName] = useState(false);
+  const [editName, setEditName] = useState(false);
   const [editing, setEditing] = useState(false);
 
   const isModule = appType === AppTypeEnum.Module;
@@ -303,14 +303,14 @@ export default function Header(props: HeaderProps) {
                 return;
               }
               dispatch(updateAppMetaAction(applicationId, value));
-              setEdieName(false);
+              setEditName(false);
             }}
           />
         </Wrapper>
       ) : (
         <HeaderStartDropdown
           setEdit={() => {
-            setEdieName(true);
+            setEditName(true);
             setEditing(true);
           }}
         />
@@ -394,8 +394,6 @@ export default function Header(props: HeaderProps) {
             onClick={(e) => {
               if (e.key === "deploy") {
                 dispatch(publishApplication({ applicationId }));
-              } else if (e.key === "export") {
-                exportApplicationAsJSONFile(applicationId);
               } else if (e.key === "snapshot") {
                 dispatch(setShowAppSnapshot(true));
               }

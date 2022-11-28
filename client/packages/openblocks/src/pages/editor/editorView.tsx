@@ -23,7 +23,11 @@ import {
   LeftPanel,
   MiddlePanel,
 } from "pages/common/styledComponent";
-import { EditorGlobalHotKeys, EditorHotKeys } from "pages/editor/editorHotKeys";
+import {
+  CustomShortcutWrapper,
+  EditorGlobalHotKeys,
+  EditorHotKeys,
+} from "pages/editor/editorHotKeys";
 import RightPanel from "pages/editor/right/RightPanel";
 import EditorTutorials from "pages/tutorials/editorTutorials";
 import { editorContentClassName, UserGuideLocationState } from "pages/tutorials/tutorialsConstant";
@@ -238,23 +242,23 @@ function EditorView(props: EditorViewProps) {
 
   if (readOnly && hideHeader) {
     return (
-      <>
+      <CustomShortcutWrapper>
         {uiComp.getView()}
         <div style={{ zIndex: Layers.hooksCompContainer }}>{hookCompViews}</div>
-      </>
+      </CustomShortcutWrapper>
     );
   }
 
   if (readOnly && !showAppSnapshot) {
     return (
-      <>
+      <CustomShortcutWrapper>
         <Helmet>{application && <title>{application.name}</title>}</Helmet>
         <PreviewHeader />
         <EditorContainerWithViewMode>
           <ViewBody bgColor={bgColor}>{uiComp.getView()}</ViewBody>
           <div style={{ zIndex: Layers.hooksCompContainer }}>{hookCompViews}</div>
         </EditorContainerWithViewMode>
-      </>
+      </CustomShortcutWrapper>
     );
   }
   // history mode, display with the right panel, a little trick

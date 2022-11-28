@@ -3,7 +3,6 @@
 import("./util/log.js");
 import fs from "node:fs";
 import { Command } from "commander";
-import startAction from "./actions/start.js";
 import initAction from "./actions/init.js";
 import buildAction from "./actions/build.js";
 
@@ -18,13 +17,6 @@ program
   .option("-t, --template", "template name", "typescript")
   .option("--registry [addr]", "npm registry")
   .action(initAction);
-
-program
-  .command("start")
-  .description("start dev server to preview")
-  .option("--port", "server port", "9000")
-  .option("--host", "server host", "127.0.0.1")
-  .action(startAction);
 
 program
   .command("build")

@@ -30,7 +30,7 @@ export const viteConfig: UserConfig = {
       fileName: "openblocks-sdk",
     },
     rollupOptions: {
-      // external: ["react", "react-dom", "axios"],
+      external: ["react", "react-dom"],
       output: {
         chunkFileNames: "[hash].js",
       },

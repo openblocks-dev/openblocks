@@ -112,8 +112,14 @@ export function KeyValueItem(props: KeyValueItemProps) {
 
   const itemContent = (
     <div className="item-content">
-      <div className="col1">{name}</div>
-      {value && <div className="col2">{value}</div>}
+      <div className="col1" title={name}>
+        {name}
+      </div>
+      {value && (
+        <div className="col2" title={value}>
+          {value}
+        </div>
+      )}
     </div>
   );
 

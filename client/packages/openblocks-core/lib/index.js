@@ -546,7 +546,7 @@ function changeDependName(unevaledValue, oldName, name, isFunction) {
 }
 function rename(segment, oldName, name) {
     var accessors = [".", "["];
-    var regStrList = ["[a-zA-Z_$][a-zA-Z_$0-9.[\\]]*", "(?<=\\[)[a-zA-Z_][a-zA-Z_0-9.]*"];
+    var regStrList = ["[a-zA-Z_$][a-zA-Z_$0-9.[\\]]*", "\\[[a-zA-Z_][a-zA-Z_0-9.]*"];
     var ret = segment;
     for (var _i = 0, regStrList_1 = regStrList; _i < regStrList_1.length; _i++) {
         var regStr = regStrList_1[_i];
@@ -555,11 +555,24 @@ function rename(segment, oldName, name) {
             if (s === oldName) {
                 return name;
             }
+            var origin = oldName;
+            var target = name;
+            var matched = false;
+            if (s.startsWith("[".concat(origin))) {
+                origin = "[".concat(origin);
+                target = "[".concat(name);
+                matched = true;
+            }
             for (var _i = 0, accessors_1 = accessors; _i < accessors_1.length; _i++) {
                 var accessor = accessors_1[_i];
-                if (s.startsWith(oldName + accessor)) {
-                    return name + accessor + s.substring(oldName.length + accessor.length);
+                if (s.startsWith(origin + accessor)) {
+                    matched = true;
+                    target = target + accessor + s.substring(origin.length + accessor.length);
+                    break;
                 }
+            }
+            if (matched) {
+                return target;
             }
             return s;
         });

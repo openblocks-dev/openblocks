@@ -22,6 +22,10 @@ const StyledSide = styled(Layout.Sider)`
   max-height: calc(100vh - ${TopHeaderHeight});
   overflow: auto;
 
+  .ant-menu-item:first-child {
+    margin-top: 0;
+  }
+
   .ant-layout-sider-trigger {
     position: relative;
     bottom: 1px;

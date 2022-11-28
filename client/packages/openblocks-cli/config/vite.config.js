@@ -12,7 +12,6 @@ buildVars.forEach(({ name, defaultValue }) => {
 
 export default defineConfig({
   define,
-  root: paths.appRoot,
   assetsInclude: ["**/*.md"],
   resolve: {
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],

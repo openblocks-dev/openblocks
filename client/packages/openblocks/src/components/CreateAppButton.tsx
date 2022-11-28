@@ -8,9 +8,10 @@ import { AppState } from "redux/reducers";
 import { createApplication } from "redux/reduxActions/applicationActions";
 import styled from "styled-components";
 import { getNextEntityName } from "util/stringUtils";
-import { ApplicationDocIcon, ModuleDocIcon, NavDocIcon } from "openblocks-design";
 import { trans } from "i18n";
 import { normalAppListSelector } from "../redux/selectors/applicationSelector";
+import { HomeResInfo } from "util/homeResUtils";
+import { newAppPrefix } from "pages/ApplicationV2/useCreateHomeRes";
 
 const CreateSpan = styled.span`
   margin: 0 8px;
@@ -27,34 +28,6 @@ interface SelectedState {
   isCreating: boolean;
 }
 
-export const AppTypeInfo = {
-  [AppTypeEnum.Application]: {
-    name: trans("createAppButton.app"),
-    icon: <ApplicationDocIcon />,
-  },
-  [AppTypeEnum.Module]: {
-    name: trans("createAppButton.module"),
-    icon: <ModuleDocIcon />,
-  },
-  [AppTypeEnum.NavLayout]: {
-    name: trans("createAppButton.navLayout"),
-    icon: <NavDocIcon />,
-  },
-};
-
-const newAppPrefix = (userName: string, appType: AppTypeEnum = AppTypeEnum.Application) => {
-  if (appType === AppTypeEnum.NavLayout) {
-    return trans("createAppButton.newNavLayoutPrefix", {
-      userName: userName,
-      appName: AppTypeInfo[appType].name,
-    });
-  }
-  return trans("createAppButton.newAppPrefix", {
-    userName: userName,
-    appName: AppTypeInfo[appType].name,
-  });
-};
-
 export function useCreateApp(type: AppTypeEnum, onSuccess?: (app: ApplicationDetail) => void) {
   const dispatch = useDispatch();
   const { currentUser, isCreating } = useSelector<AppState, SelectedState>((state) => ({
@@ -62,7 +35,7 @@ export function useCreateApp(type: AppTypeEnum, onSuccess?: (app: ApplicationDet
     isCreating: state.ui.application.loadingStatus.isApplicationCreating,
   }));
   const allApplications = useSelector(normalAppListSelector);
-  const typeDisplayName = AppTypeInfo[type].name;
+  const typeDisplayName = HomeResInfo[type].name;
   const handleCreate = useCallback(() => {
     if (isCreating) {
       return;

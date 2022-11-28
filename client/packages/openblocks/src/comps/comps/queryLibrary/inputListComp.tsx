@@ -1,19 +1,25 @@
-import { JSONValueControl, StringControl } from "comps/controls/codeControl";
+import { JSONValueControl } from "comps/controls/codeControl";
 import CompNameControl from "comps/controls/compNameControl";
-import { simpleMultiComp, withPropertyViewFn } from "comps/generators";
+import { simpleMultiComp, valueComp, withPropertyViewFn } from "comps/generators";
 import { withExposingRaw } from "comps/generators/withExposing";
 import { list, pushAction } from "../../generators/list";
 import { EmptyContent } from "../../../components/EmptyContent";
-import { PointIcon } from "openblocks-design";
+import {
+  ControlPropertyViewWrapper,
+  EditPopover,
+  Input,
+  PointIcon,
+  SimplePopover,
+  TacoButton,
+} from "openblocks-design";
 import styled from "styled-components";
-import { EditPopover, SimplePopover, TacoButton } from "openblocks-design";
 import { Fragment, useContext, useState } from "react";
 import { QueryLibraryContext } from "../../../util/context/QueryLibraryContext";
 import { trans } from "i18n";
 
 const childrenMap = {
   name: CompNameControl,
-  description: StringControl,
+  description: valueComp<string>(""),
   value: JSONValueControl,
 };
 
@@ -41,9 +47,14 @@ const PropertyView = (props: {
                   onValidate: (pre: string, value: string) => context.checkRename(pre, value),
                   onFinish: (pre: string, value: string) => context.rename(pre, value),
                 })}
-                {props.comp.children.description.propertyView({
-                  label: trans("queryLibrary.inputDesc"),
-                })}
+                <ControlPropertyViewWrapper label={trans("queryLibrary.inputDesc")}>
+                  <Input
+                    value={props.comp.children.description.getView()}
+                    onChange={(e) => {
+                      props.comp.children.description.dispatchChangeValueAction(e.target.value);
+                    }}
+                  />
+                </ControlPropertyViewWrapper>
               </>
             }
             title={trans("edit")}

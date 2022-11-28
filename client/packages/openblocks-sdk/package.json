@@ -1,13 +1,14 @@
 {
   "name": "openblocks-sdk",
-  "version": "0.0.4",
+  "version": "0.0.10",
   "type": "module",
   "files": [
+    "src",
     "dist",
     "tsconfig.json"
   ],
   "main": "./dist/openblocks-sdk.js",
-  "types": "src/index.ts",
+  "types": "./src/openblocks/index.sdk.ts",
   "module": "./dist/openblocks-sdk.js",
   "exports": {
     ".": {
@@ -19,8 +20,10 @@
     }
   },
   "scripts": {
-    "build": "vite build",
-    "start": "vite"
+    "build": "NODE_ENV=production vite build",
+    "start": "vite",
+    "prepack": "cp -r ../openblocks/src ./src/openblocks",
+    "postpack": "rm -rf  ./src/openblocks"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^22.0.2",
@@ -29,6 +32,7 @@
     "@rollup/plugin-replace": "^5.0.1",
     "@rollup/plugin-url": "^7.0.0",
     "@svgr/rollup": "^6.3.1",
+    "@vitejs/plugin-react": "^2.2.0",
     "openblocks-dev-utils": "workspace:^",
     "rollup": "^2",
     "rollup-plugin-cleaner": "^1.0.0",
@@ -37,9 +41,13 @@
     "rollup-plugin-polyfill-node": "^0.10.2",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript": "^1.0.1",
-    "typescript": "^4.8.4"
+    "typescript": "^4.8.4",
+    "vite": "^3.2.4",
+    "vite-plugin-svgr": "^2.2.2",
+    "vite-tsconfig-paths": "^3.6.0"
   },
-  "dependencies": {
-    "vite": "^3.2.3"
+  "peerDependencies": {
+    "react": "^17",
+    "react-dom": "^17"
   }
 }

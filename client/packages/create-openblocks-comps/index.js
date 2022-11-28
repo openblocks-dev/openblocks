@@ -120,11 +120,22 @@ async function createProject(projectName, options) {
   const initialPackageJson = {
     name: projectName,
     version: "0.0.1",
+    type: "module",
+    license: "MIT",
   };
   writePackageJson(packageJsonFile, initialPackageJson);
   console.log("initial package.json generated");
 
-  await install([cliPackageName, sdkPackageName]);
+  await install([
+    cliPackageName,
+    sdkPackageName,
+    "openblocks-design",
+    "openblocks-core",
+    "react@17",
+    "react-dom@17",
+    "@types/react@17",
+    "@types/react-dom@17",
+  ]);
 
   await executeNodeScript(
     {

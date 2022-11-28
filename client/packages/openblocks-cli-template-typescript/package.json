@@ -1,8 +1,9 @@
 {
   "name": "openblocks-cli-template-typescript",
-  "version": "0.0.2",
+  "version": "0.0.9",
+  "type": "module",
   "scripts": {
-    "start": "openblocks-cli start",
+    "start": "vite",
     "build": "openblocks-cli build"
   },
   "openblocks": {
@@ -14,11 +15,11 @@
       }
     }
   },
-  "dependencies": {
-    "openblocks-cli": "workspace:^",
-    "openblocks-sdk": "workspace:^"
-  },
   "devDependencies": {
-    "typescript": "^4.8.4"
-  }
+    "openblocks-cli": "workspace:^",
+    "openblocks-sdk": "workspace:^",
+    "typescript": "^4.8.4",
+    "vite": "^3.2.4"
+  },
+  "license": "MIT"
 }
