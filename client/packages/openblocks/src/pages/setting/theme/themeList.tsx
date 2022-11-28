@@ -1,4 +1,4 @@
-import { Button, Dropdown, Empty, Menu, Table } from "antd";
+import { Button, Dropdown, Empty, Menu, message, Table, Typography } from "antd";
 import { timestampToHumanReadable } from "util/dateTimeUtils";
 import { MENU_TYPE } from "./themeConstant";
 import React, { useState } from "react";
@@ -23,7 +23,7 @@ type ThemeListProp = {
   themeList: ThemeType[] | undefined | null;
   defaultTheme: string | undefined | null;
   isAdmin: boolean;
-  clickMenu: (params: { themeId: string; key: string }) => void;
+  clickMenu: (params: { themeId: string; key: string; name?: string }) => void;
   createTheme: () => void;
 };
 
@@ -31,6 +31,7 @@ function ThemeList(props: ThemeListProp) {
   const { themeList, defaultTheme, clickMenu, isAdmin, createTheme } = props;
   const tableRef = React.useRef(null);
   const [activeRow, setActiveRow] = useState("0");
+  const [needRenameId, setNeedRenameId] = useState<string | undefined>(undefined);
 
   function editTheme(id: string) {
     clickMenu({ key: MENU_TYPE.EDIT, themeId: id });
@@ -63,9 +64,10 @@ function ThemeList(props: ThemeListProp) {
       }}
       onRow={(theme) => ({
         onClick: (event) => {
-          if (!event.defaultPrevented) {
-            editTheme((theme as ThemeType).id);
+          if (needRenameId === (theme as ThemeType).id) {
+            return;
           }
+          editTheme((theme as ThemeType).id);
         },
         onMouseEnter: () => {
           setActiveRow((theme as ThemeType).id);
@@ -80,18 +82,50 @@ function ThemeList(props: ThemeListProp) {
         dataIndex="name"
         key="name"
         ellipsis
-        render={(value, theme: ThemeType) => (
-          <ColumnName>
-            <TagDesc theme={theme.theme}>
-              <div className="left" />
-              <div className="right" />
-            </TagDesc>
-            <EllipsisSpan>{value}</EllipsisSpan>
-            {theme.id === defaultTheme && (
-              <span className="default">{trans("theme.defaultTip")}</span>
-            )}
-          </ColumnName>
-        )}
+        render={(value, theme: ThemeType) => {
+          return (
+            <ColumnName>
+              <TagDesc theme={theme.theme}>
+                <div className="left" />
+                <div className="right" />
+              </TagDesc>
+              <Typography.Text
+                title={theme.name}
+                editable={{
+                  enterIcon: null,
+                  tooltip: false,
+                  editing: theme.id === needRenameId,
+                  icon: null,
+                  maxLength: 25,
+                  triggerType: ["text"],
+                  onChange: (value) => {
+                    if (!value.trim()) {
+                      message.warn(trans("home.nameCheckMessage"));
+                      return;
+                    }
+                    // check duplicate names
+                    const isExist = themeList?.find((theme) => theme.name === value);
+                    if (isExist && value !== theme.name) {
+                      message.error(trans("theme.checkDuplicateNames"));
+                      return;
+                    }
+                    clickMenu({ key: MENU_TYPE.RENAME, themeId: theme.id, name: value });
+                    setNeedRenameId(undefined);
+                  },
+                }}
+              >
+                {needRenameId === theme.id ? (
+                  theme.name
+                ) : (
+                  <EllipsisSpan>{value}</EllipsisSpan>
+                )}
+              </Typography.Text>
+              {theme.id === defaultTheme && (
+                <span className="default">{trans("theme.defaultTip")}</span>
+              )}
+            </ColumnName>
+          );
+        }}
       />
       <Column
         title={trans("theme.updateTimeColumn")}
@@ -122,7 +156,11 @@ function ThemeList(props: ThemeListProp) {
                   overlay={
                     <Menu
                       onClick={(params) => {
-                        clickMenu({ key: params.key, themeId: value });
+                        if (params.key !== MENU_TYPE.RENAME) {
+                          clickMenu({ key: params.key, themeId: value });
+                        } else {
+                          setNeedRenameId(value);
+                        }
                       }}
                       items={[
                         (theme as ThemeType).id === defaultTheme
@@ -134,6 +172,10 @@ function ThemeList(props: ThemeListProp) {
                               label: trans("theme.setDefaultTheme"),
                               key: MENU_TYPE.SET_DEFAULT,
                             },
+                        {
+                          label: trans("rename"),
+                          key: MENU_TYPE.RENAME,
+                        },
                         {
                           label: trans("theme.copyTheme"),
                           key: MENU_TYPE.COPY,

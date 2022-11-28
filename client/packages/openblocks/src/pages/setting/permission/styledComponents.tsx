@@ -1,12 +1,13 @@
-import { Table } from "antd";
-import { TacoButton, Tooltip } from "openblocks-design";
+import { Table as AntdTable } from "antd";
+import { PointIcon, TacoButton, Tooltip } from "openblocks-design";
 import styled from "styled-components";
 import React from "react";
 import { LockIcon } from "openblocks-design";
 import { QuestionIcon } from "openblocks-design";
 import { trans } from "i18n";
+import { Table } from "components/Table";
 
-export const StyledTable = styled(Table)`
+export const StyledTable = styled(AntdTable)`
   .ant-table-cell {
     padding: 0;
     border-bottom: unset;
@@ -118,7 +119,7 @@ export const UserTableCellWrapper = styled.div`
 
 export const PermissionHeaderWrapper = styled.div`
   display: flex;
-  margin-bottom: 24px;
+  margin: 0 12px 6px 12px;
 
   .ant-typography {
     display: flex;
@@ -192,6 +193,9 @@ const GroupNameWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
+  font-size: 14px;
+  color: #333333;
+  font-weight: 500;
 `;
 
 export function GroupNameView(props: { name: string; toolTip?: string | false; lock?: boolean }) {
@@ -213,3 +217,88 @@ export const QuestionTooltip = (props: { title: string }) => {
     </Tooltip>
   );
 };
+
+export const HeaderBack = styled.div`
+  font-size: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  > span:nth-of-type(1) {
+    color: #8b8fa3;
+    cursor: pointer;
+  }
+  > span:nth-of-type(2) {
+    color: #222222;
+    font-weight: 500;
+  }
+  svg {
+    margin: 0 8px;
+  }
+`;
+
+export const OperationWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+`;
+
+export const EditBtn = styled(TacoButton)`
+  opacity: 0;
+  width: 52px;
+  height: 24px;
+  margin-right: 52px;
+`;
+
+export const PopoverIcon = styled(PointIcon)`
+  cursor: pointer;
+  flex-shrink: 0;
+
+  g {
+    fill: #8b8fa3;
+  }
+
+  :hover {
+    background-color: #e1e3eb;
+    border-radius: 4px;
+    cursor: pointer;
+
+    g {
+      fill: #3377ff;
+    }
+  }
+`;
+
+export const CreateButton = styled(TacoButton)`
+  svg {
+    margin-right: 2px;
+    width: 12px;
+    height: 12px;
+  }
+  box-shadow: none;
+`;
+
+export const TableStyled = styled(Table)`
+  .ant-table-tbody > tr > td {
+    padding: 11px 12px;
+  }
+  .ant-table-tbody {
+    .operation-cell-div-wrapper {
+      visibility: hidden;
+
+      span {
+        cursor: pointer;
+        font-size: 14px;
+        color: #f73131;
+        text-align: right;
+        line-height: 14px;
+      }
+    }
+  }
+  tr > td.ant-table-cell-row-hover {
+    background: unset;
+
+    .operation-cell-div-wrapper {
+      visibility: unset;
+    }
+  }
+`;

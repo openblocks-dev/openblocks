@@ -1,4 +1,4 @@
-import { InputRef, message, Typography } from "antd";
+import { InputRef, message } from "antd";
 import {
   CommonSettingResponseData,
   SetCommonSettingPayload,
@@ -13,25 +13,22 @@ import { connect } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { AppState } from "redux/reducers";
 import { DETAIL_TYPE } from "../themeConstant";
-import { CustomModal, PackUpIcon } from "openblocks-design";
+import { ArrowIcon, CustomModal } from "openblocks-design";
 import { ResetIcon } from "openblocks-design";
-import { EditIcon } from "openblocks-design";
 import {
-  BackBtn,
   DetailContainer,
   DetailContent,
-  DetailHead,
   DetailHeader,
   DetailTitle,
   DividerStyled,
   InlineFlexAlignCenter,
-  NameDiv,
   ResetButton,
   SaveButton,
 } from "../styledComponents";
 import PreviewApp from "./previewApp";
 import { trans } from "i18n";
 import { Prompt } from "react-router";
+import { HeaderBack } from "pages/setting/permission/styledComponents";
 
 type LocationProp = {
   theme: ThemeDetail;
@@ -59,7 +56,6 @@ type ThemeDetailPageState = {
 
 class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailPageState> {
   themeDefault: ThemeDetail;
-  nameDefault: string;
   readonly id: string;
   readonly type: string;
   readonly inputRef: React.RefObject<InputRef>;
@@ -73,7 +69,6 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
     }
 
     this.themeDefault = theme;
-    this.nameDefault = name;
     this.id = id;
     this.type = type;
     this.state = {
@@ -86,17 +81,10 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
 
   handleReset() {
     this.setState({ theme: this.themeDefault });
-    this.setState({ name: this.nameDefault });
   }
 
   handleSave() {
     this.props.fetchCommonSettings(this.props.orgId, ({ themeList }) => {
-      // check duplicate names
-      const isExist = themeList?.find((theme) => theme.name === this.state.name);
-      if (isExist && this.state.name !== this.nameDefault) {
-        message.error(trans("theme.checkDuplicateNames"));
-        return;
-      }
       let list = [];
       const currentTheme = {
         name: this.state.name,
@@ -117,7 +105,6 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
         data: { key: "themeList", value: list },
         onSuccess: () => {
           message.success(trans("theme.saveSuccessMsg"));
-          this.nameDefault = this.state.name;
           this.themeDefault = this.state.theme;
         },
       });
@@ -135,8 +122,8 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
 
   isThemeNotChange() {
     return (
-      JSON.stringify({ ...this.state.theme, name: this.state.name }) ===
-      JSON.stringify({ ...this.state.theme, ...this.themeDefault, name: this.nameDefault })
+      JSON.stringify({ ...this.state.theme }) ===
+      JSON.stringify({ ...this.state.theme, ...this.themeDefault })
     );
   }
 
@@ -176,25 +163,11 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
         ></Prompt>
         <DetailContainer>
           <DetailHeader>
-            <BackBtn onClick={() => this.goList()}>
-              <PackUpIcon />
-              {trans("theme.goList")}
-            </BackBtn>
-          </DetailHeader>
-          <DetailHead>
-            <NameDiv>
-              <Typography.Text
-                editable={{
-                  icon: <EditIcon />,
-                  enterIcon: null,
-                  tooltip: false,
-                  maxLength: 25,
-                  onChange: (value: string) => this.setState({ name: value }),
-                }}
-              >
-                {this.state.name}
-              </Typography.Text>
-            </NameDiv>
+            <HeaderBack>
+              <span onClick={() => this.goList()}>{trans("settings.theme")}</span>
+              <ArrowIcon />
+              <span>{this.state.name}</span>
+            </HeaderBack>
             <InlineFlexAlignCenter>
               <ResetButton
                 icon={<ResetIcon />}
@@ -211,7 +184,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                 {trans("theme.saveBtn")}
               </SaveButton>
             </InlineFlexAlignCenter>
-          </DetailHead>
+          </DetailHeader>
           <DetailContent>
             <div>
               <DetailTitle>{trans("theme.mainColor")}</DetailTitle>
@@ -239,15 +212,17 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
               <DividerStyled />
               <DetailTitle>{trans("theme.text")}</DetailTitle>
               <ColorConfig
-                name={trans("theme.textColor")}
-                colorKey="textDark"
-                desc={trans("theme.textDesc")}
-                color={this.state.theme.textDark}
+                colorKey="textLight"
+                name={trans("themeDetail.textLight")}
+                desc={trans("themeDetail.textLightDesc")}
+                color={this.state.theme.textLight}
                 configChange={(params) => this.configChange(params)}
               ></ColorConfig>
               <ColorConfig
-                colorKey="textLight"
-                color={this.state.theme.textLight}
+                colorKey="textDark"
+                name={trans("themeDetail.textDark")}
+                desc={trans("themeDetail.textDarkDesc")}
+                color={this.state.theme.textDark}
                 configChange={(params) => this.configChange(params)}
               ></ColorConfig>
               <DividerStyled />

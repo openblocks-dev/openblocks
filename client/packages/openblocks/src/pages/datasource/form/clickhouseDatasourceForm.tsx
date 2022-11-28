@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  DatasourceForm,
-  FormCheckboxItem,
-  FormInputItem,
-  FormInputPasswordItem,
-  FormSection,
-} from "openblocks-design";
-import { toNumber } from "lodash";
+import { DatasourceForm, FormInputItem, FormSection } from "openblocks-design";
 import { MysqlConfig } from "../../../api/datasourceApi";
 import { DatasourceFormProps } from "./datasourceFormRegistry";
 import { useHostCheck } from "./useHostCheck";
@@ -16,10 +9,10 @@ import {
   HostFormInputItem,
   PasswordFormInputItem,
   PortFormInputItem,
+  SSLFormCheckboxItem,
   UserNameFormInputItem,
 } from "../form";
 import { trans } from "i18n";
-import { SSLFormCheckboxItem } from "../form";
 
 export const ClickHouseDatasourceForm = (props: DatasourceFormProps) => {
   const { form, datasource } = props;
@@ -32,7 +25,6 @@ export const ClickHouseDatasourceForm = (props: DatasourceFormProps) => {
       <FormSection size={props.size}>
         <FormInputItem
           className={"ets"}
-          style={{ marginLeft: "32px" }}
           name={"name"}
           label={trans("query.datasourceName")}
           placeholder={"My ClickHouse1"}

@@ -233,7 +233,9 @@ export const en = {
     primary: "Brand color",
     primaryDesc: "Most components use the default primary color",
     textDark: "Text dark color",
+    textDarkDesc: "Apply when the background color is light",
     textLight: "Text light color",
+    textLightDesc: "Apply when the background color is dark",
     canvas: "Canvas color",
     canvasDesc: "The default background color of the app",
     primarySurface: "Container color",
@@ -1204,6 +1206,8 @@ export const en = {
     inviteCopyError: "Copy fails, you can manually select and copy",
     inviteText:
       '{userName} invites you to join the workspace "{organization}", Click on the link to join: {inviteLink}',
+    groupName: "Group name",
+    createTime: "Create time",
   },
   orgSettings: {
     newOrg: "New workspace",
@@ -1220,6 +1224,7 @@ export const en = {
     inviteSuccessMessage: "Join the workspace successfully",
     inviteFailMessage: "Failed to join workspace",
     uploadErrorMessage: "Upload error",
+    orgName: "Workspace name",
   },
   freeLimit: "Free trial",
   tabbedContainer: {
@@ -1377,10 +1382,7 @@ export const en = {
     goList: "Back to the list",
     saveBtn: "Save the settings",
     mainColor: "Main colors",
-    text: "Text",
-    textColor: "Text colors",
-    textDesc:
-      "Light and dark text colors are available. The component automatically uses the most readable option.",
+    text: "Text colors",
     defaultTheme: "Default",
     yellow: "Yellow",
     green: "Green",

@@ -152,6 +152,7 @@ export function Dropdown<T extends OptionsType>(props: {
   allowClear?: boolean;
   itemNode?: (value: string) => JSX.Element;
   preNode?: () => JSX.Element;
+  showSearch?: boolean;
 }) {
   const { placement = "right" } = props;
   const valueInfoMap = _.fromPairs(props.options.map((option) => [option.value, option]));
@@ -168,7 +169,7 @@ export function Dropdown<T extends OptionsType>(props: {
           <DropdownContainer placement={placement}>
             <CustomSelect
               dropdownClassName="ob-dropdown-control-select"
-              showSearch={!props.border}
+              showSearch={props.showSearch}
               filterOption={(input, option) => {
                 if (!option?.value) {
                   return false;

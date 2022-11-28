@@ -28,6 +28,8 @@ export type OrgGroup = {
   // the backend create user groups by default, not displayed in some conditions
   allUsersGroup?: boolean;
   devGroup?: boolean;
+  createTime?: string;
+  visitorRole?: string;
 };
 
 // user info in group
@@ -50,6 +52,7 @@ export type Org = {
   contactPhoneNumber?: string;
   createdBy: string;
   commonSettings: CommonSettingResponseData;
+  createTime?: string;
 };
 
 export type OrgAndRole = {

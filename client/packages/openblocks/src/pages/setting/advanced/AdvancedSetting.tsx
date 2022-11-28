@@ -4,7 +4,7 @@ import { EmptyContent } from "components/EmptyContent";
 import { HelpText } from "components/HelpText";
 import InputList from "components/InputList";
 import { GreyTextColor } from "constants/style";
-import { CustomSelect, TacoButton } from "openblocks-design";
+import { CustomModal, CustomSelect, TacoButton } from "openblocks-design";
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,6 +17,9 @@ import { Level1SettingPageContent, Level1SettingPageTitle } from "../styled";
 import { fetchAllApplications } from "redux/reduxActions/applicationActions";
 import { normalAppListSelector } from "redux/selectors/applicationSelector";
 import { trans } from "i18n";
+import { Prompt } from "react-router";
+import history from "util/history";
+import { Location } from "history";
 
 const AdvancedSettingContent = styled.div`
   max-width: 840px;
@@ -40,6 +43,7 @@ const AdvancedSettingContent = styled.div`
 
 const SaveButton = styled(TacoButton)`
   min-width: 76px;
+  height: 28px;
 `;
 
 const CustomSelectStyle = styled(CustomSelect)`
@@ -49,6 +53,8 @@ const CustomSelectStyle = styled(CustomSelect)`
   }
 `;
 
+let locationInfo: Location | Location<unknown> | null = null;
+
 export function AdvancedSetting() {
   const dispatch = useDispatch();
   const currentUser = useSelector(getCurrentUser);
@@ -57,6 +63,7 @@ export function AdvancedSetting() {
   const defaultHomePage = useSelector(getDefaultHomePage);
   const [defaultHome, setDefaultHome] = useState(defaultHomePage);
   const appList = useSelector(normalAppListSelector);
+  const [canLeave, setCanleave] = useState(false);
   const appListOptions = appList.map((app) => ({
     value: app.applicationId,
     label: app.name,
@@ -74,6 +81,12 @@ export function AdvancedSetting() {
   useEffect(() => {
     setPreload((prev) => _.merge(preloadSettings, prev));
   }, [preloadSettings]);
+
+  useEffect(() => {
+    if (canLeave) {
+      history.push((locationInfo as Location)?.pathname);
+    }
+  }, [canLeave]);
 
   const handleSave = (type: keyof typeof preload) => {
     return (value?: any) => {
@@ -110,8 +123,33 @@ export function AdvancedSetting() {
     );
   };
 
+  const isNotChange =
+    defaultHome === defaultHomePage && JSON.stringify(preload) === JSON.stringify(preloadSettings);
+
   return (
     <Level1SettingPageContent>
+      <Prompt
+        message={(location) => {
+          locationInfo = location;
+
+          if (!canLeave && isNotChange) {
+            setCanleave(true);
+          }
+          if (canLeave) {
+            return true;
+          }
+          CustomModal.confirm({
+            title: trans("theme.leaveTipTitle"),
+            content: trans("theme.leaveTipContent"),
+            okText: trans("theme.leaveTipOkText"),
+            onConfirm: () => {
+              setCanleave(true);
+            },
+          });
+          return false;
+        }}
+        when={!isNotChange}
+      />
       <Level1SettingPageTitle>{trans("advanced.title")}</Level1SettingPageTitle>
       <AdvancedSettingContent>
         <div className="section-title">{trans("advanced.defaultHomeTitle")}</div>
@@ -130,7 +168,11 @@ export function AdvancedSetting() {
             options={appListOptions}
             filterOption={(input, option) => (option?.label as string).includes(input)}
           />
-          <SaveButton onClick={() => handleSaveDefaultHome()}>
+          <SaveButton
+            buttonType="primary"
+            disabled={defaultHome === defaultHomePage}
+            onClick={() => handleSaveDefaultHome()}
+          >
             {trans("advanced.saveBtn")}
           </SaveButton>
         </div>
@@ -149,7 +191,11 @@ export function AdvancedSetting() {
               bordered
             />
           </div>
-          <SaveButton onClick={() => handleSave("preloadJavaScript")()}>
+          <SaveButton
+            buttonType="primary"
+            disabled={preload.preloadJavaScript === preloadSettings.preloadJavaScript}
+            onClick={() => handleSave("preloadJavaScript")()}
+          >
             {trans("advanced.saveBtn")}
           </SaveButton>
         </div>
@@ -167,7 +213,11 @@ export function AdvancedSetting() {
               bordered
             />
           </div>
-          <SaveButton onClick={() => handleSave("preloadCSS")()}>
+          <SaveButton
+            buttonType="primary"
+            disabled={preload.preloadCSS === preloadSettings.preloadCSS}
+            onClick={() => handleSave("preloadCSS")()}
+          >
             {trans("advanced.saveBtn")}
           </SaveButton>
         </div>
@@ -183,7 +233,11 @@ export function AdvancedSetting() {
             placeholder="https://cdn.xxx.com/example.min.js"
             onChange={(value) => setPreload((v) => ({ ...v, preloadLibs: value }))}
           />
-          <SaveButton onClick={() => handleSave("preloadLibs")()}>
+          <SaveButton
+            buttonType="primary"
+            disabled={preload.preloadLibs === preloadSettings.preloadLibs}
+            onClick={() => handleSave("preloadLibs")()}
+          >
             {trans("advanced.saveBtn")}
           </SaveButton>
         </div>

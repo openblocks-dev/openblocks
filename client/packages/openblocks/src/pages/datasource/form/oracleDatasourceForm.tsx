@@ -21,7 +21,6 @@ export const OracleDatasourceForm = (props: DatasourceFormProps) => {
       <FormSection size={props.size}>
         <FormInputItem
           className={"ets"}
-          style={{ marginLeft: "32px" }}
           name={"name"}
           label={trans("query.datasourceName")}
           placeholder={"My Oracle1"}

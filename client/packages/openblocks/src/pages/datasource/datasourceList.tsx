@@ -211,7 +211,10 @@ export const DatasourceList = () => {
                 return false;
               }
               if (!isEmpty(searchValue)) {
-                return info.datasource.name.includes(searchValue.trim().toLowerCase());
+                return (
+                  info.datasource.name.toLowerCase().includes(searchValue.trim().toLowerCase()) ||
+                  info.datasource.type.toLowerCase().includes(searchValue.trim().toLowerCase())
+                );
               }
               return true;
             })

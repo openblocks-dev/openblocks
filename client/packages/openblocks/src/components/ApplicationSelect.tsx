@@ -40,6 +40,7 @@ export default function ApplicationSelect(props: IAppSelectProps) {
   }
   return (
     <Dropdown
+      showSearch={true}
       value={value}
       onChange={(id: string) => onChange?.(id)}
       options={applications.map((i) => {

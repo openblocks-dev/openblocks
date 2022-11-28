@@ -81,6 +81,7 @@ export class ExecuteQueryAction extends ExecuteQueryTmpAction {
           {(editorState) => (
             <>
               <Dropdown
+                showSearch={true}
                 value={this.children.queryName.getView()}
                 options={getQueryOptions(editorState)}
                 label={trans("eventHandler.selectQuery")}

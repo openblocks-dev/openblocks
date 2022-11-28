@@ -11,7 +11,7 @@ import dsl from "./previewDsl";
 const Preview = styled.div`
   border-radius: 8px;
   height: 435px;
-  min-width: 720px;
+  min-width: 670px;
   overflow: hidden;
   position: relative;
 `;

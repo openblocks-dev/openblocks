@@ -19,6 +19,7 @@ const PropertyView = (props: { value: string; dispatch: DispatchType }) => {
     })) ?? [];
   return (
     <Dropdown
+      showSearch={true}
       label={trans("sqlQuery.table")}
       placeholder={"table"}
       placement={"bottom"}

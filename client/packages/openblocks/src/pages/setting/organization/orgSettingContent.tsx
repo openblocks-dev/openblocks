@@ -2,42 +2,25 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { Button, message, Upload } from "antd";
 import { UploadChangeParam } from "antd/lib/upload/interface";
 import { Org } from "constants/orgConstants";
-import { BlurFinishInput, CommonTextLabel, PhoneNumberInput } from "openblocks-design";
-import OrgLogo from "pages/common/orgLogo";
+import { ArrowIcon, BlurFinishInput, CommonTextLabel } from "openblocks-design";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { updateOrgAction, updateOrgSuccess } from "redux/reduxActions/orgActions";
 import styled from "styled-components";
 import { beforeImgUpload, getBase64 } from "util/fileUtils";
 import { ORG_ICON_UPLOAD_URL } from "constants/apiConstants";
 import { trans } from "i18n";
+import { StyledOrgLogo } from "./styledComponents";
+import { useParams } from "react-router";
+import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { HeaderBack } from "../permission/styledComponents";
+import history from "util/history";
+import { ORGANIZATION_SETTING } from "constants/routesURL";
 
 const FieldWrapper = styled.div`
   margin-bottom: 32px;
   width: 408px;
-`;
-
-const OrgSettingTitle = styled.div`
-  font-weight: 500;
-  font-size: 16px;
-  color: #222222;
-  line-height: 16px;
-  margin-bottom: 40px;
-`;
-
-const StyledOrgLogo = styled(OrgLogo)`
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-
-  img {
-    border-radius: 8px;
-  }
-
-  span {
-    font-size: 16px;
-    font-weight: 500;
-  }
+  margin-top: 40px;
 `;
 
 const OrgLogWrapper = styled.div`
@@ -67,8 +50,8 @@ const LogoModifyButton = styled(Button)`
   }
 `;
 
-const StyledPhoneNumberInput = styled(PhoneNumberInput)`
-  margin-top: 8px;
+const Wrapper = styled.div`
+  padding: 32px 24px;
 `;
 
 function OrgImageField(props: { org: Org }) {
@@ -116,14 +99,22 @@ function OrgImageField(props: { org: Org }) {
 }
 
 export function OrgSettingContent(props: { org: Org | undefined }) {
-  const { org } = props;
+  const orgId = useParams<{ orgId: string }>().orgId;
+  const { orgs } = useSelector(getCurrentUser);
+  const org = new Map(orgs.map((org) => [org.id, org])).get(orgId);
   const dispatch = useDispatch();
   if (!org) {
     return null;
   }
   return (
-    <>
-      <OrgSettingTitle>{trans("orgSettings.editOrgTitle")}</OrgSettingTitle>
+    <Wrapper>
+      <HeaderBack>
+        <span onClick={() => history.push(ORGANIZATION_SETTING)}>
+          {trans("settings.organization")}
+        </span>
+        <ArrowIcon />
+        <span>{org.name}</span>
+      </HeaderBack>
       <FieldWrapper>
         <OrgImageField org={org} />
       </FieldWrapper>
@@ -142,7 +133,7 @@ export function OrgSettingContent(props: { org: Org | undefined }) {
           }}
         />
       </FieldWrapper>
-    </>
+    </Wrapper>
   );
 }
 

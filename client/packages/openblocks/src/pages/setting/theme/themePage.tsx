@@ -15,9 +15,10 @@ import history from "util/history";
 import { THEME_DETAIL } from "constants/routesURL";
 import { currentOrgAdmin } from "util/permissionUtils";
 import { AddIcon } from "openblocks-design";
-import { CreateButton, ThemeContent, Title } from "./styledComponents";
+import { CreateButton, ThemeContent } from "./styledComponents";
 import { genQueryId } from "comps/utils/idGenerator";
 import { trans } from "i18n";
+import { Level1SettingPageTitleWithBtn } from "../styled";
 
 type ThemeProps = {
   setCommonSettings: (params: SetCommonSettingPayload) => void;
@@ -129,7 +130,7 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
     });
   }
 
-  handleClickMenu(info: { themeId: string; key: string }) {
+  handleClickMenu(info: { themeId: string; key: string; name?: string }) {
     switch (info.key) {
       case MENU_TYPE.SET_DEFAULT:
         this.setCommonSettings("defaultTheme", info.themeId, trans("theme.setSuccessMsg"));
@@ -159,6 +160,21 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
           },
         });
         break;
+      case MENU_TYPE.RENAME:
+        this.setCommonSettings(
+          "themeList",
+          this.props.themeList?.map(item => {
+            if (item.id === info.themeId && info.name) {
+              return {
+                ...item,
+                name: info.name,
+              }
+            } else {
+              return item;
+            }
+          }) || [],
+          trans("theme.setSuccessMsg")
+        );
     }
   }
 
@@ -167,10 +183,8 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
 
     return (
       <ThemeContent>
-        <Title>
-          <span>
-            <span>{trans("theme.title")}</span>
-          </span>
+        <Level1SettingPageTitleWithBtn>
+          <span>{trans("theme.title")}</span>
           <CreateButton
             type="primary"
             disabled={!isAdmin}
@@ -183,7 +197,7 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
           >
             {trans("theme.createTheme")}
           </CreateButton>
-        </Title>
+        </Level1SettingPageTitleWithBtn>
         <ThemeList
           themeList={themeList}
           defaultTheme={defaultTheme}

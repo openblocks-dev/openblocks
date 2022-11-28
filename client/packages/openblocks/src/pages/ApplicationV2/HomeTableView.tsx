@@ -54,7 +54,7 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
   return (
     <>
       <Table
-        style={{ padding: "0 20px 80px", color: "#8B8FA3" }}
+        style={{ padding: "0 24px 80px", color: "#8B8FA3" }}
         tableLayout={"auto"}
         scroll={{ x: "100%" }}
         pagination={false}

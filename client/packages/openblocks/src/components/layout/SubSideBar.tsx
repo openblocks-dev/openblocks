@@ -2,21 +2,26 @@ import { PropsWithChildren } from "react";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
-  min-width: 227px;
-  width: 227px;
+  min-width: 232px;
+  width: 232px;
   height: 100%;
   background: #ffffff;
   border-right: 1px solid #f0f0f0;
   box-sizing: border-box;
   border-radius: 2px;
-  padding: 32px 24px 0 24px;
+  padding: 32px 16px 0 16px;
 
   h2 {
     font-weight: 500;
-    font-size: 18px;
+    font-size: 20px;
     color: #222222;
-    line-height: 18px;
     margin: 0 0 20px 12px;
+  }
+  .ant-menu-inline .ant-menu-item {
+    margin: 4px 0;
+  }
+  .ant-menu-item:hover, .ant-menu-item-selected {
+    border-radius: 4px;
   }
 `;
 

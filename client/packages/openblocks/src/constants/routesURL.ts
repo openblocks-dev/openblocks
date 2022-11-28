@@ -9,12 +9,11 @@ export const COMPONENT_DOC_URL = "/components";
 export const SETTING = "/setting";
 export const PERMISSION_SETTING = "/setting/permission";
 export const ORGANIZATION_SETTING = "/setting/organization";
-export const AUDIT_SETTING = "/setting/audit";
 export const THEME_SETTING = "/setting/theme";
 export const THEME_DETAIL = "/setting/theme/detail";
 
-export const ADVANCED_SETTING = "/setting/advanced";
-export const PERMISSION_USERS = `${PERMISSION_SETTING}/users`;
+export const PERMISSION_SETTING_DETAIL = `${PERMISSION_SETTING}/:groupId`;
+export const ORGANIZATION_SETTING_DETAIL = `${ORGANIZATION_SETTING}/:orgId`;
 
 export const ALL_APPLICATIONS_URL = "/apps";
 export const MODULE_APPLICATIONS_URL = "/apps/module";
@@ -70,3 +69,7 @@ export const buildAppRouteWithState = (
 export function preview(applicationId: string) {
   window.open(APPLICATION_VIEW_URL(applicationId, "preview"));
 }
+
+export const buildGroupId = (groupId: string) => `${PERMISSION_SETTING}/${groupId}`
+
+export const buildOrgId = (orgId: string) => `${ORGANIZATION_SETTING}/${orgId}`

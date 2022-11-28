@@ -48,6 +48,7 @@ function AppSelectorPropertyView(props: {
 
   return (
     <Dropdown
+      showSearch={true}
       value={appId}
       options={options}
       label={trans("aggregation.chooseApp")}

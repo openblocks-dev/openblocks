@@ -4,33 +4,19 @@ import { ScrollBar } from "openblocks-design";
 import { CustomModal, TacoButton, TacoInput } from "openblocks-design";
 import { darkenColor, isDarkColor } from "openblocks-design";
 import styled, { css } from "styled-components";
-import { MoreActionIcon } from "openblocks-design";
+import { PopoverIcon } from "../permission/styledComponents";
 
 export const ThemeContent = styled.div`
-  padding: 32px 20px;
-  max-width: 2200px;
-  min-width: 880px;
+  padding: 32px 24px 0 12px;
+  min-width: 600px;
   width: 100%;
 `;
 
-export const DetailContainer = styled(ThemeContent)`
-  padding: 32px 36px;
-`;
-
-export const Title = styled.div`
-  font-size: 18px;
-  margin: 0 12px 21px 12px;
-  font-weight: 500;
-  color: #222;
-  line-height: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
-  > span {
-    display: inline-flex;
-    align-items: center;
-    margin-top: -1px;
-  }
+export const DetailContainer = styled.div`
+  padding: 32px 36px 32px 24px;
+  width: 100%;
+  min-width: 1012px;
+  overflow: auto;
 `;
 
 export const CreateButton = styled(Button)`
@@ -40,6 +26,7 @@ export const CreateButton = styled(Button)`
   padding: 4px 8px;
   font-size: 13px;
   border: 1px solid #4965f2;
+  box-shadow: none;
   &.ant-btn-primary:hover,
   &.ant-btn-primary:focus {
     background: #315efb;
@@ -62,13 +49,6 @@ export const SaveButton = styled(CreateButton)`
   padding: 4px 15px;
 `;
 
-export const DetailHead = styled.div`
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 17px;
-`;
-
 export const FlexAlignCenter = styled.div`
   display: flex;
   align-items: center;
@@ -81,7 +61,16 @@ export const InlineFlexAlignCenter = styled.div`
 
 export const ColumnName = styled(InlineFlexAlignCenter)`
   overflow: hidden;
-  margin-right: 168px;
+  margin-right: 20px;
+  .ant-typography {
+    margin-bottom: 0;
+    margin-top: 0;
+    left: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+  }
 `;
 
 export const NameDiv = styled(FlexAlignCenter)`
@@ -132,24 +121,24 @@ export const NameDiv = styled(FlexAlignCenter)`
 
 export const DetailContent = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1.6fr;
-  grid-column-gap: 24px;
+  grid-template-columns: 1fr 1.7fr;
   > div:nth-of-type(1) {
     margin-top: -3px;
-    min-width: 280px;
+    margin-right: 24px;
   }
 `;
 
 export const DetailTitle = styled.div`
   font-size: 16px;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 22px;
 `;
 
 export const DetailHeader = styled.div`
   display: flex;
-  align-items: center;
-  margin-bottom: 17px;
+  align-items: flex-start;
+  margin-bottom: 27px;
+  justify-content: space-between;
 `;
 
 export const BackBtn = styled.div`
@@ -205,7 +194,7 @@ export const ResetButton = styled(Button)`
 `;
 
 export const DividerStyled = styled(Divider)`
-  margin: 21px 0;
+  margin: 24px 0 21px 0;
   border-color: #ebebeb;
 `;
 
@@ -397,22 +386,26 @@ export const SelectTitleTheme = styled(SelectTitle)`
 `;
 
 export const ConfigItem = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  margin: 9px 0 10px 0;
-  &.text-light {
-    margin-top: -34.5px;
-    margin-bottom: 24px;
-  }
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin: 6px 0 17px 0;
   .text-desc {
-    font-size: 13px;
-    line-height: 1.5;
+    width: 208px;
+    min-width: 208px;
+    .name, .desc {
+      font-size: 13px;
+      line-height: 19px;
+    }
     .desc {
       color: #8b8fa3;
       margin-top: 2px;
     }
+    margin-right: 8px;
   }
   .config-input {
+    width: 208px;
+    min-width: 208px;
     &:hover {
       border-color: #3377ff;
     }
@@ -420,10 +413,8 @@ export const ConfigItem = styled.div`
       box-shadow: 0 0 0 3px #3377ff19;
     }
     display: flex;
-    align-items: start;
-    margin-top: 3px;
+    margin-top: 4px;
     overflow: hidden;
-    justify-content: end;
     > div:nth-of-type(1) {
       border: none;
       border: 1px solid rgba(0, 0, 0, 0.1);
@@ -435,7 +426,6 @@ export const ConfigItem = styled.div`
     .ant-input {
       outline: none;
       height: 28px;
-      width: 156px;
       border: none;
       border: 1px solid #d7d9e0;
       margin-left: 8px;
@@ -446,6 +436,14 @@ export const ConfigItem = styled.div`
         border-color: #d7d9e0;
         box-shadow: none;
       }
+    }
+  }
+  @media screen and (max-width: 1705px){
+    .text-desc, .config-input {
+      width: 100%;
+    }
+    .text-desc {
+      margin-right: 0;
     }
   }
 `;
@@ -485,14 +483,11 @@ export const TableStyled = styled(Table)`
     }
     tr {
       display: grid;
-      grid-template-columns: 1.34fr 1.34fr 0.32fr;
+      grid-template-columns: 1.34fr 1.34fr 0.42fr;
       padding: 0 12px;
     }
     .ant-table-row {
       cursor: pointer;
-      &:nth-last-of-type(1) td {
-        border: none;
-      }
       &.row-hover {
         background-color: #f5f7fa;
         border-radius: 8px;
@@ -520,7 +515,9 @@ export const TableStyled = styled(Table)`
       font-weight: 400;
       border-color: #e1e3eb;
       padding: 8px 0;
-      line-height: 1;
+      height: 56px;
+      display: flex;
+      align-items: center;
       &::before {
         display: none;
       }
@@ -583,16 +580,20 @@ export const EditButton = styled(TacoButton)`
   opacity: 0;
 `;
 
-export const StyledMoreActionIcon = styled(MoreActionIcon)`
-  width: 16px;
-  height: 16px;
+export const StyledMoreActionIcon = styled(PopoverIcon)`
+  cursor: pointer;
+  flex-shrink: 0;
+
+  g {
+    fill: #8b8fa3;
+  }
 
   :hover {
-    background: #eef0f3;
+    background-color: #e1e3eb;
     border-radius: 4px;
     cursor: pointer;
 
-    path {
+    g {
       fill: #3377ff;
     }
   }

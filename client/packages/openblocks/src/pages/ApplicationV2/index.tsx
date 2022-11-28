@@ -7,6 +7,7 @@ import {
   MODULE_APPLICATIONS_URL,
   QUERY_LIBRARY_URL,
   TRASH_URL,
+  SETTING,
 } from "constants/routesURL";
 import { getCurrentUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,6 +26,8 @@ import {
   PointIcon,
   RecyclerActiveIcon,
   RecyclerIcon,
+  HomeSettingsActiveIcon,
+  HomeSettingsIcon,
 } from "openblocks-design";
 import React, { useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
@@ -48,6 +51,7 @@ import { useCreateFolder } from "./useCreateFolder";
 import { EllipsisTextCss } from "openblocks-design";
 import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
+import Setting from "pages/setting";
 
 const TabLabel = styled.div`
   font-weight: 500;
@@ -323,6 +327,20 @@ export default function ApplicationHome() {
                   ),
                 visible: ({ user }) => user.orgDev,
                 onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
+              },
+              {
+                text: <TabLabel>{trans("settings.title")}</TabLabel>,
+                routePath: SETTING,
+                routePathExact: false,
+                routeComp: Setting,
+                icon: ({ selected, ...otherProps }) =>
+                  selected ? (
+                    <HomeSettingsActiveIcon {...otherProps} />
+                  ) : (
+                    <HomeSettingsIcon {...otherProps} />
+                  ),
+                visible: ({ user }) => user.orgDev,
+                onSelected: (_, currentPath) => currentPath.split("/")[1] === "setting",
               },
             ],
           },

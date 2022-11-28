@@ -6,6 +6,7 @@ export enum MENU_TYPE {
   CANCEL_DEFAULT = "cancelDefault",
   COPY = "copy",
   EDIT = "edit",
+  RENAME = "rename",
 }
 
 export enum DETAIL_TYPE {

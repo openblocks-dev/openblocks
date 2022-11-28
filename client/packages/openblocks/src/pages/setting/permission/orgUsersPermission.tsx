@@ -1,7 +1,6 @@
-import { Typography } from "antd";
 import { ADMIN_ROLE, OrgRoleInfo, OrgUser, TacoRoles } from "constants/orgConstants";
 import { User } from "constants/userConstants";
-import { CustomSelect } from "openblocks-design";
+import { ArrowIcon, CustomSelect } from "openblocks-design";
 import { MembersIcon } from "openblocks-design";
 import { SuperUserIcon } from "openblocks-design";
 import { trans } from "i18n";
@@ -22,14 +21,17 @@ import { formatTimestamp } from "util/dateTimeUtils";
 import { currentOrgAdmin } from "util/permissionUtils";
 import {
   AddMemberButton,
+  HeaderBack,
   LAST_ADMIN_QUIT,
   PermissionHeaderWrapper,
   QuestionTooltip,
   RoleSelectSubTitle,
   RoleSelectTitle,
-  StyledTable,
+  TableStyled,
   UserTableCellWrapper,
 } from "./styledComponents";
+import history from "util/history";
+import { PERMISSION_SETTING } from "constants/routesURL";
 
 const StyledMembersIcon = styled(MembersIcon)`
   g g {
@@ -45,7 +47,7 @@ type UsersPermissionProp = {
 };
 
 function OrgUsersPermission(props: UsersPermissionProp) {
-  const { Column } = StyledTable;
+  const { Column } = TableStyled;
   const { orgId, orgUsers, orgUsersFetching, currentUser } = props;
   const adminCount = orgUsers.filter((user) => user.role === ADMIN_ROLE).length;
   const dispatch = useDispatch();
@@ -68,7 +70,11 @@ function OrgUsersPermission(props: UsersPermissionProp) {
   return (
     <>
       <PermissionHeaderWrapper>
-        <Typography.Text>{trans("memberSettings.allMembers")}</Typography.Text>
+        <HeaderBack>
+          <span onClick={() => history.push(PERMISSION_SETTING)}>{trans("settings.member")}</span>
+          <ArrowIcon />
+          <span>{trans("memberSettings.allMembers")}</span>
+        </HeaderBack>
         <InviteDialog
           trigger={
             <AddMemberButton buttonType="primary" icon={<StyledMembersIcon />}>
@@ -78,7 +84,9 @@ function OrgUsersPermission(props: UsersPermissionProp) {
           style={{ marginLeft: "auto" }}
         />
       </PermissionHeaderWrapper>
-      <StyledTable
+      <TableStyled
+        tableLayout={"auto"}
+        scroll={{ x: "100%" }}
         dataSource={sortedOrgUsers}
         rowKey="userId"
         pagination={false}
@@ -91,7 +99,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
           ellipsis
           render={(value, record: OrgUser) => (
             <UserTableCellWrapper>
-              <ProfileImage source={record.avatarUrl} userName={record.name} side={40} />
+              <ProfileImage source={record.avatarUrl} userName={record.name} side={34} />
               <span title={record.name}>{record.name}</span>
               {record.role === ADMIN_ROLE && <SuperUserIcon />}
             </UserTableCellWrapper>
@@ -174,7 +182,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
             );
           }}
         />
-      </StyledTable>
+      </TableStyled>
     </>
   );
 }

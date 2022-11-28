@@ -1,6 +1,6 @@
 import { Dropdown, Menu } from "antd";
 import { Org, OrgRoleInfo } from "constants/orgConstants";
-import { AUDIT_SETTING, ORGANIZATION_SETTING, PERMISSION_SETTING } from "constants/routesURL";
+import { ORGANIZATION_SETTING } from "constants/routesURL";
 import { User } from "constants/userConstants";
 import {
   AddIcon,
@@ -142,9 +142,6 @@ export default function ProfileDropdown(props: DropDownProps) {
         return;
       }
       dispatch(profileSettingModalVisible(true));
-    } else if (e.key === "setting") {
-      // setting
-      history.push(PERMISSION_SETTING);
     } else if (e.key === "logout") {
       // logout
       dispatch(logoutAction({}));
@@ -157,9 +154,6 @@ export default function ProfileDropdown(props: DropDownProps) {
         // switch org
         dispatch(switchOrg(e.key));
       }
-    } else if (e.key === "audit") {
-      // audit log
-      history.push(AUDIT_SETTING);
     }
   };
 
@@ -192,9 +186,6 @@ export default function ProfileDropdown(props: DropDownProps) {
           )}
         </ProfileWrapper>
       </Menu.Item>
-      {!checkIsMobile(window.innerWidth) && currentOrgAdminOrDev(props.user) && (
-        <Menu.Item key="setting">{trans("profile.orgSettings")}</Menu.Item>
-      )}
       {orgs && orgs.length > 0 && showSwitchOrg(props.user) && (
         <StyledDropdownSubMenu
           key="switchOrg"
@@ -221,9 +212,6 @@ export default function ProfileDropdown(props: DropDownProps) {
             </>
           )}
         </StyledDropdownSubMenu>
-      )}
-      {!checkIsMobile(window.innerWidth) && isEE() && currentOrgAdmin(props.user) && (
-        <Menu.Item key="audit">{trans("profile.auditLogs")}</Menu.Item>
       )}
       <Menu.Item key="logout">{trans("profile.logout")}</Menu.Item>
     </DropdownMenu>

@@ -24,14 +24,7 @@ export default function ColorConfig(props: ColorConfigProps) {
   const configChangeWithDebounce = _.debounce(configChange, 0);
   const [color, setColor] = useState(defaultColor);
   const [radius, setRadius] = useState(defaultRadius);
-  let varName = "";
-  if (colorKey === "textDark") {
-    varName += "(textDark textLight)";
-  } else if (colorKey === "textLight") {
-    varName = "";
-  } else {
-    varName += `(${colorKey})`;
-  }
+  const varName = `(${colorKey})`;
 
   const colorInputBlur = () => {
     if (!color || !isValidColor(color)) {
@@ -73,7 +66,7 @@ export default function ColorConfig(props: ColorConfigProps) {
   }, [defaultRadius]);
 
   return (
-    <ConfigItem className={colorKey === "textLight" ? "text-light" : ""}>
+    <ConfigItem>
       <div className="text-desc">
         <div className="name">
           {name} <span>{varName}</span>

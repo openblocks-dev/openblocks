@@ -286,6 +286,7 @@ export class RedisQuery extends RedisTmpQuery {
           <QueryConfigLabelMethod />
           <div style={{ width: "184px", flexGrow: 1 }}>
             <Dropdown
+              showSearch={true}
               options={CommandOptions}
               value={this.children.compType.getView()}
               onChange={(value) => this.dispatch(changeValueAction({ compType: value, comp: {} }))}

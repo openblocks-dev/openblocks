@@ -48,8 +48,8 @@ export const Table = styled(AntdTable)`
   .ant-table-thead:after {
     content: "";
     position: absolute;
-    left: 8px;
-    right: 8px;
+    left: 12px;
+    right: 12px;
     bottom: 0;
     background: #e1e3eb;
     height: 1px;
@@ -59,8 +59,8 @@ export const Table = styled(AntdTable)`
   .ant-table-row:after {
     content: "";
     position: absolute;
-    left: 8px;
-    right: 8px;
+    left: 12px;
+    right: 12px;
     bottom: 0;
     background: #f0f0f0;
     height: 1px;
@@ -104,5 +104,8 @@ export const Table = styled(AntdTable)`
 
   .ant-table-ping-right:not(.ant-table-has-fix-right) .ant-table-container::after {
     box-shadow: none;
+  }
+  .ant-table-thead > tr > th, .ant-table-tbody > tr > td {
+    padding: 16px 12px;
   }
 `;

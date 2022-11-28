@@ -113,16 +113,12 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 FOLDERS_URL,
                 FOLDER_URL,
                 TRASH_URL,
+                SETTING,
               ]}
               // component={ApplicationListPage}
               component={ApplicationHome}
             />
             <LazyRoute path={USER_AUTH_URL} load={() => import("@openblocks-ee/pages/userAuth")} />
-            <LazyRoute
-              path={SETTING}
-              fallback="outAppLayout"
-              load={() => import("pages/setting")}
-            />
             <LazyRoute
               path={INVITE_LANDING_URL}
               load={() => import("pages/common/inviteLanding")}

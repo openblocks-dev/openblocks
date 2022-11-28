@@ -1,9 +1,7 @@
-import { Typography } from "antd";
 import { GroupRoleInfo, GroupUser, OrgGroup, TacoRoles } from "constants/orgConstants";
 import { User } from "constants/userConstants";
-import { CustomSelect } from "openblocks-design";
+import { ArrowIcon, CustomSelect } from "openblocks-design";
 import { AddIcon } from "openblocks-design";
-import { EditIcon } from "openblocks-design";
 import { PackUpIcon } from "openblocks-design";
 import { SuperUserIcon } from "openblocks-design";
 import { trans } from "i18n";
@@ -15,7 +13,6 @@ import {
   deleteGroupUserAction,
   fetchGroupUsersAction,
   quitGroupAction,
-  updateGroupAction,
   updateUserGroupRoleAction,
 } from "redux/reduxActions/orgActions";
 import { getCurrentUser } from "redux/selectors/usersSelectors";
@@ -27,24 +24,21 @@ import {
   AddMemberButton,
   DevGroupTip,
   GroupNameView,
+  HeaderBack,
   LAST_ADMIN_QUIT,
   PermissionHeaderWrapper,
   QuestionTooltip,
   RoleSelectSubTitle,
   RoleSelectTitle,
-  StyledTable,
+  TableStyled,
   UserTableCellWrapper,
 } from "./styledComponents";
+import history from "util/history";
+import { PERMISSION_SETTING } from "constants/routesURL";
 
 const StyledAddIcon = styled(AddIcon)`
   g path {
     fill: #ffffff;
-  }
-`;
-
-const StyledEditIcon = styled(EditIcon)`
-  :hover g g {
-    fill: #315efb;
   }
 `;
 
@@ -58,7 +52,7 @@ type GroupPermissionProp = {
 };
 
 function GroupUsersPermission(props: GroupPermissionProp) {
-  const { Column } = StyledTable;
+  const { Column } = TableStyled;
   const { group, orgId, groupUsersFetching, groupUsers, currentUserGroupRole, currentUser } = props;
   const adminCount = groupUsers.filter((user) => isGroupAdmin(user.role)).length;
   const sortedGroupUsers = useMemo(() => {
@@ -76,27 +70,18 @@ function GroupUsersPermission(props: GroupPermissionProp) {
   useEffect(() => {
     dispatch(fetchGroupUsersAction({ groupId: group.groupId }));
   }, []);
-  const groupNameEditable =
-    isGroupAdmin(currentUserGroupRole) && !group.devGroup
-      ? {
-          icon: <StyledEditIcon />,
-          maxLength: 30,
-          enterIcon: null,
-          tooltip: false,
-          onChange: (value: string) =>
-            dispatch(updateGroupAction({ groupId: group.groupId, groupName: value }, orgId)),
-        }
-      : false;
   return (
     <>
       <PermissionHeaderWrapper>
-        <Typography.Text editable={groupNameEditable}>
-          {groupNameEditable ? (
-            group.groupName
+        <HeaderBack>
+          <span onClick={() => history.push(PERMISSION_SETTING)}>{trans("settings.member")}</span>
+          <ArrowIcon />
+          {isGroupAdmin(currentUserGroupRole) && !group.devGroup ? (
+            <span>{group.groupName}</span>
           ) : (
             <GroupNameView name={group.groupName} toolTip={group.devGroup && DevGroupTip} />
           )}
-        </Typography.Text>
+        </HeaderBack>
         {isGroupAdmin(currentUserGroupRole) && (
           <AddGroupUserDialog
             groupUsers={groupUsers}
@@ -111,7 +96,9 @@ function GroupUsersPermission(props: GroupPermissionProp) {
           />
         )}
       </PermissionHeaderWrapper>
-      <StyledTable
+      <TableStyled
+        tableLayout={"auto"}
+        scroll={{ x: "100%" }}
         dataSource={sortedGroupUsers}
         rowKey="userId"
         pagination={false}
@@ -124,7 +111,7 @@ function GroupUsersPermission(props: GroupPermissionProp) {
           ellipsis
           render={(value, record: GroupUser) => (
             <UserTableCellWrapper>
-              <ProfileImage source={record.avatarUrl} userName={record.userName} side={40} />
+              <ProfileImage source={record.avatarUrl} userName={record.userName} side={34} />
               <span title={record.userName}>{record.userName}</span>
               {isGroupAdmin(record.role) && <SuperUserIcon />}
             </UserTableCellWrapper>
@@ -209,7 +196,7 @@ function GroupUsersPermission(props: GroupPermissionProp) {
             );
           }}
         />
-      </StyledTable>
+      </TableStyled>
     </>
   );
 }

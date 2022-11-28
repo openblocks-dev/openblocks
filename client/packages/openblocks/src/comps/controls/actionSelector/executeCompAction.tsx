@@ -153,6 +153,7 @@ export function executeCompAction(params: ExecuteCompActionOptions) {
                   <CompNameContext.Consumer>
                     {(compName) => (
                       <Dropdown
+                        showSearch={true}
                         value={name}
                         options={compList
                           .filter(
@@ -189,7 +190,9 @@ export function executeCompAction(params: ExecuteCompActionOptions) {
                     />
                   </BranchDiv>
                 )}
-                {!!params?.length && <BranchDiv>{this.children.params.propertyView(params)}</BranchDiv>}
+                {!!params?.length && (
+                  <BranchDiv>{this.children.params.propertyView(params)}</BranchDiv>
+                )}
               </>
             );
           }}

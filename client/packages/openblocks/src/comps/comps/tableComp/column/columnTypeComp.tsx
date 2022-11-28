@@ -83,6 +83,7 @@ export class ColumnTypeComp extends TypedColumnTypeComp {
     return (
       <>
         <Dropdown
+          showSearch={true}
           value={this.children.compType.getView()}
           options={actionOptions}
           label={trans("table.columnType")}

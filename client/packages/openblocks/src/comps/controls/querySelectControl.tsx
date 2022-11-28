@@ -15,6 +15,7 @@ function QuerySelect(props: IProps) {
   const editorState = useContext(EditorContext);
   return (
     <Dropdown
+      showSearch={true}
       allowClear
       value={value}
       options={editorState.queryCompInfoList().map((info) => ({
