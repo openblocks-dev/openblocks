@@ -114,7 +114,7 @@ let QueryCompTmp = withTypeAndChildren(QueryMap, "js", {
   }),
   confirmationModal: QueryConfirmationModal,
   periodic: BoolPureControl,
-  periodicTime: millisecondsControl({ left: 0, defaultValue: 5 * 1000 }),
+  periodicTime: millisecondsControl({ left: 100, defaultValue: 5 * 1000 }),
 });
 
 export type QueryChildrenType = InstanceType<typeof QueryCompTmp> extends MultiBaseComp<infer X>

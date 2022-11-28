@@ -235,8 +235,8 @@ function AppSettingsModal(props: ChildrenInstance) {
             );
           }}
         />
-        {props.customShortcuts.getPropertyView()}
       </DivStyled>
+      {props.customShortcuts.getPropertyView()}
     </SettingsStyled>
   );
 }

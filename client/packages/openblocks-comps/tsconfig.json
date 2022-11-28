@@ -19,12 +19,8 @@
     "baseUrl": "./src",
     "paths": {
       "@openblocks-ee/*": ["../../openblocks/src/*"],
-      "*": [
-        "*",
-        "../../openblocks/src/*",
-        "../../openblocks-sdk/src/*",
-        "../../openblocks-design/src/*"
-      ]
+      "openblocks-sdk": ["../../openblocks/src/index.sdk"],
+      "*": ["*", "../../openblocks/src/*", "../../openblocks-design/src/*"]
     }
   },
   "include": ["src", "../openblocks/src"]

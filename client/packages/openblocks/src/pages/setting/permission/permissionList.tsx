@@ -1,7 +1,7 @@
 import { message, Typography } from "antd";
 import OrgApi from "api/orgApi";
 import { buildGroupId } from "constants/routesURL";
-import { AddIcon, EditPopover } from "openblocks-design";
+import { AddIcon, CustomModal, EditPopover } from "openblocks-design";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGroupsAction, updateGroupAction } from "redux/reduxActions/orgActions";
@@ -59,7 +59,9 @@ export default function PermissionSetting() {
     })
       .then((resp) => {
         if (validateResponse(resp)) {
-          dispatch(fetchGroupsAction(orgId));
+          setTimeout(() => {
+            dispatch(fetchGroupsAction(orgId));
+          }, 200);
         }
       })
       .catch((e) => {
@@ -165,9 +167,9 @@ export default function PermissionSetting() {
               ellipsis: true,
               render: (value) => (
                 <span style={{ color: "#8B8FA3" }}>{timestampToHumanReadable(value)}</span>
-              )
+              ),
             },
-            { title: " ", dataIndex: "operation", width: "208px" },
+            { title: " ", dataIndex: "operation", width: "238px" },
           ]}
           dataSource={dataSource.map((item, i) => ({
             key: item.key,
@@ -181,11 +183,23 @@ export default function PermissionSetting() {
                   buttonType={"primary"}
                   onClick={() => history.push(buildGroupId(item.key))}
                 >
-                  {trans("edit")}
+                  {trans("memberSettings.manageBtn")}
                 </EditBtn>
                 {(item.del || item.rename) && (
                   <EditPopover
-                    del={item.del ? () => handleGroupDelete(item.key) : undefined}
+                    del={
+                      item.del
+                        ? () => {
+                            CustomModal.confirm({
+                              title: trans("memberSettings.deleteModalTitle"),
+                              content: trans("memberSettings.deleteModalContent"),
+                              onConfirm: () => handleGroupDelete(item.key),
+                              confirmBtnType: "delete",
+                              okText: trans("delete"),
+                            });
+                          }
+                        : undefined
+                    }
                     rename={item.rename ? () => setNeedRenameId(item.key) : undefined}
                   >
                     <PopoverIcon tabIndex={-1} />

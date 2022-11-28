@@ -386,7 +386,7 @@ export const en = {
     periodic: "Run this query periodically",
     periodicTime: "Period",
     periodicTimeTooltip:
-      "Period between successive executions. Default unit: milliseconds (ms), default: {defaultSeconds} seconds, supported input unit: ms(ms), s(second)",
+      "Period between successive executions. Default unit: milliseconds (ms), default: {defaultSeconds} seconds, min: 100 milliseconds, supported input unit: ms(ms), s(second)",
     dataSourceStatusError:
       "The query data source is invalid or does not exist. Update the current query data source.",
     success: "Success",
@@ -435,7 +435,7 @@ export const en = {
     authenticationType: "Authentication Type",
     enableTurnOffPreparedStatement: "Support for switching prepared statements",
     enableTurnOffPreparedStatementTooltip:
-      "You can control whether to enable or disable prepared statements in the query panel",
+      "You can enable or disable prepared statements in query Advanced tab",
     serviceName: "Service name",
     serviceNameRequiredMessage: "Please enter your service name",
     useSID: "Use SID",
@@ -1176,7 +1176,7 @@ export const en = {
   settings: {
     title: "Settings",
     member: "Members",
-    organization: "Workspace",
+    organization: "Workspaces",
     audit: "Audit logs",
     theme: "Themes",
     advanced: "Advanced",
@@ -1201,7 +1201,7 @@ export const en = {
     actionColumn: "Operation",
     roleColumn: "Role",
     exitGroup: "Exit Group",
-    moveOutGroup: "Move out of group",
+    moveOutGroup: "Remove from group",
     inviteUser: "Invite members",
     exitOrg: "Exit the workspace",
     moveOutOrg: "Remove from workspace",
@@ -1217,6 +1217,7 @@ export const en = {
       '{userName} invites you to join the workspace "{organization}", Click on the link to join: {inviteLink}',
     groupName: "Group name",
     createTime: "Create time",
+    manageBtn: "Manage",
   },
   orgSettings: {
     newOrg: "New workspace",
@@ -1603,12 +1604,13 @@ export const en = {
     permissionDenyContent:
       "You don't have permission to create the application and data source. Please contact the administrator to join the developer group.",
     appName: "Tutorial application",
-    chat: "Chat with support",
+    chat: "Chat with us",
     docs: "View documentation",
     editorTutorial: "Editor tutorial",
     update: "What's new?",
     version: "Version",
     versionWithColon: "Version: ",
+    submitIssue: "Submit an issue",
   },
   header: {
     nameCheckMessage: "The name cannot be empty",
@@ -1787,7 +1789,7 @@ export const en = {
     showBorder: "Show border",
   },
   docUrls: {
-    docHome: "",
+    docHome: "https://docs.openblocks.dev/",
     components: "",
     module: "",
     optionList: "",
@@ -1822,5 +1824,6 @@ export const en = {
   },
   openBlocksUrl: {
     createIssue: "https://github.com/openblocks-dev/openblocks/issues",
+    discord: "https://discord.com/invite/z5W2YHXdtt",
   },
 };

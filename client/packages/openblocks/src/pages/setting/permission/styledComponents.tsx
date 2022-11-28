@@ -245,7 +245,7 @@ export const OperationWrapper = styled.div`
 
 export const EditBtn = styled(TacoButton)`
   opacity: 0;
-  width: 52px;
+  min-width: 52px;
   height: 24px;
   margin-right: 52px;
 `;

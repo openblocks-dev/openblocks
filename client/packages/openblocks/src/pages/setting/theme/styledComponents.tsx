@@ -438,7 +438,7 @@ export const ConfigItem = styled.div`
       }
     }
   }
-  @media screen and (max-width: 1705px){
+  @media screen and (max-width: 1745px){
     .text-desc, .config-input {
       width: 100%;
     }

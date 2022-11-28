@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Layers } from "constants/Layers";
-import { HelpIcon, LeftHelpIcon } from "openblocks-design";
+import { HelpIcon, LeftHelpIcon, HelpGithubIcon, HelpDiscordIcon } from "openblocks-design";
 import { VideoIcon, ChatIcon, DocIcon, TutorialIcon, ShortcutIcon } from "assets/icons";
 import TutorialVideoPic from "assets/images/tutorialVideoThumbnail.png";
 import { Dropdown, Popover, Tooltip } from "antd";
@@ -166,6 +166,8 @@ type HelpDropdownProps = {
 const docHomeUrl = trans("docUrls.docHome");
 const changeLogDocUrl = trans("docUrls.changeLog");
 const introVideoUrl = trans("docUrls.introVideo");
+const issueUrl = trans("openBlocksUrl.createIssue");
+const discordUrl = trans("openBlocksUrl.discord");
 
 export function HelpDropdown(props: HelpDropdownProps) {
   const [showHelp, setShowHelp] = useState(true);
@@ -239,6 +241,12 @@ export function HelpDropdown(props: HelpDropdownProps) {
         case "docs":
           window.open(docHomeUrl);
           return;
+        case "issue":
+          window.open(issueUrl);
+          return;
+        case "discord":
+          window.open(discordUrl);
+          return;
         case "shortcutList":
           props.setShowShortcutList?.(true);
           return;
@@ -254,8 +262,10 @@ export function HelpDropdown(props: HelpDropdownProps) {
     <StyledMenu
       $edit={props.isEdit || false}
       onClick={(params) => {
+        if (params.key !== 'version') {
+          setShowDropdown(false);
+        }
         onMenuClick(params);
-        setShowDropdown(false);
       }}
       items={[
         introVideoUrl
@@ -276,17 +286,33 @@ export function HelpDropdown(props: HelpDropdownProps) {
               ),
             }
           : null,
-        docHomeUrl
-          ? {
-              key: "docs",
-              label: (
-                <ItemWrapper>
-                  <DocIcon />
-                  <span>{trans("help.docs")}</span>
-                </ItemWrapper>
-              ),
-            }
-          : null,
+        {
+          key: "docs",
+          label: (
+            <ItemWrapper>
+              <DocIcon />
+              <span>{trans("help.docs")}</span>
+            </ItemWrapper>
+          ),
+        },
+        issueUrl ? {
+          key: "issue",
+          label: (
+            <ItemWrapper>
+              <HelpGithubIcon />
+              <span>{trans("help.submitIssue")}</span>
+            </ItemWrapper>
+          ),
+        } : null,
+        discordUrl ? {
+          key: "discord",
+          label: (
+            <ItemWrapper>
+              <HelpDiscordIcon />
+              <span>{trans("help.chat")}</span>
+            </ItemWrapper>
+          ),
+        } : null,
         {
           key: "editorTutorial",
           label: (
@@ -389,6 +415,7 @@ export function HelpDropdown(props: HelpDropdownProps) {
           overlay={overlayMenus}
           placement="topRight"
           trigger={["click"]}
+          visible={showDropdown}
           onVisibleChange={(open: boolean) => setShowDropdown(open)}
         >
           {props.isEdit ? (

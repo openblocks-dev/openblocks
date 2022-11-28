@@ -4,7 +4,7 @@ import { checkCursorInBinding } from "../codeEditorUtils";
 import { Completion, CompletionContext, CompletionResult } from "../codeMirror";
 import { CompletionSource } from "./completion";
 
-const PRIORITY_PROPS = ["value", "selectedRow", "data"];
+const PRIORITY_PROPS = ["value", "selectedRow", "data", "text"];
 const PRIORITY_FUNCTIONS = ["setValue", "setData"];
 
 export class ExposingCompletionSource extends CompletionSource {
