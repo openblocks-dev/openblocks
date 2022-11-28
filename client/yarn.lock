@@ -13516,7 +13516,7 @@ __metadata:
     lodash: ^4.17.21
     loglevel: ^1.8.0
     mime: ^3.0.0
-    moment: ^2.29.2
+    moment: ^2.29.4
     numbro: ^2.3.6
     openblocks-core: "workspace:^"
     openblocks-design: "workspace:^"
