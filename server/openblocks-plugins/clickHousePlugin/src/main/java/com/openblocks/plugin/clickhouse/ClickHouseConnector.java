@@ -69,11 +69,9 @@ public class ClickHouseConnector implements DatasourceConnector<HikariDataSource
     @Override
     public Set<String> validateConfig(ClickHouseDatasourceConfig connectionConfig) {
 
-        ClickHouseDatasourceConfig datasourceConfig = ClickHouseDatasourceConfig.from(connectionConfig);
-
         Set<String> invalids = new HashSet<>();
 
-        String host = datasourceConfig.getHost();
+        String host = connectionConfig.getHost();
         if (StringUtils.isBlank(host)) {
             invalids.add("HOST_EMPTY");
         }
@@ -86,7 +84,7 @@ public class ClickHouseConnector implements DatasourceConnector<HikariDataSource
             invalids.add("INVALID_HOST");
         }
 
-        if (StringUtils.isBlank(datasourceConfig.getDatabase())) {
+        if (StringUtils.isBlank(connectionConfig.getDatabase())) {
             invalids.add("DATABASE_NAME_EMPTY");
         }
 

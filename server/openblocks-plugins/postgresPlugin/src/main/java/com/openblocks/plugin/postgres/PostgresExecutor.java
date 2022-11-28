@@ -44,7 +44,6 @@ import org.pf4j.Extension;
 import com.openblocks.plugin.postgres.model.DataType;
 import com.openblocks.plugin.postgres.model.PostgresDatasourceConfig;
 import com.openblocks.plugin.postgres.model.PostgresQueryConfig;
-import com.openblocks.plugin.postgres.model.PostgresQueryContext;
 import com.openblocks.plugin.postgres.utils.PostgresDataTypeUtils;
 import com.openblocks.plugin.postgres.utils.PostgresResultParser;
 import com.openblocks.sdk.exception.InvalidHikariDatasourceException;
@@ -54,6 +53,7 @@ import com.openblocks.sdk.models.LocaleMessage;
 import com.openblocks.sdk.models.QueryExecutionResult;
 import com.openblocks.sdk.plugin.common.BlockingQueryExecutor;
 import com.openblocks.sdk.plugin.common.sql.ResultSetParser;
+import com.openblocks.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 import com.openblocks.sdk.query.QueryVisitorContext;
 import com.openblocks.sdk.util.MustacheHelper;
 import com.zaxxer.hikari.HikariDataSource;
@@ -62,15 +62,15 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Extension
-public class PostgresExecutor extends BlockingQueryExecutor<PostgresDatasourceConfig, HikariDataSource, PostgresQueryContext> {
+public class PostgresExecutor extends BlockingQueryExecutor<PostgresDatasourceConfig, HikariDataSource, SqlBasedQueryExecutionContext> {
 
     @Override
-    public PostgresQueryContext buildQueryExecutionContext(PostgresDatasourceConfig datasourceConfig,
+    public SqlBasedQueryExecutionContext buildQueryExecutionContext(PostgresDatasourceConfig datasourceConfig,
             Map<String, Object> queryConfig,
             Map<String, Object> requestParams, QueryVisitorContext queryVisitorContext) {
 
         PostgresQueryConfig postgresQueryConfig = PostgresQueryConfig.from(queryConfig);
-        return PostgresQueryContext.builder()
+        return SqlBasedQueryExecutionContext.builder()
                 .query(postgresQueryConfig.getSql())
                 .requestParams(requestParams)
                 .disablePreparedStatement(datasourceConfig.isEnableTurnOffPreparedStatement() &&
@@ -80,7 +80,7 @@ public class PostgresExecutor extends BlockingQueryExecutor<PostgresDatasourceCo
 
     @Nonnull
     @Override
-    public QueryExecutionResult blockingExecuteQuery(HikariDataSource connection, PostgresQueryContext context) {
+    public QueryExecutionResult blockingExecuteQuery(HikariDataSource connection, SqlBasedQueryExecutionContext context) {
 
         String query = context.getQuery();
         Map<String, Object> requestParams = context.getRequestParams();

@@ -26,8 +26,11 @@ public class OracleDatasourceConfig implements DatasourceConnectionConfig {
     private final String serviceName;
     private final String jdbcUrl;
 
+    private final boolean enableTurnOffPreparedStatement;
+
     @JsonCreator
-    public OracleDatasourceConfig(String username, String password, String host, Integer port, String sid, String serviceName, String jdbcUrl) {
+    public OracleDatasourceConfig(String username, String password, String host, Integer port, String sid, String serviceName, String jdbcUrl,
+            boolean enableTurnOffPreparedStatement) {
         this.username = username;
         this.password = password;
         this.host = host;
@@ -35,6 +38,7 @@ public class OracleDatasourceConfig implements DatasourceConnectionConfig {
         this.sid = sid;
         this.serviceName = serviceName;
         this.jdbcUrl = jdbcUrl;
+        this.enableTurnOffPreparedStatement = enableTurnOffPreparedStatement;
     }
 
     public String getJdbcUrl() {

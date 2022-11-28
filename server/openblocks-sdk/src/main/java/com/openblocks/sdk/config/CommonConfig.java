@@ -26,6 +26,8 @@ public class CommonConfig {
     private String version;
     private boolean blockHoundEnable;
     private String cookieName;
+    private int maxQueryRequestSizeInMb = 10;
+    private int maxQueryResponseSizeInMb = 10;
 
     public boolean isSelfHost() {
         return !isCloud();

@@ -36,7 +36,6 @@ import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
 
 import com.openblocks.plugin.oracle.model.OracleDatasourceConfig;
-import com.openblocks.plugin.oracle.model.OracleQueryExecutionContext;
 import com.openblocks.sdk.config.dynamic.ConfigCenter;
 import com.openblocks.sdk.config.dynamic.ConfigInstanceHelper;
 import com.openblocks.sdk.exception.InvalidHikariDatasourceException;
@@ -47,6 +46,7 @@ import com.openblocks.sdk.models.DatasourceStructure.Table;
 import com.openblocks.sdk.models.DatasourceTestResult;
 import com.openblocks.sdk.models.QueryExecutionResult;
 import com.openblocks.sdk.plugin.common.DatasourceQueryEngine;
+import com.openblocks.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 import com.openblocks.sdk.plugin.common.sql.StructureParser;
 import com.openblocks.sdk.query.QueryVisitorContext;
 import com.zaxxer.hikari.HikariConfig;
@@ -63,7 +63,7 @@ public class OraclePlugin extends Plugin {
 
     @Slf4j
     @Extension
-    public static class OracleEngine implements DatasourceQueryEngine<OracleDatasourceConfig, HikariDataSource, OracleQueryExecutionContext> {
+    public static class OracleEngine implements DatasourceQueryEngine<OracleDatasourceConfig, HikariDataSource, SqlBasedQueryExecutionContext> {
 
         private static final String JDBC_DRIVER = "oracle.jdbc.OracleDriver";
 
@@ -167,22 +167,24 @@ public class OraclePlugin extends Plugin {
         }
 
         @Override
-        public OracleQueryExecutionContext buildQueryExecutionContext(OracleDatasourceConfig datasourceConfig, Map<String, Object> queryConfig,
+        public SqlBasedQueryExecutionContext buildQueryExecutionContext(OracleDatasourceConfig datasourceConfig, Map<String, Object> queryConfig,
                 Map<String, Object> requestParams, QueryVisitorContext queryVisitorContext) {
-            return OracleQueryExecutionContext.builder()
+            return SqlBasedQueryExecutionContext.builder()
                     .query(MapUtils.getString(queryConfig, "sql"))
                     .requestParams(requestParams)
+                    .disablePreparedStatement(datasourceConfig.isEnableTurnOffPreparedStatement()
+                            && MapUtils.getBoolean(queryConfig, "disablePreparedStatement"))
                     .build();
         }
 
         @Override
-        public Mono<QueryExecutionResult> executeQuery(HikariDataSource hikariDataSource, OracleQueryExecutionContext context) {
+        public Mono<QueryExecutionResult> executeQuery(HikariDataSource hikariDataSource, SqlBasedQueryExecutionContext context) {
             return Mono.fromSupplier(() -> executeQuery0(hikariDataSource, context))
                     .onErrorResume(throwable -> Mono.just(error(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", throwable.getMessage())))
                     .subscribeOn(querySharedScheduler());
         }
 
-        private QueryExecutionResult executeQuery0(HikariDataSource hikariDataSource, OracleQueryExecutionContext context) {
+        private QueryExecutionResult executeQuery0(HikariDataSource hikariDataSource, SqlBasedQueryExecutionContext context) {
 
             String query = context.getQuery();
             Map<String, Object> requestParams = context.getRequestParams();

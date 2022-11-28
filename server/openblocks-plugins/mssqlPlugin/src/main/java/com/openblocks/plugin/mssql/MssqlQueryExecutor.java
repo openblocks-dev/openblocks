@@ -33,10 +33,8 @@ import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
 
-import com.google.common.collect.ImmutableMap;
 import com.openblocks.plugin.mssql.model.MssqlDatasourceConfig;
 import com.openblocks.plugin.mssql.model.MssqlQueryConfig;
-import com.openblocks.plugin.mssql.model.MssqlQueryExecutionContext;
 import com.openblocks.plugin.mssql.util.MssqlResultParser;
 import com.openblocks.sdk.config.dynamic.ConfigCenter;
 import com.openblocks.sdk.exception.InvalidHikariDatasourceException;
@@ -47,6 +45,7 @@ import com.openblocks.sdk.models.LocaleMessage;
 import com.openblocks.sdk.models.QueryExecutionResult;
 import com.openblocks.sdk.plugin.common.QueryExecutor;
 import com.openblocks.sdk.plugin.common.sql.ResultSetParser;
+import com.openblocks.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 import com.openblocks.sdk.query.QueryVisitorContext;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -55,7 +54,7 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Extension
-public class MssqlQueryExecutor implements QueryExecutor<MssqlDatasourceConfig, HikariDataSource, MssqlQueryExecutionContext> {
+public class MssqlQueryExecutor implements QueryExecutor<MssqlDatasourceConfig, HikariDataSource, SqlBasedQueryExecutionContext> {
 
     private final Supplier<Duration> getStructureTimeout;
 
@@ -65,7 +64,7 @@ public class MssqlQueryExecutor implements QueryExecutor<MssqlDatasourceConfig, 
     }
 
     @Override
-    public MssqlQueryExecutionContext buildQueryExecutionContext(MssqlDatasourceConfig datasourceConfig,
+    public SqlBasedQueryExecutionContext buildQueryExecutionContext(MssqlDatasourceConfig datasourceConfig,
             Map<String, Object> queryConfig,
             Map<String, Object> requestParams, QueryVisitorContext queryVisitorContext) {
         MssqlQueryConfig mssqlQueryConfig = MssqlQueryConfig.from(queryConfig);
@@ -75,15 +74,16 @@ public class MssqlQueryExecutor implements QueryExecutor<MssqlDatasourceConfig, 
             throw new PluginException(QUERY_ARGUMENT_ERROR, "SQL_EMPTY");
         }
 
-        return MssqlQueryExecutionContext.builder()
+        return SqlBasedQueryExecutionContext.builder()
                 .query(query)
                 .requestParams(requestParams)
-                .disablePreparedStatement(mssqlQueryConfig.isDisablePreparedStatement())
+                .disablePreparedStatement(datasourceConfig.isEnableTurnOffPreparedStatement() &&
+                        mssqlQueryConfig.isDisablePreparedStatement())
                 .build();
     }
 
     @Override
-    public Mono<QueryExecutionResult> executeQuery(HikariDataSource hikariDataSource, MssqlQueryExecutionContext context) {
+    public Mono<QueryExecutionResult> executeQuery(HikariDataSource hikariDataSource, SqlBasedQueryExecutionContext context) {
 
         String query = context.getQuery();
         Map<String, Object> requestParams = context.getRequestParams();
@@ -178,7 +178,7 @@ public class MssqlQueryExecutor implements QueryExecutor<MssqlDatasourceConfig, 
 
         Object affectedRows = preparedStatement ? Math.max(preparedQuery.getUpdateCount(), 0) // might return -1 here
                                                 : Math.max(statement.getUpdateCount(), 0);
-        return QueryExecutionResult.success(ImmutableMap.of("affectedRows", affectedRows));
+        return QueryExecutionResult.success(Map.of("affectedRows", affectedRows));
     }
 
     private List<Map<String, Object>> parseDataRows(ResultSet resultSet, ResultSetMetaData metaData, int colCount) throws SQLException {

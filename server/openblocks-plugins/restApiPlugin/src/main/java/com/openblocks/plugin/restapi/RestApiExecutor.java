@@ -107,12 +107,14 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
 
     private static final Consumer<HttpHeaders> DEFAULT_HEADERS_CONSUMER = httpHeaders -> {};
     private static final String DEFAULT_REST_ERROR_CODE = "REST_API_EXECUTION_ERROR";
-    private static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies
-            .builder()
-            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024)) // max 10MB for buffer
-            .build();
     private static final int MAX_REDIRECTS = 7;
     private final DataUtils dataUtils = DataUtils.getInstance();
+
+    // Set an unlimited buffer size, because query payload limit will be handled in webFilter
+    private final ExchangeStrategies exchangeStrategies = ExchangeStrategies
+            .builder()
+            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(-1))
+            .build();
 
     @Override
     public RestApiQueryExecutionContext buildQueryExecutionContext(RestApiDatasourceConfig datasourceConfig,
@@ -204,7 +206,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
 
                     webClientBuilder.defaultCookies(injectCookies(context));
                     WebClient client = webClientBuilder
-                            .exchangeStrategies(EXCHANGE_STRATEGIES)
+                            .exchangeStrategies(exchangeStrategies)
                             .build();
 
                     BodyInserter<?, ? super ClientHttpRequest> bodyInserter = buildBodyInserter(

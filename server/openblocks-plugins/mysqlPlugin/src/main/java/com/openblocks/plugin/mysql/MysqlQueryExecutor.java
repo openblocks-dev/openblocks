@@ -42,7 +42,6 @@ import org.pf4j.Extension;
 
 import com.google.common.collect.Maps;
 import com.openblocks.plugin.mysql.model.MysqlQueryConfig;
-import com.openblocks.plugin.mysql.model.MysqlQueryExecutionContext;
 import com.openblocks.plugin.mysql.utils.MysqlResultParser;
 import com.openblocks.sdk.exception.InvalidHikariDatasourceException;
 import com.openblocks.sdk.exception.PluginException;
@@ -54,6 +53,7 @@ import com.openblocks.sdk.plugin.common.BlockingQueryExecutor;
 import com.openblocks.sdk.plugin.common.SqlQueryUtils;
 import com.openblocks.sdk.plugin.common.sql.HikariPerfWrapper;
 import com.openblocks.sdk.plugin.common.sql.ResultSetParser;
+import com.openblocks.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 import com.openblocks.sdk.plugin.mysql.MysqlDatasourceConfig;
 import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand;
 import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand.GuiSqlCommandRenderResult;
@@ -70,16 +70,16 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Extension
-public class MysqlQueryExecutor extends BlockingQueryExecutor<MysqlDatasourceConfig, HikariPerfWrapper, MysqlQueryExecutionContext> {
+public class MysqlQueryExecutor extends BlockingQueryExecutor<MysqlDatasourceConfig, HikariPerfWrapper, SqlBasedQueryExecutionContext> {
 
     @Override
-    public MysqlQueryExecutionContext buildQueryExecutionContext(MysqlDatasourceConfig datasourceConfig, Map<String, Object> queryConfig,
+    public SqlBasedQueryExecutionContext buildQueryExecutionContext(MysqlDatasourceConfig datasourceConfig, Map<String, Object> queryConfig,
             Map<String, Object> requestParams, QueryVisitorContext queryVisitorContext) {
         MysqlQueryConfig mysqlQueryConfig = MysqlQueryConfig.from(queryConfig);
 
         if (mysqlQueryConfig.isGuiMode()) {
             GuiSqlCommand sqlCommand = getGuiSqlCommand(mysqlQueryConfig);
-            return MysqlQueryExecutionContext.builder()
+            return SqlBasedQueryExecutionContext.builder()
                     .guiSqlCommand(sqlCommand)
                     .requestParams(requestParams)
                     .build();
@@ -91,7 +91,7 @@ public class MysqlQueryExecutor extends BlockingQueryExecutor<MysqlDatasourceCon
             throw new PluginException(QUERY_ARGUMENT_ERROR, "SQL_EMPTY");
         }
 
-        return MysqlQueryExecutionContext.builder()
+        return SqlBasedQueryExecutionContext.builder()
                 .query(query)
                 .requestParams(requestParams)
                 .disablePreparedStatement(datasourceConfig.isEnableTurnOffPreparedStatement() &&
@@ -113,24 +113,19 @@ public class MysqlQueryExecutor extends BlockingQueryExecutor<MysqlDatasourceCon
     }
 
     private GuiSqlCommand parseSqlCommand(String guiStatementType, Map<String, Object> detail) {
-        switch (guiStatementType.toUpperCase()) {
-            case "INSERT":
-                return MysqlInsertCommand.from(detail);
-            case "UPDATE":
-                return MysqlUpdateCommand.from(detail);
-            case "UPSERT":
-                return MysqlUpsertCommand.from(detail);
-            case "DELETE":
-                return MysqlDeleteCommand.from(detail);
-            case "BULK_INSERT":
-                return MysqlBulkInsertCommand.from(detail);
-        }
-        throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_GUI_COMMAND_TYPE", guiStatementType);
+        return switch (guiStatementType.toUpperCase()) {
+            case "INSERT" -> MysqlInsertCommand.from(detail);
+            case "UPDATE" -> MysqlUpdateCommand.from(detail);
+            case "UPSERT" -> MysqlUpsertCommand.from(detail);
+            case "DELETE" -> MysqlDeleteCommand.from(detail);
+            case "BULK_INSERT" -> MysqlBulkInsertCommand.from(detail);
+            default -> throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_GUI_COMMAND_TYPE", guiStatementType);
+        };
     }
 
     @Nonnull
     @Override
-    protected QueryExecutionResult blockingExecuteQuery(HikariPerfWrapper hikariDataSource, MysqlQueryExecutionContext context) {
+    protected QueryExecutionResult blockingExecuteQuery(HikariPerfWrapper hikariDataSource, SqlBasedQueryExecutionContext context) {
         HikariDataSource dataSource = getHikariDataSource(hikariDataSource);
 
         GuiSqlCommand guiSqlCommand = context.getGuiSqlCommand();

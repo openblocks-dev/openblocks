@@ -16,8 +16,6 @@ import lombok.Getter;
 @Getter
 public class ClickHouseQueryConfig {
 
-    private static final int DEFAULT_TIMEOUT = 8000;
-
     private final String sql;
     private final boolean disablePreparedStatement;
     private final int timeout;
@@ -46,7 +44,4 @@ public class ClickHouseQueryConfig {
         return sql.trim();
     }
 
-    public int getTimeout() {
-        return timeout == 0 ? DEFAULT_TIMEOUT : timeout;
-    }
 }

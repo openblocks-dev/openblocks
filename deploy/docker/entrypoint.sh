@@ -27,8 +27,7 @@ add_user() {
   echo "Starting with UID : $USER_ID"
   groupadd -g $GROUP_ID $GROUP_NAME || true
   useradd -u $USER_ID -g $GROUP_ID $USER_NAME || true
-  chown -R $USER_ID:$GROUP_ID /openblocks /openblocks-stacks /etc/nginx /var /etc/redis /etc/supervisor
-  chown $USER_ID:$GROUP_ID /run
+  chown -R $USER_ID:$GROUP_ID /openblocks /openblocks-stacks /etc/nginx /var /etc/redis /run /etc/supervisor
 }
 
 init_mongodb

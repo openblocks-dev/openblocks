@@ -26,6 +26,7 @@ import org.springframework.web.server.WebFilterChain;
 
 import com.openblocks.infra.constant.NewUrl;
 import com.openblocks.infra.constant.Url;
+import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.config.dynamic.ConfigCenter;
 import com.openblocks.sdk.config.dynamic.ConfigInstanceHelper;
 import com.openblocks.sdk.exception.BizException;
@@ -45,6 +46,9 @@ public class QueryExecuteHttpBodySizeFilter implements WebFilter, Ordered {
     @Autowired
     private ConfigCenter configCenter;
 
+    @Autowired
+    private CommonConfig commonConfig;
+
     private ConfigInstanceHelper configInstance;
 
     @PostConstruct
@@ -59,8 +63,10 @@ public class QueryExecuteHttpBodySizeFilter implements WebFilter, Ordered {
         // check query api
         if (path.startsWith(NewUrl.QUERY_URL) || path.startsWith(Url.QUERY_URL)) {
 
-            long maxRequestSize = configInstance.ofLong("maxRequestSize", 10 * FileUtils.ONE_MB);
-            long maxResponseSize = configInstance.ofLong("maxResponseSize", 10 * FileUtils.ONE_MB);
+            long maxRequestSize = configInstance.ofLong("maxRequestSize",
+                    commonConfig.getMaxQueryRequestSizeInMb() * FileUtils.ONE_MB);
+            long maxResponseSize = configInstance.ofLong("maxResponseSize",
+                    commonConfig.getMaxQueryResponseSizeInMb() * FileUtils.ONE_MB);
 
             ServerWebExchange newServerWebExchange = exchange.mutate()
                     .request(new CustomServerHttpRequestDecorator(exchange.getRequest(), maxRequestSize))

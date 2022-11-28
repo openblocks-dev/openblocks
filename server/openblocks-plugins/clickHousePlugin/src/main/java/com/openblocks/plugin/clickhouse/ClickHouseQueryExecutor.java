@@ -38,7 +38,6 @@ import org.pf4j.Extension;
 
 import com.openblocks.plugin.clickhouse.model.ClickHouseDatasourceConfig;
 import com.openblocks.plugin.clickhouse.model.ClickHouseQueryConfig;
-import com.openblocks.plugin.clickhouse.model.ClickHouseQueryExecutionContext;
 import com.openblocks.plugin.clickhouse.utils.ClickHouseStructureParser;
 import com.openblocks.sdk.config.dynamic.ConfigCenter;
 import com.openblocks.sdk.exception.InvalidHikariDatasourceException;
@@ -49,6 +48,7 @@ import com.openblocks.sdk.models.LocaleMessage;
 import com.openblocks.sdk.models.QueryExecutionResult;
 import com.openblocks.sdk.plugin.common.QueryExecutor;
 import com.openblocks.sdk.plugin.common.SqlQueryUtils;
+import com.openblocks.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 import com.openblocks.sdk.query.QueryVisitorContext;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -57,7 +57,7 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Extension
-public class ClickHouseQueryExecutor implements QueryExecutor<ClickHouseDatasourceConfig, HikariDataSource, ClickHouseQueryExecutionContext> {
+public class ClickHouseQueryExecutor implements QueryExecutor<ClickHouseDatasourceConfig, HikariDataSource, SqlBasedQueryExecutionContext> {
 
     private final Supplier<Duration> getStructureTimeout;
 
@@ -67,7 +67,7 @@ public class ClickHouseQueryExecutor implements QueryExecutor<ClickHouseDatasour
     }
 
     @Override
-    public ClickHouseQueryExecutionContext buildQueryExecutionContext(ClickHouseDatasourceConfig datasourceConfig,
+    public SqlBasedQueryExecutionContext buildQueryExecutionContext(ClickHouseDatasourceConfig datasourceConfig,
             Map<String, Object> queryConfigMap,
             Map<String, Object> requestParams, QueryVisitorContext queryVisitorContext) {
 
@@ -82,24 +82,22 @@ public class ClickHouseQueryExecutor implements QueryExecutor<ClickHouseDatasour
             throw new PluginException(QUERY_ARGUMENT_ERROR, "CLICKHOUSE_PS_ERROR");
         }
 
-        return ClickHouseQueryExecutionContext.builder()
+        return SqlBasedQueryExecutionContext.builder()
                 .query(query)
-                .timeoutInMillis(queryConfig.getTimeout())
                 .requestParams(requestParams)
-                .disablePreparedStatement(queryConfig.isDisablePreparedStatement())
+                .disablePreparedStatement(datasourceConfig.isEnableTurnOffPreparedStatement() &&
+                        queryConfig.isDisablePreparedStatement())
                 .build();
     }
 
     @Override
-    public Mono<QueryExecutionResult> executeQuery(HikariDataSource hikariDataSource, ClickHouseQueryExecutionContext queryExecutionContext) {
+    public Mono<QueryExecutionResult> executeQuery(HikariDataSource hikariDataSource, SqlBasedQueryExecutionContext queryExecutionContext) {
 
         String query = queryExecutionContext.getQuery();
         Map<String, Object> requestParams = queryExecutionContext.getRequestParams();
-        int queryTimeoutMs = queryExecutionContext.getTimeoutInMillis();
         boolean preparedStatement = !queryExecutionContext.isDisablePreparedStatement();
 
         return Mono.fromSupplier(() -> executeQuery0(hikariDataSource, query, requestParams, preparedStatement))
-                .timeout(Duration.ofMillis(queryTimeoutMs))
                 .onErrorMap(e -> {
                     if (e instanceof PluginException) {
                         return e;
@@ -118,7 +116,6 @@ public class ClickHouseQueryExecutor implements QueryExecutor<ClickHouseDatasour
                     Map<String, Table> tablesByName = new LinkedHashMap<>();
                     try (Statement statement = connection.createStatement()) {
                         ClickHouseStructureParser.parseTableAndColumns(tablesByName, statement);
-                        //                        ClickHouseStructureParser.parseTableKeys(tablesByName, statement);
                     } catch (SQLException throwable) {
                         throw new PluginException(DATASOURCE_GET_STRUCTURE_ERROR, "DATASOURCE_GET_STRUCTURE_ERROR",
                                 throwable.getMessage());
