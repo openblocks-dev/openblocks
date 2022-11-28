@@ -12,6 +12,7 @@ import { TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
 import { draggingUtils } from "layout";
 import { LeftPreloadIcon, LeftSettingIcon, LeftStateIcon } from "openblocks-design";
+import { useTemplateViewMode } from "util/hooks";
 import Header, { PanelStatus, TogglePanel } from "pages/common/header";
 import { HelpDropdown } from "pages/common/help";
 import { PreviewHeader } from "pages/common/previewHeader";
@@ -55,10 +56,10 @@ const HookCompContainer = styled.div`
   z-index: ${Layers.hooksCompContainer};
 `;
 
-const ViewBody = styled.div<{ bgColor: string }>`
+const ViewBody = styled.div<{ bgColor: string; hideBodyHeader?: boolean }>`
   background-color: ${(props) =>
     props.bgColor}; // the same as the editting region's default bg-color
-  min-height: calc(100vh - ${TopHeaderHeight});
+  min-height: calc(100vh - ${(props) => props.hideBodyHeader? '0px' : TopHeaderHeight});
 `;
 
 const SiderWrapper = styled.div`
@@ -240,6 +241,8 @@ function EditorView(props: EditorViewProps) {
     ));
   }, [editorState]);
 
+  const hideBodyHeader = useTemplateViewMode();
+
   if (readOnly && hideHeader) {
     return (
       <CustomShortcutWrapper>
@@ -253,9 +256,9 @@ function EditorView(props: EditorViewProps) {
     return (
       <CustomShortcutWrapper>
         <Helmet>{application && <title>{application.name}</title>}</Helmet>
-        <PreviewHeader />
+        {!hideBodyHeader && <PreviewHeader />}
         <EditorContainerWithViewMode>
-          <ViewBody bgColor={bgColor}>{uiComp.getView()}</ViewBody>
+          <ViewBody bgColor={bgColor} hideBodyHeader={hideBodyHeader}>{uiComp.getView()}</ViewBody>
           <div style={{ zIndex: Layers.hooksCompContainer }}>{hookCompViews}</div>
         </EditorContainerWithViewMode>
       </CustomShortcutWrapper>

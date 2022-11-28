@@ -227,9 +227,10 @@ export const HeaderBack = styled.div`
     color: #8b8fa3;
     cursor: pointer;
   }
-  > span:nth-of-type(2) {
+  > span:nth-of-type(2), > div {
     color: #222222;
     font-weight: 500;
+    font-size: 20px;
   }
   svg {
     margin: 0 8px;

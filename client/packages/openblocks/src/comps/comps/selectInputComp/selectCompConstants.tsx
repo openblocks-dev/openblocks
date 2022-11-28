@@ -1,5 +1,5 @@
 import { DispatchType, RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
-import { BoolControl } from "../../controls/boolControl";
+import { BoolControl, BoolPureControl } from "../../controls/boolControl";
 import { LabelControl } from "../../controls/labelControl";
 import { BoolCodeControl, StringControl } from "../../controls/codeControl";
 import { Section, sectionNames } from "openblocks-design";
@@ -23,12 +23,13 @@ import {
 import { MultiselectTagIcon } from "openblocks-design";
 import { isDarkColor, lightenColor } from "openblocks-design";
 import { changeChildAction } from "openblocks-core";
-import { stateComp } from "../../generators";
+import { stateComp, withDefault } from "../../generators";
 import {
   allowClearPropertyView,
   hiddenPropertyView,
   disabledPropertyView,
   placeholderPropertyView,
+  showSearchPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
@@ -142,7 +143,7 @@ export const SelectChildrenMap = {
   options: SelectInputOptionControl,
   allowClear: BoolControl,
   inputValue: stateComp<string>(""), // user's input value when search
-
+  showSearch: withDefault(BoolPureControl, true),
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -163,7 +164,7 @@ export const SelectUIView = (
     allowClear={props.allowClear}
     placeholder={props.placeholder}
     value={props.value}
-    showSearch={true}
+    showSearch={props.showSearch}
     filterOption={(input, option) => option?.label.includes(input)}
     dropdownRender={(originNode: ReactNode) => (
       <DropdownStyled $style={props.style as MultiSelectStyleType}>{originNode}</DropdownStyled>
@@ -182,9 +183,13 @@ export const SelectUIView = (
         value: option.value,
         disabled: option.disabled,
       }))}
-    onSearch={(value) => {
-      props.dispatch(changeChildAction("inputValue", value));
-    }}
+    onSearch={
+      props.showSearch
+        ? (value) => {
+            props.dispatch(changeChildAction("inputValue", value));
+          }
+        : undefined
+    }
   />
 );
 
@@ -212,7 +217,10 @@ export const SelectPropertyView = (
       {disabledPropertyView(children)}
     </Section>
 
-    <Section name={sectionNames.advanced}>{allowClearPropertyView(children)}</Section>
+    <Section name={sectionNames.advanced}>
+      {allowClearPropertyView(children)}
+      {showSearchPropertyView(children)}
+    </Section>
 
     <SelectInputValidationSection {...children} />
 

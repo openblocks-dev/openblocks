@@ -3,7 +3,7 @@ import { Section, sectionNames } from "openblocks-design";
 import { RecordConstructorToComp } from "openblocks-core";
 import { JSONObjectArrayControl, BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
-import { BoolControl } from "comps/controls/boolControl";
+import { BoolControl, BoolPureControl } from "comps/controls/boolControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { styleControl } from "comps/controls/styleControl";
 import { CascaderStyle } from "comps/controls/styleControlConstants";
@@ -12,8 +12,10 @@ import {
   hiddenPropertyView,
   disabledPropertyView,
   placeholderPropertyView,
+  showSearchPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans, i18nObjs } from "i18n";
+import { withDefault } from "comps/generators";
 
 export const defaultDataSource = JSON.stringify(i18nObjs.cascader, null, " ");
 
@@ -26,6 +28,7 @@ export const CascaderChildren = {
   allowClear: BoolControl,
   options: JSONObjectArrayControl,
   style: styleControl(CascaderStyle),
+  showSearch: withDefault(BoolPureControl, true),
 };
 
 export const CascaderPropertyView = (
@@ -45,7 +48,10 @@ export const CascaderPropertyView = (
       {disabledPropertyView(children)}
     </Section>
 
-    <Section name={sectionNames.advanced}>{allowClearPropertyView(children)}</Section>
+    <Section name={sectionNames.advanced}>
+      {allowClearPropertyView(children)}
+      {showSearchPropertyView(children)}
+    </Section>
 
     <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
 

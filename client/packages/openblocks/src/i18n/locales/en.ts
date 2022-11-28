@@ -102,8 +102,9 @@ export const en = {
     uiComponentTab: "Components",
     moduleTab: "Modules",
     emptyModules: "Modules are reusable groups of components and queries.",
-    searchNotFound: "Not found suitable component?",
+    searchNotFound: "Can't find a suitable component? Submit an issue",
     contactUs: "Contact us",
+    issueHere: " here.",
   },
   prop: {
     expand: "Expand",
@@ -120,6 +121,7 @@ export const en = {
     disabled: "Disabled",
     placeholder: "Placeholder",
     showClear: "Show clear button",
+    showSearch: "Searchable",
     defaultValue: "Default value",
     required: "Required field",
     readOnly: "Read only",
@@ -228,6 +230,8 @@ export const en = {
     clickDesc: "Triggers on click",
     close: "Close",
     closeDesc: "Triggers on close",
+    parse: "Parse",
+    parseDesc: "Triggers on parse",
   },
   themeDetail: {
     primary: "Brand color",
@@ -882,6 +886,11 @@ export const en = {
     filesValueDesc: "The contents of the currently uploaded file are Base64 encoded",
     filesDesc: "List of the current uploaded files. For details, refer to",
     clearValueDesc: "Clear all files",
+    parseFiles: "Parse Files",
+    parsedValueTooltip1:
+      "If parseFiles is true, upload files will parse to object, array, or string. Parsed data can be accessed via the parsedValue array.",
+    parsedValueTooltip2:
+      "Supports Excel, JSON, CSV, and text files. Other formats will return null.",
   },
   date: {
     format: "Format",
@@ -1810,5 +1819,8 @@ export const en = {
   },
   template: {
     cloneUrl: "/apps/template-import/",
+  },
+  openBlocksUrl: {
+    createIssue: "https://github.com/openblocks-dev/openblocks/issues",
   },
 };

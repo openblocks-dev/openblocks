@@ -7,23 +7,25 @@ import { JSONArray } from "../util/jsonTypes";
 import { AuthType, HttpOAuthGrantType } from "../pages/datasource/form/httpDatasourceForm";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 
-// FIXME(zhangqinyao): extract a common config
-export interface MysqlConfig {
+export interface PreparedStatementConfig {
+  enableTurnOffPreparedStatement: boolean;
+}
+
+export interface SQLConfig extends PreparedStatementConfig {
   host: string;
   port: string;
   database: string;
   username: string;
   password: string;
   usingSsl: boolean;
-  enableTurnOffPreparedStatement: boolean;
 }
 
-export interface MongoConfig extends MysqlConfig {
+export interface MongoConfig extends SQLConfig {
   uri: string;
   usingUri: boolean;
 }
 
-export interface OracleConfig extends MysqlConfig {
+export interface OracleConfig extends SQLConfig {
   serviceName: string;
   sid: string;
   usingSid: boolean;
@@ -90,7 +92,7 @@ export interface HttpConfig {
 }
 
 export type DatasourceConfigType =
-  | MysqlConfig
+  | SQLConfig
   | HttpConfig
   | MongoConfig
   | OAuthBasicConfig

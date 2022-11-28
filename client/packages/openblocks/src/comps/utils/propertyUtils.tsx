@@ -1,4 +1,4 @@
-import { BoolControl } from "comps/controls/boolControl";
+import { BoolControl, BoolPureControl } from "comps/controls/boolControl";
 import {
   BoolCodeControl,
   NumberControl,
@@ -25,6 +25,10 @@ export const placeholderPropertyView = (children: {
 export const allowClearPropertyView = (children: {
   allowClear: InstanceType<typeof BoolControl>;
 }) => children.allowClear.propertyView({ label: trans("prop.showClear") });
+
+export const showSearchPropertyView = (children: {
+  showSearch: InstanceType<typeof BoolPureControl>;
+}) => children.showSearch.propertyView({ label: trans("prop.showSearch") });
 
 export const requiredPropertyView = (children: { required: InstanceType<typeof BoolControl> }) =>
   children.required.propertyView({ label: trans("prop.required") });

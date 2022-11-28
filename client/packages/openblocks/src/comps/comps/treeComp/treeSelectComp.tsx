@@ -25,10 +25,14 @@ import { selectInputValidate } from "../selectInputComp/selectInputConstants";
 import { ValueFromOption } from "openblocks-design";
 import { StringControl } from "comps/controls/codeControl";
 import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
-import { BoolControl } from "comps/controls/boolControl";
-import { stateComp } from "comps/generators/simpleGenerators";
+import { BoolControl, BoolPureControl } from "comps/controls/boolControl";
+import { stateComp, withDefault } from "comps/generators/simpleGenerators";
 import { trans } from "i18n";
-import { allowClearPropertyView, placeholderPropertyView } from "comps/utils/propertyUtils";
+import {
+  allowClearPropertyView,
+  placeholderPropertyView,
+  showSearchPropertyView,
+} from "comps/utils/propertyUtils";
 
 const StyledTreeSelect = styled(TreeSelect)<{ $style: TreeSelectStyleType }>`
   width: 100%;
@@ -56,6 +60,7 @@ const childrenMap = {
   // TODO: more event
   onEvent: SelectEventHandlerControl,
   allowClear: BoolControl,
+  showSearch: withDefault(BoolPureControl, true),
   inputValue: stateComp<string>(""), // search value
   style: styleControl(TreeSelectStyle),
 };
@@ -109,6 +114,7 @@ const TreeCompView = (
           value.onChange(Array.isArray(keys) ? keys : keys !== undefined ? [keys] : []);
           props.onEvent("change");
         }}
+        showSearch={props.showSearch}
         onSearch={(value) => {
           props.dispatch(changeChildAction("inputValue", value));
         }}
@@ -137,7 +143,13 @@ let TreeBasicComp = (function () {
         {children.label.getPropertyView()}
         {expandSection(children)}
         {intersectSection(children, children.onEvent.getPropertyView())}
-        {advancedSection(children, allowClearPropertyView(children))}
+        {advancedSection(
+          children,
+          <>
+            {allowClearPropertyView(children)}
+            {showSearchPropertyView(children)}
+          </>
+        )}
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>
     ))

@@ -23,7 +23,7 @@ import { ResourceDropdown } from "../resourceDropdown";
 import { onlyManualTrigger } from "../queryCompUtils";
 import { QueryComp } from "../queryComp";
 import { includes, mapValues } from "lodash";
-import { MysqlConfig } from "../../../api/datasourceApi";
+import { PreparedStatementConfig } from "../../../api/datasourceApi";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { PageType } from "../../../constants/pageConstants";
 import { trans } from "i18n";
@@ -76,9 +76,8 @@ export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> 
             title: trans("query.advancedTab"),
             children: (
               <QueryPropertyViewWrapper>
-                {datasourceType === "mysql" &&
-                  datasourceConfig &&
-                  (datasourceConfig as MysqlConfig).enableTurnOffPreparedStatement && (
+                {datasourceConfig &&
+                  (datasourceConfig as PreparedStatementConfig).enableTurnOffPreparedStatement && (
                     <QuerySectionWrapper>
                       <QueryConfigWrapper style={{ alignItems: "center" }}>
                         <QueryConfigLabel>SQL</QueryConfigLabel>

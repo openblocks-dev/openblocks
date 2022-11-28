@@ -46,7 +46,8 @@ export const RightPanelContentWrapper = styled.div`
 `;
 
 export const EmptyCompContent = () => {
-  const aboutUsUrl = trans("docUrls.aboutUs")
+  const aboutUsUrl = trans("docUrls.aboutUs");
+  const issueUrl = trans("openBlocksUrl.createIssue");
   return (
     <EmptyContent
       text={
@@ -59,6 +60,11 @@ export const EmptyCompContent = () => {
                 {trans("rightPanel.contactUs")}
               </StyledLink>
             </>
+          )}
+          {issueUrl && (
+            <StyledLink target="_blank" href={issueUrl}>
+              {trans("rightPanel.issueHere")}
+            </StyledLink>
           )}
         </>
       }

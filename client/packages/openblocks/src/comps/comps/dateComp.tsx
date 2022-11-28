@@ -1,7 +1,7 @@
 import { DatePicker } from "antd";
 import _ from "lodash";
 import moment from "moment";
-import { Section, sectionNames } from "openblocks-design";
+import { isDarkColor, lightenColor, Section, sectionNames } from "openblocks-design";
 import { RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
 import {
   BoolCodeControl,
@@ -24,29 +24,31 @@ import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConst
 import { styleControl } from "comps/controls/styleControl";
 import { DateTimeStyle, DateTimeStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
-import { isDarkColor, lightenColor } from "openblocks-design";
 import { withMethodExposing } from "../generators/withMethodExposing";
 import {
   disabledPropertyView,
+  formatPropertyView,
   hiddenPropertyView,
   hourStepPropertyView,
-  minuteStepPropertyView,
-  SecondStepPropertyView,
-  requiredPropertyView,
   maxDatePropertyView,
+  maxTimePropertyView,
   minDatePropertyView,
   minTimePropertyView,
-  maxTimePropertyView,
-  formatPropertyView,
+  minuteStepPropertyView,
+  requiredPropertyView,
+  SecondStepPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import {
   DATE_FORMAT,
-  DateParser,
   DATE_TIME_FORMAT,
-  TIME_FORMAT,
+  DateParser,
   PickerMode,
+  TIME_FORMAT,
 } from "util/dateTimeUtils";
+import { checkIsMobile } from "util/commonUtils";
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -262,6 +264,7 @@ export const datePickerControl = (function () {
   };
 
   return new UICompBuilder(childrenMap, (props) => {
+    const editorState = useContext(EditorContext);
     const children = (
       <>
         <DatePickerStyled
@@ -283,6 +286,7 @@ export const datePickerControl = (function () {
           }}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
+          inputReadOnly={checkIsMobile(editorState.getAppSettings().maxWidth)}
         />
       </>
     );
@@ -342,6 +346,7 @@ export const dateRangeControl = (function () {
   };
 
   return new UICompBuilder(childrenMap, (props) => {
+    const editorState = useContext(EditorContext);
     const children = (
       <>
         <RangePickerStyled
@@ -370,6 +375,7 @@ export const dateRangeControl = (function () {
           }}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
+          inputReadOnly={checkIsMobile(editorState.getAppSettings().maxWidth)}
         />
       </>
     );

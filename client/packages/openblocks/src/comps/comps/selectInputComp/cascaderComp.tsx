@@ -26,7 +26,7 @@ let CascaderBasicComp = (function () {
           options={props.options}
           allowClear={props.allowClear}
           placeholder={props.placeholder}
-          showSearch={true}
+          showSearch={props.showSearch}
           $style={props.style}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}

@@ -1,6 +1,6 @@
 import React from "react";
 import { DatasourceForm, FormSection } from "openblocks-design";
-import { MysqlConfig } from "../../../api/datasourceApi";
+import { SQLConfig } from "../../../api/datasourceApi";
 import { DatasourceFormProps } from "./datasourceFormRegistry";
 import {
   DatasourceNameFormInputItem,
@@ -13,7 +13,7 @@ import {
 
 export const SMTPDatasourceForm = (props: DatasourceFormProps) => {
   const { form, datasource } = props;
-  const datasourceConfig = datasource?.datasourceConfig as MysqlConfig;
+  const datasourceConfig = datasource?.datasourceConfig as SQLConfig;
 
   return (
     <DatasourceForm form={form} preserve={false}>

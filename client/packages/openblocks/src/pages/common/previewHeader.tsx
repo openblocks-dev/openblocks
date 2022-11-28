@@ -11,7 +11,7 @@ import { currentApplication, getTemplateId } from "redux/selectors/applicationSe
 import { getCurrentUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import history from "util/history";
-import { useApplicationId, useTemplateViewMode } from "util/hooks";
+import { useApplicationId } from "util/hooks";
 import { canEditApp, canManageApp } from "util/permissionUtils";
 import ProfileDropdown from "./profileDropdown";
 import { EllipsisTextCss } from "openblocks-design";
@@ -128,9 +128,6 @@ export const PreviewHeader = () => {
   const application = useSelector(currentApplication);
   const applicationId = useApplicationId();
   const templateId = useSelector(getTemplateId);
-  if (useTemplateViewMode()) {
-    return <></>;
-  }
 
   const headerStart = (
     <>

@@ -44,6 +44,9 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { TIME_FORMAT, TimeParser } from "util/dateTimeUtils";
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+import { checkIsMobile } from "util/commonUtils";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -143,6 +146,7 @@ export const timePickerControl = (function () {
   };
 
   return new UICompBuilder(childrenMap, (props, dispatch) => {
+    const editorState = useContext(EditorContext);
     const children = (
       <>
         <TimePickerStyled
@@ -160,6 +164,7 @@ export const timePickerControl = (function () {
           }}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
+          inputReadOnly={checkIsMobile(editorState.getAppSettings().maxWidth)}
         />
       </>
     );
@@ -210,6 +215,7 @@ export const timeRangeControl = (function () {
   };
 
   return new UICompBuilder(childrenMap, (props, dispatch) => {
+    const editorState = useContext(EditorContext);
     const children = (
       <>
         <RangePickerStyled
@@ -231,6 +237,7 @@ export const timeRangeControl = (function () {
           }}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
+          inputReadOnly={checkIsMobile(editorState.getAppSettings().maxWidth)}
         />
       </>
     );
