@@ -64,7 +64,7 @@ By default the supervisor will run under the user `uid=9001`. You can specify th
 {% tabs %}
 {% tab title="Docker-Compose" %}
 Add an environment variable `LOCAL_USER_ID` in `docker-compose.yml` downloaded in your working directory.\
-<img src="../.gitbook/assets/local-user-id.png" alt="" data-size="original">
+<img src="../.gitbook/assets/local-user-id (1).png" alt="" data-size="original">
 {% endtab %}
 
 {% tab title="Docker" %}

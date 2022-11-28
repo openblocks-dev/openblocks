@@ -15,7 +15,7 @@ Follow the steps below:
 1. Click **Data Sources** on Openblocks homepage.
 2.  Click **New data source** on the upper right. This permission is restricted to workspace admins and developers.
 
-    <figure><img src="../.gitbook/assets/image (12) (1).png" alt=""><figcaption></figcaption></figure>
+    <figure><img src="../.gitbook/assets/image (31) (1).png" alt=""><figcaption></figcaption></figure>
 3.  Select the database or API type you need to connect.
 
     <figure><img src="../.gitbook/assets/image (32) (1).png" alt=""><figcaption></figcaption></figure>

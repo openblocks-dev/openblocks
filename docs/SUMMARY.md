@@ -24,6 +24,7 @@
 * [Event handlers](build-apps/event-handlers.md)
 * [Write JavaScript](build-apps/write-javascript/README.md)
   * [Use third-party libraries](build-apps/use-third-party-libraries.md)
+  * [Transformers](build-apps/write-javascript/transformers.md)
   * [Temporary state](build-apps/write-javascript/temporary-state.md)
 * [Component guides](build-apps/component-guides/README.md)
   * [Option lists](build-apps/component-guides/option-lists.md)
