@@ -7,7 +7,7 @@ import styled from "styled-components";
 import { BoolControl } from "comps/controls/boolControl";
 import { jsonObjectExposingStateControl } from "comps/controls/codeStateControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { NumberControl } from "comps/controls/codeControl";
+import { ArrayOrJSONObjectControl, NumberControl } from "comps/controls/codeControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
@@ -44,7 +44,7 @@ const JsonExplorerContainer = styled.div<{ $theme: keyof typeof bgColorMap }>`
 
 let JsonExplorerTmpComp = (function () {
   const childrenMap = {
-    value: jsonObjectExposingStateControl("value", defaultData),
+    value: withDefault(ArrayOrJSONObjectControl, JSON.stringify(defaultData, null, 2)),
     indent: withDefault(NumberControl, 4),
     expandToggle: BoolControl.DEFAULT_TRUE,
     theme: dropdownControl(themeOptions, "shapeshifter:inverted"),
@@ -52,7 +52,7 @@ let JsonExplorerTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props) => (
     <JsonExplorerContainer $theme={props.theme as keyof typeof bgColorMap}>
       <ReactJson
-        src={props.value.value}
+        src={props.value}
         theme={props.theme as ThemeKeys}
         collapsed={!props.expandToggle}
         displayDataTypes={false}

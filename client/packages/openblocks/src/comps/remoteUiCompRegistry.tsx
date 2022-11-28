@@ -90,12 +90,12 @@ export async function loadRemoteComp(info: RemoteInfo): Promise<CompConstructor 
   const { entry } = pkgVersion;
 
   let remoteVersion = null;
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === "development" || REACT_APP_BUNDLE_TYPE === "sdk") {
     const remoteModule = await import("openblocks-comps");
     remoteVersion = remoteModule.default;
   }
 
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === "production" && REACT_APP_BUNDLE_TYPE === "app") {
     // eslint-disable-next-line no-restricted-properties
     const remoteModule = await System.import(entry);
     remoteVersion = remoteModule.default;

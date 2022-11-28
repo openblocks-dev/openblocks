@@ -22,7 +22,7 @@ const ItemSpan = styled.span`
   display: inline-flex;
   align-items: center;
   margin: 0 1px;
-  max-width: 224px;
+  max-width: 218px;
 `;
 
 const getTagStyle = (theme: ThemeDetail) => {
@@ -66,7 +66,6 @@ export const DefaultSpan = styled.span`
   align-items: center;
   justify-content: center;
   height: 16px;
-  min-width: 36px;
   padding: 0 5px;
 `;
 

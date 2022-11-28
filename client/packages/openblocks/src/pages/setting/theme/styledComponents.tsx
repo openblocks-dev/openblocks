@@ -531,7 +531,6 @@ export const TableStyled = styled(Table)`
       align-items: center;
       height: 16px;
       padding: 0 5px;
-      min-width: 36px;
       border-radius: 8px;
       border: 1px solid #d6e4ff;
       background: #ffffff;

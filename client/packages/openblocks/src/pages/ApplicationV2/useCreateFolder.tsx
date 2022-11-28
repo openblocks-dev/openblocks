@@ -1,5 +1,4 @@
-import { CustomModal } from "openblocks-design";
-import { DatasourceForm, FormInputItem, FormSection } from "openblocks-design";
+import { CustomModal, DatasourceForm, FormInputItem, FormSection } from "openblocks-design";
 import { RuleObject, StoreValue } from "rc-field-form/lib/interface";
 import { createFolder } from "../../redux/reduxActions/folderActions";
 import React, { useCallback, useMemo } from "react";
@@ -9,6 +8,7 @@ import styled from "styled-components";
 import { getCurrentUser } from "../../redux/selectors/usersSelectors";
 import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
+import { ModalFunc } from "antd/lib/modal/confirm";
 
 const CreateFolderLabel = styled.div`
   font-size: 13px;
@@ -25,50 +25,65 @@ export function useCreateFolder() {
 
   const [form] = Form.useForm();
 
-  return useCallback(
-    () =>
-      CustomModal.confirm({
-        title: trans("home.createFolder"),
-        content: (
-          <DatasourceForm form={form} preserve={false} style={{ gap: "12px" }}>
-            <FormSection>
-              <CreateFolderLabel>{trans("home.createFolderSubTitle")}</CreateFolderLabel>
-              <FormInputItem
-                autoFocus={true}
-                name={"name"}
-                rules={[
-                  {
-                    message: trans("home.folderAlreadyExists"),
-                    warningOnly: false,
-                    validator: (_: RuleObject, value: StoreValue) => {
-                      if (value && folderNames.includes(value)) {
-                        return Promise.reject();
-                      }
-                      return Promise.resolve();
-                    },
+  let modal: ReturnType<ModalFunc> | null = null;
+
+  const dispatchCreateFolder = (onSuccess: () => void, onFail: () => void) =>
+    dispatch(
+      createFolder(
+        {
+          name: form.getFieldValue("name"),
+          orgId: user.currentOrgId,
+        },
+        onSuccess,
+        onFail
+      )
+    );
+
+  return useCallback(() => {
+    modal = CustomModal.confirm({
+      title: trans("home.createFolder"),
+      content: (
+        <DatasourceForm form={form} preserve={false} style={{ gap: "12px" }}>
+          <FormSection>
+            <CreateFolderLabel>{trans("home.createFolderSubTitle")}</CreateFolderLabel>
+            <FormInputItem
+              onPressEnter={() => {
+                form.validateFields().then(() => {
+                  dispatchCreateFolder(
+                    () => modal?.destroy(),
+                    () => {}
+                  );
+                });
+              }}
+              autoFocus={true}
+              name={"name"}
+              rules={[
+                {
+                  message: trans("home.folderAlreadyExists"),
+                  warningOnly: false,
+                  validator: (_: RuleObject, value: StoreValue) => {
+                    if (value && folderNames.includes(value)) {
+                      return Promise.reject();
+                    }
+                    return Promise.resolve();
                   },
-                ]}
-              />
-            </FormSection>
-          </DatasourceForm>
-        ),
-        onConfirm: () =>
-          form.validateFields().then(() => {
-            return new Promise((resolve, reject) => {
-              dispatch(
-                createFolder(
-                  {
-                    name: form.getFieldValue("name"),
-                    orgId: user.currentOrgId,
-                  },
-                  () => resolve(true),
-                  () => reject(false)
-                )
+                },
+              ]}
+            />
+          </FormSection>
+        </DatasourceForm>
+      ),
+      onConfirm: () =>
+        form.validateFields().then(
+          () =>
+            new Promise((resolve, reject) => {
+              dispatchCreateFolder(
+                () => resolve(true),
+                () => reject(false)
               );
-            });
-          }),
-        okText: trans("create"),
-      }),
-    [user, allFolders, form, dispatch]
-  );
+            })
+        ),
+      okText: trans("create"),
+    });
+  }, [user, allFolders, form, dispatch]);
 }

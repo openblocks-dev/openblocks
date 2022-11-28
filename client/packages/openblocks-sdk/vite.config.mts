@@ -11,8 +11,14 @@ buildVars.forEach(({ name, defaultValue }) => {
   define[name] = JSON.stringify(process.env[name] || defaultValue);
 });
 
+const apiBaseUrl = "https://api.openblocks.dev";
+
 export const viteConfig: UserConfig = {
-  define,
+  define: {
+    ...define,
+    REACT_APP_API_HOST: JSON.stringify(apiBaseUrl),
+    REACT_APP_BUNDLE_TYPE: JSON.stringify("sdk"),
+  },
   assetsInclude: ["**/*.md"],
   resolve: {
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],

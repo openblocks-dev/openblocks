@@ -122,6 +122,14 @@ export function toJSONArray(value: any) {
   return toArray(value, toJSONValue);
 }
 
+export function toArrayJSONObject(value: any) {
+  if (Array.isArray(value)) {
+    return toJSONArray(value);
+  } else {
+    return toJSONObject(value);
+  }
+}
+
 export function showTransform(midValue: any, value: any, unevaledValue?: string): boolean {
   // no transform
   if (midValue === value) {

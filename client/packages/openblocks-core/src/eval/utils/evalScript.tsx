@@ -21,7 +21,7 @@ const blacklist = new Set<PropertyKey>([
 
 const proxyTargetIdentity = Symbol("proxy_target_identity");
 
-const globalVarNames = new Set<PropertyKey>(["window", "globalThis", "self"]);
+const globalVarNames = new Set<PropertyKey>(["window", "globalThis", "self", "global"]);
 
 /**
  * return an immutable object.
@@ -108,7 +108,7 @@ export function createBlackHole(): any {
 }
 
 function createMockWindow() {
-  return new Proxy(
+  const win: any = new Proxy(
     {},
     {
       has() {
@@ -120,6 +120,9 @@ function createMockWindow() {
       get(target, p) {
         if (p in target) {
           return Reflect.get(target, p);
+        }
+        if (globalVarNames.has(p)) {
+          return win;
         }
         if (typeof p === "string" && blacklist.has(p)) {
           log.log(`[Sandbox] access ${String(p)} on mock window, return mock object`);
@@ -137,6 +140,7 @@ function createMockWindow() {
       },
     }
   );
+  return win;
 }
 
 let mockWindow: any = createMockWindow();

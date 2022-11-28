@@ -16,6 +16,8 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { JsonEditorStyle } from "comps/controls/styleControlConstants";
 import { styleControl } from "comps/controls/styleControl";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
+import { debounce } from "lodash";
+import { RecordConstructorToView } from "openblocks-core";
 
 /**
  * JsonEditor Comp
@@ -73,12 +75,17 @@ const childrenMap = {
   ...formDataChildren,
 };
 
+const handleChange = (v: string | undefined, props: RecordConstructorToView<typeof childrenMap>) => {
+  try {
+    const value = JSON.parse(v === undefined ? "" : v);
+    props.value.onChange(value);
+    props.onEvent("change");
+  } catch (error) {}
+};
+const handleChangeDebouce = debounce(handleChange, 1000);
+
 let JsonEditorTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
-    const handleChange = (v: JSONValue) => {
-      props.value.onChange(v);
-      props.onEvent("change");
-    };
     return props.label({
       style: props.style,
       children: (
@@ -88,11 +95,7 @@ let JsonEditorTmpComp = (function () {
             defaultLanguage="json"
             value={JSON.stringify(props.value.value, null, 2)}
             loading=""
-            onChange={(v: string | undefined) => {
-              try {
-                handleChange(JSON.parse(v === undefined ? "" : v));
-              } catch (error) {}
-            }}
+            onChange={(v) => handleChangeDebouce(v, props)}
             options={{
               contextmenu: false,
               hideCursorInOverviewRuler: true,

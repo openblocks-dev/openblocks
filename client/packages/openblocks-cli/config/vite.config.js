@@ -11,14 +11,13 @@ buildVars.forEach(({ name, defaultValue }) => {
 });
 
 export default defineConfig({
-  define,
+  define: {
+    ...define,
+    __OPENBLOCKS_DEV__: JSON.stringify({}),
+  },
   assetsInclude: ["**/*.md"],
   resolve: {
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
-    alias: {
-      "__user-dev-comps__": paths.compsIndexJs,
-      "__user-pkg-json__": paths.appPackageJson,
-    },
   },
   build: {
     target: "chrome69",

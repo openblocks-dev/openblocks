@@ -41,12 +41,14 @@ const EditBtn = styled(TacoButton)`
 const TypographyText = styled(Typography.Text)`
   margin: 0 !important;
   left: 0 !important;
+  width: 100%;
 `;
 
 export const HomeTableView = (props: { resources: HomeRes[] }) => {
   const dispatch = useDispatch();
 
   const [needRenameRes, setNeedRenameRes] = useState<HomeRes | undefined>(undefined);
+  const [needDuplicateRes, setNeedDuplicateRes] = useState<HomeRes | undefined>(undefined);
   const [needMoveRes, setNeedMoveRes] = useState<HomeRes | undefined>(undefined);
 
   return (
@@ -58,8 +60,9 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
         pagination={false}
         onRow={(record) => ({
           onClick: (e) => {
+            console.log(e.target);
             const item = record as HomeRes;
-            if (needRenameRes?.id === item.id) {
+            if (needRenameRes?.id === item.id || needDuplicateRes?.id === item.id) {
               return;
             }
             if (item.type === HomeResTypeEnum.Folder) {
@@ -191,6 +194,7 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
                   </EditBtn>
                   <HomeResOptions
                     res={item}
+                    onDuplicate={(res) => setNeedDuplicateRes(res)}
                     onRename={(res) => setNeedRenameRes(res)}
                     onMove={(res) => setNeedMoveRes(res)}
                   />

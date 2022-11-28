@@ -13,10 +13,10 @@ import {
   HomeCardIcon,
   HomeEmptyIcon,
   HomeListIcon,
+  Search,
 } from "openblocks-design";
 import { canEditApp, canManageApp } from "../../util/permissionUtils";
 import { HomeResKey, HomeResTypeEnum } from "../../types/homeRes";
-import { Search } from "openblocks-design";
 import { HomeResInfo } from "../../util/homeResUtils";
 import { getCurrentUser } from "../../redux/selectors/usersSelectors";
 import { useLocation } from "react-use";
@@ -163,6 +163,7 @@ const SkeletonStyle = styled(Skeleton)`
       margin-right: 120px;
     }
   }
+
   @media screen and (max-width: 500px) {
     .ant-skeleton-content .ant-skeleton-paragraph > li {
       max-width: calc(100vw - 72px);
@@ -280,8 +281,7 @@ export function HomeLayout(props: HomeLayoutProps) {
             creator: e.createBy,
             lastModifyTime: e.createAt,
             isManageable: e.manageable,
-            isDeletable:
-              e.manageable && e.subApplications?.length === 0 && e.subFolders?.length === 0,
+            isDeletable: e.manageable && !e.subApplications?.length && !e.subFolders?.length,
           }
         : {
             key: e.applicationId,

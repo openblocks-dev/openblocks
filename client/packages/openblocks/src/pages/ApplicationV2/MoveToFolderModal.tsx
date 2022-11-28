@@ -3,10 +3,15 @@ import { Form } from "antd";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { CustomModal, TacoButton } from "openblocks-design";
+import {
+  CustomModal,
+  DatasourceForm,
+  FolderIcon,
+  FormSection,
+  FormSelectItem,
+  TacoButton,
+} from "openblocks-design";
 import { moveToFolder } from "../../redux/reduxActions/folderActions";
-import { DatasourceForm, FormSection, FormSelectItem } from "openblocks-design";
-import { FolderIcon } from "openblocks-design";
 import styled from "styled-components";
 import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
@@ -52,11 +57,13 @@ export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void
       onCancel={props.onClose}
       destroyOnClose={true}
       width="408px"
+      centered={true}
       title={trans("home.moveToFolder")}
       footer={
         <MoveModalFooter>
           <MoveButton onClick={props.onClose}>{trans("cancel")}</MoveButton>
           <MoveButton
+            autoFocus={true}
             buttonType="primary"
             loading={loading}
             onClick={() => {

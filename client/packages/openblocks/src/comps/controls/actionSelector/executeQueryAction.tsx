@@ -46,25 +46,26 @@ export class ExecuteQueryAction extends ExecuteQueryTmpAction {
   }
 
   propertyView({ placement }: { placement?: "query" | "table" }) {
-    const getQueryOptions = (editorState: EditorState) => {
-      const options: { label: string; value: string }[] = editorState
-        .queryCompInfoList()
-        .map((info) => ({
-          label: info.name,
-          value: info.name,
-        }))
-        .filter(
-          // Filter out the current query under query
-          (option) =>
-            placement !== "query" ||
-            (placement === "query" &&
-              editorState.selectedBottomResType === BottomResTypeEnum.Query &&
-              option.value !== editorState.selectedBottomResName)
-        );
+    const getQueryOptions = (editorState?: EditorState) => {
+      const options: { label: string; value: string }[] =
+        editorState
+          ?.queryCompInfoList()
+          .map((info) => ({
+            label: info.name,
+            value: info.name,
+          }))
+          .filter(
+            // Filter out the current query under query
+            (option) =>
+              placement !== "query" ||
+              (placement === "query" &&
+                editorState.selectedBottomResType === BottomResTypeEnum.Query &&
+                option.value !== editorState.selectedBottomResName)
+          ) || [];
 
       // input queries
       editorState
-        .getModuleLayoutComp()
+        ?.getModuleLayoutComp()
         ?.getInputs()
         .forEach((i) => {
           const { name, type } = i.getView();

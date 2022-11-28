@@ -28,6 +28,7 @@ import _ from "lodash";
 import { ReactNode } from "react";
 import {
   showTransform,
+  toArrayJSONObject,
   toBoolean,
   toJSONArray,
   toJSONObject,
@@ -358,7 +359,7 @@ export const JSONObjectControl = jsonBaseControl<JSONObject>("JSON", toJSONObjec
 export const JSONValueControl = jsonBaseControl<JSONValue>(undefined, toJSONValue);
 // the main difference between Object and JSON is that Object's value can be function
 export const ObjectControl = jsonBaseControl<Record<string, unknown>>("Object", toObject);
-
+export const ArrayOrJSONObjectControl = jsonBaseControl<JSONObject | Array<JSONValue>>("JSON", toArrayJSONObject);
 export const jsonObjectControl = (defaultValue?: JSONObject) =>
   defaultValue === undefined
     ? JSONObjectControl

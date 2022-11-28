@@ -4,8 +4,6 @@ import { CompPlayground } from "./CompPlayground";
 import styled from "styled-components";
 import { UICompLayoutInfo } from "comps/uiCompRegistry";
 
-window.__OPENBLOCKS_DEV__ = {};
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;

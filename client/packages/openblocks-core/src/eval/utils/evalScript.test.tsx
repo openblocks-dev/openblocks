@@ -38,6 +38,9 @@ describe("evalScript", () => {
     expect(evalScript("a[0]", { a: [] })).toBe(undefined);
 
     expect(evalScript("abc", {})).toBeUndefined();
+    expect(evalScript("window.window === window", {})).toBe(true);
+    expect(evalScript("window.window", {})).not.toBe(window);
+    expect(evalScript("window.global", {})).not.toBe(window);
     expect(evalScript("setTimeout in window", {})).toBe(true);
     expect(evalScript("WebSocket in window", {})).toBe(true);
     expect(evalScript("anything in window", {})).toBe(true);

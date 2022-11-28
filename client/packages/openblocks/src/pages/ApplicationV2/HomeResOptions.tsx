@@ -1,15 +1,13 @@
 import { HomeRes } from "./HomeLayout";
 import { HomeResTypeEnum } from "../../types/homeRes";
 import { exportApplicationAsJSONFile } from "./components/AppImport";
-import { CustomModal, EditPopover } from "openblocks-design";
+import { CustomModal, EditPopover, EditPopoverItemType, PointIcon } from "openblocks-design";
 import { HomeResInfo } from "../../util/homeResUtils";
 import { recycleApplication } from "../../redux/reduxActions/applicationActions";
 import { deleteFolder } from "../../redux/reduxActions/folderActions";
-import { EditPopoverItemType } from "openblocks-design";
 import { useDispatch } from "react-redux";
 import React, { useState } from "react";
 import styled from "styled-components";
-import { PointIcon } from "openblocks-design";
 import { message } from "antd";
 import { trans } from "../../i18n";
 import { useParams } from "react-router-dom";
@@ -38,10 +36,11 @@ const PopoverIcon = styled(PointIcon)`
 
 export const HomeResOptions = (props: {
   res: HomeRes;
+  onDuplicate?: (res: HomeRes | undefined) => void;
   onRename: (res: HomeRes) => void;
   onMove: (res: HomeRes) => void;
 }) => {
-  const { res, onRename, onMove } = props;
+  const { res, onDuplicate, onRename, onMove } = props;
   const dispatch = useDispatch();
   const [showCopyModal, setShowCopyModal] = useState(false);
 
@@ -56,7 +55,10 @@ export const HomeResOptions = (props: {
         { text: trans("rename"), onClick: () => onRename(res) },
         {
           text: trans("header.duplicate", { type: TypeName[res.type].toLowerCase() }),
-          onClick: () => setShowCopyModal(true),
+          onClick: () => {
+            onDuplicate?.(res);
+            setShowCopyModal(true);
+          },
         },
         { text: trans("home.export"), onClick: () => exportApplicationAsJSONFile(res.id) },
       ];
@@ -72,8 +74,12 @@ export const HomeResOptions = (props: {
           type: "delete",
           onClick: () => {
             CustomModal.confirm({
-              title: trans("home.deleteElementTitle", { name: HomeResInfo[res.type].name.toLowerCase() }),
-              content: trans("home.moveToTrashSubTitle", { name: HomeResInfo[res.type].name.toLowerCase() }),
+              title: trans("home.deleteElementTitle", {
+                name: HomeResInfo[res.type].name.toLowerCase(),
+              }),
+              content: trans("home.moveToTrashSubTitle", {
+                name: HomeResInfo[res.type].name.toLowerCase(),
+              }),
               onConfirm: () =>
                 new Promise((resolve, reject) => {
                   dispatch(
@@ -140,7 +146,10 @@ export const HomeResOptions = (props: {
         id={res.id}
         visible={showCopyModal}
         type={res.type as unknown as AppTypeEnum}
-        close={() => setShowCopyModal(false)}
+        close={() => {
+          onDuplicate?.(undefined);
+          setShowCopyModal(false);
+        }}
       />
     </>
   ) : null;

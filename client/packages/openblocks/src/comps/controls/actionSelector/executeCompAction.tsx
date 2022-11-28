@@ -189,7 +189,7 @@ export function executeCompAction(params: ExecuteCompActionOptions) {
                     />
                   </BranchDiv>
                 )}
-                {params && <BranchDiv>{this.children.params.propertyView(params)}</BranchDiv>}
+                {!!params?.length && <BranchDiv>{this.children.params.propertyView(params)}</BranchDiv>}
               </>
             );
           }}

@@ -39,4 +39,8 @@ export const buildVars = [
     name: "REACT_APP_SERVER_IPS",
     defaultValue: "",
   },
+  {
+    name: "REACT_APP_BUNDLE_TYPE",
+    defaultValue: "app",
+  },
 ];

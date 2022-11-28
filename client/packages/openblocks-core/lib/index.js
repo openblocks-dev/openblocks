@@ -1006,7 +1006,7 @@ var blacklist = new Set([
     "MutationObserver",
 ]);
 var proxyTargetIdentity = Symbol("proxy_target_identity");
-var globalVarNames = new Set(["window", "globalThis", "self"]);
+var globalVarNames = new Set(["window", "globalThis", "self", "global"]);
 /**
  * return an immutable object.
  * @remarks
@@ -1087,7 +1087,7 @@ function createBlackHole() {
     });
 }
 function createMockWindow() {
-    return new Proxy({}, {
+    var win = new Proxy({}, {
         has: function () {
             return true;
         },
@@ -1097,6 +1097,9 @@ function createMockWindow() {
         get: function (target, p) {
             if (p in target) {
                 return Reflect.get(target, p);
+            }
+            if (globalVarNames.has(p)) {
+                return win;
             }
             if (typeof p === "string" && blacklist.has(p)) {
                 log.log("[Sandbox] access ".concat(String(p), " on mock window, return mock object"));
@@ -1113,6 +1116,7 @@ function createMockWindow() {
             return ret;
         },
     });
+    return win;
 }
 var mockWindow = createMockWindow();
 function clearMockWindow() {

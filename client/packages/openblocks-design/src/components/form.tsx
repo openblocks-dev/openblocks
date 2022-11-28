@@ -137,7 +137,7 @@ export const FormInputItem = (props: FormProps & InputProps) => (
       hasFeedback={true}
     >
       <FormInput
-        autoFocus={props.autoFocus}
+        {...props}
         autoComplete={"off"}
         disabled={props.disabled}
         placeholder={props.placeholder}
