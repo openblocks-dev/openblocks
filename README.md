@@ -30,7 +30,7 @@ Openblocks wants to take a step forward. More specifically, Openblocks is
 - **Visual UI builder** with 50+ built-in components.
 - **Module and Query Library** for reusable components and queries in the UI builder.
 - **Custom components** to share through React and Openblocks SDK (instead of iFrame). (Pre-alpha)
-- **Native connections** to PostgresSQL, MongoDB, MySQL, Redis, Elasticsearch, RestAPI, SMTP, etc.
+- **Native connections** to PostgreSQL, MongoDB, MySQL, Redis, Elasticsearch, REST API, SMTP, etc.
 - **JavaScript supported everywhere** to transform data, control components, etc.
 - **Embed Openblocks pages as a React component** (instead of iFrame). [Demo](https://github.com/openblocks-dev/openblocks-sdk-demo)
 - **Role-based access control (RBAC)** for granular permission management.
