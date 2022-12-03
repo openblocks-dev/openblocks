@@ -1,23 +1,18 @@
 import { valueComp, withDefault } from "comps/generators";
-import {
-  Dropdown,
-  QueryConfigItemWrapper,
-  QueryConfigLabel,
-  QueryConfigWrapper,
-  ValueFromOption,
-} from "openblocks-design";
-import { useSelector } from "react-redux";
-import styled from "styled-components";
-import { HttpConfig } from "../../api/datasourceApi";
-import { getDataSource } from "../../redux/selectors/datasourceSelectors";
-import { changeValueAction, CompAction, DispatchType, MultiBaseComp } from "openblocks-core";
-import { keyValueListControl } from "../controls/keyValueControl";
-import { ParamsJsonControl, ParamsStringControl } from "../controls/paramsControl";
-import { withTypeAndChildrenAbstract } from "../generators/withType";
-import { FunctionProperty, toQueryView } from "./queryCompUtils";
+import { changeValueAction, CompAction, MultiBaseComp } from "openblocks-core";
+import { keyValueListControl } from "../../controls/keyValueControl";
+import { ParamsJsonControl, ParamsStringControl } from "../../controls/paramsControl";
+import { withTypeAndChildrenAbstract } from "../../generators/withType";
+import { FunctionProperty, toQueryView } from "../queryCompUtils";
 import { includes } from "lodash";
-import { JSONObject } from "../../util/jsonTypes";
 import { trans } from "i18n";
+import {
+  HttpHeaderPropertyView,
+  HttpParametersPropertyView,
+  HttpPathPropertyView,
+} from "./httpQueryConstants";
+import { Dropdown, ValueFromOption } from "components/Dropdown";
+import { QueryConfigItemWrapper, QueryConfigLabel, QueryConfigWrapper } from "components/query";
 
 const BodyTypeOptions = [
   { label: "JSON", value: "application/json" },
@@ -127,46 +122,13 @@ export class HttpQuery extends HttpTmpQuery {
     supportHttpMethods?: HttpMethodValue[];
     supportBodyTypes?: BodyTypeValue[];
   }) {
-    return (
-      <HttpQueryPropertyView
-        {...props}
-        children={this.children}
-        dispatch={this.dispatch}
-        originData={this.toJsonValue()}
-      />
-    );
+    return <HttpQueryPropertyView {...props} comp={this} />;
   }
 }
 
 type ChildrenType = InstanceType<typeof HttpQuery> extends MultiBaseComp<infer X> ? X : never;
 
 const ContentTypeKey = "Content-Type";
-
-const UrlInput = styled.div<{ hasAddonBefore: boolean }>`
-  display: flex;
-  width: 100%;
-
-  .cm-editor {
-    margin-top: 0;
-    ${(props) => props.hasAddonBefore && "border-top-left-radius: 0;"}
-    ${(props) => props.hasAddonBefore && "border-bottom-left-radius: 0;"};
-  }
-`;
-
-const UrlInputAddonBefore = styled.div`
-  display: flex;
-  align-items: center;
-  background-color: #f5f5f6;
-  border: 1px solid #d7d9e0;
-  border-right: 0;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-  padding: 0 8px;
-  height: 32px;
-  max-width: 60%;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
 
 const showBodyConfig = (children: ChildrenType) => {
   switch (children.bodyType.getView() as BodyTypeValue) {
@@ -190,20 +152,15 @@ const showBodyConfig = (children: ChildrenType) => {
 };
 
 const HttpQueryPropertyView = (props: {
-  children: ChildrenType;
-  dispatch: DispatchType;
+  comp: InstanceType<typeof HttpQuery>;
   datasourceId: string;
-  originData: JSONObject;
   urlPlaceholder?: string;
   supportHttpMethods?: HttpMethodValue[];
   supportBodyTypes?: BodyTypeValue[];
 }) => {
-  const { children, dispatch, urlPlaceholder, supportHttpMethods, supportBodyTypes } = props;
+  const { comp, supportHttpMethods, supportBodyTypes } = props;
+  const { children, dispatch } = comp;
 
-  const datasource = useSelector(getDataSource).find(
-    (info) => info.datasource.id === props.datasourceId
-  );
-  const httpConfig = datasource?.datasource.datasourceConfig as HttpConfig;
   return (
     <>
       <Dropdown
@@ -213,25 +170,12 @@ const HttpQueryPropertyView = (props: {
           (o) => !supportHttpMethods || supportHttpMethods.includes(o.value)
         )}
         label={"HTTP Method"}
-        onChange={(value) => {
+        onChange={(value: HttpMethodValue) => {
           children.httpMethod.dispatchChangeValueAction(value);
         }}
       />
 
-      <QueryConfigWrapper>
-        <QueryConfigLabel>URL</QueryConfigLabel>
-        <QueryConfigItemWrapper>
-          <UrlInput hasAddonBefore={!!httpConfig?.url}>
-            {httpConfig?.url && <UrlInputAddonBefore>{httpConfig?.url}</UrlInputAddonBefore>}
-
-            {children.path.propertyView({
-              placement: "bottom",
-              placeholder:
-                urlPlaceholder || (httpConfig?.url ? "/v1/test" : "https://xxx.com/v1/test"),
-            })}
-          </UrlInput>
-        </QueryConfigItemWrapper>
-      </QueryConfigWrapper>
+      <HttpPathPropertyView {...props} comp={comp} />
 
       {/*<QueryConfigSection>*/}
       {/*  <QueryConfigSectionLabel>Cookies</QueryConfigSectionLabel>*/}
@@ -240,22 +184,9 @@ const HttpQueryPropertyView = (props: {
       {/*  </QueryConfigSectionItem>*/}
       {/*</QueryConfigSection>*/}
 
-      <QueryConfigWrapper>
-        <QueryConfigLabel>Headers</QueryConfigLabel>
-        <QueryConfigItemWrapper>
-          {children.headers.propertyView({ keyFlexBasics: 184, valueFlexBasics: 232 })}
-        </QueryConfigItemWrapper>
-      </QueryConfigWrapper>
+      <HttpHeaderPropertyView comp={comp} />
 
-      <QueryConfigWrapper>
-        <QueryConfigLabel>Parameters</QueryConfigLabel>
-        <QueryConfigItemWrapper>
-          {children.params.propertyView({
-            keyFlexBasics: 184,
-            valueFlexBasics: 232,
-          })}
-        </QueryConfigItemWrapper>
-      </QueryConfigWrapper>
+      <HttpParametersPropertyView comp={comp} />
 
       <Dropdown
         label={"Body"}
@@ -278,7 +209,7 @@ const HttpQueryPropertyView = (props: {
             ];
           }
 
-          dispatch(changeValueAction({ ...props.originData, bodyType: value, headers: headers }));
+          dispatch(changeValueAction({ ...comp.toJsonValue(), bodyType: value, headers: headers }));
         }}
       />
 

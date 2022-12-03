@@ -1,6 +1,6 @@
 import { ADMIN_ROLE, Org } from "constants/orgConstants";
 import { AddIcon, CustomModal, EditPopover } from "openblocks-design";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { StaticContext } from "react-router";
 import { RouteComponentProps } from "react-router-dom";
 import { AppState } from "redux/reducers";
@@ -18,21 +18,26 @@ import { Table } from "components/Table";
 import history from "util/history";
 import { StyledOrgLogo } from "./styledComponents";
 import { Level1SettingPageContentWithList, Level1SettingPageTitleWithBtn } from "../styled";
-import { timestampToHumanReadable } from "openblocks-sdk";
+import { timestampToHumanReadable } from "util/dateTimeUtils";
+import { isSaasMode } from "util/envUtils";
+import { selectSystemConfig } from "redux/selectors/configSelectors";
 
 const OrgName = styled.div`
   display: flex;
   align-items: center;
+
   > div {
     width: 34px;
     height: 34px;
     margin-right: 12px;
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 4px;
+
     span {
       font-size: 12px;
     }
   }
+
   > span {
     font-size: 14px;
     color: #333;
@@ -62,6 +67,7 @@ type DataItemInfo = {
 function OrganizationSetting(props: OrgSettingProp) {
   const { orgs, adminOrgs } = props;
   const dispatch = useDispatch();
+  const sysConfig = useSelector(selectSystemConfig);
 
   const dataSource = adminOrgs.map((org) => ({
     id: org.id,
@@ -75,13 +81,15 @@ function OrganizationSetting(props: OrgSettingProp) {
     <Level1SettingPageContentWithList>
       <Level1SettingPageTitleWithBtn>
         {trans("settings.organization")}
-        <CreateButton
-          buttonType={"primary"}
-          icon={<AddIcon />}
-          onClick={() => dispatch(createOrgAction(orgs))}
-        >
-          {trans("orgSettings.createOrg")}
-        </CreateButton>
+        {isSaasMode(sysConfig) && (
+          <CreateButton
+            buttonType={"primary"}
+            icon={<AddIcon />}
+            onClick={() => dispatch(createOrgAction(orgs))}
+          >
+            {trans("orgSettings.createOrg")}
+          </CreateButton>
+        )}
       </Level1SettingPageTitleWithBtn>
       <div>
         <TableStyled
@@ -111,7 +119,7 @@ function OrganizationSetting(props: OrgSettingProp) {
               ellipsis: true,
               render: (value) => (
                 <span style={{ color: "#8B8FA3" }}>{timestampToHumanReadable(value)}</span>
-              )
+              ),
             },
             { title: " ", dataIndex: "operation", width: "208px" },
           ]}

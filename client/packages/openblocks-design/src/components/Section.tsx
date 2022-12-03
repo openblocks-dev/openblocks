@@ -65,6 +65,7 @@ interface ISectionConfig {
   name?: string;
   width?: number;
   noMargin?: boolean;
+  style?: React.CSSProperties;
   children: any;
 }
 export const Section = (props: ISectionConfig) => {
@@ -73,7 +74,7 @@ export const Section = (props: ISectionConfig) => {
     showditems ? setshowitems(0) : setshowitems(1);
   };
   return (
-    <SectionItem width={props.width}>
+    <SectionItem width={props.width} style={props.style}>
       {props.name && (
         <SectionlabelDiv onClick={handlechangeshow}>
           <Sectionlabel>{props.name}</Sectionlabel>

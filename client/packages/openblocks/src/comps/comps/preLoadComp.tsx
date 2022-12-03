@@ -42,7 +42,6 @@ const LibListWrapper = styled.div`
 `;
 
 function runScript(code: string, inHost?: boolean) {
-  console.info(inHost);
   if (inHost) {
     runScriptInHost(code);
     return;

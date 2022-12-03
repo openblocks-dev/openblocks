@@ -1,15 +1,14 @@
 import { EmptyContent } from "components/EmptyContent";
-import KeyValueItemList, { KeyValueItem } from "components/KeyValueItemList";
-import LinkPlusButton from "components/LinkPlusButton";
+import { KeyValueItem, KeyValueItemListWithNewCreateState } from "components/KeyValueItemList";
 import { ActionSelectorControl } from "comps/controls/actionSelector/actionSelectorControl";
 import CompNameControl from "comps/controls/compNameControl";
 import { list } from "comps/generators/list";
 import { NameGenerator } from "comps/utils";
 import { Section, TacoButton } from "openblocks-design";
-import { BluePlusIcon } from "openblocks-design";
 import { trans } from "i18n";
 import { ModuleMethodListItemComp } from "./moduleMethodListItemComp";
 import { ConfigViewSection } from "./styled";
+import { useState } from "react";
 
 const ModuleMethodListCompBase = list(ModuleMethodListItemComp);
 
@@ -88,22 +87,24 @@ function PropertyView(props: PropertyViewProps) {
 
   return (
     <div>
-      <KeyValueItemList
+      <KeyValueItemListWithNewCreateState
         title={trans("module.method")}
         keyTitle={trans("module.name")}
         valueTitle={trans("module.action")}
-        extra={
-          <LinkPlusButton icon={<BluePlusIcon />} onClick={onAdd}>
-            {trans("addItem")}
-          </LinkPlusButton>
-        }
+        onAdd={onAdd}
         emptyText={trans("module.emptyMethod")}
-        onEmptyClick={onAdd}
       >
-        {items.map((i, idx) => (
-          <MethodItem key={idx} {...i.children} onDelete={() => onDelete(idx)} />
-        ))}
-      </KeyValueItemList>
+        {(newCreateIdx) =>
+          items.map((i, idx) => (
+            <MethodItem
+              key={idx}
+              {...i.children}
+              onDelete={() => onDelete(idx)}
+              showPopover={idx === newCreateIdx}
+            />
+          ))
+        }
+      </KeyValueItemListWithNewCreateState>
     </div>
   );
 }
@@ -112,6 +113,7 @@ interface MethodItemProps {
   name: InstanceType<typeof CompNameControl>;
   action: InstanceType<typeof ActionSelectorControl>;
   onDelete: () => void;
+  showPopover: boolean;
 }
 
 function MethodItem(props: MethodItemProps) {
@@ -130,6 +132,7 @@ function MethodItem(props: MethodItemProps) {
       name={name.getView()}
       value={action.displayName()}
       clickPopoverContent={content}
+      defaultShowPopover={props.showPopover}
     />
   );
 }

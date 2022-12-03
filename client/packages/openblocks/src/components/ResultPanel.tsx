@@ -179,7 +179,7 @@ export const BottomResultPanel = (props: BottomResultPanelProps) => {
   });
 
   const { header, body } = useResultPanel({
-    ...(result ?? { data: "", dataType: "text", success: true }),
+    ...(result ?? { data: "", dataType: "default", success: true }),
     onClose: () => editorState.setShowResultCompName(undefined),
   });
 
@@ -233,7 +233,7 @@ export const QueryLibraryResultPanel = (props: { comp: BottomResComp; onClose: (
   const result = props.comp?.result();
 
   const { header, body } = useResultPanel({
-    ...(result ?? { data: "", dataType: "text", success: true }),
+    ...(result ?? { data: "", dataType: "default", success: true }),
     onClose: props.onClose,
   });
 
@@ -262,6 +262,9 @@ function useResultPanel(params: BottomResCompResult & { onClose: () => void }) {
   useEffect(() => setToJson(false), [params.data]);
 
   const [isObjectArray, columns] = useMemo(() => {
+    if (dataType !== "default") {
+      return [false, []];
+    }
     if (Array.isArray(data)) {
       let isObjectArray = true;
       const keys = data.reduce((set, value) => {
@@ -292,7 +295,7 @@ function useResultPanel(params: BottomResCompResult & { onClose: () => void }) {
       }
     }
     return [false, []];
-  }, [data]);
+  }, [data, dataType]);
 
   const result = useMemo(() => {
     if (errorMessage) {

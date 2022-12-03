@@ -12,9 +12,9 @@ import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generat
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import {
   SelectInputInvalidConfig,
-  selectInputValidate,
   SelectInputValidationChildren,
   SelectInputValidationSection,
+  useSelectInputValidate,
 } from "./selectInputConstants";
 import { Section, sectionNames } from "openblocks-design";
 import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
@@ -66,8 +66,9 @@ export const SegmentChildrenMap = {
 };
 
 export const SegmentedControlBasicComp = (function () {
-  return new UICompBuilder(SegmentChildrenMap, (props) =>
-    props.label({
+  return new UICompBuilder(SegmentChildrenMap, (props) => {
+    const [validateState, handleValidate] = useSelectInputValidate(props);
+    return props.label({
       required: props.required,
       style: props.style,
       children: (
@@ -77,6 +78,7 @@ export const SegmentedControlBasicComp = (function () {
           value={props.value.value}
           $style={props.style}
           onChange={(value) => {
+            handleValidate(value.toString());
             props.value.onChange(value.toString());
             props.onEvent("change");
           }}
@@ -89,9 +91,9 @@ export const SegmentedControlBasicComp = (function () {
             }))}
         />
       ),
-      ...selectInputValidate(props),
-    })
-  )
+      ...validateState,
+    });
+  })
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>

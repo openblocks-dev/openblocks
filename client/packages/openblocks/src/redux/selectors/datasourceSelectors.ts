@@ -21,3 +21,6 @@ export const getDataSourceTypesMap = (state: AppState) => {
 };
 
 export const getDataSourceStructures = (state: AppState) => state.entities.datasource.structure;
+
+export const getDataSourcePermissionInfo = (state: AppState) =>
+  state.entities.datasource.permissionInfo;

@@ -14,9 +14,11 @@ import {
   ToDataType,
 } from "comps/generators/multi";
 import _ from "lodash";
-import { stateComp, stateInstance, valueInstance } from "./simpleGenerators";
+import { stateComp, stateInstance, valueComp } from "./simpleGenerators";
 import { trans } from "i18n";
 import log from "loglevel";
+import { parseCompType } from "comps/utils/remote";
+import { remoteComp } from "comps/comps/remoteComp/remoteComp";
 
 type Keys<T> = Extract<keyof T, string>;
 type CompMapBaseType = Record<string, CompConstructor>;
@@ -82,8 +84,20 @@ export function parseChildrenFromValue<
   }
   try {
     const children: any = {};
-    children[keyName] = valueInstance(compType);
-    children[valueName] = new compMap[compType]({
+    const CompTypeComp = valueComp(compType);
+    children[keyName] = new CompTypeComp({
+      value: compType,
+      dispatch: wrapDispatch(dispatch, keyName),
+    });
+    const compInfo = parseCompType(compType);
+
+    let Comp;
+    if (compInfo.isRemote) {
+      Comp = remoteComp(compInfo);
+    } else {
+      Comp = compMap[compType];
+    }
+    children[valueName] = new Comp({
       dispatch: wrapDispatch(dispatch, valueName),
       ...compValue,
     } as any);

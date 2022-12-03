@@ -15,9 +15,8 @@ import {
   textInputChildren,
   TextInputConfigs,
   TextInputInteractionSection,
-  textInputProps,
-  textInputValidate,
   TextInputValidationSection,
+  useTextInputProps,
 } from "./textInputConstants";
 import { MethodConfigFocus, withMethodExposing } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
@@ -44,12 +43,13 @@ let TextAreaTmpComp = (function () {
     autoHeight: AutoHeightControl,
     style: styleControl(InputLikeStyle),
   };
-  return new UICompBuilder(childrenMap, (props) =>
-    props.label({
+  return new UICompBuilder(childrenMap, (props) => {
+    const [inputProps, validateState] = useTextInputProps(props);
+    return props.label({
       required: props.required,
       children: (
         <TextAreaStyled
-          {...textInputProps(props)}
+          {...inputProps}
           allowClear={props.allowClear}
           autoSize={props.autoHeight}
           style={{ height: "100%", maxHeight: "100%", resize: "none" }}
@@ -57,9 +57,9 @@ let TextAreaTmpComp = (function () {
         />
       ),
       style: props.style,
-      ...textInputValidate(props),
-    })
-  )
+      ...validateState,
+    });
+  })
     .setPropertyViewFn((children) => (
       <>
         <TextInputBasicSection {...children} />

@@ -11,6 +11,8 @@ import {
   withMethodExposing,
 } from "openblocks-sdk";
 
+import styles from "./styles.module.css";
+
 const { Button } = antd;
 
 const childrenMap = {
@@ -25,10 +27,10 @@ const childrenMap = {
   ]),
 };
 
-const HelloWorldCompBase = new UICompBuilder(childrenMap, (props) => {
+const HelloWorldCompBase = new UICompBuilder(childrenMap, (props: any) => {
   const currentValue = props.value.value;
   return (
-    <div>
+    <div className={styles.wrapper}>
       <Button
         onClick={() => {
           props.value.onChange(currentValue - props.step);
@@ -49,7 +51,7 @@ const HelloWorldCompBase = new UICompBuilder(childrenMap, (props) => {
     </div>
   );
 })
-  .setPropertyViewFn((children) => {
+  .setPropertyViewFn((children: any) => {
     return (
       <>
         <Section name="Basic">
@@ -68,7 +70,7 @@ const HelloWorldCompTemp = withMethodExposing(HelloWorldCompBase, [
       name: "random",
       params: [],
     },
-    execute(comp) {
+    execute(comp: any) {
       comp.children.value.getView().onChange(Math.floor(Math.random() * 100));
     },
   },

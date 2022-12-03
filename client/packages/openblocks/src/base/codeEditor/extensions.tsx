@@ -408,7 +408,7 @@ const esLintSource = async (view: EditorView) => {
   // refer to esLint implementation from @codemirror/lang-javascript
   // config reference: https://eslint.org/docs/head/user-guide/configuring/
   const config: any = {
-    parserOptions: { ecmaVersion: 2019, sourceType: "script" },
+    parserOptions: { ecmaVersion: 2020, sourceType: "script" },
     env: { browser: true, node: true, es6: true, es2015: true, es2017: true, es2020: true },
     rules: {},
   };

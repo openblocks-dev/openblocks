@@ -15,7 +15,7 @@ export interface BottomResListComp {
   items: () => BottomResComp[];
 }
 
-export type BottomResCompResultDataType = "json" | "table" | "text" | "function";
+export type BottomResCompResultDataType = "json" | "function" | "default";
 
 export interface BottomResCompResult {
   success: boolean;

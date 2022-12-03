@@ -1,3 +1,4 @@
+import { CompConstructor } from "baseComps/comp";
 import { JSONValue } from "util/jsonTypes";
 
 export enum CompActionTypes {
@@ -6,6 +7,7 @@ export enum CompActionTypes {
   MULTI_CHANGE = "MULTI_CHANGE",
   ADD_CHILD = "ADD_CHILD",
   DELETE_COMP = "DELETE_COMP",
+  REPLACE_COMP = "REPLACE_COMP",
   ONLY_EVAL = "NEED_EVAL",
   ASYNC = "ASYNC",
   ASYNC_END = "ASYNC_END",
@@ -41,7 +43,14 @@ export enum CompActionTypes {
   BROADCAST = "BROADCAST",
 }
 
-export type ExtraActionType = "layout" | "delete" | "add" | "modify" | "rename" | "recover";
+export type ExtraActionType =
+  | "layout"
+  | "delete"
+  | "add"
+  | "modify"
+  | "rename"
+  | "recover"
+  | "upgrade";
 export type ActionExtraInfo = {
   compInfos: {
     compName: string;
@@ -67,6 +76,11 @@ export interface CustomAction<DataType = JSONValue> extends ActionCommon {
 export interface ChangeValueAction<DataType extends JSONValue = JSONValue> extends ActionCommon {
   type: CompActionTypes.CHANGE_VALUE;
   value: DataType;
+}
+
+export interface ReplaceCompAction extends ActionCommon {
+  type: CompActionTypes.REPLACE_COMP;
+  compFactory: CompConstructor;
 }
 
 export interface RenameAction extends ActionCommon {
@@ -137,6 +151,7 @@ export type CompAction<DataType extends JSONValue = JSONValue> =
   | ChangeValueAction<DataType>
   | BroadcastAction
   | RenameAction
+  | ReplaceCompAction
   | AddChildAction
   | MultiChangeAction
   | SimpleCompAction

@@ -1,9 +1,8 @@
 import { ActionSelectorControl } from "comps/controls/actionSelector/actionSelectorControl";
 import { MultiCompBuilder, valueComp } from "comps/generators";
-import KeyValueItemList, { KeyValueItem } from "components/KeyValueItemList";
-import LinkPlusButton from "components/LinkPlusButton";
+import { KeyValueItem, KeyValueItemListWithNewCreateState } from "components/KeyValueItemList";
 import { list } from "comps/generators/list";
-import { BluePlusIcon, StyledInput } from "openblocks-design";
+import { StyledInput } from "openblocks-design";
 import { trans } from "i18n";
 import {
   eventKeyString,
@@ -47,11 +46,16 @@ const ShortcutItemBase = new MultiCompBuilder(childrenMap, (props) => (keyString
 }).build();
 
 class ShortcutItemComp extends ShortcutItemBase {
-  propertyView(key: string | number, del?: () => void): ReactNode {
+  propertyView(props: {
+    key: string | number;
+    del?: () => void;
+    defaultShowPopover: boolean;
+  }): ReactNode {
     return (
       <KeyValueItem
-        key={key}
-        del={del}
+        key={props.key}
+        del={props.del}
+        defaultShowPopover={props.defaultShowPopover}
         name={readableShortcut(this.children.shortcut.getView())}
         value={this.children.action.displayName()}
         clickPopoverContent={
@@ -102,27 +106,30 @@ export class CustomShortcutsComp extends list(ShortcutItemComp) {
       e.preventDefault();
     }
   }
+
   private handleAdd() {
     this.dispatch(this.pushAction({}));
   }
+
   override getPropertyView() {
     return (
-      <KeyValueItemList
+      <KeyValueItemListWithNewCreateState
         title={trans("customShortcut.title")}
         keyTitle={trans("customShortcut.shortcut")}
         valueTitle={trans("customShortcut.action")}
-        extra={
-          <LinkPlusButton icon={<BluePlusIcon />} onClick={() => this.handleAdd()}>
-            {trans("addItem")}
-          </LinkPlusButton>
-        }
+        onAdd={() => this.handleAdd()}
         emptyText={trans("customShortcut.empty")}
-        onEmptyClick={() => this.handleAdd()}
       >
-        {super
-          .getView()
-          .map((item, i) => item.propertyView(i, () => this.dispatch(this.deleteAction(i))))}
-      </KeyValueItemList>
+        {(newCreateIdx) =>
+          super.getView().map((item, i) =>
+            item.propertyView({
+              key: i,
+              del: () => this.dispatch(this.deleteAction(i)),
+              defaultShowPopover: i === newCreateIdx,
+            })
+          )
+        }
+      </KeyValueItemListWithNewCreateState>
     );
   }
 }

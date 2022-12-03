@@ -1,7 +1,7 @@
 {
   "name": "openblocks-cli",
   "description": "CLI tool used to start build publish openblocks components",
-  "version": "0.0.15",
+  "version": "0.0.20",
   "bin": "./index.js",
   "type": "module",
   "exports": {
@@ -31,7 +31,9 @@
     "react": "^17",
     "react-dom": "^17",
     "react-json-view": "^1.21.3",
+    "rollup-plugin-external-globals": "^0.7.1",
     "vite": "^3.2.4",
+    "vite-plugin-css-injected-by-js": "^2.1.1",
     "vite-plugin-svgr": "^2.2.2"
   },
   "devDependencies": {
@@ -40,5 +42,8 @@
   },
   "peerDependencies": {
     "openblocks-sdk": "*"
-  }
+  },
+  "keywords": [
+    "openblocks"
+  ]
 }

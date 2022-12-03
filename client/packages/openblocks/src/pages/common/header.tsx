@@ -2,31 +2,22 @@ import { Dropdown, message, Skeleton } from "antd";
 import LayoutHeader from "components/layout/Header";
 import { SHARE_TITLE } from "constants/apiConstants";
 import { AppTypeEnum } from "constants/applicationConstants";
-import { ALL_APPLICATIONS_URL, preview, AUTH_LOGIN_URL } from "constants/routesURL";
+import { ALL_APPLICATIONS_URL, AUTH_LOGIN_URL, preview } from "constants/routesURL";
 import { User } from "constants/userConstants";
 import {
   CommonTextLabel,
   CustomModal,
   DropdownMenu,
-  EditTextWrapper,
-  PackUpIcon,
-  TacoButton,
-  TextWrapper,
-} from "openblocks-design";
-import { EditText } from "openblocks-design";
-import {
-  DeployIcon,
-  ExportIcon,
+  EditText,
   Left,
   Middle,
   ModuleIcon,
-  PointIcon,
+  PackUpIcon,
   Right,
+  TacoButton,
 } from "openblocks-design";
 import { trans } from "i18n";
 import moment from "moment";
-import { exportApplicationAsJSONFile } from "pages/ApplicationV2/components/AppImport";
-import AppPermissionDialog from "pages/ApplicationV2/components/AppPermissionDialog";
 import { useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { publishApplication, updateAppMetaAction } from "redux/reduxActions/applicationActions";
@@ -45,6 +36,7 @@ import { canManageApp } from "util/permissionUtils";
 import ProfileDropdown from "./profileDropdown";
 import { Logo, LogoWithName } from "@openblocks-ee/assets/images";
 import { HeaderStartDropdown } from "./headerStartDropdown";
+import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
 
 const StyledLink = styled.a`
   display: flex;
@@ -185,6 +177,7 @@ const PackUpIconStyled = styled(PackUpIcon)`
   transform: rotate(180deg);
   margin-left: 4px;
   min-width: 18px;
+
   path {
     fill: #ffffff;
   }
@@ -197,13 +190,16 @@ const PackUpBtn = styled(TacoButton)`
   border-radius: 0 4px 4px 0;
   margin-right: 24px;
   margin-left: 1px;
+
   svg {
     transform: rotate(180deg);
     width: 18px;
+
     path {
       fill: #ffffff;
     }
   }
+
   &.ant-dropdown-open {
     background-color: #3a51c2;
     border-color: #3a51c2;
@@ -227,6 +223,7 @@ const Wrapper = styled.div`
     width: fit-content;
     max-width: 288px;
   }
+
   input {
     width: 288px;
     border-radius: 4px;
@@ -237,6 +234,7 @@ const Prefix = styled.div`
   display: inline-flex;
   align-items: center;
   margin-right: 4px;
+
   &.module svg {
     visibility: visible;
   }
@@ -281,6 +279,7 @@ export default function Header(props: HeaderProps) {
   const { appType } = useContext(ExternalEditorContext);
   const [editName, setEditName] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [permissionDialogVisible, setPermissionDialogVisible] = useState(false);
 
   const isModule = appType === AppTypeEnum.Module;
 
@@ -368,20 +367,18 @@ export default function Header(props: HeaderProps) {
     <HeaderProfile user={user} />
   ) : (
     <>
-      {canManageApp(user, application) && (
+      {applicationId && (
         <AppPermissionDialog
           applicationId={applicationId}
-          trigger={
-            <GrayBtn>
-              {SHARE_TITLE}
-              {""}
-            </GrayBtn>
-          }
+          visible={permissionDialogVisible}
+          onVisibleChange={(visible) => !visible && setPermissionDialogVisible(false)}
         />
+      )}
+      {canManageApp(user, application) && (
+        <GrayBtn onClick={() => setPermissionDialogVisible(true)}>{SHARE_TITLE}</GrayBtn>
       )}
       <PreviewBtn buttonType="primary" onClick={() => preview(applicationId)}>
         {trans("header.preview")}
-        {""}
       </PreviewBtn>
 
       <Dropdown

@@ -26,8 +26,9 @@ const childrenMap = {
 const PropertyView = (props: {
   comp: InstanceType<typeof InputCompBase>;
   onDelete: () => void;
+  showPopover: boolean;
 }) => {
-  const [isPopShow, showPop] = useState(false);
+  const [isPopShow, showPop] = useState(props.showPopover);
 
   const context = useContext(QueryLibraryContext);
 
@@ -75,8 +76,8 @@ const PropertyView = (props: {
   );
 };
 const InputCompBase = class extends simpleMultiComp(childrenMap) {
-  propertyView(props: { onDelete: () => void }) {
-    return <PropertyView comp={this} onDelete={props.onDelete} />;
+  propertyView(props: { onDelete: () => void; showPopover: boolean }) {
+    return <PropertyView comp={this} {...props} />;
   }
 };
 
@@ -149,13 +150,16 @@ const InputsWrapper = styled.div`
 
 export const InputListComp = withPropertyViewFn(list(InputListItemComp), (comp) => {
   const queryLibraryState = useContext(QueryLibraryContext);
+  const [newIdx, setNewIdx] = useState<number | undefined>(undefined);
 
-  const handleAdd = () =>
+  const handleAdd = () => {
     comp.dispatch(
       pushAction({
         name: queryLibraryState.getNameGenerator().genItemName("queryInput"),
       })
     );
+    setNewIdx(comp.getView().length);
+  };
 
   return (
     <Wrapper>
@@ -163,7 +167,10 @@ export const InputListComp = withPropertyViewFn(list(InputListItemComp), (comp) 
         <InputsWrapper>
           {comp.getView().map((t, i) => (
             <Fragment key={i}>
-              {(t as any).propertyView({ onDelete: () => comp.dispatch(comp.deleteAction(i)) })}
+              {(t as any).propertyView({
+                onDelete: () => comp.dispatch(comp.deleteAction(i)),
+                showPopover: i === newIdx,
+              })}
             </Fragment>
           ))}
           <AddButton onClick={handleAdd}>{trans("addItem")}</AddButton>

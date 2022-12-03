@@ -36,6 +36,5 @@ declare var REACT_APP_API_HOST: string;
 declare var REACT_APP_ENV: string;
 declare var REACT_APP_BUILD_ID: string;
 declare var REACT_APP_LOG_LEVEL: string;
-declare var REACT_APP_IMPORT_MAP: string;
 declare var REACT_APP_SERVER_IPS: string;
 declare var REACT_APP_BUNDLE_TYPE: "sdk" | "app";

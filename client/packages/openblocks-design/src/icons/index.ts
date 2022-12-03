@@ -203,6 +203,7 @@ export { ReactComponent as LeftPreloadIcon } from "./icon-left-preload.svg";
 export { ReactComponent as CollapsibleContainerCompIcon } from "./icon-collapsible-container.svg";
 export { ReactComponent as ToggleButtonCompIcon } from "./icon-toggle-button.svg";
 export { ReactComponent as GoogleSheetsIcon } from "./icon-query-GoogleSheets.svg";
+export { ReactComponent as GraphqlIcon } from "./icon-query-Graphql.svg";
 export { ReactComponent as imageEditorIcon } from "./icon-insert-imageEditor.svg";
 export { ReactComponent as HomeSettingsIcon } from "./icon-home-settings.svg";
 export { ReactComponent as HomeSettingsActiveIcon } from "./icon-home-settings-active.svg";

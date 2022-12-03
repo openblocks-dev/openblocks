@@ -1,5 +1,4 @@
 import "core-js/actual";
-import "systemjs";
 import numbro from "numbro";
 import Papa from "papaparse";
 import * as uuid from "uuid";
@@ -28,7 +27,6 @@ debug(`REACT_APP_LANGUAGES:, ${REACT_APP_LANGUAGES}`);
 debug(`REACT_APP_API_HOST:, ${REACT_APP_API_HOST}`);
 debug(`REACT_APP_ENV:, ${REACT_APP_ENV}`);
 debug(`REACT_APP_LOG_LEVEL:, ${REACT_APP_LOG_LEVEL}`);
-debug(`REACT_APP_IMPORT_MAP:, ${REACT_APP_IMPORT_MAP}`);
 
 try {
   bootstrap();

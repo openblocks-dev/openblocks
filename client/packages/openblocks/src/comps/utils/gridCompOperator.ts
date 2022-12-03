@@ -6,6 +6,7 @@ import {
   deferAction,
   deleteCompAction,
   multiChangeAction,
+  replaceCompAction,
   wrapActionExtraInfo,
 } from "openblocks-core";
 import { Comp } from "openblocks-core";
@@ -26,6 +27,8 @@ import _ from "lodash";
 import { genRandomKey } from "./idGenerator";
 import { trans } from "i18n";
 import { pasteKey, undoKey } from "util/keyUtils";
+import { getLatestVersion, getRemoteCompType, parseCompType } from "./remote";
+import { remoteComp } from "comps/comps/remoteComp/remoteComp";
 
 export type CopyCompType = {
   layout: LayoutItem;
@@ -132,7 +135,8 @@ export class GridCompOperator {
       };
       const itemComp = comp.item as GridItemComp;
       const compType = itemComp.children.compType.getView();
-      const compName = nameGenerator.genItemName(compType);
+      const compInfo = parseCompType(compType);
+      const compName = nameGenerator.genItemName(compInfo.compName);
       const compJSONValue = isContainer(itemComp.children.comp)
         ? itemComp.children.comp.getPasteValue(nameGenerator)
         : itemComp.children.comp.toJsonValue();
@@ -214,5 +218,56 @@ export class GridCompOperator {
     });
     editorState.setSelectedCompNames(new Set([]));
     return true;
+  }
+
+  static async upgradeCurrentComp(editorState: EditorState) {
+    const selectedComp = Object.values(editorState.selectedComps())[0];
+    const compType = selectedComp.children.compType.getView();
+    const compInfo = parseCompType(compType);
+
+    if (!compInfo.isRemote || compInfo.source !== "npm") {
+      return;
+    }
+
+    const latestVersion = await getLatestVersion(compInfo);
+
+    if (!latestVersion) {
+      message.error(trans("comp.getLatestVersionMetaError"));
+      return;
+    }
+
+    if (latestVersion.version === compInfo.packageVersion) {
+      message.info(trans("comp.needNotUpgrade"));
+      return;
+    }
+
+    if (!latestVersion.openblocks?.comps?.[compInfo.compName]) {
+      message.error(trans("comp.compNotFoundInLatestVersion"));
+      return;
+    }
+
+    const nextCompType = getRemoteCompType(
+      compInfo.source,
+      compInfo.packageName,
+      latestVersion.version,
+      compInfo.compName
+    );
+    const compInfos: ActionExtraInfo["compInfos"] = [
+      {
+        type: "upgrade",
+        compName: selectedComp.children.name.getView(),
+        compType: selectedComp.children.compType.getView(),
+      },
+    ];
+    selectedComp.children.compType.dispatch(deferAction(changeValueAction(nextCompType)));
+    selectedComp.children.comp.dispatch(
+      deferAction(
+        wrapActionExtraInfo(
+          replaceCompAction(remoteComp({ ...compInfo, packageVersion: latestVersion.version })),
+          compInfos
+        )
+      )
+    );
+    message.success(trans("comp.upgradeSuccess"));
   }
 }

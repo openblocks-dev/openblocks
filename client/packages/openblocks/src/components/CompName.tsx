@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import styled from "styled-components";
-import { PointIcon } from "openblocks-design";
+import { EditPopoverItemType, PointIcon } from "openblocks-design";
 import { EditPopover } from "openblocks-design";
 import { EditorContext } from "comps/editorState";
 import { GridCompOperator } from "comps/utils/gridCompOperator";
@@ -11,6 +11,7 @@ import { GreyTextColor } from "constants/style";
 import { UICompType } from "comps/uiCompRegistry";
 import { trans } from "i18n";
 import { getComponentDocUrl } from "comps/utils/compDocUtil";
+import { parseCompType } from "comps/utils/remote";
 
 const CompDiv = styled.div<{ width?: number }>`
   width: ${(props) => (props.width ? props.width : 312)}px;
@@ -67,10 +68,42 @@ interface Iprops {
 export const CompName = (props: Iprops) => {
   const [error, setError] = useState<string | undefined>(undefined);
   const [editing, setEditing] = useState(false);
+  const [upgrading, setUpgrading] = useState(false);
   const editorState = useContext(EditorContext);
-  const docUrl = getComponentDocUrl(
-    values(editorState.selectedComps())[0].children.compType.getView() as UICompType
-  );
+  const selectedComp = values(editorState.selectedComps())[0];
+  const compType = selectedComp.children.compType.getView() as UICompType;
+  const compInfo = parseCompType(compType);
+  const docUrl = getComponentDocUrl(compType);
+
+  const items: EditPopoverItemType[] = [];
+
+  const handleUpgrade = async () => {
+    if (upgrading) {
+      return;
+    }
+    setUpgrading(true);
+    await GridCompOperator.upgradeCurrentComp(editorState);
+    setUpgrading(false);
+  };
+
+  if (docUrl) {
+    items.push({
+      text: trans("comp.menuViewDocs"),
+      onClick: () => {
+        window.open(docUrl, "_blank");
+      },
+    });
+  }
+
+  if (compInfo.isRemote) {
+    items.push({
+      text: trans("comp.menuUpgradeToLatest"),
+      onClick: () => {
+        handleUpgrade();
+      },
+    });
+  }
+
   return (
     <CompDiv width={props.width}>
       <div>
@@ -94,18 +127,7 @@ export const CompName = (props: Iprops) => {
       </div>
 
       <EditPopover
-        items={
-          docUrl
-            ? [
-                {
-                  text: trans("comp.menuViewDocs"),
-                  onClick: () => {
-                    window.open(docUrl, "_blank");
-                  },
-                },
-              ]
-            : []
-        }
+        items={items}
         del={() => GridCompOperator.deleteComp(editorState, editorState.selectedComps())}
       >
         <Icon tabIndex={-1} />

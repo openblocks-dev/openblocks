@@ -1,14 +1,17 @@
 import styled from "styled-components";
-import { TacoButton } from "openblocks-design";
-import { BluePlusIcon, PointIcon } from "openblocks-design";
+import {
+  BluePlusIcon,
+  EditPopover,
+  EditText,
+  PointIcon,
+  PopupCard,
+  ScrollBar,
+  TacoButton,
+} from "openblocks-design";
 import { CSSProperties, ReactNode, useContext, useState } from "react";
-import { EditPopover } from "openblocks-design";
-import { PopupCard } from "openblocks-design";
 import { EditorContext } from "comps/editorState";
-import { EditText } from "openblocks-design";
 import { useSelector } from "react-redux";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
-import { ScrollBar } from "openblocks-design";
 import { BottomResComp, BottomResTypeEnum } from "types/bottomRes";
 import { trans } from "i18n";
 
@@ -119,7 +122,7 @@ export function BottomSidebar(props: BottomSidebarProps) {
       <ScrollBar>
         {items.length > 0 ? (
           <div style={{ padding: "0 8px" }}>
-            {items.map((item, index) => {
+            {items.map((item) => {
               const type = item.type();
               const name = item.name();
               const icon = item.icon();
@@ -263,6 +266,7 @@ const NolistDiv = styled.div`
   width: 100%;
   min-height: 68px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   background: #ffffff;
@@ -271,30 +275,17 @@ const NolistDiv = styled.div`
   overflow: auto;
   min-width: 140px;
 `;
-const NolistSpan = styled.p`
-  font-size: 14px;
-  color: #b8b9bf;
-  text-align: center;
-  line-height: 17px;
-  display: inline-block;
-  margin-bottom: 0;
-  max-height: 54px;
-`;
-const Blue = styled(NolistSpan)`
-  color: #4965f2;
-  cursor: pointer;
-`;
+
 export const EmptyQueryList = (props: { newColumn: () => void }) => (
   <div style={{ display: "flex" }}>
     <NolistDiv>
-      <div style={{ width: "130px" }}>
-        <NolistSpan>
-          {trans("bottomPanel.noQueries")}
-          <Blue as={"span"} style={{ margin: "0 4px" }} onClick={props.newColumn}>
-            {trans("bottomPanel.createNew")}
-          </Blue>
-        </NolistSpan>
-      </div>
+      <div>{trans("query.noQueries")}</div>
+      <span
+        style={{ color: "#4965f2", cursor: "pointer", margin: "0 4px" }}
+        onClick={props.newColumn}
+      >
+        {trans("newItem")}
+      </span>
     </NolistDiv>
   </div>
 );

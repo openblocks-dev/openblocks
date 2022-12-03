@@ -4,6 +4,7 @@ import {
   fromUnevaledValue,
   fromValue,
   Node,
+  SimpleNode,
   withFunction,
 } from "eval";
 import _ from "lodash";
@@ -81,8 +82,8 @@ it("context test 2", () => {
 });
 
 it("map deep compare test", () => {
-  const node1 = fromValue(1);
-  const node2 = fromValue(1);
+  const node1 = new SimpleNode(1);
+  const node2 = new SimpleNode(1);
   const map1 = new Map<Node<unknown>, string[]>([[node1, ["n"]]]);
   const map2 = new Map<Node<unknown>, string[]>([[node2, ["n"]]]);
   expect(node1 === node2).toBe(false);

@@ -1,6 +1,5 @@
 import { EmptyContent } from "components/EmptyContent";
-import KeyValueItemList, { KeyValueItem } from "components/KeyValueItemList";
-import LinkPlusButton from "components/LinkPlusButton";
+import { KeyValueItem, KeyValueItemListWithNewCreateState } from "components/KeyValueItemList";
 import { changeValueAction, multiChangeAction } from "openblocks-core";
 import { StringControl } from "comps/controls/codeControl";
 import CompNameControl from "comps/controls/compNameControl";
@@ -8,7 +7,6 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { EditorContext } from "comps/editorState";
 import { list } from "comps/generators/list";
 import { Section } from "openblocks-design";
-import { BluePlusIcon } from "openblocks-design";
 import { useContext } from "react";
 import InputListItemComp, { getInputOptionLabel, InputTypeEnum } from "./inputListItemComp";
 import { trans } from "i18n";
@@ -83,27 +81,25 @@ function PropertyView(props: PropertyViewProps) {
 
   return (
     <div>
-      <KeyValueItemList
+      <KeyValueItemListWithNewCreateState
         title={trans("module.input")}
         keyTitle={trans("module.name")}
         valueTitle={trans("prop.type")}
-        extra={
-          <LinkPlusButton icon={<BluePlusIcon />} onClick={handleAdd}>
-            {trans("addItem")}
-          </LinkPlusButton>
-        }
+        onAdd={handleAdd}
         emptyText={trans("module.emptyInput")}
-        onEmptyClick={handleAdd}
       >
-        {items.map((i, idx) => (
-          <InputItem
-            key={idx}
-            {...i.children}
-            onDelete={() => onDelete(idx)}
-            onTypeChange={(value) => onTypeChange(idx, value as InputTypeEnum)}
-          />
-        ))}
-      </KeyValueItemList>
+        {(newIdx) =>
+          items.map((i, idx) => (
+            <InputItem
+              key={idx}
+              {...i.children}
+              onDelete={() => onDelete(idx)}
+              onTypeChange={(value) => onTypeChange(idx, value as InputTypeEnum)}
+              defaultShowPopover={idx === newIdx}
+            />
+          ))
+        }
+      </KeyValueItemListWithNewCreateState>
     </div>
   );
 }
@@ -116,6 +112,7 @@ interface InputItemProps {
   description: InstanceType<typeof StringControl>;
   onDelete: () => void;
   onTypeChange: (value: string) => void;
+  defaultShowPopover: boolean;
 }
 
 function InputItem(props: InputItemProps) {
@@ -143,6 +140,7 @@ function InputItem(props: InputItemProps) {
       name={name.getView()}
       value={cnLabel}
       clickPopoverContent={content}
+      defaultShowPopover={props.defaultShowPopover}
     />
   );
 }

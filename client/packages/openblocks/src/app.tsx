@@ -43,6 +43,12 @@ import ApplicationHome from "./pages/ApplicationV2";
 import { favicon } from "@openblocks-ee/assets/images";
 import { hasQueryParam } from "util/urlUtils";
 
+const LazyUserAuthComp = React.lazy(() => import("@openblocks-ee/pages/userAuth"));
+const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
+const LazyComponentDoc = React.lazy(() => import("@openblocks-ee/pages/ComponentDoc"));
+const LazyDebugComp = React.lazy(() => import("./debug"));
+const LazyDebugNewComp = React.lazy(() => import("./debugNew"));
+
 const Wrapper = (props: { children: React.ReactNode }) => {
   return <ConfigProvider locale={getAntdLocale(language)}>{props.children}</ConfigProvider>;
 };
@@ -118,24 +124,17 @@ class AppIndex extends React.Component<AppIndexProps, any> {
               // component={ApplicationListPage}
               component={ApplicationHome}
             />
-            <LazyRoute path={USER_AUTH_URL} load={() => import("@openblocks-ee/pages/userAuth")} />
-            <LazyRoute
-              path={INVITE_LANDING_URL}
-              load={() => import("pages/common/inviteLanding")}
-            />
-
-            <LazyRoute
-              path={`${COMPONENT_DOC_URL}/:name`}
-              load={() => import("@openblocks-ee/pages/ComponentDoc")}
-            />
+            <LazyRoute path={USER_AUTH_URL} component={LazyUserAuthComp} />
+            <LazyRoute path={INVITE_LANDING_URL} component={LazyInviteLanding} />
+            <LazyRoute path={`${COMPONENT_DOC_URL}/:name`} component={LazyComponentDoc} />
             <Redirect to={`${COMPONENT_DOC_URL}/input`} path="/components" />
 
             {developEnv() && (
               <>
-                <LazyRoute path="/debug_comp/:name" load={() => import("./debug")} />
-                <LazyRoute exact path="/debug_comp" load={() => import("./debug")} />
+                <LazyRoute path="/debug_comp/:name" component={LazyDebugComp} />
+                <LazyRoute exact path="/debug_comp" component={LazyDebugComp} />
                 <Route path="/debug_editor" component={AppEditor} />
-                <LazyRoute path="/debug_new" load={() => import("./debugNew")} />
+                <LazyRoute path="/debug_new" component={LazyDebugNewComp} />
               </>
             )}
           </Switch>

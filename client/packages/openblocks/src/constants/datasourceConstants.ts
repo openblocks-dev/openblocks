@@ -13,7 +13,7 @@ export const databasePlugins: Partial<DatasourceType>[] = [
   "googleSheets",
 ];
 
-export const apiPluginsForQueryLibrary: Partial<DatasourceType>[] = ["restApi", "smtp"];
+export const apiPluginsForQueryLibrary: Partial<DatasourceType>[] = ["restApi", "smtp", "graphql"];
 
 export const apiPlugins: Partial<DatasourceType>[] = [...apiPluginsForQueryLibrary];
 

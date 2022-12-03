@@ -1,6 +1,6 @@
 {
-  "name": "create-openblocks-comps",
-  "version": "0.0.7",
+  "name": "create-openblocks-plugin",
+  "version": "0.0.2",
   "bin": "./index.js",
   "type": "module",
   "dependencies": {
@@ -8,5 +8,9 @@
     "commander": "^9.4.1",
     "fs-extra": "^10.1.0",
     "openblocks-dev-utils": "workspace:^"
-  }
+  },
+  "license": "MIT",
+  "keywords": [
+    "openblocks"
+  ]
 }

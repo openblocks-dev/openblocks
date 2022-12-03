@@ -19,9 +19,8 @@ import {
   textInputChildren,
   TextInputConfigs,
   TextInputInteractionSection,
-  textInputProps,
-  textInputValidate,
   TextInputValidationSection,
+  useTextInputProps,
 } from "./textInputConstants";
 import {
   allowClearPropertyView,
@@ -46,18 +45,19 @@ const InputTmpComp = (function () {
     style: styleControl(InputLikeStyle),
   };
   return new UICompBuilder(childrenMap, (props) => {
+    const [inputProps, validateState] = useTextInputProps(props);
     return props.label({
       required: props.required,
       children: (
         <InputStyle
-          {...textInputProps(props)}
+          {...inputProps}
           showCount={props.showCount}
           allowClear={props.allowClear}
           $style={props.style}
         />
       ),
       style: props.style,
-      ...textInputValidate(props),
+      ...validateState,
     });
   })
     .setPropertyViewFn((children) => {

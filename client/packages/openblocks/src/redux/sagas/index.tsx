@@ -10,6 +10,7 @@ import { queryLibrarySagas } from "./queryLibrarySagas";
 import { folderSagas } from "./folderSagas";
 import { all, call, spawn } from "redux-saga/effects";
 import log from "loglevel";
+import { datasourcePermissionSagas } from "./datasourcePermissionSagas";
 
 export const sagas = [
   applicationSagas,
@@ -18,6 +19,7 @@ export const sagas = [
   orgSagas,
   queryLibrarySagas,
   datasourceSagas,
+  datasourcePermissionSagas,
   pluginSagas,
   configSagas,
   appSnapshotSagas,

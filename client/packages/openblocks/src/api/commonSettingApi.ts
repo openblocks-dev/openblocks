@@ -15,6 +15,7 @@ export interface CommonSettingResponseData {
   preloadJavaScript?: string | null;
   runJavaScriptInHost?: boolean | null;
   preloadLibs?: string[] | null;
+  npmPlugins?: string[] | null;
   applyPreloadCSSToHomePage?: boolean | null;
   defaultHomePage?: string | null;
 }

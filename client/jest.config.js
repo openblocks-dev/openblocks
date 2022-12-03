@@ -1,3 +1,3 @@
 export default {
-  projects: ["<rootDir>/packages/*"],
+  projects: ["<rootDir>/packages/openblocks", "<rootDir>/packages/openblocks-core"],
 };

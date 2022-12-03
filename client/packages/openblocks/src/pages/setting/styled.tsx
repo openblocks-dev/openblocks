@@ -1,3 +1,5 @@
+import { GreyTextColor } from "constants/style";
+import { TacoButton } from "openblocks-design";
 import styled from "styled-components";
 
 export const TwoColumnSettingPageContent = styled.div`
@@ -16,7 +18,7 @@ export const Level1SettingPageContent = styled.div`
 
 export const Level1SettingPageContentWithList = styled(Level1SettingPageContent)`
   padding: 32px 24px 32px 12px;
-`
+`;
 
 export const Level1SettingPageTitle = styled.div`
   font-size: 20px;
@@ -31,4 +33,27 @@ export const Level1SettingPageTitle = styled.div`
 export const Level1SettingPageTitleWithBtn = styled(Level1SettingPageTitle)`
   justify-content: space-between;
   margin: 0 12px 6px 12px;
-`
+`;
+export const SettingContent = styled.div`
+  max-width: 840px;
+  .section-title {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .section-content {
+    margin-bottom: 32px;
+  }
+  .section-option {
+    color: ${GreyTextColor};
+    margin-bottom: 14px;
+    font-size: 13px;
+  }
+  .code-editor {
+    margin-bottom: 12px;
+  }
+`;
+
+export const SaveButton = styled(TacoButton)`
+  min-width: 76px;
+`;

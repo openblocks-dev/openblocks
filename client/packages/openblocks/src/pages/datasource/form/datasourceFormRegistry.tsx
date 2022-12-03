@@ -9,6 +9,7 @@ import { GoogleSheetsDatasourceForm } from "./googleSheetsDatasourceForm";
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 import { sqlDatasourceForm } from "./sqlDatasourceForm";
+import { GraphqlDatasourceForm } from "./graphqlDatasourceForm";
 
 export interface DatasourceFormProps {
   form: FormInstance;
@@ -43,4 +44,5 @@ export const DatasourceFormRegistry: Partial<Record<DatasourceType, DatasourceFo
     whitelist: true,
   },
   googleSheets: { enableTest: false, form: GoogleSheetsDatasourceForm },
+  graphql: { enableTest: false, form: GraphqlDatasourceForm },
 };

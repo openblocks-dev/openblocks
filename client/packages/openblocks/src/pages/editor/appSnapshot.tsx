@@ -100,6 +100,7 @@ const SnapshotOperationDesc: Record<ExtraActionType, string> = {
   modify: trans("history.modify"),
   rename: trans("history.rename"),
   recover: trans("history.recover"),
+  upgrade: trans("history.upgrade"),
 };
 
 function getOperationDesc(context: AppSnapshotContext) {

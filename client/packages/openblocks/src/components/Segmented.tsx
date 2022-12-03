@@ -25,6 +25,7 @@ const StyledSegmented = styled(AntdSegmented)<PropsType<typeof AntdSegmented>>`
   }
 
   .ant-segmented-item-label {
+    padding: 0 8px;
     height: 24px;
     min-height: 24px;
     line-height: 24px;

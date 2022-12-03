@@ -1,7 +1,7 @@
 import { memoized } from "util/memoize";
 import { EvalMethods } from "./types/evalTypes";
 import { Node, AbstractNode, ValueFn } from "./node";
-import { fromValue, SimpleNode } from "./simpleNode";
+import { fromValue, fromValueWithCache, SimpleNode } from "./simpleNode";
 
 export class WrapContextNode<T> extends AbstractNode<ValueFn<T>> {
   readonly type = "wrapContext";
@@ -28,7 +28,7 @@ export class WrapContextNode<T> extends AbstractNode<ValueFn<T>> {
         const paramNode = paramNodes[paramName];
         const value = paramValues[i];
         if (!paramNode || value !== paramNode.value) {
-          paramNodes[paramName] = fromValue(value);
+          paramNodes[paramName] = fromValueWithCache(value); // requires cache
         }
       });
       return this.child.evaluate({ ...exposingNodes, ...paramNodes }, methods);

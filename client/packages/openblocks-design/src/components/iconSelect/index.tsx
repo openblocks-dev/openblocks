@@ -231,7 +231,6 @@ const IconPopup = (props: {
             <IconItemContainer
               tabIndex={0}
               onClick={() => {
-                console.info(path);
                 onChangeIcon(path);
               }}
             >

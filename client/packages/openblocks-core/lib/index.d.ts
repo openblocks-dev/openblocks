@@ -121,7 +121,7 @@ declare class CachedNode<T> extends AbstractNode<CachedValue<T>> {
 /**
  * return a new node with two input nodes.
  * - if mainNode is never evaled, then (new node).evaluate equals to mainNode.evaluate
- * - if mainNode is never evaled, then (new node).evaluate equals to minorNode.evaluate
+ * - if mainNode is evaled, then (new node).evaluate equals to minorNode.evaluate
  *
  * @remarks
  * encapsulation logic: 2 nodes -> CachedNode(mainNode)+minorNode -> RecordNode({main, minor}) -> FunctionNode
@@ -274,6 +274,7 @@ declare class SimpleNode<T> extends AbstractNode<T> {
  * provide simple value, don't need to eval
  */
 declare function fromValue<T>(value: T): SimpleNode<T>;
+declare function fromValueWithCache<T>(value: T): SimpleNode<T>;
 
 declare class WrapNode<T> extends AbstractNode<T> {
   readonly delegate: Node<T>;
@@ -339,165 +340,6 @@ interface JSONObject {
   [x: string]: JSONValue | undefined;
 }
 declare type JSONArray = Array<JSONValue>;
-
-declare enum CompActionTypes {
-  CHANGE_VALUE = "CHANGE_VALUE",
-  RENAME = "RENAME",
-  MULTI_CHANGE = "MULTI_CHANGE",
-  ADD_CHILD = "ADD_CHILD",
-  DELETE_COMP = "DELETE_COMP",
-  ONLY_EVAL = "NEED_EVAL",
-  ASYNC = "ASYNC",
-  ASYNC_END = "ASYNC_END",
-  UPDATE_NODES_V2 = "UPDATE_NODES_V2",
-  EXECUTE_QUERY = "EXECUTE_QUERY",
-  TRIGGER_MODULE_EVENT = "TRIGGER_MODULE_EVENT",
-  /**
-   * this action can pass data to the comp by name
-   */
-  ROUTE_BY_NAME = "ROUTE_BY_NAME",
-  /**
-   * execute action with context. for example, buttons in table's column should has currentRow as context
-   * FIXME: this is a broadcast message, better to be improved by a heritage mechanism.
-   */
-  UPDATE_ACTION_CONTEXT = "UPDATE_ACTION_CONTEXT",
-  /**
-   * comp-specific action can be placed not globally.
-   * use CUSTOM uniformly.
-   */
-  CUSTOM = "CUSTOM",
-  /**
-   * broadcast other actions in comp tree structure.
-   * used for encapsulate MultiBaseComp
-   */
-  BROADCAST = "BROADCAST",
-}
-declare type ExtraActionType = "layout" | "delete" | "add" | "modify" | "rename" | "recover";
-declare type ActionExtraInfo = {
-  compInfos: {
-    compName: string;
-    compType: string;
-    type: ExtraActionType;
-  }[];
-};
-declare type ActionPriority = "sync" | "defer";
-interface ActionCommon {
-  path: Array<string>;
-  skipHistory?: boolean;
-  extraInfo?: ActionExtraInfo;
-  priority?: ActionPriority;
-}
-interface CustomAction<DataType = JSONValue> extends ActionCommon {
-  type: CompActionTypes.CUSTOM;
-  value: DataType;
-}
-interface ChangeValueAction<DataType extends JSONValue = JSONValue> extends ActionCommon {
-  type: CompActionTypes.CHANGE_VALUE;
-  value: DataType;
-}
-interface RenameAction extends ActionCommon {
-  type: CompActionTypes.RENAME;
-  oldName: string;
-  name: string;
-}
-interface BroadcastAction<Action extends ActionCommon = ActionCommon> extends ActionCommon {
-  type: CompActionTypes.BROADCAST;
-  action: Action;
-}
-interface MultiChangeAction extends ActionCommon {
-  type: CompActionTypes.MULTI_CHANGE;
-  changes: Record<string, CompAction>;
-}
-interface AddChildAction extends ActionCommon {
-  type: CompActionTypes.ADD_CHILD;
-  key: string;
-  value: JSONValue;
-}
-interface SimpleCompAction extends ActionCommon {
-  type: CompActionTypes.DELETE_COMP | CompActionTypes.ONLY_EVAL;
-}
-interface ExecuteQueryAction extends ActionCommon {
-  type: CompActionTypes.EXECUTE_QUERY;
-  queryName?: string;
-  args?: Record<string, unknown>;
-  afterExecFunc?: () => void;
-}
-interface TriggerModuleEventAction extends ActionCommon {
-  type: CompActionTypes.TRIGGER_MODULE_EVENT;
-  name: string;
-}
-interface RouteByNameAction extends ActionCommon {
-  type: CompActionTypes.ROUTE_BY_NAME;
-  name: string;
-  action: CompAction<any>;
-}
-interface UpdateNodesV2Action extends ActionCommon {
-  type: CompActionTypes.UPDATE_NODES_V2;
-  value: any;
-}
-declare type ActionContextType = Record<string, unknown>;
-interface UpdateActionContextAction extends ActionCommon {
-  type: CompActionTypes.UPDATE_ACTION_CONTEXT;
-  context: ActionContextType;
-}
-declare type CompAction<DataType extends JSONValue = JSONValue> =
-  | CustomAction<unknown>
-  | ChangeValueAction<DataType>
-  | BroadcastAction
-  | RenameAction
-  | AddChildAction
-  | MultiChangeAction
-  | SimpleCompAction
-  | ExecuteQueryAction
-  | UpdateActionContextAction
-  | RouteByNameAction
-  | TriggerModuleEventAction
-  | UpdateNodesV2Action;
-
-declare function customAction<DataType>(value: DataType): CustomAction<DataType>;
-declare function updateActionContextAction(
-  context: ActionContextType
-): BroadcastAction<UpdateActionContextAction>;
-/**
- * check if it's current custom action.
- * keep type safe via generics, users should keep type the same as T, otherwise may cause bug.
- */
-declare function isMyCustomAction<T>(action: CompAction, type: string): action is CustomAction<T>;
-declare function isCustomAction<T>(action: CompAction, type: string): action is CustomAction<T>;
-/**
- * The action of execute query.
- * path route to the query exactly.
- * RootComp will change the path correctly when queryName is passed.
- */
-declare function executeQueryAction(props: {
-  args?: Record<string, unknown>;
-  afterExecFunc?: () => void;
-}): ExecuteQueryAction;
-declare function triggerModuleEventAction(name: string): TriggerModuleEventAction;
-/**
- * better to use comp.dispatchChangeValueAction to keep type safe
- */
-declare function changeValueAction(value: JSONValue): ChangeValueAction;
-declare function isBroadcastAction<T extends CompAction>(
-  action: CompAction,
-  type: T["type"]
-): action is BroadcastAction<T>;
-declare function renameAction(oldName: string, name: string): BroadcastAction<RenameAction>;
-declare function routeByNameAction(name: string, action: CompAction<any>): RouteByNameAction;
-declare function addChildAction(key: string, value: JSONValue): AddChildAction;
-declare function multiChangeAction(changes: Record<string, CompAction>): MultiChangeAction;
-declare function deleteCompAction(): SimpleCompAction;
-declare function onlyEvalAction(): SimpleCompAction;
-declare function wrapChildAction(childName: string, action: CompAction): CompAction;
-declare function isChildAction(action: CompAction): boolean;
-declare function unwrapChildAction(action: CompAction): [string, CompAction];
-declare function changeChildAction(childName: string, value: JSONValue): CompAction;
-declare function updateNodesV2Action(value: any): UpdateNodesV2Action;
-declare function wrapActionExtraInfo<T extends CompAction>(
-  action: T,
-  extraCompInfos: ActionExtraInfo["compInfos"]
-): T;
-declare function deferAction<T extends CompAction>(action: T): T;
 
 declare type OptionalNodeType = Node<unknown> | undefined;
 declare type DispatchType = (action: CompAction) => void;
@@ -573,6 +415,179 @@ interface CompParams<DataType extends JSONValue = JSONValue> {
   dispatch?: (action: CompAction) => void;
   value?: DataType;
 }
+
+declare enum CompActionTypes {
+  CHANGE_VALUE = "CHANGE_VALUE",
+  RENAME = "RENAME",
+  MULTI_CHANGE = "MULTI_CHANGE",
+  ADD_CHILD = "ADD_CHILD",
+  DELETE_COMP = "DELETE_COMP",
+  REPLACE_COMP = "REPLACE_COMP",
+  ONLY_EVAL = "NEED_EVAL",
+  ASYNC = "ASYNC",
+  ASYNC_END = "ASYNC_END",
+  UPDATE_NODES_V2 = "UPDATE_NODES_V2",
+  EXECUTE_QUERY = "EXECUTE_QUERY",
+  TRIGGER_MODULE_EVENT = "TRIGGER_MODULE_EVENT",
+  /**
+   * this action can pass data to the comp by name
+   */
+  ROUTE_BY_NAME = "ROUTE_BY_NAME",
+  /**
+   * execute action with context. for example, buttons in table's column should has currentRow as context
+   * FIXME: this is a broadcast message, better to be improved by a heritage mechanism.
+   */
+  UPDATE_ACTION_CONTEXT = "UPDATE_ACTION_CONTEXT",
+  /**
+   * comp-specific action can be placed not globally.
+   * use CUSTOM uniformly.
+   */
+  CUSTOM = "CUSTOM",
+  /**
+   * broadcast other actions in comp tree structure.
+   * used for encapsulate MultiBaseComp
+   */
+  BROADCAST = "BROADCAST",
+}
+declare type ExtraActionType =
+  | "layout"
+  | "delete"
+  | "add"
+  | "modify"
+  | "rename"
+  | "recover"
+  | "upgrade";
+declare type ActionExtraInfo = {
+  compInfos: {
+    compName: string;
+    compType: string;
+    type: ExtraActionType;
+  }[];
+};
+declare type ActionPriority = "sync" | "defer";
+interface ActionCommon {
+  path: Array<string>;
+  skipHistory?: boolean;
+  extraInfo?: ActionExtraInfo;
+  priority?: ActionPriority;
+}
+interface CustomAction<DataType = JSONValue> extends ActionCommon {
+  type: CompActionTypes.CUSTOM;
+  value: DataType;
+}
+interface ChangeValueAction<DataType extends JSONValue = JSONValue> extends ActionCommon {
+  type: CompActionTypes.CHANGE_VALUE;
+  value: DataType;
+}
+interface ReplaceCompAction extends ActionCommon {
+  type: CompActionTypes.REPLACE_COMP;
+  compFactory: CompConstructor;
+}
+interface RenameAction extends ActionCommon {
+  type: CompActionTypes.RENAME;
+  oldName: string;
+  name: string;
+}
+interface BroadcastAction<Action extends ActionCommon = ActionCommon> extends ActionCommon {
+  type: CompActionTypes.BROADCAST;
+  action: Action;
+}
+interface MultiChangeAction extends ActionCommon {
+  type: CompActionTypes.MULTI_CHANGE;
+  changes: Record<string, CompAction>;
+}
+interface AddChildAction extends ActionCommon {
+  type: CompActionTypes.ADD_CHILD;
+  key: string;
+  value: JSONValue;
+}
+interface SimpleCompAction extends ActionCommon {
+  type: CompActionTypes.DELETE_COMP | CompActionTypes.ONLY_EVAL;
+}
+interface ExecuteQueryAction extends ActionCommon {
+  type: CompActionTypes.EXECUTE_QUERY;
+  queryName?: string;
+  args?: Record<string, unknown>;
+  afterExecFunc?: () => void;
+}
+interface TriggerModuleEventAction extends ActionCommon {
+  type: CompActionTypes.TRIGGER_MODULE_EVENT;
+  name: string;
+}
+interface RouteByNameAction extends ActionCommon {
+  type: CompActionTypes.ROUTE_BY_NAME;
+  name: string;
+  action: CompAction<any>;
+}
+interface UpdateNodesV2Action extends ActionCommon {
+  type: CompActionTypes.UPDATE_NODES_V2;
+  value: any;
+}
+declare type ActionContextType = Record<string, unknown>;
+interface UpdateActionContextAction extends ActionCommon {
+  type: CompActionTypes.UPDATE_ACTION_CONTEXT;
+  context: ActionContextType;
+}
+declare type CompAction<DataType extends JSONValue = JSONValue> =
+  | CustomAction<unknown>
+  | ChangeValueAction<DataType>
+  | BroadcastAction
+  | RenameAction
+  | ReplaceCompAction
+  | AddChildAction
+  | MultiChangeAction
+  | SimpleCompAction
+  | ExecuteQueryAction
+  | UpdateActionContextAction
+  | RouteByNameAction
+  | TriggerModuleEventAction
+  | UpdateNodesV2Action;
+
+declare function customAction<DataType>(value: DataType): CustomAction<DataType>;
+declare function updateActionContextAction(
+  context: ActionContextType
+): BroadcastAction<UpdateActionContextAction>;
+/**
+ * check if it's current custom action.
+ * keep type safe via generics, users should keep type the same as T, otherwise may cause bug.
+ */
+declare function isMyCustomAction<T>(action: CompAction, type: string): action is CustomAction<T>;
+declare function isCustomAction<T>(action: CompAction, type: string): action is CustomAction<T>;
+/**
+ * The action of execute query.
+ * path route to the query exactly.
+ * RootComp will change the path correctly when queryName is passed.
+ */
+declare function executeQueryAction(props: {
+  args?: Record<string, unknown>;
+  afterExecFunc?: () => void;
+}): ExecuteQueryAction;
+declare function triggerModuleEventAction(name: string): TriggerModuleEventAction;
+/**
+ * better to use comp.dispatchChangeValueAction to keep type safe
+ */
+declare function changeValueAction(value: JSONValue): ChangeValueAction;
+declare function isBroadcastAction<T extends CompAction>(
+  action: CompAction,
+  type: T["type"]
+): action is BroadcastAction<T>;
+declare function renameAction(oldName: string, name: string): BroadcastAction<RenameAction>;
+declare function routeByNameAction(name: string, action: CompAction<any>): RouteByNameAction;
+declare function addChildAction(key: string, value: JSONValue): AddChildAction;
+declare function multiChangeAction(changes: Record<string, CompAction>): MultiChangeAction;
+declare function deleteCompAction(): SimpleCompAction;
+declare function replaceCompAction(compFactory: CompConstructor): ReplaceCompAction;
+declare function onlyEvalAction(): SimpleCompAction;
+declare function wrapChildAction(childName: string, action: CompAction): CompAction;
+declare function isChildAction(action: CompAction): boolean;
+declare function unwrapChildAction(action: CompAction): [string, CompAction];
+declare function changeChildAction(childName: string, value: JSONValue): CompAction;
+declare function updateNodesV2Action(value: any): UpdateNodesV2Action;
+declare function wrapActionExtraInfo<T extends CompAction>(
+  action: T,
+  extraCompInfos: ActionExtraInfo["compInfos"]
+): T;
+declare function deferAction<T extends CompAction>(action: T): T;
 
 /**
  * MultiBaseCompConstructor with abstract function implemented
@@ -737,6 +752,7 @@ export {
   RecordNodeToValue,
   RecordOptionalNodeToValue,
   RenameAction,
+  ReplaceCompAction,
   RouteByNameAction,
   SimpleAbstractComp,
   SimpleComp,
@@ -766,6 +782,7 @@ export {
   fromRecord,
   fromUnevaledValue,
   fromValue,
+  fromValueWithCache,
   getDynamicStringSegments,
   getI18nObjects,
   getValueByLocale,
@@ -782,6 +799,7 @@ export {
   onlyEvalAction,
   relaxedJSONToJSON,
   renameAction,
+  replaceCompAction,
   routeByNameAction,
   transformWrapper,
   triggerModuleEventAction,

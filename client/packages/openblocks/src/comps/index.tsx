@@ -39,6 +39,7 @@ import {
   ButtonCompIcon,
   CarouselCompIcon,
   CascaderCompIcon,
+  ChartCompIcon,
   CheckboxCompIcon,
   CollapsibleContainerCompIcon,
   ContainerCompIcon,
@@ -52,6 +53,7 @@ import {
   FormCompIcon,
   IFrameCompIcon,
   ImageCompIcon,
+  imageEditorIcon,
   InputCompIcon,
   JsonEditorCompIcon,
   JsonExplorerCompIcon,
@@ -100,17 +102,23 @@ import { JsonEditorComp } from "./comps/jsonComp/jsonEditorComp";
 import { TreeComp } from "./comps/treeComp/treeComp";
 import { TreeSelectComp } from "./comps/treeComp/treeSelectComp";
 import { trans } from "i18n";
-import { compPackageRegistry } from "./remoteUiCompRegistry";
-import { remoteComp } from "./comps/remoteComp";
+import { remoteComp } from "./comps/remoteComp/remoteComp";
 import { AudioComp } from "./comps/mediaComp/audioComp";
 import { VideoComp } from "./comps/mediaComp/videoComp";
 import { DrawerComp } from "./hooks/drawerComp";
 import { CarouselComp } from "./comps/carouselComp";
 import { ToggleButtonComp } from "./comps/buttonComp/toggleButtonComp";
 import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
+import { RemoteCompInfo } from "types/remoteComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
+};
+
+const builtInRemoteComps: Omit<RemoteCompInfo, "compName"> = {
+  source: "npm",
+  isRemote: true,
+  packageName: "openblocks-comps",
 };
 
 const uiCompMap: Registry = {
@@ -732,6 +740,32 @@ const uiCompMap: Registry = {
     },
     defaultDataFn: defaultCollapsibleContainerData,
   },
+  chart: {
+    name: trans("uiComp.chartCompName"),
+    enName: "Chart",
+    description: trans("uiComp.chartCompDesc"),
+    categories: ["dataDisplay", "common"],
+    icon: ChartCompIcon,
+    comp: remoteComp({ ...builtInRemoteComps, compName: "chart" }),
+    keywords: trans("uiComp.chartCompKeywords"),
+    layoutInfo: {
+      w: 11,
+      h: 35,
+    },
+  },
+  imageEditor: {
+    name: trans("uiComp.imageEditorCompName"),
+    enName: "Image Editor",
+    comp: remoteComp({ ...builtInRemoteComps, compName: "imageEditor" }),
+    description: trans("uiComp.imageEditorCompDesc"),
+    categories: ["dataDisplay"],
+    icon: imageEditorIcon,
+    keywords: trans("uiComp.imageEditorCompKeywords"),
+    layoutInfo: {
+      w: 15,
+      h: 60,
+    },
+  },
 };
 
 export function loadComps() {
@@ -739,21 +773,4 @@ export function loadComps() {
   for (const [compType, manifest] of entries) {
     registerComp(compType as UICompType, manifest);
   }
-
-  compPackageRegistry.forEach((pkg) => {
-    const { name, versions } = pkg;
-    versions.forEach((pkgVersion) => {
-      const { version, comps } = pkgVersion;
-      Object.entries(comps).forEach(([key, meta]) => {
-        registerComp(key, {
-          ...meta,
-          comp: remoteComp({
-            compName: key,
-            packageName: name,
-            packageVersion: version,
-          }),
-        });
-      });
-    });
-  });
 }

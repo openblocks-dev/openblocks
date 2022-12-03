@@ -11,6 +11,7 @@ import {
 } from "../../controls/codeStateControl";
 import { requiredPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { useState } from "react";
 
 export const SelectInputValidationChildren = {
   required: BoolControl,
@@ -38,6 +39,20 @@ export const selectInputValidate = (
     return { validateStatus: "error", help: trans("prop.required") };
   }
   return { validateStatus: "success" };
+};
+
+export const useSelectInputValidate = (props: ValidationParams) => {
+  const [validateState, setValidateState] = useState({});
+  const handleChange = (value: string | (string | number)[]) => {
+    const validateRes = selectInputValidate({
+      ...props,
+      value: {
+        value,
+      },
+    });
+    setValidateState(validateRes);
+  };
+  return [validateState, handleChange] as const;
 };
 
 type ValidationCompWithValue = ValidationComp & {

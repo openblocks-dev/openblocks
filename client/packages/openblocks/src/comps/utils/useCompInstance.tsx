@@ -189,7 +189,7 @@ export function getCompContainer<T extends CompConstructor>(params: GetContainer
       }
       // action is not necessarily jsonObject, not serializable, see how to log later
       if (action?.type !== CompActionTypes.UPDATE_NODES_V2) {
-        // log.log(`receive action ${action.type} ${JSON.stringify(action, null, 2)}`);
+        // log.log(`receive action ${action?.type} ${JSON.stringify(action, null, 2)}`);
       }
       let tmpComp = this.comp;
       // All actions processed by this dispatch reduce

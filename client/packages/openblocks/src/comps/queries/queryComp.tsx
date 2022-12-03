@@ -403,15 +403,9 @@ QueryCompTmp = class extends QueryCompTmp implements BottomResComp {
       case "es":
       case "smtp":
         return "json";
-      case "mysql":
-      case "postgres":
-      case "mssql":
-      case "oracle":
-      case "clickHouse":
-      case "libraryQuery":
-        return "table";
+
       default:
-        return "text";
+        return "default";
     }
   }
 

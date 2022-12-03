@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es5",
     "experimentalDecorators": true,
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -16,12 +16,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": "./src",
-    "paths": {
-      "@openblocks-ee/*": ["../../openblocks/src/*"],
-      "openblocks-sdk": ["../../openblocks/src/index.sdk"],
-      "*": ["*", "../../openblocks/src/*", "../../openblocks-design/src/*"]
-    }
+    "baseUrl": "./src"
   },
-  "include": ["src", "../openblocks/src"]
+  "include": ["src", "index.tsx"]
 }

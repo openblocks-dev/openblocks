@@ -9,8 +9,8 @@ import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generat
 import styled, { css } from "styled-components";
 import {
   SelectInputInvalidConfig,
-  selectInputValidate,
   SelectInputValidationChildren,
+  useSelectInputValidate,
 } from "./selectInputConstants";
 import { formDataChildren } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
@@ -110,8 +110,9 @@ const CheckboxBasicComp = (function () {
     ...SelectInputValidationChildren,
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props) =>
-    props.label({
+  return new UICompBuilder(childrenMap, (props) => {
+    const [validateState, handleValidate] = useSelectInputValidate(props);
+    return props.label({
       required: props.required,
       style: props.style,
       children: (
@@ -128,14 +129,15 @@ const CheckboxBasicComp = (function () {
               disabled: option.disabled,
             }))}
           onChange={(values) => {
+            handleValidate(values as string[]);
             props.value.onChange(values as string[]);
             props.onEvent("change");
           }}
         />
       ),
-      ...selectInputValidate(props),
-    })
-  )
+      ...validateState,
+    });
+  })
     .setPropertyViewFn((children) => <RadioPropertyView {...children} />)
     .build();
 })();

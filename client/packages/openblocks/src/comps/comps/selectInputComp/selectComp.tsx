@@ -5,7 +5,7 @@ import { stringExposingStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { SelectChildrenMap, SelectPropertyView, SelectUIView } from "./selectCompConstants";
-import { SelectInputInvalidConfig, selectInputValidate } from "./selectInputConstants";
+import { SelectInputInvalidConfig, useSelectInputValidate } from "./selectInputConstants";
 
 export const SelectBasicComp = (function () {
   const childrenMap = {
@@ -15,6 +15,7 @@ export const SelectBasicComp = (function () {
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const valueSet = new Set<any>(props.options.map((o) => o.value)); // Filter illegal default values entered by the user
+    const [validateState, onChange] = useSelectInputValidate(props);
     return props.label({
       required: props.required,
       style: props.style,
@@ -23,13 +24,14 @@ export const SelectBasicComp = (function () {
           {...props}
           value={valueSet.has(props.value.value) ? props.value.value : undefined}
           onChange={(value) => {
+            onChange(value ?? "");
             props.value.onChange(value ?? "");
             props.onEvent("change");
           }}
           dispatch={dispatch}
         />
       ),
-      ...selectInputValidate(props),
+      ...validateState,
     });
   })
     .setPropertyViewFn((children) => <SelectPropertyView {...children} />)

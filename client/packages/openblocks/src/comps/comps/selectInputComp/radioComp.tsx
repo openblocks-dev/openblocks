@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { RadioChildrenMap, RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
-import { SelectInputInvalidConfig, selectInputValidate } from "./selectInputConstants";
+import { SelectInputInvalidConfig, useSelectInputValidate } from "./selectInputConstants";
 import { ValueFromOption } from "openblocks-design";
 import { EllipsisTextCss } from "openblocks-design";
 import { trans } from "i18n";
@@ -79,8 +79,9 @@ const Radio = styled(AntdRadio.Group)<{
 `;
 
 export const RadioBasicComp = (function () {
-  return new UICompBuilder(RadioChildrenMap, (props) =>
-    props.label({
+  return new UICompBuilder(RadioChildrenMap, (props) => {
+    const [validateState, handleValidate] = useSelectInputValidate(props);
+    return props.label({
       required: props.required,
       style: props.style,
       children: (
@@ -90,6 +91,7 @@ export const RadioBasicComp = (function () {
           $style={props.style}
           $layout={props.layout}
           onChange={(e) => {
+            handleValidate(e.target.value);
             props.value.onChange(e.target.value);
             props.onEvent("change");
           }}
@@ -102,9 +104,9 @@ export const RadioBasicComp = (function () {
             }))}
         />
       ),
-      ...selectInputValidate(props),
-    })
-  )
+      ...validateState,
+    });
+  })
     .setPropertyViewFn((children) => <RadioPropertyView {...children} />)
     .build();
 })();

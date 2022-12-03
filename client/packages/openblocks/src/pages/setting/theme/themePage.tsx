@@ -228,8 +228,8 @@ const mapStateToProps = (state: AppState) => {
   const { currentOrgId: orgId } = state.ui.users.currentUser;
   const isAdmin = currentOrgAdmin(state.ui.users.currentUser);
   return {
-    themeList: state.ui.commonSettings.themeList,
-    defaultTheme: state.ui.commonSettings.defaultTheme,
+    themeList: state.ui.commonSettings.settings.themeList,
+    defaultTheme: state.ui.commonSettings.settings.defaultTheme,
     orgId,
     isAdmin: isAdmin,
   };

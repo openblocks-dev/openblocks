@@ -1,3 +1,4 @@
+import LRU from "lru-cache";
 import { memoized } from "util/memoize";
 import { AbstractNode, Node } from "./node";
 
@@ -38,4 +39,14 @@ export class SimpleNode<T> extends AbstractNode<T> {
  */
 export function fromValue<T>(value: T) {
   return new SimpleNode(value);
+}
+
+const lru = new LRU<unknown, SimpleNode<unknown>>({ max: 16384 });
+export function fromValueWithCache<T>(value: T): SimpleNode<T> {
+  let res = lru.get(value);
+  if (res === undefined) {
+    res = fromValue(value);
+    lru.set(value, res);
+  }
+  return res as SimpleNode<T>;
 }

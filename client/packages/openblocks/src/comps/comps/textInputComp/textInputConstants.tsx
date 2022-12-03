@@ -32,6 +32,7 @@ import {
   requiredPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { ChangeEvent, useState } from "react";
 
 export const TextInputValidationOptions = [
   {
@@ -140,7 +141,7 @@ export const textInputChildren = {
   ...formDataChildren,
 };
 
-export const textInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => ({
+const textInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => ({
   ref: props.viewRef,
   disabled: props.disabled,
   readOnly: props.readOnly,
@@ -154,6 +155,30 @@ export const textInputProps = (props: RecordConstructorToView<typeof textInputCh
   onBlur: () => props.onEvent("blur"),
   onPressEnter: () => props.onEvent("submit"),
 });
+
+export const useTextInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => {
+  const { onChange, ...inputProps } = textInputProps(props);
+  const [validateState, setValidateState] = useState({});
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    onChange(e);
+    setValidateState(
+      textInputValidate({
+        ...props,
+        value: {
+          value: e.target.value,
+        },
+      })
+    );
+  };
+  return [
+    {
+      ...inputProps,
+      onChange: handleChange,
+    },
+    validateState,
+  ];
+};
 
 type TextInputComp = RecordConstructorToComp<typeof textInputChildren>;
 

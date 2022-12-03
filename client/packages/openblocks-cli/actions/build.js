@@ -91,13 +91,21 @@ export default async function buildAction(options) {
     copySync(paths.resolveApp(compManifest.icon), resolve(paths.appOutPath, compManifest.icon));
   });
 
-  // pack
-  const tarOutPath = paths.resolveApp(outDir);
-  execSync(`npm pack --pack-destination ${tarOutPath}`, {
-    stdio: "ignore",
-    cwd: paths.appOutPath,
-  });
+  if (options.publish) {
+    // publish
+    execSync("npm publish", {
+      stdio: "inherit",
+      cwd: paths.appOutPath,
+    });
+  } else {
+    // pack
+    const tarOutPath = paths.resolveApp(outDir);
+    execSync(`npm pack --pack-destination ${tarOutPath}`, {
+      stdio: "ignore",
+      cwd: paths.appOutPath,
+    });
 
-  console.green(`Package generated in: ${tarOutPath}`);
+    console.green(`Package generated in: ${tarOutPath}`);
+  }
   console.green(`Done in ${Math.round(performance.now() - beginTime)}ms!`);
 }

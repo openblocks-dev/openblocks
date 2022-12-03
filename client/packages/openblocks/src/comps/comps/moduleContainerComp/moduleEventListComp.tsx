@@ -1,7 +1,6 @@
 import { message } from "antd";
 import { EmptyContent } from "components/EmptyContent";
-import KeyValueItemList, { KeyValueItem } from "components/KeyValueItemList";
-import LinkPlusButton from "components/LinkPlusButton";
+import { KeyValueItem, KeyValueItemListWithNewCreateState } from "components/KeyValueItemList";
 import { StringControl } from "comps/controls/codeControl";
 import CompNameControl from "comps/controls/compNameControl";
 import { simpleMultiComp, valueComp } from "comps/generators";
@@ -9,7 +8,6 @@ import { list } from "comps/generators/list";
 import { NameGenerator } from "comps/utils";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { Section, Switch, SwitchWrapper } from "openblocks-design";
-import { BluePlusIcon } from "openblocks-design";
 import { trans } from "i18n";
 import { ModuleEventListItemComp } from "./moduleEventListItemComp";
 import { ConfigViewSection } from "./styled";
@@ -21,6 +19,7 @@ export class ModuleEventComp extends simpleMultiComp({
   enableEventTestMessage: valueComp<boolean>(true),
 }) {
   nameGen = new NameGenerator();
+
   names() {
     return this.children.list.getView().map((i) => i.children.name.getView());
   }
@@ -75,6 +74,7 @@ export class ModuleEventComp extends simpleMultiComp({
       </ConfigViewSection>
     );
   }
+
   nameAndExposingInfo(): NameAndExposingInfo {
     const result: NameAndExposingInfo = {};
     this.children.list.getView().forEach((item) => {
@@ -95,21 +95,23 @@ function PropertyView(props: PropertyViewProps) {
 
   return (
     <div>
-      <KeyValueItemList
+      <KeyValueItemListWithNewCreateState
         title={trans("module.event")}
         keyTitle={trans("module.name")}
-        extra={
-          <LinkPlusButton icon={<BluePlusIcon />} onClick={onAdd}>
-            {trans("addItem")}
-          </LinkPlusButton>
-        }
+        onAdd={onAdd}
         emptyText={trans("module.emptyEvent")}
-        onEmptyClick={onAdd}
       >
-        {items.map((i, idx) => (
-          <EventItem key={idx} {...i.children} onDelete={() => onDelete(idx)} />
-        ))}
-      </KeyValueItemList>
+        {(newCreateIdx) =>
+          items.map((i, idx) => (
+            <EventItem
+              key={idx}
+              {...i.children}
+              onDelete={() => onDelete(idx)}
+              showPopover={idx === newCreateIdx}
+            />
+          ))
+        }
+      </KeyValueItemListWithNewCreateState>
     </div>
   );
 }
@@ -118,10 +120,18 @@ interface EventItemProps {
   name: InstanceType<typeof CompNameControl>;
   description: InstanceType<typeof StringControl>;
   onDelete: () => void;
+  showPopover: boolean;
 }
 
 function EventItem(props: EventItemProps) {
   const { name, onDelete } = props;
   const content = <>{name.propertyView({ label: trans("module.name") })}</>;
-  return <KeyValueItem del={onDelete} name={name.getView()} clickPopoverContent={content} />;
+  return (
+    <KeyValueItem
+      del={onDelete}
+      name={name.getView()}
+      clickPopoverContent={content}
+      defaultShowPopover={props.showPopover}
+    />
+  );
 }

@@ -6,12 +6,18 @@ import {
   GreyTextColor,
   ItemHoverBackgroundColor,
 } from "constants/style";
-import { PointIcon } from "openblocks-design";
-import { EditPopover, EditPopoverProps, SimplePopover } from "openblocks-design";
+import {
+  BluePlusIcon,
+  EditPopover,
+  EditPopoverProps,
+  PointIcon,
+  SimplePopover,
+} from "openblocks-design";
 import { trans } from "i18n";
 import { Children, PropsWithChildren, ReactNode, useState } from "react";
 import styled from "styled-components";
 import EmptyItem from "./EmptyItem";
+import LinkPlusButton from "./LinkPlusButton";
 
 const col1Width = "108px";
 
@@ -23,11 +29,13 @@ const ListWrapper = styled.div`
     align-items: center;
     justify-content: space-between;
   }
+
   .list-content {
     overflow: hidden;
     border: 1px solid ${BorderColor};
     border-radius: ${BorderRadiusLarge};
   }
+
   .title {
     height: 32px;
     font-size: 13px;
@@ -37,9 +45,11 @@ const ListWrapper = styled.div`
     justify-content: center;
     align-items: center;
     color: ${GreyTextColor};
+
     .title1 {
       width: ${col1Width};
     }
+
     .title2 {
       flex: 1;
     }
@@ -62,6 +72,7 @@ const ItemWrapper = styled.div<{ popover: boolean; active: boolean; hasValue: bo
   &:last-child {
     border-bottom: 0;
   }
+
   .col1 {
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -70,6 +81,7 @@ const ItemWrapper = styled.div<{ popover: boolean; active: boolean; hasValue: bo
     width: ${(props) => (props.hasValue ? col1Width : "auto")};
     ${(props) => (props.active ? `color: ${ActiveTextColor}` : "")}
   }
+
   .col2 {
     flex: 1;
     text-overflow: ellipsis;
@@ -77,6 +89,7 @@ const ItemWrapper = styled.div<{ popover: boolean; active: boolean; hasValue: bo
     overflow: hidden;
     color: ${GreyTextColor};
   }
+
   .item-content {
     flex: 1;
     display: flex;
@@ -84,6 +97,7 @@ const ItemWrapper = styled.div<{ popover: boolean; active: boolean; hasValue: bo
     align-items: center;
     overflow: hidden;
   }
+
   .item-op-btn {
     display: flex;
     justify-content: center;
@@ -95,6 +109,7 @@ const ItemWrapper = styled.div<{ popover: boolean; active: boolean; hasValue: bo
 
 const StyledPointIcon = styled(PointIcon)`
   color: ${GreyTextColor};
+
   &:hover {
     color: ${ActiveTextColor};
   }
@@ -104,11 +119,12 @@ interface KeyValueItemProps extends Omit<EditPopoverProps, "children"> {
   name: string;
   value?: string;
   clickPopoverContent?: ReactNode;
+  defaultShowPopover: boolean;
 }
 
 export function KeyValueItem(props: KeyValueItemProps) {
   const { name, value, clickPopoverContent, ...editPopoverProps } = props;
-  const [isPopShow, showPop] = useState(false);
+  const [isPopShow, showPop] = useState(props.defaultShowPopover);
 
   const itemContent = (
     <div className="item-content">
@@ -186,5 +202,34 @@ export default function KeyValueItemList(props: PropsWithChildren<ItemListProps>
         <EmptyItem onClick={onEmptyClick}>{emptyText}</EmptyItem>
       )}
     </ListWrapper>
+  );
+}
+
+export function KeyValueItemListWithNewCreateState(
+  props: Omit<ItemListProps, "onEmptyClick" | "extra"> & {
+    children: (newCreateIdx: number | undefined) => ReactNode;
+    onAdd: () => void;
+  }
+) {
+  const [newIdx, setNewIdx] = useState<number | undefined>(undefined);
+  const children = props.children(newIdx);
+  const count = Children.count(children);
+  const handleAdd = () => {
+    props.onAdd();
+    setNewIdx(count);
+  };
+
+  return (
+    <KeyValueItemList
+      {...props}
+      onEmptyClick={handleAdd}
+      extra={
+        <LinkPlusButton icon={<BluePlusIcon />} onClick={handleAdd}>
+          {trans("addItem")}
+        </LinkPlusButton>
+      }
+    >
+      {children}
+    </KeyValueItemList>
   );
 }

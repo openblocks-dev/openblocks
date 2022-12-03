@@ -22,6 +22,7 @@ program
   .command("build")
   .description("build component lib")
   .option("--outDir", "where to place tar ball", "./")
+  .option("--publish", "publish to npm", false)
   .action(buildAction);
 
 program.parse();

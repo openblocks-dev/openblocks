@@ -250,12 +250,17 @@ const StyledAddButton = styled.button`
 
 export const LinkButton = (props: {
   text: string;
-  onClick: () => void;
+  onClick?: () => void;
   style?: CSSProperties;
   icon?: React.ReactNode;
+  className?: string;
 }) => {
   return (
-    <StyledAddButton onClick={() => props.onClick()} style={props.style}>
+    <StyledAddButton
+      style={props.style}
+      className={props.className}
+      onClick={() => props.onClick?.()}
+    >
       {props.icon}
       {props.text}
     </StyledAddButton>

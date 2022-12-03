@@ -14,6 +14,7 @@ import StepModal from "../../components/StepModal";
 import { PluginPanel } from "./pluginPanel";
 import { Table } from "../../components/Table";
 import { trans } from "../../i18n";
+import { DatasourcePermissionDialog } from "../../components/PermissionDialog/DatasourcePermissionDialog";
 
 const DatasourceWrapper = styled.div`
   display: flex;
@@ -91,6 +92,7 @@ export const DatasourceList = () => {
   const dispatch = useDispatch();
   const [searchValue, setSearchValue] = useState("");
   const [isCreateFormShow, showCreateForm] = useState(false);
+  const [shareDatasourceId, setShareDatasourceId] = useState<string | undefined>(undefined);
   const datasource = useSelector(getDataSource);
   const plugins = useSelector(getDataSourceTypesMap);
 
@@ -245,6 +247,16 @@ export const DatasourceList = () => {
                     </EditBtn>
                   )}
                   <EditPopover
+                    items={
+                      info.datasource.id && info.edit
+                        ? [
+                            {
+                              text: trans("accessControl"),
+                              onClick: () => setShareDatasourceId(info.datasource.id),
+                            },
+                          ]
+                        : undefined
+                    }
                     del={() => {
                       dispatch(deleteDatasource({ datasourceId: info.datasource.id }));
                     }}
@@ -256,6 +268,15 @@ export const DatasourceList = () => {
             }))}
         />
       </BodyWrapper>
+      {shareDatasourceId && (
+        <DatasourcePermissionDialog
+          datasourceId={shareDatasourceId}
+          visible={!!shareDatasourceId}
+          onVisibleChange={(visible) => {
+            !visible && setShareDatasourceId(undefined);
+          }}
+        />
+      )}
     </DatasourceWrapper>
   );
 };

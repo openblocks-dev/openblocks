@@ -1,5 +1,5 @@
 import { SuspensionBox } from "./SuspensionBox";
-import { Popover } from "antd";
+import { Popover, PopoverProps } from "antd";
 import { Children, cloneElement, MouseEvent, ReactNode, useState } from "react";
 import styled from "styled-components";
 import { ActiveTextColor } from "constants/style";
@@ -105,7 +105,7 @@ const CustomPopover = (props: {
 
 export type EditPopoverItemType = { text: ReactNode; onClick: () => void; type?: "delete" };
 
-export interface EditPopoverProps {
+export interface EditPopoverProps extends PopoverProps {
   children: React.ReactElement;
   items?: EditPopoverItemType[]; // FIXME: refactor props below into this structure
   addText?: string;
@@ -117,20 +117,21 @@ export interface EditPopoverProps {
 
 // paste deleted popover
 const EditPopover = (props: EditPopoverProps) => {
+  const { children, items, addText, add, rename, copy, del, ...popoverProps } = props;
   const [visible, setVisible] = useState(false);
   const hide = () => {
     setVisible(false);
   };
 
-  const children = Children.only(props.children);
-  const { style, ...otherProps } = children.props;
+  const onlyChildren = Children.only(children);
+  const { style, ...otherProps } = onlyChildren.props;
   const newStyle = {
     ...style,
   };
   if (visible) {
     newStyle.color = ActiveTextColor;
   }
-  const newChildren = cloneElement(children, {
+  const newChildren = cloneElement(onlyChildren, {
     ...otherProps,
     style: newStyle,
     onClick: (e: MouseEvent) => {
@@ -143,7 +144,7 @@ const EditPopover = (props: EditPopoverProps) => {
       content={() => (
         <>
           <Wedge />
-          {props.items?.map((item, idx) => (
+          {items?.map((item, idx) => (
             <Handle
               key={idx}
               onClick={(e) => {
@@ -157,44 +158,44 @@ const EditPopover = (props: EditPopoverProps) => {
               </HandleText>
             </Handle>
           ))}
-          {props.add && (
+          {add && (
             <Handle
               onClick={(e) => {
                 e.stopPropagation();
-                props.add?.();
+                add?.();
                 hide();
               }}
             >
-              <HandleText>{props.addText || trans("addItem")}</HandleText>
+              <HandleText>{addText || trans("addItem")}</HandleText>
             </Handle>
           )}
-          {props.copy && (
+          {copy && (
             <Handle
               onClick={(e) => {
                 e.stopPropagation();
-                props.copy!();
+                copy!();
                 hide();
               }}
             >
               <HandleText>{trans("duplicate")}</HandleText>
             </Handle>
           )}
-          {props.rename && (
+          {rename && (
             <Handle
               onClick={(e) => {
                 e.stopPropagation();
-                props.rename!();
+                rename!();
                 hide();
               }}
             >
               <HandleText>{trans("rename")}</HandleText>
             </Handle>
           )}
-          {props.del && (
+          {del && (
             <Handle
               onClick={(e) => {
                 e.stopPropagation();
-                props.del!();
+                del!();
                 hide();
               }}
             >
@@ -212,6 +213,7 @@ const EditPopover = (props: EditPopoverProps) => {
       align={{
         offset: [8, -8, 0, 0],
       }}
+      {...popoverProps}
     >
       {newChildren}
     </Popover>

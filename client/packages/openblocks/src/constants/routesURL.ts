@@ -10,6 +10,7 @@ export const SETTING = "/setting";
 export const PERMISSION_SETTING = "/setting/permission";
 export const ORGANIZATION_SETTING = "/setting/organization";
 export const THEME_SETTING = "/setting/theme";
+export const PLUGINS_SETTING = "/setting/plugins";
 export const THEME_DETAIL = "/setting/theme/detail";
 
 export const PERMISSION_SETTING_DETAIL = `${PERMISSION_SETTING}/:groupId`;

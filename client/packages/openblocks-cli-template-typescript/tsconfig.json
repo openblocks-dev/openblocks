@@ -16,19 +16,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": "src",
-    "paths": {
-      "openblocks-sdk": [
-        "../../openblocks/src/index.sdk.ts",
-        "../node_modules/openblocks-sdk/src/openblocks/index.sdk.ts"
-      ],
-      "*": [
-        "*",
-        "../../openblocks/src/*",
-        "../../openblocks-sdk/src/*",
-        "../node_modules/openblocks-sdk/src/openblocks/*"
-      ]
-    }
+    "baseUrl": "src"
   },
   "include": ["src", "index.tsx"]
 }

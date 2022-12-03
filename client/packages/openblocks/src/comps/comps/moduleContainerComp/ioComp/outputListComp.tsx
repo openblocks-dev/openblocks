@@ -1,12 +1,10 @@
-import KeyValueItemList, { KeyValueItem } from "components/KeyValueItemList";
-import LinkPlusButton from "components/LinkPlusButton";
+import { KeyValueItem, KeyValueItemListWithNewCreateState } from "components/KeyValueItemList";
 import { JSONValueControl, StringControl } from "comps/controls/codeControl";
 import CompNameControl from "comps/controls/compNameControl";
 import { MultiCompBuilder } from "comps/generators";
 import { list } from "comps/generators/list";
 import { NameGenerator } from "comps/utils/nameGenerator";
 import { checkName } from "comps/utils/rename";
-import { BluePlusIcon } from "openblocks-design";
 import { trans } from "i18n";
 
 const childrenMap = {
@@ -73,6 +71,7 @@ class OutputListComp extends RootOutputListCompBase {
 }
 
 export default OutputListComp;
+
 interface PropertyViewProps {
   onAdd: () => void;
   onDelete: (idx: number) => void;
@@ -85,27 +84,25 @@ function PropertyView(props: PropertyViewProps) {
 
   return (
     <div>
-      <KeyValueItemList
+      <KeyValueItemListWithNewCreateState
         title={trans("module.output")}
         keyTitle={trans("module.name")}
         valueTitle={trans("value")}
         emptyText={trans("module.emptyOutput")}
-        onEmptyClick={onAdd}
-        extra={
-          <LinkPlusButton icon={<BluePlusIcon />} onClick={onAdd}>
-            {trans("addItem")}
-          </LinkPlusButton>
-        }
+        onAdd={onAdd}
       >
-        {items.map((i, idx) => (
-          <OutputItem
-            key={idx}
-            {...i.children}
-            onDelete={() => onDelete(idx)}
-            onValidateName={onValidateName}
-          />
-        ))}
-      </KeyValueItemList>
+        {(newCreateIdx) =>
+          items.map((i, idx) => (
+            <OutputItem
+              key={idx}
+              {...i.children}
+              onDelete={() => onDelete(idx)}
+              onValidateName={onValidateName}
+              showPopover={idx === newCreateIdx}
+            />
+          ))
+        }
+      </KeyValueItemListWithNewCreateState>
     </div>
   );
 }
@@ -116,6 +113,7 @@ interface OutputItemProps {
   value: InstanceType<typeof JSONValueControl>;
   onDelete?: () => void;
   onValidateName: (preValue: string, nextValue: string) => string;
+  showPopover: boolean;
 }
 
 function OutputItem(props: OutputItemProps) {
@@ -135,6 +133,7 @@ function OutputItem(props: OutputItemProps) {
       name={name.getView()}
       value={value.unevaledValue}
       clickPopoverContent={content}
+      defaultShowPopover={props.showPopover}
     />
   );
 }

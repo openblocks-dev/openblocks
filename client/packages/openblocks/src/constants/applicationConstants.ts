@@ -1,7 +1,7 @@
 import { JSONValue } from "util/jsonTypes";
 import { ExtraActionType } from "openblocks-core";
 import { CommonSettingResponseData } from "api/commonSettingApi";
-import { trans } from "i18n";
+import { PermissionItem } from "../components/PermissionDialog/PermissionList";
 
 export enum AppTypeEnum {
   Application = 1,
@@ -57,15 +57,6 @@ export interface ApplicationDetail {
   templateId?: string;
 }
 
-export interface AppPermissionItem {
-  permissionId: string;
-  type: ApplicationPermissionType;
-  id: string;
-  avatar?: string;
-  role: ApplicationRoleType;
-  name: string;
-}
-
 export type AppInviteInfo = {
   invitationCode: string;
   applicationId: string;
@@ -75,21 +66,10 @@ export type AppInviteInfo = {
 export interface AppPermissionInfo {
   orgName: string;
   creatorId: string;
-  permissions: AppPermissionItem[];
+  permissions: PermissionItem[];
   invitationCodes: AppInviteInfo[];
   publicToAll: boolean;
 }
-
-export type ApplicationRole = {
-  key: ApplicationRoleType;
-  value: string;
-};
-
-export const ApplicationRoles: ApplicationRole[] = [
-  { key: "viewer", value: trans("share.viewer") },
-  { key: "editor", value: trans("share.editor") },
-  { key: "owner", value: trans("share.owner") },
-];
 
 export type AppViewMode = "edit" | "preview" | "view";
 

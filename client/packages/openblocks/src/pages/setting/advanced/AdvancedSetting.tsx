@@ -9,7 +9,7 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
-import { getDefaultHomePage, getPreload } from "redux/selectors/commonSettingSelectors";
+import { getCommonSettings } from "redux/selectors/commonSettingSelectors";
 import { getCurrentUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import { useShallowEqualSelector } from "util/hooks";
@@ -58,10 +58,8 @@ let locationInfo: Location | Location<unknown> | null = null;
 export function AdvancedSetting() {
   const dispatch = useDispatch();
   const currentUser = useSelector(getCurrentUser);
-  const preloadSettings = useShallowEqualSelector(getPreload);
-  const [preload, setPreload] = useState(preloadSettings);
-  const defaultHomePage = useSelector(getDefaultHomePage);
-  const [defaultHome, setDefaultHome] = useState(defaultHomePage);
+  const commonSettings = useShallowEqualSelector(getCommonSettings);
+  const [settings, setSettings] = useState(commonSettings);
   const appList = useSelector(normalAppListSelector);
   const [canLeave, setCanleave] = useState(false);
   const appListOptions = appList.map((app) => ({
@@ -70,17 +68,13 @@ export function AdvancedSetting() {
   }));
 
   useEffect(() => {
-    setDefaultHome(defaultHomePage);
-  }, [defaultHomePage]);
-
-  useEffect(() => {
     dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
     dispatch(fetchAllApplications({}));
   }, [currentUser.currentOrgId, dispatch]);
 
   useEffect(() => {
-    setPreload((prev) => _.merge(preloadSettings, prev));
-  }, [preloadSettings]);
+    setSettings(commonSettings);
+  }, [commonSettings]);
 
   useEffect(() => {
     if (canLeave) {
@@ -88,18 +82,22 @@ export function AdvancedSetting() {
     }
   }, [canLeave]);
 
-  const handleSave = (type: keyof typeof preload) => {
+  useEffect(() => {
+    dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
+  }, [currentUser.currentOrgId, dispatch]);
+
+  const handleSave = (key: keyof typeof settings) => {
     return (value?: any) => {
       dispatch(
         setCommonSettings({
           orgId: currentUser.currentOrgId,
           data: {
-            key: type,
-            value: value ?? preload[type],
+            key,
+            value: value ?? settings[key],
           },
           onSuccess: () => {
             if (value !== undefined) {
-              setPreload((i) => ({ ...i, [type]: value }));
+              setSettings((i) => ({ ...i, [key]: value }));
             }
             message.success(trans("advanced.saveSuccess"));
           },
@@ -108,23 +106,7 @@ export function AdvancedSetting() {
     };
   };
 
-  const handleSaveDefaultHome = () => {
-    dispatch(
-      setCommonSettings({
-        orgId: currentUser.currentOrgId,
-        data: {
-          key: "defaultHomePage",
-          value: defaultHome,
-        },
-        onSuccess: () => {
-          message.success(trans("advanced.saveSuccess"));
-        },
-      })
-    );
-  };
-
-  const isNotChange =
-    defaultHome === defaultHomePage && JSON.stringify(preload) === JSON.stringify(preloadSettings);
+  const isNotChange = JSON.stringify(commonSettings) === JSON.stringify(settings);
 
   return (
     <Level1SettingPageContent>
@@ -161,17 +143,17 @@ export function AdvancedSetting() {
             showSearch={true}
             style={{ width: "264px", height: "32px", marginBottom: 12 }}
             dropdownStyle={{ width: "264px" }}
-            value={defaultHome}
+            value={settings.defaultHomePage}
             onChange={(value: string) => {
-              setDefaultHome(value);
+              setSettings((v) => ({ ...v, defaultHomePage: value }));
             }}
             options={appListOptions}
             filterOption={(input, option) => (option?.label as string).includes(input)}
           />
           <SaveButton
             buttonType="primary"
-            disabled={defaultHome === defaultHomePage}
-            onClick={() => handleSaveDefaultHome()}
+            disabled={commonSettings.defaultHomePage === settings.defaultHomePage}
+            onClick={() => handleSave("defaultHomePage")()}
           >
             {trans("advanced.saveBtn")}
           </SaveButton>
@@ -181,9 +163,9 @@ export function AdvancedSetting() {
         <div className="section-content">
           <div className="code-editor">
             <CodeEditor
-              value={preload.preloadJavaScript || ""}
+              value={settings.preloadJavaScript || ""}
               onChange={(value) =>
-                setPreload((v) => ({ ...v, preloadJavaScript: value.doc.toString() }))
+                setSettings((v) => ({ ...v, preloadJavaScript: value.doc.toString() }))
               }
               styleName="window"
               codeType="Function"
@@ -193,7 +175,7 @@ export function AdvancedSetting() {
           </div>
           <SaveButton
             buttonType="primary"
-            disabled={preload.preloadJavaScript === preloadSettings.preloadJavaScript}
+            disabled={settings.preloadJavaScript === commonSettings.preloadJavaScript}
             onClick={() => handleSave("preloadJavaScript")()}
           >
             {trans("advanced.saveBtn")}
@@ -204,9 +186,9 @@ export function AdvancedSetting() {
         <div className="section-content">
           <div className="code-editor">
             <CodeEditor
-              value={preload.preloadCSS || ""}
+              value={settings.preloadCSS || ""}
               language="css"
-              onChange={(value) => setPreload((v) => ({ ...v, preloadCSS: value.doc.toString() }))}
+              onChange={(value) => setSettings((v) => ({ ...v, preloadCSS: value.doc.toString() }))}
               styleName="window"
               codeType="Function"
               showLineNum
@@ -215,7 +197,7 @@ export function AdvancedSetting() {
           </div>
           <SaveButton
             buttonType="primary"
-            disabled={preload.preloadCSS === preloadSettings.preloadCSS}
+            disabled={settings.preloadCSS === commonSettings.preloadCSS}
             onClick={() => handleSave("preloadCSS")()}
           >
             {trans("advanced.saveBtn")}
@@ -224,18 +206,18 @@ export function AdvancedSetting() {
         <div className="section-title">{trans("advanced.preloadLibsTitle")}</div>
         <HelpText style={{ marginBottom: 12 }}>{trans("advanced.preloadLibsHelp")}</HelpText>
         <div className="section-content">
-          {(preload.preloadLibs || [])?.length === 0 && (
+          {(settings.preloadLibs || [])?.length === 0 && (
             <EmptyContent text={trans("advanced.preloadLibsEmpty")} style={{ marginBottom: 2 }} />
           )}
           <InputList
             addBtnText={trans("advanced.preloadLibsAddBtn")}
-            value={preload.preloadLibs || []}
+            value={settings.preloadLibs || []}
             placeholder="https://cdn.xxx.com/example.min.js"
-            onChange={(value) => setPreload((v) => ({ ...v, preloadLibs: value }))}
+            onChange={(value) => setSettings((v) => ({ ...v, preloadLibs: value }))}
           />
           <SaveButton
             buttonType="primary"
-            disabled={preload.preloadLibs === preloadSettings.preloadLibs}
+            disabled={settings.preloadLibs === commonSettings.preloadLibs}
             onClick={() => handleSave("preloadLibs")()}
           >
             {trans("advanced.saveBtn")}

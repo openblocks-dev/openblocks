@@ -2,6 +2,7 @@ import styled, { css } from "styled-components";
 import { StyledLink } from "pages/common/styledComponent";
 import { EmptyContent } from "components/EmptyContent";
 import { trans } from "i18n";
+import { labelCss } from "openblocks-design";
 
 const NoShake = css`
   transform: translate3d(0, 0, 0);
@@ -71,3 +72,15 @@ export const EmptyCompContent = () => {
     />
   );
 };
+
+export const ComListTitle = styled.span`
+  ${labelCss};
+  font-weight: 500;
+  font-size: 14px;
+  color: #8b8fa3;
+  line-height: 14px;
+  display: block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+`;

@@ -2,5 +2,8 @@
   "name": "openblocks-dev-utils",
   "version": "0.0.5",
   "type": "module",
-  "description": "Openblocks dev utils for openblocks build process and openblocks-cli"
+  "description": "Openblocks dev utils for openblocks build process and openblocks-cli",
+  "keywords": [
+    "openblocks"
+  ]
 }

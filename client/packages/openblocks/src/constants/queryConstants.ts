@@ -1,6 +1,6 @@
 import { JSQuery } from "../comps/queries/jsQuery";
 import { SQLQuery } from "../comps/queries/sqlQuery/SQLQuery";
-import { HttpQuery } from "../comps/queries/httpQuery";
+import { HttpQuery } from "../comps/queries/httpQuery/httpQuery";
 import { MongoQuery } from "../comps/queries/mongoQuery";
 import { OpenBlocksQuery } from "../comps/queries/openBlocksQuery";
 import { RedisQuery } from "../comps/queries/redisQuery";
@@ -9,6 +9,7 @@ import { SMTPQuery } from "../comps/queries/smtpQuery";
 import { LibraryQuery } from "../comps/queries/libraryQuery";
 import { ViewQuery } from "../comps/queries/viewQuery";
 import { GoogleSheetsQuery } from "../comps/queries/googleSheetsQuery";
+import { GraphqlQuery } from "../comps/queries/httpQuery/graphqlQuery";
 
 export type DatasourceType =
   | "mysql"
@@ -22,7 +23,8 @@ export type DatasourceType =
   | "smtp"
   | "oracle"
   | "clickHouse"
-  | "googleSheets";
+  | "googleSheets"
+  | "graphql";
 
 export type ResourceType = DatasourceType | "js" | "libraryQuery" | "view";
 
@@ -42,6 +44,7 @@ export const QueryMap = {
   libraryQuery: LibraryQuery,
   view: ViewQuery,
   googleSheets: GoogleSheetsQuery,
+  graphql: GraphqlQuery,
 };
 
 // Initialized as write mode, need to switch to the manually executed query when creating a new query or switching data sources

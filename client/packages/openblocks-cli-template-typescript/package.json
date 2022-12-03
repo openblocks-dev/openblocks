@@ -1,6 +1,6 @@
 {
   "name": "openblocks-cli-template-typescript",
-  "version": "0.0.9",
+  "version": "0.0.11",
   "type": "module",
   "scripts": {
     "start": "vite",
@@ -11,7 +11,7 @@
     "comps": {
       "hello_world": {
         "name": "__i18n_helloWorldCompName__",
-        "icon": "./icons/hello_world.png"
+        "icon": "./icons/demo-icon.png"
       }
     }
   },
@@ -21,5 +21,8 @@
     "typescript": "^4.8.4",
     "vite": "^3.2.4"
   },
+  "keywords": [
+    "openblocks"
+  ],
   "license": "MIT"
 }

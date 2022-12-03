@@ -4,6 +4,7 @@ import {
   ClickHouseIcon,
   EsIcon,
   GoogleSheetsIcon,
+  GraphqlIcon,
   JSIcon,
   MongoIcon,
   MSSQLIcon,
@@ -82,6 +83,8 @@ export const getBottomResIcon = (
         return <QueryLibrary />;
       case "googleSheets":
         return <GoogleSheetsIcon />;
+      case "graphql":
+        return <GraphqlIcon />;
       default:
         return <RestApiIcon />;
     }

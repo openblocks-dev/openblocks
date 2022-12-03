@@ -8,8 +8,10 @@ import ModulePanel from "./ModulePanel";
 import { RightContext } from "./rightContext";
 import { UICompPanel } from "./uiCompPanel";
 import { trans } from "i18n";
+import PluginPanel from "./PluginPanel";
+import { developEnv } from "util/envUtils";
 
-type OptionValue = "ui" | "module";
+type OptionValue = "ui" | "module" | "plugin";
 
 const Wrapper = styled.div`
   display: flex;
@@ -40,6 +42,13 @@ const options = [
     label: trans("rightPanel.moduleTab"),
   },
 ];
+
+if (developEnv()) {
+  options.push({
+    value: "plugin",
+    label: trans("rightPanel.pluginTab"),
+  });
+}
 
 interface InsertViewProps {
   onCompDrag: (dragCompKey: string) => void;
@@ -78,6 +87,7 @@ export default function InsertView(props: InsertViewProps) {
           <ScrollBar>
             {activeKey === "ui" && <UICompPanel />}
             {activeKey === "module" && <ModulePanel />}
+            {activeKey === "plugin" && <PluginPanel />}
           </ScrollBar>
         </InsertViewBody>
       </RightContext.Provider>

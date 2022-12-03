@@ -75,6 +75,24 @@ export abstract class MultiBaseComp<
     if (action.type === CompActionTypes.DELETE_COMP && action.path.length === 1) {
       return this.setChildren(_.omit(this.children, action.path[0]));
     }
+    if (action.type === CompActionTypes.REPLACE_COMP && action.path.length === 1) {
+      const NextComp = action.compFactory;
+      if (!NextComp) {
+        return this;
+      }
+
+      const compName = action.path[0];
+      const currentComp = this.children[compName];
+      const value = currentComp.toJsonValue();
+      const nextComp = new NextComp({
+        value,
+        dispatch: wrapDispatch(this.dispatch, compName),
+      });
+      return this.setChildren({
+        ...this.children,
+        [compName]: nextComp,
+      });
+    }
     if (isChildAction(action)) {
       const [childName, childAction] = unwrapChildAction(action);
       const child = this.children[childName];

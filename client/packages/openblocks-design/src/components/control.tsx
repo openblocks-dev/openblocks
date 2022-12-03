@@ -85,10 +85,12 @@ const ChildrenWrapper = styled.div<{ layout: ControlLayout }>`
     switch (props.layout) {
       case "horizontal":
         return `
+            overflow: hidden;
             flex:1 1 auto;
           `;
       case "vertical":
         return css`
+          overflow: hidden;
           display: inline;
         `;
     }
@@ -114,6 +116,7 @@ interface ControlPropertyViewWrapperProps {
   lastNode?: ReactNode;
   preInputNode?: ReactNode;
   childrenWrapperStyle?: React.CSSProperties;
+  labelTooltipOverlayInnerStyle?: React.CSSProperties;
   extraChildren?: ReactNode;
 }
 
@@ -130,6 +133,7 @@ export const ControlPropertyViewWrapper = (
     preInputNode,
     children,
     extraChildren,
+    labelTooltipOverlayInnerStyle,
     lastNode,
   } = props;
 
@@ -137,7 +141,11 @@ export const ControlPropertyViewWrapper = (
     <Wrapper layout={layout} placement={placement}>
       {label && (
         <LabelWrapper layout={layout} placement={placement} labelEllipsis={labelEllipsis}>
-          <ToolTipLabel title={tooltip} label={label} />
+          <ToolTipLabel
+            title={tooltip}
+            label={label}
+            overlayInnerStyle={labelTooltipOverlayInnerStyle}
+          />
         </LabelWrapper>
       )}
       {preInputNode}

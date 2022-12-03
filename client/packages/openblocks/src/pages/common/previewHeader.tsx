@@ -3,9 +3,7 @@ import Header from "components/layout/Header";
 import { SHARE_TITLE } from "constants/apiConstants";
 import { ALL_APPLICATIONS_URL, APPLICATION_VIEW_URL, AUTH_LOGIN_URL } from "constants/routesURL";
 import { User } from "constants/userConstants";
-import { TacoButton } from "openblocks-design";
-import { TextEditIcon } from "openblocks-design";
-import AppPermissionDialog from "pages/ApplicationV2/components/AppPermissionDialog";
+import { EllipsisTextCss, TacoButton, TextEditIcon } from "openblocks-design";
 import { useSelector } from "react-redux";
 import { currentApplication, getTemplateId } from "redux/selectors/applicationSelector";
 import { getCurrentUser, isFetchingUser } from "redux/selectors/usersSelectors";
@@ -14,9 +12,10 @@ import history from "util/history";
 import { useApplicationId } from "util/hooks";
 import { canEditApp, canManageApp } from "util/permissionUtils";
 import ProfileDropdown from "./profileDropdown";
-import { EllipsisTextCss } from "openblocks-design";
 import { trans } from "i18n";
 import { Logo } from "@openblocks-ee/assets/images";
+import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
+import { useState } from "react";
 
 const HeaderFont = styled.div`
   font-weight: 500;
@@ -128,6 +127,7 @@ export const PreviewHeader = () => {
   const application = useSelector(currentApplication);
   const applicationId = useApplicationId();
   const templateId = useSelector(getTemplateId);
+  const [permissionDialogVisible, setPermissionDialogVisible] = useState(false);
 
   const headerStart = (
     <>
@@ -140,18 +140,16 @@ export const PreviewHeader = () => {
 
   const headerEnd = (
     <Wrapper>
-      {canManageApp(user, application) && (
+      {applicationId && (
         <AppPermissionDialog
           applicationId={applicationId}
-          trigger={
-            <PreviewBtn>
-              {SHARE_TITLE}
-              {""}
-            </PreviewBtn>
-          }
+          visible={permissionDialogVisible}
+          onVisibleChange={(visible) => !visible && setPermissionDialogVisible(false)}
         />
       )}
-
+      {canManageApp(user, application) && (
+        <PreviewBtn onClick={() => setPermissionDialogVisible(true)}>{SHARE_TITLE}</PreviewBtn>
+      )}
       {canEditApp(user, application) && (
         <EditBtn
           buttonType={"primary"}

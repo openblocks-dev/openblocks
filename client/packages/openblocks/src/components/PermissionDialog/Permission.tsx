@@ -1,38 +1,32 @@
-import { CommonTextLabel, CustomSelect, TacoButton } from "openblocks-design";
-import { useContext, useEffect, useRef, useState } from "react";
+import {
+  CheckoutIcon,
+  CloseIcon,
+  CommonTextLabel,
+  CustomSelect,
+  TacoButton,
+} from "openblocks-design";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import ProfileImage from "pages/common/profileImage";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGroupsAction, fetchOrgUsersAction } from "redux/reduxActions/orgActions";
 import { getOrgGroups, getOrgUsers } from "redux/selectors/orgSelectors";
 import { OrgGroup, OrgUser } from "constants/orgConstants";
-import { getAppPermissionInfo } from "redux/selectors/applicationSelector";
+import { ApplicationPermissionType, ApplicationRoleType } from "constants/applicationConstants";
 import {
-  ApplicationPermissionType,
-  ApplicationRoles,
-  ApplicationRoleType,
-  AppPermissionItem,
-} from "constants/applicationConstants";
-import {
-  AppPermissionModalContext,
   PermissionItemName,
   RoleSelectOption,
   StyledGroupIcon,
   StyledRoleSelect,
 } from "./commonComponents";
-import { AppPermissionList } from "./AppPermissionList";
 import { getInitialsAndColorCode } from "util/stringUtils";
 import { CustomTagProps } from "rc-select/lib/BaseSelect";
-import { message, Tag } from "antd";
-import { CloseIcon } from "openblocks-design";
-import { CheckoutIcon } from "openblocks-design";
+import { Tag } from "antd";
 import { User } from "constants/userConstants";
 import { getCurrentUser } from "redux/selectors/usersSelectors";
 import { EmptyContent } from "pages/common/styledComponent";
-import ApplicationApi from "api/applicationApi";
-import { validateResponse } from "api/apiUtils";
-import { SHARE_TITLE } from "constants/apiConstants";
 import { trans } from "i18n";
+import { PermissionItem } from "./PermissionList";
 
 const AddAppUserContent = styled.div`
   display: flex;
@@ -211,14 +205,14 @@ type PermissionAddEntity = {
  * @param orgGroups groups
  * @param orgUsers users
  * @param currentUser currentUser
- * @param existItems existedItems
+ * @param filterItems filterItems
  */
 function getPermissionOptionView(
   orgGroups: OrgGroup[],
   orgUsers: OrgUser[],
   currentUser: User,
-  existItems?: AppPermissionItem[]
-) {
+  filterItems: PermissionItem[]
+): AddAppOptionView[] {
   let permissionViews: AddAppOptionView[] = orgGroups.map((group) => {
     return {
       type: "GROUP",
@@ -236,11 +230,12 @@ function getPermissionOptionView(
       };
     })
   );
-  return existItems
-    ? permissionViews
-        .filter((v) => !existItems.find((i) => i.id === v.id && i.type === v.type))
-        .filter((v) => !(v.type === "USER" && v.id === currentUser.id))
-    : permissionViews;
+  permissionViews = permissionViews.filter(
+    (v) =>
+      !filterItems.find((i) => i.id === v.id && i.type === v.type) &&
+      !(v.type === "USER" && v.id === currentUser.id)
+  );
+  return permissionViews;
 }
 
 function PermissionSelectorOption(props: { optionView: AddAppOptionView }) {
@@ -300,30 +295,34 @@ function PermissionTagRender(props: CustomTagProps) {
   );
 }
 
-function PermissionSelector(props: {
+export enum PermissionRole {
+  Viewer = "viewer",
+  Editor = "editor",
+  Owner = "owner",
+}
+
+const PermissionSelector = (props: {
   selectedItems: PermissionAddEntity[];
   setSelectRole: (role: ApplicationRoleType) => void;
   setSelectedItems: (items: PermissionAddEntity[]) => void;
   user: User;
-}) {
+  filterItems: PermissionItem[];
+  supportRoles: PermissionRole[];
+}) => {
   const orgGroups = useSelector(getOrgGroups);
   const orgUsers = useSelector(getOrgUsers);
-  const appPermissionInfo = useSelector(getAppPermissionInfo);
   const { selectedItems, setSelectRole, setSelectedItems, user } = props;
-  const optionViews = getPermissionOptionView(
-    orgGroups,
-    orgUsers,
-    user,
-    appPermissionInfo?.permissions
-  );
+  const optionViews = getPermissionOptionView(orgGroups, orgUsers, user, props.filterItems);
   const [roleSelectVisible, setRoleSelectVisible] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setRoleSelectVisible(selectedItems.length > 0);
     if (selectRef && selectRef.current) {
       selectRef.current.scrollTop = selectRef.current.scrollHeight;
     }
   }, [selectedItems]);
+
   return (
     <>
       <PermissionSelectWrapper>
@@ -371,13 +370,13 @@ function PermissionSelector(props: {
           }}
           $isVisible={roleSelectVisible}
           bordered={false}
-          defaultValue={ApplicationRoles[0].key}
+          defaultValue={props.supportRoles[0]}
           optionLabelProp="label"
           onChange={(value) => setSelectRole(value)}
         >
-          {ApplicationRoles.map((role) => (
-            <CustomSelect.Option key={role.key} value={role.key} label={role.value}>
-              <RoleSelectOption role={role.value} />
+          {props.supportRoles.map((role) => (
+            <CustomSelect.Option key={role} value={role} label={trans(`share.${role}`)}>
+              <RoleSelectOption role={trans(`share.${role}`)} />
             </CustomSelect.Option>
           ))}
         </AddRoleSelect>
@@ -385,15 +384,20 @@ function PermissionSelector(props: {
       <AddPermissionDropDown id="add-app-user-permission-dropdown" />
     </>
   );
-}
+};
 
-export function AddPermission() {
+export const Permission = (props: {
+  filterItems: PermissionItem[];
+  supportRoles: PermissionRole[];
+  onCancel: () => void;
+  addPermission: (userIds: string[], groupIds: string[], role: string) => void;
+}) => {
+  const { onCancel } = props;
   const dispatch = useDispatch();
-  const { changeContent, applicationId } = useContext(AppPermissionModalContext);
   const user = useSelector(getCurrentUser);
   const [selectRole, setSelectRole] = useState<ApplicationRoleType>("viewer");
   const [selectedItems, setSelectedItems] = useState<PermissionAddEntity[]>([]);
-  const toPermissionList = () => changeContent(AppPermissionList, false, SHARE_TITLE);
+
   useEffect(() => {
     dispatch(fetchOrgUsersAction(user.currentOrgId));
     dispatch(fetchGroupsAction(user.currentOrgId));
@@ -409,9 +413,11 @@ export function AddPermission() {
         setSelectRole={setSelectRole}
         setSelectedItems={setSelectedItems}
         user={user}
+        filterItems={props.filterItems}
+        supportRoles={props.supportRoles}
       />
       <BottomButton>
-        <TacoButton style={{ marginRight: "8px" }} onClick={toPermissionList}>
+        <TacoButton style={{ marginRight: "8px" }} onClick={onCancel}>
           {trans("cancel") + " "}
         </TacoButton>
         <TacoButton
@@ -424,23 +430,10 @@ export function AddPermission() {
               .filter((item) => item.type === "GROUP")
               .map((item) => item.id);
             if (uids.length === 0 && gids.length === 0) {
-              toPermissionList();
+              onCancel();
               return;
             }
-            ApplicationApi.grantAppPermission({
-              applicationId: applicationId,
-              userIds: uids,
-              groupIds: gids,
-              role: selectRole,
-            })
-              .then((resp) => {
-                if (validateResponse(resp)) {
-                  toPermissionList();
-                }
-              })
-              .catch((e) => {
-                message.error(trans("home.addPermissionErrorMessage", { message: e.message }));
-              });
+            props.addPermission(uids, gids, selectRole);
           }}
         >
           {trans("finish") + " "}
@@ -448,4 +441,4 @@ export function AddPermission() {
       </BottomButton>
     </AddAppUserContent>
   );
-}
+};

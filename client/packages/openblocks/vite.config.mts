@@ -41,7 +41,6 @@ export const viteConfig: UserConfig = {
   resolve: {
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
     alias: {
-      "openblocks-sdk": path.resolve(__dirname, "src/index.sdk"),
       "@openblocks-ee": path.resolve(
         __dirname,
         isEE ? "../openblocks/src/ee" : "../openblocks/src"
@@ -114,12 +113,7 @@ export const viteConfig: UserConfig = {
       },
     }),
     viteTsconfigPaths({
-      projects: [
-        "../openblocks/tsconfig.json",
-        "../openblocks-sdk/tsconfig.json",
-        "../openblocks-comps/tsconfig.json",
-        "../openblocks-design/tsconfig.json",
-      ],
+      projects: ["../openblocks/tsconfig.json", "../openblocks-design/tsconfig.json"],
     }),
     svgrPlugin({
       svgrOptions: {

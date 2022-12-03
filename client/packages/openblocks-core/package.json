@@ -18,7 +18,8 @@
     "@rollup/plugin-commonjs": "^23.0.0",
     "@rollup/plugin-node-resolve": "^15.0.0",
     "intl-messageformat": "^10.2.1",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "lru-cache": "^7.14.1"
   },
   "description": "openblocks-core is a JavaScript library for building new components in openblocks",
   "keywords": [

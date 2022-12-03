@@ -148,7 +148,6 @@ function IconCodeEditor(props: {
     (v: EditorView) => (
       <IconSelectBase
         onChange={(value) => {
-          console.info(value);
           const r: Range = range ?? v.state.selection.ranges[0] ?? { from: 0, to: 0 };
           const insert = '"' + value + '"';
           setRange({ ...r, to: r.from + insert.length });

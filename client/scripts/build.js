@@ -1,52 +1,10 @@
-import fs from "fs";
 import shell from "shelljs";
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
 import chalk from "chalk";
-import { stripLastSlash } from "openblocks-dev-utils/util.js";
 import { buildVars } from "openblocks-dev-utils/buildVars.js";
 
 shell.set("-e");
 
 const start = Date.now();
-
-const internalPackages = ["openblocks-comps", "openblocks"];
-
-const rootDir = dirname(dirname(fileURLToPath(import.meta.url)));
-const moduleBuildDir = path.resolve(rootDir, "packages/openblocks/node_modules/.openblocks");
-const finalBuildDir = path.resolve(rootDir, "packages/openblocks/build");
-const imports = {};
-
-function processImports(importsData) {
-  let publicUrl = shell.env["PUBLIC_URL"];
-  if (publicUrl) {
-    Object.keys(importsData).forEach((m) => {
-      importsData[m] = `${stripLastSlash(publicUrl)}${importsData[m]}`;
-    });
-  }
-  return importsData;
-}
-
-function buildPackage(workspace) {
-  console.log(chalk.cyan`${workspace} building...`);
-  shell.exec(`yarn workspace ${workspace} build`, { fatal: true });
-
-  const workspaceBuildDir = path.resolve(rootDir, "packages", workspace, "lib");
-  if (!fs.existsSync(workspaceBuildDir)) {
-    return;
-  }
-
-  const importMapFile = path.resolve(workspaceBuildDir, "import-map.json");
-  if (fs.existsSync(importMapFile)) {
-    const importMapFileCnt = fs.readFileSync(importMapFile).toString();
-    Object.assign(imports, processImports(JSON.parse(importMapFileCnt)));
-    shell.exec(`rm ${importMapFile}`);
-  }
-  shell.cp(`-R`, `${workspaceBuildDir}/*`, moduleBuildDir);
-  shell.env["REACT_APP_IMPORT_MAP"] = JSON.stringify({ imports });
-}
-
-shell.mkdir("-p", moduleBuildDir);
 
 //prettier-ignore
 shell.env["REACT_APP_COMMIT_ID"] = shell.env["REACT_APP_COMMIT_ID"] || shell.exec("git rev-parse --short HEAD").trim();
@@ -61,30 +19,7 @@ buildVars.forEach(({ name, defaultValue }) => {
   shell.env[name] = shell.env[name] ?? defaultValue;
 });
 
-console.log();
-console.log(chalk.cyan`clear module build dir...`);
-shell.rm("-rf", `${moduleBuildDir}/*`);
-
-internalPackages.forEach((pkg) => {
-  if (process.argv.includes("--skip-main") && pkg === "openblocks") {
-    console.log(chalk.cyan`skip build package:`, pkg);
-    return;
-  }
-  buildPackage(pkg);
-});
-
-const importMap = JSON.stringify({ imports: imports }, null, 2);
-
-console.log();
-console.log(chalk.cyan`generate import map file:`);
-console.log(importMap);
-fs.writeFileSync(path.resolve(moduleBuildDir, "import-map.json"), importMap);
-
-if (!process.argv.includes("--skip-main")) {
-  console.log();
-  console.log(chalk.cyan`merging...`);
-  shell.cp("-R", `${moduleBuildDir}/*`, finalBuildDir);
-}
+shell.exec(`yarn workspace openblocks build`, { fatal: true });
 
 if (process.argv.includes("--internal-deploy")) {
   const deployDir = shell.env["DEPLOY_DIR"];

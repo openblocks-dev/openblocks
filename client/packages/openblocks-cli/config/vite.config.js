@@ -1,9 +1,15 @@
 import react from "@vitejs/plugin-react";
 import svgrPlugin from "vite-plugin-svgr";
+import global from "rollup-plugin-external-globals";
 import { buildVars } from "openblocks-dev-utils/buildVars.js";
-import { getLibNames } from "openblocks-dev-utils/external.js";
+import injectCss from "vite-plugin-css-injected-by-js";
+import { getLibNames, getAllLibGlobalVarNames } from "openblocks-dev-utils/external.js";
 import paths from "./paths.js";
 import { defineConfig } from "vite";
+import { readJson } from "openblocks-dev-utils/util.js";
+
+const isProduction = process.env.NODE_ENV === "production";
+const packageJson = readJson(paths.appPackageJson);
 
 const define = {};
 buildVars.forEach(({ name, defaultValue }) => {
@@ -13,6 +19,7 @@ buildVars.forEach(({ name, defaultValue }) => {
 export default defineConfig({
   define: {
     ...define,
+    "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "development"),
     __OPENBLOCKS_DEV__: JSON.stringify({}),
   },
   assetsInclude: ["**/*.md"],
@@ -53,5 +60,7 @@ export default defineConfig({
         ref: true,
       },
     }),
+    isProduction && global(getAllLibGlobalVarNames(), { exclude: [/\.css$/] }),
+    isProduction && injectCss({ styleId: `${packageJson.name}-${packageJson.version}` }),
   ].filter(Boolean),
 });

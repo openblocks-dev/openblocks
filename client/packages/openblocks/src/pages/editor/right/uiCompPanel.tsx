@@ -8,6 +8,7 @@ import { draggingUtils } from "layout";
 import { isEmpty } from "lodash";
 import { language } from "i18n";
 import {
+  ComListTitle,
   CompIconDiv,
   EmptyCompContent,
   RightPanelContentWrapper,
@@ -19,17 +20,9 @@ import { labelCss } from "openblocks-design";
 import { TransparentImg } from "../../../util/commonUtils";
 import { RightContext } from "./rightContext";
 
-const InsertLabel = styled.span`
-  ${labelCss};
-  font-weight: 500;
-  font-size: 14px;
-  color: #8b8fa3;
-  line-height: 14px;
-  display: block;
-`;
 const GrayLabel = (props: { label: string }) => {
   const { label } = props;
-  return <InsertLabel>{label}</InsertLabel>;
+  return <ComListTitle>{label}</ComListTitle>;
 };
 
 const CompDiv = styled.div`

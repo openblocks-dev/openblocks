@@ -17,9 +17,8 @@ import {
   textInputChildren,
   TextInputConfigs,
   TextInputInteractionSection,
-  textInputProps,
-  textInputValidate,
   TextInputValidationOptions,
+  useTextInputProps,
 } from "./textInputConstants";
 import { MethodConfigFocus, withMethodExposing } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
@@ -50,17 +49,18 @@ const PasswordTmpComp = (function () {
     style: styleControl(InputLikeStyle),
   };
   return new UICompBuilder(childrenMap, (props) => {
+    const [inputProps, validateState] = useTextInputProps(props);
     return props.label({
       required: props.required,
       children: (
         <PasswordStyle
-          {...textInputProps(props)}
+          {...inputProps}
           visibilityToggle={props.visibilityToggle}
           $style={props.style}
         />
       ),
       style: props.style,
-      ...textInputValidate(props),
+      ...validateState,
     });
   })
     .setPropertyViewFn((children) => {

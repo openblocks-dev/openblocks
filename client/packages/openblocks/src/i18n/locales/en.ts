@@ -40,6 +40,7 @@ export const en = {
   more: "More",
   search: "Search",
   back: "Back",
+  accessControl: " Access Control",
   api: {
     publishSuccess: "Published",
     recoverFailed: "Recover failed",
@@ -85,14 +86,12 @@ export const en = {
   },
   bottomPanel: {
     title: "Queries",
-    noQueries: "No queries available. Create ",
     run: "Run",
     noSelectedQuery: "No selected query",
     metaData: "Metadata",
     noMetadata: "No metadata",
     metaSearchPlaceholder: "Search metadata",
     allData: "All tables",
-    createNew: "New",
   },
   rightPanel: {
     propertyTab: "Properties",
@@ -101,8 +100,10 @@ export const en = {
     searchPlaceHolder: "Search components or modules",
     uiComponentTab: "Components",
     moduleTab: "Modules",
+    pluginTab: "Plugins",
     emptyModules: "Modules are reusable groups of components and queries.",
     searchNotFound: "Can't find a suitable component? Submit an issue",
+    emptyPlugins: "No plugins added.",
     contactUs: "Contact us",
     issueHere: " here.",
   },
@@ -340,6 +341,7 @@ export const en = {
     minDate: "Less than minimum date, current time {date}, minimum date {minDate}",
   },
   query: {
+    noQueries: "No queries available. ",
     queryTutorialButton: "View {value} documents",
     datasource: "Data sources",
     newDatasource: "New data source",
@@ -433,7 +435,7 @@ export const en = {
     passwordRequiredMessage: "Please enter your password",
     authentication: "Authentication",
     authenticationType: "Authentication Type",
-    enableTurnOffPreparedStatement: "Support for switching prepared statements",
+    enableTurnOffPreparedStatement: "Enable toggling prepared statements for queries",
     enableTurnOffPreparedStatementTooltip:
       "You can enable or disable prepared statements in query Advanced tab",
     serviceName: "Service name",
@@ -502,7 +504,6 @@ export const en = {
     sortPlaceholder: "Name",
   },
   queryLibrary: {
-    noQueries: "No queries have been added yet.",
     noInput: "The current query has no input",
     inputName: "Name",
     inputDesc: "Description",
@@ -729,10 +730,15 @@ export const en = {
   },
   comp: {
     menuViewDocs: "View documentation",
+    menuUpgradeToLatest: "Upgrade to latest version",
     nameNotEmpty: "Can not be empty",
     nameRegex: "Must start with a letter and contain only letters, digits, and underscores (_)",
     nameJSKeyword: "Can not be a Javascript keyword",
     nameExists: "Name {name} already exist",
+    getLatestVersionMetaError: "Failed to fetch latest version, please try later.",
+    needNotUpgrade: "Current version is already latest.",
+    compNotFoundInLatestVersion: "Current component not found in the latest version.",
+    upgradeSuccess: "Successfully upgraded to latest version.",
   },
   jsonSchemaForm: {
     retry: "Retry",
@@ -1179,6 +1185,7 @@ export const en = {
     organization: "Workspaces",
     audit: "Audit logs",
     theme: "Themes",
+    plugin: "Plugins",
     advanced: "Advanced",
     lab: "Lab",
   },
@@ -1408,6 +1415,14 @@ export const en = {
     buttonLabel: "Button",
     switchOn: "Switch on",
     swicthOff: "Swicth off",
+  },
+  pluginSetting: {
+    title: "Plugins",
+    npmPluginTitle: "NPM plugins",
+    npmPluginDesc: "Set up npm plugins for all applications in the current workspace.",
+    npmPluginEmpty: "No npm plugins were added.",
+    npmPluginAddButton: "Add a npm plugin",
+    saveSuccess: "Saved successfully",
   },
   advanced: {
     title: "Advanced",
@@ -1682,6 +1697,7 @@ export const en = {
   },
   history: {
     layout: "'{0}' layout adjustment",
+    upgrade: "Upgrade '{0}'",
     delete: "Delete '{0}'",
     add: "Add '{0}'",
     modify: "Modify '{0}'",
@@ -1774,6 +1790,16 @@ export const en = {
     dotPosition: "Dots position",
     autoPlay: "AutoPlay",
     showDots: "Show dots",
+  },
+  npm: {
+    pluginExisted: "This npm plugin already existed",
+    compNotFound: "Component {compName} not found.",
+    addPluginModalTitle: "Add npm plugin",
+    pluginNameLabel: "NPM package's URL or name",
+    noCompText: "No components.",
+    compsLoading: "Loading...",
+    removePluginBtnText: "Remove",
+    addPluginBtnText: "Add npm plugin",
   },
   toggleButton: {
     valueDesc: "The default value of the toggle button, for example: false",

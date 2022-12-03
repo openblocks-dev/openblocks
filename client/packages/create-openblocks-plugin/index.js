@@ -129,12 +129,11 @@ async function createProject(projectName, options) {
   await install([
     cliPackageName,
     sdkPackageName,
-    "openblocks-design",
-    "openblocks-core",
     "react@17",
     "react-dom@17",
     "@types/react@17",
     "@types/react-dom@17",
+    "vite",
   ]);
 
   await executeNodeScript(

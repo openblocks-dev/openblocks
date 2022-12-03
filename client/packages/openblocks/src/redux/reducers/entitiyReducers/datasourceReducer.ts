@@ -2,15 +2,23 @@ import { createReducer } from "util/reducerUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/reduxActionConstants";
 import { DatasourceInfo, DatasourceStructure } from "api/datasourceApi";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import { DatasourcePermissionInfo } from "../../../api/datasourcePermissionApi";
+import {
+  DeleteDatasourcePermissionPayload,
+  FetchDatasourcePermissionsPayload,
+  UpdateDatasourcePermissionPayload,
+} from "../../reduxActions/datasourcePermissionActions";
 
 export interface DatasourceDataState {
   data: DatasourceInfo[];
   structure: Record<string, DatasourceStructure[]>;
+  permissionInfo: Record<string, DatasourcePermissionInfo>;
 }
 
 const initialState: DatasourceDataState = {
   data: [],
   structure: {},
+  permissionInfo: {},
 };
 
 const datasourceReducer = createReducer(initialState, {
@@ -67,6 +75,57 @@ const datasourceReducer = createReducer(initialState, {
       ...state,
       data: state.data.filter((info) => info.datasource.id !== action.payload?.datasourceId),
     };
+  },
+
+  /* permission */
+  [ReduxActionTypes.FETCH_DATASOURCE_PERMISSION_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<FetchDatasourcePermissionsPayload & { data: DatasourcePermissionInfo }>
+  ) => {
+    const permissions = state.permissionInfo;
+    permissions[action.payload.datasourceId] = action.payload.data;
+    return {
+      ...state,
+      permissionInfo: { ...permissions },
+    };
+  },
+
+  [ReduxActionTypes.UPDATE_DATASOURCE_PERMISSION_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<UpdateDatasourcePermissionPayload>
+  ): DatasourceDataState => {
+    const info = state.permissionInfo[action.payload.datasourceId] ?? {};
+    info.userPermissions = info.userPermissions.map((p) => {
+      if (p.permissionId === action.payload.permissionId) {
+        return { ...p, role: action.payload.role };
+      }
+      return p;
+    });
+    info.groupPermissions = info.groupPermissions.map((p) => {
+      if (p.permissionId === action.payload.permissionId) {
+        return { ...p, role: action.payload.role };
+      }
+      return p;
+    });
+    state.permissionInfo[action.payload.datasourceId] = info;
+
+    return { ...state };
+  },
+
+  [ReduxActionTypes.DELETE_DATASOURCE_PERMISSION_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<DeleteDatasourcePermissionPayload>
+  ): DatasourceDataState => {
+    const info = state.permissionInfo[action.payload.datasourceId] ?? {};
+    info.userPermissions = info.userPermissions.filter(
+      (p) => p.permissionId !== action.payload.permissionId
+    );
+    info.groupPermissions = info.groupPermissions.filter(
+      (p) => p.permissionId !== action.payload.permissionId
+    );
+    state.permissionInfo[action.payload.datasourceId] = info;
+
+    return { ...state };
   },
 });
 export default datasourceReducer;

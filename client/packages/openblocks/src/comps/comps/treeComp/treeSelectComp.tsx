@@ -21,7 +21,7 @@ import {
   valuePropertyView,
 } from "./treeUtils";
 import { getStyle } from "../selectInputComp/selectCompConstants";
-import { selectInputValidate } from "../selectInputComp/selectInputConstants";
+import { useSelectInputValidate } from "../selectInputComp/selectInputConstants";
 import { ValueFromOption } from "openblocks-design";
 import { StringControl } from "comps/controls/codeControl";
 import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
@@ -81,6 +81,7 @@ const TreeCompView = (
 ) => {
   const { treeData, selectType, value, expanded, style } = props;
   const isSingle = selectType === "single";
+  const [validateState, handleValidate] = useSelectInputValidate(props);
   useEffect(() => {
     if (isSingle && value.value.length > 1) {
       value.onChange(value.value.slice(0, 1));
@@ -89,7 +90,7 @@ const TreeCompView = (
   useTree(props);
   return props.label({
     required: props.required,
-    ...selectInputValidate(props),
+    ...validateState,
     style: style,
     children: (
       <StyledTreeSelect
@@ -111,7 +112,9 @@ const TreeCompView = (
           expanded.onChange(keys);
         }}
         onChange={(keys) => {
-          value.onChange(Array.isArray(keys) ? keys : keys !== undefined ? [keys] : []);
+          const nextValue = Array.isArray(keys) ? keys : keys !== undefined ? [keys] : [];
+          handleValidate(nextValue);
+          value.onChange(nextValue);
           props.onEvent("change");
         }}
         showSearch={props.showSearch}

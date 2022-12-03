@@ -52,6 +52,8 @@ export type UICompType =
   | "module"
   | "moduleContainer"
   | "textArea"
+  | "chart"
+  | "imageEditor"
   | "password"
   | "richTextEditor"
   | "numberInput"
@@ -101,6 +103,7 @@ export type UICompType =
   | "carousel"
   | "toggleButton"
   | "imageEditor"
+  | "npmPlugin"
   | "collapsibleContainer";
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;

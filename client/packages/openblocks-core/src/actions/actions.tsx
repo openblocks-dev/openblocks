@@ -17,7 +17,9 @@ import {
   UpdateActionContextAction,
   UpdateNodesV2Action,
   TriggerModuleEventAction,
+  ReplaceCompAction,
 } from "./actionTypes";
+import { CompConstructor } from "baseComps/comp";
 
 export function customAction<DataType>(value: DataType): CustomAction<DataType> {
   return {
@@ -140,6 +142,14 @@ export function deleteCompAction(): SimpleCompAction {
   return {
     type: CompActionTypes.DELETE_COMP,
     path: [],
+  };
+}
+
+export function replaceCompAction(compFactory: CompConstructor): ReplaceCompAction {
+  return {
+    type: CompActionTypes.REPLACE_COMP,
+    path: [],
+    compFactory: compFactory,
   };
 }
 

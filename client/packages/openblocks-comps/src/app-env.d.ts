@@ -1,1 +1,3 @@
-/// <reference path="../../openblocks/src/app-env.d.ts" />
+/// <reference types="openblocks-cli/client" />
+
+declare module "openblocks-sdk";

@@ -23,6 +23,10 @@ function InviteLanding(props: InviteLandingProp) {
       // no user info replied from the backend
       return;
     }
+    if (!invitationId) {
+      history.push(BASE_URL);
+      return;
+    }
     // accept the invitation
     InviteApi.acceptInvite({ invitationId })
       .then((resp) => {

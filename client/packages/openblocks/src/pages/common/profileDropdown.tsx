@@ -22,11 +22,10 @@ import history from "util/history";
 import ProfileImage from "pages/common/profileImage";
 import { isProfileSettingModalVisible } from "redux/selectors/usersSelectors";
 import { logoutAction, profileSettingModalVisible } from "redux/reduxActions/userActions";
-import { currentOrgAdmin, currentOrgAdminOrDev } from "util/permissionUtils";
 import { trans } from "i18n";
-import { isEE } from "util/envUtils";
 import { showSwitchOrg } from "@openblocks-ee/pages/common/customerService";
 import { checkIsMobile } from "util/commonUtils";
+import { selectSystemConfig } from "redux/selectors/configSelectors";
 
 const ProfileWrapper = styled.div`
   display: flex;
@@ -134,6 +133,7 @@ export default function ProfileDropdown(props: DropDownProps) {
     [props.user, currentOrgId]
   );
   const settingModalVisible = useSelector(isProfileSettingModalVisible);
+  const sysConfig = useSelector(selectSystemConfig);
   const dispatch = useDispatch();
   const handleClick = (e: any) => {
     if (e.key === "profile") {
@@ -168,7 +168,9 @@ export default function ProfileDropdown(props: DropDownProps) {
           <ProfileImage source={avatarUrl} userName={username} side={48} />
           <StyledNameLabel>
             <CommonTextLabel2 title={username}>{username}</CommonTextLabel2>
-            {!checkIsMobile(window.innerWidth) && <EditIcon style={{ position: "absolute", right: 0, top: 0 }} />}
+            {!checkIsMobile(window.innerWidth) && (
+              <EditIcon style={{ position: "absolute", right: 0, top: 0 }} />
+            )}
           </StyledNameLabel>
           {currentOrg && (
             <CommonGrayLabel
@@ -186,7 +188,7 @@ export default function ProfileDropdown(props: DropDownProps) {
           )}
         </ProfileWrapper>
       </Menu.Item>
-      {orgs && orgs.length > 0 && showSwitchOrg(props.user) && (
+      {orgs && orgs.length > 0 && showSwitchOrg(props.user, sysConfig) && (
         <StyledDropdownSubMenu
           key="switchOrg"
           title={trans("profile.switchOrg")}

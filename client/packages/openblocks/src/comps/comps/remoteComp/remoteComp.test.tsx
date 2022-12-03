@@ -4,9 +4,18 @@ import { withSimpleExposing } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { evalAndReduce } from "comps/utils";
 import { changeValueAction, customAction } from "openblocks-core";
+import { RemoteCompInfo } from "types/remoteComp";
 import { remoteComp } from "./remoteComp";
 
-const RComp = remoteComp({ packageName: "p", packageVersion: "v", compName: "n" }, async () => {
+const npmRemoteInfo: RemoteCompInfo = {
+  isRemote: true,
+  source: "npm",
+  packageName: "p",
+  packageVersion: "v",
+  compName: "n",
+};
+
+const RComp = remoteComp(npmRemoteInfo, async () => {
   return valueComp(123);
 });
 test("remote comp", async () => {
@@ -44,7 +53,7 @@ test("remote comp keep values", async () => {
 });
 
 test("remote comp exposing data", async () => {
-  const EComp = remoteComp({ packageName: "p", packageVersion: "v", compName: "n" }, async () => {
+  const EComp = remoteComp(npmRemoteInfo, async () => {
     return withSimpleExposing(simpleMultiComp({ hello: valueComp(123) }), (comp) => {
       return {
         hello: comp.children.hello.getView(),
@@ -67,7 +76,7 @@ test("remote comp exposing data", async () => {
 });
 
 test("remote comp execute method", async () => {
-  const MComp = remoteComp({ packageName: "p", packageVersion: "v", compName: "n" }, async () => {
+  const MComp = remoteComp(npmRemoteInfo, async () => {
     return withMethodExposing(simpleMultiComp({ hello: valueComp<number>(123) }), [
       {
         method: {

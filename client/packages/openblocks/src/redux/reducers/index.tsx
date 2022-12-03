@@ -11,6 +11,7 @@ import { CommonSettingsState } from "./uiReducers/commonSettingsReducer";
 import { QueryLibraryState } from "./entitiyReducers/queryLibraryReducer";
 import { FolderReduxState } from "./uiReducers/folderReducer";
 import { combineReducers } from "redux";
+import npmPluginReducer, { NPMPluginState } from "./npmPluginReducers";
 
 export interface AppState {
   ui: {
@@ -27,11 +28,13 @@ export interface AppState {
     plugins: PluginDataState;
     queryLibrary: QueryLibraryState;
   };
+  npmPlugin: NPMPluginState;
 }
 
 export const reducerObject = {
   ui: uiReducer,
   entities: entityReducer,
+  npmPlugin: npmPluginReducer,
 };
 
 export const appReducer = combineReducers(reducerObject);

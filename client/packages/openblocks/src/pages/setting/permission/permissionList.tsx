@@ -19,8 +19,9 @@ import { trans } from "i18n";
 import { getOrgGroups } from "redux/selectors/orgSelectors";
 import { Table } from "components/Table";
 import history from "util/history";
-import { currentOrgAdmin, isGroupAdmin, timestampToHumanReadable } from "openblocks-sdk";
 import { Level1SettingPageContentWithList, Level1SettingPageTitleWithBtn } from "../styled";
+import { currentOrgAdmin, isGroupAdmin } from "../../../util/permissionUtils";
+import { timestampToHumanReadable } from "../../../util/dateTimeUtils";
 
 const NEW_GROUP_PREFIX = trans("memberSettings.newGroupPrefix");
 

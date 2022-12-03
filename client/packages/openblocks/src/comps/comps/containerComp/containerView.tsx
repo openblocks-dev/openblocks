@@ -55,6 +55,7 @@ import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { selectCompModifierKeyPressed } from "util/keyUtils";
 import { defaultLayout, GridItemComp, GridItemDataType } from "../gridItemComp";
 import { checkIsMobile } from "util/commonUtils";
+import { parseCompType } from "comps/utils/remote";
 
 const childrenMap = {
   layout: valueComp<Layout>({}),
@@ -216,7 +217,8 @@ const onDrop = (
     editorState.setSelectedCompNames(new Set([compName]), "addComp");
   } else if (!!compType) {
     const nameGenerator = editorState.getNameGenerator();
-    const compName = nameGenerator.genItemName(compType);
+    const compInfo = parseCompType(compType);
+    const compName = nameGenerator.genItemName(compInfo.compName);
     const defaultDataFn = uiCompRegistry[compType as UICompType]?.defaultDataFn;
     const widgetValue: GridItemDataType = {
       compType,

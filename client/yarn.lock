@@ -4005,7 +4005,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rollup/pluginutils@npm:^4.0.0, @rollup/pluginutils@npm:^4.2.1":
+"@rollup/pluginutils@npm:^4.2.1":
   version: 4.2.1
   resolution: "@rollup/pluginutils@npm:4.2.1"
   dependencies:
@@ -4015,7 +4015,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rollup/pluginutils@npm:^5.0.0, @rollup/pluginutils@npm:^5.0.1":
+"@rollup/pluginutils@npm:^5.0.0, @rollup/pluginutils@npm:^5.0.1, @rollup/pluginutils@npm:^5.0.2":
   version: 5.0.2
   resolution: "@rollup/pluginutils@npm:5.0.2"
   dependencies:
@@ -4815,6 +4815,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-dom@npm:17":
+  version: 17.0.18
+  resolution: "@types/react-dom@npm:17.0.18"
+  dependencies:
+    "@types/react": ^17
+  checksum: b74525b1a13a0e27fe20859ff7a7e8f7e4581fb9d45ed1b6447ad1534d86f813818353c39d0df2e28f9d2b9be2e3af1908c244b2214a979393d19f217665e614
+  languageName: node
+  linkType: hard
+
 "@types/react-dom@npm:<18.0.0, @types/react-dom@npm:^17.0.9":
   version: 17.0.17
   resolution: "@types/react-dom@npm:17.0.17"
@@ -4990,13 +4999,6 @@ __metadata:
   version: 4.0.2
   resolution: "@types/stylis@npm:4.0.2"
   checksum: 5461290afd6e7fbbd713f4896b4c586fa6f3072ef8addcb062feaf112a50168477df98ab474d9b603b19b879696aab6932c5f0bb3cda7472ab9c1622ee7fea60
-  languageName: node
-  linkType: hard
-
-"@types/systemjs@npm:^6.1.1":
-  version: 6.1.1
-  resolution: "@types/systemjs@npm:6.1.1"
-  checksum: 16f8178b438d5223837995f458927da2d144adcf98c732b8e018e29f1d3364ede8d082edb4de2b31a371c5858485df3496b400fc90868b7ac6d4611e5a7bfa5d
   languageName: node
   linkType: hard
 
@@ -7085,16 +7087,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"create-openblocks-comps@workspace:packages/create-openblocks-comps":
+"create-openblocks-plugin@workspace:packages/create-openblocks-plugin":
   version: 0.0.0-use.local
-  resolution: "create-openblocks-comps@workspace:packages/create-openblocks-comps"
+  resolution: "create-openblocks-plugin@workspace:packages/create-openblocks-plugin"
   dependencies:
     chalk: 4
     commander: ^9.4.1
     fs-extra: ^10.1.0
     openblocks-dev-utils: "workspace:^"
   bin:
-    create-openblocks-comps: ./index.js
+    create-openblocks-plugin: ./index.js
   languageName: unknown
   linkType: soft
 
@@ -8672,6 +8674,13 @@ __metadata:
   version: 2.0.2
   resolution: "estree-walker@npm:2.0.2"
   checksum: 6151e6f9828abe2259e57f5fd3761335bb0d2ebd76dc1a01048ccee22fabcfef3c0859300f6d83ff0d1927849368775ec5a6d265dde2f6de5a1be1721cd94efc
+  languageName: node
+  linkType: hard
+
+"estree-walker@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "estree-walker@npm:3.0.1"
+  checksum: 674096950819041f1ee471e63f7aa987f2ed3a3a441cc41a5176e9ed01ea5cfd6487822c3b9c2cddd0e2c8f9d7ef52d32d06147a19b5a9ca9f8ab0c094bd43b9
   languageName: node
   linkType: hard
 
@@ -10360,6 +10369,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"is-reference@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "is-reference@npm:3.0.0"
+  dependencies:
+    "@types/estree": "*"
+  checksum: 408bb3442ff5f90a9740bf578e8fa2863f68bc07ee99b92079a358a34af58341dc7014b054e8cc51a3da5d1ab83f635b6ee1ce2982db7899a128d7a05173898f
+  languageName: node
+  linkType: hard
+
 "is-regex@npm:^1.0.4, is-regex@npm:^1.1.4":
   version: 1.1.4
   resolution: "is-regex@npm:1.1.4"
@@ -11152,7 +11170,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^29.3.0":
+"jest@npm:29.3.0, jest@npm:^29.3.0":
   version: 29.3.0
   resolution: "jest@npm:29.3.0"
   dependencies:
@@ -11903,6 +11921,13 @@ __metadata:
   dependencies:
     yallist: ^4.0.0
   checksum: f97f499f898f23e4585742138a22f22526254fdba6d75d41a1c2526b3b6cc5747ef59c5612ba7375f42aca4f8461950e925ba08c991ead0651b4918b7c978297
+  languageName: node
+  linkType: hard
+
+"lru-cache@npm:^7.14.1":
+  version: 7.14.1
+  resolution: "lru-cache@npm:7.14.1"
+  checksum: d72c6713c6a6d86836a7a6523b3f1ac6764768cca47ec99341c3e76db06aacd4764620e5e2cda719a36848785a52a70e531822dc2b33fb071fa709683746c104
   languageName: node
   linkType: hard
 
@@ -13345,8 +13370,10 @@ __metadata:
     react: ^17
     react-dom: ^17
     react-json-view: ^1.21.3
+    rollup-plugin-external-globals: ^0.7.1
     typescript: ^4.8.4
     vite: ^3.2.4
+    vite-plugin-css-injected-by-js: ^2.1.1
     vite-plugin-svgr: ^2.2.2
   peerDependencies:
     openblocks-sdk: "*"
@@ -13359,29 +13386,20 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "openblocks-comps@workspace:packages/openblocks-comps"
   dependencies:
-    "@rollup/plugin-commonjs": ^22.0.2
-    "@rollup/plugin-json": ^5.0.1
-    "@rollup/plugin-node-resolve": ^14.1.0
-    "@rollup/plugin-replace": ^5.0.1
-    "@rollup/plugin-typescript": ^8.5.0
-    "@rollup/plugin-url": ^7.0.0
-    fast-deep-equal: ^3.1.3
+    "@types/react": 17
+    "@types/react-dom": 17
+    jest: 29.3.0
     openblocks-cli: "workspace:^"
-    openblocks-dev-utils: "workspace:^"
-    rollup: ^2
-    rollup-plugin-cleaner: ^1.0.0
-    rollup-plugin-external-globals: ^0.6.1
-    rollup-plugin-polyfill-node: ^0.10.2
-    rollup-plugin-terser: ^7.0.2
-    typescript: ^4.8.4
-  peerDependencies:
-    lodash: "*"
     openblocks-sdk: "workspace:^"
-    react: "*"
+    react: 17
+    react-dom: 17
+    typescript: 4.8.4
+    vite: ^3.2.4
+    vite-tsconfig-paths: ^3.6.0
   languageName: unknown
   linkType: soft
 
-"openblocks-core@workspace:^, openblocks-core@workspace:packages/openblocks-core":
+"openblocks-core@^0.0.1, openblocks-core@workspace:^, openblocks-core@workspace:packages/openblocks-core":
   version: 0.0.0-use.local
   resolution: "openblocks-core@workspace:packages/openblocks-core"
   dependencies:
@@ -13390,6 +13408,7 @@ __metadata:
     "@rollup/plugin-typescript": ^8.5.0
     intl-messageformat: ^10.2.1
     lodash: ^4.17.21
+    lru-cache: ^7.14.1
     rimraf: ^3.0.2
     rollup: ^2
     rollup-plugin-dts: ^5.0.0
@@ -13397,7 +13416,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"openblocks-design@workspace:^, openblocks-design@workspace:packages/openblocks-design":
+"openblocks-design@^0.0.1, openblocks-design@workspace:^, openblocks-design@workspace:packages/openblocks-design":
   version: 0.0.0-use.local
   resolution: "openblocks-design@workspace:packages/openblocks-design"
   dependencies:
@@ -13428,7 +13447,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"openblocks-sdk@workspace:^, openblocks-sdk@workspace:packages/openblocks-sdk":
+"openblocks-plugin-demo@workspace:packages/openblocks-plugin-demo":
+  version: 0.0.0-use.local
+  resolution: "openblocks-plugin-demo@workspace:packages/openblocks-plugin-demo"
+  dependencies:
+    "@types/react": 17
+    "@types/react-dom": 17
+    openblocks-cli: "workspace:^"
+    openblocks-core: ^0.0.1
+    openblocks-design: ^0.0.1
+    openblocks-sdk: ^0.0.20
+    react: 17
+    react-dom: 17
+    typescript: 4.8.4
+    vite: ^3.2.4
+  languageName: unknown
+  linkType: soft
+
+"openblocks-sdk@^0.0.20, openblocks-sdk@workspace:^, openblocks-sdk@workspace:packages/openblocks-sdk":
   version: 0.0.0-use.local
   resolution: "openblocks-sdk@workspace:packages/openblocks-sdk"
   dependencies:
@@ -13491,7 +13527,6 @@ __metadata:
     "@types/react-test-renderer": ^18.0.0
     "@types/react-virtualized": ^9.21.21
     "@types/regenerator-runtime": ^0.13.1
-    "@types/systemjs": ^6.1.1
     "@types/uuid": ^8.3.4
     "@vitejs/plugin-react": ^2.2.0
     ali-oss: ^6.17.1
@@ -13554,7 +13589,6 @@ __metadata:
     sql-formatter: ^8.2.0
     styled-components: ^5.3.3
     stylis: ^4.1.1
-    systemjs: ^6.13.0
     tern: ^0.24.3
     toposort: ^2.0.2
     typescript: ^4.8.4
@@ -15038,7 +15072,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^17, react-dom@npm:^17.0.2":
+"react-dom@npm:17, react-dom@npm:^17, react-dom@npm:^17.0.2":
   version: 17.0.2
   resolution: "react-dom@npm:17.0.2"
   dependencies:
@@ -15486,7 +15520,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:^17, react@npm:^17.0.2":
+"react@npm:17, react@npm:^17, react@npm:^17.0.2":
   version: 17.0.2
   resolution: "react@npm:17.0.2"
   dependencies:
@@ -16072,17 +16106,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup-plugin-external-globals@npm:^0.6.1":
-  version: 0.6.1
-  resolution: "rollup-plugin-external-globals@npm:0.6.1"
+"rollup-plugin-external-globals@npm:^0.7.1":
+  version: 0.7.1
+  resolution: "rollup-plugin-external-globals@npm:0.7.1"
   dependencies:
-    "@rollup/pluginutils": ^4.0.0
-    estree-walker: ^2.0.1
-    is-reference: ^1.2.1
-    magic-string: ^0.25.7
+    "@rollup/pluginutils": ^5.0.2
+    estree-walker: ^3.0.1
+    is-reference: ^3.0.0
+    magic-string: ^0.26.7
   peerDependencies:
-    rollup: ^2.25.0
-  checksum: 867171c9f37097b0761342224a9b8af040bcd4f0f5efe7076e59860480a09775f29a5b14313c8d6516841ef169e06d9204e6ec4b0ef52b43cd2b5d8bdbfb5bce
+    rollup: ^2.25.0 || ^3.3.0
+  checksum: 190c1f7b05159d56de97375597a9d07f12ebb2503db30ed400bd72a2c515ab3fac51b9eae0228b69cd5ca6aafa3e0142a11159a04cfc04e68ff395286a5edf8d
   languageName: node
   linkType: hard
 
@@ -17211,13 +17245,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"systemjs@npm:^6.13.0":
-  version: 6.13.0
-  resolution: "systemjs@npm:6.13.0"
-  checksum: df8d7374249778291f3a85278fdb3e1b9d81ac07767b0a7f9edeca0ee45d847c19bceb01522c817605e2908d32a4fcfed6bacd707bfb7bd577774ab900d3707d
-  languageName: node
-  linkType: hard
-
 "taco-fe@workspace:.":
   version: 0.0.0-use.local
   resolution: "taco-fe@workspace:."
@@ -17748,7 +17775,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.8.4":
+"typescript@npm:4.8.4, typescript@npm:^4.8.4":
   version: 4.8.4
   resolution: "typescript@npm:4.8.4"
   bin:
@@ -17758,7 +17785,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.8.4#~builtin<compat/typescript>":
+"typescript@patch:typescript@4.8.4#~builtin<compat/typescript>, typescript@patch:typescript@^4.8.4#~builtin<compat/typescript>":
   version: 4.8.4
   resolution: "typescript@patch:typescript@npm%3A4.8.4#~builtin<compat/typescript>::version=4.8.4&hash=701156"
   bin:
@@ -18286,6 +18313,15 @@ __metadata:
     vti:
       optional: true
   checksum: eed0b1a07563ca5b0567bbb39348a46208282f2c10c47d86d5c4d334c04bde30a1ce80566359588bdbae61339a8ee4ca609b9d4d779d50c6233d3efa8eb36220
+  languageName: node
+  linkType: hard
+
+"vite-plugin-css-injected-by-js@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "vite-plugin-css-injected-by-js@npm:2.1.1"
+  peerDependencies:
+    vite: ">2.0.0-0"
+  checksum: b3007949125d68bba162900f1b24b7202cf0ae2184339f71bfd23654c2e58a8891b0e01d8783b32bcfee2629b9bbf6d16ed6375146b1ac648be351954416fc1c
   languageName: node
   linkType: hard
 

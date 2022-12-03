@@ -238,7 +238,7 @@ export const LeftNav = (props: {
                   style={{ margin: "10px 16px" }}
                   text={
                     <>
-                      <div>{trans("queryLibrary.noQueries")}</div>
+                      <div>{trans("query.noQueries")}</div>
                       <span
                         style={{ color: "#4965f2", cursor: "pointer", margin: "0 4px" }}
                         onClick={props.addQuery}
