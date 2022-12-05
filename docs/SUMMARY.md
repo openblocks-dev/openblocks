@@ -30,6 +30,7 @@
   * [Option lists](build-apps/component-guides/option-lists.md)
 * [Version and release management](build-apps/version-and-release-management.md)
 * [Use Markdown](build-apps/use-markdown.md)
+* [Navigation](build-apps/navigation.md)
 
 ## Workspace management
 
