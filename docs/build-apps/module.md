@@ -2,7 +2,7 @@
 
 When building an app, you want to reuse components and queries across different apps. Modules are what you need. A module comprises components and queries. You can insert a module into an app or other modules (referred to as _external apps_ in the rest of this document) and it functions just like a single component.&#x20;
 
-<figure><img src="../.gitbook/assets/module-1.png" alt=""><figcaption><p>Build a module of <a href="module.md#tutorial-a-statistics-module">displaying statistics data</a></p></figcaption></figure>
+<figure><img src="../.gitbook/assets/module-1.png" alt=""><figcaption><p>Build a <a href="module.md#demo-a-statistics-module">statistics module</a></p></figcaption></figure>
 
 <figure><img src="../.gitbook/assets/module-2.png" alt=""><figcaption><p>Reuse this module anywhere</p></figcaption></figure>
 
@@ -63,7 +63,7 @@ Module inputs are parameters passed to the module from external apps. The suppor
 
 <figure><img src="../.gitbook/assets/module-13.png" alt=""><figcaption></figcaption></figure>
 
-#### Tutorial: A statistics module
+### Demo: A statistics module
 
 This section guides you through the steps to build a statistics module and reuse it in an app. &#x20;
 
