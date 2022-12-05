@@ -71,17 +71,18 @@ You can restore your current draft to a history version by selecting the target 
 
 ## Import a query
 
-1.  In an app or module, Click **+ New** in the **Query editor** in the bottom pane, then select **Import from Query Library**.
+1. In an app or module, Click **+ New** in the **Query editor** in the bottom pane, then select **Import from Query Library**.
 
-    <figure><img src="../.gitbook/assets/query library 12.png" alt=""><figcaption></figcaption></figure>
-2.  Select a query from the library from the dropdown list, choose your desired version and pass in corresponding input parameters.
+<figure><img src="../.gitbook/assets/query library 12.png" alt=""><figcaption></figcaption></figure>
+
+1.  Select a query from the library from the dropdown list, choose your desired version and pass in corresponding input parameters.
 
     <figure><img src="../.gitbook/assets/query library 13.png" alt=""><figcaption></figcaption></figure>
 
 
 
     <figure><img src="../.gitbook/assets/query library 14.png" alt=""><figcaption></figcaption></figure>
-3. For other settings, see [query-basics.md](query-basics.md "mention").
+2. For other settings, see [query-basics.md](query-basics.md "mention").
 
 ## Permissions
 

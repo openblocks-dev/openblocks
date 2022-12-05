@@ -28,9 +28,10 @@
   * [Temporary state](build-apps/write-javascript/temporary-state.md)
 * [Component guides](build-apps/component-guides/README.md)
   * [Option lists](build-apps/component-guides/option-lists.md)
-* [Version and release management](build-apps/version-and-release-management.md)
-* [Use Markdown](build-apps/use-markdown.md)
+  * [Use Markdown](build-apps/component-guides/use-markdown.md)
+* [Module](build-apps/module.md)
 * [Navigation](build-apps/navigation.md)
+* [Version and release management](build-apps/version-and-release-management.md)
 
 ## Workspace management
 
