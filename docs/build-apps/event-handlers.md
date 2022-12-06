@@ -52,7 +52,7 @@ To control a component, select a component in the **Component** dropdown list an
 
 ### Set temporary state
 
-Store data in a temporary state.&#x20;
+Store data in a [temporary state](write-javascript/temporary-state.md).&#x20;
 
 ### Go to app
 
