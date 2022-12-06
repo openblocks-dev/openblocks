@@ -1,10 +1,9 @@
 package com.openblocks.domain.datasource.service;
 
-import java.util.List;
-
 import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.sdk.models.DatasourceTestResult;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface DatasourceService {
@@ -19,9 +18,7 @@ public interface DatasourceService {
 
     Mono<DatasourceTestResult> testDatasource(Datasource datasource);
 
-    Mono<List<Datasource>> getByOrgId(String orgId);
-
-    Mono<List<Datasource>> getByAppId(String appId);
+    Flux<Datasource> getByOrgId(String orgId);
 
     Mono<Long> countByOrganizationId(String orgId);
 

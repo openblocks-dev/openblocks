@@ -1,0 +1,21 @@
+{
+  "class": "com.openblocks.infra.birelation.BiRelation",
+  "data": [
+    {
+      "id": "group_member02",
+      "bizType": "GROUP_MEMBER",
+      "sourceId": "dev",
+      "targetId": "user02",
+      "relation": "member",
+      "state": "normal"
+    },
+    {
+      "id": "group_member01",
+      "bizType": "GROUP_MEMBER",
+      "sourceId": "group01",
+      "targetId": "user03",
+      "relation": "member",
+      "state": "normal"
+    }
+  ]
+}

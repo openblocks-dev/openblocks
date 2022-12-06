@@ -64,7 +64,7 @@ abstract class ResourcePermissionHandler {
                     if (orgMember.isAdmin()) {
                         return Mono.just(buildAdminPermissions(resourceType, resourceIds, userId));
                     }
-                    return getAllMatchingPermissions0(userId, resourceType, resourceIds, resourceAction);
+                    return getAllMatchingPermissions0(userId, orgMember.getOrgId(), resourceType, resourceIds, resourceAction);
                 })
                 .switchIfEmpty(Mono.just(Maps.newHashMap()))
                 .zipWith(getAnonymousUserPermissions(resourceIds, resourceAction))
@@ -100,7 +100,7 @@ abstract class ResourcePermissionHandler {
                     if (orgMember.isAdmin()) {
                         return Mono.just(UserPermissionOnResourceStatus.success(buildAdminPermission(resourceType, resourceId, userId)));
                     }
-                    return getAllMatchingPermissions0(userId, resourceType, Collections.singleton(resourceId), resourceAction)
+                    return getAllMatchingPermissions0(userId, orgMember.getOrgId(), resourceType, Collections.singleton(resourceId), resourceAction)
                             .map(it -> it.getOrDefault(resourceId, emptyList()))
                             .map(permissions -> permissions.isEmpty() ? UserPermissionOnResourceStatus.notEnoughPermission()
                                                                       : UserPermissionOnResourceStatus.success(getMaxPermission(permissions)));
@@ -132,12 +132,12 @@ abstract class ResourcePermissionHandler {
     protected abstract Mono<Map<String, List<ResourcePermission>>> getAnonymousUserPermissions(Collection<String> resourceIds,
             ResourceAction resourceAction);
 
-    private Mono<Map<String, List<ResourcePermission>>> getAllMatchingPermissions0(String userId, ResourceType resourceType,
+    private Mono<Map<String, List<ResourcePermission>>> getAllMatchingPermissions0(String userId, String orgId, ResourceType resourceType,
             Collection<String> resourceIds,
             ResourceAction resourceAction) {
         Mono<Map<String, Collection<ResourcePermission>>> permissionsMapMono =
                 resourcePermissionService.getByResourceTypeAndResourceIds(resourceType, resourceIds);
-        Mono<Set<String>> userGroupIdsMono = getUserGroupIds(userId);
+        Mono<Set<String>> userGroupIdsMono = getUserGroupIds(orgId, userId);
 
         return Mono.zip(userGroupIdsMono, permissionsMapMono)
                 .map(tuple -> {
@@ -168,6 +168,7 @@ abstract class ResourcePermissionHandler {
     private Map<String, List<ResourcePermission>> buildAdminPermissions(ResourceType resourceType,
             Collection<String> resourceIds, String userId) {
         return resourceIds.stream()
+                .distinct()
                 .collect(toMap(it -> it,
                         resourceId -> singletonList(buildAdminPermission(resourceType, userId, resourceId)))
                 );
@@ -184,8 +185,8 @@ abstract class ResourcePermissionHandler {
     }
 
 
-    private Mono<Set<String>> getUserGroupIds(String userId) {
-        return groupMemberService.getUserAllGroupIds(userId)
+    private Mono<Set<String>> getUserGroupIds(String orgId, String userId) {
+        return groupMemberService.getUserGroupIdsInOrg(orgId, userId)
                 .map(Sets::newHashSet);
     }
 

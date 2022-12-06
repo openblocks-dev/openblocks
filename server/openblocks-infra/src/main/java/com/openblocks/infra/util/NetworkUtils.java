@@ -27,7 +27,7 @@ public class NetworkUtils {
         if (StringUtils.isNotBlank(remoteIp)) {
             return remoteIp;
         }
-        log.warn("get remote ip from remoteAddress , header {}", JsonUtils.toJson(headers));
+        log.debug("get remote ip from remoteAddress , header {}", JsonUtils.toJson(headers));
         return Optional.ofNullable(serverWebExchange.getRequest().getRemoteAddress())
                 .map(InetSocketAddress::getAddress)
                 .map(InetAddress::getHostAddress)

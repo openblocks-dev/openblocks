@@ -1,6 +1,5 @@
 package com.openblocks.api.home;
 
-import static com.openblocks.api.util.ViewBuilder.multiBuild;
 import static com.openblocks.infra.util.MonoUtils.emptyIfNull;
 import static com.openblocks.sdk.exception.BizError.FOLDER_DELETE_NO_PERMISSION;
 import static com.openblocks.sdk.exception.BizError.FOLDER_NOT_EXIST;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -29,7 +27,8 @@ import org.springframework.stereotype.Service;
 
 import com.openblocks.api.application.view.ApplicationInfoView;
 import com.openblocks.api.application.view.ApplicationPermissionView;
-import com.openblocks.api.application.view.ApplicationPermissionView.PermissionItemView;
+import com.openblocks.api.permission.PermissionHelper;
+import com.openblocks.api.permission.view.PermissionItemView;
 import com.openblocks.api.usermanagement.OrgDevChecker;
 import com.openblocks.domain.application.model.ApplicationStatus;
 import com.openblocks.domain.application.model.ApplicationType;
@@ -41,7 +40,6 @@ import com.openblocks.domain.folder.service.FolderNode;
 import com.openblocks.domain.folder.service.FolderService;
 import com.openblocks.domain.folder.service.Node;
 import com.openblocks.domain.folder.service.Tree;
-import com.openblocks.domain.group.model.Group;
 import com.openblocks.domain.group.service.GroupService;
 import com.openblocks.domain.interaction.UserFolderInteraction;
 import com.openblocks.domain.interaction.UserFolderInteractionService;
@@ -49,7 +47,6 @@ import com.openblocks.domain.organization.model.OrgMember;
 import com.openblocks.domain.organization.model.Organization;
 import com.openblocks.domain.organization.service.OrganizationService;
 import com.openblocks.domain.permission.model.ResourceAction;
-import com.openblocks.domain.permission.model.ResourceHolder;
 import com.openblocks.domain.permission.model.ResourcePermission;
 import com.openblocks.domain.permission.model.ResourceRole;
 import com.openblocks.domain.permission.model.ResourceType;
@@ -58,7 +55,6 @@ import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.service.UserService;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
-import com.openblocks.sdk.util.LocaleUtils;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -95,6 +91,8 @@ public class FolderApiService {
     private FolderElementRelationService folderElementRelationService;
     @Autowired
     private ResourcePermissionService resourcePermissionService;
+    @Autowired
+    private PermissionHelper permissionHelper;
     @Autowired
     private GroupService groupService;
     @Autowired
@@ -197,8 +195,8 @@ public class FolderApiService {
     public Mono<Void> move(String applicationLikeId, @Nullable String targetFolderId) {
         return sessionUserService.getVisitorId()
                 // check permissions
-                .flatMap(userId -> resourcePermissionService.getMaxMatchingPermission(userId, applicationLikeId, ResourceAction.MANAGE_APPLICATIONS))
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new BizException(BizError.ILLEGAL_APPLICATION_PERMISSION_ID, "NO_PERMISSION_TO_MOVE"))))
+                .delayUntil(userId -> resourcePermissionService.checkResourcePermissionWithError(userId, applicationLikeId,
+                        ResourceAction.MANAGE_APPLICATIONS))
                 // remove old relations
                 .then(folderElementRelationService.deleteByElementId(applicationLikeId))
                 .flatMap(b -> {
@@ -394,41 +392,10 @@ public class FolderApiService {
                 resourcePermissionService.getByResourceTypeAndResourceId(ResourceType.FOLDER, folderId).cache();
 
         Mono<List<PermissionItemView>> groupPermissionPairsMono = folderPermissions
-                .flatMap(allPermissions ->
-                        Mono.deferContextual(contextView -> {
-                            Locale locale = LocaleUtils.getLocale(contextView);
-                            List<ResourcePermission> groupPermissions = allPermissions.stream().filter(ResourcePermission::ownedByGroup).toList();
-                            return multiBuild(groupPermissions,
-                                    ResourcePermission::getResourceHolderId,
-                                    groupService::getByIds,
-                                    Group::getId,
-                                    (permission, group) -> PermissionItemView.builder()
-                                            .permissionId(permission.getId())
-                                            .type(ResourceHolder.GROUP)
-                                            .id(group.getId())
-                                            .name(group.getName(locale))
-                                            .avatar("")
-                                            .role(permission.getResourceRole().getValue())
-                                            .build()
-                            );
-                        }));
+                .flatMap(permissionHelper::getGroupPermissions);
 
         Mono<List<PermissionItemView>> userPermissionPairsMono = folderPermissions
-                .flatMap(allPermissions -> {
-                    List<ResourcePermission> userPermissions = allPermissions.stream().filter(ResourcePermission::ownedByUser).toList();
-                    return multiBuild(userPermissions,
-                            ResourcePermission::getResourceHolderId,
-                            userService::getByIds,
-                            (permission, user) -> PermissionItemView.builder()
-                                    .permissionId(permission.getId())
-                                    .type(ResourceHolder.USER)
-                                    .id(user.getId())
-                                    .name(user.getName())
-                                    .avatar(user.getAvatar())
-                                    .role(permission.getResourceRole().getValue())
-                                    .build()
-                    );
-                });
+                .flatMap(permissionHelper::getUserPermissions);
 
         return folderService.findById(folderId)
                 .flatMap(folder -> {

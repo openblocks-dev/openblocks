@@ -6,7 +6,6 @@ import static com.openblocks.sdk.util.LocaleUtils.getLocale;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,6 +35,7 @@ import com.openblocks.sdk.models.DatasourceTestResult;
 import com.openblocks.sdk.util.LocaleUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -153,15 +153,8 @@ public class DatasourceServiceImpl implements DatasourceService {
     }
 
     @Override
-    public Mono<List<Datasource>> getByOrgId(String orgId) {
-        return repository.findAllByOrganizationId(orgId)
-                .collectList();
-    }
-
-    @Override
-    public Mono<List<Datasource>> getByAppId(String appId) {
-        return applicationService.findByIdWithoutDsl(appId)
-                .flatMap(application -> repository.findAllByOrganizationId(application.getOrganizationId()).collectList());
+    public Flux<Datasource> getByOrgId(String orgId) {
+        return repository.findAllByOrganizationId(orgId);
     }
 
     @Override

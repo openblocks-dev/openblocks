@@ -52,10 +52,13 @@ public class ConfigController {
     public Mono<ResponseView<ConfigView>> getConfig(ServerWebExchange exchange) {
         String domain = UriUtils.getRefererDomain(exchange);
         return authenticationApiService.getEnterpriseConnectionConfigMono(domain)
-                .map(enterpriseConnectionConfig -> ConfigView.builder()
-                        .authConfigs(enterpriseConnectionConfig.getAuthConfigs())
-                        .isCloudHosting(commonConfig.isCloud())
-                        .build())
+                .map(enterpriseConnectionConfig ->
+                        ConfigView.builder()
+                                .authConfigs(enterpriseConnectionConfig.getAuthConfigs())
+                                .isCloudHosting(commonConfig.isCloud())
+                                .workspaceMode(commonConfig.getWorkspace().getMode())
+                                .build()
+                )
                 .map(ResponseView::success);
     }
 

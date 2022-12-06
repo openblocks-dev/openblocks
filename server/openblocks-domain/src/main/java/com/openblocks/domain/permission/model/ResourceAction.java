@@ -24,7 +24,10 @@ public enum ResourceAction {
     EDIT_APPLICATIONS(ResourceRole.EDITOR, ResourceType.APPLICATION),
 
     SET_APPLICATIONS_PUBLIC(ResourceRole.EDITOR, ResourceType.APPLICATION),
-    MANAGE_DATASOURCES(ResourceRole.EDITOR, ResourceType.DATASOURCE),
+
+    // datasource action
+    MANAGE_DATASOURCES(ResourceRole.OWNER, ResourceType.DATASOURCE),
+    USE_DATASOURCES(ResourceRole.VIEWER, ResourceType.DATASOURCE),
     ;
 
     private static final SetMultimap<ResourceRole, ResourceAction> ROLE_PERMISSIONS;

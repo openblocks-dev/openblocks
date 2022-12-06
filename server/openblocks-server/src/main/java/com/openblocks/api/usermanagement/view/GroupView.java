@@ -19,6 +19,7 @@ public class GroupView {
     private boolean isDevGroup;
     private String visitorRole;
     private long createTime;
+    private String dynamicRule;
 
     public static Mono<GroupView> from(Group group, String memberRole) {
         return Mono.deferContextual(contextView -> {
@@ -30,6 +31,7 @@ public class GroupView {
                     .isDevGroup(group.isDevGroup())
                     .createTime(group.getCreateTime())
                     .visitorRole(memberRole)
+                    .dynamicRule(group.getDynamicRule())
                     .build();
             return Mono.just(groupView);
         });

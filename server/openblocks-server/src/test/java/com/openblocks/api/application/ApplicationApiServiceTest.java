@@ -14,14 +14,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.openblocks.api.application.ApplicationController.CreateApplicationRequest;
 import com.openblocks.api.application.view.ApplicationPermissionView;
-import com.openblocks.api.application.view.ApplicationPermissionView.PermissionItemView;
 import com.openblocks.api.application.view.ApplicationView;
 import com.openblocks.api.common.mockuser.WithMockUser;
+import com.openblocks.api.datasource.DatasourceApiService;
+import com.openblocks.api.datasource.DatasourceApiServiceTest;
 import com.openblocks.api.home.FolderApiService;
+import com.openblocks.api.permission.view.CommonPermissionView;
+import com.openblocks.api.permission.view.PermissionItemView;
 import com.openblocks.domain.application.model.Application;
 import com.openblocks.domain.application.model.ApplicationStatus;
 import com.openblocks.domain.application.model.ApplicationType;
 import com.openblocks.domain.application.service.ApplicationService;
+import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.domain.permission.model.ResourceHolder;
 import com.openblocks.domain.permission.model.ResourceRole;
 import com.openblocks.sdk.exception.BizError;
@@ -30,6 +34,7 @@ import com.openblocks.sdk.exception.BizException;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+@SuppressWarnings({"OptionalGetWithoutIsPresent"})
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class ApplicationApiServiceTest {
@@ -40,21 +45,8 @@ public class ApplicationApiServiceTest {
     private FolderApiService folderApiService;
     @Autowired
     private ApplicationService applicationService;
-
-    @Test
-    @WithMockUser
-    public void testCreateSuccess() {
-
-        Mono<ApplicationView> applicationViewMono = createApplication("app01", "folder01");
-        StepVerifier.create(applicationViewMono)
-                .assertNext(applicationView -> Assert.assertNotNull(applicationView.getApplicationInfoView().getApplicationId()))
-                .verifyComplete();
-
-        StepVerifier.create(applicationViewMono
-                        .flatMap(applicationView -> applicationService.findById(applicationView.getApplicationInfoView().getApplicationId())))
-                .assertNext(Assert::assertNotNull)
-                .verifyComplete();
-    }
+    @Autowired
+    private DatasourceApiService datasourceApiService;
 
     @Test
     @WithMockUser
@@ -275,5 +267,78 @@ public class ApplicationApiServiceTest {
                             }));
                 })
                 .verifyComplete();
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    @WithMockUser(id = "user02")
+    public void testCreateApplicationSuccess() {
+
+        Mono<Datasource> datasourceMono = datasourceApiService.create(DatasourceApiServiceTest.buildMysqlDatasource("mysql07")).cache();
+        Mono<CommonPermissionView> commonPermissionViewMono =
+                datasourceMono.flatMap(datasource -> datasourceApiService.getPermissions(datasource.getId()));
+        Mono<Boolean> deleteMono = commonPermissionViewMono.flatMap(commonPermissionView -> {
+            String permissionId = commonPermissionView.getUserPermissions().stream()
+                    .filter(permissionItemView -> permissionItemView.getId().equals("user02"))
+                    .findFirst()
+                    .map(PermissionItemView::getPermissionId)
+                    .get();
+            return datasourceApiService.updatePermission(permissionId, ResourceRole.VIEWER);
+        });
+        //
+        Mono<ApplicationView> applicationViewMono = datasourceMono.map(datasource -> new CreateApplicationRequest(
+                        "org01",
+                        "app05",
+                        ApplicationType.APPLICATION.getValue(),
+                        Map.of("comp", "table"),
+                        Map.of("comp", "list", "queries", Set.of(Map.of("datasourceId", datasource.getId()))),
+                        null))
+                .delayUntil(__ -> deleteMono)
+                .flatMap(createApplicationRequest -> applicationApiService.create(createApplicationRequest));
+
+        StepVerifier.create(applicationViewMono)
+                .assertNext(applicationView -> Assert.assertNotNull(applicationView.getApplicationInfoView().getApplicationId()))
+                .verifyComplete();
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    @WithMockUser(id = "user02")
+    public void testUpdateApplicationFailedDueToLackOfDatasourcePermissions() {
+
+        Mono<Datasource> datasourceMono = datasourceApiService.create(DatasourceApiServiceTest.buildMysqlDatasource("mysql08")).cache();
+        Mono<CommonPermissionView> commonPermissionViewMono =
+                datasourceMono.flatMap(datasource -> datasourceApiService.getPermissions(datasource.getId()));
+        Mono<Boolean> deleteMono = commonPermissionViewMono.flatMap(commonPermissionView -> {
+            String permissionId = commonPermissionView.getUserPermissions().stream()
+                    .filter(permissionItemView -> permissionItemView.getId().equals("user02"))
+                    .findFirst()
+                    .map(PermissionItemView::getPermissionId)
+                    .get();
+            return datasourceApiService.deletePermission(permissionId);
+        });
+        //
+        Mono<ApplicationView> applicationViewMono = datasourceMono.map(datasource -> new CreateApplicationRequest(
+                        "org01",
+                        "app03",
+                        ApplicationType.APPLICATION.getValue(),
+                        Map.of("comp", "table"),
+                        Map.of("comp", "list", "queries", Set.of(Map.of("datasourceId", datasource.getId()))),
+                        null))
+                .delayUntil(__ -> deleteMono)
+                .flatMap(createApplicationRequest -> applicationApiService.create(createApplicationRequest))
+                .flatMap(applicationView -> {
+                    Application application = Application.builder()
+                            .editingApplicationDSL(applicationView.getApplicationDSL())
+                            .name("app03")
+                            .build();
+                    return applicationApiService.update(applicationView.getApplicationInfoView().getApplicationId(), application);
+                });
+
+        StepVerifier.create(applicationViewMono)
+                .expectErrorMatches(throwable -> throwable instanceof BizException bizException
+                        && bizException.getError() == BizError.NOT_AUTHORIZED
+                        && bizException.getMessageKey().equals("APPLICATION_EDIT_ERROR_LACK_OF_DATASOURCE_PERMISSIONS"))
+                .verify();
     }
 }

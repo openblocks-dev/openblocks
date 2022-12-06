@@ -3,12 +3,12 @@ package com.openblocks.api.datasource;
 import static com.openblocks.sdk.exception.BizError.INVALID_PARAMETER;
 import static com.openblocks.sdk.util.ExceptionUtils.ofError;
 import static com.openblocks.sdk.util.LocaleUtils.getLocale;
-import static org.apache.commons.collections4.SetUtils.emptyIfNull;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.openblocks.api.framework.view.ResponseView;
+import com.openblocks.api.permission.view.CommonPermissionView;
 import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.domain.datasource.service.DatasourceStructureService;
 import com.openblocks.domain.permission.model.ResourceRole;
@@ -119,10 +120,11 @@ public class DatasourceController {
             return ofError(BizError.INVALID_PARAMETER, "ORG_ID_EMPTY");
         }
         return datasourceApiService.listOrgDataSources(orgId)
+                .collectList()
                 .map(ResponseView::success);
     }
 
-
+    @Deprecated
     @JsonView(JsonViews.Public.class)
     @GetMapping("/listByApp")
     public Mono<ResponseView<List<DatasourceView>>> listAppDataSources(@RequestParam(name = "appId") String applicationId) {
@@ -130,6 +132,13 @@ public class DatasourceController {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_APP_ID");
         }
         return datasourceApiService.listAppDataSources(applicationId)
+                .collectList()
+                .map(ResponseView::success);
+    }
+
+    @GetMapping("/{datasourceId}/permissions")
+    public Mono<ResponseView<CommonPermissionView>> getPermissions(@PathVariable("datasourceId") String datasourceId) {
+        return datasourceApiService.getPermissions(datasourceId)
                 .map(ResponseView::success);
     }
 
@@ -140,10 +149,23 @@ public class DatasourceController {
         if (role == null) {
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", request.role());
         }
-        return datasourceApiService.grantPermission(datasourceId,
-                        emptyIfNull(request.userIds()),
-                        emptyIfNull(request.groupIds()),
-                        role)
+        return datasourceApiService.grantPermission(datasourceId, request.userIds(), request.groupIds(), role)
+                .map(ResponseView::success);
+    }
+
+    @PutMapping("/permissions/{permissionId}")
+    public Mono<ResponseView<Boolean>> updatePermission(@PathVariable("permissionId") String permissionId,
+            @RequestBody UpdatePermissionRequest request) {
+        if (request.getResourceRole() == null) {
+            return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", request.role());
+        }
+        return datasourceApiService.updatePermission(permissionId, request.getResourceRole())
+                .map(ResponseView::success);
+    }
+
+    @DeleteMapping("/permissions/{permissionId}")
+    public Mono<ResponseView<Boolean>> deletePermission(@PathVariable("permissionId") String permissionId) {
+        return datasourceApiService.deletePermission(permissionId)
                 .map(ResponseView::success);
     }
 
@@ -153,7 +175,13 @@ public class DatasourceController {
     }
 
     private record BatchAddPermissionRequest(String role, Set<String> userIds, Set<String> groupIds) {
-
     }
 
+    private record UpdatePermissionRequest(String role) {
+
+        @Nullable
+        private ResourceRole getResourceRole() {
+            return ResourceRole.fromValue(role());
+        }
+    }
 }

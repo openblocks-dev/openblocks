@@ -48,8 +48,8 @@ public class LibraryQueryRecordApiService {
         return libraryQueryApiService.checkLibraryQueryViewPermission(libraryQueryCombineId.libraryQueryId())
                 .then(checkLibraryQueryRecordViewPermission(libraryQueryCombineId))
                 .then(Mono.defer(() -> {
-                    if (libraryQueryCombineId.isUsingLatestRecord()) {
-                        return libraryQueryService.getLatestDSLByLibraryQueryId(libraryQueryCombineId.libraryQueryId());
+                    if (libraryQueryCombineId.isUsingLiveRecord()) {
+                        return libraryQueryService.getLiveDSLByLibraryQueryId(libraryQueryCombineId.libraryQueryId());
                     }
                     return libraryQueryRecordService.getById(libraryQueryCombineId.libraryQueryRecordId())
                             .map(LibraryQueryRecord::getLibraryQueryDSL);
@@ -90,7 +90,7 @@ public class LibraryQueryRecordApiService {
     Mono<Void> checkLibraryQueryRecordViewPermission(LibraryQueryCombineId libraryQueryCombineId) {
         return sessionUserService.getVisitorOrgMemberCache()
                 .zipWith(Mono.defer(() -> {
-                    if (libraryQueryCombineId.isUsingLatestRecord()) {
+                    if (libraryQueryCombineId.isUsingLiveRecord()) {
                         return libraryQueryService.getById(libraryQueryCombineId.libraryQueryId());
                     }
                     return libraryQueryRecordService.getById(libraryQueryCombineId.libraryQueryRecordId())

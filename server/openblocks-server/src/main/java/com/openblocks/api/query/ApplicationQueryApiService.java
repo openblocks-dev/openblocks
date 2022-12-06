@@ -165,8 +165,8 @@ public class ApplicationQueryApiService {
 
     private Mono<BaseQuery> getBaseQueryFromLibraryQuery(ApplicationQuery query) {
         LibraryQueryCombineId libraryQueryCombineId = query.getLibraryRecordQueryId();
-        if (libraryQueryCombineId.isUsingLatestRecord()) {
-            return libraryQueryService.getLatestBaseQueryByLibraryQueryId(libraryQueryCombineId.libraryQueryId());
+        if (libraryQueryCombineId.isUsingLiveRecord()) {
+            return libraryQueryService.getLiveBaseQueryByLibraryQueryId(libraryQueryCombineId.libraryQueryId());
         }
         return libraryQueryRecordService.getById(libraryQueryCombineId.libraryQueryRecordId())
                 .map(LibraryQueryRecord::getQuery);

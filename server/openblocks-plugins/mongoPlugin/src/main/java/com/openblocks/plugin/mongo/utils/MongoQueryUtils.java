@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,6 +66,8 @@ public class MongoQueryUtils {
     private static final String VALUE = "value";
 
     private static final String VALUES = "values";
+
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
 
     public static Document parseSafely(String fieldName, String input) {
@@ -215,10 +218,13 @@ public class MongoQueryUtils {
                 return jsonObject.getString("$oid");
 
             } else if (isSingleKey && "$date".equals(jsonObject.keys().next())) {
-                return DateTimeFormatter.ISO_INSTANT.format(
-                        Instant.parse(jsonObject.getString("$date"))
-                );
-
+                Instant instant;
+                if (jsonObject.get("$date") instanceof Long millis) {
+                    instant = Instant.ofEpochMilli(millis);
+                } else {
+                    instant = Instant.parse(jsonObject.getString("$date"));
+                }
+                return FORMATTER.format(instant);
             } else if (isSingleKey && "$numberDecimal".equals(jsonObject.keys().next())) {
                 return new BigDecimal(jsonObject.getString("$numberDecimal"));
 

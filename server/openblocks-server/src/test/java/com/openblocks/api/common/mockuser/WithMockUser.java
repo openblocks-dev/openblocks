@@ -11,6 +11,7 @@ public @interface WithMockUser {
 
     String DEFAULT_CURRENT_USER_ID = "user01";
     String DEFAULT_CURRENT_USERNAME = "Iron Man";
+    String DEFAULT_CURRENT_ORG_ID = "org01";
 
     String id() default DEFAULT_CURRENT_USER_ID;
 

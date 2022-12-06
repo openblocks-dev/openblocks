@@ -27,7 +27,7 @@ public final class LocaleUtils {
             ResourceBundle eeBundle = ResourceBundle.getBundle("locale_ee", locale);
             if (StringUtils.equals(eeBundle.getLocale().getLanguage(), locale.getLanguage())
                     && eeBundle.containsKey(key.trim())) {
-                return eeBundle.getString(key.trim());
+                return new MessageFormat(eeBundle.getString(key.trim())).format(args);
             }
         } catch (Exception e) {
             // ignore

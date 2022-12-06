@@ -5,6 +5,7 @@ import static com.openblocks.sdk.exception.BizError.NOT_AUTHORIZED;
 import static com.openblocks.sdk.util.ExceptionUtils.ofError;
 import static com.openblocks.sdk.util.ExceptionUtils.ofException;
 import static java.util.Collections.singleton;
+import static org.apache.commons.collections4.SetUtils.emptyIfNull;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -13,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +35,7 @@ import com.openblocks.infra.annotation.NonEmptyMono;
 import com.openblocks.infra.annotation.PossibleEmptyMono;
 import com.openblocks.sdk.exception.BizException;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -67,12 +72,15 @@ public class ResourcePermissionService {
         return getByResourceTypeAndResourceId(ResourceType.DATASOURCE, dataSourceId);
     }
 
-    public Mono<Void> insertBatchPermission(ResourceType resourceType, String resourceId,
-            Set<String> userIds, Set<String> groupIds, ResourceRole role) {
-        return repository.insertBatchPermission(resourceType, resourceId, buildResourceHolders(userIds, groupIds), role);
+    public Mono<Void> insertBatchPermission(ResourceType resourceType, String resourceId, @Nullable Set<String> userIds,
+            @Nullable Set<String> groupIds, ResourceRole role) {
+        if (CollectionUtils.isEmpty(userIds) && CollectionUtils.isEmpty(groupIds)) {
+            return Mono.empty();
+        }
+        return repository.insertBatchPermission(resourceType, resourceId, buildResourceHolders(emptyIfNull(userIds), emptyIfNull(groupIds)), role);
     }
 
-    private Multimap<ResourceHolder, String> buildResourceHolders(Set<String> userIds, Set<String> groupIds) {
+    private Multimap<ResourceHolder, String> buildResourceHolders(@NotNull Set<String> userIds, @NotNull Set<String> groupIds) {
         HashMultimap<ResourceHolder, String> result = HashMultimap.create();
         for (String userId : userIds) {
             result.put(ResourceHolder.USER, userId);
@@ -143,20 +151,11 @@ public class ResourcePermissionService {
         throw ofException(INVALID_PERMISSION_OPERATION, "INVALID_PERMISSION_OPERATION", resourceType);
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
-    private ResourcePermission getMaxRole(Entry<String, List<ResourcePermission>> entry) {
-        List<ResourcePermission> permissions = entry.getValue();
-        return permissions.stream()
-                .max(Comparator.comparingInt(it -> it.getResourceRole().getRoleWeight()))
-                .get();
-    }
-
-    public Mono<List<String>> filterResourceWithPermission(String userId, Collection<String> resourceIds, ResourceAction resourceAction) {
+    public Flux<String> filterResourceWithPermission(String userId, Collection<String> resourceIds, ResourceAction resourceAction) {
         return getAllMatchingPermissions(userId, resourceIds, resourceAction)
-                .map(map -> resourceIds.stream()
-                        .filter(resourceId -> CollectionUtils.isNotEmpty(map.get(resourceId)))
-                        .toList()
-                );
+                .flatMapIterable(Map::entrySet)
+                .filter(entry -> CollectionUtils.isNotEmpty(entry.getValue()))
+                .map(Entry::getKey);
     }
 
     public Mono<Void> checkResourcePermissionWithError(String userId, String resourceId, ResourceAction action) {
@@ -182,12 +181,27 @@ public class ResourcePermissionService {
                 });
     }
 
+    /**
+     * If current user has enough permissions for all resources.
+     */
+    public Mono<Boolean> haveAllEnoughPermissions(String userId, Collection<String> resourceIds, ResourceAction resourceAction) {
+        return getMaxMatchingPermission(userId, resourceIds, resourceAction)
+                .map(map -> map.keySet().containsAll(resourceIds));
+    }
+
     public Mono<Map<String, ResourcePermission>> getMaxMatchingPermission(String userId,
             Collection<String> resourceIds, ResourceAction resourceAction) {
         return getAllMatchingPermissions(userId, resourceIds, resourceAction)
                 .flatMapIterable(Map::entrySet)
                 .filter(it -> CollectionUtils.isNotEmpty(it.getValue()))
-                .collectMap(Entry::getKey, this::getMaxRole);
+                .collectMap(Entry::getKey, entry -> getMaxRole(entry.getValue()));
+    }
+
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    private ResourcePermission getMaxRole(List<ResourcePermission> permissions) {
+        return permissions.stream()
+                .max(Comparator.comparingInt(it -> it.getResourceRole().getRoleWeight()))
+                .get();
     }
 
     public Mono<ResourcePermission> checkAndReturnMaxPermission(String userId, String resourceId, ResourceAction resourceAction) {

@@ -1,11 +1,11 @@
 package com.openblocks.api.application;
 
-import static com.openblocks.api.util.ViewBuilder.multiBuild;
 import static com.openblocks.domain.application.model.ApplicationStatus.NORMAL;
 import static com.openblocks.domain.permission.model.ResourceAction.EDIT_APPLICATIONS;
 import static com.openblocks.domain.permission.model.ResourceAction.MANAGE_APPLICATIONS;
 import static com.openblocks.domain.permission.model.ResourceAction.PUBLISH_APPLICATIONS;
 import static com.openblocks.domain.permission.model.ResourceAction.READ_APPLICATIONS;
+import static com.openblocks.domain.permission.model.ResourceAction.USE_DATASOURCES;
 import static com.openblocks.sdk.exception.BizError.ILLEGAL_APPLICATION_PERMISSION_ID;
 import static com.openblocks.sdk.exception.BizError.INVALID_PARAMETER;
 import static com.openblocks.sdk.exception.BizError.NOT_AUTHORIZED;
@@ -17,7 +17,6 @@ import static com.openblocks.sdk.util.ExceptionUtils.ofError;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,6 +24,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,18 +34,18 @@ import com.google.common.collect.Maps;
 import com.openblocks.api.application.ApplicationController.CreateApplicationRequest;
 import com.openblocks.api.application.view.ApplicationInfoView;
 import com.openblocks.api.application.view.ApplicationPermissionView;
-import com.openblocks.api.application.view.ApplicationPermissionView.PermissionItemView;
 import com.openblocks.api.application.view.ApplicationView;
 import com.openblocks.api.home.FolderApiService;
 import com.openblocks.api.home.SessionUserService;
 import com.openblocks.api.home.UserHomeApiService;
+import com.openblocks.api.permission.PermissionHelper;
+import com.openblocks.api.permission.view.PermissionItemView;
 import com.openblocks.api.usermanagement.OrgDevChecker;
 import com.openblocks.domain.application.model.Application;
 import com.openblocks.domain.application.model.ApplicationStatus;
 import com.openblocks.domain.application.model.ApplicationType;
 import com.openblocks.domain.application.service.ApplicationService;
 import com.openblocks.domain.bizthreshold.BizThresholdChecker;
-import com.openblocks.domain.group.model.Group;
 import com.openblocks.domain.group.service.GroupService;
 import com.openblocks.domain.interaction.UserApplicationInteractionService;
 import com.openblocks.domain.organization.model.Organization;
@@ -66,7 +67,7 @@ import com.openblocks.infra.util.TupleUtils;
 import com.openblocks.sdk.constants.Authentication;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
-import com.openblocks.sdk.util.LocaleUtils;
+import com.openblocks.sdk.util.ExceptionUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -124,6 +125,8 @@ public class ApplicationApiService {
     private CompoundApplicationDslFilter compoundApplicationDslFilter;
     @Autowired
     private TemplateService templateService;
+    @Autowired
+    private PermissionHelper permissionHelper;
 
     public Mono<ApplicationView> create(CreateApplicationRequest createApplicationRequest) {
 
@@ -327,6 +330,7 @@ public class ApplicationApiService {
                 .then(sessionUserService.getVisitorId())
                 .flatMap(userId -> resourcePermissionService.checkAndReturnMaxPermission(userId,
                         applicationId, EDIT_APPLICATIONS))
+                .delayUntil(__ -> checkDatasourcePermissions(application))
                 .flatMap(permission -> doUpdateApplication(applicationId, application)
                         .map(applicationUpdated -> ApplicationView.builder()
                                 .applicationInfoView(buildView(applicationUpdated, permission.getResourceRole().getValue()))
@@ -395,41 +399,10 @@ public class ApplicationApiService {
         Mono<List<ResourcePermission>> applicationPermissions = resourcePermissionService.getByApplicationId(applicationId).cache();
 
         Mono<List<PermissionItemView>> groupPermissionPairsMono = applicationPermissions
-                .flatMap(allPermissions ->
-                        Mono.deferContextual(contextView -> {
-                            Locale locale = LocaleUtils.getLocale(contextView);
-                            List<ResourcePermission> groupPermissions = allPermissions.stream().filter(ResourcePermission::ownedByGroup).toList();
-                            return multiBuild(groupPermissions,
-                                    ResourcePermission::getResourceHolderId,
-                                    groupService::getByIds,
-                                    Group::getId,
-                                    (permission, group) -> PermissionItemView.builder()
-                                            .permissionId(permission.getId())
-                                            .type(ResourceHolder.GROUP)
-                                            .id(group.getId())
-                                            .name(group.getName(locale))
-                                            .avatar("")
-                                            .role(permission.getResourceRole().getValue())
-                                            .build()
-                            );
-                        }));
+                .flatMap(permissionHelper::getGroupPermissions);
 
         Mono<List<PermissionItemView>> userPermissionPairsMono = applicationPermissions
-                .flatMap(allPermissions -> {
-                    List<ResourcePermission> userPermissions = allPermissions.stream().filter(ResourcePermission::ownedByUser).toList();
-                    return multiBuild(userPermissions,
-                            ResourcePermission::getResourceHolderId,
-                            userService::getByIds,
-                            (permission, user) -> PermissionItemView.builder()
-                                    .permissionId(permission.getId())
-                                    .type(ResourceHolder.USER)
-                                    .id(user.getId())
-                                    .name(user.getName())
-                                    .avatar(user.getAvatar())
-                                    .role(permission.getResourceRole().getValue())
-                                    .build()
-                    );
-                });
+                .flatMap(permissionHelper::getUserPermissions);
 
         return checkCurrentUserApplicationPermission(applicationId, READ_APPLICATIONS)
                 .then(applicationService.findByIdWithoutDsl(applicationId))
@@ -560,4 +533,25 @@ public class ApplicationApiService {
         return queryConfig.size() == 1 && queryConfig.containsKey("fields");
     }
 
+    private Mono<Void> checkDatasourcePermissions(Application application) {
+        return Mono.defer(() -> {
+            Set<String> datasourceIds = SetUtils.emptyIfNull(application.getEditingQueries())
+                    .stream()
+                    .map(applicationQuery -> applicationQuery.getBaseQuery().getDatasourceId())
+                    .filter(StringUtils::isNotBlank)
+                    .collect(Collectors.toSet());
+            if (CollectionUtils.isEmpty(datasourceIds)) {
+                return Mono.empty();
+            }
+
+            return sessionUserService.getVisitorId()
+                    .flatMap(userId -> resourcePermissionService.haveAllEnoughPermissions(userId, datasourceIds, USE_DATASOURCES))
+                    .flatMap(havePermissions -> {
+                        if (havePermissions) {
+                            return Mono.empty();
+                        }
+                        return ExceptionUtils.ofError(BizError.NOT_AUTHORIZED, "APPLICATION_EDIT_ERROR_LACK_OF_DATASOURCE_PERMISSIONS");
+                    });
+        });
+    }
 }

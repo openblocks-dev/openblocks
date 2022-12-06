@@ -12,6 +12,8 @@ public class WebClients {
 
     private static final WebClient INSTANCE = WebClient.create();
 
+    private static final WebClient SECURE_INSTANCE = builder().build();
+
     public static WebClient getInstance() {
         return INSTANCE;
     }
@@ -21,7 +23,7 @@ public class WebClients {
         return WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient));
     }
 
-    public static WebClient create() {
-        return builder().build();
+    public static WebClient getSecureInstance() {
+        return SECURE_INSTANCE;
     }
 }

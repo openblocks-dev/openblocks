@@ -149,6 +149,13 @@ public class UserController {
                 .map(ResponseView::success);
     }
 
+    @GetMapping("/currentUser")
+    public Mono<ResponseView<?>> getCurrentUser(ServerWebExchange exchange) {
+        return sessionUserService.getVisitor()
+                .flatMap(user -> userService.buildCurrentUser(user, false))
+                .map(ResponseView::success);
+    }
+
     public record UpdatePasswordRequest(String oldPassword, String newPassword) {
     }
 

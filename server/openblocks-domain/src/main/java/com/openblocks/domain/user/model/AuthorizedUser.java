@@ -21,6 +21,7 @@ public class AuthorizedUser {
     private String username;
     private String avatar;
     private Map<String, Object> rawUserInfo;
+    private Map<String, Object> extra;
 
     private String orgId;
 

@@ -120,6 +120,11 @@ public class DatasourceMetaInfoServiceImpl implements DatasourceMetaInfoService 
             .pluginExecutorKey("googleSheets-plugin")
             .connectionPool(StatelessConnectionPool.class).build();
 
+    private static final DatasourceMetaInfo GRAPHQL = DatasourceMetaInfo.builder()
+            .type("graphql")
+            .displayName("GraphQL")
+            .pluginExecutorKey("graphql-plugin")
+            .connectionPool(StatelessConnectionPool.class).build();
     private static final ArrayList<DatasourceMetaInfo> datasourceMetaInfos = new ArrayList<>();
 
     static {

@@ -27,6 +27,7 @@ import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
 import com.openblocks.sdk.exception.PluginError;
 import com.openblocks.sdk.exception.PluginException;
+import com.openblocks.sdk.exception.ServerException;
 import com.openblocks.sdk.util.LocaleUtils;
 
 import reactor.core.publisher.Mono;
@@ -115,6 +116,18 @@ public class GlobalExceptionHandler {
             doLog(e, ctx, pluginError.logVerbose(), queryErrorLog);
             Locale locale = getLocale(ctx);
             return Mono.just(error(500, e.getLocaleMessage(locale)));
+        });
+    }
+
+    @ExceptionHandler
+    @ResponseBody
+    public Mono<ResponseView<?>> catchServerException(ServerException e, ServerWebExchange exchange) {
+        BizError bizError = BizError.INTERNAL_SERVER_ERROR;
+        exchange.getResponse().setStatusCode(HttpStatus.resolve(bizError.getHttpErrorCode()));
+        return Mono.deferContextual(ctx -> {
+            apiPerfHelper.perf(bizError, exchange.getRequest().getPath());
+            doLog(e, ctx, bizError.logVerbose());
+            return Mono.just(error(bizError.getBizErrorCode(), e.getMessage()));
         });
     }
 

@@ -8,10 +8,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.openblocks.domain.group.model.Group;
 import com.openblocks.domain.group.model.GroupMember;
 import com.openblocks.domain.organization.model.MemberRole;
 import com.openblocks.domain.organization.model.OrgMemberState;
-import com.openblocks.infra.birelation.BiRelation;
 import com.openblocks.infra.birelation.BiRelationService;
 
 import reactor.core.publisher.Mono;
@@ -48,25 +48,15 @@ public class GroupMemberServiceImpl implements GroupMemberService {
     }
 
     @Override
-    public Mono<List<String>> getUserAllGroupIds(String userId) {
-        return biRelationService.getByTargetId(GROUP_MEMBER, userId)
-                .map(BiRelation::getSourceId)
-                .collectList();
+    public Mono<List<String>> getUserGroupIdsInOrg(String orgId, String userId) {
+        return getNonDynamicUserGroupIdsInOrg(orgId, userId);
     }
 
     @Override
-    public Mono<List<String>> getUserGroupIdsInOrg(String orgId, String userId) {
+    public Mono<List<GroupMember>> getUserGroupMembersInOrg(String orgId, String userId) {
         return biRelationService.getByTargetId(GROUP_MEMBER, userId)
                 .map(GroupMember::from)
                 .filter(it -> StringUtils.equals(it.getOrgId(), orgId))
-                .map(GroupMember::getGroupId)
-                .collectList();
-    }
-
-    @Override
-    public Mono<List<GroupMember>> getUserGroupMembers(String userId) {
-        return biRelationService.getByTargetId(GROUP_MEMBER, userId)
-                .map(GroupMember::from)
                 .collectList();
     }
 
@@ -89,8 +79,19 @@ public class GroupMemberServiceImpl implements GroupMemberService {
     }
 
     @Override
-    public Mono<Boolean> isMember(String groupId, String userId) {
-        return biRelationService.getBiRelation(GROUP_MEMBER, groupId, userId)
+    public Mono<Boolean> isMember(Group group, String userId) {
+        return biRelationService.getBiRelation(GROUP_MEMBER, group.getId(), userId)
                 .hasElement();
     }
+
+    @Override
+    public Mono<List<String>> getNonDynamicUserGroupIdsInOrg(String orgId, String userId) {
+        return biRelationService.getByTargetId(GROUP_MEMBER, userId)
+                .map(GroupMember::from)
+                .filter(it -> StringUtils.equals(it.getOrgId(), orgId))
+                .map(GroupMember::getGroupId)
+                .collectList();
+    }
+
+
 }
