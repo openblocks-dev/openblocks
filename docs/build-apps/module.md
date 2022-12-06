@@ -29,7 +29,7 @@ You can configure a module's settings in the **Settings** tab of data browser:
 *   **Method**: methods exposed to external apps. For example, you can define a module with a `resetTitle` method, so that external apps can call it to reset the module's title.&#x20;
 
     <figure><img src="../.gitbook/assets/module-7.png" alt=""><figcaption></figcaption></figure>
-*   **Event**: module events can be handled by external apps. For example, you can define an event named `dataChanged`, so that external apps can add event handlers to it once the `dataChange` event is fired by the module.&#x20;
+*   **Event**: module events can be handled by external apps. For example, you can define an event named `dataChanged`, so that external apps can add event handlers to it once the `dataChanged` event is fired by the module.&#x20;
 
     <figure><img src="../.gitbook/assets/module-8.png" alt=""><figcaption></figcaption></figure>
 
