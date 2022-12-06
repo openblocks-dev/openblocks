@@ -298,23 +298,6 @@ public final class MustacheHelper {
         return renderMustacheTokens(tokenize, paramMap);
     }
 
-    public static Object renderMustacheForObjectValue(String template, Map<String, ?> paramMap) {
-        if (isBlank(template)) {
-            return template;
-        }
-        List<String> tokenize = tokenize(template.trim());
-        if (tokenize.size() == 1) {
-            String token = tokenize.get(0);
-            if (isMustacheToken(token)) {
-                String key = removeCurlyBraces(token);
-                if (paramMap.containsKey(key)) {
-                    return paramMap.get(key);
-                }
-            }
-        }
-        return renderMustacheString(template, paramMap);
-    }
-
     @SuppressWarnings("DuplicatedCode")
     public static String renderMustacheStringWithoutRemoveSurroundedPar(String template, Map<String, ?> paramMap) {
         if (isBlank(template)) {

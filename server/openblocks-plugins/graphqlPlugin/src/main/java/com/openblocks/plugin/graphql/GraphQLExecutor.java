@@ -11,7 +11,6 @@ import static com.openblocks.sdk.plugin.restapi.DataUtils.parseJsonBody;
 import static com.openblocks.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
 import static com.openblocks.sdk.util.JsonUtils.readTree;
 import static com.openblocks.sdk.util.JsonUtils.toJsonThrows;
-import static com.openblocks.sdk.util.MustacheHelper.renderMustacheForObjectValue;
 import static com.openblocks.sdk.util.MustacheHelper.renderMustacheString;
 import static com.openblocks.sdk.util.StreamUtils.collectList;
 import static com.openblocks.sdk.util.StreamUtils.distinctByKey;
@@ -74,6 +73,7 @@ import com.openblocks.sdk.plugin.restapi.auth.BasicAuthConfig;
 import com.openblocks.sdk.plugin.restapi.auth.RestApiAuthType;
 import com.openblocks.sdk.query.QueryVisitorContext;
 import com.openblocks.sdk.util.JsonUtils;
+import com.openblocks.sdk.util.MustacheHelper;
 import com.openblocks.sdk.webclient.WebClients;
 
 import lombok.Builder;
@@ -139,7 +139,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
         List<Property> updatedQueryBodyParams = renderMustacheValueInProperties(queryBodyParams, requestParams);
         var updatedVariables = JsonUtils.createObjectNode();
         queryConfig.getVariables().forEach(property -> updatedVariables.set(property.getKey(),
-                JsonUtils.valueToTree(renderMustacheForObjectValue(property.getValue(), requestParams))));
+                MustacheHelper.renderMustacheJson(property.getValue(), requestParams)));
         String normalizedUrl = buildUrl(urlDomain, updatedQueryPath, requestParams);
         Map<String, String> allHeaders = buildHeaders(datasourceHeaders, updatedQueryHeaders);
         String contentType = parseContentType(allHeaders).toLowerCase();

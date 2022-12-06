@@ -1,7 +1,7 @@
 package com.openblocks.sdk.plugin.sheet.changeset;
 
 import static com.openblocks.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
-import static com.openblocks.sdk.util.MustacheHelper.renderMustacheForObjectValue;
+import static com.openblocks.sdk.util.MustacheHelper.renderMustacheJson;
 import static java.util.Collections.emptyMap;
 
 import java.util.ArrayList;
@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.openblocks.sdk.exception.PluginException;
+import com.openblocks.sdk.util.JsonUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,7 +47,7 @@ public class SheetKeyValuePairChangeSet extends SheetChangeSet {
     public SheetChangeSetRow render(Map<String, Object> requestMap) {
         List<SheetChangeSetItem> result = new ArrayList<>();
         for (String column : map.keySet()) {
-            Object renderedValue = renderMustacheForObjectValue(map.get(column), requestMap);
+            Object renderedValue = JsonUtils.jsonNodeToObject(renderMustacheJson(map.get(column), requestMap));
             result.add(new SheetChangeSetItem(column, renderedValue));
         }
         return new SheetChangeSetRow(result);
