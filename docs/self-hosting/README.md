@@ -101,6 +101,12 @@ docker run -d --name openblocks -p 3443:3443 -v "$PWD/stacks:/openblocks-stacks"
 {% endtab %}
 {% endtabs %}
 
+{% hint style="info" %}
+In cases where you have certificates with names: `server.crt` and `server.key`, you need to rename them first as follows:\
+`server.crt` => `fullchain.pem`\
+`server.key` => `privkey.pem`
+{% endhint %}
+
 ## Update
 
 {% tabs %}
