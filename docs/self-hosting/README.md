@@ -57,22 +57,69 @@ docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks"
 {% endtab %}
 {% endtabs %}
 
+## Customize deployment configurations
+
+This section shows how to customize deployment configurations. If you have already started a container, you need to restart the container for the new configurations to take effect. Following are the ways to **restart** your container:
+
+{% tabs %}
+{% tab title="Docker-Compose (Recommend)" %}
+One single command:
+
+```
+docker-compose up
+```
+
+It picks up configuration changes by stopping containers already in service and recreating new ones.
+{% endtab %}
+
+{% tab title="Docker" %}
+Run the following commands to stop, remove the container already in service, and start up a new one using the newly customized deployment command.
+
+```docker
+docker stop openblocks
+docker rm openblocks
+# run your new docker run command
+```
+{% endtab %}
+{% endtabs %}
+
+### Use your own MongoDB
+
+By default Openblocks uses the built-in MongoDB installed inside the container, and you can replace it with your own MongoDB cluster.
+
+{% tabs %}
+{% tab title="Docker-Compose" %}
+Add an environment variable `MONGODB_URI` in `docker-compose.yml` downloaded in your working directory.\
+<img src="../.gitbook/assets/mongodb-uri.png" alt="" data-size="original">
+{% endtab %}
+
+{% tab title="Docker" %}
+Add an environment variable `MONGODB_URI` to the deployment command, as shown below:
+
+{% code overflow="wrap" %}
+```docker
+docker run -d --name openblocks -e MONGODB_URI=YOUR_MONGO_URI -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks openblocksdev/openblocks-ce
+```
+{% endcode %}
+{% endtab %}
+{% endtabs %}
+
 ### Run as non-root user
 
-By default the supervisor will run under the user `uid=9001`. You can specify the uid by adding a docker environment variable `LOCAL_USER_ID` and setting its value.
+By default the supervisor will run under the user `uid=9001`. You can specify the uid by adding a docker environment variable `LOCAL_USER_ID` and setting its value to a **Number**, such as `10010`.
 
 {% tabs %}
 {% tab title="Docker-Compose" %}
 Add an environment variable `LOCAL_USER_ID` in `docker-compose.yml` downloaded in your working directory.\
-<img src="../.gitbook/assets/local-user-id (1).png" alt="" data-size="original">
+<img src="../.gitbook/assets/local-user-id.png" alt="" data-size="original">
 {% endtab %}
 
 {% tab title="Docker" %}
-Add an environment variable `LOCAL_USER_ID` to the deploying command, as shown below:
+Add an environment variable `LOCAL_USER_ID` to the deployment command, as shown below:
 
 {% code overflow="wrap" %}
-```bash
-docker run -d --name openblocks -e LOCAL_USER_ID = YOUR_USER_ID -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
+```docker
+docker run -d --name openblocks -e LOCAL_USER_ID=10010 -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
 ```
 {% endcode %}
 {% endtab %}
@@ -91,10 +138,10 @@ With an SSL certificate, you can securely visit self-hosted Openblocks with HTTP
 
 {% tab title="Docker" %}
 1. Copy `fullchain.pem` and `privkey.pem` to the `$PWD/stacks/ssl` directory.
-2. Change the `ports` of the deploying command to `3443:3443`, as shown below:
+2. Change the `ports` in the deployment command to `3443:3443`, as shown below:
 
 {% code overflow="wrap" %}
-```bash
+```docker
 docker run -d --name openblocks -p 3443:3443 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
 ```
 {% endcode %}
@@ -113,7 +160,7 @@ In cases where you have certificates with names: `server.crt` and `server.key`, 
 {% tab title="Docker-Compose" %}
 Run the following commands to update to the latest Openblocks image:
 
-```bash
+```docker
 docker-compose pull
 docker-compose rm -fsv openblocks
 docker-compose up -d
@@ -124,7 +171,7 @@ docker-compose up -d
 Run the following commands to update to the latest Openblocks image:
 
 {% code overflow="wrap" %}
-```bash
+```docker
 docker pull openblocksdev/openblocks-ce
 docker rm -fv openblocks
 docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
