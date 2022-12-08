@@ -2,11 +2,18 @@ package com.openblocks.domain.user.service;
 
 
 import static com.google.common.collect.Sets.newHashSet;
+import static com.openblocks.domain.user.model.CurrentUser.ANONYMOUS_CURRENT_USER;
+import static com.openblocks.sdk.constants.GlobalContext.CLIENT_IP;
 import static com.openblocks.sdk.util.ExceptionUtils.ofError;
 import static com.openblocks.sdk.util.ExceptionUtils.ofException;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -21,12 +28,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.openblocks.domain.asset.model.Asset;
 import com.openblocks.domain.asset.service.AssetService;
 import com.openblocks.domain.encryption.EncryptionService;
+import com.openblocks.domain.group.model.Group;
+import com.openblocks.domain.group.service.GroupMemberService;
+import com.openblocks.domain.group.service.GroupService;
+import com.openblocks.domain.organization.model.OrgMember;
+import com.openblocks.domain.organization.service.OrgMemberService;
 import com.openblocks.domain.user.model.AuthorizedUser;
 import com.openblocks.domain.user.model.Connection;
+import com.openblocks.domain.user.model.CurrentUser;
 import com.openblocks.domain.user.model.User;
+import com.openblocks.domain.user.model.User.TransformedUserInfo;
 import com.openblocks.domain.user.model.UserState;
 import com.openblocks.domain.user.repository.UserRepository;
 import com.openblocks.infra.mongo.MongoUpsertHelper;
@@ -36,8 +51,10 @@ import com.openblocks.sdk.constants.AuthSourceConstants;
 import com.openblocks.sdk.constants.FieldName;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
+import com.openblocks.sdk.util.LocaleUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -52,9 +69,14 @@ public class UserServiceImpl implements UserService {
     private EncryptionService encryptionService;
     @Autowired
     private MongoUpsertHelper mongoUpsertHelper;
-
     @Autowired
     private UserRepository repository;
+    @Autowired
+    private GroupMemberService groupMemberService;
+    @Autowired
+    private OrgMemberService orgMemberService;
+    @Autowired
+    private GroupService groupService;
 
     private Conf<Integer> avatarMaxSizeInKb;
 
@@ -230,5 +252,71 @@ public class UserServiceImpl implements UserService {
                 })
                 .flatMap(repository::save)
                 .thenReturn(true);
+    }
+
+
+    @Override
+    public Mono<CurrentUser> buildCurrentUser(User user, boolean withoutDynamicGroups) {
+        if (user.isAnonymous()) {
+            return Mono.just(ANONYMOUS_CURRENT_USER);
+        }
+        return Mono.deferContextual(contextView -> {
+            String ip = contextView.getOrDefault(CLIENT_IP, "");
+            Locale locale = LocaleUtils.getLocale(contextView);
+            return orgMemberService.getCurrentOrgMember(user.getId())
+                    .zipWhen(orgMember -> buildCurrentUserGroups(user.getId(), orgMember, withoutDynamicGroups, locale))
+                    .map(tuple2 -> {
+                        OrgMember orgMember = tuple2.getT1();
+                        List<Map<String, String>> groups = tuple2.getT2();
+                        return CurrentUser.builder()
+                                .id(user.getId())
+                                .name(user.getName())
+                                .avatarUrl(user.getAvatarUrl())
+                                .email(convertEmail(user.getConnections()))
+                                .ip(ip)
+                                .groups(groups)
+                                .extra(getCurrentUserExtra(user, orgMember.getOrgId()))
+                                .build();
+                    });
+        });
+    }
+
+    protected Map<String, Object> getCurrentUserExtra(User user, String orgId) {
+        return Optional.ofNullable(user.getOrgTransformedUserInfo())
+                .map(orgTransformedUserInfo -> orgTransformedUserInfo.get(orgId))
+                .map(TransformedUserInfo::extra)
+                .orElse(convertConnections(user.getConnections()));
+    }
+
+    protected Mono<List<Map<String, String>>> buildCurrentUserGroups(String userId, OrgMember orgMember, boolean withoutDynamicGroups,
+            Locale locale) {
+        String orgId = orgMember.getOrgId();
+        Flux<Group> groups;
+        if (orgMember.isAdmin()) {
+            groups = groupService.getByOrgId(orgId).sort();
+        } else {
+            if (withoutDynamicGroups) {
+                groups = groupMemberService.getNonDynamicUserGroupIdsInOrg(orgId, userId).flatMapMany(l -> groupService.getByIds(l));
+            } else {
+                groups = groupMemberService.getUserGroupIdsInOrg(orgId, userId).flatMapMany(l -> groupService.getByIds(l));
+            }
+        }
+        return groups.filter(group -> !group.isAllUsersGroup())
+                .map(group -> Map.of("groupId", Objects.toString(group.getId(), ""), "groupName", group.getName(locale)))
+                .collectList();
+    }
+
+    protected Map<String, Object> convertConnections(Set<Connection> connections) {
+        return connections.stream()
+                .filter(connection -> !AuthSourceConstants.EMAIL.equals(connection.getSource()) &&
+                        !AuthSourceConstants.PHONE.equals(connection.getSource()))
+                .collect(Collectors.toMap(Connection::getSource, Connection::getRawUserInfo));
+    }
+
+    protected String convertEmail(Set<Connection> connections) {
+        return connections.stream().filter(connection -> AuthSourceConstants.EMAIL.equals(connection.getSource()))
+                .findFirst()
+                .map(Connection::getName)
+                .orElse("");
     }
 }

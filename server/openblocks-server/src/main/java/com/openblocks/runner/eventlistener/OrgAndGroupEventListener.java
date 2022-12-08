@@ -86,7 +86,6 @@ public class OrgAndGroupEventListener {
                 .subscribeOn(orgEventScheduler);
 
         Flux<Boolean> removeDatasourcePermissions = datasourceService.getByOrgId(orgId)
-                .flatMapIterable(it -> it)
                 .flatMap(datasource -> resourcePermissionService.removeUserDatasourcePermission(datasource.getId(), userId))
                 .retry(3)
                 .subscribeOn(orgEventScheduler);

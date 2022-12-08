@@ -86,4 +86,8 @@ public class BiRelation extends HasIdAndAuditing {
                 .add("extParam3", extParam3)
                 .toString();
     }
+
+    public long getCreateTime() {
+        return createdAt != null ? createdAt.toEpochMilli() : 0;
+    }
 }

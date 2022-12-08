@@ -3,7 +3,6 @@ package com.openblocks.domain.query.service;
 import static com.openblocks.sdk.exception.BizError.LIBRARY_QUERY_NOT_FOUND;
 import static com.openblocks.sdk.util.ExceptionUtils.deferredError;
 
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,7 @@ import com.openblocks.domain.query.model.LibraryQueryRecord;
 import com.openblocks.domain.query.repository.LibraryQueryRepository;
 import com.openblocks.infra.mongo.MongoUpsertHelper;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -34,8 +34,13 @@ public class LibraryQueryService {
                 .switchIfEmpty(deferredError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
     }
 
-    public Mono<List<LibraryQuery>> getByOrganizationId(String organizationId) {
-        return libraryQueryRepository.findByOrganizationId(organizationId).collectList();
+    public Mono<LibraryQuery> getByName(String libraryQueryName) {
+        return libraryQueryRepository.findByName(libraryQueryName)
+                .switchIfEmpty(deferredError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
+    }
+
+    public Flux<LibraryQuery> getByOrganizationId(String organizationId) {
+        return libraryQueryRepository.findByOrganizationId(organizationId);
     }
 
     public Mono<LibraryQuery> insert(LibraryQuery libraryQuery) {
@@ -50,14 +55,18 @@ public class LibraryQueryService {
         return libraryQueryRepository.deleteById(libraryQueryId);
     }
 
-    public Mono<BaseQuery> getLatestBaseQueryByLibraryQueryId(String libraryQueryId) {
+    public Mono<BaseQuery> getEditingBaseQueryByLibraryQueryId(String libraryQueryId) {
+        return getById(libraryQueryId).map(LibraryQuery::getQuery);
+    }
+
+    public Mono<BaseQuery> getLiveBaseQueryByLibraryQueryId(String libraryQueryId) {
         return libraryQueryRecordService.getLatestRecordByLibraryQueryId(libraryQueryId)
                 .map(LibraryQueryRecord::getQuery)
                 .switchIfEmpty(getById(libraryQueryId)
                         .map(LibraryQuery::getQuery));
     }
 
-    public Mono<Map<String, Object>> getLatestDSLByLibraryQueryId(String libraryQueryId) {
+    public Mono<Map<String, Object>> getLiveDSLByLibraryQueryId(String libraryQueryId) {
         return libraryQueryRecordService.getLatestRecordByLibraryQueryId(libraryQueryId)
                 .map(LibraryQueryRecord::getLibraryQueryDSL)
                 .switchIfEmpty(getById(libraryQueryId)

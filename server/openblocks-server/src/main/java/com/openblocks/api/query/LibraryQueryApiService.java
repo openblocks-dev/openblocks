@@ -1,13 +1,17 @@
 package com.openblocks.api.query;
 
+import static com.openblocks.domain.organization.model.OrgMember.NOT_EXIST;
 import static com.openblocks.sdk.exception.BizError.LIBRARY_QUERY_AND_ORG_NOT_MATCH;
 import static com.openblocks.sdk.util.ExceptionUtils.deferredError;
 import static com.openblocks.sdk.util.ExceptionUtils.ofError;
+import static org.apache.commons.lang3.StringUtils.firstNonBlank;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpCookie;
@@ -19,6 +23,7 @@ import com.openblocks.api.home.SessionUserService;
 import com.openblocks.api.query.view.LibraryQueryAggregateView;
 import com.openblocks.api.query.view.LibraryQueryPublishRequest;
 import com.openblocks.api.query.view.LibraryQueryRecordMetaView;
+import com.openblocks.api.query.view.LibraryQueryRequestFromJs;
 import com.openblocks.api.query.view.LibraryQueryView;
 import com.openblocks.api.query.view.QueryExecutionRequest;
 import com.openblocks.api.query.view.UpsertLibraryQueryRequest;
@@ -28,6 +33,8 @@ import com.openblocks.api.util.ViewBuilder;
 import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.domain.datasource.service.DatasourceService;
 import com.openblocks.domain.organization.model.OrgMember;
+import com.openblocks.domain.permission.model.ResourceAction;
+import com.openblocks.domain.permission.service.ResourcePermissionService;
 import com.openblocks.domain.query.model.BaseQuery;
 import com.openblocks.domain.query.model.LibraryQuery;
 import com.openblocks.domain.query.model.LibraryQueryCombineId;
@@ -38,11 +45,13 @@ import com.openblocks.domain.query.service.QueryExecutionService;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.service.UserService;
 import com.openblocks.sdk.exception.BizError;
+import com.openblocks.sdk.exception.PluginCommonError;
 import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.QueryExecutionResult;
 import com.openblocks.sdk.query.QueryVisitorContext;
 import com.openblocks.sdk.util.UriUtils;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Timed;
 
@@ -73,17 +82,42 @@ public class LibraryQueryApiService {
     @Autowired
     private BusinessEventPublisher businessEventPublisher;
 
+    @Autowired
+    private ResourcePermissionService resourcePermissionService;
+
     @Value("${server.port}")
     private int port;
 
     public Mono<List<LibraryQueryView>> listLibraryQueries() {
         return orgDevChecker.checkCurrentOrgDev()
                 .then(sessionUserService.getVisitorOrgMemberCache())
-                .flatMap(orgMember -> libraryQueryService.getByOrganizationId(orgMember.getOrgId()))
+                .flatMapMany(orgMember -> getByOrgIdWithDatasourcePermissions(orgMember.getOrgId()))
+                .collectList()
                 .flatMap(libraryQueries -> ViewBuilder.multiBuild(libraryQueries,
                         LibraryQuery::getCreatedBy,
                         userService::getByIds,
                         LibraryQueryView::from));
+    }
+
+    private Flux<LibraryQuery> getByOrgIdWithDatasourcePermissions(String orgId) {
+        Flux<LibraryQuery> libraryQueryFlux = libraryQueryService.getByOrganizationId(orgId)
+                .cache();
+
+        Mono<HashSet<String>> datasourceIdSetWithPermissions = libraryQueryFlux.map(libraryQuery -> libraryQuery.getQuery().getDatasourceId())
+                .filter(StringUtils::isNotBlank)
+                .collectList()
+                .zipWith(sessionUserService.getVisitorId())
+                .flatMapMany(tuple -> {
+                    List<String> datasourceIds = tuple.getT1();
+                    String userId = tuple.getT2();
+                    return resourcePermissionService.filterResourceWithPermission(userId, datasourceIds, ResourceAction.USE_DATASOURCES);
+                })
+                .collectList()
+                .map(HashSet::new)
+                .cache();
+
+        return libraryQueryFlux
+                .filterWhen(libraryQuery -> datasourceIdSetWithPermissions.map(set -> set.contains(libraryQuery.getQuery().getDatasourceId())));
     }
 
     public Mono<LibraryQueryView> create(LibraryQuery libraryQuery) {
@@ -126,7 +160,8 @@ public class LibraryQueryApiService {
     @SuppressWarnings("ConstantConditions")
     public Mono<List<LibraryQueryAggregateView>> dropDownList() {
         Mono<List<LibraryQuery>> libraryQueryListMono = sessionUserService.getVisitorOrgMemberCache()
-                .flatMap(orgMember -> libraryQueryService.getByOrganizationId(orgMember.getOrgId()))
+                .flatMapMany(orgMember -> getByOrgIdWithDatasourcePermissions(orgMember.getOrgId()))
+                .collectList()
                 .cache();
 
         Mono<Map<String, List<LibraryQueryRecord>>> recordMapMono = libraryQueryListMono
@@ -192,14 +227,55 @@ public class LibraryQueryApiService {
                 });
     }
 
+    public Mono<QueryExecutionResult> executeLibraryQueryFromJs(ServerWebExchange exchange, LibraryQueryRequestFromJs request) {
+
+        Mono<BaseQuery> baseQueryMono = getQueryBaseFromQueryName(request.getLibraryQueryName(), request.getLibraryQueryRecordId()).cache();
+
+        Mono<Datasource> datasourceMono = baseQueryMono.flatMap(query -> datasourceService.getById(query.getDatasourceId())
+                        .switchIfEmpty(deferredError(BizError.DATASOURCE_NOT_FOUND, "DATASOURCE_NOT_FOUND", query.getDatasourceId())))
+                .cache();
+
+        Mono<OrgMember> visitorOrgMemberCache = sessionUserService.getVisitorOrgMemberCache()
+                .onErrorReturn(NOT_EXIST);
+        return Mono.zip(visitorOrgMemberCache, baseQueryMono, datasourceMono)
+                .flatMap(tuple -> {
+                    OrgMember orgMember = tuple.getT1();
+                    String orgId = orgMember.getOrgId();
+                    String userId = orgMember.getUserId();
+                    BaseQuery baseQuery = tuple.getT2();
+                    Datasource datasource = tuple.getT3();
+                    Mono<List<Property>> paramsAndHeadersInheritFromLogin = orgMember.isInvalid()
+                                                                            ? Mono.empty() : getParamsAndHeadersInheritFromLogin(userId, orgId,
+                            UriUtils.getRefererDomain(exchange));
+
+                    QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port,
+                            exchange.getRequest().getCookies(),
+                            paramsAndHeadersInheritFromLogin
+                    );
+
+                    Map<String, Object> queryConfig = baseQuery.getQueryConfig();
+                    String timeoutStr = firstNonBlank(baseQuery.getTimeoutStr(), "5s");
+
+                    return queryExecutionService.executeQuery(datasource, queryConfig, request.paramMap(), timeoutStr,
+                                    queryVisitorContext)
+                            .onErrorResume(throwable -> Mono.just(QueryExecutionResult.error(PluginCommonError.QUERY_EXECUTION_ERROR,
+                                    "QUERY_EXECUTION_ERROR", throwable.getMessage())));
+                });
+    }
+
+    private Mono<BaseQuery> getQueryBaseFromQueryName(String libraryQueryName, String libraryQueryRecordId) {
+        return libraryQueryService.getByName(libraryQueryName)
+                .map(libraryQuery -> new LibraryQueryCombineId(libraryQuery.getId(), libraryQueryRecordId))
+                .flatMap(this::getBaseQuery);
+    }
+
     public Mono<QueryExecutionResult> executeLibraryQuery(ServerWebExchange exchange, QueryExecutionRequest queryExecutionRequest) {
 
         MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
-        Mono<BaseQuery> baseQueryMono = getBaseQuery(queryExecutionRequest.getLibraryQueryCombineId()).cache();
+        Mono<BaseQuery> baseQueryMono = libraryQueryService.getEditingBaseQueryByLibraryQueryId(
+                queryExecutionRequest.getLibraryQueryCombineId().libraryQueryId()).cache();
         Mono<Datasource> datasourceMono = baseQueryMono.flatMap(query -> datasourceService.getById(query.getDatasourceId())
-                        .switchIfEmpty(deferredError(BizError.DATASOURCE_NOT_FOUND, "DATASOURCE_NOT_FOUND", query.getDatasourceId()))
-                )
-                .cache();
+                        .switchIfEmpty(deferredError(BizError.DATASOURCE_NOT_FOUND, "DATASOURCE_NOT_FOUND", query.getDatasourceId()))).cache();
 
         return orgDevChecker.checkCurrentOrgDev()
                 .then(Mono.zip(sessionUserService.getVisitorOrgMemberCache(),
@@ -227,12 +303,15 @@ public class LibraryQueryApiService {
     }
 
     private Mono<BaseQuery> getBaseQuery(LibraryQueryCombineId libraryQueryCombineId) {
-        if (libraryQueryCombineId.isUsingLatestRecord()) {
-            return libraryQueryService.getLatestBaseQueryByLibraryQueryId(libraryQueryCombineId.libraryQueryId());
-        } else {
-            return libraryQueryRecordService.getById(libraryQueryCombineId.libraryQueryRecordId())
-                    .map(LibraryQueryRecord::getQuery);
+        if (libraryQueryCombineId.isUsingEditingRecord()) {
+            return libraryQueryService.getById(libraryQueryCombineId.libraryQueryId())
+                    .map(LibraryQuery::getQuery);
         }
+        if (libraryQueryCombineId.isUsingLiveRecord()) {
+            return libraryQueryService.getLiveBaseQueryByLibraryQueryId(libraryQueryCombineId.libraryQueryId());
+        }
+        return libraryQueryRecordService.getById(libraryQueryCombineId.libraryQueryRecordId())
+                .map(LibraryQueryRecord::getQuery);
     }
 
     protected Mono<List<Property>> getParamsAndHeadersInheritFromLogin(String userId, String orgId, String domain) {

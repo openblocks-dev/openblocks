@@ -1,5 +1,8 @@
 package com.openblocks.api.query;
 
+import static com.openblocks.sdk.constants.GlobalContext.CLIENT_IP;
+import static com.openblocks.sdk.util.ExceptionUtils.ofError;
+
 import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
 import com.openblocks.api.home.SessionUserService;
+import com.openblocks.api.query.view.LibraryQueryRequestFromJs;
 import com.openblocks.api.query.view.QueryExecutionRequest;
 import com.openblocks.api.query.view.QueryResultView;
 import com.openblocks.api.util.BusinessEventPublisher;
@@ -43,7 +47,7 @@ public class QueryController {
     private BusinessEventPublisher businessEventPublisher;
 
     @PostMapping("/execute")
-    public Mono<QueryResultView> executeAction(ServerWebExchange exchange,
+    public Mono<QueryResultView> execute(ServerWebExchange exchange,
             @RequestBody QueryExecutionRequest queryExecutionRequest) {
         return Mono.deferContextual(contextView -> {
             Locale locale = LocaleUtils.getLocale(contextView);
@@ -59,6 +63,25 @@ public class QueryController {
                         return Mono.error(throwable);
                     });
         });
+    }
+
+    @PostMapping("/execute-from-node")
+    public Mono<QueryResultView> executeLibraryQueryFromJs(ServerWebExchange exchange,
+            @RequestBody LibraryQueryRequestFromJs queryExecutionRequest) {
+        return Mono.deferContextual(contextView -> {
+            Locale locale = LocaleUtils.getLocale(contextView);
+
+            String ip = contextView.getOrDefault(CLIENT_IP, "");
+            if (!checkIp(ip)) {
+                return ofError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED");
+            }
+            return libraryQueryApiService.executeLibraryQueryFromJs(exchange, queryExecutionRequest)
+                    .map(result -> new QueryResultView(result, locale));
+        });
+    }
+
+    private boolean checkIp(String ip) {
+        return "127.0.0.1".equals(ip) || "localhost".equals(ip);
     }
 
     private Mono<QueryExecutionResult> getQueryResult(ServerWebExchange exchange, QueryExecutionRequest queryExecutionRequest) {

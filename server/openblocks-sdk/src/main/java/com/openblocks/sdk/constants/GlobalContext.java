@@ -4,6 +4,8 @@ public class GlobalContext {
 
     public static final String VISITOR_ID = "visitorId";
     public static final String VISITOR = "visitor";
+    public static final String VISITOR_TOKEN = "visitorToken";
+
     public static final String SYSTEM_USER_ID = "SYSTEM";
 
     public static final String CLIENT_IP = "ip";

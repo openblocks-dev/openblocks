@@ -3,6 +3,8 @@ package com.openblocks.domain.user.model;
 import static com.google.common.base.Suppliers.memoize;
 import static com.openblocks.infra.util.AssetUtils.toAssetPath;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -27,6 +29,8 @@ import lombok.ToString;
 @Document
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User extends HasIdAndAuditing {
+
+    private static final OrgTransformedUserInfo EMPTY_TRANSFORMED_USER_INFO = new OrgTransformedUserInfo();
 
     private String name;
 
@@ -57,9 +61,12 @@ public class User extends HasIdAndAuditing {
 
     private boolean hasSetNickname;
 
+    private OrgTransformedUserInfo orgTransformedUserInfo;
+
     @Transient
     @JsonIgnore
     public boolean isAnonymous() {
+
         return Boolean.TRUE.equals(isAnonymous);
     }
 
@@ -73,4 +80,22 @@ public class User extends HasIdAndAuditing {
         return connections.stream().anyMatch(con -> AuthSourceConstants.PHONE.equals(con.getSource()));
     }
 
+    public OrgTransformedUserInfo getOrgTransformedUserInfo() {
+        return orgTransformedUserInfo;
+    }
+
+    public static class OrgTransformedUserInfo extends HashMap<String, TransformedUserInfo> {
+
+        public TransformedUserInfo get(String orgId) {
+            return super.get(orgId);
+        }
+
+        public void set(String orgId, TransformedUserInfo transformedUserInfo) {
+            super.put(orgId, transformedUserInfo);
+        }
+    }
+
+    public record TransformedUserInfo(long updateTime, Map<String, Object> extra) {
+
+    }
 }

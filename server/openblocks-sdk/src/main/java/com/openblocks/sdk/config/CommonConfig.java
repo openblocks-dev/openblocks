@@ -9,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import com.openblocks.sdk.constants.WorkspaceMode;
+
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +22,7 @@ import lombok.Setter;
 public class CommonConfig {
 
     private Domain domain = new Domain();
+    private Workspace workspace = new Workspace();
     private Encrypt encrypt = new Encrypt();
     private boolean cloud;
     private Security security = new Security();
@@ -61,5 +64,12 @@ public class CommonConfig {
             }
             return all;
         }
+    }
+
+    @Data
+    public static class Workspace {
+
+        private WorkspaceMode mode = WorkspaceMode.SAAS;
+        private String enterpriseOrgId;
     }
 }

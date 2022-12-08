@@ -10,11 +10,10 @@ import static com.openblocks.sdk.constants.GlobalContext.REQUEST_METHOD;
 import static com.openblocks.sdk.constants.GlobalContext.REQUEST_PATH;
 import static com.openblocks.sdk.constants.GlobalContext.VISITOR;
 import static com.openblocks.sdk.constants.GlobalContext.VISITOR_ID;
+import static com.openblocks.sdk.constants.GlobalContext.VISITOR_TOKEN;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -37,6 +36,8 @@ import com.openblocks.domain.organization.service.OrgMemberService;
 import com.openblocks.domain.user.service.UserService;
 import com.openblocks.infra.serverlog.ServerLog;
 import com.openblocks.infra.serverlog.ServerLogService;
+import com.openblocks.infra.util.NetworkUtils;
+import com.openblocks.sdk.util.CookieHelper;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -65,6 +66,9 @@ public class GlobalContextFilter implements WebFilter, Ordered {
     @Autowired
     private GlobalContextService globalContextService;
 
+    @Autowired
+    private CookieHelper cookieHelper;
+
     @Nonnull
     @Override
     public Mono<Void> filter(@Nonnull ServerWebExchange exchange, @Nonnull WebFilterChain chain) {
@@ -84,7 +88,7 @@ public class GlobalContextFilter implements WebFilter, Ordered {
                 })
                 .flatMap(visitorId -> chain.filter(exchange)
                         .contextWrite(ctx -> {
-                            Map<String, Object> contextMap = buildContextMap(exchange.getRequest(), visitorId);
+                            Map<String, Object> contextMap = buildContextMap(exchange, visitorId);
                             for (Entry<String, Object> entry : contextMap.entrySet()) {
                                 String key = entry.getKey();
                                 Object value = entry.getValue();
@@ -94,7 +98,8 @@ public class GlobalContextFilter implements WebFilter, Ordered {
                         }));
     }
 
-    private Map<String, Object> buildContextMap(ServerHttpRequest request, String visitorId) {
+    private Map<String, Object> buildContextMap(ServerWebExchange serverWebExchange, String visitorId) {
+        ServerHttpRequest request = serverWebExchange.getRequest();
         Map<String, Object> contextMap = request.getHeaders().toSingleValueMap().entrySet()
                 .stream()
                 .filter(x -> x.getKey().startsWith(MDC_HEADER_PREFIX))
@@ -103,22 +108,15 @@ public class GlobalContextFilter implements WebFilter, Ordered {
         if (!isAnonymousUser(visitorId)) {
             contextMap.put(VISITOR, userService.findById(visitorId).cache());
         }
-        contextMap.put(CLIENT_IP, getClientIp(request));
+        contextMap.put(CLIENT_IP, NetworkUtils.getRemoteIp(serverWebExchange));
         contextMap.put(REQUEST_ID_LOG, getOrCreateRequestId(request));
         contextMap.put(REQUEST_PATH, request.getPath().pathWithinApplication().value());
         contextMap.put(REQUEST_METHOD, ofNullable(request.getMethod()).map(HttpMethod::name).orElse(""));
         contextMap.put(CLIENT_LOCALE, globalContextService.getClientLocale(request));
         contextMap.put(CURRENT_ORG_MEMBER, orgMemberService.getCurrentOrgMember(visitorId).cache());
+        contextMap.put(VISITOR_TOKEN, cookieHelper.getCookieToken(serverWebExchange));
         return contextMap;
     }
-
-    private String getClientIp(ServerHttpRequest request) {
-        return ofNullable(request.getRemoteAddress())
-                .map(InetSocketAddress::getAddress)
-                .map(InetAddress::getHostAddress)
-                .orElse("0:0");
-    }
-
 
     @SuppressWarnings("ConstantConditions")
     private String getOrCreateRequestId(final ServerHttpRequest request) {
@@ -134,4 +132,3 @@ public class GlobalContextFilter implements WebFilter, Ordered {
         return GLOBAL_CONTEXT.getOrder();
     }
 }
-

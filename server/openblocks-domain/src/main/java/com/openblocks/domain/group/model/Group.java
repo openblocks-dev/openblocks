@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -45,6 +46,8 @@ public class Group extends HasIdAndAuditing implements Comparable<Group> {
 
     private String type;
 
+    private String dynamicRule;
+
     public String getName(Locale locale) {
         return isSystemGroup() ? SystemGroups.getName(getType(), locale) : name;
     }
@@ -81,5 +84,15 @@ public class Group extends HasIdAndAuditing implements Comparable<Group> {
 
     public long getCreateTime() {
         return createdAt != null ? createdAt.toEpochMilli() : 0;
+    }
+
+    public String getDynamicRule() {
+        return dynamicRule;
+    }
+
+    @Transient
+    @JsonIgnore
+    public boolean isDynamic(){
+        return StringUtils.isNotBlank(dynamicRule);
     }
 }

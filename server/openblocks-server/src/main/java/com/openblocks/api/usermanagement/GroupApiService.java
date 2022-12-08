@@ -177,12 +177,11 @@ public class GroupApiService {
                                             .flatMapSequential(group -> GroupView.from(group, MemberRole.ADMIN.getValue()))
                                             .collectList();
                                 }
-                                return groupMemberService.getUserGroupMembers(orgMember.getUserId())
+                                return groupMemberService.getUserGroupMembersInOrg(orgId, orgMember.getUserId())
                                         .flatMap(groupMembers -> {
                                             List<String> groupIds = collectList(groupMembers, GroupMember::getGroupId);
                                             Map<String, GroupMember> groupMemberMap = collectMap(groupMembers, GroupMember::getGroupId, it -> it);
                                             return groupService.getByIds(groupIds)
-                                                    .filter(it -> it.getOrganizationId().equals(orgId))
                                                     .sort()
                                                     .flatMapSequential(group -> GroupView.from(group,
                                                             groupMemberMap.get(group.getId()).getRole().getValue()))
@@ -216,6 +215,7 @@ public class GroupApiService {
                     Group group = new Group();
                     group.setOrganizationId(orgId);
                     group.setName(createGroupRequest.getName());
+                    group.setDynamicRule(createGroupRequest.getDynamicRule());
                     return groupService.create(group, orgMember.getUserId(), orgMember.getOrgId());
                 });
     }
@@ -229,6 +229,7 @@ public class GroupApiService {
                     Group updateGroup = new Group();
                     updateGroup.setId(groupId);
                     updateGroup.setName(updateGroupRequest.getGroupName());
+                    updateGroup.setDynamicRule(updateGroupRequest.getDynamicRule());
                     return groupService.updateGroup(updateGroup);
                 });
     }

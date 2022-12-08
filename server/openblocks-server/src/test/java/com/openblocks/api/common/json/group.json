@@ -2,9 +2,17 @@
   "class": "com.openblocks.domain.group.model.Group",
   "data": [
     {
+      "id": "dev",
+      "name": "Develops",
+      "organizationId": "org01",
+      "allUsersGroup": false,
+      "type": "dev"
+    },
+    {
       "id": "group01",
       "name": "group01",
-      "organizationId": "org01"
+      "organizationId": "org01",
+      "allUsersGroup": false
     }
   ]
 }

@@ -14,7 +14,9 @@ import com.openblocks.domain.encryption.EncryptionService;
 import com.openblocks.domain.plugin.service.DatasourceMetaInfoService;
 import com.openblocks.infra.mongo.MongoUpsertHelper;
 import com.openblocks.sdk.models.DatasourceConnectionConfig;
+import com.openblocks.sdk.util.JsonUtils;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -22,6 +24,7 @@ import reactor.core.publisher.Mono;
  * all find operation must do data decryption
  * for update operations that try to save whole datasource object, data encryption is required
  */
+@Slf4j
 @Repository
 public class DatasourceRepository {
 
@@ -42,9 +45,9 @@ public class DatasourceRepository {
                 .map(this::convertToDomainObjectAndDecrypt);
     }
 
-    public Mono<Datasource> findSystemPredefinedDatasourceByOrgIdAndType(String organizationId, String type) {
+    public Mono<Datasource> findWorkspacePredefinedDatasourceByOrgIdAndType(String organizationId, String type) {
         return repository.findByOrganizationIdAndTypeAndCreationSource(organizationId, type,
-                        DatasourceCreationSource.SYSTEM_PREDEFINED.getValue())
+                        DatasourceCreationSource.LEGACY_WORKSPACE_PREDEFINED.getValue())
                 .map(this::convertToDomainObjectAndDecrypt);
     }
 
@@ -82,9 +85,13 @@ public class DatasourceRepository {
         result.setCreatedBy(datasourceDO.getCreatedBy());
         result.setModifiedBy(datasourceDO.getModifiedBy());
 
-        DatasourceConnectionConfig detailConfig = datasourceMetaInfoService.resolveDetailConfig(datasourceDO.getDetailConfig(), result.getType());
-        DatasourceConnectionConfig decryptedDetailConfig = detailConfig.doDecrypt(encryptionService::decryptString);
-        result.setDetailConfig(decryptedDetailConfig);
+        try {
+            DatasourceConnectionConfig detailConfig = datasourceMetaInfoService.resolveDetailConfig(datasourceDO.getDetailConfig(), result.getType());
+            DatasourceConnectionConfig decryptedDetailConfig = detailConfig.doDecrypt(encryptionService::decryptString);
+            result.setDetailConfig(decryptedDetailConfig);
+        } catch (Exception e) {
+            log.error("resolve detail config error.{},{}", result.getType(), JsonUtils.toJson(datasourceDO.getDetailConfig()), e);
+        }
         return result;
     }
 

@@ -8,6 +8,22 @@
       "targetId": "user01",
       "relation": "admin",
       "state": "NORMAL"
+    },
+    {
+      "id": "org_member02",
+      "bizType": "ORG_MEMBER",
+      "sourceId": "org01",
+      "targetId": "user02",
+      "relation": "member",
+      "state": "NORMAL"
+    },
+    {
+      "id": "org_member03",
+      "bizType": "ORG_MEMBER",
+      "sourceId": "org01",
+      "targetId": "user03",
+      "relation": "member",
+      "state": "NORMAL"
     }
   ]
 }

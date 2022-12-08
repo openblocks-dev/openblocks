@@ -29,7 +29,7 @@ public class GroupMember {
     public static GroupMember from(BiRelation biRelation) {
         return new GroupMember(biRelation.getSourceId(), biRelation.getTargetId(),
                 MemberRole.fromValue(biRelation.getRelation()), biRelation.getExtParam1(),
-                biRelation.getCreatedAt().toEpochMilli());
+                biRelation.getCreateTime());
     }
 
     public boolean isAdmin() {

@@ -92,5 +92,6 @@
         <module>clickHousePlugin</module>
         <module>googleSheetsPlugin</module>
         <module>oraclePlugin</module>
+        <module>graphqlPlugin</module>
     </modules>
 </project>

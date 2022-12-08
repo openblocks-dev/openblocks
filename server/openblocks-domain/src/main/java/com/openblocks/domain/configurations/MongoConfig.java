@@ -2,6 +2,8 @@ package com.openblocks.domain.configurations;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -39,6 +41,14 @@ public class MongoConfig {
 
     @Autowired
     private MaterialProperties materialProperties;
+
+    @Autowired
+    private MappingMongoConverter mappingMongoConverter;
+
+    @PostConstruct
+    public void init() {
+        mappingMongoConverter.setMapKeyDotReplacement("_");
+    }
 
     @Bean
     public MongockSpring5.MongockApplicationRunner mongockApplicationRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {

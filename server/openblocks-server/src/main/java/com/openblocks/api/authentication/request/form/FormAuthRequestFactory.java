@@ -13,7 +13,7 @@ import com.openblocks.sdk.auth.AuthTypeConstants;
 import reactor.core.publisher.Mono;
 
 @Component
-public class FormAuthRequestFactory implements AuthRequestFactory {
+public class FormAuthRequestFactory implements AuthRequestFactory<AuthRequestContext> {
 
     @Autowired
     private FormAuthRequest formAuthRequest;

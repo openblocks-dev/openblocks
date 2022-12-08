@@ -1,6 +1,7 @@
 package com.openblocks.api.usermanagement;
 
 import static com.openblocks.sdk.exception.BizError.LAST_ADMIN_CANNOT_LEAVE_ORG;
+import static com.openblocks.sdk.exception.BizError.UNSUPPORTED_OPERATION;
 import static com.openblocks.sdk.util.ExceptionUtils.deferredError;
 import static com.openblocks.sdk.util.ExceptionUtils.ofError;
 import static com.openblocks.sdk.util.StreamUtils.collectSet;
@@ -39,6 +40,7 @@ import com.openblocks.domain.user.model.Connection;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.service.UserService;
 import com.openblocks.sdk.config.CommonConfig;
+import com.openblocks.sdk.constants.WorkspaceMode;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
 
@@ -226,15 +228,17 @@ public class OrgApiServiceImpl implements OrgApiService {
     @Override
     public Mono<Boolean> removeOrg(String orgId) {
         return checkVisitorAdminRole(orgId)
+                .then(checkIfSaasMode())
                 .then(organizationService.delete(orgId));
     }
 
     @Override
     public Mono<OrgView> create(Organization organization) {
         return sessionUserService.getVisitorId()
-                .flatMap(userId -> bizThresholdChecker.checkMaxOrgCount(userId)
-                        .then(organizationService.create(organization, userId))
-                        .map(OrgView::new));
+                .delayUntil(userId -> bizThresholdChecker.checkMaxOrgCount(userId))
+                .delayUntil(__ -> checkIfSaasMode())
+                .flatMap(userId -> organizationService.create(organization, userId))
+                .map(OrgView::new);
     }
 
     @Override
@@ -318,5 +322,12 @@ public class OrgApiServiceImpl implements OrgApiService {
                 .then(switchCurrentOrganizationTo(orgId));
     }
 
-
+    private Mono<Void> checkIfSaasMode() {
+        return Mono.defer(() -> {
+            if (commonConfig.getWorkspace().getMode() == WorkspaceMode.ENTERPRISE) {
+                return Mono.error(new BizException(UNSUPPORTED_OPERATION, "BAD_REQUEST"));
+            }
+            return Mono.empty();
+        });
+    }
 }

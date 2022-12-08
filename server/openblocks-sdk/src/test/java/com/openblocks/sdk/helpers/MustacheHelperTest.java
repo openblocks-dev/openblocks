@@ -7,6 +7,7 @@ import static com.openblocks.sdk.util.MustacheHelper.tokenize;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.openblocks.sdk.util.JsonUtils;
 import com.openblocks.sdk.util.MustacheHelper;
 
 @SuppressWarnings(
@@ -442,5 +444,31 @@ public class MustacheHelperTest {
         map.put("table1.data", Lists.newArrayList(1, 2, 3, 4));
         String s = MustacheHelper.renderMustacheJsonString(json, map);
         System.out.println(s);
+    }
+
+    @Test
+    public void typeJudgment() {
+        Object number = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("1", Map.of()));
+        Assert.assertTrue(number instanceof Integer);
+        Object b = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("true", Map.of()));
+        Assert.assertTrue(b instanceof Boolean);
+        Object array = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("['abc', 1]", Map.of()));
+        Assert.assertTrue(array instanceof Collection<?>);
+        Object array2 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("[abc, cde]", Map.of()));
+        Assert.assertTrue(array2 instanceof Collection<?>);
+        Object o = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("{'a': 1, 'b': 'xx'}", Map.of()));
+        Assert.assertTrue(o instanceof Map<?, ?>);
+        Object o2 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("{a:1, b:2}", Map.of()));
+        Assert.assertTrue(o2 instanceof Map<?, ?>);
+        Object o3 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("{{3}}3", Map.of("3", 3)));
+        Assert.assertEquals(o3, "33");
+        Object o4 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("{{3}}3", Map.of("3", "3")));
+        Assert.assertEquals(o4, "33");
+        Object o5 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("{{t}}rue", Map.of("t", "t")));
+        Assert.assertEquals(o5, "true");
+        Object o6 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("[1, {{3}}3]", Map.of("3", 3)));
+        Object[] objects = ((Collection<?>) o6).toArray();
+        Assert.assertEquals(objects[0], 1);
+        Assert.assertEquals(objects[1], "33");
     }
 }

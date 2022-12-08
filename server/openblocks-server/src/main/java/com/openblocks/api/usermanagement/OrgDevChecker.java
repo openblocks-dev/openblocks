@@ -55,7 +55,7 @@ public class OrgDevChecker {
     @Nonnull
     private Mono<Boolean> inDevGroup(String orgId, String userId) {
         return groupService.getDevGroup(orgId)
-                .flatMap(group -> groupMemberService.isMember(group.getId(), userId))
+                .flatMap(group -> groupMemberService.isMember(group, userId))
                 .defaultIfEmpty(false);
     }
 }

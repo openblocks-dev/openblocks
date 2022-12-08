@@ -22,16 +22,16 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Primary
 @Component
-public class AuthRequestFactoryFacade implements AuthRequestFactory {
+public class AuthRequestFactoryFacade implements AuthRequestFactory<AuthRequestContext> {
 
     @Autowired
-    private List<AuthRequestFactory> authRequestFactories;
+    private List<AuthRequestFactory<AuthRequestContext>> authRequestFactories;
 
-    private final Map<String, AuthRequestFactory> authRequestFactoryMap = new HashMap<>();
+    private final Map<String, AuthRequestFactory<AuthRequestContext>> authRequestFactoryMap = new HashMap<>();
 
     @PostConstruct
     public void init() {
-        for (AuthRequestFactory authRequestFactory : authRequestFactories) {
+        for (AuthRequestFactory<AuthRequestContext> authRequestFactory : authRequestFactories) {
             if (authRequestFactory instanceof AuthRequestFactoryFacade) {
                 continue;
             }
@@ -47,7 +47,7 @@ public class AuthRequestFactoryFacade implements AuthRequestFactory {
     @Override
     public Mono<AuthRequest> build(AuthRequestContext context) {
         return Mono.defer(() -> {
-            AuthRequestFactory authRequestFactory = authRequestFactoryMap.get(context.getAuthConfig().getAuthType());
+            AuthRequestFactory<AuthRequestContext> authRequestFactory = authRequestFactoryMap.get(context.getAuthConfig().getAuthType());
             if (authRequestFactory == null) {
                 return Mono.error(new BizException(AUTH_ERROR, "AUTH_ERROR"));
             }

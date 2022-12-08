@@ -6,7 +6,9 @@ import static com.openblocks.domain.application.ApplicationUtil.getContainerSize
 import static com.openblocks.domain.application.ApplicationUtil.getDependentModulesFromDsl;
 import static java.util.Optional.ofNullable;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -41,7 +43,10 @@ public class Application extends HasIdAndAuditing {
 
     @Transient
     private final Supplier<Set<ApplicationQuery>> editingQueries =
-            memoize(() -> JsonUtils.fromJsonSet(JsonUtils.toJson(editingApplicationDSL.get("queries")), ApplicationQuery.class));
+            memoize(() -> Optional.ofNullable(editingApplicationDSL)
+                    .map(map -> map.get("queries"))
+                    .map(queries -> JsonUtils.fromJsonSet(JsonUtils.toJson(queries), ApplicationQuery.class))
+                    .orElse(Collections.emptySet()));
 
     @Transient
     private final Supplier<Set<ApplicationQuery>> liveQueries =
@@ -80,7 +85,7 @@ public class Application extends HasIdAndAuditing {
         this.editingApplicationDSL = editingApplicationDSL;
     }
 
-    private Set<ApplicationQuery> getEditingQueries() {
+    public Set<ApplicationQuery> getEditingQueries() {
         return editingQueries.get();
     }
 

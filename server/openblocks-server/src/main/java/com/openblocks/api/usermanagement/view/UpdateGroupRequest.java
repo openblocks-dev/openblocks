@@ -1,11 +1,10 @@
 package com.openblocks.api.usermanagement.view;
 
-import javax.validation.constraints.NotBlank;
-
 public class UpdateGroupRequest {
 
-    @NotBlank
     private String groupName;
+
+    private String dynamicRule;
 
     public String getGroupName() {
         return groupName;
@@ -13,5 +12,13 @@ public class UpdateGroupRequest {
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
+    }
+
+    public String getDynamicRule() {
+        return dynamicRule;
+    }
+
+    public void setDynamicRule(String dynamicRule) {
+        this.dynamicRule = dynamicRule;
     }
 }

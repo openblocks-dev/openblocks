@@ -15,8 +15,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.openblocks.api.application.view.ApplicationInfoView;
 import com.openblocks.api.application.view.ApplicationPermissionView;
-import com.openblocks.api.application.view.ApplicationPermissionView.PermissionItemView;
 import com.openblocks.api.common.mockuser.WithMockUser;
+import com.openblocks.api.permission.view.PermissionItemView;
 import com.openblocks.api.home.FolderApiService;
 import com.openblocks.domain.folder.model.Folder;
 import com.openblocks.domain.folder.service.FolderService;

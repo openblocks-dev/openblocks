@@ -161,7 +161,6 @@ public class MongoPlugin extends Plugin {
                             if (!BigInteger.ONE.equals(status)) {
                                 return Mono.just(QueryExecutionResult.error(MONGO_EXECUTION_ERROR, "MONGODB_EXECUTE_ERROR", status));
                             }
-
                             return Mono.just(QueryExecutionResult.success(parseResultBody(outputJson)));
 
                         } catch (Exception e) {
