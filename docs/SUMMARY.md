@@ -9,7 +9,7 @@
 
 * [Data source basics](data-sources/data-source-basics.md)
 * [Configure IP allowlists](data-sources/configure-ip-allowlists.md)
-* [Connect to databases](data-sources/connect-to-databases/README.md)
+* [Connect to APIs](data-sources/connect-to-databases/README.md)
   * [Google Sheets](data-sources/connect-to-databases/google-sheets.md)
 
 ## Queries
@@ -28,8 +28,10 @@
   * [Temporary state](build-apps/write-javascript/temporary-state.md)
 * [Component guides](build-apps/component-guides/README.md)
   * [Option lists](build-apps/component-guides/option-lists.md)
+  * [Use Markdown](build-apps/component-guides/use-markdown.md)
+* [Module](build-apps/module.md)
+* [Navigation](build-apps/navigation.md)
 * [Version and release management](build-apps/version-and-release-management.md)
-* [Use Markdown](build-apps/use-markdown.md)
 
 ## Workspace management
 

@@ -15,12 +15,12 @@ Follow the steps below:
 1. Click **Data Sources** on Openblocks homepage.
 2.  Click **New data source** on the upper right. This permission is restricted to workspace admins and developers.
 
-    <figure><img src="../.gitbook/assets/image (31) (1).png" alt=""><figcaption></figcaption></figure>
-3.  Select the database or API type you need to connect.
+    <figure><img src="../.gitbook/assets/image (12) (1).png" alt=""><figcaption></figcaption></figure>
+3.  Select the database or API type you need to connect.&#x20;
 
-    <figure><img src="../.gitbook/assets/image (32) (1).png" alt=""><figcaption></figcaption></figure>
-4. Fill out data source connection fields. See docs in [Connect to databases](broken-reference) and [Connect to APIs](broken-reference) for detailed tutorials.
-5. Click **Test the connection** to check whether you can make a successful connection to data source based on current settings.
+    <figure><img src="../.gitbook/assets/data source basics-2.png" alt=""><figcaption></figcaption></figure>
+4. Fill out data source connection fields. See docs in [Connect to databases](broken-reference) and [Connect to APIs](connect-to-databases/) for detailed tutorials.
+5. Click **Test connection** to check whether you can make a successful connection to data source based on current settings.
 6.  Click **Save**.
 
     <figure><img src="../.gitbook/assets/image (28).png" alt=""><figcaption></figcaption></figure>
@@ -36,7 +36,7 @@ You can also connect to a new data source when creating or editing queries in qu
 In Openblocks, members with permissions to create, edit, delete and use data sources **** are listed as follows:
 
 * **Create:** workspace admins and developers
-* **Edit** or **Delete:** data source creators and workspace admins
+* **Edit** or **Delete:** workspace admins and data source creators
 * **Use**: workspace admins and developers
 
 In particular, members with permissions to edit an app are automatically granted access to use existing data sources in the app.

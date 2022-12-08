@@ -68,7 +68,7 @@ https://unpkg.com/cowsay@1.5.0/build/cowsay.umd.js
 
 ### Import on App-level
 
-Navigate to the left sidebar, click <img src="../.gitbook/assets/image (1).png" alt="" data-size="line"> > **Other** > **Scripts and style** > **Add a library**. Then paste the **cowsay** link here.
+Navigate to the left sidebar, click <img src="../.gitbook/assets/image (1) (2).png" alt="" data-size="line"> > **Other** > **Scripts and style** > **Add a library**. Then paste the **cowsay** link here.
 
 <figure><img src="../.gitbook/assets/Add a library (1).png" alt=""><figcaption></figcaption></figure>
 
