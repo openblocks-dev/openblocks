@@ -22,10 +22,11 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Primary
 @Component
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class AuthRequestFactoryFacade implements AuthRequestFactory<AuthRequestContext> {
 
     @Autowired
-    private List<AuthRequestFactory<AuthRequestContext>> authRequestFactories;
+    private List<AuthRequestFactory> authRequestFactories;
 
     private final Map<String, AuthRequestFactory<AuthRequestContext>> authRequestFactoryMap = new HashMap<>();
 
