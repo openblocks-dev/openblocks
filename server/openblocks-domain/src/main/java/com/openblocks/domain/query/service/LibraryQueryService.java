@@ -34,6 +34,11 @@ public class LibraryQueryService {
                 .switchIfEmpty(deferredError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
     }
 
+    public Mono<LibraryQuery> getByName(String libraryQueryName) {
+        return libraryQueryRepository.findByName(libraryQueryName)
+                .switchIfEmpty(deferredError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
+    }
+
     public Flux<LibraryQuery> getByOrganizationId(String organizationId) {
         return libraryQueryRepository.findByOrganizationId(organizationId);
     }
@@ -48,6 +53,10 @@ public class LibraryQueryService {
 
     public Mono<Void> delete(String libraryQueryId) {
         return libraryQueryRepository.deleteById(libraryQueryId);
+    }
+
+    public Mono<BaseQuery> getEditingBaseQueryByLibraryQueryId(String libraryQueryId) {
+        return getById(libraryQueryId).map(LibraryQuery::getQuery);
     }
 
     public Mono<BaseQuery> getLiveBaseQueryByLibraryQueryId(String libraryQueryId) {

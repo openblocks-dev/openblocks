@@ -70,5 +70,6 @@ public class CommonConfig {
     public static class Workspace {
 
         private WorkspaceMode mode = WorkspaceMode.SAAS;
+        private String enterpriseOrgId;
     }
 }

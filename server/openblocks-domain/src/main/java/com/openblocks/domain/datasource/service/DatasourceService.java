@@ -22,5 +22,5 @@ public interface DatasourceService {
 
     Mono<Long> countByOrganizationId(String orgId);
 
-    Mono<Datasource> findSystemPredefinedDatasource(String organizationId, String datasourceType);
+    Mono<Datasource> findWorkspacePredefinedDatasource(String organizationId, String datasourceType);
 }

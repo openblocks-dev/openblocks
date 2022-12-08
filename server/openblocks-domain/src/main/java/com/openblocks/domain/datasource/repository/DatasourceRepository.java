@@ -45,9 +45,9 @@ public class DatasourceRepository {
                 .map(this::convertToDomainObjectAndDecrypt);
     }
 
-    public Mono<Datasource> findSystemPredefinedDatasourceByOrgIdAndType(String organizationId, String type) {
+    public Mono<Datasource> findWorkspacePredefinedDatasourceByOrgIdAndType(String organizationId, String type) {
         return repository.findByOrganizationIdAndTypeAndCreationSource(organizationId, type,
-                        DatasourceCreationSource.SYSTEM_PREDEFINED.getValue())
+                        DatasourceCreationSource.LEGACY_WORKSPACE_PREDEFINED.getValue())
                 .map(this::convertToDomainObjectAndDecrypt);
     }
 

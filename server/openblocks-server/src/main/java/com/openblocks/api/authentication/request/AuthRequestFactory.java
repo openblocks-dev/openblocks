@@ -4,9 +4,9 @@ import java.util.Set;
 
 import reactor.core.publisher.Mono;
 
-public interface AuthRequestFactory {
+public interface AuthRequestFactory<T extends AuthRequestContext> {
 
-    Mono<AuthRequest> build(AuthRequestContext context);
+    Mono<AuthRequest> build(T context);
 
     Set<String> supportedAuthTypes();
 }

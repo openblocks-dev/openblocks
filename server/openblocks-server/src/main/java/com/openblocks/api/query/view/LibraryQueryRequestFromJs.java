@@ -19,7 +19,7 @@ public class LibraryQueryRequestFromJs {
 
     private String libraryQueryName;
 
-    private String libraryQueryVersion;
+    private String libraryQueryRecordId;
 
     private List<Param> params;
 

@@ -229,7 +229,7 @@ public class LibraryQueryApiService {
 
     public Mono<QueryExecutionResult> executeLibraryQueryFromJs(ServerWebExchange exchange, LibraryQueryRequestFromJs request) {
 
-        Mono<BaseQuery> baseQueryMono = getEditingQueryBase(request.getLibraryQueryName(), request.getLibraryQueryVersion()).cache();
+        Mono<BaseQuery> baseQueryMono = getQueryBaseFromQueryName(request.getLibraryQueryName(), request.getLibraryQueryRecordId()).cache();
 
         Mono<Datasource> datasourceMono = baseQueryMono.flatMap(query -> datasourceService.getById(query.getDatasourceId())
                         .switchIfEmpty(deferredError(BizError.DATASOURCE_NOT_FOUND, "DATASOURCE_NOT_FOUND", query.getDatasourceId())))
@@ -263,18 +263,19 @@ public class LibraryQueryApiService {
                 });
     }
 
-    private Mono<BaseQuery> getEditingQueryBase(String libraryQueryName, String libraryQueryVersion) {
-        return Mono.just(BaseQuery.builder().build());
+    private Mono<BaseQuery> getQueryBaseFromQueryName(String libraryQueryName, String libraryQueryRecordId) {
+        return libraryQueryService.getByName(libraryQueryName)
+                .map(libraryQuery -> new LibraryQueryCombineId(libraryQuery.getId(), libraryQueryRecordId))
+                .flatMap(this::getBaseQuery);
     }
 
     public Mono<QueryExecutionResult> executeLibraryQuery(ServerWebExchange exchange, QueryExecutionRequest queryExecutionRequest) {
 
         MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
-        Mono<BaseQuery> baseQueryMono = getEditingQueryBase(queryExecutionRequest.getLibraryQueryCombineId()).cache();
+        Mono<BaseQuery> baseQueryMono = libraryQueryService.getEditingBaseQueryByLibraryQueryId(
+                queryExecutionRequest.getLibraryQueryCombineId().libraryQueryId()).cache();
         Mono<Datasource> datasourceMono = baseQueryMono.flatMap(query -> datasourceService.getById(query.getDatasourceId())
-                        .switchIfEmpty(deferredError(BizError.DATASOURCE_NOT_FOUND, "DATASOURCE_NOT_FOUND", query.getDatasourceId()))
-                )
-                .cache();
+                        .switchIfEmpty(deferredError(BizError.DATASOURCE_NOT_FOUND, "DATASOURCE_NOT_FOUND", query.getDatasourceId()))).cache();
 
         return orgDevChecker.checkCurrentOrgDev()
                 .then(Mono.zip(sessionUserService.getVisitorOrgMemberCache(),
@@ -301,9 +302,16 @@ public class LibraryQueryApiService {
                 });
     }
 
-    private Mono<BaseQuery> getEditingQueryBase(LibraryQueryCombineId libraryQueryCombineId) {
-        return libraryQueryService.getById(libraryQueryCombineId.libraryQueryId())
-                .map(LibraryQuery::getQuery);
+    private Mono<BaseQuery> getBaseQuery(LibraryQueryCombineId libraryQueryCombineId) {
+        if (libraryQueryCombineId.isUsingEditingRecord()) {
+            return libraryQueryService.getById(libraryQueryCombineId.libraryQueryId())
+                    .map(LibraryQuery::getQuery);
+        }
+        if (libraryQueryCombineId.isUsingLiveRecord()) {
+            return libraryQueryService.getLiveBaseQueryByLibraryQueryId(libraryQueryCombineId.libraryQueryId());
+        }
+        return libraryQueryRecordService.getById(libraryQueryCombineId.libraryQueryRecordId())
+                .map(LibraryQueryRecord::getQuery);
     }
 
     protected Mono<List<Property>> getParamsAndHeadersInheritFromLogin(String userId, String orgId, String domain) {

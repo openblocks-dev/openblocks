@@ -38,7 +38,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     private OrganizationService organizationService;
 
     @Autowired
-    private AuthRequestFactory authRequestFactory;
+    private AuthRequestFactory<AuthRequestContext> authRequestFactory;
 
     @Autowired
     private EnvAuthConfig envAuthConfig;

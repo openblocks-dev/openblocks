@@ -46,6 +46,7 @@ import com.openblocks.domain.application.model.ApplicationStatus;
 import com.openblocks.domain.application.model.ApplicationType;
 import com.openblocks.domain.application.service.ApplicationService;
 import com.openblocks.domain.bizthreshold.BizThresholdChecker;
+import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.domain.group.service.GroupService;
 import com.openblocks.domain.interaction.UserApplicationInteractionService;
 import com.openblocks.domain.organization.model.Organization;
@@ -539,6 +540,7 @@ public class ApplicationApiService {
                     .stream()
                     .map(applicationQuery -> applicationQuery.getBaseQuery().getDatasourceId())
                     .filter(StringUtils::isNotBlank)
+                    .filter(Datasource::isNotSystemStaticId)
                     .collect(Collectors.toSet());
             if (CollectionUtils.isEmpty(datasourceIds)) {
                 return Mono.empty();

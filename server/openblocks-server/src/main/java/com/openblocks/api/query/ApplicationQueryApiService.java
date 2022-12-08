@@ -22,7 +22,6 @@ import org.springframework.web.server.ServerWebExchange;
 
 import com.openblocks.api.home.SessionUserService;
 import com.openblocks.api.query.view.QueryExecutionRequest;
-import com.openblocks.api.util.BusinessEventPublisher;
 import com.openblocks.domain.application.model.Application;
 import com.openblocks.domain.application.service.ApplicationService;
 import com.openblocks.domain.datasource.model.Datasource;
@@ -69,8 +68,6 @@ public class ApplicationQueryApiService {
 
     @Autowired
     private QueryExecutionService queryExecutionService;
-    @Autowired
-    private BusinessEventPublisher businessEventPublisher;
 
     @Value("${server.port}")
     private int port;
@@ -79,77 +76,82 @@ public class ApplicationQueryApiService {
         if (StringUtils.isBlank(queryExecutionRequest.getQueryId())) {
             return ExceptionUtils.ofError(INVALID_PARAMETER, "INVALID_QUERY_ID");
         }
-        String applicationId = queryExecutionRequest.getApplicationId();
-        if (StringUtils.isBlank(applicationId)) {
+        String appId = queryExecutionRequest.getApplicationId();
+        if (StringUtils.isBlank(appId)) {
             return ExceptionUtils.ofError(INVALID_PARAMETER, "INVALID_APP_ID");
         }
         boolean viewMode = queryExecutionRequest.isViewMode();
-        MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
         String queryId = queryExecutionRequest.getQueryId();
-        Mono<Application> applicationMono = applicationService.findById(applicationId).cache();
-        Mono<ApplicationQuery> applicationQueryMono = applicationMono
-                .map(application -> application.getQueryByViewModeAndQueryId(viewMode, queryId))
+        Mono<Application> appMono = applicationService.findById(appId).cache();
+        Mono<ApplicationQuery> appQueryMono = appMono
+                .map(app -> app.getQueryByViewModeAndQueryId(viewMode, queryId))
                 .cache();
-        Mono<BaseQuery> baseQueryMono = applicationQueryMono.flatMap(this::getBaseQuery).cache();
+
+        Mono<BaseQuery> baseQueryMono = appQueryMono.flatMap(this::getBaseQuery).cache();
         Mono<Datasource> datasourceMono = baseQueryMono.flatMap(query -> datasourceService.getById(query.getDatasourceId())
-                        .switchIfEmpty(deferredError(BizError.DATASOURCE_NOT_FOUND, "DATASOURCE_NOT_FOUND", query.getDatasourceId()))
-                )
+                        .switchIfEmpty(deferredError(BizError.DATASOURCE_NOT_FOUND, "DATASOURCE_NOT_FOUND", query.getDatasourceId())))
                 .cache();
         return sessionUserService.getVisitorId()
-                .delayUntil(userId -> checkExecutePermission(userId, queryExecutionRequest.getPath(), applicationId,
+                .delayUntil(userId -> checkExecutePermission(userId, queryExecutionRequest.getPath(), appId,
                         queryExecutionRequest.isViewMode()))
-                .zipWhen(__ -> Mono.zip(applicationMono, applicationQueryMono, baseQueryMono, datasourceMono), TupleUtils::merge)
+                .zipWhen(visitorId -> Mono.zip(appMono, appQueryMono, baseQueryMono, datasourceMono), TupleUtils::merge)
                 .flatMap(tuple -> {
                     String userId = tuple.getT1();
-                    Application application = tuple.getT2();
-                    ApplicationQuery applicationQuery = tuple.getT3();
+                    Application app = tuple.getT2();
+                    ApplicationQuery appQuery = tuple.getT3();
                     BaseQuery baseQuery = tuple.getT4();
                     Datasource datasource = tuple.getT5();
-                    if (!datasource.getOrganizationId().equals(application.getOrganizationId())) {
+
+                    if (shouldCheckDatasourceOrgMatch(datasource) && !StringUtils.equals(datasource.getOrganizationId(), app.getOrganizationId())) {
                         return ofError(DATASOURCE_AND_APP_ORG_NOT_MATCH, "DATASOURCE_AND_APP_ORG_NOT_MATCH");
                     }
-                    QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, application.getOrganizationId(), port, cookies,
-                            getAuthParamsAndHeadersInheritFromLogin(userId, application.getOrganizationId(), UriUtils.getRefererDomain(exchange)));
+
+                    MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
+                    QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, app.getOrganizationId(), port, cookies,
+                            getAuthParamsAndHeadersInheritFromLogin(userId, app.getOrganizationId(), UriUtils.getRefererDomain(exchange)));
                     return queryExecutionService.executeQuery(datasource, baseQuery.getQueryConfig(), queryExecutionRequest.paramMap(),
                                     baseQuery.getTimeoutStr(), queryVisitorContext
                             )
                             .timed()
-                            .doOnNext(timed -> onNextOrError(queryExecutionRequest, queryVisitorContext, applicationQuery, baseQuery,
-                                    application, datasource, timed.elapsed().toMillis(), true))
-                            .doOnError(throwable -> onNextOrError(queryExecutionRequest, queryVisitorContext, applicationQuery, baseQuery,
-                                    application, datasource, 0, false))
+                            .doOnNext(timed -> onNextOrError(queryExecutionRequest, queryVisitorContext, appQuery, baseQuery,
+                                    app, datasource, timed.elapsed().toMillis(), true))
+                            .doOnError(throwable -> onNextOrError(queryExecutionRequest, queryVisitorContext, appQuery, baseQuery,
+                                    app, datasource, 0, false))
                             .map(Timed::get);
                 });
     }
 
-    protected Mono<Void> checkExecutePermission(String userId, String[] path, String applicationId, boolean viewMode) {
-        if (viewMode) {
-            return checkApplicationPathAndReturnRootApplicationId(path, applicationId, true)
-                    .flatMap(rootApplicationId -> resourcePermissionService.checkResourcePermissionWithError(userId, rootApplicationId,
-                            READ_APPLICATIONS));
-        }
-        return resourcePermissionService.checkResourcePermissionWithError(userId, applicationId, READ_APPLICATIONS);
+    private boolean shouldCheckDatasourceOrgMatch(Datasource datasource) {
+        return !datasource.isSystemStatic() && !datasource.isLegacyQuickRestApi() && !datasource.isLegacyOpenblocksApi();
     }
 
-    private Mono<String> checkApplicationPathAndReturnRootApplicationId(String[] path, String applicationId, boolean viewMode) {
-        String rootApplicationId = getRootApplicationIdFromPath(path);
-        if (StringUtils.isBlank(rootApplicationId)) {
-            return Mono.just(applicationId);
+    protected Mono<Void> checkExecutePermission(String userId, String[] path, String appId, boolean viewMode) {
+        if (viewMode) {
+            return checkAppPathAndReturnRootAppId(path, appId, true)
+                    .flatMap(rootAppId -> resourcePermissionService.checkResourcePermissionWithError(userId, rootAppId,
+                            READ_APPLICATIONS));
         }
-        Mono<List<Application>> allDependentModules =
-                applicationService.getAllDependentModulesFromApplicationId(rootApplicationId, viewMode);
+        return resourcePermissionService.checkResourcePermissionWithError(userId, appId, READ_APPLICATIONS);
+    }
+
+    private Mono<String> checkAppPathAndReturnRootAppId(String[] path, String appId, boolean viewMode) {
+        String rootAppId = getRootAppIdFromPath(path);
+        if (StringUtils.isBlank(rootAppId)) {
+            return Mono.just(appId);
+        }
+        Mono<List<Application>> allDependentModules = applicationService.getAllDependentModulesFromApplicationId(rootAppId, viewMode);
         return allDependentModules
                 .map(modules -> modules.stream().map(Application::getId).collect(Collectors.toSet()))
                 .flatMap(modules -> {
-                    if (!modules.contains(applicationId)) {
+                    if (!modules.contains(appId)) {
                         return ofError(INVALID_PARAMETER, "INVALID_PARAMETER");
                     }
-                    return Mono.just(rootApplicationId);
+                    return Mono.just(rootAppId);
                 });
     }
 
     @Nullable
-    private static String getRootApplicationIdFromPath(String[] path) {
+    private String getRootAppIdFromPath(String[] path) {
         if (ArrayUtils.isEmpty(path)) {
             return null;
         }
