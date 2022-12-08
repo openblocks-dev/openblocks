@@ -1,6 +1,5 @@
 package com.openblocks.domain.organization.service;
 
-
 import static com.openblocks.domain.organization.model.OrganizationState.ACTIVE;
 import static com.openblocks.domain.util.QueryDslUtils.fieldName;
 import static com.openblocks.sdk.exception.BizError.UNABLE_TO_FIND_VALID_ORG;
@@ -21,9 +20,6 @@ import org.springframework.stereotype.Service;
 import com.openblocks.domain.asset.model.Asset;
 import com.openblocks.domain.asset.service.AssetRepository;
 import com.openblocks.domain.asset.service.AssetService;
-import com.openblocks.domain.datasource.model.Datasource;
-import com.openblocks.domain.datasource.model.DatasourceCreationSource;
-import com.openblocks.domain.datasource.service.DatasourceService;
 import com.openblocks.domain.group.service.GroupService;
 import com.openblocks.domain.organization.event.OrgDeletedEvent;
 import com.openblocks.domain.organization.model.MemberRole;
@@ -32,7 +28,6 @@ import com.openblocks.domain.organization.model.Organization.OrganizationCommonS
 import com.openblocks.domain.organization.model.OrganizationState;
 import com.openblocks.domain.organization.model.QOrganization;
 import com.openblocks.domain.organization.repository.OrganizationRepository;
-import com.openblocks.domain.plugin.DatasourceMetaInfoConstants;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.infra.mongo.MongoUpsertHelper;
 import com.openblocks.sdk.config.CommonConfig;
@@ -42,8 +37,6 @@ import com.openblocks.sdk.constants.FieldName;
 import com.openblocks.sdk.constants.WorkspaceMode;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
-import com.openblocks.sdk.plugin.openblocksapi.OpenblocksApiDatasourceConfig;
-import com.openblocks.sdk.plugin.restapi.RestApiDatasourceConfig;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -69,9 +62,6 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Autowired
     private OrganizationRepository repository;
-
-    @Autowired
-    private DatasourceService datasourceService;
 
     @Autowired
     private GroupService groupService;
@@ -103,7 +93,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             // enterprise mode
             return joinOrgForEnterpriseMode(user.getId())
                     .flatMap(join -> {
-                        if (join) {
+                        if (Boolean.TRUE.equals(join)) {
                             return Mono.empty();
                         }
                         return create(organization, user.getId());
@@ -112,8 +102,14 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     private Mono<Boolean> joinOrgForEnterpriseMode(String userId) {
-        return repository.findAll()
-                .next()
+        return Mono.defer(() -> {
+                    String enterpriseOrgId = commonConfig.getWorkspace().getEnterpriseOrgId();
+                    if (StringUtils.isNotBlank(enterpriseOrgId)) {
+                        return repository.findById(enterpriseOrgId);
+                    }
+                    return Mono.empty();
+                })
+                .switchIfEmpty(repository.findAll().next())
                 .flatMap(organization -> orgMemberService.addMember(organization.getId(), userId, MemberRole.MEMBER))
                 .defaultIfEmpty(false);
     }
@@ -134,43 +130,10 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     private Mono<Organization> onOrgCreated(String userId, Organization newOrg) {
-        return createEmptyRestDatasource(newOrg, userId)
-                .then(createOpenblocksApiDatasource(newOrg, userId))
-                .then(groupService.createAllUserGroup(newOrg.getId()))
+        return groupService.createAllUserGroup(newOrg.getId())
                 .then(groupService.createDevGroup(newOrg.getId()))
                 .then(setOrgAdmin(userId, newOrg))
                 .thenReturn(newOrg);
-    }
-
-
-    private Mono<Void> createEmptyRestDatasource(Organization newOrg, String userId) {
-        return Mono.deferContextual(contextView -> {
-            Locale locale = getLocale(contextView);
-            String restQueryName = getMessage(locale, "DEFAULT_REST_DATASOURCE_NAME");
-            Datasource emptyHttpDatasource = new Datasource();
-            emptyHttpDatasource.setName(restQueryName);
-            emptyHttpDatasource.setType(DatasourceMetaInfoConstants.REST_API);
-            emptyHttpDatasource.setOrganizationId(newOrg.getId());
-            emptyHttpDatasource.setDetailConfig(RestApiDatasourceConfig.EMPTY_CONFIG);
-            emptyHttpDatasource.setCreationSource(DatasourceCreationSource.SYSTEM_PREDEFINED.getValue());
-            return datasourceService.create(emptyHttpDatasource, userId)
-                    .then();
-        });
-    }
-
-    private Mono<Void> createOpenblocksApiDatasource(Organization newOrg, String userId) {
-        return Mono.deferContextual(contextView -> {
-            String name = getMessage(getLocale(contextView), "DEFAULT_OPENBLOCKS_DATASOURCE_NAME");
-            Datasource currentOrgDatasource = new Datasource();
-            currentOrgDatasource.setName(name);
-            currentOrgDatasource.setType(DatasourceMetaInfoConstants.OPENBLOCKS_API);
-            currentOrgDatasource.setOrganizationId(newOrg.getId());
-
-            currentOrgDatasource.setDetailConfig(OpenblocksApiDatasourceConfig.INSTANCE);
-            currentOrgDatasource.setCreationSource(DatasourceCreationSource.SYSTEM_PREDEFINED.getValue());
-            return datasourceService.create(currentOrgDatasource, userId)
-                    .then();
-        });
     }
 
     private Mono<Boolean> setOrgAdmin(String userId, Organization newOrg) {
@@ -248,7 +211,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         organization.setState(OrganizationState.DELETED);
         return mongoUpsertHelper.updateById(organization, orgId)
                 .delayUntil(success -> {
-                    if (success) {
+                    if (Boolean.TRUE.equals(success)) {
                         return sendOrgDeletedEvent(orgId);
                     }
                     return Mono.empty();

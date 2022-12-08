@@ -228,6 +228,7 @@ public class OrgApiServiceImpl implements OrgApiService {
     @Override
     public Mono<Boolean> removeOrg(String orgId) {
         return checkVisitorAdminRole(orgId)
+                .then(checkIfSaasMode())
                 .then(organizationService.delete(orgId));
     }
 
@@ -235,12 +236,7 @@ public class OrgApiServiceImpl implements OrgApiService {
     public Mono<OrgView> create(Organization organization) {
         return sessionUserService.getVisitorId()
                 .delayUntil(userId -> bizThresholdChecker.checkMaxOrgCount(userId))
-                .delayUntil(__ -> {
-                    if (commonConfig.getWorkspace().getMode() == WorkspaceMode.ENTERPRISE) {
-                        return Mono.error(new BizException(UNSUPPORTED_OPERATION, "BAD_REQUEST"));
-                    }
-                    return Mono.empty();
-                })
+                .delayUntil(__ -> checkIfSaasMode())
                 .flatMap(userId -> organizationService.create(organization, userId))
                 .map(OrgView::new);
     }
@@ -326,5 +322,12 @@ public class OrgApiServiceImpl implements OrgApiService {
                 .then(switchCurrentOrganizationTo(orgId));
     }
 
-
+    private Mono<Void> checkIfSaasMode() {
+        return Mono.defer(() -> {
+            if (commonConfig.getWorkspace().getMode() == WorkspaceMode.ENTERPRISE) {
+                return Mono.error(new BizException(UNSUPPORTED_OPERATION, "BAD_REQUEST"));
+            }
+            return Mono.empty();
+        });
+    }
 }

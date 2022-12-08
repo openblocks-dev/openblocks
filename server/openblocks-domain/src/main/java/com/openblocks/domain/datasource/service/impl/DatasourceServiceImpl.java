@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import com.google.common.base.Joiner;
 import com.openblocks.domain.application.model.ApplicationStatus;
 import com.openblocks.domain.application.repository.ApplicationRepository;
-import com.openblocks.domain.application.service.ApplicationService;
 import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.domain.datasource.repository.DatasourceRepository;
 import com.openblocks.domain.datasource.service.DatasourceService;
@@ -43,6 +42,7 @@ import reactor.core.publisher.Mono;
 public class DatasourceServiceImpl implements DatasourceService {
 
     private static final Duration DEFAULT_TEST_CONNECTION_TIMEOUT = Duration.ofSeconds(10);
+    private static final String INVALID_PARAMETER_CODE = "INVALID_PARAMETER";
 
     @Autowired
     private DatasourceMetaInfoService datasourceMetaInfoService;
@@ -51,14 +51,12 @@ public class DatasourceServiceImpl implements DatasourceService {
     @Autowired
     private ResourcePermissionService resourcePermissionService;
     @Autowired
-    private ApplicationService applicationService;
-    @Autowired
     private DatasourceRepository repository;
 
     @Override
     public Mono<Datasource> create(Datasource datasource, String creatorId) {
         if (datasource.getId() != null) {
-            return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));
+            return Mono.error(new BizException(BizError.INVALID_PARAMETER, INVALID_PARAMETER_CODE, FieldName.ID));
         }
 
         return Mono.just(datasource)
@@ -72,7 +70,7 @@ public class DatasourceServiceImpl implements DatasourceService {
     public Mono<Datasource> update(String datasourceId, Datasource updatedDatasource) {
 
         if (datasourceId == null) {
-            return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));
+            return Mono.error(new BizException(BizError.INVALID_PARAMETER, INVALID_PARAMETER_CODE, FieldName.ID));
         }
 
         return repository.findById(datasourceId)
@@ -83,17 +81,30 @@ public class DatasourceServiceImpl implements DatasourceService {
 
     @Override
     public Mono<Datasource> getById(String id) {
+
+        if (StringUtils.equals(id, Datasource.QUICK_REST_API_ID)) {
+            return Mono.just(Datasource.QUICK_REST_API);
+        }
+
+        if (StringUtils.equals(id, Datasource.QUICK_GRAPHQL_ID)) {
+            return Mono.just(Datasource.QUICK_GRAPHQL_API);
+        }
+
+        if (StringUtils.equals(id, Datasource.OPENBLOCKS_API_ID)) {
+            return Mono.just(Datasource.OPENBLOCKS_API);
+        }
+
         return repository.findById(id);
     }
 
     private Mono<Datasource> validateDatasource(Datasource datasource) {
 
         if (datasource.getOrganizationId() == null) {
-            throw new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ORGANIZATION_ID);
+            throw new BizException(BizError.INVALID_PARAMETER, INVALID_PARAMETER_CODE, FieldName.ORGANIZATION_ID);
         }
 
         if (StringUtils.isBlank(datasource.getName())) {
-            throw new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.NAME);
+            throw new BizException(BizError.INVALID_PARAMETER, INVALID_PARAMETER_CODE, FieldName.NAME);
         }
 
         if (datasource.getType() == null) {
@@ -163,8 +174,8 @@ public class DatasourceServiceImpl implements DatasourceService {
     }
 
     @Override
-    public Mono<Datasource> findSystemPredefinedDatasource(String organizationId, String datasourceType) {
-        return repository.findSystemPredefinedDatasourceByOrgIdAndType(organizationId, datasourceType);
+    public Mono<Datasource> findWorkspacePredefinedDatasource(String organizationId, String type) {
+        return repository.findWorkspacePredefinedDatasourceByOrgIdAndType(organizationId, type);
     }
 
     @Override

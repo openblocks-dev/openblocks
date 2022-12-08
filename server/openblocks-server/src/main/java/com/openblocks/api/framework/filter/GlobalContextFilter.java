@@ -10,6 +10,7 @@ import static com.openblocks.sdk.constants.GlobalContext.REQUEST_METHOD;
 import static com.openblocks.sdk.constants.GlobalContext.REQUEST_PATH;
 import static com.openblocks.sdk.constants.GlobalContext.VISITOR;
 import static com.openblocks.sdk.constants.GlobalContext.VISITOR_ID;
+import static com.openblocks.sdk.constants.GlobalContext.VISITOR_TOKEN;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 
@@ -36,6 +37,7 @@ import com.openblocks.domain.user.service.UserService;
 import com.openblocks.infra.serverlog.ServerLog;
 import com.openblocks.infra.serverlog.ServerLogService;
 import com.openblocks.infra.util.NetworkUtils;
+import com.openblocks.sdk.util.CookieHelper;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -63,6 +65,9 @@ public class GlobalContextFilter implements WebFilter, Ordered {
 
     @Autowired
     private GlobalContextService globalContextService;
+
+    @Autowired
+    private CookieHelper cookieHelper;
 
     @Nonnull
     @Override
@@ -109,6 +114,7 @@ public class GlobalContextFilter implements WebFilter, Ordered {
         contextMap.put(REQUEST_METHOD, ofNullable(request.getMethod()).map(HttpMethod::name).orElse(""));
         contextMap.put(CLIENT_LOCALE, globalContextService.getClientLocale(request));
         contextMap.put(CURRENT_ORG_MEMBER, orgMemberService.getCurrentOrgMember(visitorId).cache());
+        contextMap.put(VISITOR_TOKEN, cookieHelper.getCookieToken(serverWebExchange));
         return contextMap;
     }
 

@@ -72,7 +72,7 @@ public class QueryController {
             Locale locale = LocaleUtils.getLocale(contextView);
 
             String ip = contextView.getOrDefault(CLIENT_IP, "");
-            if (checkIp(ip)) {
+            if (!checkIp(ip)) {
                 return ofError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED");
             }
             return libraryQueryApiService.executeLibraryQueryFromJs(exchange, queryExecutionRequest)
@@ -81,7 +81,7 @@ public class QueryController {
     }
 
     private boolean checkIp(String ip) {
-        return "127.0.0.1".equals(ip) || "localhost".equals(ip); //
+        return "127.0.0.1".equals(ip) || "localhost".equals(ip);
     }
 
     private Mono<QueryExecutionResult> getQueryResult(ServerWebExchange exchange, QueryExecutionRequest queryExecutionRequest) {

@@ -1,6 +1,5 @@
 package com.openblocks.domain.solutions;
 
-import static com.openblocks.domain.datasource.model.DatasourceCreationSource.SYSTEM_PREDEFINED;
 import static com.openblocks.sdk.exception.BizError.TEMPLATE_NOT_CORRECT;
 import static com.openblocks.sdk.exception.BizError.TEMPLATE_NOT_EXIST;
 import static com.openblocks.sdk.util.ExceptionUtils.deferredError;
@@ -112,16 +111,21 @@ public class TemplateSolution {
      * @param organizationId user current orgId
      * @return newly copied datasource id
      */
-    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
+    @SuppressWarnings({"ConstantConditions"})
     private Mono<String> doCopyDatasource(String organizationId, String datasourceId, String visitorId) {
         return datasourceService.getById(datasourceId)
                 .flatMap(datasource -> {
-                    // find existing predefined data source
-                    if (datasource.getCreationSource() == SYSTEM_PREDEFINED.getValue()) {
-                        return datasourceService.findSystemPredefinedDatasource(organizationId, datasource.getType())
-                                .map(Datasource::getId)
-                                // create new if not found
-                                .switchIfEmpty(Mono.defer(() -> createNewDatasourceFrom(organizationId, visitorId, datasource)));
+                    if (datasource.isSystemStatic()) {
+                        return Mono.just(datasource.getId());
+                    }
+
+                    // return new QUICK_REST_API id for legacy quick rest api
+                    if (datasource.isLegacyQuickRestApi()) {
+                        return Mono.just(Datasource.QUICK_REST_API.getId());
+                    }
+
+                    if (datasource.isLegacyOpenblocksApi()) {
+                        return Mono.just(Datasource.OPENBLOCKS_API.getId());
                     }
                     return createNewDatasourceFrom(organizationId, visitorId, datasource);
                 });
@@ -135,7 +139,7 @@ public class TemplateSolution {
         copyDatasource.setName(generateCopyDatasourceName(datasource.getName()));
         copyDatasource.setType(datasource.getType());
         copyDatasource.setDetailConfig(datasource.getDetailConfig());
-        copyDatasource.setCreationSource(DatasourceCreationSource.SYSTEM_TEMPLATE.getValue());
+        copyDatasource.setCreationSource(DatasourceCreationSource.CLONE_FROM_TEMPLATE.getValue());
         copyDatasource.setOrganizationId(organizationId);
         return datasourceService.create(copyDatasource, visitorId)
                 .map(Datasource::getId);

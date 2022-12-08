@@ -140,6 +140,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
         var updatedVariables = JsonUtils.createObjectNode();
         queryConfig.getVariables().forEach(property -> updatedVariables.set(property.getKey(),
                 MustacheHelper.renderMustacheJson(property.getValue(), requestParams)));
+        String updatedQueryBody = renderMustacheString(queryBody, requestParams);
         String normalizedUrl = buildUrl(urlDomain, updatedQueryPath, requestParams);
         Map<String, String> allHeaders = buildHeaders(datasourceHeaders, updatedQueryHeaders);
         String contentType = parseContentType(allHeaders).toLowerCase();
@@ -158,7 +159,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
                 .urlParams(urlParams)
                 .bodyParams(bodyParams)
                 .encodeParams(encodeParams)
-                .queryBody(firstNonBlank(queryBody, datasourceBody))
+                .queryBody(firstNonBlank(updatedQueryBody, datasourceBody))
                 .variablesParams(updatedVariables)
                 .forwardCookies(forwardCookies)
                 .forwardAllCookies(forwardAllCookies)

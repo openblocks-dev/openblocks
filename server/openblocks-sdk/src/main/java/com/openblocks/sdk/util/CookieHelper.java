@@ -46,7 +46,7 @@ public class CookieHelper {
         MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
         return ofNullable(cookies.getFirst(getCookieName()))
                 .map(HttpCookie::getValue)
-                .orElse(null);
+                .orElse("");
     }
 
 
