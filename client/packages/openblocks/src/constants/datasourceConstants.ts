@@ -36,5 +36,6 @@ export const QUICK_GRAPHQL_ID = "#QUICK_GRAPHQL";
 export const OPENBLOCKS_API_ID = "#OPENBLOCKS_API";
 export const OPENBLOCKS_API_INFO = {
   icon: getBottomResIcon("openblocksApi"),
-  name: "码匠数据源",
+  name: "Openblocks API",
 };
+export const OLD_OPENBLOCKS_DATASOURCE: Partial<DatasourceType>[] = [];

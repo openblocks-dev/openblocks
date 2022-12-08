@@ -33,6 +33,7 @@ import {
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
 } from "../../../constants/datasourceConstants";
+import { OLD_OPENBLOCKS_DATASOURCE } from "@openblocks-ee/constants/datasourceConstants";
 
 export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> }) {
   const { comp } = props;
@@ -187,8 +188,7 @@ export const QueryGeneralPropertyView = (props: {
     () =>
       datasource.find(
         (d) =>
-          d.datasource.creationSource === 2 &&
-          (d.datasource.type === "openblocksApi" || d.datasource.type === "majiangInternal")
+          d.datasource.creationSource === 2 && OLD_OPENBLOCKS_DATASOURCE.includes(d.datasource.type)
       )?.datasource.id,
     [datasource]
   );
