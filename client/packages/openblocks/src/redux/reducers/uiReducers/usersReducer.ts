@@ -3,7 +3,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/reduxActionConstants";
-import { DefaultCurrentUserDetails, User } from "constants/userConstants";
+import { CurrentUser, defaultCurrentUser, defaultUser, User } from "constants/userConstants";
 import { UpdateOrgPayload } from "redux/reduxActions/orgActions";
 import { MarkUserStatusPayload, UpdateUserPayload } from "redux/reduxActions/userActions";
 import { createReducer } from "util/reducerUtils";
@@ -14,23 +14,29 @@ const initialState: UsersReduxState = {
     fetchingUser: false,
     profileUpdating: false,
     fetchUserFinished: false,
+    fetchCurrentUser: "init",
   },
-  currentUser: DefaultCurrentUserDetails,
+  user: defaultUser,
+  currentUser: defaultCurrentUser,
+  rawCurrentUser: defaultCurrentUser,
   profileSettingModalVisible: false,
 };
 
 const usersReducer = createReducer(initialState, {
   [ReduxActionTypes.LOGOUT_USER_SUCCESS]: (state: UsersReduxState) => ({
     ...state,
-    currentUser: {
-      ...DefaultCurrentUserDetails,
+    user: {
+      ...defaultUser,
     },
+    newCurrentUser: defaultCurrentUser,
+    rawCurrentUser: defaultCurrentUser,
   }),
   [ReduxActionTypes.FETCH_USER_INIT]: (state: UsersReduxState): UsersReduxState => ({
     ...state,
     loadingStates: {
       ...state.loadingStates,
       fetchingUser: true,
+      fetchCurrentUser: "fetching",
     },
   }),
   [ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS]: (
@@ -39,7 +45,7 @@ const usersReducer = createReducer(initialState, {
   ): UsersReduxState => {
     return {
       ...state,
-      currentUser: action.payload,
+      user: action.payload,
       loadingStates: {
         ...state.loadingStates,
         fetchingUser: false,
@@ -57,14 +63,42 @@ const usersReducer = createReducer(initialState, {
       },
     };
   },
+  [ReduxActionTypes.FETCH_CURRENT_USER_SUCCESS]: (
+    state: UsersReduxState,
+    action: ReduxAction<CurrentUser>
+  ): UsersReduxState => ({
+    ...state,
+    currentUser: action.payload,
+    loadingStates: {
+      ...state.loadingStates,
+      fetchCurrentUser: "finished",
+    },
+  }),
+  [ReduxActionErrorTypes.FETCH_CURRENT_USER_ERROR]: (state: UsersReduxState): UsersReduxState => ({
+    ...state,
+    loadingStates: {
+      ...state.loadingStates,
+      fetchCurrentUser: "finished",
+    },
+  }),
+  [ReduxActionTypes.FETCH_RAW_CURRENT_USER]: (state: UsersReduxState): UsersReduxState => ({
+    ...state,
+  }),
+  [ReduxActionTypes.FETCH_RAW_CURRENT_USER_SUCCESS]: (
+    state: UsersReduxState,
+    action: ReduxAction<CurrentUser>
+  ): UsersReduxState => ({
+    ...state,
+    rawCurrentUser: action.payload,
+  }),
   [ReduxActionTypes.DELETE_ORG_SUCCESS]: (
     state: UsersReduxState,
     action: ReduxAction<{ orgId: string }>
   ): UsersReduxState => ({
     ...state,
-    currentUser: {
-      ...state.currentUser,
-      orgs: state.currentUser.orgs.filter((org) => org.id !== action.payload.orgId),
+    user: {
+      ...state.user,
+      orgs: state.user.orgs.filter((org) => org.id !== action.payload.orgId),
     },
   }),
   [ReduxActionTypes.UPDATE_ORG_SUCCESS]: (
@@ -74,9 +108,9 @@ const usersReducer = createReducer(initialState, {
     const orgPayload = action.payload;
     return {
       ...state,
-      currentUser: {
-        ...state.currentUser,
-        orgs: state.currentUser.orgs.map((org) => {
+      user: {
+        ...state.user,
+        orgs: state.user.orgs.map((org) => {
           if (org.id === orgPayload.id) {
             return {
               ...org,
@@ -124,8 +158,8 @@ const usersReducer = createReducer(initialState, {
         ...state.loadingStates,
         profileUpdating: false,
       },
-      currentUser: {
-        ...state.currentUser,
+      user: {
+        ...state.user,
         ...(action.payload.name && { username: action.payload.name }),
         ...(action.payload.avatarUrl && {
           avatarUrl: action.payload.avatarUrl,
@@ -139,10 +173,10 @@ const usersReducer = createReducer(initialState, {
   ): UsersReduxState => {
     return {
       ...state,
-      currentUser: {
-        ...state.currentUser,
+      user: {
+        ...state.user,
         userStatus: {
-          ...state.currentUser.userStatus,
+          ...state.user.userStatus,
           [action.payload.type]: action.payload.value,
         },
       },
@@ -151,11 +185,14 @@ const usersReducer = createReducer(initialState, {
 });
 
 export interface UsersReduxState {
-  currentUser: User;
+  user: User;
+  currentUser: CurrentUser;
+  rawCurrentUser: CurrentUser;
   loadingStates: {
     fetchingUser: boolean;
     profileUpdating: boolean;
     fetchUserFinished: boolean;
+    fetchCurrentUser: "init" | "fetching" | "finished";
   };
   error: string;
   profileSettingModalVisible: boolean;

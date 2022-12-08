@@ -144,10 +144,19 @@ const StyledAntdButton = styled(Button)<{ $buttonType: TacoButtonType }>`
   font-size: 13px;
   border-radius: 4px;
 
+  &.ant-btn {
+    box-shadow: none;
+  }
+
   &.ant-btn-loading {
     span {
       display: none;
     }
+  }
+  & > svg {
+    width: 12px;
+    height: 12px;
+    margin-right: 4px;
   }
 `;
 

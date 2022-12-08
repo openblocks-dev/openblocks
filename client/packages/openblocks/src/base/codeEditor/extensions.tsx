@@ -21,11 +21,9 @@ import {
 import {
   bracketMatching,
   codeFolding,
-  defaultHighlightStyle,
   foldGutter,
   foldKeymap,
   indentOnInput,
-  syntaxHighlighting,
 } from "@codemirror/language";
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
@@ -64,6 +62,7 @@ import { getIconExtension } from "./extensions/iconExtension";
 import { highlightJsTheme, useHighlightJsExtension } from "./extensions/highlightJsExtension";
 import { trans } from "i18n";
 import log from "loglevel";
+import { highlightSyntaxExtension } from "./extensions/highlightSyntax";
 
 // reference: https://github.com/codemirror/basic-setup/blob/main/src/codemirror.ts
 const basicSetup = [
@@ -76,7 +75,6 @@ const basicSetup = [
   dropCursor(),
   //EditorState.allowMultipleSelections.of(true),
   indentOnInput(), // auto-indent
-  syntaxHighlighting(defaultHighlightStyle, { fallback: true }), // syntax-highlight
   bracketMatching(),
   closeBrackets(),
   //autocompletion(),
@@ -361,11 +359,12 @@ export function useAutocompletionExtension(props: CodeEditorProps) {
 }
 
 export function languageExtension(language?: Language, codeType?: CodeType): Extension {
+  const lang = language ?? "javascript";
   const formatExtension = keymap.of([
     {
       key: "Mod-l",
       run: (view: EditorView) => {
-        const formatter = getFormatter(language, codeType);
+        const formatter = getFormatter(lang, codeType);
         if (formatter) {
           const text = view.state.doc.toString();
           formatter(text)
@@ -384,7 +383,7 @@ export function languageExtension(language?: Language, codeType?: CodeType): Ext
       },
     },
   ]);
-  return [languageSupports[language ?? "javascript"], formatExtension];
+  return [languageSupports[lang], highlightSyntaxExtension(lang, codeType), formatExtension];
 }
 
 export function themeExtension(): Extension {
@@ -402,18 +401,21 @@ function tooltipExtension(tooltipContainer?: HTMLElement): Extension {
 }
 
 const esLintSource = async (view: EditorView) => {
-  const eslint4bPrebuilt = await import("eslint4b-prebuilt");
+  const eslint4bPrebuilt = await import("eslint4b-prebuilt-2");
   const ESLinter = eslint4bPrebuilt.default;
   const eSLinter = new ESLinter();
   // refer to esLint implementation from @codemirror/lang-javascript
   // config reference: https://eslint.org/docs/head/user-guide/configuring/
   const config: any = {
-    parserOptions: { ecmaVersion: 2020, sourceType: "script" },
-    env: { browser: true, node: true, es6: true, es2015: true, es2017: true, es2020: true },
-    rules: {},
+    parserOptions: { ecmaVersion: "latest", sourceType: "script" },
+    env: { browser: true, node: true, es2021: true },
+    rules: {
+      // https://github.com/mysticatea/eslint4b/issues/17
+      "no-useless-escape": "off",
+    },
   };
   eSLinter.getRules().forEach((desc: any, name: any) => {
-    if (desc.meta.docs.recommended) config.rules[name] = 2;
+    if (desc.meta.docs.recommended && !(name in config.rules)) config.rules[name] = "error";
   });
   return esLint(eSLinter, config)(view);
 };

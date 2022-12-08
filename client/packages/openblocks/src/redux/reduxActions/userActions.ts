@@ -1,8 +1,12 @@
 import { ReduxAction, ReduxActionTypes } from "constants/reduxActionConstants";
 import { UserStatusType } from "constants/userConstants";
 
-export const getCurrentUser = () => ({
+export const fetchUserAction = () => ({
   type: ReduxActionTypes.FETCH_USER_INIT,
+});
+
+export const fetchRawCurrentUserAction = () => ({
+  type: ReduxActionTypes.FETCH_RAW_CURRENT_USER,
 });
 
 // whether to show the pernal setting modal

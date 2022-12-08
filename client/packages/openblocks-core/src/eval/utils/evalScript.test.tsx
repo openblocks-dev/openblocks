@@ -33,7 +33,7 @@ describe("evalScript", () => {
     expect(evalScript("input1.value", context)).toStrictEqual({ test: 7, tefe: null });
     expect(evalScript("input1.value.test+4", context)).toBe(11);
     expect(evalScript("input1.value.tefe", context)).toBe(null);
-    expect(() => evalScript("input1.vvv", context)).toThrow();
+    expect(evalScript("input1.vvv", context)).toBe(undefined);
     expect(evalScript("input1.value.vwfe", context)).toBe(undefined);
     expect(evalScript("a[0]", { a: [] })).toBe(undefined);
 
@@ -94,7 +94,7 @@ describe("evalScript", () => {
 
     let context = { input1: { value: { test: 7 } } };
     expect(() => evalScript("Object.defineProperty(this, 'input1', {})", context)).toThrow();
-    expect(() => evalScript("Object.defineProperty(input1, 'value', {})", context)).toThrow();
+    expect(() => evalScript("Object.defineProperty(input1, 'value1', {})", context)).toThrow();
     expect(() => evalScript("Object.defineProperty(input1.value, 'test1', {})", context)).toThrow();
   });
 

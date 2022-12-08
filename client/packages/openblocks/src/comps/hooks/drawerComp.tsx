@@ -11,11 +11,9 @@ import { styleControl } from "comps/controls/styleControl";
 import { DrawerStyle } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
-import { EditorWrapperID } from "constants/domLocators";
+import { CanvasContainerID } from "constants/domLocators";
 import { Layers } from "constants/Layers";
-import { Section, sectionNames } from "openblocks-design";
-import { HintPlaceHolder } from "openblocks-design";
-import { Drawer } from "openblocks-design";
+import { Drawer, HintPlaceHolder, Section, sectionNames } from "openblocks-design";
 import { trans } from "i18n";
 import { changeChildAction } from "openblocks-core";
 import { useCallback } from "react";
@@ -45,16 +43,19 @@ const ButtonStyle = styled(Button)`
   color: rgba(0, 0, 0, 0.45);
   height: 54px;
   width: 54px;
+
   svg {
     width: 16px;
     height: 16px;
   }
+
   &,
   :hover,
   :focus {
     background-color: transparent;
     border: none;
   }
+
   :hover,
   :focus {
     color: rgba(0, 0, 0, 0.75);
@@ -126,7 +127,7 @@ let TmpDrawerComp = (function () {
               closable={false}
               placement={props.placement}
               visible={props.visible.value}
-              getContainer={() => document.querySelector(`#${EditorWrapperID}`) || document.body}
+              getContainer={() => document.querySelector(`#${CanvasContainerID}`) || document.body}
               footer={null}
               width={transToPxSize(props.width || DEFAULT_SIZE)}
               height={!props.autoHeight ? transToPxSize(props.height || DEFAULT_SIZE) : ""}

@@ -4,38 +4,46 @@ export function isDynamicSegment(segment: string): boolean {
   return DYNAMIC_SEGMENT_REGEX.test(segment);
 }
 
-export function getDynamicStringSegments(dynamicString: string): string[] {
-  let stringSegments = [];
-  const indexOfDoubleParanStart = dynamicString.indexOf("{{");
-  if (indexOfDoubleParanStart === -1) {
-    return [dynamicString];
-  }
-  //{{}}{{}}}
-  const firstString = dynamicString.substring(0, indexOfDoubleParanStart);
-  firstString && stringSegments.push(firstString);
-  let rest = dynamicString.substring(indexOfDoubleParanStart, dynamicString.length);
-  //{{}}{{}}}
-  let sum = 0;
-  for (let i = 0; i <= rest.length - 1; i++) {
-    const char = rest[i];
-    const prevChar = rest[i - 1];
-
-    if (char === "{") {
-      sum++;
-    } else if (char === "}") {
-      sum--;
-      if (prevChar === "}" && sum === 0) {
-        stringSegments.push(rest.substring(0, i + 1));
-        rest = rest.substring(i + 1, rest.length);
-        if (rest) {
-          stringSegments = stringSegments.concat(getDynamicStringSegments(rest));
+export function getDynamicStringSegments(input: string): string[] {
+  const segments = [];
+  let position = 0;
+  let start = input.indexOf("{{");
+  while (start >= 0) {
+    let i = start + 2;
+    while (i < input.length && input[i] === "{") i++;
+    let end = input.indexOf("}}", i);
+    if (end < 0) {
+      break;
+    }
+    const nextStart = input.indexOf("{{", end + 2);
+    const maxIndex = nextStart >= 0 ? nextStart : input.length;
+    const maxStartOffset = i - start - 2;
+    let sum = i - start;
+    let minValue = Number.MAX_VALUE;
+    let minOffset = Number.MAX_VALUE;
+    for (; i < maxIndex; i++) {
+      switch (input[i]) {
+        case "{":
+          sum++;
           break;
-        }
+        case "}":
+          sum--;
+          if (input[i - 1] === "}") {
+            const offset = Math.min(Math.max(sum, 0), maxStartOffset);
+            const value = Math.abs(sum - offset);
+            if (value < minValue || (value === minValue && offset < minOffset)) {
+              minValue = value;
+              minOffset = offset;
+              end = i + 1;
+            }
+          }
+          break;
       }
     }
+    segments.push(input.slice(position, start + minOffset), input.slice(start + minOffset, end));
+    position = end;
+    start = nextStart;
   }
-  if (sum !== 0 && dynamicString !== "") {
-    return [dynamicString];
-  }
-  return stringSegments;
+  segments.push(input.slice(position));
+  return segments.filter((t) => t);
 }

@@ -9,7 +9,7 @@ import styled from "styled-components";
 import { Dropdown as AntdDropdown, Menu as AntdMenu } from "antd";
 import { HomeLayoutMode } from "./HomeLayout";
 import { useSelector } from "react-redux";
-import { getCurrentUser } from "../../redux/selectors/usersSelectors";
+import { getUser } from "../../redux/selectors/usersSelectors";
 import { useCreateHomeRes } from "./useCreateHomeRes";
 import { trans } from "../../i18n";
 
@@ -75,7 +75,7 @@ export const CreateDropdown = (props: { defaultVisible?: boolean; mode: HomeLayo
   const { defaultVisible, mode } = props;
   const [createDropdownVisible, setCreateDropdownVisible] = useState(false);
 
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
 
   const [handleCreate, isCreating] = useCreateHomeRes();
 

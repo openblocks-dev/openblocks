@@ -1,8 +1,8 @@
-import { memoized } from "util/memoize";
 import { FunctionNode } from "./functionNode";
 import { AbstractNode, Node, NodeToValue, ValueFn } from "./node";
 import { EvalMethods } from "./types/evalTypes";
 import _ from "lodash";
+import { memoized } from "../util/memoize";
 
 export type RecordNodeToValue<T> = { [K in keyof T]: NodeToValue<T[K]> };
 

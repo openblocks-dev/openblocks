@@ -35,7 +35,7 @@ export function wrapDispatch(dispatch: DispatchType | undefined, childName: stri
   };
 }
 
-type ExtraNodeType = {
+export type ExtraNodeType = {
   node: Record<string, Node<any>>;
   updateNodeFields: (value: any) => Record<string, any>;
 };

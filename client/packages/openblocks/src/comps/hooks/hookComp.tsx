@@ -25,15 +25,8 @@ import { UtilsComp } from "./utilsComp";
 import { MessageComp } from "./messageComp";
 import { LocalStorageComp } from "./localStorageComp";
 import { DrawerComp } from "comps/hooks/drawerComp";
-import { useSelector } from "react-redux";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
-import { getOrgGroups } from "redux/selectors/orgSelectors";
 import { trans } from "i18n";
-import { fullAvatarUrl } from "util/urlUtils";
-import {
-  getUserConnectionInfo,
-  UserConnectionSource,
-} from "@openblocks-ee/constants/userConstants";
+import { useCurrentUser } from "util/currentUser";
 
 window._ = _;
 window.moment = moment;
@@ -44,27 +37,8 @@ const MomentJsLib = simpleValueComp(moment);
 const WindowSizeComp = hookToStateComp(useWindowSize);
 
 const CurrentUserHookComp = hookToStateComp(() => {
-  const user = useSelector(getCurrentUser);
-  const groups = useSelector(getOrgGroups);
-  return useMemo(() => {
-    const emailConnection = user.connections?.find((c) => c.source === UserConnectionSource.email);
-    return {
-      id: user.id,
-      name: user.username,
-      avatarUrl: fullAvatarUrl(user.avatarUrl),
-      email: emailConnection ? emailConnection.name : "",
-      ip: user.ip ?? "",
-      groups: groups
-        .filter((g) => !g.allUsersGroup)
-        .map((g) => {
-          return {
-            groupId: g.groupId,
-            groupName: g.groupName,
-          };
-        }),
-      connectionInfo: getUserConnectionInfo(user),
-    };
-  }, [user, groups]);
+  const user = useCurrentUser();
+  return user;
 });
 
 function useCurrentTime() {

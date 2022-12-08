@@ -76,6 +76,10 @@ class UICompTmp2 extends UICompTmp {
     return this.children.comp.getCompTree().items;
   }
 
+  getTree() {
+    return this.children.comp.getCompTree();
+  }
+
   findParentContainer(compName: string, containerCompType?: string) {
     return findParentContainer(
       undefined,

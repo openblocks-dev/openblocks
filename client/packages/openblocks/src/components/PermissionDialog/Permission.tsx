@@ -23,7 +23,7 @@ import { getInitialsAndColorCode } from "util/stringUtils";
 import { CustomTagProps } from "rc-select/lib/BaseSelect";
 import { Tag } from "antd";
 import { User } from "constants/userConstants";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import { EmptyContent } from "pages/common/styledComponent";
 import { trans } from "i18n";
 import { PermissionItem } from "./PermissionList";
@@ -307,7 +307,7 @@ const PermissionSelector = (props: {
   setSelectedItems: (items: PermissionAddEntity[]) => void;
   user: User;
   filterItems: PermissionItem[];
-  supportRoles: PermissionRole[];
+  supportRoles: { label: string; value: PermissionRole }[];
 }) => {
   const orgGroups = useSelector(getOrgGroups);
   const orgUsers = useSelector(getOrgUsers);
@@ -366,7 +366,7 @@ const PermissionSelector = (props: {
         </AddPermissionsSelect>
         <AddRoleSelect
           dropdownStyle={{
-            width: "100px",
+            width: "fit-content",
           }}
           $isVisible={roleSelectVisible}
           bordered={false}
@@ -375,8 +375,8 @@ const PermissionSelector = (props: {
           onChange={(value) => setSelectRole(value)}
         >
           {props.supportRoles.map((role) => (
-            <CustomSelect.Option key={role} value={role} label={trans(`share.${role}`)}>
-              <RoleSelectOption role={trans(`share.${role}`)} />
+            <CustomSelect.Option key={role.value} value={role.value} label={role.label}>
+              <RoleSelectOption role={role.label} />
             </CustomSelect.Option>
           ))}
         </AddRoleSelect>
@@ -388,13 +388,13 @@ const PermissionSelector = (props: {
 
 export const Permission = (props: {
   filterItems: PermissionItem[];
-  supportRoles: PermissionRole[];
+  supportRoles: { label: string; value: PermissionRole }[];
   onCancel: () => void;
   addPermission: (userIds: string[], groupIds: string[], role: string) => void;
 }) => {
   const { onCancel } = props;
   const dispatch = useDispatch();
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const [selectRole, setSelectRole] = useState<ApplicationRoleType>("viewer");
   const [selectedItems, setSelectedItems] = useState<PermissionAddEntity[]>([]);
 

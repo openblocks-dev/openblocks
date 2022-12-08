@@ -19,13 +19,16 @@ import { TransparentImg } from "util/commonUtils";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { formatTimestamp } from "util/dateTimeUtils";
 import { RightContext } from "./rightContext";
-import { RightPanelContentWrapper } from "./styledComponent";
 import { modulesSelector } from "../../../redux/selectors/applicationSelector";
+import { ComListTitle, ExtensionContentWrapper } from "./styledComponent";
 
 const ItemWrapper = styled.div`
   display: flex;
   flex-direction: row;
   margin-bottom: 12px;
+  &:last-child {
+    margin-bottom: 0;
+  }
   &:hover {
     cursor: grab;
     .module-icon {
@@ -56,14 +59,14 @@ const ItemWrapper = styled.div`
     overflow: hidden;
   }
   .module-name {
-    line-height: 1;
+    line-height: 1.5;
     font-size: 13px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
   }
   .module-desc {
-    line-height: 1;
+    line-height: 1.5;
     font-size: 12px;
     color: ${GreyTextColor};
   }
@@ -144,5 +147,10 @@ export default function ModulePanel() {
       }
     />
   );
-  return <RightPanelContentWrapper>{items.length > 0 ? items : empty}</RightPanelContentWrapper>;
+  return (
+    <>
+      <ComListTitle>{trans("rightPanel.moduleListTitle")}</ComListTitle>
+      <ExtensionContentWrapper>{items.length > 0 ? items : empty}</ExtensionContentWrapper>
+    </>
+  );
 }

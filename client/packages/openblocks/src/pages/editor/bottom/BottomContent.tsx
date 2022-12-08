@@ -109,7 +109,8 @@ export const BottomContent = () => {
     editorState.selectedBottomResName && showCreatePanel(false);
   }, [editorState.selectedBottomResName]);
   // keep reference unchanged when metaData unchange, avoid re-configure when auto-completion changes
-  const selectedDatasourceId = editorState.selectedQueryComp()?.children.datasourceId.getView();
+  const selectedDatasourceId =
+    editorState.selectedQueryComp()?.children.datasourceId.getView() || "";
   const metaData = useMemo(
     () => getMetaData(datasourceStructure, selectedDatasourceId),
     [datasourceStructure, selectedDatasourceId]
@@ -127,7 +128,7 @@ export const BottomContent = () => {
       <Right>
         <MetaDataContext.Provider value={metaData}>
           <CompNameContext.Provider
-            value={editorState.selectedQueryComp()?.children.name.getView()}
+            value={editorState.selectedQueryComp()?.children.name.getView() || ""}
           >
             {selectedComp ? selectedComp.getPropertyView() : EmptyQuery}
           </CompNameContext.Provider>
@@ -135,7 +136,9 @@ export const BottomContent = () => {
         {isCreatePanelShow && (
           <ResCreatePanel
             recentlyUsed={recentlyUsed}
-            datasource={datasourceInfos.map((i) => i.datasource)}
+            datasource={datasourceInfos
+              .map((i) => i.datasource)
+              .filter((d) => d.creationSource !== 2)}
             onSelect={handleAdd}
             onClose={() => showCreatePanel(false)}
           />
@@ -207,10 +210,7 @@ const labelCss: any = css`
   cursor: text;
 `;
 
-const Nofile = styled(NofileIcon)``;
 const PicDiv = styled.div`
-  width: 99px;
-  height: 99px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -236,7 +236,7 @@ export const EmptyQuery = (
     {EmptyTab}
     <EmptyDiv>
       <PicDiv>
-        <Nofile />
+        <NofileIcon />
         <EmptyLabel>{trans("bottomPanel.noSelectedQuery")}</EmptyLabel>
       </PicDiv>
     </EmptyDiv>
@@ -246,7 +246,7 @@ export const EmptyQuery = (
 export const EmptyQueryWithoutTab = (
   <EmptyDiv>
     <PicDiv>
-      <Nofile />
+      <NofileIcon />
       <EmptyLabel>{trans("bottomPanel.noSelectedQuery")}</EmptyLabel>
     </PicDiv>
   </EmptyDiv>

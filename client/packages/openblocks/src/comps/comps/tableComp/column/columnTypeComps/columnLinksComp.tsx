@@ -1,12 +1,12 @@
-import { MultiCompBuilder } from "comps/generators";
+import { EllipsisOutlined } from "@ant-design/icons";
 import { Dropdown, Menu, Space } from "antd";
+import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
+import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { manualOptionsControl } from "comps/controls/optionsControl";
-import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
-import { EllipsisOutlined } from "@ant-design/icons";
-import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
-import { trans } from "i18n";
+import { MultiCompBuilder } from "comps/generators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { trans } from "i18n";
 
 const OptionItem = new MultiCompBuilder(
   {
@@ -57,23 +57,21 @@ export const ColumnLinksComp = (function () {
       );
 
       return (
-        <>
-          <Space>
-            {props.options
-              .filter((o) => !o.hidden)
-              .slice(0, 3)
-              .map((option, i) => (
-                <a onClick={option.onClick} key={i}>
-                  {option.label}
-                </a>
-              ))}
-            {menu && (
-              <Dropdown overlay={menu} trigger={["hover"]}>
-                <EllipsisOutlined onClick={(e) => e.preventDefault()} />
-              </Dropdown>
-            )}
-          </Space>
-        </>
+        <Space>
+          {props.options
+            .filter((o) => !o.hidden)
+            .slice(0, 3)
+            .map((option, i) => (
+              <a onClick={option.onClick} key={i}>
+                {option.label}
+              </a>
+            ))}
+          {menu && (
+            <Dropdown overlay={menu} trigger={["hover"]}>
+              <EllipsisOutlined onClick={(e) => e.preventDefault()} />
+            </Dropdown>
+          )}
+        </Space>
       );
     },
     () => ""

@@ -1,15 +1,6 @@
 import styled from "styled-components";
-import { CustomSelect } from "openblocks-design";
-import { GroupIcon } from "openblocks-design";
-import { AdminIcon } from "openblocks-design";
-import { WhiteLoading } from "openblocks-design";
+import { AdminIcon, CustomSelect, GroupIcon, WhiteLoading } from "openblocks-design";
 import React from "react";
-
-export const AppPermissionModalContext = React.createContext<{
-  applicationId: string;
-  changeContent: (content: () => JSX.Element, showBack: boolean, title: string) => void;
-  setModalVisible: (visible: boolean) => void;
-}>(undefined as any);
 
 export const StyledRoleSelect = styled(CustomSelect)`
   margin-left: auto;
@@ -38,7 +29,7 @@ export const StyledRoleSelect = styled(CustomSelect)`
     font-size: 13px;
     color: #333333;
     text-align: right;
-    line-height: 13px;
+    line-height: 15px;
   }
 `;
 
@@ -46,8 +37,8 @@ export const RoleSelectOptionWrapper = styled.div`
   display: flex;
   align-items: center;
   font-size: 13px;
-  line-height: 13px;
-  height: 13px;
+  line-height: 15px;
+  height: fit-content;
 `;
 
 export const StyledGroupIcon = styled(GroupIcon)<{

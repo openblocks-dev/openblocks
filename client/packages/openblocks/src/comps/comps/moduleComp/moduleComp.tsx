@@ -36,6 +36,7 @@ import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { ModuleLoading } from "components/ModuleLoading";
 import { trans } from "i18n";
+import { ParamsConfig, ParamType } from "comps/controls/actionSelector/executeCompTypes";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -110,13 +111,12 @@ class ModuleTmpComp extends ModuleCompBase {
       return null;
     }
     const inputPropertyView = this.children.inputs.getPropertyView();
-    const eventsPropertyView = this.children.events.propertyView({
-      eventConfigs: this.getEventItems(),
-    });
+    const eventConfigs = this.getEventItems();
+    const eventsPropertyView = this.children.events.propertyView({ eventConfigs });
     return (
       <>
         {inputPropertyView && <Section name={sectionNames.basic}>{inputPropertyView}</Section>}
-        {eventsPropertyView && (
+        {eventConfigs.length > 0 && (
           <Section name={sectionNames.interaction}>{eventsPropertyView}</Section>
         )}
         <Section name={sectionNames.layout}>
@@ -371,18 +371,26 @@ class ModuleTmpComp extends ModuleCompBase {
 
     return moduleLayoutComp.children.methods.getView().map((i) => {
       const name = i.children.name.getView();
+      const params: ParamsConfig = [];
+      i.children.params.getView().forEach((param) => {
+        params.push({
+          name: param.children.name.getView(),
+          type: param.children.type.getView() as ParamType,
+          description: param.children.description.getView(),
+        });
+      });
       return {
         method: {
           name,
-          params: [],
+          params,
           description: "",
         },
-        execute: (comp) => {
+        execute: (comp, params) => {
           const mlc = comp.moduleRootComp?.children.ui.getModuleLayoutComp();
           if (!mlc) {
             return;
           }
-          return mlc.children.methods.executeMethodByName(name);
+          return mlc.children.methods.executeMethodByName(name, params);
         },
       };
     });

@@ -5,45 +5,55 @@ import { Comp, customAction } from "openblocks-core";
 import { Button, Space, Input, Form } from "antd";
 import styled from "styled-components";
 import { useCompInstance, GetContainerParams } from "comps/utils/useCompInstance";
+import { CanvasContainerID } from "constants/domLocators";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #fff;
   height: 100%;
+
   .help {
     font-size: 12px;
     color: #b8b9bf;
   }
+
   .panel {
     display: flex;
     flex-direction: column;
+
     .panel-title {
       font-size: 12px;
       padding: 4px 8px;
       border-bottom: 1px solid #efefef;
     }
+
     .panel-content {
       flex: 1;
       overflow: auto;
     }
   }
+
   .data-panel {
     width: 312px;
     border-right: 1px solid #efefef;
+
     .panel-content {
       padding: 8px;
     }
   }
+
   .property-panel {
     height: 100%;
     width: 312px;
     border-left: 1px solid #efefef;
     box-sizing: border-box;
   }
+
   .preview-panel {
     flex: 1;
     display: flex;
+
     .preview-content {
       flex: 1;
       display: flex;
@@ -52,29 +62,36 @@ const Container = styled.div`
       background-color: #f5f5f6;
     }
   }
+
   .bottom-panel {
     position: relative;
     height: 180px;
     border-top: 1px solid #efefef;
+
     .panel-content {
       padding: 8px;
     }
+
     .ant-form-item {
       margin-bottom: 16px;
     }
+
     .ant-form-item-label {
       & > label {
         font-size: 12px;
         height: 28px;
       }
     }
+
     .ant-form-item-control-input {
       min-height: 28px;
     }
+
     .ant-form-item-explain {
       font-size: 12px;
     }
   }
+
   .main {
     display: flex;
     flex-direction: row;
@@ -139,7 +156,11 @@ export function CompPlayground(props: IProps) {
         </div>
         <div className="panel preview-panel">
           <div className="panel-title">Preview</div>
-          <div className="preview-content">
+          <div
+            className="preview-content"
+            id={CanvasContainerID}
+            style={{ overflow: "auto", contain: "paint" }}
+          >
             <div style={{ width: layoutInfo.w * 48, height: layoutInfo.h * 8 }}>
               {comp.getView()}
             </div>

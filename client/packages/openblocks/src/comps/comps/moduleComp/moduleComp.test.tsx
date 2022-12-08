@@ -92,6 +92,24 @@ const moduleAppDsl = {
             },
           },
         },
+        {
+          name: "method2",
+          params: [{ name: "param1", type: "string" }],
+          action: {
+            compType: "executeComp",
+            comp: {
+              name: "input1",
+              methodName: "setValue",
+              params: [
+                {
+                  compType: "string",
+                  comp: "hello {{param1}}",
+                  name: "value",
+                },
+              ],
+            },
+          },
+        },
       ],
       events: {
         list: [
@@ -392,7 +410,7 @@ describe("module comp", () => {
   test("exec methods", (done) => {
     afterInitModule(({ root, inputValue }) => {
       const exposing = root().nameAndExposingInfo();
-      expect(Object.keys(exposing.module1.methods)).toStrictEqual(["method1"]);
+      expect(Object.keys(exposing.module1.methods)).toStrictEqual(["method1", "method2"]);
       root().dispatch(
         routeByNameAction(
           "module1",
@@ -406,7 +424,28 @@ describe("module comp", () => {
       setTimeout(() => {
         expect(inputValue()).toBe("hello method1");
         done();
-      });
+      }, 2000);
+    });
+  });
+
+  test("exec methods with params", (done) => {
+    afterInitModule(({ root, inputValue }) => {
+      const exposing = root().nameAndExposingInfo();
+      expect(Object.keys(exposing.module1.methods)).toStrictEqual(["method1", "method2"]);
+      root().dispatch(
+        routeByNameAction(
+          "module1",
+          customAction<ExecuteAction>({
+            type: "execute",
+            methodName: "method2",
+            params: ["Lucy"],
+          })
+        )
+      );
+      setTimeout(() => {
+        expect(inputValue()).toBe("hello Lucy");
+        done();
+      }, 2000);
     });
   });
 

@@ -2,7 +2,7 @@ import { CustomModal } from "openblocks-design";
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUser, profileSettingModalVisible } from "redux/reduxActions/userActions";
+import { fetchUserAction, profileSettingModalVisible } from "redux/reduxActions/userActions";
 import { ProfileInfoCard } from "@openblocks-ee/pages/setting/profile/profileInfoCard";
 import { message } from "antd";
 import { WindowMessageTypes } from "constants/messages";
@@ -27,7 +27,7 @@ export default function ProfileSettingModal() {
       return;
     }
     if (e.data.success) {
-      dispatch(getCurrentUser());
+      dispatch(fetchUserAction());
       message.info(trans("profile.bindingSuccess", { sourceName: e.data.sourceName }));
     } else {
       message.error(e.data.message);

@@ -4,7 +4,7 @@ import { generate } from "@ant-design/colors";
 
 extend([namesPlugin]);
 
-// antd Colors: https://ant.design/docs/spec/colors
+// Color Palette
 export const constantColors = [
   { id: 1, color: "#6D83F2" },
   { id: 2, color: "#5589F2" },

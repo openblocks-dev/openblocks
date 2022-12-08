@@ -56,6 +56,7 @@ class ParamsValueControl extends ParamsValueTmpControl {
     return this.getView().map((view, i) => (
       <Fragment key={params[i].name ?? i}>
         {view.children.comp.propertyView({
+          tooltip: params[i]?.description,
           label: params[i]?.name,
           layout: "vertical",
         })}

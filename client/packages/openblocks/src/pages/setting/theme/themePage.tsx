@@ -163,12 +163,12 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
       case MENU_TYPE.RENAME:
         this.setCommonSettings(
           "themeList",
-          this.props.themeList?.map(item => {
+          this.props.themeList?.map((item) => {
             if (item.id === info.themeId && info.name) {
               return {
                 ...item,
                 name: info.name,
-              }
+              };
             } else {
               return item;
             }
@@ -225,8 +225,8 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
 }
 
 const mapStateToProps = (state: AppState) => {
-  const { currentOrgId: orgId } = state.ui.users.currentUser;
-  const isAdmin = currentOrgAdmin(state.ui.users.currentUser);
+  const { currentOrgId: orgId } = state.ui.users.user;
+  const isAdmin = currentOrgAdmin(state.ui.users.user);
   return {
     themeList: state.ui.commonSettings.settings.themeList,
     defaultTheme: state.ui.commonSettings.settings.defaultTheme,

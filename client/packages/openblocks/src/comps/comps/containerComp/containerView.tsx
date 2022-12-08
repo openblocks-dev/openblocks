@@ -310,7 +310,8 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   const editorState = useContext(EditorContext);
   const { readOnly } = useContext(ExternalEditorContext);
 
-  const isDroppable = useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable);
+  const isDroppable =
+    useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly;
   const isDraggable = !readOnly && (_.isNil(props.isDraggable) || props.isDraggable);
   const isResizable = !readOnly && (_.isNil(props.isResizable) || props.isResizable);
   const isSelectable = !readOnly && (_.isNil(props.isSelectable) || props.isSelectable);

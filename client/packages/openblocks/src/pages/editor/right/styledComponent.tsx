@@ -43,7 +43,11 @@ export const CompIconDiv = styled.div<{ h: number; w: number }>`
 
 export const RightPanelContentWrapper = styled.div`
   padding: 0 16px;
+`;
+
+export const ExtensionContentWrapper = styled.div`
   padding-top: 4px;
+  margin-bottom: 12px;
 `;
 
 export const EmptyCompContent = () => {
@@ -78,7 +82,7 @@ export const ComListTitle = styled.span`
   font-weight: 500;
   font-size: 14px;
   color: #8b8fa3;
-  line-height: 14px;
+  line-height: 22px;
   display: block;
   white-space: nowrap;
   text-overflow: ellipsis;

@@ -377,8 +377,8 @@ TimeRangeComp = withMethodExposing(TimeRangeComp, [
       params: [],
     },
     execute: (comp) => {
-      comp.children.start.getView().onChange(null);
-      comp.children.end.getView().onChange(null);
+      comp.children.start.getView().onChange("");
+      comp.children.end.getView().onChange("");
     },
   },
   {

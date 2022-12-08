@@ -1,3 +1,7 @@
+import { newCustomColumn } from "comps/comps/tableComp/column/tableColumnComp";
+import { hiddenPropertyView, loadingPropertyView } from "comps/utils/propertyUtils";
+import { trans } from "i18n";
+import { MultiBaseComp } from "openblocks-core";
 import {
   BluePlusIcon,
   CustomModal,
@@ -11,12 +15,10 @@ import {
   TextLabel,
   ToolTipLabel,
 } from "openblocks-design";
-import styled from "styled-components";
-import { newCustomColumn } from "comps/comps/tableComp/column/tableColumnComp";
-import { TableChildrenType } from "./tableTypes";
 import { tableDataDivClassName } from "pages/tutorials/tutorialsConstant";
-import { hiddenPropertyView, loadingPropertyView } from "comps/utils/propertyUtils";
-import { trans } from "i18n";
+import styled from "styled-components";
+import { getSelectedRowKeys } from "./selectionControl";
+import { TableChildrenType } from "./tableTypes";
 
 const InsertDiv = styled.div`
   display: flex;
@@ -42,9 +44,11 @@ const StyledRefreshIcon = styled(RefreshIcon)`
   }
 `;
 
-export function tablePropertyView(children: TableChildrenType) {
-  const columns = children.columns.getView();
-  const rowExample = children.dataRowExample.getView();
+export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>>(comp: T) {
+  const selection = getSelectedRowKeys(comp.children.selection)[0] ?? "0";
+  const columns = comp.children.columns.getView();
+  const rowExample = comp.children.dataRowExample.getView();
+  const dynamicColumn = comp.children.dynamicColumn.getView();
   const columnOptionHeader = (
     <InsertDiv>
       <div style={{ display: "flex", alignItems: "center", marginRight: "auto" }}>
@@ -55,8 +59,12 @@ export function tablePropertyView(children: TableChildrenType) {
         <ToolTipLabel title={trans("table.refreshButtonTooltip")}>
           <StyledRefreshIcon
             onClick={() => {
-              children.columns.dispatchDataChanged(rowExample, true);
-              children.dataRowExample.dispatchChangeValueAction(null);
+              comp.children.columns.dispatchDataChanged({
+                rowExample,
+                doGeneColumn: true,
+                dynamicColumn: dynamicColumn,
+              });
+              comp.children.dataRowExample.dispatchChangeValueAction(null);
             }}
           />
         </ToolTipLabel>
@@ -65,7 +73,7 @@ export function tablePropertyView(children: TableChildrenType) {
         icon={<BluePlusIcon />}
         text={trans("addItem")}
         onClick={() => {
-          children.columns.dispatch(children.columns.pushAction(newCustomColumn()));
+          comp.children.columns.dispatch(comp.children.columns.pushAction(newCustomColumn()));
         }}
       />
     </InsertDiv>
@@ -74,7 +82,7 @@ export function tablePropertyView(children: TableChildrenType) {
     <>
       <Section name={trans("data")}>
         <div className={tableDataDivClassName}>
-          {children.data.propertyView({
+          {comp.children.data.propertyView({
             label: trans("data"),
           })}
         </div>
@@ -90,7 +98,7 @@ export function tablePropertyView(children: TableChildrenType) {
           }}
           content={(column, index) => (
             <>
-              {column.getPropertyView()}
+              {column.propertyView(selection)}
               {column.getView().isCustom && (
                 <RedButton
                   onClick={() => {
@@ -98,7 +106,7 @@ export function tablePropertyView(children: TableChildrenType) {
                       title: trans("table.deleteColumn"),
                       content: trans("table.confirmDeleteColumn") + `${column.getView().title}?`,
                       onConfirm: () =>
-                        children.columns.dispatch(children.columns.deleteAction(index)),
+                        comp.children.columns.dispatch(comp.children.columns.deleteAction(index)),
                       confirmBtnType: "delete",
                       okText: trans("delete"),
                     });
@@ -110,40 +118,50 @@ export function tablePropertyView(children: TableChildrenType) {
             </>
           )}
           onAdd={() => {
-            children.columns.dispatch(children.columns.pushAction(newCustomColumn()));
+            comp.children.columns.dispatch(comp.children.columns.pushAction(newCustomColumn()));
           }}
           onMove={(fromIndex, toIndex) => {
-            const action = children.columns.arrayMoveAction(fromIndex, toIndex);
-            children.columns.dispatch(action);
+            const action = comp.children.columns.arrayMoveAction(fromIndex, toIndex);
+            comp.children.columns.dispatch(action);
           }}
           hide={(column) => column.getView().hide}
           onHide={(column, hide) => column.children.hide.dispatchChangeValueAction(hide)}
           dataIndex={(column) => column.getView().dataIndex}
         />
+        {comp.children.dynamicColumn.propertyView({ label: trans("table.dynamicColumn") })}
+        {dynamicColumn &&
+          comp.children.dynamicColumnConfig.propertyView({
+            label: trans("table.dynamicColumnConfig"),
+            tooltip: trans("table.dynamicColumnConfigDesc"),
+          })}
       </Section>
-      <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-      <Section name={trans("prop.rowSelection")}>{children.selection.getPropertyView()}</Section>
-      <Section name={trans("prop.toolbar")}> {children.toolbar.getPropertyView()}</Section>
-      <Section name={trans("prop.pagination")}>{children.pagination.getPropertyView()}</Section>
+      <Section name={sectionNames.layout}>{hiddenPropertyView(comp.children)}</Section>
+      <Section name={trans("prop.rowSelection")}>
+        {comp.children.selection.getPropertyView()}
+      </Section>
+      <Section name={trans("prop.toolbar")}> {comp.children.toolbar.getPropertyView()}</Section>
+      <Section name={trans("prop.pagination")}>
+        {comp.children.pagination.getPropertyView()}
+      </Section>
       <Section name={sectionNames.interaction}>
-        {children.onEvent.getPropertyView()}
-        {loadingPropertyView(children)}
-        {children.viewModeResizable.propertyView({
+        {comp.children.onEvent.getPropertyView()}
+        {loadingPropertyView(comp.children)}
+        {comp.children.viewModeResizable.propertyView({
           label: trans("table.viewModeResizable"),
           tooltip: trans("table.viewModeResizableTooltip"),
         })}
       </Section>
       <Section name={sectionNames.style}>
-        {children.style.getPropertyView()}
-        {children.rowColor.getPropertyView()}
-        {children.size.propertyView({
+        {comp.children.style.getPropertyView()}
+        {comp.children.rowColor.getPropertyView()}
+        {comp.children.size.propertyView({
           label: trans("table.tableSize"),
           radioButton: true,
         })}
-        {children.hideHeader.propertyView({
+        {comp.children.hideHeader.propertyView({
           label: trans("table.hideHeader"),
         })}
-        {children.hideBordered.propertyView({
+        {comp.children.hideBordered.propertyView({
           label: trans("table.hideBordered"),
         })}
       </Section>

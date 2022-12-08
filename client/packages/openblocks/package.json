@@ -41,7 +41,7 @@
     "copy-to-clipboard": "^3.3.1",
     "core-js": "^3.25.2",
     "echarts": "^5.3.3",
-    "eslint4b-prebuilt": "^6.7.2",
+    "eslint4b-prebuilt-2": "^7.32.0",
     "file-saver": "^2.0.5",
     "github-markdown-css": "^5.1.0",
     "hotkeys-js": "^3.8.7",
@@ -92,6 +92,7 @@
     "ua-parser-js": "^1.0.2",
     "uuid": "^9.0.0",
     "web-vitals": "^2.1.0",
+    "weixin-js-sdk": "^1.6.0",
     "xlsx": "^0.18.5"
   },
   "scripts": {

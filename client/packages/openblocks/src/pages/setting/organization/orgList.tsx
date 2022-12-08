@@ -159,8 +159,8 @@ function OrganizationSetting(props: OrgSettingProp) {
 }
 
 const mapStateToProps = (state: AppState, props: OrgSettingProp) => {
-  const orgs = state.ui.users.currentUser.orgs;
-  const orgRoleMap = state.ui.users.currentUser.orgRoleMap;
+  const orgs = state.ui.users.user.orgs;
+  const orgRoleMap = state.ui.users.user.orgRoleMap;
   return {
     orgs: orgs,
     adminOrgs: orgs.filter((org) => orgRoleMap.get(org.id) === ADMIN_ROLE),

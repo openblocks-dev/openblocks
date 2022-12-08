@@ -39,7 +39,7 @@ export type User = {
   orgRoleMap: Map<string, RoleIdType>; // key: orgId, value: roleId
 } & BaseUserInfo;
 
-export const DefaultCurrentUserDetails: User = {
+export const defaultUser: User = {
   orgs: [],
   orgRoleMap: new Map(),
   username: ANONYMOUS_USERNAME,
@@ -53,6 +53,29 @@ export const DefaultCurrentUserDetails: User = {
     newUserGuidance: true,
     olderUserNonDevPopup: true,
   },
+};
+
+export type CurrentUser = {
+  id: string;
+  name: string;
+  avatarUrl: string;
+  email: string;
+  ip: string;
+  groups: {
+    groupId: string;
+    groupName: string;
+  }[];
+  extra: JSONObject;
+};
+
+export const defaultCurrentUser: CurrentUser = {
+  id: "",
+  name: ANONYMOUS_USERNAME,
+  avatarUrl: "",
+  email: "",
+  ip: "",
+  groups: [],
+  extra: {},
 };
 
 export type UserStatusType = keyof BaseUserInfo["userStatus"];

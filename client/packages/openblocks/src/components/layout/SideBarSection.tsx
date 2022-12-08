@@ -7,7 +7,7 @@ import { User } from "../../constants/userConstants";
 import { ApplicationMeta } from "../../constants/applicationConstants";
 import { useSelector } from "react-redux";
 import { AppState } from "../../redux/reducers";
-import { getCurrentUser } from "../../redux/selectors/usersSelectors";
+import { getUser } from "../../redux/selectors/usersSelectors";
 import { normalAppListSelector } from "../../redux/selectors/applicationSelector";
 import { useLocation } from "react-router-dom";
 import history from "../../util/history";
@@ -21,7 +21,7 @@ const Wrapper = styled.div`
 `;
 
 export const SideBarSection = (props: SideBarSectionProps) => {
-  const user = useSelector<AppState, User>(getCurrentUser);
+  const user = useSelector<AppState, User>(getUser);
   const applications = useSelector<AppState, ApplicationMeta[]>(normalAppListSelector);
   const currentPath = useLocation().pathname;
 

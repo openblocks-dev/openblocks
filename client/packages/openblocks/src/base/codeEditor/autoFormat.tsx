@@ -109,7 +109,7 @@ export async function formatJsonWithJsSnippets(text: string): Promise<string> {
 }
 
 export function getFormatter(
-  language?: Language,
+  language: Language,
   codeType?: CodeType
 ): ((s: string) => Promise<string>) | undefined {
   if (codeType) {
@@ -120,12 +120,11 @@ export function getFormatter(
         return (text: string) => getJavascriptFormatter().then((f) => f(text));
     }
   } else {
-    if (language === undefined) {
-      return formatStringWithJsSnippets;
-    }
     switch (language) {
       case "sql":
         return formatSqlWithJsSnippets;
+      case "javascript":
+        return formatStringWithJsSnippets;
     }
   }
 }

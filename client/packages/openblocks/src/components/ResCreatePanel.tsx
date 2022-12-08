@@ -12,7 +12,13 @@ import { LargeBottomResIconWrapper } from "util/bottomResUtils";
 import { PageType } from "../constants/pageConstants";
 import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { SizeType } from "antd/lib/config-provider/SizeContext";
-import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import { Datasource, OPENBLOCKS_API_INFO } from "@openblocks-ee/constants/datasourceConstants";
+import {
+  OPENBLOCKS_API_ID,
+  QUICK_GRAPHQL_ID,
+  QUICK_REST_API_ID,
+} from "../constants/datasourceConstants";
+import { ResourceType } from "@openblocks-ee/constants/queryConstants";
 
 const Wrapper = styled.div<{ placement: PageType }>`
   width: 100%;
@@ -90,14 +96,17 @@ const ResButton = (props: {
   size: SizeType;
   onSelect: (type: BottomResTypeEnum, extraInfo?: any) => void;
   identifier:
-    | "js"
-    | "libraryQuery"
+    | Partial<ResourceType>
     | BottomResTypeEnum.TempState
     | BottomResTypeEnum.Transformer
     | Datasource;
 }) => {
   let label = "";
   let handleClick = noop;
+  let icon = getBottomResIcon(
+    typeof props.identifier === "object" ? props.identifier.type : props.identifier,
+    "large"
+  );
   if (props.identifier === BottomResTypeEnum.TempState) {
     label = trans("query.tempState");
     handleClick = () => props.onSelect(BottomResTypeEnum.TempState);
@@ -116,6 +125,28 @@ const ResButton = (props: {
       props.onSelect(BottomResTypeEnum.Query, {
         compType: "libraryQuery",
       });
+  } else if (props.identifier === "restApi") {
+    label = trans("query.quickRestAPI");
+    handleClick = () =>
+      props.onSelect(BottomResTypeEnum.Query, {
+        compType: "restApi",
+        dataSourceId: QUICK_REST_API_ID,
+      });
+  } else if (props.identifier === "graphql") {
+    label = trans("query.quickGraphql");
+    handleClick = () =>
+      props.onSelect(BottomResTypeEnum.Query, {
+        compType: "graphql",
+        dataSourceId: QUICK_GRAPHQL_ID,
+      });
+  } else if (props.identifier === "openblocksApi") {
+    label = OPENBLOCKS_API_INFO.name;
+    handleClick = () =>
+      props.onSelect(BottomResTypeEnum.Query, {
+        compType: "openblocksApi",
+        dataSourceId: OPENBLOCKS_API_ID,
+      });
+    icon = OPENBLOCKS_API_INFO.icon;
   } else if (typeof props.identifier === "object") {
     const identifier = props.identifier;
     label = identifier.name;
@@ -128,10 +159,7 @@ const ResButton = (props: {
 
   return (
     <DataSourceButton onClick={handleClick} size={props.size}>
-      {getBottomResIcon(
-        typeof props.identifier === "object" ? props.identifier.type : props.identifier,
-        "large"
-      )}
+      {icon}
       {label}
     </DataSourceButton>
   );
@@ -220,6 +248,12 @@ export function ResCreatePanel(props: ResCreateModalProps) {
             <div className="section-title">{trans("query.datasource")}</div>
             <div className="section">
               <DataSourceListWrapper placement={placement}>
+                <ResButton size={buttonSize} identifier={"restApi"} onSelect={onSelect} />
+                <ResButton size={buttonSize} identifier={"graphql"} onSelect={onSelect} />
+                {placement === "editor" && (
+                  <ResButton size={buttonSize} identifier={"openblocksApi"} onSelect={onSelect} />
+                )}
+
                 {datasource.map((i) => (
                   <ResButton size={buttonSize} key={i.id} identifier={i} onSelect={onSelect} />
                 ))}

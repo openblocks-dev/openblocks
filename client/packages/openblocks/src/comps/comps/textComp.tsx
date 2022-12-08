@@ -61,11 +61,13 @@ const TextContainer = styled.div<{ type: string; styleConfig: TextStyleType }>`
   ${(props) =>
     props.type === "text" && "white-space:break-spaces;line-height: 1.9;padding: 3px 0;"};
   ${(props) => props.styleConfig && getStyle(props.styleConfig)}
-  word-wrap: break-word;
-  word-break: break-all;
   display: flex;
   font-size: 13px;
   ${markdownCompCss};
+  overflow-wrap: anywhere;
+  .markdown-body {
+    overflow-wrap: anywhere;
+  }
 `;
 const AlignTop = styled(AlignLeft)`
   transform: rotate(90deg);

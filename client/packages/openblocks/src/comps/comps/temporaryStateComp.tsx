@@ -185,7 +185,7 @@ export class TemporaryStateListComp
     this.dispatch(
       wrapActionExtraInfo(
         this.pushAction({
-          ...originState.toJsonValue(),
+          ...(originState.toJsonValue() as object),
           name: newStateName,
           order: Date.now(),
         }),

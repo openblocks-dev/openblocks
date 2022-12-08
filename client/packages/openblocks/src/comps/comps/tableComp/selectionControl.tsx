@@ -1,10 +1,10 @@
 import { TableRowSelection } from "antd/lib/table/interface";
-import { changeChildAction } from "openblocks-core";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { stateComp } from "comps/generators";
 import { MultiCompBuilder } from "comps/generators/multi";
-import { RecordType, TableOnEventView } from "./tableTypes";
 import { trans } from "i18n";
+import { changeChildAction, ConstructorToComp } from "openblocks-core";
+import { RecordType, TableOnEventView } from "./tableTypes";
 
 const modeOptions = [
   {
@@ -26,6 +26,19 @@ const modeOptions = [
  */
 function getKey(record: RecordType) {
   return record.index + "";
+}
+
+export function getSelectedRowKeys(
+  selection: ConstructorToComp<typeof SelectionControl>
+): Array<string> {
+  const mode = selection.children.mode.getView();
+  switch (mode) {
+    case "single":
+      return [selection.children.selectedRowKey.getView()];
+    case "multiple":
+      return selection.children.selectedRowKeys.getView();
+  }
+  return [];
 }
 
 export const SelectionControl = (function () {

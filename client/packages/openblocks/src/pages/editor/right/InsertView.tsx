@@ -4,14 +4,12 @@ import { ScrollBar } from "openblocks-design";
 import { Search } from "openblocks-design";
 import { useState } from "react";
 import styled from "styled-components";
-import ModulePanel from "./ModulePanel";
 import { RightContext } from "./rightContext";
 import { UICompPanel } from "./uiCompPanel";
 import { trans } from "i18n";
-import PluginPanel from "./PluginPanel";
-import { developEnv } from "util/envUtils";
+import ExtensionPanel from "./ExtensionPanel";
 
-type OptionValue = "ui" | "module" | "plugin";
+type OptionValue = "ui" | "extension";
 
 const Wrapper = styled.div`
   display: flex;
@@ -38,17 +36,10 @@ const options = [
     label: trans("rightPanel.uiComponentTab"),
   },
   {
-    value: "module",
-    label: trans("rightPanel.moduleTab"),
+    value: "extension",
+    label: trans("rightPanel.extensionTab"),
   },
 ];
-
-if (developEnv()) {
-  options.push({
-    value: "plugin",
-    label: trans("rightPanel.pluginTab"),
-  });
-}
 
 interface InsertViewProps {
   onCompDrag: (dragCompKey: string) => void;
@@ -86,8 +77,7 @@ export default function InsertView(props: InsertViewProps) {
         <InsertViewBody>
           <ScrollBar>
             {activeKey === "ui" && <UICompPanel />}
-            {activeKey === "module" && <ModulePanel />}
-            {activeKey === "plugin" && <PluginPanel />}
+            {activeKey === "extension" && <ExtensionPanel />}
           </ScrollBar>
         </InsertViewBody>
       </RightContext.Provider>

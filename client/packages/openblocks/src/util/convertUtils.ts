@@ -1,4 +1,14 @@
 import { JSONObject, JSONValue } from "util/jsonTypes";
+import { EvalTypeError } from "openblocks-core/src/eval/utils/nodeUtils";
+
+function typeErrorMsg(requiredType: string, value: any, actualType?: string) {
+  let displayValue = value;
+  const displayActualType = actualType ?? typeof value;
+  if (displayActualType === "string") {
+    displayValue = "`" + displayValue + "`";
+  }
+  return `Type "${requiredType}" is required, but find "${displayActualType}" type with value: ${displayValue}`;
+}
 
 export function toStringOrNumber(value: any): string | number {
   if (value === undefined || value === null) {
@@ -57,7 +67,7 @@ export function toJSONObject(value: any): JSONObject {
   if (typeof value === "object" && !Array.isArray(value)) {
     return checkJSONValue(value) as JSONObject;
   }
-  throw new TypeError(`JSON object is required, but find value: ${JSON.stringify(value)}`);
+  throw new TypeError(typeErrorMsg("JSON Object", value));
 }
 
 function checkJSONValue(value: any) {
@@ -69,7 +79,7 @@ function checkJSONValue(value: any) {
       case "object":
         return v;
       default:
-        throw new TypeError(`Type "JSON" is required, but find ${key}: ${v}`);
+        throw new TypeError(typeErrorMsg("JSON", v, key));
     }
   });
   return value as JSONValue;
@@ -89,7 +99,7 @@ export function toObject(value: any): Record<string, unknown> {
   if (typeof value === "object" && !Array.isArray(value)) {
     return value as Record<string, unknown>;
   }
-  throw new TypeError(`Type "Object" is required, but find value: ${JSON.stringify(value)}`);
+  throw new TypeError(typeErrorMsg("Object", value));
 }
 
 export function toArray<T>(value: any, itemTransformFn?: (value: unknown) => T): T[] {
@@ -99,7 +109,10 @@ export function toArray<T>(value: any, itemTransformFn?: (value: unknown) => T):
   if (Array.isArray(value)) {
     return itemTransformFn ? value.map(itemTransformFn) : value;
   }
-  throw new TypeError(`Type "Array" is required, but find value: ${JSON.stringify(value)}`);
+  if (typeof value === "string" && value.startsWith("[")) {
+    throw new EvalTypeError(typeErrorMsg("Array", value), "Forget to use JSON.parse()?");
+  }
+  throw new TypeError(typeErrorMsg("Array", value));
 }
 
 export function toStringNumberArray(value: any) {
@@ -198,8 +211,10 @@ export function check(
       break;
   }
   throw new TypeError(
-    `Type "${types.filter((t) => t !== "undefined").join(" | ")}" is required, but find ${
+    typeErrorMsg(
+      types.filter((t) => t !== "undefined").join(" | "),
+      value,
       key !== undefined ? key + ": " : ""
-    }${value}`
+    )
   );
 }

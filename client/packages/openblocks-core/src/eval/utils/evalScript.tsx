@@ -19,69 +19,7 @@ const blacklist = new Set<PropertyKey>([
   "MutationObserver",
 ]);
 
-const proxyTargetIdentity = Symbol("proxy_target_identity");
-
 const globalVarNames = new Set<PropertyKey>(["window", "globalThis", "self", "global"]);
-
-/**
- * return an immutable object.
- * @remarks
- * without Object.freeze() since it never throws a exception.
- *
- * FIXME: eliminate Proxy
- */
-function immutable(value: any, methods?: Record<string, Function>): any {
-  // the type of null is also object
-  if (typeof value !== "object" || value === null) {
-    return value;
-  }
-  if (value instanceof Date || value instanceof RegExp) {
-    return value;
-  }
-  return new Proxy(value, {
-    get(target, p, receiver) {
-      if (p in target) {
-        return Object.freeze(Reflect.get(target, p, receiver));
-      }
-      // here is a skill: get Proxy's original target with Symbol
-      if (p === proxyTargetIdentity) {
-        return target;
-      }
-      if (p === "toJSON") {
-        return undefined;
-      }
-      if (typeof p === "string") {
-        if (methods && p in methods) {
-          return methods[p];
-        }
-        if (!Array.isArray(target)) {
-          throw new ReferenceError(p + " not exist");
-        }
-      }
-    },
-    set(target, p, value) {
-      if (typeof p === "string") {
-        throw new Error(p + " can't be modified");
-      }
-      return false;
-    },
-    defineProperty(target, p, attributes) {
-      if (typeof p === "string") {
-        throw new Error("can't define property:" + p);
-      }
-      return false;
-    },
-    deleteProperty(target, p) {
-      if (typeof p === "string") {
-        throw new Error("can't delete property:" + p);
-      }
-      return false;
-    },
-    setPrototypeOf(target, v) {
-      throw new Error("can't invoke setPrototypeOf");
-    },
-  });
-}
 
 export function createBlackHole(): any {
   return new Proxy(
@@ -165,6 +103,7 @@ function proxySandbox(context: any, methods?: EvalMethods, options?: SandBoxOpti
   const isProtectedVar = (key: PropertyKey) => {
     return key in context || key in (methods || {}) || globalVarNames.has(key);
   };
+  const cache = {};
   return new Proxy(mockWindow, {
     has(target, p) {
       // proxy all variables
@@ -184,10 +123,19 @@ function proxySandbox(context: any, methods?: EvalMethods, options?: SandBoxOpti
       }
 
       if (p in context) {
-        return immutable(
-          Reflect.get(context, p, receiver),
-          methods ? Reflect.get(methods, p) : undefined
-        );
+        if (p in cache) {
+          return Reflect.get(cache, p);
+        }
+        let value = Reflect.get(context, p, receiver);
+        if (typeof value === "object" && value !== null) {
+          if (methods && p in methods) {
+            value = Object.assign({}, value, Reflect.get(methods, p));
+          }
+          Object.freeze(value);
+          Object.values(value).forEach(Object.freeze);
+        }
+        Reflect.set(cache, p, value);
+        return value;
       }
 
       if (disableLimit) {
@@ -232,10 +180,11 @@ export function evalFunc(
   functionBody: string,
   context: any,
   methods?: EvalMethods,
-  options?: SandBoxOption
+  options?: SandBoxOption,
+  isAsync?: boolean
 ) {
   const code = `with(this){
-    return (function() {
+    return (${isAsync ? "async " : ""}function() {
       'use strict';
       ${functionBody};
     }).call(this);
@@ -245,13 +194,5 @@ export function evalFunc(
   const vm = new Function(code);
   const sandbox = proxySandbox(context, methods, options);
   const result = vm.call(sandbox);
-
-  // if the result is proxy, should return the original object, to avoid error
-  if (result !== sandbox && typeof result === "object" && result !== null) {
-    const target = result[proxyTargetIdentity];
-    if (target !== undefined) {
-      return target;
-    }
-  }
   return result;
 }

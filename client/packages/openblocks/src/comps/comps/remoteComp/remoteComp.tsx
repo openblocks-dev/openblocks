@@ -30,9 +30,9 @@ const ViewLoadingWrapper = styled.div`
   height: 100%;
 `;
 
-function ViewLoading() {
+function ViewLoading(props: { padding?: number }) {
   return (
-    <ViewLoadingWrapper>
+    <ViewLoadingWrapper style={{ padding: props.padding }}>
       <Skeleton active />
     </ViewLoadingWrapper>
   );
@@ -135,7 +135,7 @@ export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
     }
 
     getPropertyView() {
-      return <ViewLoading />;
+      return <ViewLoading padding={16} />;
     }
 
     reduce(action: CompAction<any>): this {

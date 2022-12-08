@@ -6,7 +6,7 @@ import { User } from "constants/userConstants";
 import { EllipsisTextCss, TacoButton, TextEditIcon } from "openblocks-design";
 import { useSelector } from "react-redux";
 import { currentApplication, getTemplateId } from "redux/selectors/applicationSelector";
-import { getCurrentUser, isFetchingUser } from "redux/selectors/usersSelectors";
+import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import history from "util/history";
 import { useApplicationId } from "util/hooks";
@@ -123,7 +123,7 @@ function HeaderProfile(props: { user: User }) {
 }
 
 export const PreviewHeader = () => {
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const application = useSelector(currentApplication);
   const applicationId = useApplicationId();
   const templateId = useSelector(getTemplateId);
@@ -140,7 +140,7 @@ export const PreviewHeader = () => {
 
   const headerEnd = (
     <Wrapper>
-      {applicationId && (
+      {canManageApp(user, application) && (
         <AppPermissionDialog
           applicationId={applicationId}
           visible={permissionDialogVisible}

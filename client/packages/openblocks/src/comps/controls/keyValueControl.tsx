@@ -6,7 +6,8 @@ import { list } from "../generators/list";
 import { StringControl } from "./codeControl";
 import { ControlParams } from "./controlParams";
 import { dropdownControl } from "./dropdownControl";
-import { ParamsStringControl } from "./paramsControl";
+import { ParamsControlType, ParamsStringControl } from "./paramsControl";
+import { FunctionProperty } from "../queries/queryCompUtils";
 
 const KeyValueWrapper = styled.div`
   display: flex;
@@ -114,6 +115,20 @@ export function keyValueListControl<T extends OptionsType>(
   controlType: "params" | "string" = "params"
 ) {
   return class extends list(keyValueControl(hasType, types, controlType)) {
+    getQueryParams() {
+      if (controlType === "params") {
+        return this.getView().reduce(
+          (result: FunctionProperty[], kv) => [
+            ...result,
+            ...(kv.children.key as InstanceType<ParamsControlType>).getQueryParams(),
+            ...(kv.children.value as InstanceType<ParamsControlType>).getQueryParams(),
+          ],
+          []
+        );
+      }
+      return [];
+    }
+
     propertyView(params: KeyValueControlParams): ReactNode {
       return (
         <ControlPropertyViewWrapper {...params}>

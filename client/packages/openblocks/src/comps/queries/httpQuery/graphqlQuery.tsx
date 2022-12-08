@@ -39,15 +39,25 @@ const VariableControl = class extends simpleMultiComp({
             onChange={(e) => {
               this.children.key.dispatchChangeValueAction(e.target.value);
             }}
+            placeholder={"name"}
           />
         </div>
-        <div style={{ width: "232px", flexGrow: 1 }}> {this.children.value.propertyView({})}</div>
+        <div style={{ width: "232px", flexGrow: 1 }}>
+          {this.children.value.propertyView({ placeholder: "value" })}
+        </div>
       </div>
     );
   }
 };
 
 const VariablesControl = class extends list(VariableControl) {
+  getQueryParams() {
+    return this.getView().reduce(
+      (result: FunctionProperty[], kv) => [...result, ...kv.children.value.getQueryParams()],
+      []
+    );
+  }
+
   propertyView(params: VariablesControlParams): ReactNode {
     return (
       <ControlPropertyViewWrapper {...params}>
@@ -74,43 +84,12 @@ const GraphqlTmpQuery = simpleMultiComp(childrenMap);
 export class GraphqlQuery extends GraphqlTmpQuery {
   override getView() {
     const children = this.children;
-    let params = [...children.variables.getView()].reduce(
-      (result: FunctionProperty[], kv) => [
-        ...result,
-        ...Object.entries(kv.children.value.getView()).map((pair) => ({
-          key: pair[0],
-          value: pair[1],
-        })),
-      ],
-      []
-    );
-    params = [
-      ...params,
-      ...[...children.headers.getView(), ...children.params.getView()].reduce(
-        (result: FunctionProperty[], kv) => [
-          ...result,
-          ...Object.entries(kv.children.key.getView()).map((pair) => ({
-            key: pair[0],
-            value: pair[1],
-          })),
-          ...Object.entries(kv.children.value.getView()).map((pair) => ({
-            key: pair[0],
-            value: pair[1],
-          })),
-        ],
-        []
-      ),
-    ];
-    params = [
-      ...params,
-      ...Object.entries(children.path.getView()).map((kv) => ({
-        key: kv[0],
-        value: kv[1],
-      })),
-      ...Object.entries(children.body.getView()).map((kv) => ({
-        key: kv[0],
-        value: kv[1],
-      })),
+    const params = [
+      ...children.variables.getQueryParams(),
+      ...children.headers.getQueryParams(),
+      ...children.params.getQueryParams(),
+      ...children.path.getQueryParams(),
+      ...children.body.getQueryParams(),
     ];
     return toQueryView(params);
   }
@@ -134,7 +113,7 @@ const PropertyView = (props: { comp: InstanceType<typeof GraphqlQuery>; datasour
       <HttpPathPropertyView {...props} comp={comp} />
 
       <QueryConfigWrapper>
-        <QueryConfigLabel />
+        <QueryConfigLabel>Query</QueryConfigLabel>
         <QueryConfigItemWrapper>
           {children.body.propertyView({
             styleName: "medium",

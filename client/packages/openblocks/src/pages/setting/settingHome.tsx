@@ -10,7 +10,7 @@ import { TwoColumnSettingPageContent } from "./styled";
 import SubSideBar from "components/layout/SubSideBar";
 import { Menu } from "openblocks-design";
 import { useSelector } from "react-redux";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import history from "util/history";
 import { useParams } from "react-router-dom";
 
@@ -23,8 +23,8 @@ enum SettingPageEnum {
 }
 
 export function SettingHome() {
-  const user = useSelector(getCurrentUser);
-  const selectKey = useParams<{ setting: string }>().setting || SettingPageEnum.Member
+  const user = useSelector(getUser);
+  const selectKey = useParams<{ setting: string }>().setting || SettingPageEnum.Member;
 
   const items = [
     {

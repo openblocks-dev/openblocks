@@ -12,7 +12,7 @@ import { ORG_ICON_UPLOAD_URL } from "constants/apiConstants";
 import { trans } from "i18n";
 import { StyledOrgLogo } from "./styledComponents";
 import { useParams } from "react-router";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import { HeaderBack } from "../permission/styledComponents";
 import history from "util/history";
 import { ORGANIZATION_SETTING } from "constants/routesURL";
@@ -100,7 +100,7 @@ function OrgImageField(props: { org: Org }) {
 
 export function OrgSettingContent(props: { org: Org | undefined }) {
   const orgId = useParams<{ orgId: string }>().orgId;
-  const { orgs } = useSelector(getCurrentUser);
+  const { orgs } = useSelector(getUser);
   const org = new Map(orgs.map((org) => [org.id, org])).get(orgId);
   const dispatch = useDispatch();
   if (!org) {

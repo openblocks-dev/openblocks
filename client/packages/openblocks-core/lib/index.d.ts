@@ -297,6 +297,23 @@ declare class WrapNode<T> extends AbstractNode<T> {
   dependValues(): Record<string, unknown>;
 }
 
+/**
+ * build a new node by setting new dependent nodes in child node
+ */
+declare class WrapContextNodeV2<T> extends AbstractNode<T> {
+  readonly child: Node<T>;
+  readonly paramNodes: Record<string, Node<unknown>>;
+  readonly type = "wrapContextV2";
+  constructor(child: Node<T>, paramNodes: Record<string, Node<unknown>>);
+  wrapContext(paramName: string): AbstractNode<ValueFn<T>>;
+  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]>;
+  justEval(exposingNodes: Record<string, Node<unknown>>, methods?: EvalMethods): T;
+  getChildren(): Node<unknown>[];
+  dependValues(): Record<string, unknown>;
+  fetchInfo(exposingNodes: Record<string, Node<unknown>>): FetchInfo;
+  private wrap;
+}
+
 declare function transformWrapper<T>(
   transformFn: (value: unknown) => T,
   defaultValue?: T
@@ -305,7 +322,7 @@ declare function transformWrapper<T>(
 declare function relaxedJSONToJSON(text: string, compact: boolean): string;
 
 declare function isDynamicSegment(segment: string): boolean;
-declare function getDynamicStringSegments(dynamicString: string): string[];
+declare function getDynamicStringSegments(input: string): string[];
 
 declare function clearMockWindow(): void;
 interface SandBoxOption {
@@ -318,11 +335,18 @@ declare function evalFunc(
   functionBody: string,
   context: any,
   methods?: EvalMethods,
-  options?: SandBoxOption
+  options?: SandBoxOption,
+  isAsync?: boolean
 ): any;
 
 declare function evalStyle(id: string, css: string[]): void;
 declare function clearStyleEval(id?: string): void;
+
+declare function evalFunctionResult(
+  unevaledValue: string,
+  context: Record<string, unknown>,
+  methods?: EvalMethods
+): Promise<ValueAndMsg<unknown>>;
 
 declare function nodeIsRecord(
   node: Node<unknown>
@@ -735,6 +759,7 @@ export {
   EvalMethods,
   ExecuteQueryAction,
   ExtraActionType,
+  ExtraNodeType,
   FetchCheckNode,
   FetchInfo,
   FunctionNode,
@@ -764,6 +789,7 @@ export {
   UpdateNodesV2Action,
   ValueAndMsg,
   ValueFn,
+  WrapContextNodeV2,
   WrapNode,
   addChildAction,
   changeChildAction,
@@ -776,6 +802,7 @@ export {
   deleteCompAction,
   dependingNodeMapEquals,
   evalFunc,
+  evalFunctionResult,
   evalNodeOrMinor,
   evalStyle,
   executeQueryAction,

@@ -1,20 +1,18 @@
-import { withDefault } from "comps/generators";
+import { Badge, Button } from "antd";
+import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
+import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
 import {
   BoolCodeControl,
   NumberControl,
   StringControl,
-  StringOrNumberControl,
   stringUnionControl,
 } from "comps/controls/codeControl";
-import { Badge, Button } from "antd";
-import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
-import styled from "styled-components";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import React from "react";
-import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
-import { TacoImage } from "openblocks-design";
-import { trans } from "i18n";
+import { withDefault } from "comps/generators";
 import { disabledPropertyView, loadingPropertyView } from "comps/utils/propertyUtils";
+import { trans } from "i18n";
+import { TacoImage } from "openblocks-design";
+import styled from "styled-components";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
@@ -42,26 +40,6 @@ export const ImageComp = (function () {
           })}
         </>
       );
-    })
-    .build();
-})();
-
-export const SimpleTextComp = (function () {
-  const childrenMap = {
-    text: StringOrNumberControl,
-  };
-  return new ColumnTypeCompBuilder(
-    childrenMap,
-    (props) => {
-      return props.text;
-    },
-    (nodeValue) => nodeValue.text.value
-  )
-    .setPropertyViewFn((children) => {
-      return children.text.propertyView({
-        label: trans("table.columnValue"),
-        tooltip: ColumnValueTooltip,
-      });
     })
     .build();
 })();
@@ -171,10 +149,11 @@ export const BadgeStatusComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => {
-      if (props.status === "none") {
-        return props.text;
-      }
-      return <Badge status={props.status} text={props.text} />;
+      return props.status === "none" ? (
+        props.text
+      ) : (
+        <Badge status={props.status} text={props.text} />
+      );
     },
     (nodeValue) => [nodeValue.status.value, nodeValue.text.value].filter((t) => t).join(" ")
   )

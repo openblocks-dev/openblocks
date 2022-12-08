@@ -1,12 +1,9 @@
-import { JSONObject, JSONValue } from "util/jsonTypes";
-import { CompAction, customAction, isMyCustomAction, wrapChildAction } from "openblocks-core";
+import { ColumnComp, newPrimaryColumn } from "comps/comps/tableComp/column/tableColumnComp";
 import { list } from "comps/generators/list";
 import _ from "lodash";
-import {
-  ColumnComp,
-  newPrimaryColumn,
-  RenderComp,
-} from "comps/comps/tableComp/column/tableColumnComp";
+import { CompAction, customAction, isMyCustomAction } from "openblocks-core";
+import { JSONObject, JSONValue } from "util/jsonTypes";
+import { getReduceContext } from "comps/utils/reduceContext";
 
 /**
  * column list
@@ -21,6 +18,7 @@ type ActionDataType = {
   type: "dataChanged";
   rowExample: RowExampleType;
   doGeneColumn: boolean;
+  dynamicColumn: boolean;
 };
 
 export function tableDataRowExample(data: Array<JSONObject>) {
@@ -47,8 +45,9 @@ export class ColumnListComp extends ColumnListTmpComp {
   override reduce(action: CompAction): this {
     if (isMyCustomAction<ActionDataType>(action, "dataChanged")) {
       const rowExample = action.value.rowExample;
+      const { readOnly } = getReduceContext();
       let comp = this;
-      if (action.value.doGeneColumn) {
+      if (action.value.doGeneColumn && (action.value.dynamicColumn || !readOnly)) {
         const actions = this.geneColumnsAction(rowExample);
         comp = this.reduce(this.multiAction(actions));
       }
@@ -57,22 +56,45 @@ export class ColumnListComp extends ColumnListTmpComp {
     return super.reduce(action);
   }
 
+  getChangeSet() {
+    const changeSet: Record<string, Record<string, JSONValue>> = {};
+    const columns = this.getView();
+    columns.forEach((column) => {
+      const columnChangeSet = column.getChangeSet();
+      Object.keys(columnChangeSet).forEach((dataIndex) => {
+        Object.keys(columnChangeSet[dataIndex]).forEach((key) => {
+          if (!_.isNil(columnChangeSet[dataIndex][key])) {
+            if (!changeSet[key]) changeSet[key] = {};
+            changeSet[key][dataIndex] = columnChangeSet[dataIndex][key];
+          }
+        });
+      });
+    });
+    return changeSet;
+  }
+
+  clearChangeSet() {
+    const columns = this.getView();
+    columns.forEach((column) => column.clearChangeSet());
+  }
+
   updateContext(rowExample: RowExampleType) {
     return this.setChildren(
-      _.mapValues(this.children, (columnComp, key) => {
+      _.mapValues(this.children, (columnComp) => {
         const columnName = columnComp.children.dataIndex.getView();
         const isCustom = columnComp.children.isCustom.getView();
-        return columnComp.reduce(
-          wrapChildAction(
-            "render",
-            RenderComp.changeContextDataAction({
-              currentRow: rowExample,
-              currentCell: isCustom ? undefined : _.get(rowExample, columnName),
-              currentIndex: 0,
-              currentOriginalIndex: 0,
-            })
-          )
-        );
+        return columnComp;
+        // return columnComp.reduce(
+        //   wrapChildAction(
+        //     "render",
+        //     RenderComp.changeContextDataAction({
+        //       currentRow: rowExample,
+        //       currentCell: isCustom ? undefined : _.get(rowExample, columnName),
+        //       currentIndex: 0,
+        //       currentOriginalIndex: 0,
+        //     })
+        //   )
+        // );
       })
     );
   }
@@ -80,12 +102,15 @@ export class ColumnListComp extends ColumnListTmpComp {
   /**
    * If the table data changes, call this method to trigger the action
    */
-  dispatchDataChanged(rowExample: JSONObject, doGeneColumn: boolean): void {
+  dispatchDataChanged(param: {
+    rowExample: JSONObject;
+    doGeneColumn: boolean;
+    dynamicColumn: boolean;
+  }): void {
     this.dispatch(
       customAction<ActionDataType>({
         type: "dataChanged",
-        rowExample: rowExample,
-        doGeneColumn: doGeneColumn,
+        ...param,
       })
     );
   }

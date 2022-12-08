@@ -126,25 +126,28 @@ const FormItemLabel = (props: Partial<FormProps>) => (
   </LabelDiv>
 );
 
-export const FormInputItem = (props: FormProps & InputProps) => (
-  <FormItemContain className={"taco-form-item-wrapper"}>
-    {props.label && <FormItemLabel {...props} />}
-    <FormItem
-      name={props.name}
-      rules={props.rules}
-      initialValue={props.initialValue}
-      validateFirst={true}
-      hasFeedback={true}
-    >
-      <FormInput
-        {...props}
-        autoComplete={"off"}
-        disabled={props.disabled}
-        placeholder={props.placeholder}
-      />
-    </FormItem>
-  </FormItemContain>
-);
+export const FormInputItem = (props: FormProps & InputProps) => {
+  const { labelWidth, initialValue, ...restProps } = props;
+  return (
+    <FormItemContain className={"taco-form-item-wrapper"}>
+      {props.label && <FormItemLabel {...props} />}
+      <FormItem
+        name={props.name}
+        rules={props.rules}
+        initialValue={props.initialValue}
+        validateFirst={true}
+        hasFeedback={true}
+      >
+        <FormInput
+          {...restProps}
+          autoComplete={"off"}
+          disabled={props.disabled}
+          placeholder={props.placeholder}
+        />
+      </FormItem>
+    </FormItemContain>
+  );
+};
 
 export const FormInputPasswordItem = (props: FormProps) => (
   <FormItemContain className={"taco-form-item-wrapper"}>

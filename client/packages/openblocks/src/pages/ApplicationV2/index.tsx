@@ -9,7 +9,7 @@ import {
   TRASH_URL,
   SETTING,
 } from "constants/routesURL";
-import { getCurrentUser, isFetchingUser } from "redux/selectors/usersSelectors";
+import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import {
   FolderIcon,
@@ -157,7 +157,7 @@ export default function ApplicationHome() {
   const fetchingUser = useSelector(isFetchingUser);
   const allApplications = useSelector(normalAppListSelector);
   const allFolders = useSelector(foldersSelector);
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const org = useSelector(getHomeOrg);
   const allAppCount = allApplications.length;
   const allFoldersCount = allFolders.length;

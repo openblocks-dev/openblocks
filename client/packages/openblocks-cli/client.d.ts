@@ -17,7 +17,7 @@ declare module "*.md" {
   export default value;
 }
 
-declare module "eslint4b-prebuilt";
+declare module "eslint4b-prebuilt-2";
 declare module "mq-polyfill";
 declare module "@rjsf/antd";
 declare module "really-relaxed-json";

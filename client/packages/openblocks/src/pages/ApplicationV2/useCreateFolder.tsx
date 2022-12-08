@@ -5,7 +5,7 @@ import React, { useCallback, useMemo } from "react";
 import { Form } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { getCurrentUser } from "../../redux/selectors/usersSelectors";
+import { getUser } from "../../redux/selectors/usersSelectors";
 import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
 import { ModalFunc } from "antd/lib/modal/confirm";
@@ -19,7 +19,7 @@ const CreateFolderLabel = styled.div`
 
 export function useCreateFolder() {
   const dispatch = useDispatch();
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const allFolders = useSelector(foldersSelector);
   const folderNames = useMemo(() => allFolders.map((f) => f.name), [allFolders]);
 

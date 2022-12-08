@@ -1,8 +1,7 @@
 import { fromValue, Node } from "openblocks-core";
 import _ from "lodash";
 import moment from "moment";
-import { useSelector } from "react-redux";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { useCurrentUser } from "util/currentUser";
 
 /**
  * This file puts the global data used by eval
@@ -36,12 +35,7 @@ export function withGlobalExposingData<T extends GlobalExposingWithName>(
   WrappedComponent: React.ComponentType<T>
 ) {
   return (props: Omit<T, keyof GlobalExposingWithName>) => {
-    const currentUserRaw = useSelector(getCurrentUser);
-    const currentUser = {
-      id: currentUserRaw.id,
-      name: currentUserRaw.username,
-      avatarUrl: currentUserRaw.avatarUrl,
-    };
+    const currentUser = useCurrentUser();
     const newProps = {
       ...props,
       globalExposing: {

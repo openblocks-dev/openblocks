@@ -27,7 +27,7 @@ interface AppViewProps {
   dsl: any;
   appId: string;
   moduleDsl: any;
-  moduleInputs?: { name: string; value: any }[];
+  moduleInputs?: Record<string | number, { name: string; value: any }>;
   onModuleEventTriggered?: (eventName: string) => void;
   onCompChange?: (comp: RootComp | null) => void;
 }

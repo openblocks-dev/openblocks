@@ -8540,10 +8540,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint4b-prebuilt@npm:^6.7.2":
-  version: 6.7.2
-  resolution: "eslint4b-prebuilt@npm:6.7.2"
-  checksum: e238a7d03ec9f7e1cf05927d0501879508522f26d190cfd0b1a47948f8b52fc02deb1d4b61e7cbbcd249b0b7b20faff5f00be41bdf697a275b96520ba50e1e2e
+"eslint4b-prebuilt-2@npm:^7.32.0":
+  version: 7.32.0
+  resolution: "eslint4b-prebuilt-2@npm:7.32.0"
+  checksum: 9b21a3758b2e7caf7466b2eb767216dbdb23a145ec2209a1babdf029f2c020d3182129911d8f8a397bc93ceda6dfb41a3fbcec39eabe482d859303a1e20e060c
   languageName: node
   linkType: hard
 
@@ -13456,7 +13456,7 @@ __metadata:
     openblocks-cli: "workspace:^"
     openblocks-core: ^0.0.1
     openblocks-design: ^0.0.1
-    openblocks-sdk: ^0.0.20
+    openblocks-sdk: "workspace:^"
     react: 17
     react-dom: 17
     typescript: 4.8.4
@@ -13464,7 +13464,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"openblocks-sdk@^0.0.20, openblocks-sdk@workspace:^, openblocks-sdk@workspace:packages/openblocks-sdk":
+"openblocks-sdk@workspace:^, openblocks-sdk@workspace:packages/openblocks-sdk":
   version: 0.0.0-use.local
   resolution: "openblocks-sdk@workspace:packages/openblocks-sdk"
   dependencies:
@@ -13541,7 +13541,7 @@ __metadata:
     echarts: ^5.3.3
     eslint: ^8.0.0
     eslint-config-react-app: ^7.0.1
-    eslint4b-prebuilt: ^6.7.2
+    eslint4b-prebuilt-2: ^7.32.0
     file-saver: ^2.0.5
     github-markdown-css: ^5.1.0
     hotkeys-js: ^3.8.7
@@ -13601,6 +13601,7 @@ __metadata:
     vite-plugin-svgr: ^2.2.2
     vite-tsconfig-paths: ^3.6.0
     web-vitals: ^2.1.0
+    weixin-js-sdk: ^1.6.0
     xlsx: ^0.18.5
   languageName: unknown
   linkType: soft
@@ -18556,6 +18557,13 @@ __metadata:
   version: 7.0.0
   resolution: "webidl-conversions@npm:7.0.0"
   checksum: f05588567a2a76428515333eff87200fae6c83c3948a7482ebb109562971e77ef6dc49749afa58abb993391227c5697b3ecca52018793e0cb4620a48f10bd21b
+  languageName: node
+  linkType: hard
+
+"weixin-js-sdk@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "weixin-js-sdk@npm:1.6.0::__archiveUrl=https%3A%2F%2Fregistry.npmmirror.com%2Fweixin-js-sdk%2F-%2Fweixin-js-sdk-1.6.0.tgz"
+  checksum: 274755aaad99dff7a4bedc009798b1d37638c575df221988d05e5e776be9e8399369e374653848da8d16a6d940751482736ac7c88289cd349d39d556dbbf1b69
   languageName: node
   linkType: hard
 

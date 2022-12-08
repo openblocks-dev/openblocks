@@ -12,6 +12,12 @@ import {
   ToNodeType,
   ViewFnTypeForComp,
 } from "./multi";
+import { ExposingConfig, withExposingConfigs } from "./withExposing";
+import {
+  ExposeMethodCompConstructor,
+  MethodConfigsType,
+  withMethodExposing,
+} from "./withMethodExposing";
 
 export type NewChildren<ChildrenCompMap extends Record<string, Comp<unknown>>> = ChildrenCompMap & {
   hidden: InstanceType<typeof BoolCodeControl>;
@@ -41,6 +47,7 @@ export function uiChildren<ChildrenCompMap extends Record<string, Comp<unknown>>
 }
 
 type ViewReturn = ReactNode;
+
 /**
  * UI components can be constructed with this class, providing the hidden interface
  */
@@ -48,6 +55,8 @@ export class UICompBuilder<ChildrenCompMap extends Record<string, Comp<unknown>>
   private childrenMap: ToConstructor<ChildrenCompMap>;
   private viewFn: ViewFnTypeForComp<ViewReturn, NewChildren<ChildrenCompMap>>;
   private propertyViewFn: PropertyViewFnTypeForComp<NewChildren<ChildrenCompMap>> = () => null;
+  private stateConfigs: ExposingConfig<ChildrenCompMap>[] = [];
+  private methodConfigs: MethodConfigsType<ExposeMethodCompConstructor<any>> = [];
 
   /**
    * If viewFn is not placed in the constructor, the type of ViewReturn cannot be inferred
@@ -62,6 +71,18 @@ export class UICompBuilder<ChildrenCompMap extends Record<string, Comp<unknown>>
 
   setPropertyViewFn(propertyViewFn: PropertyViewFnTypeForComp<NewChildren<ChildrenCompMap>>) {
     this.propertyViewFn = propertyViewFn;
+    return this;
+  }
+
+  setExposeStateConfigs(configs: ExposingConfig<ChildrenCompMap>[]) {
+    this.stateConfigs = configs;
+    return this;
+  }
+
+  setExposeMethodConfigs<T = MultiBaseComp<ChildrenCompMap>>(
+    configs: MethodConfigsType<ExposeMethodCompConstructor<T>>
+  ) {
+    this.methodConfigs = configs;
     return this;
   }
 
@@ -91,7 +112,14 @@ export class UICompBuilder<ChildrenCompMap extends Record<string, Comp<unknown>>
         return <PropertyView comp={this} propertyViewFn={builder.propertyViewFn} />;
       }
     }
-    return MultiTempComp;
+
+    return withExposingConfigs(
+      withMethodExposing(
+        MultiTempComp,
+        this.methodConfigs as MethodConfigsType<ExposeMethodCompConstructor<MultiTempComp>>
+      ) as typeof MultiTempComp,
+      this.stateConfigs
+    );
   }
 }
 

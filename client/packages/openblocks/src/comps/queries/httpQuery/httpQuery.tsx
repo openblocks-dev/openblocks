@@ -3,7 +3,7 @@ import { changeValueAction, CompAction, MultiBaseComp } from "openblocks-core";
 import { keyValueListControl } from "../../controls/keyValueControl";
 import { ParamsJsonControl, ParamsStringControl } from "../../controls/paramsControl";
 import { withTypeAndChildrenAbstract } from "../../generators/withType";
-import { FunctionProperty, toQueryView } from "../queryCompUtils";
+import { toQueryView } from "../queryCompUtils";
 import { includes } from "lodash";
 import { trans } from "i18n";
 import {
@@ -83,35 +83,12 @@ export class HttpQuery extends HttpTmpQuery {
 
   override getView() {
     const children = this.children;
-    let params = [
-      // ...props.cookies,
-      ...children.headers.getView(),
-      ...children.params.getView(),
-      ...children.bodyFormData.getView(),
-    ].reduce(
-      (result: FunctionProperty[], kv) => [
-        ...result,
-        ...Object.entries(kv.children.key.getView()).map((pair) => ({
-          key: pair[0],
-          value: pair[1],
-        })),
-        ...Object.entries(kv.children.value.getView()).map((pair) => ({
-          key: pair[0],
-          value: pair[1],
-        })),
-      ],
-      []
-    );
-    params = [
-      ...params,
-      ...Object.entries(children.path.getView()).map((kv) => ({
-        key: kv[0],
-        value: kv[1],
-      })),
-      ...Object.entries(children.body.getView()).map((kv) => ({
-        key: kv[0],
-        value: kv[1],
-      })),
+    const params = [
+      ...children.headers.getQueryParams(),
+      ...children.params.getQueryParams(),
+      ...children.bodyFormData.getQueryParams(),
+      ...children.path.getQueryParams(),
+      ...children.body.getQueryParams(),
     ];
     return toQueryView(params);
   }

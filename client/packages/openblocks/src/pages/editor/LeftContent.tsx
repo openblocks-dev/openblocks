@@ -1,14 +1,19 @@
-import { EditorContext } from "comps/editorState";
+import { CompInfo, EditorContext } from "comps/editorState";
 import {
   Collapse,
   CollapseLabel as Label,
   CollapseTitle as Title,
+  FoldedIcon,
+  LeftClose,
+  LeftCommon,
+  LeftOpen,
   PadDiv,
   Section,
   Tooltip,
+  UnfoldIcon,
   UnShow,
 } from "openblocks-design";
-import React, { ReactNode, useCallback, useContext, useMemo } from "react";
+import React, { ReactNode, useCallback, useContext, useMemo, useState } from "react";
 import { hookCompCategory } from "comps/hooks/hookCompTypes";
 import _ from "lodash";
 import styled from "styled-components";
@@ -16,10 +21,15 @@ import { leftCompListClassName } from "pages/tutorials/tutorialsConstant";
 import { ScrollBar } from "openblocks-design";
 import UIComp from "comps/comps/uiComp";
 import { BottomResTypeEnum } from "types/bottomRes";
-import { safeJSONStringify } from "util/objectUtils";
+import { getTreeNodeByKey, getParentNodeKeysByKey, safeJSONStringify } from "util/objectUtils";
 import { Tabs, TabTitle } from "components/Tabs";
 import { BackgroundColor, TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
+import { CompTree } from "comps/comps/containerBase";
+import { CompStateIcon } from "./editorConstants";
+import { UICompType } from "comps/uiCompRegistry";
+import { DirectoryTreeStyle, Node, CollapseWrapper } from "./styledComponents";
+import { DataNode, EventDataNode } from "antd/lib/tree";
 
 const CollapseTitleWrapper = styled.div`
   display: flex;
@@ -107,11 +117,13 @@ const CollapseView = React.memo(
     isArray?: boolean;
     onClick?: (compName: string) => void;
     isSelected?: boolean;
+    isOpen?: boolean;
   }) => {
     const { data = {} } = props;
     return (
       <Collapse
         isSelected={props.isSelected}
+        isOpen={props.isOpen}
         config={[
           {
             key: props.name,
@@ -134,9 +146,12 @@ const CollapseView = React.memo(
                   <Title
                     style={{ flexShrink: 0 }}
                     color="#8B8FA3"
-                    label={`${props.isArray ? "[]" : "{}"} ${trans("leftPanel.propTips", {
-                      num: Object.keys(data).length,
-                    })}`}
+                    label={`${props.isArray ? "[]" : "{}"} ${trans(
+                      props.isArray ? "leftPanel.propTipsArr" : "leftPanel.propTips",
+                      {
+                        num: Object.keys(data).length,
+                      }
+                    )}`}
                   />
                 </CollapseTitleWrapper>
               </Tooltip>
@@ -157,6 +172,24 @@ enum LeftTabKey {
   State = "state",
   ModuleSetting = "module-setting",
 }
+
+enum TreeUIKey {
+  Components = "components",
+  Modals = "modals",
+}
+
+type NodeItem = {
+  key: string;
+  title: string;
+  type?: UICompType;
+  children: NodeItem[];
+};
+
+type NodeInfo = {
+  key: string;
+  show: boolean;
+  clientX?: number;
+};
 
 const LeftContentTabs = styled(Tabs)`
   .ant-tabs-nav {
@@ -180,6 +213,72 @@ const LeftContentWrapper = styled.div`
 export const LeftContent = (props: LeftContentProps) => {
   const { uiComp } = props;
   const editorState = useContext(EditorContext);
+  const [expandedKeys, setExpandedKeys] = useState<Array<string | number>>([]);
+  const [showData, setShowData] = useState<NodeInfo[]>([]);
+
+  const getTree = (tree: CompTree, result: NodeItem[], key?: string) => {
+    const { items, children } = tree;
+    if (Object.keys(items).length) {
+      for (const i in items) {
+        const info = {
+          title: items[i].children.name.getView(),
+          type: items[i].children.compType.getView() as UICompType,
+          key: i,
+          children: [],
+        };
+        if (key) {
+          const parent = getTreeNodeByKey(result, key);
+          parent?.children.push(info);
+        } else {
+          result.push(info);
+        }
+      }
+      result = _.sortBy(result, [(x) => x.title]);
+    }
+    if (Object.keys(children).length) {
+      for (const i in children) {
+        getTree(children[i], result, i);
+      }
+    }
+    return result;
+  };
+
+  const handleNodeClick = (
+    e: React.MouseEvent<HTMLSpanElement, MouseEvent>,
+    node: EventDataNode<DataNode>,
+    uiCompInfos: CompInfo[]
+  ) => {
+    uiCollapseClick(node.title + "");
+    const data = uiCompInfos.find((item) => item.name === node.title);
+    if (!node.children?.length && data && Object.keys(data.data)?.length && node.selected) {
+      // leaf and selected node, toggle showData
+      const index = showData.findIndex((item) => item.key === node.key);
+      let newData: NodeInfo[] = [];
+      let clientX = e.currentTarget?.offsetLeft + 20;
+      if (index > -1) {
+        newData = showData.map((item) => {
+          if (item.key === node.key) {
+            return {
+              key: item.key,
+              show: !item.show,
+              clientX,
+            };
+          }
+          return item;
+        });
+      } else {
+        newData = [
+          ...showData,
+          {
+            key: node.key + "",
+            show: true,
+            clientX,
+          },
+        ];
+      }
+      setShowData(newData);
+    }
+  };
 
   const uiCollapseClick = useCallback(
     (compName: string) => {
@@ -195,21 +294,145 @@ export const LeftContent = (props: LeftContentProps) => {
     [editorState]
   );
 
-  const uiCollapse = useMemo(() => {
+  const getTreeNode = (node: NodeItem, uiCompInfos: CompInfo[]) => {
+    const info = showData.find((item) => item.key === node.key);
+    const data = uiCompInfos.find((item) => item.name === node.title);
+    return (
+      <Node>
+        <span>
+          <span>{node.title}</span>
+          {data &&
+            !!Object.keys(data.data)?.length &&
+            (info?.show ? (
+              <Tooltip
+                placement="right"
+                title={trans("leftPanel.collapseTip", { component: node.title })}
+              >
+                <div
+                  title=""
+                  className="show-data"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const newData = showData.map((item) => {
+                      if (item.key === node.key) {
+                        return {
+                          key: item.key,
+                          show: false,
+                          clientX: undefined,
+                        };
+                      }
+                      return item;
+                    });
+                    setShowData(newData);
+                  }}
+                >
+                  <LeftOpen />
+                </div>
+              </Tooltip>
+            ) : (
+              <Tooltip
+                placement="right"
+                title={trans("leftPanel.expandTip", { component: node.title })}
+              >
+                <div
+                  title=""
+                  className="no-data"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const index = showData.findIndex((item) => item.key === node.key);
+                    let newData: NodeInfo[] = [];
+                    const info = {
+                      key: node.key,
+                      show: true,
+                      clientX: e.currentTarget.parentElement?.offsetLeft,
+                    };
+                    if (index > -1) {
+                      newData = showData.map((item) => {
+                        if (item.key === node.key) {
+                          return info;
+                        }
+                        return item;
+                      });
+                    } else {
+                      newData = [...showData, info];
+                    }
+                    setShowData(newData);
+                  }}
+                >
+                  <LeftClose />
+                </div>
+              </Tooltip>
+            ))}
+        </span>
+        {info?.show && data && (
+          <CollapseWrapper title="" clientX={info?.clientX} onClick={(e) => e.stopPropagation()}>
+            <ScrollBar style={{ maxHeight: "400px" }}>
+              <CollapseView
+                key={data.name}
+                name={data.name}
+                desc={data.dataDesc}
+                data={data.data}
+                isOpen={true}
+              />
+            </ScrollBar>
+          </CollapseWrapper>
+        )}
+      </Node>
+    );
+  };
+
+  const getTreeUI = (type: TreeUIKey) => {
     const uiCompInfos = _.sortBy(editorState.uiCompInfoList(), [(x) => x.name]);
-    return uiCompInfos.map((item) => (
-      <CollapseView
-        key={item.name}
-        name={item.name}
-        desc={item.dataDesc}
-        data={item.data}
-        isSelected={
-          editorState.selectedCompNames.size <= 1 && editorState.selectedCompNames.has(item.name)
+    const tree =
+      type === TreeUIKey.Components
+        ? editorState.getUIComp().getTree()
+        : editorState.getHooksComp().getUITree();
+    const explorerData: NodeItem[] = getTree(tree, []);
+    let selectedKeys = [];
+    if (editorState.selectedCompNames.size === 1) {
+      const key = Object.keys(editorState.selectedComps())[0];
+      const parentKeys = getParentNodeKeysByKey(explorerData, key);
+      if (parentKeys && parentKeys.length) {
+        let needSet = false;
+        parentKeys.forEach((key) => {
+          if (!expandedKeys.includes(key)) {
+            needSet = true;
+          }
+        });
+        needSet && setExpandedKeys(_.union(expandedKeys, parentKeys));
+      }
+      selectedKeys.push(key);
+    }
+
+    return (
+      <DirectoryTreeStyle
+        treeData={explorerData}
+        icon={(props: NodeItem) => props.type && (CompStateIcon[props.type] || <LeftCommon />)}
+        switcherIcon={({ expanded }: { expanded: boolean }) =>
+          expanded ? <FoldedIcon /> : <UnfoldIcon />
         }
-        onClick={uiCollapseClick}
+        expandedKeys={expandedKeys}
+        onExpand={(keys) => setExpandedKeys(keys)}
+        onClick={(e, node) => handleNodeClick(e, node, uiCompInfos)}
+        selectedKeys={selectedKeys}
+        titleRender={(nodeData) => getTreeNode(nodeData as NodeItem, uiCompInfos)}
       />
-    ));
-  }, [editorState, uiCollapseClick]);
+    );
+  };
+
+  const uiCollapse = useMemo(() => {
+    if (editorState.getAppType() === "nav") {
+      return;
+    }
+    return getTreeUI(TreeUIKey.Components);
+  }, [editorState, uiCollapseClick, expandedKeys, showData]);
+
+  const modalsCollapse = useMemo(() => {
+    if (editorState.getAppType() === "nav") {
+      return;
+    }
+    return getTreeUI(TreeUIKey.Modals);
+  }, [editorState, uiCollapseClick, expandedKeys, showData]);
 
   const bottomResCollapse = useMemo(() => {
     return editorState
@@ -246,11 +469,14 @@ export const LeftContent = (props: LeftContentProps) => {
   const stateContent = (
     <ScrollBar>
       <div style={{ paddingBottom: 80 }}>
-        <Section name={trans("leftPanel.queries")} width={288} noMargin>
-          <span>{bottomResCollapse}</span>
-        </Section>
         <Section name={trans("leftPanel.components")} width={288} noMargin>
           <span className={leftCompListClassName}>{uiCollapse}</span>
+        </Section>
+        <Section name={trans("leftPanel.modals")} width={288} noMargin>
+          <span>{modalsCollapse}</span>
+        </Section>
+        <Section name={trans("leftPanel.queries")} width={288} noMargin>
+          <span>{bottomResCollapse}</span>
         </Section>
         <Section name={trans("leftPanel.globals")} width={288} noMargin>
           <span>{hookCompsCollapse}</span>

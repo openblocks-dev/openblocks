@@ -75,7 +75,6 @@ const LeftTitle = styled.span<{
   word-break: break-all;
   white-space: pre-wrap;
   user-select: none;
-  font-family: "RobotoMono", monospace;
   font-size: 13px;
   line-height: ${(props) => (props.line ? props.line : 23)}px;
   color: ${(props) => (props.color ? props.color : "#333333")};

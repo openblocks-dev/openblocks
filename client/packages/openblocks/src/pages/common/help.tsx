@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createApplication } from "redux/reduxActions/applicationActions";
 import history from "util/history";
 import { buildAppRouteWithState } from "constants/routesURL";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import { DropdownMenu } from "openblocks-design";
 import VideoDialog from "pages/common/videoDialog";
 import { PlatformApi } from "api/platformApi";
@@ -173,7 +173,7 @@ export function HelpDropdown(props: HelpDropdownProps) {
   const [showHelp, setShowHelp] = useState(true);
   const [version, setVersion] = useState("");
   const dispatch = useDispatch();
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const [videoVisible, setVideoVisible] = useState(false);
   const [toolTipContent, setToolTipContent] = useState<React.ReactNode>(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -262,7 +262,7 @@ export function HelpDropdown(props: HelpDropdownProps) {
     <StyledMenu
       $edit={props.isEdit || false}
       onClick={(params) => {
-        if (params.key !== 'version') {
+        if (params.key !== "version") {
           setShowDropdown(false);
         }
         onMenuClick(params);
@@ -295,24 +295,28 @@ export function HelpDropdown(props: HelpDropdownProps) {
             </ItemWrapper>
           ),
         },
-        issueUrl ? {
-          key: "issue",
-          label: (
-            <ItemWrapper>
-              <HelpGithubIcon />
-              <span>{trans("help.submitIssue")}</span>
-            </ItemWrapper>
-          ),
-        } : null,
-        discordUrl ? {
-          key: "discord",
-          label: (
-            <ItemWrapper>
-              <HelpDiscordIcon />
-              <span>{trans("help.chat")}</span>
-            </ItemWrapper>
-          ),
-        } : null,
+        issueUrl
+          ? {
+              key: "issue",
+              label: (
+                <ItemWrapper>
+                  <HelpGithubIcon />
+                  <span>{trans("help.submitIssue")}</span>
+                </ItemWrapper>
+              ),
+            }
+          : null,
+        discordUrl
+          ? {
+              key: "discord",
+              label: (
+                <ItemWrapper>
+                  <HelpDiscordIcon />
+                  <span>{trans("help.chat")}</span>
+                </ItemWrapper>
+              ),
+            }
+          : null,
         {
           key: "editorTutorial",
           label: (

@@ -133,3 +133,59 @@ export function safeJSONStringify(obj: any): string {
     return "";
   }
 }
+
+const find = (item: any, key: string): any => {
+  if (item.key === key) {
+    return item;
+  }
+  let v;
+  if (item.children.length) {
+    for (const child of item.children) {
+      v = find(child, key);
+      if (v) {
+        return v;
+      }
+    }
+  }
+  return null;
+};
+
+export function getTreeNodeByKey(tree: any, key: string): any {
+  let v;
+  for (const node of tree) {
+    v = find(node, key);
+    if (v) {
+      return v;
+    }
+  }
+  return null;
+}
+
+const findParent = (item: any, key: string, result: string[]): boolean => {
+  if (item.key === key) {
+    return true;
+  }
+  let v;
+  if (item.children.length) {
+    for (const child of item.children) {
+      v = findParent(child, key, result);
+      if (v) {
+        result.push(item.key);
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
+export function getParentNodeKeysByKey(tree: any, key: string): string[] {
+  let v;
+  const result: string[] = [];
+  for (const node of tree) {
+    v = findParent(node, key, result);
+    if (v) {
+      return result;
+    }
+  }
+  return result;
+}

@@ -5,13 +5,12 @@ import {
   GreyTextColor,
 } from "constants/style";
 import { draggingUtils } from "layout";
-import { ModuleDocIcon } from "openblocks-design";
 import styled from "styled-components";
 import { getRemoteCompType } from "comps/utils/remote";
 import { OpenblocksCompMeta } from "types/remoteComp";
 import { TransparentImg } from "util/commonUtils";
-import { useContext } from "react";
-import { RightContext } from "../rightContext";
+import { ModuleIcon } from "openblocks-design";
+import { NPM_PLUGIN_ASSETS_BASE_URL } from "constants/npmPlugins";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -41,6 +40,10 @@ const ItemWrapper = styled.div`
     align-items: center;
     border: 1px solid ${BorderColor};
     border-radius: 4px;
+    img {
+      width: 100%;
+      height: 100%;
+    }
   }
   .module-content {
     flex: 1;
@@ -50,14 +53,14 @@ const ItemWrapper = styled.div`
     overflow: hidden;
   }
   .module-name {
-    line-height: 1;
+    line-height: 1.5;
     font-size: 13px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
   }
   .module-desc {
-    line-height: 1;
+    line-height: 1.5;
     font-size: 12px;
     color: ${GreyTextColor};
   }
@@ -68,12 +71,14 @@ interface PluginCompItemProps {
   packageVersion: string;
   compName: string;
   compMeta: OpenblocksCompMeta;
+  onDrag: (compType: string) => void;
 }
 
 export function PluginCompItem(props: PluginCompItemProps) {
-  const { packageName, packageVersion, compName, compMeta } = props;
+  const { packageName, packageVersion, compName, compMeta, onDrag } = props;
   const compType = getRemoteCompType("npm", packageName, packageVersion, compName);
-  const { onDrag } = useContext(RightContext);
+
+  const icon = `${NPM_PLUGIN_ASSETS_BASE_URL}/${packageName}@${packageVersion}/${compMeta.icon}`;
 
   return (
     <ItemWrapper
@@ -87,7 +92,7 @@ export function PluginCompItem(props: PluginCompItemProps) {
       }}
     >
       <div className="module-icon">
-        <ModuleDocIcon width="19px" />
+        {compMeta.icon ? <img alt={compMeta.name} src={icon} /> : <ModuleIcon width={"19px"} />}
       </div>
       <div className="module-content">
         <div className="module-name">{compMeta.name}</div>

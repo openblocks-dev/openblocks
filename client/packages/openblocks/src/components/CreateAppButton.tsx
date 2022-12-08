@@ -31,7 +31,7 @@ interface SelectedState {
 export function useCreateApp(type: AppTypeEnum, onSuccess?: (app: ApplicationDetail) => void) {
   const dispatch = useDispatch();
   const { currentUser, isCreating } = useSelector<AppState, SelectedState>((state) => ({
-    currentUser: state.ui.users.currentUser,
+    currentUser: state.ui.users.user,
     isCreating: state.ui.application.loadingStatus.isApplicationCreating,
   }));
   const allApplications = useSelector(normalAppListSelector);

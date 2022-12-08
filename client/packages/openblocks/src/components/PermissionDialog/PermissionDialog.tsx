@@ -47,7 +47,7 @@ export const PermissionDialog = (props: {
   onVisibleChange: (visible: boolean) => void;
   viewBodyRender?: (list: ReactNode) => ReactNode;
   permissionItems: PermissionItemsType;
-  supportRoles: PermissionRole[];
+  supportRoles: { label: string; value: PermissionRole }[];
   addPermission: (
     userIds: string[],
     groupIds: string[],

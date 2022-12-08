@@ -18,7 +18,7 @@ import {
 import { canEditApp, canManageApp } from "../../util/permissionUtils";
 import { HomeResKey, HomeResTypeEnum } from "../../types/homeRes";
 import { HomeResInfo } from "../../util/homeResUtils";
-import { getCurrentUser } from "../../redux/selectors/usersSelectors";
+import { getUser } from "../../redux/selectors/usersSelectors";
 import { useLocation } from "react-use";
 import { TrashTableView } from "./TrashTableView";
 import { HomepageTourV2 } from "../tutorials/HomeTutorialsV2";
@@ -244,7 +244,7 @@ export interface HomeLayoutProps {
 
 export function HomeLayout(props: HomeLayoutProps) {
   const { breadcrumb = [], elements = [], mode } = props;
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const isFetching = useSelector(isFetchingFolderElements);
 
   const [filterBy, setFilterBy] = useState<HomeResKey>("All");

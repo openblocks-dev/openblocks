@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { getCommonSettings } from "redux/selectors/commonSettingSelectors";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import { useShallowEqualSelector } from "util/hooks";
 import { Level1SettingPageContent, Level1SettingPageTitle } from "../styled";
@@ -20,6 +20,7 @@ import { trans } from "i18n";
 import { Prompt } from "react-router";
 import history from "util/history";
 import { Location } from "history";
+import { useExtraAdvanceSettings } from "@openblocks-ee/pages/setting/advanced/extraAdvancedSetting";
 
 const AdvancedSettingContent = styled.div`
   max-width: 840px;
@@ -57,7 +58,7 @@ let locationInfo: Location | Location<unknown> | null = null;
 
 export function AdvancedSetting() {
   const dispatch = useDispatch();
-  const currentUser = useSelector(getCurrentUser);
+  const currentUser = useSelector(getUser);
   const commonSettings = useShallowEqualSelector(getCommonSettings);
   const [settings, setSettings] = useState(commonSettings);
   const appList = useSelector(normalAppListSelector);
@@ -86,7 +87,7 @@ export function AdvancedSetting() {
     dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
   }, [currentUser.currentOrgId, dispatch]);
 
-  const handleSave = (key: keyof typeof settings) => {
+  const handleSave = (key: keyof typeof settings, onSuccess?: () => void) => {
     return (value?: any) => {
       dispatch(
         setCommonSettings({
@@ -99,6 +100,7 @@ export function AdvancedSetting() {
             if (value !== undefined) {
               setSettings((i) => ({ ...i, [key]: value }));
             }
+            onSuccess?.();
             message.success(trans("advanced.saveSuccess"));
           },
         })
@@ -107,7 +109,7 @@ export function AdvancedSetting() {
   };
 
   const isNotChange = JSON.stringify(commonSettings) === JSON.stringify(settings);
-
+  const extraAdvanceSettings = useExtraAdvanceSettings();
   return (
     <Level1SettingPageContent>
       <Prompt
@@ -223,6 +225,7 @@ export function AdvancedSetting() {
             {trans("advanced.saveBtn")}
           </SaveButton>
         </div>
+        {extraAdvanceSettings}
       </AdvancedSettingContent>
     </Level1SettingPageContent>
   );

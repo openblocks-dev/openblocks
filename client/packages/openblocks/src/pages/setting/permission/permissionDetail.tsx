@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGroupsAction } from "redux/reduxActions/orgActions";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import GroupPermission from "./groupUsersPermission";
 import UsersPermission from "./orgUsersPermission";
@@ -21,7 +21,7 @@ const PermissionContent = styled.div`
 const All_Users = "users";
 
 export default function PermissionSetting() {
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const orgId = user.currentOrgId;
   const orgGroups = useSelector(getOrgGroups);
   const groupIdMap = new Map(orgGroups.map((group) => [group.groupId, group]));

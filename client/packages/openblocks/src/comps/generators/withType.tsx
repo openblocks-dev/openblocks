@@ -97,6 +97,12 @@ export function parseChildrenFromValue<
     } else {
       Comp = compMap[compType];
     }
+
+    if (!Comp) {
+      log.warn(`[${compType}] is not remote comp and not found in`, compMap);
+      Comp = valueComp(compValue.value);
+    }
+
     children[valueName] = new Comp({
       dispatch: wrapDispatch(dispatch, valueName),
       ...compValue,

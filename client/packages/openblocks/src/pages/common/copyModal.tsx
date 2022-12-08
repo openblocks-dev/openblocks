@@ -4,7 +4,7 @@ import { CustomModal, CustomSelect, TacoInput } from "openblocks-design";
 import { trans } from "i18n";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import ApplicationApi, { EditingApplicationDSL } from "api/applicationApi";
 import { validateResponse } from "api/apiUtils";
 import { foldersSelector } from "redux/selectors/folderSelector";
@@ -21,7 +21,7 @@ type CopyModalProps = {
 
 export function CopyModal(props: CopyModalProps) {
   const [copyName, setCopyName] = useState("");
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const folders = useSelector(foldersSelector);
   const [folderId, setFolderId] = useState("");
   const { visible, close, name, type, id } = props;

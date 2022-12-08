@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { AppSummaryInfo, fetchApplicationInfo } from "redux/reduxActions/applicationActions";
 import { fetchDataSourceByApp, fetchDataSourceTypes } from "redux/reduxActions/datasourceActions";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import { useUserViewMode } from "util/hooks";
 import "comps/uiCompRegistry";
 import { AppSnapshot } from "pages/editor/appSnapshot";
@@ -32,7 +32,7 @@ export default function AppEditor() {
   const params = useParams<AppPathParams>();
   const applicationId = params.applicationId;
   const viewMode = params.viewMode === "view" ? "published" : "editing";
-  const currentUser = useSelector(getCurrentUser);
+  const currentUser = useSelector(getUser);
   const dispatch = useDispatch();
   const fetchOrgGroupsFinished = useSelector(getFetchOrgGroupsFinished);
   const isCommonSettingsFetching = useSelector(getIsCommonSettingFetching);

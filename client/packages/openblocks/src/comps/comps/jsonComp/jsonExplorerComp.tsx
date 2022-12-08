@@ -52,6 +52,7 @@ let JsonExplorerTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props) => (
     <JsonExplorerContainer $theme={props.theme as keyof typeof bgColorMap}>
       <ReactJson
+        name={false}
         src={props.value}
         theme={props.theme as ThemeKeys}
         collapsed={!props.expandToggle}

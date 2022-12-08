@@ -4,7 +4,7 @@ import { CommonTextLabel, CustomModal, TacoButton, TacoInput } from "openblocks-
 import { CSSProperties, ReactNode, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { AppState } from "redux/reducers";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import { validateResponse } from "api/apiUtils";
 import { WhiteLoading } from "openblocks-design";
@@ -109,7 +109,7 @@ function InviteDialog(props: {
 
 const mapStateToProps = (state: AppState) => {
   return {
-    orgId: getCurrentUser(state).currentOrgId,
+    orgId: getUser(state).currentOrgId,
   };
 };
 

@@ -251,6 +251,10 @@ export class GlobalShortcutsWrapper extends React.Component<GlobalWrapperProps> 
     document.removeEventListener("mousedown", this.onMouseDownCapture, true);
   }
   render() {
-    return <div tabIndex={-1}>{this.props.children}</div>;
+    return (
+      <div tabIndex={-1} style={{ height: "100%" }}>
+        {this.props.children}
+      </div>
+    );
   }
 }

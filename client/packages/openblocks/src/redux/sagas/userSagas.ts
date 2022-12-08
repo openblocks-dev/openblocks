@@ -1,5 +1,5 @@
 import { ApiResponse } from "api/apiResponses";
-import UserApi, { GetUserResponse } from "api/userApi";
+import UserApi, { GetCurrentUserResponse, GetUserResponse } from "api/userApi";
 import { AxiosResponse } from "axios";
 import {
   ReduxAction,
@@ -20,15 +20,16 @@ import history from "util/history";
 import { validateResponse } from "api/apiUtils";
 import { Org } from "constants/orgConstants";
 import { SERVER_ERROR_CODES } from "constants/apiConstants";
-import { DefaultCurrentUserDetails } from "constants/userConstants";
+import { defaultUser } from "constants/userConstants";
+import { message } from "antd";
 
 function validResponseData(response: AxiosResponse<ApiResponse>) {
   return response && response.data && response.data.data;
 }
 
-export function* getCurrentUserSaga() {
+export function* getUserSaga() {
   try {
-    const response: AxiosResponse<GetUserResponse> = yield call(UserApi.getCurrentUser);
+    const response: AxiosResponse<GetUserResponse> = yield call(UserApi.getUser);
     if (
       validResponseData(response) &&
       response.data.code === SERVER_ERROR_CODES.REDIRECT &&
@@ -48,7 +49,7 @@ export function* getCurrentUserSaga() {
         // unlogin user, use default value
         yield put({
           type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-          payload: DefaultCurrentUserDetails,
+          payload: defaultUser,
         });
         return;
       }
@@ -62,20 +63,52 @@ export function* getCurrentUserSaga() {
         ? new Map(orgAndRoles.map((orgAndRole) => [orgAndRole.org.id, orgAndRole.role]))
         : new Map();
 
-      const currentUser = {
+      const user = {
         ...restField,
         orgs: orgs,
         orgRoleMap: orgRoleMap,
       };
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-        payload: currentUser,
+        payload: user,
       });
     }
   } catch (error: any) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_USER_DETAILS_ERROR,
     });
+  }
+}
+
+export function* getCurrentUserSaga() {
+  try {
+    const response: AxiosResponse<GetCurrentUserResponse> = yield call(UserApi.getCurrentUser);
+    if (validateResponse(response)) {
+      yield put({
+        type: ReduxActionTypes.FETCH_CURRENT_USER_SUCCESS,
+        payload: response.data.data,
+      });
+    }
+  } catch (error: any) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_CURRENT_USER_ERROR,
+    });
+    log.error("getCurrentUser error:", error);
+  }
+}
+
+export function* getRawCurrentUserSaga() {
+  try {
+    const response: AxiosResponse<GetCurrentUserResponse> = yield call(UserApi.getRawCurrentUser);
+    if (validateResponse(response)) {
+      yield put({
+        type: ReduxActionTypes.FETCH_RAW_CURRENT_USER_SUCCESS,
+        payload: response.data.data,
+      });
+    }
+  } catch (error: any) {
+    message.error(error instanceof Error ? error.message : error);
+    log.error("getRawCurrentUser error:", error);
   }
 }
 
@@ -128,7 +161,9 @@ function* markUserStatusSaga(action: ReduxAction<MarkUserStatusPayload>) {
 export default function* userSagas() {
   yield all([
     takeLatest(ReduxActionTypes.LOGOUT_USER_INIT, logoutSaga),
+    takeLatest(ReduxActionTypes.FETCH_USER_INIT, getUserSaga),
     takeLatest(ReduxActionTypes.FETCH_USER_INIT, getCurrentUserSaga),
+    takeLatest(ReduxActionTypes.FETCH_RAW_CURRENT_USER, getRawCurrentUserSaga),
     takeLatest(ReduxActionTypes.UPDATE_USER_PROFILE, updateUserSaga),
     takeLatest(ReduxActionTypes.MARK_USER_STATUS, markUserStatusSaga),
   ]);

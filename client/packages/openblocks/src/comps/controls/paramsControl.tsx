@@ -1,7 +1,14 @@
-import { CompAction, wrapChildAction } from "openblocks-core";
-import { CompParams, MultiBaseComp } from "openblocks-core";
-import { CodeNode, fromRecord, Node, withFunction } from "openblocks-core";
-import { getDynamicStringSegments } from "openblocks-core";
+import {
+  CodeNode,
+  CompAction,
+  CompParams,
+  fromRecord,
+  getDynamicStringSegments,
+  MultiBaseComp,
+  Node,
+  withFunction,
+  wrapChildAction,
+} from "openblocks-core";
 import { ReactNode } from "react";
 import { lastValueIfEqual } from "util/objectUtils";
 import {
@@ -93,6 +100,13 @@ function toParamsControl<T extends CodeControlType>(Control: T) {
 
     toJsonValue() {
       return this.children.text.toJsonValue();
+    }
+
+    getQueryParams() {
+      return Object.entries(this.getView()).map((kv) => ({
+        key: kv[0],
+        value: kv[1],
+      }));
     }
   };
 }

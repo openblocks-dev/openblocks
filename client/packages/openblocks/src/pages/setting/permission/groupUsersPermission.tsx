@@ -15,7 +15,7 @@ import {
   quitGroupAction,
   updateUserGroupRoleAction,
 } from "redux/reduxActions/orgActions";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import { formatTimestamp } from "util/dateTimeUtils";
 import { isGroupAdmin } from "util/permissionUtils";
@@ -205,7 +205,7 @@ const mapStateToProps = (state: AppState) => {
   return {
     groupUsers: state.ui.org.groupUsers,
     groupUsersFetching: state.ui.org.groupUsersFetching,
-    currentUser: getCurrentUser(state),
+    currentUser: getUser(state),
     currentUserGroupRole: state.ui.org.currentUserGroupRole,
   };
 };
