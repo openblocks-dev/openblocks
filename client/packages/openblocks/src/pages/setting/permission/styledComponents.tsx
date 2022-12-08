@@ -198,12 +198,18 @@ const GroupNameWrapper = styled.div`
   font-weight: 500;
 `;
 
-export function GroupNameView(props: { name: string; toolTip?: string | false; lock?: boolean }) {
+export function GroupNameView(props: {
+  name: string;
+  lock?: boolean;
+  toolTip?: string | false;
+  suffix?: React.ReactNode;
+}) {
   return (
     <GroupNameWrapper>
       {props.name}
       {props.lock && <LockIcon />}
       {props.toolTip && <QuestionTooltip title={props.toolTip} />}
+      {props.suffix}
     </GroupNameWrapper>
   );
 }
@@ -227,7 +233,8 @@ export const HeaderBack = styled.div`
     color: #8b8fa3;
     cursor: pointer;
   }
-  > span:nth-of-type(2), > div {
+  > span:nth-of-type(2),
+  > div {
     color: #222222;
     font-weight: 500;
     font-size: 20px;

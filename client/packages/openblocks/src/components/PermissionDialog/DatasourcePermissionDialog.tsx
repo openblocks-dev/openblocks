@@ -66,7 +66,13 @@ export const DatasourcePermissionDialog = (props: {
     <PermissionDialog
       {...props}
       title={trans("accessControl")}
-      supportRoles={[PermissionRole.Viewer, PermissionRole.Owner]}
+      supportRoles={[
+        {
+          label: trans("share.datasourceViewer"),
+          value: PermissionRole.Viewer,
+        },
+        { label: trans("share.datasourceOwner"), value: PermissionRole.Owner },
+      ]}
       permissionItems={permissions}
       viewBodyRender={(list) => {
         if (!permissionInfo) {

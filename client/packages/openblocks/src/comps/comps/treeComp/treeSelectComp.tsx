@@ -79,7 +79,7 @@ function getCheckedStrategy(v: ValueFromOption<typeof checkedStrategyOptions>) {
 const TreeCompView = (
   props: RecordConstructorToView<typeof childrenMap> & { dispatch: DispatchType }
 ) => {
-  const { treeData, selectType, value, expanded, style } = props;
+  const { treeData, selectType, value, expanded, style, inputValue } = props;
   const isSingle = selectType === "single";
   const [validateState, handleValidate] = useSelectInputValidate(props);
   useEffect(() => {
@@ -107,7 +107,8 @@ const TreeCompView = (
         treeCheckable={selectType === "check"}
         showCheckedStrategy={getCheckedStrategy(props.checkedStrategy)}
         treeLine={props.showLine ? { showLeafIcon: props.showLeafIcon } : false}
-        treeExpandedKeys={expanded.value}
+        // fix expand issue when searching
+        treeExpandedKeys={inputValue ? undefined : expanded.value}
         onTreeExpand={(keys) => {
           expanded.onChange(keys);
         }}
@@ -118,6 +119,10 @@ const TreeCompView = (
           props.onEvent("change");
         }}
         showSearch={props.showSearch}
+        // search label
+        treeNodeFilterProp="label"
+        // fix inputValue when select an option or lose focus
+        autoClearSearchValue={false}
         onSearch={(value) => {
           props.dispatch(changeChildAction("inputValue", value));
         }}

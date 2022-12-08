@@ -76,13 +76,17 @@ export const en = {
   },
   leftPanel: {
     queries: "Queries",
-    components: "Components",
     globals: "Globals",
+    propTipsArr: "{num} items",
     propTips: "{num} keys",
     stateTab: "State",
     settingsTab: "Settings",
     toolbarTitle: "Other",
     toolbarPreload: "Scripts and style",
+    components: "Components",
+    modals: "Modals",
+    expandTip: "Click to expand {component}'s data",
+    collapseTip: "Click to collapse {component}'s data",
   },
   bottomPanel: {
     title: "Queries",
@@ -99,8 +103,10 @@ export const en = {
     createTab: "Insert",
     searchPlaceHolder: "Search components or modules",
     uiComponentTab: "Components",
-    moduleTab: "Modules",
-    pluginTab: "Plugins",
+    extensionTab: "Extensions",
+    modulesTab: "Modules",
+    moduleListTitle: "Modules",
+    pluginListTitle: "Plugins",
     emptyModules: "Modules are reusable groups of components and queries.",
     searchNotFound: "Can't find a suitable component? Submit an issue",
     emptyPlugins: "No plugins added.",
@@ -368,6 +374,8 @@ export const en = {
     recentlyUsed: "Recently used",
     tempState: "Temporary state",
     transformer: "Transformer",
+    quickRestAPI: "REST Query",
+    quickGraphql: "GraphQL Query",
     executeJSCode: "Run JavaScript Code",
     importFromQueryLibrary: "Import from Query Library",
     triggerType: "Triggered when",
@@ -384,11 +392,19 @@ export const en = {
       "Disabling prepared statements can generate SQL dynamically, but risks SQL injection",
     timeout: "Timeout after",
     timeoutTooltip:
-      "The default unit is ms. The maximum value is {maxSeconds} seconds. The default value is {defaultSeconds} seconds. The unit is ms and s.",
+      "Default unit: ms, supported input units: ms, s.\n" +
+      "Default value: {defaultSeconds} seconds\n" +
+      "Maximum value: {maxSeconds} seconds.\n" +
+      "\n" +
+      "E.g. 300 (i.e. 300ms), 800ms, 5s.",
     periodic: "Run this query periodically",
     periodicTime: "Period",
     periodicTimeTooltip:
-      "Period between successive executions. Default unit: milliseconds (ms), default: {defaultSeconds} seconds, min: 100 milliseconds, supported input unit: ms(ms), s(second)",
+      "Period between successive executions. \n" +
+      "Default unit: ms, supported input units: ms, s.\n" +
+      "Minimum value: 100ms, periodical execution will be disabled for values below that.\n" +
+      "\n" +
+      "E.g. 300 (i.e. 300ms), 800ms, 5s.",
     dataSourceStatusError:
       "The query data source is invalid or does not exist. Update the current query data source.",
     success: "Success",
@@ -793,8 +809,8 @@ export const en = {
     showLeafIcon: "Show leaf icon",
     treeDataAsia: "Asia",
     treeDataChina: "China",
-    treeDataBeijing: "Bei Jing",
-    treeDataShanghai: "Shang Hai",
+    treeDataBeijing: "Beijing",
+    treeDataShanghai: "Shanghai",
     treeDataJapan: "Japan",
     treeDataEurope: "Europe",
     treeDataEngland: "England",
@@ -945,6 +961,7 @@ export const en = {
     textDesc: "Text displayed in the current text box",
   },
   table: {
+    editable: "Editable",
     columnNum: "Columns",
     viewModeResizable: "Column width can be adjusted by user",
     viewModeResizableTooltip: "Whether the user can adjust the column width while in use.",
@@ -1024,6 +1041,8 @@ export const en = {
     middle: "M",
     large: "L",
     refreshButtonTooltip: "The current data changes, click to regenerate the column.",
+    changeSetDesc:
+      "An object representing changes to an editable table, only contains the changed cell. Rows go first and columns go second.",
     selectedRowDesc:
       "Provides data for the currently selected row, indicating the row that triggers a click event if the user clicks a button/link on the row",
     selectedRowsDesc: "Useful in multiple selection mode, same as selectedRow",
@@ -1036,6 +1055,8 @@ export const en = {
     displayDataDesc: "Data displayed in the current table",
     filterDesc: "Table Filtering Parameters",
     dataDesc: "The raw data used in the current table",
+    saveChanges: "Save changes",
+    cancelChanges: "Cancel changes",
     rowSelectChange: "Row select change",
     rowClick: "Row click",
     rowColor: "Row color",
@@ -1044,6 +1065,13 @@ export const en = {
       "currentRow, currentOriginalIndex, currentIndex, columnTitle. \n" +
       "For example:\n" +
       `'{{ currentRow.id > 3 ? "green" : "red" }}'`,
+    saveChangesNotBind:
+      "No event handler configured for saving changes. Please bind at least one event handler before click.",
+    dynamicColumn: "Use dynamic column setting",
+    dynamicColumnConfig: "Column Setting",
+    dynamicColumnConfigDesc:
+      "Dynamic column settings. Accepts an array of column names. All columns are visible by default.\n" +
+      `Example: ["id", "name"]`,
   },
   image: {
     src: "Image source",
@@ -1155,6 +1183,7 @@ export const en = {
   },
   millisecondsControl: {
     timeoutTypeError: "Please enter the correct timeout period, the current input is: {value}",
+    timeoutLessThanMinError: "Input must greater than {left}, the current input is: {value}",
   },
   selectionControl: {
     single: "Single",
@@ -1299,6 +1328,7 @@ export const en = {
     modalHeightTooltip: "Number, example: 222",
     modalWidth: "Modal width",
     modalWidthTooltip: "Number or percentage, example: 520, 60%",
+    maskClosable: "Click the mask to close",
   },
   listView: {
     numOfRows: "Number of rows",
@@ -1455,6 +1485,8 @@ export const en = {
     viewer: "Viewer",
     editor: "Editor",
     owner: "Owner",
+    datasourceViewer: "Can use",
+    datasourceOwner: "Can manage",
   },
   debug: {
     title: "Title",
@@ -1467,6 +1499,8 @@ export const en = {
     emptyTestMethod: "The current module has no method to test",
     name: "Name",
     input: "Input",
+    params: "Params",
+    emptyParams: "No params has been added",
     emptyInput: "No input has been added",
     emptyMethod: "No method has been added",
     emptyOutput: "No output has been added",
@@ -1490,7 +1524,7 @@ export const en = {
   },
   resultPanel: {
     returnFunction: "The return value is a function.",
-    cosume: "{time}",
+    consume: "{time}",
     JSON: "Show JSON",
   },
   createAppButton: {
@@ -1655,7 +1689,7 @@ export const en = {
     userLogin: "Sign in",
     login: "Sign in",
     bind: "Bind",
-    passwordCheckLength: "{min} to {max} characters",
+    passwordCheckLength: "At least {min} characters",
     passwordCheckContainsNumberAndLetter: "Must contain letters and numbers",
     passwordCheckSpace: "Cannot contain whitespace characters",
     welcomeTitle: "🎉 Welcome to {productName} 🎉",
@@ -1792,6 +1826,7 @@ export const en = {
     showDots: "Show dots",
   },
   npm: {
+    invalidNpmPackageName: "Invalid npm package name or url.",
     pluginExisted: "This npm plugin already existed",
     compNotFound: "Component {compName} not found.",
     addPluginModalTitle: "Add npm plugin",
@@ -1839,8 +1874,8 @@ export const en = {
   },
   queryTutorial: {
     js: "",
-    transformer: "",
-    tempState: "",
+    transformer: "https://docs.openblocks.dev/build-apps/write-javascript/transformers",
+    tempState: "https://docs.openblocks.dev/build-apps/write-javascript/temporary-state",
   },
   customComponent: {
     entryUrl: "https://custom-component.openblocks.dev/index.html",

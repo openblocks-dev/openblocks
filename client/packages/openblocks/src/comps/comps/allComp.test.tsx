@@ -1,25 +1,25 @@
-import { uiCompRegistry } from "../uiCompRegistry";
-import { CompConstructor, CustomAction, wrapChildAction } from "openblocks-core";
-import { StringControl } from "comps/controls/codeControl";
+import { QueryMap } from "@openblocks-ee/constants/queryConstants";
+import { loadComps } from "comps";
+import { ColumnComp, RenderComp } from "comps/comps/tableComp/column/tableColumnComp";
+import { InputComp } from "comps/comps/textInputComp/inputComp";
 import { BoolControl } from "comps/controls/boolControl";
+import { StringControl } from "comps/controls/codeControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { MultiCompBuilder, valueComp } from "comps/generators";
+import { isExposingMethodComp } from "comps/generators/withMethodExposing";
 import { QueryComp } from "comps/queries";
 import { JSQuery } from "comps/queries/jsQuery";
 import { evalAndReduce } from "comps/utils";
-import { InputComp } from "comps/comps/textInputComp/inputComp";
-import { CheckboxComp } from "./selectInputComp/checkboxComp";
+import _ from "lodash";
+import log from "loglevel";
+import { CompConstructor } from "openblocks-core";
+import { ParamsStringControl } from "../controls/paramsControl";
+import { SQLQuery } from "../queries/sqlQuery/SQLQuery";
+import { uiCompRegistry } from "../uiCompRegistry";
 import { AppLayoutComp } from "./gridLayoutComp";
 import { RootComp } from "./rootComp";
+import { CheckboxComp } from "./selectInputComp/checkboxComp";
 import { TableComp } from "./tableComp";
-import { ColumnComp, RenderComp } from "comps/comps/tableComp/column/tableColumnComp";
-import { ParamsStringControl } from "../controls/paramsControl";
-import { isExposingMethodComp } from "comps/generators/withMethodExposing";
-import _ from "lodash";
-import { SQLQuery } from "../queries/sqlQuery/SQLQuery";
-import { loadComps } from "comps";
-import { QueryMap } from "@openblocks-ee/constants/queryConstants";
-import log from "loglevel";
 
 beforeAll(async () => {
   await loadComps();
@@ -58,24 +58,6 @@ const COMPS_MAP = {
   tableColumnRender: RenderComp,
 } as Record<string, CompConstructor>;
 
-const compContextActionMap = {
-  tableColumn: wrapChildAction(
-    "render",
-    RenderComp.changeContextDataAction({
-      currentCell: "aaa",
-      currentRow: [{ a: "aa" }],
-      currentIndex: 1,
-      currentOriginalIndex: 1,
-    })
-  ),
-  tableColumnRender: RenderComp.changeContextDataAction({
-    currentCell: "aaa",
-    currentRow: [{ a: "aa" }],
-    currentIndex: 1,
-    currentOriginalIndex: 1,
-  }),
-} as Record<string, CustomAction>;
-
 Object.entries(uiCompRegistry).forEach(([key, value]) => {
   COMPS_MAP["ui_" + key] = value.comp;
 });
@@ -87,10 +69,6 @@ test("test comp don't change if no value change", () => {
   Object.keys(COMPS_MAP).forEach((name) => {
     const Comp = COMPS_MAP[name];
     let comp = new Comp({});
-    if (compContextActionMap[name]) {
-      // fill the context
-      comp = comp.reduce(compContextActionMap[name]);
-    }
     comp.getView(); // under the state of uneval can also getView
     comp = evalAndReduce(comp);
     expect(comp.node() === comp.node()).toBe(true);

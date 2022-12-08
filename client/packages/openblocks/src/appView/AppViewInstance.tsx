@@ -152,13 +152,13 @@ export class AppViewInstance<I = any, O = any> {
     this.render();
   }
 
-  invokeMethod(methodName: string) {
+  invokeMethod(methodName: string, params: any[] = []) {
     if (!this.comp) {
       return;
     }
     const moduleLayout = this.comp.children.ui.getModuleLayoutComp();
     if (moduleLayout) {
-      moduleLayout.children.methods.executeMethodByName(methodName);
+      moduleLayout.children.methods.executeMethodByName(methodName, params);
     }
   }
 }

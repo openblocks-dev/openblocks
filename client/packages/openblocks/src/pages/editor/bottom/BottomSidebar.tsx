@@ -279,7 +279,7 @@ const NolistDiv = styled.div`
 export const EmptyQueryList = (props: { newColumn: () => void }) => (
   <div style={{ display: "flex" }}>
     <NolistDiv>
-      <div>{trans("query.noQueries")}</div>
+      <div style={{ color: "#b8b9bf" }}>{trans("query.noQueries")}</div>
       <span
         style={{ color: "#4965f2", cursor: "pointer", margin: "0 4px" }}
         onClick={props.newColumn}

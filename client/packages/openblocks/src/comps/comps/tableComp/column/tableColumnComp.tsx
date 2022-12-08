@@ -1,21 +1,28 @@
-import { changeValueAction, multiChangeAction } from "openblocks-core";
+import { BoolControl } from "comps/controls/boolControl";
+import { StringControl } from "comps/controls/codeControl";
+import { dropdownControl, HorizontalAlignmentControl } from "comps/controls/dropdownControl";
+import { MultiCompBuilder, stateComp, valueComp } from "comps/generators";
+import { withContextForList } from "comps/generators/withContextForList";
+import { genRandomKey } from "comps/utils/idGenerator";
+import { trans } from "i18n";
+import _ from "lodash";
 import {
+  changeChildAction,
+  changeValueAction,
   ConstructorToComp,
   ConstructorToDataType,
   ConstructorToNodeType,
   ConstructorToView,
+  deferAction,
+  fromRecord,
+  multiChangeAction,
+  withFunction,
+  wrapChildAction,
 } from "openblocks-core";
-import { StringControl } from "comps/controls/codeControl";
-import { BoolControl } from "comps/controls/boolControl";
-import { dropdownControl } from "comps/controls/dropdownControl";
-import { MultiCompBuilder, stateComp, valueComp, withContext } from "comps/generators";
-import { genRandomKey } from "comps/utils/idGenerator";
-import { ColumnTypeComp } from "comps/comps/tableComp/column/columnTypeComp";
-import { HorizontalAlignmentControl } from "comps/controls/dropdownControl";
 import { AlignClose, AlignLeft, AlignRight } from "openblocks-design";
-import { trans } from "i18n";
+import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
 
-export const RenderComp = withContext(ColumnTypeComp, [
+export const RenderComp = withContextForList(ColumnTypeComp, [
   "currentCell",
   "currentRow",
   "currentIndex",
@@ -63,13 +70,14 @@ export const columnChildrenMap = {
   align: HorizontalAlignmentControl,
   tempHide: stateComp<boolean>(false),
   fixed: dropdownControl(columnFixOptions, "close"),
+  editable: BoolControl,
 };
 
 /**
  * export for test.
  * Put it here temporarily to avoid circular dependencies
  */
-export const ColumnComp = new MultiCompBuilder(columnChildrenMap, (props, dispatch) => {
+const ColumnInitComp = new MultiCompBuilder(columnChildrenMap, (props, dispatch) => {
   return {
     ...props,
     onWidthResize: (width: number) => {
@@ -82,36 +90,88 @@ export const ColumnComp = new MultiCompBuilder(columnChildrenMap, (props, dispat
     },
   };
 })
-  .setPropertyViewFn((children) => {
+  .setPropertyViewFn(() => <></>)
+  .build();
+
+export class ColumnComp extends ColumnInitComp {
+  override getView() {
+    const superView = super.getView();
+    const columnType = this.children.render.getOriginalComp().children.compType.getView();
+    return {
+      ...superView,
+      editable: ColumnTypeCompMap[columnType].canBeEditable() && superView.editable,
+    };
+  }
+
+  exposingNode() {
+    const titleNode = this.children.title.exposingNode();
+    const dataIndexNode = this.children.dataIndex.exposingNode();
+
+    const renderNode = withFunction(this.children.render.children.__map__.node(), (map) =>
+      _.mapValues(map, (value: any) => value.original)
+    );
+    return fromRecord({
+      title: titleNode,
+      dataIndex: dataIndexNode,
+      render: renderNode,
+    });
+  }
+
+  propertyView(key: string) {
+    const columnType = this.children.render.getOriginalComp().children.compType.getView();
     return (
       <>
-        {children.title.propertyView({
+        {this.children.title.propertyView({
           label: trans("table.columnTitle"),
         })}
         {/* FIXME: cast type currently, return type of withContext should be corrected later */}
-        {children.render.getPropertyView()}
-        {children.sortable.propertyView({
+        {this.children.render.propertyView(key)}
+        {ColumnTypeCompMap[columnType].canBeEditable() &&
+          this.children.editable.propertyView({ label: trans("table.editable") })}
+        {this.children.sortable.propertyView({
           label: trans("table.sortable"),
         })}
-        {children.hide.propertyView({
+        {this.children.hide.propertyView({
           label: trans("prop.hide"),
         })}
-        {children.align.propertyView({
+        {this.children.align.propertyView({
           label: trans("table.align"),
           radioButton: true,
         })}
-        {children.fixed.propertyView({
+        {this.children.fixed.propertyView({
           label: trans("table.fixedColumn"),
           radioButton: true,
         })}
-        {children.autoWidth.propertyView({
+        {this.children.autoWidth.propertyView({
           label: trans("table.autoWidth"),
           radioButton: true,
         })}
       </>
     );
-  })
-  .build();
+  }
+
+  getChangeSet() {
+    const dataIndex = this.children.dataIndex.getView();
+    const changeSet = _.mapValues(this.children.render.children.__map__.children, (value) =>
+      value.children.comp.children.changeValue.getView()
+    );
+    return { [dataIndex]: changeSet };
+  }
+
+  clearChangeSet() {
+    this.dispatch(
+      deferAction(
+        wrapChildAction(
+          "render",
+          wrapChildAction(
+            "__comp__",
+            wrapChildAction("comp", changeChildAction("changeValue", null))
+          )
+        )
+      )
+    );
+  }
+}
 
 export type RawColumnType = ConstructorToView<typeof ColumnComp>;
 export type ColumNodeType = ConstructorToNodeType<typeof ColumnComp>;

@@ -1,19 +1,20 @@
-import { JSONObject, JSONValue } from "util/jsonTypes";
-import { TableFilter, tableFilterOperatorMap } from "comps/comps/tableComp/tableToolbarComp";
-import { RecordType, SortValue } from "comps/comps/tableComp/tableTypes";
-import _ from "lodash";
-import { changeChildAction, CompAction, NodeToValue } from "openblocks-core";
-import { getPageSize, PaginationNodeType } from "comps/comps/tableComp/paginationControl";
-import { ColumNodeType, RawColumnType } from "comps/comps/tableComp/column/tableColumnComp";
-import { __COLUMN_DISPLAY_VALUE_FN } from "comps/comps/tableComp/column/columnTypeCompBuilder";
-import { ColumnsType } from "antd/es/table";
-import { SortOrder } from "antd/lib/table/interface";
 import {
+  ColumnsType,
   FilterValue,
   SorterResult,
   TableCurrentDataSource,
   TablePaginationConfig,
 } from "antd/es/table/interface";
+import { SortOrder } from "antd/lib/table/interface";
+import { __COLUMN_DISPLAY_VALUE_FN } from "comps/comps/tableComp/column/columnTypeCompBuilder";
+import { ColumNodeType, RawColumnType } from "comps/comps/tableComp/column/tableColumnComp";
+import { getPageSize, PaginationNodeType } from "comps/comps/tableComp/paginationControl";
+import { TableFilter, tableFilterOperatorMap } from "comps/comps/tableComp/tableToolbarComp";
+import { RecordType, SortValue } from "comps/comps/tableComp/tableTypes";
+import _ from "lodash";
+import { changeChildAction, CompAction, NodeToValue } from "openblocks-core";
+import { EditableIcon } from "openblocks-design";
+import { JSONObject, JSONValue } from "util/jsonTypes";
 
 function transformData(
   data: Array<JSONObject>,
@@ -99,7 +100,7 @@ function columnHide({
 export function getDisplayData(
   dataList: Array<JSONObject>,
   pagination: NodeToValue<PaginationNodeType>,
-  columnRecord: NodeToValue<ColumNodeType>,
+  columnRecord: NodeToValue<ColumNodeType>[],
   filter: TableFilter,
   sorter: Array<SortValue>,
   searchValue: string,
@@ -120,7 +121,7 @@ export function getDisplayData(
   dataList.forEach((data, index: number) => {
     const toTransData: JSONObject = {};
     const displayData: JSONObject = {};
-    columns.forEach((col: any) => {
+    columns.forEach((col) => {
       if (
         columnHide({
           hide: col.hide.value,
@@ -131,7 +132,12 @@ export function getDisplayData(
         // skip hidden columns
         return;
       }
-      const columnNode = col.render(data[col.dataIndex], data, index % pageSize, index);
+      const columnNode = (col.render.__comp__ as any).wrap(
+        data[col.dataIndex],
+        data,
+        index % pageSize,
+        index
+      );
       const colValue = columnNode.comp[__COLUMN_DISPLAY_VALUE_FN](columnNode.comp);
       if (colValue !== null) {
         const title = col.title.value;
@@ -162,13 +168,26 @@ export function getDisplayData(
   ).map((d) => d["__resultData__"]!);
 }
 
+function renderTitle(props: { title: string; editable: boolean }) {
+  const { title, editable } = props;
+  return (
+    <div>
+      {title}
+      {editable && <EditableIcon style={{ verticalAlign: "baseline", marginLeft: "4px" }} />}
+    </div>
+  );
+}
+
 /**
  * convert column in raw format into antd format
  */
 export function columnsToAntdFormat(
   columns: Array<RawColumnType>,
   sort: SortValue[],
-  enableColumnSetting: boolean
+  enableColumnSetting: boolean,
+  size: string,
+  dynamicColumn: boolean,
+  dynamicColumnConfig: Array<string>
 ): ColumnsType<RecordType> {
   const sortMap: Map<string | undefined, SortOrder> = new Map(
     sort.map((s) => [s.column, s.desc ? "descend" : "ascend"])
@@ -192,20 +211,30 @@ export function columnsToAntdFormat(
     ) {
       return [];
     }
+    if (
+      dynamicColumn &&
+      dynamicColumnConfig.length > 0 &&
+      !dynamicColumnConfig.includes(column.isCustom ? column.title : column.dataIndex)
+    ) {
+      return [];
+    }
+    const title = renderTitle({ title: column.title, editable: column.editable });
     return {
-      title: column.title,
+      title: title,
       dataIndex: ["record", column.dataIndex],
       align: column.align,
       width: column.autoWidth === "auto" ? -1 : column.width,
       fixed: column.fixed === "close" ? false : column.fixed,
       onWidthResize: column.onWidthResize,
       render: (value: any, record: RecordType, index: number) => {
-        return column.render({
-          currentCell: value,
-          currentRow: record.record,
-          currentIndex: index,
-          currentOriginalIndex: record.index,
-        }).view;
+        return column
+          .render(String(record.index), {
+            currentCell: value,
+            currentRow: record.record,
+            currentIndex: index,
+            currentOriginalIndex: record.index,
+          })
+          .view({ editable: column.editable, size });
       },
       ...(column.sortable
         ? {
@@ -276,7 +305,7 @@ export function getTableTransData(
         // skip hidden columns
         return;
       }
-      const columnData = col.render({
+      const columnData = col.render(String(index), {
         currentCell: d[col.dataIndex],
         currentRow: d,
         currentIndex: index % pageSize,

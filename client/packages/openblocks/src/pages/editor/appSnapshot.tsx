@@ -22,7 +22,7 @@ import { TacoPagination } from "openblocks-design";
 import { AppSnapshotContext, AppSnapshotList } from "constants/applicationConstants";
 import { ExtraActionType } from "openblocks-core";
 import { formatString } from "util/stringUtils";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import { ScrollBar } from "openblocks-design";
 import { RightPanelWrapper } from "pages/common/styledComponent";
 import { Layers } from "constants/Layers";
@@ -138,7 +138,7 @@ export function AppSnapshot(props: { currentAppInfo: AppSummaryInfo }) {
   const totalCount = useSelector(appSnapshotCountSelector);
   const snapshotsFetching = useSelector(isAppSnapshotsFetching);
   const [currentPage, setCurrentPage] = useState(1);
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const [selectedItemKey, setSelectedItemKey] = useState(CURRENT_ITEM_KEY);
   const [latestDslChanged, setLatestDslChanged] = useState(false);
   const [latestDsl, setLatestDsl] = useState<AppSnapshotDslInfo>();

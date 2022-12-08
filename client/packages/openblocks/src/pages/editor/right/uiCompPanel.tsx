@@ -75,7 +75,7 @@ const InsertContain = styled.div`
   width: 296px;
   display: flex;
   flex-wrap: wrap;
-  padding: 8px 0 0 0;
+  padding: 4px 0 0 0;
   box-sizing: border-box;
   gap: 8px;
 `;
@@ -85,7 +85,7 @@ const CategoryLabel = styled(GrayLabel)`
 `;
 
 const SectionWrapper = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 `;
 
 export const UICompPanel = () => {

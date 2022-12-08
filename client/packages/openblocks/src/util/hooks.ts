@@ -59,7 +59,7 @@ export function useFixedDelay(callback: () => Promise<unknown>, delay: number | 
   }, [callback]);
 
   useEffect(() => {
-    if (!delay || delay < 100) {
+    if (!delay || delay < 100 || Number.isNaN(delay)) {
       return;
     }
 

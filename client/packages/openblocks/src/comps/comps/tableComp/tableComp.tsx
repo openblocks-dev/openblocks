@@ -1,4 +1,22 @@
-import { JSONObject, JSONValue } from "util/jsonTypes";
+import { message } from "antd";
+import { tableDataRowExample } from "comps/comps/tableComp/column/tableColumnListComp";
+import { getPageSize } from "comps/comps/tableComp/paginationControl";
+import { TableFooterBar } from "comps/comps/tableComp/tableToolbarComp";
+import {
+  columnsToAntdFormat,
+  getDisplayData,
+  getTableTransData,
+  onTableChange,
+} from "comps/comps/tableComp/tableUtils";
+import { isTriggerAction } from "comps/controls/actionSelector/actionSelectorControl";
+import { CompNameContext, EditorContext } from "comps/editorState";
+import { UICompBuilder, withPropertyViewFn, withViewFn } from "comps/generators";
+import { childrenToProps } from "comps/generators/multi";
+import { HidableView } from "comps/generators/uiCompBuilder";
+import { withDispatchHook } from "comps/generators/withDispatchHook";
+import { DepsConfig, NameConfig, withExposingConfigs } from "comps/generators/withExposing";
+import { trans } from "i18n";
+import _ from "lodash";
 import {
   changeChildAction,
   CompAction,
@@ -8,29 +26,13 @@ import {
   routeByNameAction,
   wrapChildAction,
 } from "openblocks-core";
-import { getPageSize } from "comps/comps/tableComp/paginationControl";
-import { tableDataRowExample } from "comps/comps/tableComp/column/tableColumnListComp";
-import { TableFooterBar } from "comps/comps/tableComp/tableToolbarComp";
-import { isTriggerAction } from "comps/controls/actionSelector/actionSelectorControl";
-import { CompNameContext, EditorContext } from "comps/editorState";
-import { UICompBuilder, withViewFn } from "comps/generators";
-import { useContext, useMemo, useState } from "react";
-import { childrenToProps } from "comps/generators/multi";
-import { HidableView } from "comps/generators/uiCompBuilder";
-import { withDispatchHook } from "comps/generators/withDispatchHook";
-import { DepsConfig, NameConfig, withExposingConfigs } from "comps/generators/withExposing";
-import _ from "lodash";
+import { useCallback, useContext, useMemo, useState } from "react";
 import { saveDataAsFile } from "util/fileUtils";
+import { useUserViewMode } from "util/hooks";
+import { JSONObject, JSONValue } from "util/jsonTypes";
 import { ResizeableTable, TableWrapper } from "./resizeableTable";
-import { tablePropertyView } from "./tablePropertyView";
+import { compTablePropertyView } from "./tablePropertyView";
 import { RecordType, RowColorComp, tableChildrenMap, TableChildrenView } from "./tableTypes";
-import {
-  columnsToAntdFormat,
-  getDisplayData,
-  getTableTransData,
-  onTableChange,
-} from "comps/comps/tableComp/tableUtils";
-import { trans } from "i18n";
 
 function TableView(props: {
   comp: InstanceType<typeof TableTmpComp>;
@@ -38,20 +40,37 @@ function TableView(props: {
   onDownload: (fileName: string) => void;
 }) {
   const editorState = useContext(EditorContext);
+  const viewMode = useUserViewMode();
   const compName = useContext(CompNameContext);
   const [loading, setLoading] = useState(false);
   const { comp, onDownload, onRefresh } = props;
   const compChildren = comp.children;
   const style = compChildren.style.getView();
+  const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
+  const hasChange = useMemo(() => _.size(changeSet) !== 0, [changeSet]);
   const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
   const columnViews = useMemo(() => columns.map((c) => c.getView()), [columns]);
   const data = useMemo(() => compChildren.data.getView(), [compChildren.data]);
   const sort = useMemo(() => compChildren.sort.getView(), [compChildren.sort]);
   const toolbar = useMemo(() => compChildren.toolbar.getView(), [compChildren.toolbar]);
   const pagination = useMemo(() => compChildren.pagination.getView(), [compChildren.pagination]);
+  const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
+  const dynamicColumn = compChildren.dynamicColumn.getView();
+  const dynamicColumnConfig = useMemo(
+    () => compChildren.dynamicColumnConfig.getView(),
+    [compChildren.dynamicColumnConfig]
+  );
   const antdColumns = useMemo(
-    () => columnsToAntdFormat(columnViews, sort, toolbar.columnSetting),
-    [columnViews, sort, toolbar.columnSetting]
+    () =>
+      columnsToAntdFormat(
+        columnViews,
+        sort,
+        toolbar.columnSetting,
+        size,
+        dynamicColumn,
+        dynamicColumnConfig
+      ),
+    [columnViews, sort, toolbar.columnSetting, size, dynamicColumnConfig, dynamicColumn]
   );
   const transformedData = useMemo(() => {
     return getTableTransData(
@@ -90,16 +109,29 @@ function TableView(props: {
     };
   }, [data.length, pagination, transformedData]);
 
+  const handleChangeEvent = useCallback(
+    (eventName) => {
+      if (eventName === "saveChanges" && !compChildren.onEvent.isBind(eventName)) {
+        !viewMode && message.warn(trans("table.saveChangesNotBind"));
+        return;
+      }
+      compChildren.onEvent.getView()(eventName);
+      compChildren.columns.clearChangeSet();
+    },
+    [viewMode, compChildren.onEvent, compChildren.columns]
+  );
+
   const hideFooterBar =
     !toolbar.showFilter &&
     !toolbar.showRefresh &&
     !toolbar.showDownload &&
     !toolbar.columnSetting &&
+    !hasChange &&
     pagination.pageSize >= pageDataInfo.total &&
     pagination.hideOnSinglePage;
 
   return (
-    <TableWrapper $style={style} $hideFooterBar={hideFooterBar} $size={compChildren.size.getView()}>
+    <TableWrapper $style={style} $hideFooterBar={hideFooterBar}>
       <ResizeableTable<RecordType>
         rowColor={compChildren.rowColor.getView() as any}
         {...compChildren.selection.getView()(compChildren.onEvent.getView())}
@@ -135,6 +167,9 @@ function TableView(props: {
             )
           }
           onDownload={() => onDownload(`${compName}-data`)}
+          hasChange={hasChange}
+          onSaveChanges={() => handleChangeEvent("saveChanges")}
+          onCancelChanges={() => handleChangeEvent("cancelChanges")}
         />
       )}
     </TableWrapper>
@@ -145,7 +180,7 @@ let TableTmpInitComp = (function () {
   return new UICompBuilder(tableChildrenMap, () => {
     return <></>;
   })
-    .setPropertyViewFn(tablePropertyView)
+    .setPropertyViewFn(() => <></>)
     .build();
 })();
 
@@ -201,15 +236,17 @@ let TableTmpComp = class extends TableTmpInitComp {
       return false;
     }
     let doGenColumn = false;
+    const nextRowKeys = Object.keys(nextRowExample);
+    const dynamicColumn = comp.children.dynamicColumn.getView();
     if (!prevUnevaledVal && columnKeys.length === 0) {
       // the first time
       doGenColumn = true;
     } else if (prevUnevaledVal && nextUnevaledVal !== prevUnevaledVal) {
       // modify later
       doGenColumn = true;
-    }
-    const nextRowKeys = Object.keys(nextRowExample);
-    if (
+    } else if (dynamicColumn) {
+      doGenColumn = true;
+    } else if (
       columnKeys.length < nextRowKeys.length &&
       columnKeys.every((key) => nextRowKeys.includes(key))
     ) {
@@ -250,8 +287,9 @@ let TableTmpComp = class extends TableTmpInitComp {
     } else if (action.type === CompActionTypes.UPDATE_NODES_V2) {
       const prevRowExample = tableDataRowExample(this.children.data.getView());
       const nextRowExample = tableDataRowExample(comp.children.data.getView());
-      const doGene = comp.shouldGenerateColumn(comp, nextRowExample);
-      if (comp.children.data !== this.children.data && !_.isEqual(prevRowExample, nextRowExample)) {
+      const dataChanged =
+        comp.children.data !== this.children.data && !_.isEqual(prevRowExample, nextRowExample);
+      if (dataChanged) {
         // update rowColor context
         comp = comp.setChild(
           "rowColor",
@@ -264,9 +302,15 @@ let TableTmpComp = class extends TableTmpInitComp {
             })
           )
         );
-        // data change
+      }
+      if (dataChanged) {
+        const doGene = comp.shouldGenerateColumn(comp, nextRowExample);
         setTimeout(() => {
-          comp.children.columns.dispatchDataChanged(nextRowExample || {}, doGene);
+          comp.children.columns.dispatchDataChanged({
+            rowExample: nextRowExample || {},
+            doGeneColumn: doGene,
+            dynamicColumn: comp.children.dynamicColumn.getView(),
+          });
           doGene && comp.children.dataRowExample.dispatchChangeValueAction(null);
         }, 0);
       }
@@ -286,6 +330,8 @@ TableTmpComp = withViewFn(TableTmpComp, (comp) => {
     </HidableView>
   );
 });
+
+TableTmpComp = withPropertyViewFn(TableTmpComp, compTablePropertyView);
 
 /**
  * Hijack children's execution events and ensure that selectedRow is modified first (you can also add a triggeredRow field).
@@ -349,6 +395,29 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
       });
     },
     trans("table.selectedRowsDesc")
+  ),
+  new DepsConfig(
+    "changeSet",
+    (children) => {
+      return { columns: children.columns.exposingNode() };
+    },
+    (input) => {
+      const record: Record<string, Record<string, JSONValue>> = {};
+      Object.values(input.columns).forEach((column: any) => {
+        const dataIndex: string = column.dataIndex;
+        // const title: string = column.title;
+        const render: Record<string, any> = column.render; // [0].comp.changeValue
+        Object.entries(render).forEach(([key, value]) => {
+          const changeValue = value.comp?.changeValue;
+          if (changeValue) {
+            if (!record[key]) record[key] = {};
+            record[key][dataIndex] = changeValue;
+          }
+        });
+      });
+      return record;
+    },
+    trans("table.changeSetDesc")
   ),
   new DepsConfig(
     "pageNo",

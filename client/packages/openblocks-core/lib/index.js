@@ -50,6 +50,44 @@ function __decorate(decorators, target, key, desc) {
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 }
 
+function __awaiter(thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
+
+function __generator(thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+}
+
 function __spreadArray(to, from, pack) {
     if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
         if (ar || !(i in from)) {
@@ -1518,11 +1556,23 @@ function evalNodeOrMinor(mainNode, minorNode) {
 function dependsErrorMessage(node) {
     return "DependencyError: \"".concat(node.unevaledValue, "\" caused a cyclic dependency.");
 }
+/** @class */ ((function (_super) {
+    __extends(EvalTypeError, _super);
+    function EvalTypeError(msg, hint) {
+        var _this = _super.call(this, msg) || this;
+        _this.hint = hint;
+        return _this;
+    }
+    return EvalTypeError;
+})(TypeError));
 function getErrorMessage(err) {
-    var errorMesasge = err instanceof Error
+    // todo try to use 'err instanceof EvalTypeError' instead
+    if (err instanceof TypeError && err.hint) {
+        return err.hint + "\n" + err.name + ": " + err.message;
+    }
+    return err instanceof Error
         ? err.name + ": " + err.message
         : "UnknownError: unknown exception during eval";
-    return errorMesasge;
 }
 function mergeNodesWithSameName(nodePathMap) {
     var nameDepMap = {};
@@ -1571,40 +1621,49 @@ var DYNAMIC_SEGMENT_REGEX = /{{([\s\S]*?)}}/;
 function isDynamicSegment(segment) {
     return DYNAMIC_SEGMENT_REGEX.test(segment);
 }
-function getDynamicStringSegments(dynamicString) {
-    var stringSegments = [];
-    var indexOfDoubleParanStart = dynamicString.indexOf("{{");
-    if (indexOfDoubleParanStart === -1) {
-        return [dynamicString];
-    }
-    //{{}}{{}}}
-    var firstString = dynamicString.substring(0, indexOfDoubleParanStart);
-    firstString && stringSegments.push(firstString);
-    var rest = dynamicString.substring(indexOfDoubleParanStart, dynamicString.length);
-    //{{}}{{}}}
-    var sum = 0;
-    for (var i = 0; i <= rest.length - 1; i++) {
-        var char = rest[i];
-        var prevChar = rest[i - 1];
-        if (char === "{") {
-            sum++;
+function getDynamicStringSegments(input) {
+    var segments = [];
+    var position = 0;
+    var start = input.indexOf("{{");
+    while (start >= 0) {
+        var i = start + 2;
+        while (i < input.length && input[i] === "{")
+            i++;
+        var end = input.indexOf("}}", i);
+        if (end < 0) {
+            break;
         }
-        else if (char === "}") {
-            sum--;
-            if (prevChar === "}" && sum === 0) {
-                stringSegments.push(rest.substring(0, i + 1));
-                rest = rest.substring(i + 1, rest.length);
-                if (rest) {
-                    stringSegments = stringSegments.concat(getDynamicStringSegments(rest));
+        var nextStart = input.indexOf("{{", end + 2);
+        var maxIndex = nextStart >= 0 ? nextStart : input.length;
+        var maxStartOffset = i - start - 2;
+        var sum = i - start;
+        var minValue = Number.MAX_VALUE;
+        var minOffset = Number.MAX_VALUE;
+        for (; i < maxIndex; i++) {
+            switch (input[i]) {
+                case "{":
+                    sum++;
                     break;
-                }
+                case "}":
+                    sum--;
+                    if (input[i - 1] === "}") {
+                        var offset = Math.min(Math.max(sum, 0), maxStartOffset);
+                        var value = Math.abs(sum - offset);
+                        if (value < minValue || (value === minValue && offset < minOffset)) {
+                            minValue = value;
+                            minOffset = offset;
+                            end = i + 1;
+                        }
+                    }
+                    break;
             }
         }
+        segments.push(input.slice(position, start + minOffset), input.slice(start + minOffset, end));
+        position = end;
+        start = nextStart;
     }
-    if (sum !== 0 && dynamicString !== "") {
-        return [dynamicString];
-    }
-    return stringSegments;
+    segments.push(input.slice(position));
+    return segments.filter(function (t) { return t; });
 }
 
 function filterDepends(unevaledValue, exposingNodes) {
@@ -2122,67 +2181,7 @@ var blacklist = new Set([
     "Navigator",
     "MutationObserver",
 ]);
-var proxyTargetIdentity = Symbol("proxy_target_identity");
 var globalVarNames = new Set(["window", "globalThis", "self", "global"]);
-/**
- * return an immutable object.
- * @remarks
- * without Object.freeze() since it never throws a exception.
- *
- * FIXME: eliminate Proxy
- */
-function immutable(value, methods) {
-    // the type of null is also object
-    if (typeof value !== "object" || value === null) {
-        return value;
-    }
-    if (value instanceof Date || value instanceof RegExp) {
-        return value;
-    }
-    return new Proxy(value, {
-        get: function (target, p, receiver) {
-            if (p in target) {
-                return Object.freeze(Reflect.get(target, p, receiver));
-            }
-            // here is a skill: get Proxy's original target with Symbol
-            if (p === proxyTargetIdentity) {
-                return target;
-            }
-            if (p === "toJSON") {
-                return undefined;
-            }
-            if (typeof p === "string") {
-                if (methods && p in methods) {
-                    return methods[p];
-                }
-                if (!Array.isArray(target)) {
-                    throw new ReferenceError(p + " not exist");
-                }
-            }
-        },
-        set: function (target, p, value) {
-            if (typeof p === "string") {
-                throw new Error(p + " can't be modified");
-            }
-            return false;
-        },
-        defineProperty: function (target, p, attributes) {
-            if (typeof p === "string") {
-                throw new Error("can't define property:" + p);
-            }
-            return false;
-        },
-        deleteProperty: function (target, p) {
-            if (typeof p === "string") {
-                throw new Error("can't delete property:" + p);
-            }
-            return false;
-        },
-        setPrototypeOf: function (target, v) {
-            throw new Error("can't invoke setPrototypeOf");
-        },
-    });
-}
 function createBlackHole() {
     return new Proxy(function () {
         return createBlackHole();
@@ -2247,6 +2246,7 @@ function proxySandbox(context, methods, options) {
     var isProtectedVar = function (key) {
         return key in context || key in (methods || {}) || globalVarNames.has(key);
     };
+    var cache = {};
     return new Proxy(mockWindow, {
         has: function (target, p) {
             // proxy all variables
@@ -2263,7 +2263,19 @@ function proxySandbox(context, methods, options) {
                 return disableLimit ? window : target;
             }
             if (p in context) {
-                return immutable(Reflect.get(context, p, receiver), methods ? Reflect.get(methods, p) : undefined);
+                if (p in cache) {
+                    return Reflect.get(cache, p);
+                }
+                var value = Reflect.get(context, p, receiver);
+                if (typeof value === "object" && value !== null) {
+                    if (methods && p in methods) {
+                        value = Object.assign({}, value, Reflect.get(methods, p));
+                    }
+                    Object.freeze(value);
+                    Object.values(value).forEach(Object.freeze);
+                }
+                Reflect.set(cache, p, value);
+                return value;
             }
             if (disableLimit) {
                 return Reflect.get(window, p);
@@ -2296,19 +2308,12 @@ function proxySandbox(context, methods, options) {
 function evalScript(script, context, methods) {
     return evalFunc("return (".concat(script, "\n);"), context, methods);
 }
-function evalFunc(functionBody, context, methods, options) {
-    var code = "with(this){\n    return (function() {\n      'use strict';\n      ".concat(functionBody, ";\n    }).call(this);\n  }");
+function evalFunc(functionBody, context, methods, options, isAsync) {
+    var code = "with(this){\n    return (".concat(isAsync ? "async " : "", "function() {\n      'use strict';\n      ").concat(functionBody, ";\n    }).call(this);\n  }");
     // eslint-disable-next-line no-new-func
     var vm = new Function(code);
     var sandbox = proxySandbox(context, methods, options);
     var result = vm.call(sandbox);
-    // if the result is proxy, should return the original object, to avoid error
-    if (result !== sandbox && typeof result === "object" && result !== null) {
-        var target = result[proxyTargetIdentity];
-        if (target !== undefined) {
-            return target;
-        }
-    }
     return result;
 }
 
@@ -2617,18 +2622,42 @@ function mergeContext(context, args) {
     }
     return Object.assign(Object.assign({}, args), context);
 }
-function evalFunction(unevaledValue, context, methods) {
+function evalFunction(unevaledValue, context, methods, isAsync) {
     try {
         return new ValueAndMsg(function (args, runInHost) {
             if (runInHost === void 0) { runInHost = false; }
             return evalFunc(unevaledValue.startsWith("return")
                 ? unevaledValue + "\n"
-                : "return function(){'use strict'; " + unevaledValue + "\n}()", mergeContext(context, args), methods, { disableLimit: runInHost });
+                : "return function(){'use strict'; " + unevaledValue + "\n}()", mergeContext(context, args), methods, { disableLimit: runInHost }, isAsync);
         });
     }
     catch (err) {
         return new ValueAndMsg(function () { }, getErrorMessage(err));
     }
+}
+function evalFunctionResult(unevaledValue, context, methods) {
+    return __awaiter(this, void 0, void 0, function () {
+        var valueAndMsg, _a, err_1;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    valueAndMsg = evalFunction(unevaledValue, context, methods, true);
+                    if (valueAndMsg.hasError()) {
+                        return [2 /*return*/, new ValueAndMsg("", valueAndMsg.msg)];
+                    }
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 3, , 4]);
+                    _a = ValueAndMsg.bind;
+                    return [4 /*yield*/, valueAndMsg.value()];
+                case 2: return [2 /*return*/, new (_a.apply(ValueAndMsg, [void 0, _b.sent()]))()];
+                case 3:
+                    err_1 = _b.sent();
+                    return [2 /*return*/, new ValueAndMsg("", getErrorMessage(err_1))];
+                case 4: return [2 /*return*/];
+            }
+        });
+    });
 }
 function string2Fn(unevaledValue, type, methods, paramNamesList) {
     if (type) {
@@ -2922,6 +2951,45 @@ var WrapNode = /** @class */ (function (_super) {
         memoized()
     ], WrapNode.prototype, "filterNodes", null);
     return WrapNode;
+}(AbstractNode));
+
+/**
+ * build a new node by setting new dependent nodes in child node
+ */
+var WrapContextNodeV2 = /** @class */ (function (_super) {
+    __extends(WrapContextNodeV2, _super);
+    function WrapContextNodeV2(child, paramNodes) {
+        var _this = _super.call(this) || this;
+        _this.child = child;
+        _this.paramNodes = paramNodes;
+        _this.type = "wrapContextV2";
+        return _this;
+    }
+    WrapContextNodeV2.prototype.wrapContext = function (paramName) {
+        return new WrapContextNode(this, paramName);
+    };
+    WrapContextNodeV2.prototype.filterNodes = function (exposingNodes) {
+        return this.child.filterNodes(this.wrap(exposingNodes));
+    };
+    WrapContextNodeV2.prototype.justEval = function (exposingNodes, methods) {
+        return this.child.evaluate(this.wrap(exposingNodes), methods);
+    };
+    WrapContextNodeV2.prototype.getChildren = function () {
+        return [this.child];
+    };
+    WrapContextNodeV2.prototype.dependValues = function () {
+        return this.child.dependValues();
+    };
+    WrapContextNodeV2.prototype.fetchInfo = function (exposingNodes) {
+        return this.child.fetchInfo(this.wrap(exposingNodes));
+    };
+    WrapContextNodeV2.prototype.wrap = function (exposingNodes) {
+        return __assign(__assign({}, exposingNodes), this.paramNodes);
+    };
+    __decorate([
+        memoized()
+    ], WrapContextNodeV2.prototype, "filterNodes", null);
+    return WrapContextNodeV2;
 }(AbstractNode));
 
 function transformWrapper(transformFn, defaultValue) {
@@ -7451,4 +7519,4 @@ function getI18nObjects(fileData, filterLocales) {
     return getDataByLocale(fileData, "Obj", filterLocales).data;
 }
 
-export { AbstractComp, AbstractNode, CachedNode, CodeNode, CompActionTypes, FetchCheckNode, FunctionNode, MultiBaseComp, RecordNode, SimpleAbstractComp, SimpleComp, SimpleNode, Translator, ValueAndMsg, WrapNode, addChildAction, changeChildAction, changeDependName, changeValueAction, clearMockWindow, clearStyleEval, customAction, deferAction, deleteCompAction, dependingNodeMapEquals, evalFunc, evalNodeOrMinor, evalStyle, executeQueryAction, fromRecord, fromUnevaledValue, fromValue, fromValueWithCache, getDynamicStringSegments, getI18nObjects, getValueByLocale, i18n, isBroadcastAction, isChildAction, isCustomAction, isDynamicSegment, isFetching, isMyCustomAction, mergeExtra, multiChangeAction, nodeIsRecord, onlyEvalAction, relaxedJSONToJSON, renameAction, replaceCompAction, routeByNameAction, transformWrapper, triggerModuleEventAction, unwrapChildAction, updateActionContextAction, updateNodesV2Action, withFunction, wrapActionExtraInfo, wrapChildAction, wrapDispatch };
+export { AbstractComp, AbstractNode, CachedNode, CodeNode, CompActionTypes, FetchCheckNode, FunctionNode, MultiBaseComp, RecordNode, SimpleAbstractComp, SimpleComp, SimpleNode, Translator, ValueAndMsg, WrapContextNodeV2, WrapNode, addChildAction, changeChildAction, changeDependName, changeValueAction, clearMockWindow, clearStyleEval, customAction, deferAction, deleteCompAction, dependingNodeMapEquals, evalFunc, evalFunctionResult, evalNodeOrMinor, evalStyle, executeQueryAction, fromRecord, fromUnevaledValue, fromValue, fromValueWithCache, getDynamicStringSegments, getI18nObjects, getValueByLocale, i18n, isBroadcastAction, isChildAction, isCustomAction, isDynamicSegment, isFetching, isMyCustomAction, mergeExtra, multiChangeAction, nodeIsRecord, onlyEvalAction, relaxedJSONToJSON, renameAction, replaceCompAction, routeByNameAction, transformWrapper, triggerModuleEventAction, unwrapChildAction, updateActionContextAction, updateNodesV2Action, withFunction, wrapActionExtraInfo, wrapChildAction, wrapDispatch };

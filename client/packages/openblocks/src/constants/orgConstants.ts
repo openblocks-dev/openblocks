@@ -30,6 +30,7 @@ export type OrgGroup = {
   devGroup?: boolean;
   createTime?: string;
   visitorRole?: string;
+  dynamicRule?: string;
 };
 
 // user info in group

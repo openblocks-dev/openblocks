@@ -85,12 +85,10 @@ const ChildrenWrapper = styled.div<{ layout: ControlLayout }>`
     switch (props.layout) {
       case "horizontal":
         return `
-            overflow: hidden;
             flex:1 1 auto;
           `;
       case "vertical":
         return css`
-          overflow: hidden;
           display: inline;
         `;
     }

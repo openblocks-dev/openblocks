@@ -13,14 +13,20 @@ export type GroupUsersPayload = {
 };
 
 export type UpdateGroupActionPayload = {
-  group: OrgGroup;
+  groupId: string;
+  updates: Record<string, string>;
   orgId: string;
 };
-export const updateGroupAction = (group: OrgGroup, orgId: string) => ({
+export const updateGroupAction = (
+  groupId: string,
+  updates: Record<string, string>,
+  orgId: string
+) => ({
   type: ReduxActionTypes.UPDATE_GROUP_INFO,
   payload: {
+    groupId,
+    updates,
     orgId,
-    group,
   },
 });
 

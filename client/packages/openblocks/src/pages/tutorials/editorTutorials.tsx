@@ -225,18 +225,13 @@ export default function EditorTutorials() {
     }, 1000);
   }, [querySize]);
 
-  useEffect(() => {
-    if (uiCompSize <= 0) {
-      return;
-    }
-    // auto unfold left collapse
+  const openTableData = () => {
     const ele = document.getElementsByClassName(leftCompListClassName)[0];
-    const collapse = ele?.getElementsByClassName("ant-collapse-header")[0];
-    const active = ele?.getElementsByClassName("ant-collapse-item-active")[0];
-    if (!active && collapse) {
-      (collapse as HTMLDivElement).click();
+    const table = ele?.getElementsByClassName("ant-tree-title")[1];
+    if (table) {
+      (table as HTMLDivElement)?.click();
     }
-  }, [uiCompSize]);
+  }
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { status, index, action, type } = data;
@@ -269,6 +264,7 @@ export default function EditorTutorials() {
       setStepIndex(nextIndex);
     } else if (index === 2 && action === ACTIONS.NEXT) {
       // change data
+      openTableData();
       const tableComp = editorState.getUICompByName("table1");
       tableComp?.children.comp.dispatch(changeChildAction("data", "{{query1.data}}"));
       setStepIndex(nextIndex);

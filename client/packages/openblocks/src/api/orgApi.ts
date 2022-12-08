@@ -52,8 +52,8 @@ export class OrgApi extends Api {
     return Api.post(OrgApi.createGroupURL, request);
   }
 
-  static updateGroup(groupId: string, groupName: string): AxiosPromise<ApiResponse> {
-    return Api.put(OrgApi.updateGroupURL(groupId), { groupName });
+  static updateGroup(groupId: string, updates: Record<string, string>): AxiosPromise<ApiResponse> {
+    return Api.put(OrgApi.updateGroupURL(groupId), updates);
   }
 
   static fetchGroup(): AxiosPromise<GenericApiResponse<OrgGroup[]>> {

@@ -1,9 +1,9 @@
 import Api from "api/api";
 import { AxiosPromise } from "axios";
 import { OrgAndRole } from "constants/orgConstants";
-import { BaseUserInfo } from "constants/userConstants";
+import { BaseUserInfo, CurrentUser } from "constants/userConstants";
 import { MarkUserStatusPayload, UpdateUserPayload } from "redux/reduxActions/userActions";
-import { ApiResponse } from "./apiResponses";
+import { ApiResponse, GenericApiResponse } from "./apiResponses";
 
 interface CommonLoginParam {
   invitationId?: string;
@@ -22,11 +22,15 @@ export interface GetUserResponse extends ApiResponse {
   } & BaseUserInfo;
 }
 
+export type GetCurrentUserResponse = GenericApiResponse<CurrentUser>;
+
 class UserApi extends Api {
   static usersURL = "/v1/users";
   static sendVerifyCodeURL = "/auth/otp/send";
   static logoutURL = "/auth/logout";
-  static currentUserURL = "/v1/users/me";
+  static userURL = "/v1/users/me";
+  static currentUserURL = "/users/currentUser";
+  static rawCurrentUserURL = "/users/rawCurrentUser";
   static emailBindURL = "/auth/email/bind";
   static passwordURL = "/v1/users/password";
   static formLoginURL = "/auth/form/login";
@@ -53,8 +57,16 @@ class UserApi extends Api {
     return Api.put(UserApi.passwordURL, request);
   }
 
-  static getCurrentUser(): AxiosPromise<GetUserResponse> {
+  static getUser(): AxiosPromise<GetUserResponse> {
+    return Api.get(UserApi.userURL);
+  }
+
+  static getCurrentUser(): AxiosPromise<GetCurrentUserResponse> {
     return Api.get(UserApi.currentUserURL);
+  }
+
+  static getRawCurrentUser(): AxiosPromise<GetCurrentUserResponse> {
+    return Api.get(UserApi.rawCurrentUserURL);
   }
 
   static userLogout(): AxiosPromise<ApiResponse> {

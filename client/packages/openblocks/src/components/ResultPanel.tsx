@@ -3,7 +3,7 @@ import Draggable from "react-draggable";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { EditorContext } from "../comps/editorState";
 import { Table as AntdTable } from "antd";
-import { isObjectLike, isPlainObject } from "lodash";
+import { isArray, isObject, isObjectLike, isPlainObject } from "lodash";
 import ReactJson from "react-json-view";
 import { Layers } from "constants/Layers";
 import { BottomResComp, BottomResCompResult } from "types/bottomRes";
@@ -253,6 +253,7 @@ const TimeLabel = styled.span`
   color: #b8b9bf;
   margin-left: 8px;
 `;
+const TypeLabel = TimeLabel;
 
 function useResultPanel(params: BottomResCompResult & { onClose: () => void }) {
   const { success, errorMessage, dataType, data, title, runTime } = params;
@@ -333,6 +334,17 @@ function useResultPanel(params: BottomResCompResult & { onClose: () => void }) {
     }
   }, [params, toJson]);
 
+  let showType = null;
+  if (dataType !== "function") {
+    if (isArray(data)) {
+      showType = `Array(${data.length})`;
+    } else if (isObject(data)) {
+      showType = `Object(${Object.keys(data).length} keys)`;
+    } else {
+      showType = typeof data;
+    }
+  }
+
   return {
     header: (
       <>
@@ -341,11 +353,12 @@ function useResultPanel(params: BottomResCompResult & { onClose: () => void }) {
           {title}
           {runTime ? (
             <TimeLabel>
-              {trans("resultPanel.cosume", {
+              {trans("resultPanel.consume", {
                 time: millisecondsToHumanReadable(runTime) || "",
               })}
             </TimeLabel>
           ) : null}
+          {showType && <TypeLabel>{showType}</TypeLabel>}
           {isObjectArray && (
             <SwitchWrapper>
               <Switch value={toJson} onChange={(value) => setToJson(value)} />

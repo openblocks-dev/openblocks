@@ -50,9 +50,13 @@ export function withMethodExposingBase<T extends ExposeMethodCompConstructor<Abs
   };
 }
 
+export type MethodConfigsType<T> =
+  | MethodConfigInfo<T>[]
+  | ((comp: ConstructorToComp<T>) => MethodConfigInfo<T>[]);
+
 export function withMethodExposing<T extends ExposeMethodCompConstructor<MultiBaseComp>>(
   VariantComp: T,
-  methodConfigs: MethodConfigInfo<T>[] | ((comp: ConstructorToComp<T>) => MethodConfigInfo<T>[])
+  methodConfigs: MethodConfigsType<T>
 ) {
   const Temp = withMethodExposingBase(VariantComp, methodConfigs);
   // @ts-ignore

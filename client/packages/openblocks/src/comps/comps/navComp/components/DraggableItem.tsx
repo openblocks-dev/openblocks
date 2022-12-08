@@ -57,6 +57,8 @@ const Wrapper = styled.div<{ dragging: boolean; isOver: boolean; dropInAsSub: bo
       white-space: nowrap;
       text-overflow: ellipsis;
       display: inline-block;
+      height: 28px;
+      line-height: 28px;
     }
   }
 

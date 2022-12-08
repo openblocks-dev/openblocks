@@ -1,36 +1,29 @@
-import { EmptyContent } from "components/EmptyContent";
 import { trans } from "i18n";
 import { useMemo, useState } from "react";
-import { RightPanelContentWrapper } from "../styledComponent";
 import { PluginItem } from "./PluginItem";
 import { useDispatch, useSelector } from "react-redux";
 import { setCommonSettings } from "redux/reduxActions/commonSettingsActions";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
-import { CustomModal, TacoButton, TacoInput } from "openblocks-design";
+import { getUser } from "redux/selectors/usersSelectors";
+import { BluePlusIcon, CustomModal, TacoButton, TacoInput } from "openblocks-design";
 import { getCommonSettings } from "redux/selectors/commonSettingSelectors";
 import { message } from "antd";
 import styled from "styled-components";
-
-const packageUrlPrefix = "https://www.npmjs.com/package/";
-
-function normalizeNpmPackage(nameOrUrl: string) {
-  if (nameOrUrl.startsWith(packageUrlPrefix)) {
-    return nameOrUrl.substring(packageUrlPrefix.length);
-  }
-  return nameOrUrl;
-}
+import { normalizeNpmPackage, validateNpmPackage } from "comps/utils/remote";
+import { ComListTitle, ExtensionContentWrapper } from "../styledComponent";
+import { EmptyContent } from "components/EmptyContent";
 
 const Footer = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 24px;
+  margin-bottom: 24px;
 `;
 
 export default function PluginPanel() {
   const dispatch = useDispatch();
   const [isAddModalShow, showAddModal] = useState(false);
   const [newPluginName, setNewPluginName] = useState("");
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const commonSettings = useSelector(getCommonSettings);
 
   const plugins = useMemo(
@@ -58,6 +51,10 @@ export default function PluginPanel() {
 
   const handleAddNewPlugin = () => {
     if (!newPluginName) {
+      return;
+    }
+    if (!validateNpmPackage(newPluginName)) {
+      message.error(trans("npm.invalidNpmPackageName"));
       return;
     }
     if (
@@ -88,10 +85,11 @@ export default function PluginPanel() {
   );
 
   return (
-    <RightPanelContentWrapper>
-      {items.length > 0 ? items : empty}
+    <>
+      <ComListTitle>{trans("rightPanel.pluginListTitle")}</ComListTitle>
+      <ExtensionContentWrapper>{items.length > 0 ? items : empty}</ExtensionContentWrapper>
       <Footer>
-        <TacoButton buttonType="blue" onClick={() => showAddModal(true)}>
+        <TacoButton icon={<BluePlusIcon />} buttonType="blue" onClick={() => showAddModal(true)}>
           {trans("npm.addPluginBtnText")}
         </TacoButton>
       </Footer>
@@ -116,6 +114,6 @@ export default function PluginPanel() {
           value={newPluginName}
         />
       </CustomModal>
-    </RightPanelContentWrapper>
+    </>
   );
 }

@@ -32,15 +32,37 @@ export function parseCompType(compType: string) {
   } as RemoteCompInfo;
 }
 
+export async function getNpmPackageMeta(packageName: string) {
+  const res = await axios.get<NpmPackageMeta>(`${NPM_REGISTRY_URL}/${packageName}/`);
+  if (res.status >= 400) {
+    return null;
+  }
+  return res.data;
+}
+
 export async function getLatestVersion(remoteInfo: RemoteCompInfo): Promise<NpmVersionMeta | null> {
   if (!remoteInfo.isRemote || remoteInfo.source !== "npm") {
     return null;
   }
 
-  const res = await axios.get<NpmPackageMeta>(`${NPM_REGISTRY_URL}/${remoteInfo.packageName}/`);
-  if (res.status >= 400) {
+  const packageMeta = await getNpmPackageMeta(remoteInfo.packageName);
+  if (!packageMeta) {
     return null;
   }
-  const latestVersion = res.data["dist-tags"].latest;
-  return res.data.versions?.[latestVersion] || null;
+
+  const latestVersion = packageMeta["dist-tags"].latest;
+  return packageMeta.versions?.[latestVersion] || null;
+}
+
+export function normalizeNpmPackage(nameOrUrl: string) {
+  const prefixReg = /^https?:\/\/(www.)?npmjs.(org|com)\/package\//;
+  if (prefixReg.test(nameOrUrl)) {
+    return nameOrUrl.replace(prefixReg, "");
+  }
+  return nameOrUrl;
+}
+
+export function validateNpmPackage(packageNameOrUrl: string) {
+  const name = normalizeNpmPackage(packageNameOrUrl);
+  return /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/.test(name);
 }

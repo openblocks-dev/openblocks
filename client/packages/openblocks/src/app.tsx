@@ -25,7 +25,7 @@ import { connect, Provider } from "react-redux";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import { AppState } from "redux/reducers";
 import { fetchConfigAction } from "redux/reduxActions/configActions";
-import { getCurrentUser } from "redux/reduxActions/userActions";
+import { fetchUserAction } from "redux/reduxActions/userActions";
 import { reduxStore } from "redux/store/store";
 import { developEnv } from "util/envUtils";
 import history from "util/history";
@@ -42,6 +42,7 @@ import { initApp } from "util/commonUtils";
 import ApplicationHome from "./pages/ApplicationV2";
 import { favicon } from "@openblocks-ee/assets/images";
 import { hasQueryParam } from "util/urlUtils";
+import { isFetchUserFinished } from "redux/selectors/usersSelectors";
 
 const LazyUserAuthComp = React.lazy(() => import("@openblocks-ee/pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -146,15 +147,15 @@ class AppIndex extends React.Component<AppIndexProps, any> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  isFetchUserFinished: state.ui.users.loadingStates.fetchUserFinished,
-  orgDev: state.ui.users.currentUser.orgDev,
+  isFetchUserFinished: isFetchUserFinished(state),
+  orgDev: state.ui.users.user.orgDev,
   defaultHomePage: state.ui.application.homeOrg?.commonSettings.defaultHomePage,
   isFetchHomeFinished: state.ui.application.loadingStatus.fetchHomeDataFinished,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => {
-    dispatch(getCurrentUser());
+    dispatch(fetchUserAction());
   },
   fetchConfig: () => dispatch(fetchConfigAction()),
   fetchHome: () => dispatch(fetchHomeData({})),

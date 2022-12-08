@@ -224,6 +224,10 @@ class EventHandlerControl<T extends EventConfigsType> extends list(SingleEventHa
     };
   }
 
+  isBind(eventName: ValueFromOption<T>) {
+    return super.getView().some((child) => child.getView()(eventName));
+  }
+
   override getPropertyView() {
     return this.propertyView();
   }

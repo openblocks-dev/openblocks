@@ -1,19 +1,27 @@
 import { Divider, message, Select } from "antd";
 import { useSelector } from "react-redux";
-import React, { useMemo, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { DataSourceTypeInfo } from "../../api/datasourceApi";
 import styled from "styled-components";
 import { CustomSelect, EllipsisTextCss } from "openblocks-design";
 import { DatasourceModal } from "../../pages/datasource/datasourceModal";
 import { InputStatus } from "antd/lib/_util/statusUtils";
 import { getDataSource, getDataSourceTypes } from "../../redux/selectors/datasourceSelectors";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
-import { useCurrentPage } from "../../util/hooks";
 import { trans } from "i18n";
 import { DatasourceType, ResourceType } from "@openblocks-ee/constants/queryConstants";
-import { databasePlugins } from "../../constants/datasourceConstants";
-import { apiPluginsForQueryLibrary } from "@openblocks-ee/constants/datasourceConstants";
+import {
+  databasePlugins,
+  OPENBLOCKS_API_ID,
+  QUICK_GRAPHQL_ID,
+  QUICK_REST_API_ID,
+} from "../../constants/datasourceConstants";
+import {
+  apiPluginsForQueryLibrary,
+  OPENBLOCKS_API_INFO,
+} from "@openblocks-ee/constants/datasourceConstants";
+import { QueryContext } from "../../util/context/QueryContext";
 
 const SelectOptionLabel = styled.div`
   font-size: 13px;
@@ -77,6 +85,21 @@ const LibraryQueryOptionValue: ResourceOptionValue = {
   type: "libraryQuery",
 };
 
+const QuickRestAPIValue: ResourceOptionValue = {
+  id: QUICK_REST_API_ID,
+  type: "restApi",
+};
+
+const QuickGraphqlValue: ResourceOptionValue = {
+  id: QUICK_GRAPHQL_ID,
+  type: "graphql",
+};
+
+const OpenblocksAPIValue: ResourceOptionValue = {
+  id: OPENBLOCKS_API_ID,
+  type: "openblocksApi",
+};
+
 interface ResourceDropdownProps {
   changeResource: (datasourceId: string, value: string) => void;
   selectedResource: ResourceOptionValue;
@@ -87,11 +110,11 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
   const [open, setOpen] = useState(false); // control dropdown list open
   const [edit, setEdit] = useState(true); // Controls whether to display the edit button
 
-  const currentPage = useCurrentPage();
+  const context = useContext(QueryContext);
 
   const datasourceInfos = useSelector(getDataSource);
   const datasourceTypes = useSelector(getDataSourceTypes);
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const plugins = useMemo(() => {
     return datasourceTypes
       ?.filter((plugin) => !!plugin.id)
@@ -164,7 +187,7 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
         {datasourceInfos
           ?.filter((info) => info.datasource.creationSource !== 2)
           .filter((info) => {
-            if (currentPage === "queryLibrary") {
+            if (context?.placement === "queryLibrary") {
               return (
                 databasePlugins.includes(info.datasource.type) ||
                 apiPluginsForQueryLibrary.includes(info.datasource.type)
@@ -207,26 +230,38 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
             );
           })}
 
-        {datasourceInfos
-          ?.filter((info) => info.datasource.creationSource === 2)
-          .map((info) => {
-            const datasourceType = info.datasource.type;
-            const value: ResourceOptionValue = {
-              id: info.datasource.id,
-              type: datasourceType,
-            };
-            return (
-              <SelectOption key={JSON.stringify(value)} value={JSON.stringify(value)}>
-                <SelectOptionContains>
-                  {datasourceType && getBottomResIcon(datasourceType)}
-                  <SelectOptionLabel>{info.datasource.name}</SelectOptionLabel>
-                </SelectOptionContains>
-              </SelectOption>
-            );
-          })}
+        <SelectOption
+          key={JSON.stringify(QuickRestAPIValue)}
+          value={JSON.stringify(QuickRestAPIValue)}
+        >
+          <SelectOptionContains>
+            {getBottomResIcon("restApi")}
+            <SelectOptionLabel>{trans("query.quickRestAPI")} </SelectOptionLabel>
+          </SelectOptionContains>
+        </SelectOption>
 
-        {currentPage !== "queryLibrary" && (
+        <SelectOption
+          key={JSON.stringify(QuickGraphqlValue)}
+          value={JSON.stringify(QuickGraphqlValue)}
+        >
+          <SelectOptionContains>
+            {getBottomResIcon("graphql")}
+            <SelectOptionLabel>{trans("query.quickGraphql")} </SelectOptionLabel>
+          </SelectOptionContains>
+        </SelectOption>
+
+        {context?.placement !== "queryLibrary" && (
           <>
+            <SelectOption
+              key={JSON.stringify(OpenblocksAPIValue)}
+              value={JSON.stringify(OpenblocksAPIValue)}
+            >
+              <SelectOptionContains>
+                {OPENBLOCKS_API_INFO.icon}
+                <SelectOptionLabel>{OPENBLOCKS_API_INFO.name} </SelectOptionLabel>
+              </SelectOptionContains>
+            </SelectOption>
+
             <SelectOption key={JSON.stringify(JSOptionValue)} value={JSON.stringify(JSOptionValue)}>
               <SelectOptionContains>
                 {getBottomResIcon("js")}

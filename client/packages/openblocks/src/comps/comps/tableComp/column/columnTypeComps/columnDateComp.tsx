@@ -1,11 +1,12 @@
-import { StringControl } from "comps/controls/codeControl";
+import { CellViewReturn, SizeWrapper } from "components/EditableCell";
 import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
-import { trans } from "i18n";
 import { ColumnValueTooltip } from "comps/comps/tableComp/column/simpleColumnTypeComps";
-import { formatPropertyView } from "comps/utils/propertyUtils";
-import moment from "moment";
-import { DATE_FORMAT, DateParser } from "util/dateTimeUtils";
+import { StringControl } from "comps/controls/codeControl";
 import { withDefault } from "comps/generators";
+import { formatPropertyView } from "comps/utils/propertyUtils";
+import { trans } from "i18n";
+import moment from "moment";
+import { DateParser, DATE_FORMAT } from "util/dateTimeUtils";
 
 function formatDate(date: string, format: string) {
   const mom = moment(date, DateParser);

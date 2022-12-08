@@ -54,9 +54,9 @@ export const checkPassWithMsg = (value: string) => {
   const hasSpace = /\s/.test(value);
   const messages: string[] = [];
   let valid = true;
-  if (!value || value.length < 8 || value.length > 20) {
+  if (!value || value.length < 8) {
     valid = false;
-    messages.push(trans("userAuth.passwordCheckLength", { min: 8, max: 20 }));
+    messages.push(trans("userAuth.passwordCheckLength", { min: 8 }));
   }
   if (!hasDigit || !hasLetter) {
     valid = false;

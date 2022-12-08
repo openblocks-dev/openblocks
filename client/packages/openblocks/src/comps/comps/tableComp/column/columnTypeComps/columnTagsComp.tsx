@@ -1,12 +1,12 @@
 import { Tag } from "antd";
 import { PresetColorTypes } from "antd/lib/_util/colors";
-import { hashToNum } from "util/stringUtils";
-import { codeControl } from "comps/controls/codeControl";
-import _ from "lodash";
-import { ColumnValueTooltip } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
-import { toJson } from "really-relaxed-json";
+import { ColumnValueTooltip } from "comps/comps/tableComp/column/simpleColumnTypeComps";
+import { codeControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
+import _ from "lodash";
+import { toJson } from "really-relaxed-json";
+import { hashToNum } from "util/stringUtils";
 
 const colors = PresetColorTypes;
 
@@ -60,7 +60,7 @@ export const ColumnTagsComp = (function () {
     childrenMap,
     (props) => {
       const tags = _.isArray(props.text) ? props.text : [props.text];
-      return tags.map((tag, index) => {
+      const view = tags.map((tag, index) => {
         // The actual eval value is of type number or boolean
         const tagText = String(tag);
         return (
@@ -69,6 +69,7 @@ export const ColumnTagsComp = (function () {
           </Tag>
         );
       });
+      return view;
     },
     (nodeValue) => {
       const text = nodeValue.text.value;

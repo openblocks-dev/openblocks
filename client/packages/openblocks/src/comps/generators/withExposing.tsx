@@ -1,18 +1,11 @@
-import {
-  Comp,
-  CompParams,
-  ConstructorToComp,
-  ConstructorToDataType,
-  mergeExtra,
-  MultiCompConstructor,
-} from "openblocks-core";
+import { Comp, ConstructorToComp, mergeExtra, MultiCompConstructor } from "openblocks-core";
 import { ExposingInfo, MethodInfo } from "comps/utils/exposingTypes";
 import { fromRecord, fromValue, Node, withFunction } from "openblocks-core";
 import { lastValueIfEqual, shallowEqual } from "util/objectUtils";
 import { ExecuteAction, MethodConfig } from "comps/controls/actionSelector/executeCompTypes";
 import { ReactNode } from "react";
 import { isExposingMethodComp } from "comps/generators/withMethodExposing";
-import { CompAction, customAction, isMyCustomAction } from "openblocks-core";
+import { CompAction, customAction, isMyCustomAction, ExtraNodeType } from "openblocks-core";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { trans } from "i18n";
 import log from "loglevel";
@@ -37,6 +30,14 @@ function getFunction(comp: Comp, methodName: string) {
         notHandledError: trans("globalErrorMessage.notHandledError", { method: methodName }),
       }
     );
+}
+
+export interface IExposingComp {
+  extraNode(): ExtraNodeType;
+  exposingNode(): Node<any>;
+  exposingInfo(): ExposingInfo;
+  exposingMethods(): Record<string, MethodInfo>;
+  exposingValues: Record<string, any>;
 }
 
 /**
@@ -134,7 +135,9 @@ export function withExposingRaw<T extends TComp, NodeType extends Node<any>>(
     }
   }
 
-  return ExposingComp as new (params: CompParams<ConstructorToDataType<T>>) => ExposingComp;
+  return ExposingComp as unknown as T extends new (...args: infer A) => infer R
+    ? new (...args: A) => R & IExposingComp
+    : T;
 }
 
 type NodeRecord = Record<string, Node<any>>;
@@ -160,7 +163,7 @@ class SimpleCacheContent implements CacheContent {
   }
 }
 
-interface Config<ChildrenType> {
+export interface ExposingConfig<ChildrenType> {
   name: string;
   desc: ReactNode;
   depsFn: (children: ChildrenType) => CacheContent;
@@ -171,7 +174,7 @@ interface Config<ChildrenType> {
  */
 export function withExposingConfigs<T extends TComp>(
   VariantComp: T,
-  configs: Array<Config<Children<T>>>
+  configs: ExposingConfig<Children<T>>[]
 ) {
   const propertyDesc = configs.reduce<Record<string, ReactNode>>((acc, cur) => {
     acc[cur.name] = cur.desc;
@@ -200,7 +203,7 @@ export function withExposingConfigs<T extends TComp>(
 }
 
 export class NameConfig<ChildrenType extends Record<string, Comp<unknown>>>
-  implements Config<ChildrenType>
+  implements ExposingConfig<ChildrenType>
 {
   name: ChildrenKeys<ChildrenType>;
   desc: ReactNode;
@@ -255,7 +258,7 @@ class NodeRecordCacheContent implements CacheContent {
  * @deprecated
  */
 export class DepsConfig<ChildrenType extends Record<string, Comp<unknown>>, T extends NodeRecord>
-  implements Config<ChildrenType>
+  implements ExposingConfig<ChildrenType>
 {
   name: string;
   desc: ReactNode;
@@ -321,7 +324,7 @@ export function depsConfig<
   desc: ReactNode;
   depKeys: DepsKeys;
   func: (input: GetExposingType<Pick<ChildrenType, DepsKeys[number]>>) => any;
-}): Config<ChildrenType> {
+}): ExposingConfig<ChildrenType> {
   return {
     name: props.name,
     desc: props.desc,

@@ -15,6 +15,7 @@ export type ParamType =
 export type ParamConfig = {
   name: string;
   type: ParamType;
+  description?: string;
 };
 export type ParamsConfig = Array<ParamConfig>;
 export type MethodConfig = {

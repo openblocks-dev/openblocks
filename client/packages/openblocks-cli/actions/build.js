@@ -5,6 +5,7 @@ import { writeFileSync, existsSync, readFileSync } from "fs";
 import { resolve } from "path";
 import paths from "../config/paths.js";
 import "../util/log.js";
+import chalk from "chalk";
 
 const { copySync } = fsExtra;
 const packageJSON = JSON.parse(readFileSync(paths.appPackageJson).toString());
@@ -28,14 +29,14 @@ function validPackageJSON() {
   Object.keys(openblocks.comps).forEach((name) => {
     const compManifest = packageJSON.openblocks.comps[name];
     if (!compManifest.icon) {
-      compErrors.push(`- comp ${name} must specify an icon`);
+      // compErrors.push(`- comp ${name} must specify an icon`);
       return;
     }
     if (
       !compManifest.icon.startsWith("data:") &&
       !existsSync(paths.resolveApp(compManifest.icon))
     ) {
-      compErrors.push(`- comp ${name}'s icon path ${compManifest} not exist`);
+      compErrors.push(`- comp ${name}'s icon file ${chalk.cyan(compManifest.icon)} not found`);
       return;
     }
   });
@@ -88,7 +89,9 @@ export default async function buildAction(options) {
   // copy icon files
   compNames.forEach((name) => {
     const compManifest = packageJSON.openblocks.comps[name];
-    copySync(paths.resolveApp(compManifest.icon), resolve(paths.appOutPath, compManifest.icon));
+    if (compManifest.icon) {
+      copySync(paths.resolveApp(compManifest.icon), resolve(paths.appOutPath, compManifest.icon));
+    }
   });
 
   if (options.publish) {

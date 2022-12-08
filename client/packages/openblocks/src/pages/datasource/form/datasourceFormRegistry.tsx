@@ -10,6 +10,7 @@ import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 import { sqlDatasourceForm } from "./sqlDatasourceForm";
 import { GraphqlDatasourceForm } from "./graphqlDatasourceForm";
+import { OracleDatasourceForm } from "./oracleDatasourceForm";
 
 export interface DatasourceFormProps {
   form: FormInstance;
@@ -38,7 +39,7 @@ export const DatasourceFormRegistry: Partial<Record<DatasourceType, DatasourceFo
     whitelist: true,
   },
   smtp: { form: SMTPDatasourceForm },
-  oracle: { form: sqlDatasourceForm({ placeholder: "My Oracle1", port: "1521" }), whitelist: true },
+  oracle: { form: OracleDatasourceForm, whitelist: true },
   clickHouse: {
     form: sqlDatasourceForm({ placeholder: "My ClickHouse1", port: "8123" }),
     whitelist: true,

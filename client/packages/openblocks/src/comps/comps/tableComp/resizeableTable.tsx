@@ -306,7 +306,6 @@ export { ResizeableTable };
 export const TableWrapper = styled.div<{
   $style: TableStyleType;
   $hideFooterBar: boolean;
-  $size?: string;
 }>`
   overflow: hidden;
   background: white;
@@ -321,15 +320,7 @@ export const TableWrapper = styled.div<{
           border-top: unset;
 
           td {
-            ${(props) =>
-              props.$size &&
-              `padding: ${
-                props.$size === "small"
-                  ? "8.5px 8px"
-                  : props.$size === "middle"
-                  ? "12.5px 8px"
-                  : "16.5px 16px"
-              }`}
+            padding: 0px 0px;
           }
 
           colgroup col {

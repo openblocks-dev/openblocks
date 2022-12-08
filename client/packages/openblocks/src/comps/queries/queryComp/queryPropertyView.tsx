@@ -28,6 +28,12 @@ import { BottomResTypeEnum } from "types/bottomRes";
 import { PageType } from "../../../constants/pageConstants";
 import { trans } from "i18n";
 import { manualTriggerResource } from "@openblocks-ee/constants/queryConstants";
+import {
+  OPENBLOCKS_API_ID,
+  QUICK_GRAPHQL_ID,
+  QUICK_REST_API_ID,
+} from "../../../constants/datasourceConstants";
+import { OLD_OPENBLOCKS_DATASOURCE } from "@openblocks-ee/constants/datasourceConstants";
 
 export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> }) {
   const { comp } = props;
@@ -44,7 +50,13 @@ export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> 
     .datasourceConfig;
 
   const datasourceStatus: InputStatus = useMemo(() => {
-    if (datasourceType === "js" || datasourceType === "libraryQuery") {
+    if (
+      datasourceType === "js" ||
+      datasourceType === "libraryQuery" ||
+      datasourceId === QUICK_REST_API_ID ||
+      datasourceId === QUICK_GRAPHQL_ID ||
+      datasourceId === OPENBLOCKS_API_ID
+    ) {
       return "";
     }
     if (
@@ -120,7 +132,7 @@ export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> 
                           placement: "bottom",
                           label: trans("query.periodicTime"),
                           placeholder: "5s",
-                          tooltip: trans("query.periodicTimeTooltip", { defaultSeconds: 5 }),
+                          tooltip: trans("query.periodicTimeTooltip"),
                         })}
                     </>
                   )}
@@ -152,11 +164,38 @@ export const QueryGeneralPropertyView = (props: {
 }) => {
   const { datasourceStatus = "", comp, placement = "editor" } = props;
   const editorState = useContext(EditorContext);
+  const datasource = useSelector(getDataSource);
 
   const children = comp.children;
   const dispatch = comp.dispatch;
-  const datasourceId = children.datasourceId.getView();
+  let datasourceId = children.datasourceId.getView();
   const datasourceType = children.compType.getView();
+
+  // transfer old quick REST API datasource to new
+  const oldQuickRestId = useMemo(
+    () =>
+      datasource.find((d) => d.datasource.creationSource === 2 && d.datasource.type === "restApi")
+        ?.datasource.id,
+    [datasource]
+  );
+  if (datasourceId === oldQuickRestId) {
+    datasourceId = QUICK_REST_API_ID;
+    comp.children.datasourceId.dispatchChangeValueAction(QUICK_REST_API_ID);
+  }
+
+  // transfer old Openblocks API datasource to new
+  const oldOpenblocksId = useMemo(
+    () =>
+      datasource.find(
+        (d) =>
+          d.datasource.creationSource === 2 && OLD_OPENBLOCKS_DATASOURCE.includes(d.datasource.type)
+      )?.datasource.id,
+    [datasource]
+  );
+  if (datasourceId === oldOpenblocksId) {
+    datasourceId = OPENBLOCKS_API_ID;
+    comp.children.datasourceId.dispatchChangeValueAction(OPENBLOCKS_API_ID);
+  }
 
   return (
     <QueryPropertyViewWrapper>
@@ -243,7 +282,8 @@ export const QueryGeneralPropertyView = (props: {
             />
             {children.compType.getView() === "mysql" && (
               <div style={{ width: "104px", marginLeft: "8px", flexShrink: 0 }}>
-                {children.comp.children.mode.propertyView({})}
+                {/* query comp should not aware of specific queryType  */}
+                {(children.comp.children as any).mode.propertyView({})}
               </div>
             )}
           </QueryConfigItemWrapper>

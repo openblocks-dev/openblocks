@@ -7,24 +7,33 @@ import { InputListComp } from "./inputListComp";
 import { CompExposingContext } from "comps/generators/withContext";
 import { QueryContext } from "util/context/QueryContext";
 import { QueryLibraryEditorView } from "../../../pages/queryLibrary/queryLibraryEditorView";
-import { CustomModal, EditPopover, Section, TacoButton } from "openblocks-design";
+import {
+  CustomModal,
+  EditPopover,
+  EditText,
+  PointIcon,
+  ScrollBar,
+  Section,
+  TacoButton,
+  UnfoldWhiteIcon,
+} from "openblocks-design";
 import ReactHotkeys from "../../../util/hotkeys";
 import { executeQueryAction, renameAction } from "openblocks-core";
 import { deleteQueryLibrary } from "../../../redux/reduxActions/queryLibraryActions";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
-import { PointIcon } from "openblocks-design";
-import { UnfoldWhiteIcon } from "openblocks-design";
 import { QueryLibraryResultPanel } from "../../../components/ResultPanel";
 import { DataSourceStructureTree } from "../../../pages/editor/bottom/BottomMetaDrawer";
-import { ScrollBar } from "openblocks-design";
-import { EditText } from "openblocks-design";
 import { trans } from "i18n";
 
 const children = {
   query: withPropertyViewFn(QueryComp, (comp) => (
     <QueryContext.Provider
-      value={{ datasourceId: comp.children.datasourceId.getView(), disableJSCompletion: true }}
+      value={{
+        datasourceId: comp.children.datasourceId.getView(),
+        disableJSCompletion: true,
+        placement: "queryLibrary",
+      }}
     >
       <QueryGeneralPropertyView comp={comp} placement={"queryLibrary"} />
     </QueryContext.Provider>

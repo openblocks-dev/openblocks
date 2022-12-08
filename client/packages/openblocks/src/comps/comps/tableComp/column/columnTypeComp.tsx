@@ -1,19 +1,20 @@
-import { changeValueAction } from "openblocks-core";
-import { ColumnLinksComp } from "comps/comps/tableComp/column/columnLinksComp";
-import { ColumnMarkdownComp } from "comps/comps/tableComp/column/columnMarkdownComp";
-import { ColumnTagsComp } from "comps/comps/tableComp/column/columnTagsComp";
+import { CellProps } from "components/EditableCell";
+import { DateTimeComp } from "comps/comps/tableComp/column/columnTypeComps/columnDateComp";
 import ColumnTypeView from "comps/comps/tableComp/column/columnTypeView";
 import {
   BadgeStatusComp,
   ButtonComp,
   ImageComp,
   LinkComp,
-  SimpleTextComp,
 } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 import { withType } from "comps/generators";
-import { Dropdown } from "openblocks-design";
 import { trans } from "i18n";
-import { DateTimeComp } from "comps/comps/tableComp/column/columnDateComp";
+import { changeValueAction } from "openblocks-core";
+import { Dropdown } from "openblocks-design";
+import { ColumnLinksComp } from "./columnTypeComps/columnLinksComp";
+import { ColumnMarkdownComp } from "./columnTypeComps/columnMarkdownComp";
+import { ColumnTagsComp } from "./columnTypeComps/columnTagsComp";
+import { SimpleTextComp } from "./columnTypeComps/simpleTextComp";
 
 const actionOptions = [
   {
@@ -54,7 +55,7 @@ const actionOptions = [
   },
 ] as const;
 
-export const ColumnTypeMap = {
+export const ColumnTypeCompMap = {
   text: SimpleTextComp,
   button: ButtonComp,
   badgeStatus: BadgeStatusComp,
@@ -66,15 +67,19 @@ export const ColumnTypeMap = {
   dateTime: DateTimeComp,
 };
 
-type ColumnTypeMapType = typeof ColumnTypeMap;
+type ColumnTypeMapType = typeof ColumnTypeCompMap;
 export type ColumnTypeKeys = keyof ColumnTypeMapType;
 
-const TypedColumnTypeComp = withType(ColumnTypeMap, "text");
+const TypedColumnTypeComp = withType(ColumnTypeCompMap, "text");
 
 export class ColumnTypeComp extends TypedColumnTypeComp {
   override getView(): any {
+    const childView = this.children.comp.getView();
     return {
-      view: <ColumnTypeView>{this.children.comp.getView()}</ColumnTypeView>,
+      view: (cellProps: CellProps) => {
+        const thisView = typeof childView === "function" ? childView(cellProps) : childView;
+        return <ColumnTypeView>{thisView}</ColumnTypeView>;
+      },
       value: this.children.comp.getDisplayValue(),
     };
   }

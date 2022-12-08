@@ -5,7 +5,7 @@ import { AddIcon, CustomModal, EditPopover } from "openblocks-design";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGroupsAction, updateGroupAction } from "redux/reduxActions/orgActions";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import { getNextEntityName } from "util/stringUtils";
 import { validateResponse } from "api/apiUtils";
 import {
@@ -22,6 +22,8 @@ import history from "util/history";
 import { Level1SettingPageContentWithList, Level1SettingPageTitleWithBtn } from "../styled";
 import { currentOrgAdmin, isGroupAdmin } from "../../../util/permissionUtils";
 import { timestampToHumanReadable } from "../../../util/dateTimeUtils";
+import { usePermissionMenuItems } from "@openblocks-ee/pages/setting/permission/permissionMenuItems";
+import { OrgGroup } from "constants/orgConstants";
 
 const NEW_GROUP_PREFIX = trans("memberSettings.newGroupPrefix");
 
@@ -32,16 +34,18 @@ type DataItemInfo = {
   lock: boolean;
   del: boolean;
   rename: boolean;
+  group?: OrgGroup;
 };
 
 export default function PermissionSetting() {
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const orgId = user.currentOrgId;
   const orgGroups = useSelector(getOrgGroups);
   const visibleOrgGroups = orgGroups.filter((g) => !g.allUsersGroup);
   const allUsersGroup = orgGroups.find((g) => g.allUsersGroup);
   const dispatch = useDispatch();
   const [needRenameId, setNeedRenameId] = useState<string | undefined>(undefined);
+  const { nameSuffixFunc, menuItemsFunc, menuExtraView } = usePermissionMenuItems(orgId);
   useEffect(() => {
     if (!orgId) {
       return;
@@ -100,6 +104,7 @@ export default function PermissionSetting() {
       lock: group.devGroup || false,
       del: currentOrgAdmin(user) && !group.devGroup,
       rename: isGroupAdmin(group.visitorRole) && !group.devGroup,
+      group: group,
     });
   });
 
@@ -146,9 +151,7 @@ export default function PermissionSetting() {
                           message.warn(trans("home.nameCheckMessage"));
                           return;
                         }
-                        dispatch(
-                          updateGroupAction({ groupId: record.key, groupName: value }, orgId)
-                        );
+                        dispatch(updateGroupAction(record.key, { groupName: value }, orgId));
                         setNeedRenameId(undefined);
                       },
                     }}
@@ -156,7 +159,11 @@ export default function PermissionSetting() {
                     {record.key === needRenameId ? (
                       record.groupName
                     ) : (
-                      <GroupNameView name={record.groupName} lock={record.lock} />
+                      <GroupNameView
+                        name={record.groupName}
+                        lock={record.lock}
+                        suffix={nameSuffixFunc(record.group)}
+                      />
                     )}
                   </Typography.Text>
                 );
@@ -170,13 +177,14 @@ export default function PermissionSetting() {
                 <span style={{ color: "#8B8FA3" }}>{timestampToHumanReadable(value)}</span>
               ),
             },
-            { title: " ", dataIndex: "operation", width: "238px" },
+            { title: " ", dataIndex: "operation", width: "208px" },
           ]}
           dataSource={dataSource.map((item, i) => ({
             key: item.key,
             groupName: item.label,
             createTime: item.createTime,
             lock: item.lock,
+            group: item.group,
             operation: (
               <OperationWrapper>
                 <EditBtn
@@ -186,7 +194,7 @@ export default function PermissionSetting() {
                 >
                   {trans("memberSettings.manageBtn")}
                 </EditBtn>
-                {(item.del || item.rename) && (
+                {(item.del || item.rename || (item.group && menuItemsFunc)) && (
                   <EditPopover
                     del={
                       item.del
@@ -202,6 +210,7 @@ export default function PermissionSetting() {
                         : undefined
                     }
                     rename={item.rename ? () => setNeedRenameId(item.key) : undefined}
+                    items={menuItemsFunc?.(item.group)}
                   >
                     <PopoverIcon tabIndex={-1} />
                   </EditPopover>
@@ -211,6 +220,7 @@ export default function PermissionSetting() {
           }))}
         />
       </div>
+      {menuExtraView}
     </Level1SettingPageContentWithList>
   );
 }

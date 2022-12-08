@@ -90,14 +90,24 @@ export const AppPermissionDialog = (props: {
           <>
             <AppShareView
               isModule={isModule}
-              applicationId={"applicationId"}
+              applicationId={applicationId}
               permissionInfo={appPermissionInfo!}
             />
             {list}
           </>
         );
       }}
-      supportRoles={[PermissionRole.Viewer, PermissionRole.Editor, PermissionRole.Owner]}
+      supportRoles={[
+        { label: trans("share.viewer"), value: PermissionRole.Viewer },
+        {
+          label: trans("share.editor"),
+          value: PermissionRole.Editor,
+        },
+        {
+          label: trans("share.owner"),
+          value: PermissionRole.Owner,
+        },
+      ]}
       permissionItems={permissions}
       addPermission={(userIds, groupIds, role, onSuccess) =>
         ApplicationApi.grantAppPermission({

@@ -15,7 +15,7 @@ import {
   quitOrgAction,
   updateUserOrgRoleAction,
 } from "redux/reduxActions/orgActions";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import { formatTimestamp } from "util/dateTimeUtils";
 import { currentOrgAdmin } from "util/permissionUtils";
@@ -191,7 +191,7 @@ const mapStateToProps = (state: AppState) => {
   return {
     orgUsersFetching: state.ui.org.orgUsersFetching,
     orgUsers: state.ui.org.orgUsers,
-    currentUser: getCurrentUser(state),
+    currentUser: getUser(state),
   };
 };
 

@@ -71,6 +71,7 @@ interface Iprops {
   onChange?: (keys: string[]) => void;
   isSelected?: boolean;
   simple?: boolean; // no nested
+  isOpen?: boolean;
 }
 
 export const PadDiv = styled.div`
@@ -102,6 +103,7 @@ export const Collapse = (props: Iprops) => {
       <AntdCollapse
         ghost
         expandIcon={getExpandIcon}
+        defaultActiveKey={props.isOpen ? [props.config[0].key] : []}
         // onChange={handlechange}
       >
         {config && config.length > 0
@@ -123,7 +125,6 @@ const UnShowDiv = styled.div`
   line-height: 23px;
   display: flex;
   align-items: center;
-  font-family: "RobotoMono", monospace;
   font-size: 13px;
   color: #333333;
   gap: 6px;

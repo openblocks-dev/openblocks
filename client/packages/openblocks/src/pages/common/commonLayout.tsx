@@ -11,7 +11,7 @@ import SideBar from "components/layout/SideBar";
 import { User } from "constants/userConstants";
 import { useSelector } from "react-redux";
 import { AppState } from "redux/reducers";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import { normalAppListSelector } from "redux/selectors/applicationSelector";
 import { ApplicationMeta } from "constants/applicationConstants";
 import { CNMainContent, CNSidebar, CNSidebarItem } from "constants/styleSelectors";
@@ -50,7 +50,7 @@ type LayoutProps = {
 };
 
 export function CommonLayout(props: LayoutProps) {
-  const user = useSelector<AppState, User>(getCurrentUser);
+  const user = useSelector<AppState, User>(getUser);
   const applications = useSelector<AppState, ApplicationMeta[]>(normalAppListSelector);
   const currentPath = useLocation().pathname;
   const { sidebarTitle, sidebarItems } = props;

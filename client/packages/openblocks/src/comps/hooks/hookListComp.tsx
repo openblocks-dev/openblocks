@@ -8,6 +8,7 @@ import {
   getCompTree,
 } from "comps/comps/containerBase/utils";
 import { HookComp } from "./hookComp";
+import { hookCompCategory } from "./hookCompTypes";
 
 const HookListTmpComp = list(HookComp);
 const HookListTmp2Comp = class extends HookListTmpComp {
@@ -48,6 +49,25 @@ const HookListTmp2Comp = class extends HookListTmpComp {
       }
     });
     return result;
+  }
+
+  getUITree() {
+    const { items, children } = this.getCompTree();
+    const tree = {
+      items: {},
+      children: {},
+    } as CompTree;
+    for (const key in items) {
+      if (hookCompCategory(items[key].children.compType.getView()) === 'ui') {
+        tree.items[key] = items[key];
+      }
+    }
+    for (const key in children) {
+      if (Object.keys(tree.items).includes(key)) {
+        tree.children[key] = children[key];
+      }
+    }
+    return tree;
   }
 };
 

@@ -8,7 +8,7 @@ import { useDispatch } from "react-redux";
 import UserApi from "api/userApi";
 import { validateResponse } from "api/apiUtils";
 import { message } from "antd";
-import { getCurrentUser } from "redux/reduxActions/userActions";
+import { fetchUserAction } from "redux/reduxActions/userActions";
 import { trans } from "i18n";
 import { checkPassWithMsg } from "pages/userAuth/authUtils";
 
@@ -28,7 +28,7 @@ function PasswordCard(props: { hasPass: boolean }) {
       .then((resp) => {
         if (validateResponse(resp)) {
           message.success(successMsg);
-          dispatch(getCurrentUser());
+          dispatch(fetchUserAction());
         }
       })
       .catch((e) => {

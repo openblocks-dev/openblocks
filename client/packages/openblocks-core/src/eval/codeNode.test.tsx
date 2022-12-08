@@ -85,8 +85,8 @@ describe("additional evaluation", () => {
       }),
     });
     expect(result).toStrictEqual(
-      new ValueAndMsg("", "ReferenceError: x not exist", {
-        segments: [{ value: "{{input1.x}}", success: false }],
+      new ValueAndMsg(undefined, undefined, {
+        segments: [{ value: "{{input1.x}}", success: true }],
       })
     );
   });

@@ -6,9 +6,15 @@ import { list } from "comps/generators/list";
 import { NameGenerator } from "comps/utils";
 import { Section, TacoButton } from "openblocks-design";
 import { trans } from "i18n";
-import { ModuleMethodListItemComp } from "./moduleMethodListItemComp";
+import { ModuleMethodListItemComp, WithParamsActionControl } from "./moduleMethodListItemComp";
 import { ConfigViewSection } from "./styled";
-import { useState } from "react";
+import ModuleMethodParamListComp from "./moduleMethodParamListComp";
+import styled from "styled-components";
+import { GreyTextColor } from "constants/style";
+
+const MethodName = styled.div`
+  color: ${GreyTextColor};
+`;
 
 const ModuleMethodListCompBase = list(ModuleMethodListItemComp);
 
@@ -32,21 +38,31 @@ class ModuleMethodListComp extends ModuleMethodListCompBase {
     this.dispatch(this.deleteAction(idx));
   }
 
-  async executeMethodByName(name: string) {
+  async executeMethodByName(name: string, params: any) {
     const method = this.getView().find((i) => i.children.name.getView() === name);
     if (!method) {
       return;
     }
-    return method.execute();
+    return method.execute(params);
   }
 
   getTestView() {
     const methodTriggers = this.getView().map((i) => {
       const name = i.children.name.getView();
+
+      const handleExecute = () => {
+        const params = i.children.params.getParams();
+        this.executeMethodByName(name, params);
+      };
+
       return (
-        <TacoButton key={name} onClick={() => this.executeMethodByName(name)}>
-          {trans("module.excuteMethod", { name: name })}
-        </TacoButton>
+        <>
+          <MethodName>{name}</MethodName>
+          {i.children.params.getTestView()}
+          <TacoButton buttonType="blue" key={name} onClick={() => handleExecute()}>
+            {trans("module.excuteMethod", { name: name })}
+          </TacoButton>
+        </>
       );
     });
     return (
@@ -111,17 +127,23 @@ function PropertyView(props: PropertyViewProps) {
 
 interface MethodItemProps {
   name: InstanceType<typeof CompNameControl>;
+  params: InstanceType<typeof ModuleMethodParamListComp>;
   action: InstanceType<typeof ActionSelectorControl>;
   onDelete: () => void;
   showPopover: boolean;
 }
 
 function MethodItem(props: MethodItemProps) {
-  const { name, action, onDelete } = props;
+  const { name, action, params, onDelete } = props;
+
+  const handleOnParamsConfigChange = () => {
+    action.dispatch(WithParamsActionControl.changeParamDataAction(params.getParamsData()));
+  };
 
   const content = (
     <>
       {name.propertyView({ label: trans("module.name") })}
+      {params.propertyView({ onParamsConfigChange: handleOnParamsConfigChange })}
       {action.propertyView({ label: trans("module.action") })}
     </>
   );

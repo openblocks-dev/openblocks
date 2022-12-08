@@ -1,9 +1,9 @@
-import { StringControl } from "comps/controls/codeControl";
-import styled from "styled-components";
-import { markdownCompCss, TacoMarkDown } from "openblocks-design";
-import { ColumnValueTooltip } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
+import { ColumnValueTooltip } from "comps/comps/tableComp/column/simpleColumnTypeComps";
+import { StringControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
+import { markdownCompCss, TacoMarkDown } from "openblocks-design";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   ${markdownCompCss};

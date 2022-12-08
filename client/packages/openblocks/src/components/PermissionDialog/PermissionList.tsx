@@ -80,7 +80,7 @@ export interface PermissionItem {
 }
 
 function PermissionLiItem(props: {
-  supportRoles: PermissionRole[];
+  supportRoles: { label: string; value: PermissionRole }[];
   permissionItem: PermissionItem;
   isCreator?: boolean;
   updatePermission: (permissionId: string, role: string) => void;
@@ -128,12 +128,12 @@ function PermissionLiItem(props: {
         >
           {props.supportRoles.map((role) => (
             <CustomSelect.Option
-              key={role}
-              label={trans(`share.${role}`)}
-              value={role}
+              key={role.value}
+              label={role.label}
+              value={role.value}
               permissionid={permissionItem.permissionId}
             >
-              <RoleSelectOption role={trans(`share.${role}`)} />
+              <RoleSelectOption role={role.label} />
             </CustomSelect.Option>
           ))}
           <CustomSelect.Option
@@ -152,7 +152,7 @@ function PermissionLiItem(props: {
 
 export type PermissionItemsType = { permissionItem: PermissionItem; isCreator?: boolean }[];
 export const PermissionList = (props: {
-  supportRoles: PermissionRole[];
+  supportRoles: { label: string; value: PermissionRole }[];
   permissionItems: PermissionItemsType;
   updatePermission: (permissionId: string, role: string) => void;
   deletePermission: (permissionId: string) => void;

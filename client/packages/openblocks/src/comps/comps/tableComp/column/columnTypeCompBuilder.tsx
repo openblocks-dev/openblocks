@@ -1,41 +1,84 @@
-import { Comp } from "openblocks-core";
+import {
+  CellViewReturn,
+  EditableCell,
+  TABLE_EDITABLE_SWITCH_ON,
+  UpdateChangeSet,
+} from "components/EditableCell";
+import { stateComp } from "comps/generators";
 import {
   MultiCompBuilder,
   PropertyViewFnTypeForComp,
-  ToChildrenNodeValueType,
   ToConstructor,
   ViewFnTypeForComp,
 } from "comps/generators/multi";
-import React from "react";
-import { fromRecord, withFunction } from "openblocks-core";
+import _ from "lodash";
+import {
+  changeChildAction,
+  CompConstructor,
+  ConstructorToNodeType,
+  DispatchType,
+  fromRecord,
+  NodeToValue,
+  RecordConstructorToComp,
+  withFunction,
+} from "openblocks-core";
+import { ReactElement, ReactNode } from "react";
 import { JSONValue } from "util/jsonTypes";
 
 export const __COLUMN_DISPLAY_VALUE_FN = "__COLUMN_DISPLAY_VALUE_FN";
 
-type ViewValueFnType<ChildrenCompMap extends Record<string, Comp<unknown>>> = (
-  nodeValue: ToChildrenNodeValueType<ChildrenCompMap>
+type RecordConstructorToNodeValue<T> = {
+  [K in keyof T]: NodeToValue<ConstructorToNodeType<T[K]>>;
+};
+
+type ViewValueFnType<ChildrenCtorMap extends Record<string, CompConstructor<unknown>>> = (
+  nodeValue: RecordConstructorToNodeValue<ChildrenCtorMap>
 ) => JSONValue;
 
-export class ColumnTypeCompBuilder<
+type NewChildrenCtorMap<ChildrenCtorMap, T extends JSONValue> = ChildrenCtorMap & {
+  changeValue: ReturnType<typeof stateComp<T | null>>;
+};
+
+export type ColumnTypeViewFn<ChildrenCtroMap, T extends JSONValue, ViewReturn> = ViewFnTypeForComp<
   ViewReturn,
-  ChildrenCompMap extends Record<string, Comp<unknown>>
+  RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtroMap, T>>
+>;
+
+export class ColumnTypeCompBuilder<
+  ChildrenCtorMap extends Record<string, CompConstructor<unknown>>,
+  T extends JSONValue = JSONValue
 > {
-  private childrenMap: ToConstructor<ChildrenCompMap>;
-  private viewFn: ViewFnTypeForComp<ViewReturn, ChildrenCompMap>;
-  private displayValueFn: ViewValueFnType<ChildrenCompMap>;
-  private propertyViewFn?: PropertyViewFnTypeForComp<ChildrenCompMap>;
+  private childrenMap: NewChildrenCtorMap<ChildrenCtorMap, T>;
+  private propertyViewFn?: PropertyViewFnTypeForComp<
+    RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtorMap, T>>
+  >;
+  private editViewFn?: ColumnTypeViewFn<
+    ChildrenCtorMap,
+    T,
+    ReactElement<{ updateChangeSet?: UpdateChangeSet<T> }>
+  >;
 
   constructor(
-    childrenMap: ToConstructor<ChildrenCompMap>,
-    viewFn: ViewFnTypeForComp<ViewReturn, ChildrenCompMap>,
-    displayValueFn: ViewValueFnType<ChildrenCompMap>
+    childrenMap: ChildrenCtorMap,
+    private viewFn: ColumnTypeViewFn<ChildrenCtorMap, T, ReactNode>,
+    private displayValueFn: ViewValueFnType<ChildrenCtorMap>,
+    private baseValueFn?: ColumnTypeViewFn<ChildrenCtorMap, T, T>
   ) {
-    this.childrenMap = childrenMap;
-    this.viewFn = viewFn;
-    this.displayValueFn = displayValueFn;
+    this.childrenMap = { ...childrenMap, changeValue: stateComp<T | null>(null) };
   }
 
-  setPropertyViewFn(propertyViewFn: PropertyViewFnTypeForComp<ChildrenCompMap>) {
+  setEditViewFn(editViewFn: NonNullable<typeof this.editViewFn>) {
+    if (TABLE_EDITABLE_SWITCH_ON) {
+      this.editViewFn = editViewFn;
+    }
+    return this;
+  }
+
+  setPropertyViewFn(
+    propertyViewFn: PropertyViewFnTypeForComp<
+      RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtorMap, T>>
+    >
+  ) {
     this.propertyViewFn = propertyViewFn;
     return this;
   }
@@ -44,10 +87,37 @@ export class ColumnTypeCompBuilder<
     if (!this.propertyViewFn) {
       throw new Error("need property view fn");
     }
-    const ColumnTypeCompTmp = new MultiCompBuilder(this.childrenMap, this.viewFn)
+    const viewFn: ColumnTypeViewFn<ChildrenCtorMap, T, CellViewReturn> =
+      (props, dispatch): CellViewReturn =>
+      (cellProps) => {
+        const editable = this.editViewFn ? cellProps.editable : false;
+        const editView = this.editViewFn?.(props, dispatch);
+        const baseValue = this.baseValueFn?.(props, dispatch);
+        const status = _.isNil(props.changeValue) ? "normal" : "toSave";
+        const updateChangeSet = updateChangeValueFn(dispatch, (value) =>
+          _.isEqual(value, baseValue)
+        );
+        return (
+          <EditableCell
+            {...cellProps}
+            status={status}
+            editable={editable}
+            normalView={this.viewFn(props, dispatch)}
+            editView={editView}
+            updateChangeSet={updateChangeSet}
+          />
+        );
+      };
+    const ColumnTypeCompTmp = new MultiCompBuilder(
+      this.childrenMap as ToConstructor<
+        RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtorMap, T>>
+      >,
+      viewFn
+    )
       .setPropertyViewFn(this.propertyViewFn)
       .build();
     const displayValueFn = this.displayValueFn;
+    const editViewFn = this.editViewFn;
 
     return class extends ColumnTypeCompTmp {
       // table cell data
@@ -74,6 +144,19 @@ export class ColumnTypeCompBuilder<
       getDisplayValue() {
         return this.displayValue;
       }
+
+      static canBeEditable() {
+        return !_.isNil(editViewFn);
+      }
     };
   }
+}
+
+export function updateChangeValueFn<T extends JSONValue>(
+  dispatch: DispatchType,
+  equalOriginFn: (value: T) => boolean
+) {
+  return (value: T) => {
+    dispatch(changeChildAction("changeValue", equalOriginFn(value) ? null : value));
+  };
 }

@@ -1,13 +1,13 @@
 import { useSelector } from "react-redux";
 import { HomeLayout } from "./HomeLayout";
-import { getCurrentUser } from "../../redux/selectors/usersSelectors";
+import { getUser } from "../../redux/selectors/usersSelectors";
 import { MODULE_APPLICATIONS_URL } from "../../constants/routesURL";
 import { normalAppListSelector } from "../../redux/selectors/applicationSelector";
 import { AppTypeEnum } from "../../constants/applicationConstants";
 import { trans } from "../../i18n";
 
 export function ModuleView() {
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const allApplications = useSelector(normalAppListSelector);
 
   if (!user.currentOrgId) {

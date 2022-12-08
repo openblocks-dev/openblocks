@@ -9,7 +9,7 @@ import UserApi from "api/userApi";
 import { message } from "antd";
 import { validateResponse } from "api/apiUtils";
 import { useDispatch } from "react-redux";
-import { getCurrentUser } from "redux/reduxActions/userActions";
+import { fetchUserAction } from "redux/reduxActions/userActions";
 import { trans } from "i18n";
 
 function EmailCard() {
@@ -20,7 +20,7 @@ function EmailCard() {
       .then((resp) => {
         if (validateResponse(resp)) {
           message.success(trans("profile.bindEmailSuccess"));
-          dispatch(getCurrentUser());
+          dispatch(fetchUserAction());
         }
       })
       .catch((e) => {

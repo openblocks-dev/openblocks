@@ -1,27 +1,28 @@
+import { ColumnListComp } from "comps/comps/tableComp/column/tableColumnListComp";
+import { TableToolbarComp } from "comps/comps/tableComp/tableToolbarComp";
+import { BoolControl, BoolPureControl } from "comps/controls/boolControl";
+import {
+  ArrayStringControl,
+  BoolCodeControl,
+  ColorOrBoolCodeControl,
+  JSONObjectArrayControl,
+} from "comps/controls/codeControl";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import { eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { styleControl } from "comps/controls/styleControl";
+import { TableStyle } from "comps/controls/styleControlConstants";
+import { MultiCompBuilder, stateComp, valueComp, withContext } from "comps/generators";
+import { uiChildren } from "comps/generators/uiCompBuilder";
+import { withIsLoadingMethod } from "comps/generators/withIsLoading";
+import { trans } from "i18n";
 import {
   ConstructorToView,
   RecordConstructorToComp,
   RecordConstructorToView,
 } from "openblocks-core";
-import {
-  BoolCodeControl,
-  ColorOrBoolCodeControl,
-  JSONObjectArrayControl,
-} from "comps/controls/codeControl";
-import { BoolControl } from "comps/controls/boolControl";
-import { dropdownControl } from "comps/controls/dropdownControl";
-import { uiChildren } from "comps/generators/uiCompBuilder";
+import { JSONObject } from "util/jsonTypes";
 import { PaginationControl } from "./paginationControl";
 import { SelectionControl } from "./selectionControl";
-import { ColumnListComp } from "comps/comps/tableComp/column/tableColumnListComp";
-import { MultiCompBuilder, stateComp, valueComp, withContext } from "comps/generators";
-import { TableToolbarComp } from "comps/comps/tableComp/tableToolbarComp";
-import { styleControl } from "comps/controls/styleControl";
-import { TableStyle } from "comps/controls/styleControlConstants";
-import { JSONObject } from "util/jsonTypes";
-import { trans } from "i18n";
-import { eventHandlerControl } from "comps/controls/eventHandlerControl";
-import { withIsLoadingMethod } from "comps/generators/withIsLoading";
 
 const sizeOptions = [
   {
@@ -39,6 +40,16 @@ const sizeOptions = [
 ] as const;
 
 export const TableEventOptions = [
+  {
+    label: trans("table.saveChanges"),
+    value: "saveChanges",
+    description: trans("table.saveChanges"),
+  },
+  {
+    label: trans("table.cancelChanges"),
+    value: "cancelChanges",
+    description: trans("table.cancelChanges"),
+  },
   {
     label: trans("table.rowSelectChange"),
     value: "rowSelectChange",
@@ -95,6 +106,9 @@ export const tableChildrenMap = {
   onEvent: TableEventControl,
   loading: BoolCodeControl,
   rowColor: RowColorComp,
+  dynamicColumn: BoolPureControl,
+  // todo: support object config
+  dynamicColumnConfig: ArrayStringControl,
 };
 const uiChildrenMap = uiChildren(tableChildrenMap);
 export type TableChildrenType = RecordConstructorToComp<typeof uiChildrenMap>;

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect x="0" y="0" width="16" height="16"></rect>
+        <g transform="translate(1.000000, 1.000000)">
+            <rect stroke="#8B8FA3" stroke-width="1.5" x="0" y="0" width="14" height="14" rx="2"></rect>
+            <rect stroke="#8B8FA3" stroke-width="1.5" x="6" y="0" width="8" height="14" rx="2"></rect>
+            <line x1="6.5" y1="4.5" x2="13.5" y2="4.5" stroke="#8B8FA3" stroke-width="1.5" stroke-linecap="round"></line>
+            <line x1="8.5" y1="7.5" x2="10.5" y2="7.5" stroke="#8B8FA3" stroke-width="1.5" stroke-linecap="round"></line>
+            <line x1="8.5" y1="10.5" x2="10.5" y2="10.5" stroke="#8B8FA3" stroke-width="1.5" stroke-linecap="round"></line>
+            <rect fill="#8B8FA3" x="0" y="0.5" width="6" height="13"></rect>
+        </g>
+    </g>
+</svg>

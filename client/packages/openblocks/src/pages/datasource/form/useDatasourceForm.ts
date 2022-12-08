@@ -3,7 +3,7 @@ import { DatasourceApi } from "../../../api/datasourceApi";
 import _ from "lodash";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUser } from "../../../redux/selectors/usersSelectors";
+import { getUser } from "../../../redux/selectors/usersSelectors";
 import { createDatasource, updateDatasource } from "../../../redux/reduxActions/datasourceActions";
 import { trans } from "i18n";
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
@@ -12,7 +12,7 @@ import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 export function useDatasourceForm() {
   const [testLoading, setTestLoading] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
-  const currentUser = useSelector(getCurrentUser);
+  const currentUser = useSelector(getUser);
   const orgId = currentUser.currentOrgId;
   const [form] = Form.useForm();
   const dispatch = useDispatch();

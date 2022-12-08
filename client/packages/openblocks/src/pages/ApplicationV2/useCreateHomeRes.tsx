@@ -5,7 +5,7 @@ import { HomeResTypeEnum } from "../../types/homeRes";
 import { getNextEntityName } from "../../util/stringUtils";
 import { createApplication } from "../../redux/reduxActions/applicationActions";
 import { useParams } from "react-router-dom";
-import { getCurrentUser } from "../../redux/selectors/usersSelectors";
+import { getUser } from "../../redux/selectors/usersSelectors";
 import {
   isApplicationCreating,
   normalAppListSelector,
@@ -25,7 +25,7 @@ export const newAppPrefix = (userName: string, appType: AppTypeEnum = AppTypeEnu
 
 export function useCreateHomeRes() {
   const dispatch = useDispatch();
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const allApplications = useSelector(normalAppListSelector);
   const isCreating = useSelector(isApplicationCreating);
 

@@ -164,7 +164,8 @@ function mergeContext(context: Record<string, unknown>, args?: Record<string, un
 export function evalFunction(
   unevaledValue: string,
   context: Record<string, unknown>,
-  methods?: EvalMethods
+  methods?: EvalMethods,
+  isAsync?: boolean
 ): ValueAndMsg<Function> {
   try {
     return new ValueAndMsg((args?: Record<string, unknown>, runInHost: boolean = false) =>
@@ -174,11 +175,28 @@ export function evalFunction(
           : "return function(){'use strict'; " + unevaledValue + "\n}()",
         mergeContext(context, args),
         methods,
-        { disableLimit: runInHost }
+        { disableLimit: runInHost },
+        isAsync
       )
     );
   } catch (err) {
     return new ValueAndMsg(() => {}, getErrorMessage(err));
+  }
+}
+
+export async function evalFunctionResult(
+  unevaledValue: string,
+  context: Record<string, unknown>,
+  methods?: EvalMethods
+): Promise<ValueAndMsg<unknown>> {
+  const valueAndMsg = evalFunction(unevaledValue, context, methods, true);
+  if (valueAndMsg.hasError()) {
+    return new ValueAndMsg("", valueAndMsg.msg);
+  }
+  try {
+    return new ValueAndMsg(await valueAndMsg.value());
+  } catch (err) {
+    return new ValueAndMsg("", getErrorMessage(err));
   }
 }
 

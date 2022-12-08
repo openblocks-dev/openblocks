@@ -2,16 +2,16 @@ import axios from "axios";
 import { EmptyContent } from "components/EmptyContent";
 import { LinkButton } from "openblocks-design";
 import { useShallowEqualSelector } from "util/hooks";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "redux/reducers";
 import { packageMetaReadyAction } from "redux/reduxActions/npmPluginActions";
 import styled from "styled-components";
 import { NpmPackageMeta } from "types/remoteComp";
-import { ComListTitle } from "../styledComponent";
 import { PluginCompItem } from "./PluginCompItem";
 import { NPM_REGISTRY_URL } from "constants/npmPlugins";
 import { trans } from "i18n";
+import { RightContext } from "../rightContext";
 
 const PluginViewWrapper = styled.div`
   margin-bottom: 12px;
@@ -30,10 +30,16 @@ const PluginViewTitle = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin-bottom: 2px;
 `;
 
 const PluginViewTitleText = styled.div`
   flex: 1;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #b8b9bf;
 `;
 
 const PluginViewContent = styled.div`
@@ -49,6 +55,7 @@ interface PluginViewProps {
 export function PluginItem(props: PluginViewProps) {
   const { name, onRemove } = props;
   const dispatch = useDispatch();
+  const { onDrag, searchValue } = useContext(RightContext);
   const [loading, setLoading] = useState(false);
   const packageMeta = useShallowEqualSelector(
     (state: AppState) => state.npmPlugin.packageMeta[name]
@@ -57,7 +64,6 @@ export function PluginItem(props: PluginViewProps) {
   const versions = useMemo(() => packageMeta?.versions || {}, [packageMeta?.versions]);
   const comps = versions[currentVersion]?.openblocks?.comps || {};
   const compNames = Object.keys(comps);
-  const hasComps = compNames.length > 0;
 
   useEffect(() => {
     setLoading(true);
@@ -70,12 +76,15 @@ export function PluginItem(props: PluginViewProps) {
     });
   }, [dispatch, name]);
 
+  const filteredCompNames = compNames.filter(
+    (i) => !searchValue || i.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1
+  );
+  const hasComps = filteredCompNames.length > 0;
+
   return (
     <PluginViewWrapper>
       <PluginViewTitle>
-        <PluginViewTitleText>
-          <ComListTitle>{name}</ComListTitle>
-        </PluginViewTitleText>
+        <PluginViewTitleText>{name}</PluginViewTitleText>
         <LinkButton
           onClick={onRemove}
           className="remove-btn"
@@ -83,12 +92,11 @@ export function PluginItem(props: PluginViewProps) {
         />
       </PluginViewTitle>
       <PluginViewContent>
-        {compNames.length === 0 && (
-          <EmptyContent text={loading ? "Loading..." : "No components found."} />
-        )}
+        {!hasComps && <EmptyContent text={loading ? "Loading..." : "No components found."} />}
         {hasComps &&
-          compNames.map((compName) => (
+          filteredCompNames.map((compName) => (
             <PluginCompItem
+              onDrag={onDrag}
               key={compName}
               compName={compName}
               compMeta={comps[compName]}

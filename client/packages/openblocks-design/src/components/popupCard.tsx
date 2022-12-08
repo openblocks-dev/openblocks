@@ -75,6 +75,7 @@ const Content = styled.div`
   max-height: 108px;
   overflow: auto;
   scrollbar-gutter: stable;
+  white-space: pre-line;
 
   &::-webkit-scrollbar {
     width: 16px;

@@ -32,7 +32,7 @@ const ProfileWrapper = styled.div`
   align-items: center;
   flex-direction: column;
   gap: 10px;
-  padding: 4px 4px 12px 4px;
+  padding: 4px 0 12px 0;
 
   p {
     overflow: hidden;
@@ -96,17 +96,19 @@ const StyledDropdownSubMenu = styled(DropDownSubMenu)`
 `;
 
 const StyledNameLabel = styled.div`
-  width: 113px;
+  width: 160px;
   text-align: center;
   position: relative;
   margin-top: -3px;
+  display: flex;
+  justify-content: center;
 
   p {
     font-weight: 500;
     font-size: 14px;
     line-height: 16px;
     color: #222222;
-    padding: 0 16px;
+    padding-left: 16px;
   }
 `;
 
@@ -168,9 +170,7 @@ export default function ProfileDropdown(props: DropDownProps) {
           <ProfileImage source={avatarUrl} userName={username} side={48} />
           <StyledNameLabel>
             <CommonTextLabel2 title={username}>{username}</CommonTextLabel2>
-            {!checkIsMobile(window.innerWidth) && (
-              <EditIcon style={{ position: "absolute", right: 0, top: 0 }} />
-            )}
+            {!checkIsMobile(window.innerWidth) && <EditIcon />}
           </StyledNameLabel>
           {currentOrg && (
             <CommonGrayLabel

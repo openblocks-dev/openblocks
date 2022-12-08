@@ -1,22 +1,5 @@
 import { AppState } from "redux/reducers";
 
-export const getPreload = (state: AppState) => {
-  const {
-    preloadCSS,
-    preloadJavaScript,
-    preloadLibs,
-    applyPreloadCSSToHomePage,
-    runJavaScriptInHost,
-  } = state.ui.commonSettings.settings;
-  return {
-    preloadCSS,
-    preloadJavaScript,
-    preloadLibs,
-    applyPreloadCSSToHomePage,
-    runJavaScriptInHost,
-  };
-};
-
 export const getCommonSettings = (state: AppState) => {
   return state.ui.commonSettings.settings;
 };

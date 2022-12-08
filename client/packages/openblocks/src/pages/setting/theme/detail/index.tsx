@@ -245,7 +245,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
 
 const mapStateToProps = (state: AppState) => ({
   themeList: state.ui.commonSettings?.settings?.themeList || [],
-  orgId: state.ui.users.currentUser.currentOrgId,
+  orgId: state.ui.users.user.currentOrgId,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

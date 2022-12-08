@@ -1,42 +1,41 @@
-import { Pagination, Popover } from "antd";
+import { Button, Pagination, Popover } from "antd";
 import { PaginationProps } from "antd/lib/pagination/Pagination";
-import { changeChildAction } from "openblocks-core";
-import { ConstructorToView } from "openblocks-core";
+import { ThemeDetail } from "api/commonSettingApi";
+import { ColumnCompType } from "comps/comps/tableComp/column/tableColumnComp";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
+import { defaultTheme, TableStyleType } from "comps/controls/styleControlConstants";
 import { MultiCompBuilder, stateComp } from "comps/generators";
 import { genRandomKey } from "comps/utils/idGenerator";
+import { ThemeContext } from "comps/utils/themeContext";
+import { trans } from "i18n";
+import _, { isNil } from "lodash";
+import { changeChildAction, ConstructorToView } from "openblocks-core";
 import {
+  BluePlusIcon,
   CheckBox,
   CommonTextLabel,
   CustomSelect,
-  SuspensionBox,
-  TacoButton,
-  TacoInput,
-} from "openblocks-design";
-import { LinkButton } from "openblocks-design";
-import { ValueFromOption } from "openblocks-design";
-import {
-  BluePlusIcon,
   DeleteIcon,
   DownloadIcon,
   FilterIcon,
+  LinkButton,
+  pageItemRender,
   RefreshIcon,
   SettingIcon,
+  SuspensionBox,
+  TacoButton,
+  TacoInput,
+  ValueFromOption,
 } from "openblocks-design";
-import { pageItemRender } from "openblocks-design";
-import _, { isNil } from "lodash";
-import React, { useEffect, useMemo, useRef, useState, useContext } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { JSONValue } from "util/jsonTypes";
-import { ColumnCompType } from "comps/comps/tableComp/column/tableColumnComp";
-import { defaultTheme, TableStyleType } from "comps/controls/styleControlConstants";
-import { ThemeContext } from "comps/utils/themeContext";
-import { ThemeDetail } from "api/commonSettingApi";
-import { trans } from "i18n";
 
-const StyledPagination = styled(Pagination)`
-  margin-left: auto;
+const SaveChangeButtons = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;
 
 const getStyle = (style: TableStyleType, filtered: boolean, theme: ThemeDetail) => {
@@ -144,6 +143,7 @@ const FooterBarWrapper = styled.div<{
 const FooterBarWrapper2 = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   min-width: max-content;
   height: 21px;
   width: 100%;
@@ -660,8 +660,20 @@ export function TableFooterBar(props: {
   columns: Array<ColumnCompType>;
   onRefresh: () => void;
   onDownload: () => void;
+  hasChange: boolean;
+  onSaveChanges: () => void;
+  onCancelChanges: () => void;
 }) {
-  const { toolbar, pagination, columns, onRefresh, onDownload } = props;
+  const {
+    toolbar,
+    pagination,
+    columns,
+    onRefresh,
+    onDownload,
+    hasChange,
+    onSaveChanges,
+    onCancelChanges,
+  } = props;
   const [filterVisible, setFilterVisible] = useState(false);
   const [settingVisible, setSettingVisible] = useState(false);
   const visibleColumns = columns.filter((c) => !c.children.hide.getView());
@@ -709,7 +721,15 @@ export function TableFooterBar(props: {
             />
           )}
         </ToolbarIcons>
-        <StyledPagination size="small" itemRender={pageItemRender} {...pagination} />
+        <Pagination size="small" itemRender={pageItemRender} {...pagination} />
+        {hasChange && (
+          <SaveChangeButtons>
+            <Button onClick={onCancelChanges}>{trans("cancel")}</Button>
+            <Button type="primary" onClick={onSaveChanges}>
+              {trans("table.saveChanges")}
+            </Button>
+          </SaveChangeButtons>
+        )}
       </FooterBarWrapper2>
     </FooterBarWrapper>
   );

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { getCommonSettings } from "redux/selectors/commonSettingSelectors";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import { useShallowEqualSelector } from "util/hooks";
 import {
   Level1SettingPageContent,
@@ -18,7 +18,7 @@ import { trans } from "i18n";
 
 export function PluginSetting() {
   const dispatch = useDispatch();
-  const currentUser = useSelector(getCurrentUser);
+  const currentUser = useSelector(getUser);
   const commonSettings = useShallowEqualSelector(getCommonSettings);
   const [settings, setSettings] = useState(commonSettings);
 

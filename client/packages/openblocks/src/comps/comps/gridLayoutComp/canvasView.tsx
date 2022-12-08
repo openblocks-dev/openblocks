@@ -17,12 +17,21 @@ import { EditorContainerPadding, TopHeaderHeight } from "constants/style";
 import { ThemeContext } from "comps/utils/themeContext";
 import { defaultTheme } from "comps/controls/styleControlConstants";
 import { checkIsMobile } from "util/commonUtils";
+import { CanvasContainerID } from "constants/domLocators";
 
 const UICompContainer = styled.div<{ maxWidth?: number; readOnly?: boolean; bgColor?: string }>`
   max-width: ${(props) => props.maxWidth || 1600}px;
   height: 100%;
   margin: 0 auto;
   background-color: ${(props) => props.bgColor};
+`;
+
+// modal/drawer container
+const CanvasContainer = styled.div<{ maxWidth: number }>`
+  max-width: ${(props) => props.maxWidth}px;
+  margin: 0 auto;
+  height: 100%;
+  contain: paint;
 `;
 
 const DEFAULT_CONTAINER_PADDING = [20, 20] as [number, number];
@@ -101,39 +110,41 @@ export function CanvasView(props: ContainerBaseProps) {
   }
 
   return (
-    <EditorContainer ref={scrollContainerRef}>
-      <UICompContainer maxWidth={maxWidth}>
-        <DragSelector
-          onMouseDown={() => {
-            setDragSelectedComp(EmptySet);
-          }}
-          onMouseUp={() => {
-            editorState.setSelectedCompNames(dragSelectedComps);
-            setDragSelectedComp(EmptySet);
-          }}
-          onMouseMove={(checkSelectFunc) => {
-            const selectedName = getDragSelectedNames(props.items, props.layout, checkSelectFunc);
-            setDragSelectedComp(selectedName);
-          }}
-        >
-          <Profiler id="Panel" onRender={profilerCallback}>
-            <InnerGrid
-              containerPadding={rootContainerPadding}
-              extraHeight={rootContainerExtraHeight}
-              overflow={rootContainerOverflow}
-              {...props}
-              {...gridLayoutCanvasProps}
-              dragSelectedComps={dragSelectedComps}
-              minHeight={`calc(100vh - ${TopHeaderHeight} - ${EditorContainerPadding} * 2)`}
-              scrollContainerRef={scrollContainerRef}
-              isDroppable={!isModule}
-              isDraggable={!isModule}
-              enableGridLines
-              bgColor={bgColor}
-            />
-          </Profiler>
-        </DragSelector>
-      </UICompContainer>
-    </EditorContainer>
+    <CanvasContainer maxWidth={maxWidth} id={CanvasContainerID}>
+      <EditorContainer ref={scrollContainerRef}>
+        <UICompContainer maxWidth={maxWidth}>
+          <DragSelector
+            onMouseDown={() => {
+              setDragSelectedComp(EmptySet);
+            }}
+            onMouseUp={() => {
+              editorState.setSelectedCompNames(dragSelectedComps);
+              setDragSelectedComp(EmptySet);
+            }}
+            onMouseMove={(checkSelectFunc) => {
+              const selectedName = getDragSelectedNames(props.items, props.layout, checkSelectFunc);
+              setDragSelectedComp(selectedName);
+            }}
+          >
+            <Profiler id="Panel" onRender={profilerCallback}>
+              <InnerGrid
+                containerPadding={rootContainerPadding}
+                extraHeight={rootContainerExtraHeight}
+                overflow={rootContainerOverflow}
+                {...props}
+                {...gridLayoutCanvasProps}
+                dragSelectedComps={dragSelectedComps}
+                minHeight={`calc(100vh - ${TopHeaderHeight} - ${EditorContainerPadding} * 2)`}
+                scrollContainerRef={scrollContainerRef}
+                isDroppable={!isModule}
+                isDraggable={!isModule}
+                enableGridLines
+                bgColor={bgColor}
+              />
+            </Profiler>
+          </DragSelector>
+        </UICompContainer>
+      </EditorContainer>
+    </CanvasContainer>
   );
 }

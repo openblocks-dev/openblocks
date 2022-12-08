@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { getPanelStyle, savePanelStyle } from "util/localStorageUtil";
 import { BottomResultPanel } from "../../../components/ResultPanel";
 import { AppState } from "../../../redux/reducers";
-import { getCurrentUser } from "../../../redux/selectors/usersSelectors";
+import { getUser } from "../../../redux/selectors/usersSelectors";
 import { connect } from "react-redux";
 import { Layers } from "constants/Layers";
 
@@ -71,7 +71,7 @@ function Bottom(props: any) {
 
 const mapStateToProps = (state: AppState) => {
   return {
-    orgId: getCurrentUser(state).currentOrgId,
+    orgId: getUser(state).currentOrgId,
     datasourceInfos: state.entities.datasource.data,
   };
 };

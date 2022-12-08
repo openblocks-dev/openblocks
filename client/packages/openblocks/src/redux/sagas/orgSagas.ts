@@ -23,8 +23,8 @@ import {
   UpdateUserGroupRolePayload,
   UpdateUserOrgRolePayload,
 } from "redux/reduxActions/orgActions";
-import { getCurrentUser } from "redux/reduxActions/userActions";
-import { getCurrentUser as selectCurrentUser } from "redux/selectors/usersSelectors";
+import { fetchUserAction } from "redux/reduxActions/userActions";
+import { getUser } from "redux/selectors/usersSelectors";
 import { validateResponse } from "api/apiUtils";
 import { User } from "constants/userConstants";
 
@@ -32,8 +32,8 @@ export function* updateGroupSaga(action: ReduxAction<UpdateGroupActionPayload>) 
   try {
     const response: AxiosResponse<ApiResponse> = yield call(
       OrgApi.updateGroup,
-      action.payload.group.groupId,
-      action.payload.group.groupName
+      action.payload.groupId,
+      action.payload.updates
     );
     const isValidResponse: boolean = validateResponse(response);
     if (isValidResponse) {
@@ -182,7 +182,7 @@ export function* quitGroupSaga(action: ReduxAction<RemoveGroupUserPayload>) {
       action.payload.groupId
     );
     const isValidResponse: boolean = validateResponse(response);
-    const user: User = yield select(selectCurrentUser);
+    const user: User = yield select(getUser);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.QUIT_GROUP_SUCCESS,
@@ -234,7 +234,7 @@ export function* createOrgSaga(action: ReduxAction<{ orgName: string }>) {
     const isValidResponse: boolean = validateResponse(response);
     if (isValidResponse) {
       // update org list
-      yield put(getCurrentUser());
+      yield put(fetchUserAction());
       yield put({
         type: ReduxActionTypes.CREATE_ORG_SUCCESS,
         payload: {

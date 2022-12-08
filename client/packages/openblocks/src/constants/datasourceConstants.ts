@@ -1,5 +1,6 @@
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 import { DatasourceConfigType } from "../api/datasourceApi";
+import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 
 export const databasePlugins: Partial<DatasourceType>[] = [
   "mysql",
@@ -29,3 +30,12 @@ export interface Datasource {
   creationSource: 0 | 1 | 2;
   createTime: number;
 }
+
+export const QUICK_REST_API_ID = "#QUICK_REST_API";
+export const QUICK_GRAPHQL_ID = "#QUICK_GRAPHQL";
+export const OPENBLOCKS_API_ID = "#OPENBLOCKS_API";
+export const OPENBLOCKS_API_INFO = {
+  icon: getBottomResIcon("openblocksApi"),
+  name: "Openblocks API",
+};
+export const OLD_OPENBLOCKS_DATASOURCE: Partial<DatasourceType>[] = [];

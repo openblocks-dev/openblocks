@@ -18,7 +18,7 @@ declare module "*.md" {
 
 declare module "__user-pkg-json__";
 declare module "__user-dev-comps__";
-declare module "eslint4b-prebuilt";
+declare module "eslint4b-prebuilt-2";
 declare module "mq-polyfill";
 declare module "@rjsf/antd";
 declare module "really-relaxed-json";
@@ -38,3 +38,4 @@ declare var REACT_APP_BUILD_ID: string;
 declare var REACT_APP_LOG_LEVEL: string;
 declare var REACT_APP_SERVER_IPS: string;
 declare var REACT_APP_BUNDLE_TYPE: "sdk" | "app";
+declare module "weixin-js-sdk";

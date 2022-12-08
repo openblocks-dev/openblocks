@@ -6,7 +6,6 @@ import { defaultTheme } from "comps/controls/styleControlConstants";
 import { EditorContext } from "comps/editorState";
 import { ThemeContext } from "comps/utils/themeContext";
 import { AppTypeEnum } from "constants/applicationConstants";
-import { EditorWrapperID } from "constants/domLocators";
 import { Layers } from "constants/Layers";
 import { TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
@@ -59,27 +58,31 @@ const HookCompContainer = styled.div`
 const ViewBody = styled.div<{ bgColor: string; hideBodyHeader?: boolean }>`
   background-color: ${(props) =>
     props.bgColor}; // the same as the editting region's default bg-color
-  min-height: calc(100vh - ${(props) => props.hideBodyHeader? '0px' : TopHeaderHeight});
+  min-height: calc(100vh - ${(props) => (props.hideBodyHeader ? "0px" : TopHeaderHeight)});
 `;
 
 const SiderWrapper = styled.div`
   .ant-menu {
     background-color: #393b47;
     height: calc(100vh - 48px);
+
     .ant-menu-item {
       padding: 0 7px !important;
       width: 40px;
       height: 26px;
       margin: 12px 0 0 0;
+
       svg {
         height: 26px;
         width: 26px;
         padding: 5px;
       }
+
       &.ant-menu-item-selected,
       &:hover,
       &:active {
         background-color: #393b47;
+
         svg {
           background: #8b8fa37f;
           border-radius: 4px;
@@ -87,6 +90,7 @@ const SiderWrapper = styled.div`
       }
     }
   }
+
   z-index: ${Layers.leftToolbar};
 `;
 const HelpDiv = styled.div`
@@ -96,14 +100,17 @@ const HelpDiv = styled.div`
     height: 28px;
     bottom: 36px;
     cursor: pointer;
+
     > div.shortcutList {
       left: 42px;
       bottom: 2px;
     }
+
     svg {
       height: 26px;
       width: 26px;
       padding: 5px;
+
       &:hover,
       &:active {
         background: #8b8fa37f;
@@ -133,16 +140,20 @@ const PreloadDiv = styled.div`
   padding: 0 8px 0 7px;
   color: #333;
   cursor: pointer;
+
   svg {
     margin-right: 8px;
+
     path {
       fill: #222222;
     }
   }
+
   &:hover,
   &:active {
     background: #f2f7fc;
     border-radius: 4px;
+
     svg path {
       fill: #315efb;
     }
@@ -152,7 +163,6 @@ const PreloadDiv = styled.div`
 export const EditorWrapper = styled.div`
   overflow: auto;
   position: relative;
-  contain: paint;
   flex: 1 1 0;
 `;
 
@@ -258,7 +268,9 @@ function EditorView(props: EditorViewProps) {
         <Helmet>{application && <title>{application.name}</title>}</Helmet>
         {!hideBodyHeader && <PreviewHeader />}
         <EditorContainerWithViewMode>
-          <ViewBody bgColor={bgColor} hideBodyHeader={hideBodyHeader}>{uiComp.getView()}</ViewBody>
+          <ViewBody bgColor={bgColor} hideBodyHeader={hideBodyHeader}>
+            {uiComp.getView()}
+          </ViewBody>
           <div style={{ zIndex: Layers.hooksCompContainer }}>{hookCompViews}</div>
         </EditorContainerWithViewMode>
       </CustomShortcutWrapper>
@@ -351,7 +363,7 @@ function EditorView(props: EditorViewProps) {
             </LeftPanel>
           )}
           <MiddlePanel>
-            <EditorWrapper className={editorContentClassName} id={EditorWrapperID}>
+            <EditorWrapper className={editorContentClassName}>
               <EditorHotKeys disabled={readOnly}>
                 <EditorContainerWithViewMode>
                   {uiCompView}

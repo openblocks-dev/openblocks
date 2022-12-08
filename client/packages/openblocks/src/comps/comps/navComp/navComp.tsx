@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { StringControl } from "comps/controls/codeControl";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
-import { NavItemComp, navListComp } from "./navItemComp";
+import { navListComp } from "./navItemComp";
 import { menuPropertyView } from "./components/MenuItemList";
 import { DownOutlined } from "@ant-design/icons";
 import { Dropdown, Menu, MenuProps } from "antd";
@@ -123,10 +123,21 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         if (hidden) {
           return null;
         }
+        const visibleSubItems = items.filter((item) => !item.children.hidden.getView());
+        const subMenuItems: Array<{ key: string; label: string }> = [];
+        const subMenuSelectedKeys: Array<string> = [];
+        visibleSubItems.forEach((subItem, index) => {
+          const key = index + "";
+          subItem.children.active.getView() && subMenuSelectedKeys.push(key);
+          subMenuItems.push({
+            key: key,
+            label: subItem.children.label.getView(),
+          });
+        });
         const item = (
           <Item
             key={idx}
-            active={active}
+            active={active || subMenuSelectedKeys.length > 0}
             color={props.style.text}
             activeColor={props.style.accent}
             onClick={() => onEvent("click")}
@@ -135,17 +146,15 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             {items.length > 0 && <DownOutlined />}
           </Item>
         );
-        if (items.length > 0) {
+        if (visibleSubItems.length > 0) {
           const subMenu = (
             <StyledMenu
               onClick={(e) => {
                 const { onEvent: onSubEvent } = items[Number(e.key)]?.getView();
                 onSubEvent("click");
               }}
-              items={items.map((subItem: NavItemComp, index: number) => ({
-                key: index,
-                label: subItem.children.label.getView(),
-              }))}
+              selectedKeys={subMenuSelectedKeys}
+              items={subMenuItems}
             />
           );
           return (

@@ -319,6 +319,11 @@ export function CreateDataSourceModal(props: CreateDataSourceModalProps) {
       activeStepKey={activeStepKey}
       width="600px"
       steps={steps}
+      maskClosable={false}
+      onCancel={(e) => {
+        props.onCancel?.(e);
+        setActiveStepKey("type");
+      }}
     />
   );
 }
@@ -361,6 +366,7 @@ export const DatasourceModal = (props: ResourceModalProps) => {
         onClick={(e) => e.stopPropagation()}
       >
         <CreateDataSourceModal
+          maskClosable={false}
           visible={visible}
           onCancel={() => setVisible(false)}
           dataSource={props.datasource}

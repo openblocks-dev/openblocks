@@ -37,6 +37,9 @@ export * from "util/uaUtils";
 export * from "util/urlUtils";
 export * from "util/context/ExternalEditorContext";
 
+// constant
+export { CanvasContainerID } from "constants/domLocators";
+
 // comps
 export * from "comps/index";
 export * from "comps/comps/rootComp";

@@ -1,6 +1,6 @@
 import { UserConnectionSource } from "@openblocks-ee/constants/userConstants";
 import { useSelector } from "react-redux";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import EmailCard from "pages/setting/profile/emailCard";
 import PasswordCard from "pages/setting/profile/passwordCard";
 import {
@@ -17,7 +17,7 @@ type ModalSettingProps = {
 };
 
 export function ProfileInfoCard(props: ModalSettingProps) {
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const { setModalContent, setTitle, setShowBackLink } = props;
   const hasPass = user.hasPassword;
   const email = getConnectedName(user, UserConnectionSource.email);

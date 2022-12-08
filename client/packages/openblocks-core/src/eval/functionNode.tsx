@@ -1,6 +1,6 @@
-import { memoized } from "util/memoize";
 import { AbstractNode, Node, ValueFn } from "./node";
 import { EvalMethods } from "./types/evalTypes";
+import { memoized } from "../util/memoize";
 
 /**
  * return a new node, evaluating to a function result with the input node value as the function's input

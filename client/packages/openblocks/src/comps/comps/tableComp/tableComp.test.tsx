@@ -33,12 +33,14 @@ test("test column render", () => {
   comp = evalAndReduce(comp);
   const columnOutput = comp.getView();
   expect(
-    columnOutput.render({
-      currentCell: null,
-      currentIndex: null,
-      currentRow: { id: "hello" },
-      currentOriginalIndex: null,
-    }).view.props.children
+    columnOutput
+      .render(String(0), {
+        currentCell: null,
+        currentIndex: null,
+        currentRow: { id: "hello" },
+        currentOriginalIndex: null,
+      })
+      .view({}).props.children.props.normalView
   ).toEqual("hello");
   // FIXME: see what should be output if the input is wrong
   // expect(columnOutput.render()).toEqual("");
@@ -83,30 +85,6 @@ test("test table", async () => {
   expect(columns[1].getView().title).toEqual("custom");
   expect(columns[2].getView().title).toEqual("c");
   expect(columns[3].getView().title).toEqual("d");
-
-  // Data changes, unevalData does not change
-  comp = evalAndReduce(comp.reduce(changeChildAction("data", "{{query1.data}}")), exposingInfo);
-  await new Promise((r) => setTimeout(r, 20));
-  columns = comp.children.columns.getView();
-  expect(columns.length).toEqual(2);
-  expect(columns[0].getView().title).toEqual("custom");
-  expect(columns[1].getView().dataIndex).toEqual("q");
-  // Change the data, do not change the input query1, do not automatically generate columns
-  const newQueryData = [{ a: 1, b: 2, c: 3 }];
-  exposingInfo.query1 = fromValue({ data: newQueryData });
-  comp = evalAndReduce(comp.reduce(changeChildAction("data", "{{query1.data}}")), exposingInfo);
-  await new Promise((r) => setTimeout(r, 20));
-  columns = comp.children.columns.getView();
-  expect(comp.children.data.getView()).toEqual(newQueryData);
-  expect(columns.length).toEqual(2);
-  expect(columns[0].getView().title).toEqual("custom");
-  expect(columns[1].getView().dataIndex).toEqual("q");
-  // Change the input query2, re-generate the column
-  comp = evalAndReduce(comp.reduce(changeChildAction("data", "{{query2.data}}")), exposingInfo);
-  await new Promise((r) => setTimeout(r, 20));
-  columns = comp.children.columns.getView();
-  expect(columns.length).toEqual(2);
-  expect(columns[1].getView().dataIndex).toEqual("q2");
 }, 1000);
 
 // FIXME: add a single test for the click action of the table

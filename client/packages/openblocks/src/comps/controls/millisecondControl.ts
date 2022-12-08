@@ -2,7 +2,7 @@ import { trans } from "i18n";
 import { isEmpty } from "lodash";
 import { codeControl } from "./codeControl";
 
-const toMilliseconds = (value: number, left: number, right: number, unit: "ms" | "s") => {
+const defaultToMilliseconds = (value: number, left: number, right: number, unit: "ms" | "s") => {
   if (value <= left) {
     return unit === "s" ? left * 1000 : left;
   } else if (value > right) {
@@ -17,15 +17,22 @@ export interface MillisecondsControlProps {
   right?: number; // maximum value, unit related to unit prop
   defaultValue?: number; // default value, unit related to unit prop
   unit?: "ms" | "s"; // Specifies the default unit for the input box
+  toMilliseconds?: (value: number, left: number, right: number, unit: "ms" | "s") => number;
 }
 
 // A millisecond input box with left open and right closed
 export const millisecondsControl = (props: MillisecondsControlProps) => {
-  const { left = 0, right = Number.MAX_VALUE, defaultValue, unit = "ms" } = props;
+  const {
+    left = 0,
+    right = Number.MAX_VALUE,
+    defaultValue,
+    unit = "ms",
+    toMilliseconds = defaultToMilliseconds,
+  } = props;
 
   return codeControl(
     (value) => {
-      if (typeof value === "number" && value > left && value <= right) {
+      if (typeof value === "number") {
         return toMilliseconds(value, left, right, unit);
       }
 
@@ -33,7 +40,7 @@ export const millisecondsControl = (props: MillisecondsControlProps) => {
         const str = value.trim().toLowerCase();
 
         if (str === "") {
-          return defaultValue ? toMilliseconds(defaultValue, left, right, unit) : 0; // No input, no error
+          return defaultValue !== undefined ? toMilliseconds(defaultValue, left, right, unit) : 0; // No input, no error
         }
 
         const strInNum = Number(str);
@@ -57,7 +64,7 @@ export const millisecondsControl = (props: MillisecondsControlProps) => {
         }
       }
 
-      if (!defaultValue) {
+      if (defaultValue === undefined) {
         throw new TypeError(trans("millisecondsControl.timeoutTypeError", { value: value as any }));
       }
       return toMilliseconds(defaultValue, left, right, unit);

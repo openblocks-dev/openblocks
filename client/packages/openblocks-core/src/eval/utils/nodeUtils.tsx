@@ -6,12 +6,24 @@ export function dependsErrorMessage(node: CodeNode) {
   return `DependencyError: "${node.unevaledValue}" caused a cyclic dependency.`;
 }
 
+export class EvalTypeError extends TypeError {
+  hint?: string;
+
+  constructor(msg: string, hint?: string) {
+    super(msg);
+    this.hint = hint;
+  }
+}
+
 export function getErrorMessage(err: unknown) {
-  const errorMesasge =
-    err instanceof Error
-      ? err.name + ": " + err.message
-      : "UnknownError: unknown exception during eval";
-  return errorMesasge;
+  // todo try to use 'err instanceof EvalTypeError' instead
+  if (err instanceof TypeError && (err as any).hint) {
+    return (err as any).hint + "\n" + err.name + ": " + err.message;
+  }
+
+  return err instanceof Error
+    ? err.name + ": " + err.message
+    : "UnknownError: unknown exception during eval";
 }
 
 export function mergeNodesWithSameName(

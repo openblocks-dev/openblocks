@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { fetchDatasource, fetchDataSourceTypes } from "../../redux/reduxActions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUser } from "../../redux/selectors/usersSelectors";
+import { getUser } from "../../redux/selectors/usersSelectors";
 import {
   createQueryLibrary,
   createQueryLibraryRecord,
@@ -60,7 +60,7 @@ export const QueryLibraryEditor = () => {
   const queryLibrary = useSelector(getQueryLibrary);
   const queryLibraryRecords = useSelector(getQueryLibraryRecords);
   const originDatasourceInfo = useSelector(getDataSource);
-  const currentUser = useSelector(getCurrentUser);
+  const currentUser = useSelector(getUser);
   const orgId = currentUser.currentOrgId;
 
   const forwardQueryId = useSearchParam("forwardQueryId");
@@ -182,7 +182,7 @@ export const QueryLibraryEditor = () => {
         {isCreatePanelShow && (
           <ResCreatePanel
             recentlyUsed={recentlyUsed}
-            datasource={datasource}
+            datasource={datasource.filter((d) => d.creationSource !== 2)}
             onSelect={handleAdd}
             onClose={() => showCreatePanel(false)}
             placement={"queryLibrary"}
@@ -190,7 +190,7 @@ export const QueryLibraryEditor = () => {
         )}
       </RightContent>
       <PublishModal
-        libraryQueryId={comp?.children.query.children.id.getView()}
+        libraryQueryId={comp?.children.query.children.id.getView() || ""}
         visible={publishModalVisible}
         onClose={() => setPublishModalVisible(false)}
         latestVersion={Object.values(selectedRecords)?.[0]?.tag}

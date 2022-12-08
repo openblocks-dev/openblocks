@@ -3,7 +3,7 @@ import { StringControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { alignControl } from "comps/controls/alignControl";
 import { UICompBuilder } from "comps/generators";
-import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
+import { NameConfig, NameConfigHidden } from "comps/generators/withExposing";
 import { Section, sectionNames } from "openblocks-design";
 import _ from "lodash";
 import styled from "styled-components";
@@ -47,7 +47,7 @@ function fixOldStyleData(oldData: any) {
 }
 
 // Compatible with historical style data 2022-8-26
-const DividerTmpComp = migrateOldData(
+export const DividerComp = migrateOldData(
   new UICompBuilder(childrenMap, (props) => {
     return (
       <StyledDivider orientation={props.align} dashed={props.dashed} $style={props.style}>
@@ -74,13 +74,12 @@ const DividerTmpComp = migrateOldData(
         </>
       );
     })
+    .setExposeStateConfigs([
+      new NameConfig("dashed", trans("divider.dashedDesc")),
+      new NameConfig("title", trans("divider.titleDesc")),
+      new NameConfig("align", trans("divider.alignDesc")),
+      NameConfigHidden,
+    ])
     .build(),
   fixOldStyleData
 );
-
-export const DividerComp = withExposingConfigs(DividerTmpComp, [
-  new NameConfig("dashed", trans("divider.dashedDesc")),
-  new NameConfig("title", trans("divider.titleDesc")),
-  new NameConfig("align", trans("divider.alignDesc")),
-  NameConfigHidden,
-]);

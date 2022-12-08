@@ -27,7 +27,7 @@ import {
   getSelectedAppSnapshot,
   showAppSnapshotSelector,
 } from "redux/selectors/appSnapshotSelector";
-import { getCurrentUser, isFetchingUser } from "redux/selectors/usersSelectors";
+import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import styled, { css } from "styled-components";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import history from "util/history";
@@ -270,7 +270,7 @@ type HeaderProps = {
 export default function Header(props: HeaderProps) {
   const { togglePanel } = props;
   const { left, bottom, right } = props.panelStatus;
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const application = useSelector(currentApplication);
   const applicationId = useApplicationId();
   const dispatch = useDispatch();
@@ -339,7 +339,7 @@ export default function Header(props: HeaderProps) {
               CustomModal.confirm({
                 title: trans("header.recoverAppSnapshotTitle"),
                 content: trans("header.recoverAppSnapshotContent", {
-                  time: moment(selectedSnapshot.createTime).format("MM/DD HH:mm"),
+                  time: moment(selectedSnapshot.createTime).format("YYYY-MM-DD HH:mm"),
                 }),
                 onConfirm: () => {
                   dispatch(
@@ -424,7 +424,7 @@ export default function Header(props: HeaderProps) {
 
 // header in manager page
 export function AppHeader() {
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const headerStart = (
     <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
       <LogoWithName />

@@ -34,10 +34,10 @@ const TestExposingComp = withExposingConfigs(TestComp, [
 test("exposing data and methods", () => {
   let comp = new TestExposingComp({});
   comp = evalAndReduce(comp);
-  const oldNode = comp.extraNode().node;
+  const oldNode = comp.extraNode()!.node;
   comp = evalAndReduce(comp.reduce(changeChildAction("v2", "ppp")));
   expect(comp.children.v2.getView()).toBe("ppp");
-  const newNode = comp.extraNode().node;
+  const newNode = comp.extraNode()!.node;
   expect(shallowEqual(oldNode, newNode)).toBe(true);
   comp = evalAndReduce(comp.reduce(changeChildAction("v1", "v1_value")));
   expect(evalAndReduce(comp)).toBe(comp);

@@ -139,6 +139,7 @@ export const TooltipLink = styled.a`
 const TooltipTitleWrapper = styled.span`
   color: #ffffff;
   display: inline-block;
+  white-space: pre-wrap;
 
   a {
     color: #73adff;

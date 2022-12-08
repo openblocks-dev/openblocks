@@ -8,11 +8,9 @@ import { styleControl } from "comps/controls/styleControl";
 import { ModalStyle, ModalStyleType } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
-import { EditorWrapperID } from "constants/domLocators";
+import { CanvasContainerID } from "constants/domLocators";
 import { Layers } from "constants/Layers";
-import { Section, sectionNames } from "openblocks-design";
-import { HintPlaceHolder } from "openblocks-design";
-import { Modal } from "openblocks-design";
+import { HintPlaceHolder, Modal, Section, sectionNames } from "openblocks-design";
 import { trans } from "i18n";
 import { changeChildAction } from "openblocks-core";
 import { CSSProperties, useCallback } from "react";
@@ -21,6 +19,8 @@ import styled, { css } from "styled-components";
 import { useUserViewMode } from "util/hooks";
 import { isNumeric } from "util/stringUtils";
 import { NameConfig, withExposingConfigs } from "../generators/withExposing";
+import { BoolControl } from "comps/controls/boolControl";
+import { withDefault } from "comps/generators";
 
 const EventOptions = [
   { label: trans("modalComp.close"), value: "close", description: trans("modalComp.closeDesc") },
@@ -72,6 +72,7 @@ let TmpModalComp = (function () {
       height: StringControl,
       autoHeight: AutoHeightControl,
       style: styleControl(ModalStyle),
+      maskClosable: withDefault(BoolControl, true),
     },
     (props, dispatch) => {
       const userViewMode = useUserViewMode();
@@ -111,8 +112,9 @@ let TmpModalComp = (function () {
               resizeHandles={resizeHandles}
               onResizeStop={onResizeStop}
               visible={props.visible.value}
+              maskClosable={props.maskClosable}
               focusTriggerAfterClose={false}
-              getContainer={() => document.querySelector(`#${EditorWrapperID}`) || document.body}
+              getContainer={() => document.querySelector(`#${CanvasContainerID}`) || document.body}
               footer={null}
               bodyStyle={bodyStyle}
               width={width}
@@ -153,6 +155,9 @@ let TmpModalComp = (function () {
             label: trans("modalComp.modalWidth"),
             tooltip: trans("modalComp.modalWidthTooltip"),
             placeholder: DEFAULT_WIDTH,
+          })}
+          {children.maskClosable.propertyView({
+            label: trans("modalComp.maskClosable"),
           })}
         </Section>
         <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>

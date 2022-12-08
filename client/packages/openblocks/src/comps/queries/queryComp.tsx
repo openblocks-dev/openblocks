@@ -114,7 +114,17 @@ let QueryCompTmp = withTypeAndChildren(QueryMap, "js", {
   }),
   confirmationModal: QueryConfirmationModal,
   periodic: BoolPureControl,
-  periodicTime: millisecondsControl({ left: 100, defaultValue: 5 * 1000 }),
+  periodicTime: millisecondsControl({
+    defaultValue: Number.NaN,
+    toMilliseconds: (value: number, left: number, right: number, unit: "ms" | "s") => {
+      if (value < 100 || Number.isNaN(value)) {
+        throw new TypeError(
+          trans("millisecondsControl.timeoutLessThanMinError", { left: "100ms", value: value })
+        );
+      }
+      return unit === "s" ? value * 1000 : value;
+    },
+  }),
 });
 
 export type QueryChildrenType = InstanceType<typeof QueryCompTmp> extends MultiBaseComp<infer X>

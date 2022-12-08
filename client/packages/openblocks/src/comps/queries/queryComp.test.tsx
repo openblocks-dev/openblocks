@@ -40,8 +40,8 @@ test("onSuccess/onFail => onEvent", () => {
   expect(comp.children.onEvent.toJsonValue().length).toEqual(2);
   expect(comp.children.onEvent.toJsonValue()[0].name).toEqual("success");
   expect(comp.children.onEvent.toJsonValue()[1].name).toEqual("fail");
-  expect(comp.children.onEvent.toJsonValue()["onSuccess"]).toEqual(undefined);
-  expect(comp.children.onEvent.toJsonValue()["onFail"]).toEqual(undefined);
+  expect((comp.children.onEvent.toJsonValue() as any)["onSuccess"]).toEqual(undefined);
+  expect((comp.children.onEvent.toJsonValue() as any)["onFail"]).toEqual(undefined);
 });
 
 test("add notification for old query", () => {

@@ -12,6 +12,7 @@ import { NameGenerator } from "./utils";
 import { NameAndExposingInfo } from "./utils/exposingTypes";
 import { checkName } from "./utils/rename";
 import { trans } from "i18n";
+import { UiLayoutType } from "./comps/uiComp";
 
 type RootComp = InstanceType<typeof RootCompTmp>;
 
@@ -427,6 +428,11 @@ export class EditorState {
     }
     return true;
   }
+
+  getAppType(): UiLayoutType {
+    return this.getUIComp().children.compType.getView();
+  }
+
 }
 
 export const EditorContext = React.createContext<EditorState>(undefined as any);

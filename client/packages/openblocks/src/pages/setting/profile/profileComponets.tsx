@@ -13,7 +13,7 @@ import ProfileImage from "pages/common/profileImage";
 import { User } from "constants/userConstants";
 import { replaceMiddleWithStar } from "util/stringUtils";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUser } from "redux/selectors/usersSelectors";
+import { getUser } from "redux/selectors/usersSelectors";
 import { UploadChangeParam } from "antd/lib/upload";
 import { beforeImgUpload, getBase64 } from "util/fileUtils";
 import { updateUserAction, updateUserSuccess } from "redux/reduxActions/userActions";
@@ -230,7 +230,7 @@ export function getConnectedName(user: User, source: string) {
 
 export function HeadNameFiled() {
   const dispatch = useDispatch();
-  const user = useSelector(getCurrentUser);
+  const user = useSelector(getUser);
   const handleUploadChange = (info: UploadChangeParam) => {
     if (info.file.status === "done") {
       getBase64(info.file.originFileObj, (imageUrl: string) => {
