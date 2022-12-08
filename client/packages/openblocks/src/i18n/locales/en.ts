@@ -1448,7 +1448,7 @@ export const en = {
   },
   pluginSetting: {
     title: "Plugins",
-    npmPluginTitle: "NPM plugins",
+    npmPluginTitle: "npm plugins",
     npmPluginDesc: "Set up npm plugins for all applications in the current workspace.",
     npmPluginEmpty: "No npm plugins were added.",
     npmPluginAddButton: "Add a npm plugin",
@@ -1830,7 +1830,7 @@ export const en = {
     pluginExisted: "This npm plugin already existed",
     compNotFound: "Component {compName} not found.",
     addPluginModalTitle: "Add npm plugin",
-    pluginNameLabel: "NPM package's URL or name",
+    pluginNameLabel: "npm package's URL or name",
     noCompText: "No components.",
     compsLoading: "Loading...",
     removePluginBtnText: "Remove",
