@@ -1,0 +1,62 @@
+global:
+    envVars: []
+      #- name: LOCAL_USER_ID
+      #  value: swright
+replicaCount: 1
+
+image:
+  repository: openblocksdev/openblocks-ce
+  tag: 1.1.2
+  pullPolicy: Always
+
+#imagePullSecrets: 
+#  - name: regcred
+#nameOverride: ""
+#fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "openblocks"
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 8080
+
+container:
+  port: 8080
+
+ingress:
+  enabled: false
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+probeConfig:
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  # For startup probe, calculated by failureThreshold*periodSeconds
+  failureThreshold: 30 
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
