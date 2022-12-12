@@ -74,3 +74,4 @@ You can access Openblocks from [cloud-hosted version](https://cloud.openblocks.d
 - [Custom Echarts demo](https://cloud.openblocks.dev/apps/63779dd6c54c5224c70ea537/view), [Echarts source](https://echarts.apache.org/examples/en/editor.html?c=area-stack)
 - [Periodically user action report demo](https://cloud.openblocks.dev/apps/637f38daa899fe1ffcb17f0b/view)
 - [generate PDF using jsPdf](https://cloud.openblocks.dev/apps/6388610b0a254922d92e3882/view)
+- [Excel Explorer](https://cloud.openblocks.dev/apps/6392ff5d51cd8a59114b0c2c/view)
