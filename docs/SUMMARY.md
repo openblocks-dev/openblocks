@@ -3,6 +3,7 @@
 * [Openblocks overview](README.md)
 * [Self-hosting](self-hosting/README.md)
   * [Access local database or API](self-hosting/access-local-database-or-api.md)
+  * [DigitalOcean](self-hosting/digitalocean.md)
 * [Security](security.md)
 
 ## Data sources

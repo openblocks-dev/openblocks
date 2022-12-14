@@ -37,7 +37,7 @@ Group-based management helps to organize members from different functional depar
 
 ### Developers group
 
-Openblocks creates a **Developers** group by default and it cannot be deleted, and workspace admins can add members into it. The members of it can create new apps, modules and data sources. Workspace admins can add members to the developers group.
+Openblocks creates a **Developers** group by default and it cannot be deleted, and workspace admins can add members into it. The members of it can create new resources including apps, modules, navigations, folders, and data sources, and can manage query library. Workspace admins can add members to the developers group.
 
 <figure><img src="../.gitbook/assets/members4.png" alt=""><figcaption></figcaption></figure>
 
