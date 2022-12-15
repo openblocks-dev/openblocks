@@ -98,6 +98,6 @@ https://www.npmjs.com/package/my-plugin
 
 <figure><img src="../.gitbook/assets/plugin-3.png" alt=""><figcaption></figcaption></figure>
 
-### Code demo
+## Code demo
 
 For code demo, refer to Openblocks [Github](https://github.com/openblocks-dev/openblocks/tree/develop/client/packages/openblocks-plugin-demo).
