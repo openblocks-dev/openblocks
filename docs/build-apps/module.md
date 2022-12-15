@@ -43,9 +43,9 @@ The other areas of the module editor are similar to those of the web app editor.
 
 ### Insert module to apps or other modules
 
-When editing an app or module, select **Insert > Modules** to display the modules that you have access to.&#x20;
+When editing an app or module, select **Insert > Extensions > Modules** to display the modules that you have access to.&#x20;
 
-<img src="../.gitbook/assets/module-10.png" alt="" data-size="original">
+<img src="../.gitbook/assets/module-10.jpeg" alt="" data-size="original">
 
 Then drag and drop the module onto the canvas, and set input parameters, change styles inside the module's **Properties** panel.
 
