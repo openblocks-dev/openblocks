@@ -12,7 +12,7 @@ const ColorContainer = styled.div`
   align-items: flex-start;
   justify-content: space-between;
   float: right;
-  gap: 8px;
+  gap: 6px;
   margin-left: -24px;
   > div:nth-of-type(1) {
     margin: 3px 0;

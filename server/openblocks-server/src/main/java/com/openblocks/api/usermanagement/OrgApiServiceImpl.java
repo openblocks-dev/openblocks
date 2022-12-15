@@ -40,6 +40,7 @@ import com.openblocks.domain.user.model.Connection;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.service.UserService;
 import com.openblocks.sdk.config.CommonConfig;
+import com.openblocks.sdk.config.CommonConfig.Workspace;
 import com.openblocks.sdk.constants.WorkspaceMode;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
@@ -228,7 +229,13 @@ public class OrgApiServiceImpl implements OrgApiService {
     @Override
     public Mono<Boolean> removeOrg(String orgId) {
         return checkVisitorAdminRole(orgId)
-                .then(checkIfSaasMode())
+                .then(Mono.defer(() -> {
+                    Workspace workspace = commonConfig.getWorkspace();
+                    if (workspace.getMode() == WorkspaceMode.ENTERPRISE && orgId.equals(workspace.getEnterpriseOrgId())) {
+                        return Mono.error(new BizException(UNSUPPORTED_OPERATION, "BAD_REQUEST"));
+                    }
+                    return Mono.empty();
+                }))
                 .then(organizationService.delete(orgId));
     }
 

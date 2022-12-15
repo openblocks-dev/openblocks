@@ -291,6 +291,32 @@ public class RestApiEngineTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void responseJsonTypeTest() {
+        RestApiDatasourceConfig datasourceConfig = RestApiDatasourceConfig.builder()
+                .url("https://postman-echo.com/response-headers?key=value")
+                .build();
+        for (String contentType : List.of("application/hal+json",
+                "application/problem+json",
+                "application/json",
+                "application/json;charset=UTF-8",
+                "application/graphql+json",
+                "application/stream+json"
+        )) {
+            Map<String, Object> queryConfig = ImmutableMap.of("httpMethod", "GET",
+                    "params", List.of(new Property("Content-Type", contentType))
+            );
+            StepVerifier.create(execute(datasourceConfig, queryConfig, emptyMap()))
+                    .assertNext(result -> {
+                        assertTrue(result.isSuccess());
+                        assertNotNull(result.getData());
+                        JsonNode value = ((ObjectNode) result.getData()).get("key");
+                        assertEquals("value", value.asText());
+                    })
+                    .verifyComplete();
+        }
+    }
+
     private Mono<QueryExecutionResult> execute(RestApiDatasourceConfig datasourceConfig, Map<String, Object> queryConfig,
             Map<String, Object> params) {
         QueryExecutionContext context = executor.doBuildQueryExecutionContext(datasourceConfig,

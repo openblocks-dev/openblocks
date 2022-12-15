@@ -32,6 +32,7 @@ import { trans } from "i18n";
 import { i18nObjs } from "../../i18n/index";
 import { DatasourceInfo, HttpConfig } from "api/datasourceApi";
 import { enObj } from "i18n/locales";
+import { QUICK_REST_API_ID } from "constants/datasourceConstants";
 
 const tourSteps: Step[] = [
   {
@@ -172,11 +173,6 @@ function addQuery(editorState: EditorState, datasourceInfos: DatasourceInfo[]) {
     );
   } else {
     // there's no sample data source, fall back to api source
-    const apiDataSource = datasourceInfos.find(
-      (info) =>
-        info.datasource.type === "restApi" &&
-        (info.datasource.datasourceConfig as HttpConfig).url === ""
-    );
     queriesComp.dispatch(
       queriesComp.pushAction({
         id: id,
@@ -186,7 +182,7 @@ function addQuery(editorState: EditorState, datasourceInfos: DatasourceInfo[]) {
           path: i18nObjs.editorTutorials.mockDataUrl || enObj.editorTutorials.mockDataUrl,
           bodyType: "application/json",
         },
-        datasourceId: apiDataSource?.datasource.id,
+        datasourceId: QUICK_REST_API_ID,
         triggerType: "manual",
       })
     );
@@ -227,11 +223,11 @@ export default function EditorTutorials() {
 
   const openTableData = () => {
     const ele = document.getElementsByClassName(leftCompListClassName)[0];
-    const table = ele?.getElementsByClassName("ant-tree-title")[1];
+    const table = ele?.getElementsByClassName("ant-tree-title")[0];
     if (table) {
       (table as HTMLDivElement)?.click();
     }
-  }
+  };
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { status, index, action, type } = data;

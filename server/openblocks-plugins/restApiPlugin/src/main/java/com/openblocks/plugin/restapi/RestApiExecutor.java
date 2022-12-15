@@ -39,9 +39,7 @@ import static com.openblocks.sdk.util.JsonUtils.toJsonThrows;
 import static com.openblocks.sdk.util.MustacheHelper.renderMustacheJsonString;
 import static com.openblocks.sdk.util.MustacheHelper.renderMustacheString;
 import static com.openblocks.sdk.util.StreamUtils.collectList;
-import static com.openblocks.sdk.util.StreamUtils.distinctByKey;
 import static org.apache.commons.collections4.MapUtils.emptyIfNull;
-import static org.apache.commons.lang3.StringUtils.firstNonBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 import java.io.IOException;
@@ -49,7 +47,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -96,6 +96,7 @@ import com.openblocks.sdk.plugin.restapi.auth.AuthConfig;
 import com.openblocks.sdk.plugin.restapi.auth.BasicAuthConfig;
 import com.openblocks.sdk.plugin.restapi.auth.RestApiAuthType;
 import com.openblocks.sdk.query.QueryVisitorContext;
+import com.openblocks.sdk.util.JsonUtils;
 import com.openblocks.sdk.webclient.WebClients;
 
 import lombok.Builder;
@@ -125,7 +126,6 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
 
         // from datasource config
         String urlDomain = datasourceConfig.getUrl();
-        String datasourceBody = datasourceConfig.getBody();
         List<Property> datasourceHeaders = datasourceConfig.getHeaders();
         List<Property> datasourceUrlParams = datasourceConfig.getParams();
         List<Property> datasourceBodyFormData = datasourceConfig.getBodyFormData();
@@ -162,7 +162,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         }
 
         Map<String, String> urlParams = buildUrlParams(datasourceUrlParams, updatedQueryParams);
-        List<Property> bodyParams = buildBodyParams(datasourceBodyFormData, updatedQueryBodyParams);
+        List<Property> bodyParams = mergeBody(datasourceBodyFormData, updatedQueryBodyParams);
 
         URI uri = RestApiUriBuilder.buildUri(urlDomain, updatedQueryPath, requestParams, urlParams, encodeParams);
 
@@ -174,13 +174,30 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                 .urlParams(urlParams)
                 .bodyParams(bodyParams)
                 .encodeParams(encodeParams)
-                .queryBody(firstNonBlank(updatedQueryBody, datasourceBody))
+                .queryBody(mergeBody(updatedQueryBody, datasourceBodyFormData, contentType))
                 .forwardCookies(forwardCookies)
                 .forwardAllCookies(forwardAllCookies)
                 .requestCookies(queryVisitorContext.getCookies())
                 .authConfig(datasourceConfig.getAuthConfig())
                 .authTokenMono(queryVisitorContext.getAuthTokenMono())
                 .build();
+    }
+
+    private String mergeBody(String queryBody, List<Property> datasourceBody, String contentType) {
+        if (CollectionUtils.isEmpty(datasourceBody)) {
+            return queryBody;
+        }
+        if (!isJsonContentType(contentType)) {
+            return queryBody;
+        }
+        Map<String, Object> map = JsonUtils.fromJsonMap(queryBody);
+        if (map == null) {
+            return queryBody;
+        }
+        for (Property property : datasourceBody) {
+            map.putIfAbsent(property.getKey(), property.getValue());
+        }
+        return JsonUtils.toJson(map);
     }
 
     @Override
@@ -395,12 +412,18 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         }
     }
 
-    private List<Property> buildBodyParams(List<Property> datasourceBodyFormData, List<Property> updatedQueryBodyParams) {
-        return Stream.concat(datasourceBodyFormData.stream(),
-                        updatedQueryBodyParams.stream())
-                .filter(it -> it.getKey() != null)
-                .filter(distinctByKey(Property::getKey))
-                .toList();
+    private List<Property> mergeBody(List<Property> datasourceBodyFormData, List<Property> updatedQueryBodyParams) {
+        Set<String> keySet = updatedQueryBodyParams.stream()
+                .map(Property::getKey)
+                .collect(Collectors.toCollection(HashSet::new));
+        List<Property> merge = new ArrayList<>(updatedQueryBodyParams);
+        for (Property property : datasourceBodyFormData) {
+            if (!keySet.contains(property.getKey())) {
+                merge.add(property);
+                keySet.add(property.getKey());
+            }
+        }
+        return merge;
     }
 
     private Map<String, String> buildUrlParams(List<Property> datasourceUrlParams, List<Property> updatedQueryParams) {

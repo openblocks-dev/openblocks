@@ -32,7 +32,9 @@ public final class ContentTypeHelper {
     }
 
     public static boolean isJson(MediaType contentType) {
-        return contentType.includes(MediaType.APPLICATION_JSON);
+        return StringUtils.equalsIgnoreCase("application", contentType.getType())
+                && (StringUtils.equalsIgnoreCase(contentType.getSubtype(), "json") ||
+                StringUtils.contains(contentType.getSubtype(), "+json"));
     }
 
     public static String parseContentType(Map<String, String> allHeaders) {
