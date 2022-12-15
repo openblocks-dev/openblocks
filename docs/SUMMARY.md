@@ -3,6 +3,7 @@
 * [Openblocks overview](README.md)
 * [Self-hosting](self-hosting/README.md)
   * [Access local database or API](self-hosting/access-local-database-or-api.md)
+  * [DigitalOcean](self-hosting/digitalocean.md)
 * [Security](security.md)
 
 ## Data sources
@@ -32,6 +33,10 @@
 * [Module](build-apps/module.md)
 * [Navigation](build-apps/navigation.md)
 * [Version and release management](build-apps/version-and-release-management.md)
+
+## Build plugins
+
+* [Develop your first plugin](build-plugins/develop-your-first-plugin.md)
 
 ## Workspace management
 

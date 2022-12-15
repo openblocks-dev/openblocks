@@ -83,22 +83,22 @@ docker rm openblocks
 {% endtab %}
 {% endtabs %}
 
-### Use your own MongoDB
+### Use your own MongoDB and Redis
 
-By default Openblocks uses the built-in MongoDB installed inside the container, and you can replace it with your own MongoDB cluster.
+By default Openblocks uses the built-in MongoDB and Redis installed inside the container, and you can replace them with your own MongoDB and Redis clusters.
 
 {% tabs %}
 {% tab title="Docker-Compose" %}
-Add an environment variable `MONGODB_URI` in `docker-compose.yml` downloaded in your working directory.\
-<img src="../.gitbook/assets/mongodb-uri.png" alt="" data-size="original">
+Add environment variables `MONGODB_URI` and `REDIS_URI` in `docker-compose.yml` downloaded in your working directory.\
+<img src="../.gitbook/assets/mongodb-redis-uri.png" alt="" data-size="original">
 {% endtab %}
 
 {% tab title="Docker" %}
-Add an environment variable `MONGODB_URI` to the deployment command, as shown below:
+Add environment variables `MONGODB_URI` and `REDIS_URI` to the deployment command, as shown below:
 
 {% code overflow="wrap" %}
 ```docker
-docker run -d --name openblocks -e MONGODB_URI=YOUR_MONGO_URI -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks openblocksdev/openblocks-ce
+docker run -d --name openblocks -e MONGODB_URI=YOUR_MONGODB_URI REDIS_URI=YOUR_REDIS_URI -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks openblocksdev/openblocks-ce
 ```
 {% endcode %}
 {% endtab %}
