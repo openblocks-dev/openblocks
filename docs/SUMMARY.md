@@ -31,6 +31,7 @@
   * [Option lists](build-apps/component-guides/option-lists.md)
   * [Use Markdown](build-apps/component-guides/use-markdown.md)
 * [Module](build-apps/module.md)
+* [Develop customized plugins](build-apps/develop-customized-plugins.md)
 * [Navigation](build-apps/navigation.md)
 * [Version and release management](build-apps/version-and-release-management.md)
 
