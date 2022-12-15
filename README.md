@@ -60,6 +60,7 @@ If you have any questions, please feel free to contact us or share with our comm
 ## 💻 Deployment Options
 You can access Openblocks from [cloud-hosted version](https://cloud.openblocks.dev/) at any time, or use the following resources for deploying Openblocks on different platforms:
 - [Docker](https://docs.openblocks.dev/self-hosting)
+- [DigitalOcean](https://docs.openblocks.dev/self-hosting/digitalocean)
 
 ## 💪 Contributing
 - Language support: If you have experience with a language that isn't currently supported by our product, send us a pull request.
