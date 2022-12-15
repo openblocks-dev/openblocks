@@ -47,7 +47,7 @@ public class MongoConfig {
 
     @PostConstruct
     public void init() {
-        mappingMongoConverter.setMapKeyDotReplacement("_");
+        mappingMongoConverter.setMapKeyDotReplacement("##OB_REPLACE##");
     }
 
     @Bean

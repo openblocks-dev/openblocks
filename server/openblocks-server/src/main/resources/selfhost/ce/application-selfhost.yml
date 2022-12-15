@@ -6,6 +6,8 @@ common:
     cors-allowed-domains: ${CORS_ALLOWED_DOMAINS:*}
   max-query-request-size-in-mb: 20
   max-query-response-size-in-mb: 20
+  workspace:
+    mode: ENTERPRISE
 
 spring:
   data:

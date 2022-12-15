@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,9 @@ import com.openblocks.domain.organization.model.OrganizationState;
 import com.openblocks.infra.annotation.PossibleEmptyMono;
 import com.openblocks.infra.birelation.BiRelation;
 import com.openblocks.infra.birelation.BiRelationService;
+import com.openblocks.sdk.config.CommonConfig;
+import com.openblocks.sdk.config.CommonConfig.Workspace;
+import com.openblocks.sdk.constants.WorkspaceMode;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -41,6 +45,9 @@ public class OrgMemberServiceImpl implements OrgMemberService {
 
     @Autowired
     private OrganizationService organizationService;
+
+    @Autowired
+    private CommonConfig commonConfig;
 
     @Override
     public Mono<List<OrgMember>> getOrganizationMembers(String orgId, int page, int count) {
@@ -66,6 +73,23 @@ public class OrgMemberServiceImpl implements OrgMemberService {
                 .filter(organization -> organization.getState() != OrganizationState.DELETED)
                 .map(Organization::getId)
                 .collectList()
+                // enterprise mode
+                .flatMap(orgIds -> {
+                    Workspace workspace = commonConfig.getWorkspace();
+                    if (workspace.getMode() == WorkspaceMode.ENTERPRISE) {
+                        if (StringUtils.isNotBlank(workspace.getEnterpriseOrgId())) {
+                            if (orgIds.contains(workspace.getEnterpriseOrgId())) {
+                                return Mono.just(List.of(workspace.getEnterpriseOrgId()));
+                            }
+                            return addMember(workspace.getEnterpriseOrgId(), userId, MemberRole.MEMBER)
+                                    .thenReturn(List.of(workspace.getEnterpriseOrgId()));
+                        }
+                        if (orgIds.size() > 1) {
+                            return Mono.just(orgIds.subList(0, 1));
+                        }
+                    }
+                    return Mono.just(orgIds);
+                })
                 .map(HashSet::new)
                 .cache();
 

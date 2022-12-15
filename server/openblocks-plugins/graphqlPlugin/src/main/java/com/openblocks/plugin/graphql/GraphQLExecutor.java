@@ -2,7 +2,7 @@ package com.openblocks.plugin.graphql;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.openblocks.plugin.graphql.GraphQLError.GRAPHQL_EXECUTION_ERROR;
-import static com.openblocks.plugin.graphql.utils.GraphQLBodyUtils.convertToGraphQLPOSTBodyFormat;
+import static com.openblocks.plugin.graphql.utils.GraphQLBodyUtils.convertToGraphQLBody;
 import static com.openblocks.sdk.exception.PluginCommonError.JSON_PARSE_ERROR;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
@@ -264,11 +264,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
                     .exchangeStrategies(EXCHANGE_STRATEGIES)
                     .build();
             if (!GRAPHQL_TYPE.equalsIgnoreCase(contentType)) {
-                try {
-                    context.setQueryBody(convertToGraphQLPOSTBodyFormat(context));
-                } catch (PluginException e) {
-                    return Mono.error(e);
-                }
+                context.setQueryBody(convertToGraphQLBody(context));
             }
             BodyInserter<?, ? super ClientHttpRequest> bodyInserter = buildBodyInserter(
                     context.isEncodeParams(),
