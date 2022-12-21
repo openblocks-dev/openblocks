@@ -73,6 +73,7 @@ import com.openblocks.sdk.plugin.restapi.auth.BasicAuthConfig;
 import com.openblocks.sdk.plugin.restapi.auth.RestApiAuthType;
 import com.openblocks.sdk.query.QueryVisitorContext;
 import com.openblocks.sdk.util.JsonUtils;
+import com.openblocks.sdk.util.MoreMapUtils;
 import com.openblocks.sdk.util.MustacheHelper;
 import com.openblocks.sdk.webclient.WebClients;
 
@@ -143,6 +144,9 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
         String updatedQueryBody = renderMustacheString(queryBody, requestParams);
         String normalizedUrl = buildUrl(urlDomain, updatedQueryPath, requestParams);
         Map<String, String> allHeaders = buildHeaders(datasourceHeaders, updatedQueryHeaders);
+        if (!MoreMapUtils.containsStringKeyIgnoreCase(allHeaders, HttpHeaders.CONTENT_TYPE)) {
+            allHeaders.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        }
         String contentType = parseContentType(allHeaders).toLowerCase();
         if (!isValidContentType(contentType)) {
             throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_CONTENT_TYPE", contentType);
@@ -185,10 +189,9 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
     }
 
     private Map<String, String> buildHeaders(List<Property> datasourceHeaders, List<Property> updatedQueryHeaders) {
-        return Stream.concat(datasourceHeaders.stream(),
-                        updatedQueryHeaders.stream())
+        return Stream.concat(datasourceHeaders.stream(), updatedQueryHeaders.stream())
                 .filter(it -> StringUtils.isNotBlank(it.getKey()) && StringUtils.isNotBlank(it.getValue()))
-                .collect(Collectors.toUnmodifiableMap(property -> property.getKey().trim().toLowerCase(),
+                .collect(Collectors.toMap(property -> property.getKey().trim(),
                         Property::getValue,
                         (oldValue, newValue) -> newValue));
     }
@@ -350,13 +353,6 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
                 .flatMap(response -> {
                     if (response.statusCode().is3xxRedirection()) {
                         String redirectUrl = response.headers().header("Location").get(0);
-                            /*
-                              TODO
-                              In case the redirected URL is not absolute (complete), create the new URL using the relative path
-                              This particular scenario is seen in the URL : https://rickandmortyapi.com/api/character
-                              It redirects to partial URI : /api/character/
-                              In this scenario we should convert the partial URI to complete URI
-                             */
                         URI redirectUri;
                         try {
                             redirectUri = new URI(redirectUrl);
@@ -460,8 +456,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
                 .build();
     }
 
-    private BodyInserter<?, ? super ClientHttpRequest> buildBodyInserter(
-            boolean isEncodeParams,
+    private BodyInserter<?, ? super ClientHttpRequest> buildBodyInserter(boolean isEncodeParams,
             String requestContentType,
             String queryBody,
             List<Property> bodyFormData) {
@@ -472,8 +467,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
             case MediaType.APPLICATION_JSON_VALUE:
                 final Object bodyObject = parseJsonBody(queryBody);
                 return BodyInserters.fromValue(bodyObject);
-            case MediaType.APPLICATION_FORM_URLENCODED_VALUE:
-            case MediaType.MULTIPART_FORM_DATA_VALUE:
+            case MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE:
                 return dataUtils.buildBodyInserter(bodyFormData, requestContentType, isEncodeParams);
             default:
                 return BodyInserters.fromValue((queryBody).getBytes(StandardCharsets.ISO_8859_1));

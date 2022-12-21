@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 import com.openblocks.api.home.SessionUserService;
-import com.openblocks.api.util.MoreMapUtils;
+import com.openblocks.sdk.util.MoreMapUtils;
 import com.openblocks.domain.permission.service.ResourcePermissionService;
 import com.openblocks.sdk.constants.DslConstants.CompoundAppDslConstants;
 

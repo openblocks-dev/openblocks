@@ -110,7 +110,7 @@ public class ApplicationQueryApiService {
                     QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, app.getOrganizationId(), port, cookies,
                             getAuthParamsAndHeadersInheritFromLogin(userId, app.getOrganizationId(), UriUtils.getRefererDomain(exchange)));
                     return queryExecutionService.executeQuery(datasource, baseQuery.getQueryConfig(), queryExecutionRequest.paramMap(),
-                                    baseQuery.getTimeoutStr(), queryVisitorContext
+                                    appQuery.getTimeoutStr(), queryVisitorContext
                             )
                             .timed()
                             .doOnNext(timed -> onNextOrError(queryExecutionRequest, queryVisitorContext, appQuery, baseQuery,

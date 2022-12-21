@@ -1,6 +1,7 @@
 package com.openblocks.sdk.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.openblocks.sdk.plugin.restapi.DataUtils.MultipartFormDataType;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -34,6 +35,10 @@ public class Property {
 
     public String getType() {
         return type;
+    }
+
+    public boolean isMultipartFileType() {
+        return MultipartFormDataType.FILE.name().equalsIgnoreCase(type);
     }
 
     public void setType(String type) {

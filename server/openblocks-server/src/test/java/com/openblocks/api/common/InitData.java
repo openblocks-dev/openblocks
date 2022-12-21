@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Component;
 
-import com.openblocks.api.util.MoreMapUtils;
+import com.openblocks.sdk.util.MoreMapUtils;
 import com.openblocks.sdk.models.HasIdAndAuditing;
 import com.openblocks.sdk.test.JsonFileReader;
 import com.openblocks.sdk.util.JsonUtils;
