@@ -26,7 +26,10 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,13 +39,16 @@ import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Streams;
 import com.google.gson.JsonSyntaxException;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.models.Property;
-import com.openblocks.sdk.util.JsonUtils;
+import com.openblocks.sdk.models.RestBodyFormFileData;
+import com.openblocks.sdk.util.ExceptionUtils;
+import com.openblocks.sdk.util.MustacheHelper;
 
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
@@ -144,20 +150,15 @@ public class DataUtils {
                             .filter(it -> StringUtils.isNotBlank(it.getKey()))
                             .forEach(property -> {
                                 String key = property.getKey();
-                                if (property.getType() == null) {
+                                if (!property.isMultipartFileType()) {
                                     bodyBuilder.part(key, property.getValue());
                                     return;
                                 }
-                                MultipartFormDataType multipartFormDataType = MultipartFormDataType.valueOf(property.getType().toUpperCase());
-                                if (MultipartFormDataType.TEXT.equals(multipartFormDataType)) {
-                                    bodyBuilder.part(key, property.getValue());
-                                    return;
-                                }
-                                // File type
+
                                 try {
-                                    populateFileTypeBodyBuilder(bodyBuilder, property);
-                                } catch (JsonProcessingException e) {
-                                    throw new PluginException(DATASOURCE_ARGUMENT_ERROR, "CONTENT_PARSE_ERROR");
+                                    populateMultiformFileData(bodyBuilder, property);
+                                } catch (Exception e) {
+                                    throw ExceptionUtils.wrapException(DATASOURCE_ARGUMENT_ERROR, "CONTENT_PARSE_ERROR", e);
                                 }
                             });
 
@@ -166,30 +167,49 @@ public class DataUtils {
                 });
     }
 
-    private void populateFileTypeBodyBuilder(MultipartBodyBuilder bodyBuilder, Property property) throws JsonProcessingException {
-        String key = property.getKey();
-        String fileValue = property.getValue();
-        parseMultipartFormDataList(fileValue).forEach(multipartFormData -> {
-            String name = multipartFormData.getName();
-            String data = multipartFormData.getData();
-            byte[] decodedValue = Base64.getDecoder().decode(data);
-            bodyBuilder.part(key, decodedValue)
-                    .filename(name);
-        });
+    private void populateMultiformFileData(MultipartBodyBuilder bodyBuilder, Property property) {
+        parseMultipartFormDataList(property)
+                .forEach(multipartFormData -> {
+                    String name = multipartFormData.getName();
+                    String data = multipartFormData.getData();
+                    byte[] decodedValue = Base64.getDecoder().decode(data);
+                    bodyBuilder.part(property.getKey(), decodedValue)
+                            .filename(name);
+                });
     }
 
-    private List<MultipartFormData> parseMultipartFormDataList(String fileValue) {
+    private List<MultipartFormData> parseMultipartFormDataList(Property property) {
+        if (property instanceof RestBodyFormFileData restBodyFormFileData) {
+            return restBodyFormFileData.getFileData();
+        }
+        throw new PluginException(DATASOURCE_ARGUMENT_ERROR, "CONTENT_PARSE_ERROR");
+    }
+
+    public static List<MultipartFormData> convertToMultiformFileValue(String fileValue, Map<String, Object> paramMap) {
         try {
-            if (fileValue.startsWith("{")) {
-                return List.of(objectMapper.readValue(fileValue, MultipartFormData.class));
+            JsonNode jsonValue = MustacheHelper.renderMustacheJson(fileValue, paramMap);
+            if (jsonValue.isObject()) {
+                return List.of(parseMultipartFormData(jsonValue));
             }
-            if (fileValue.startsWith("[")) {
-                return JsonUtils.fromJsonList(fileValue, MultipartFormData.class);
+
+            if (jsonValue.isArray()) {
+                return Streams.stream(jsonValue)
+                        .filter(JsonNode::isObject)
+                        .map(DataUtils::parseMultipartFormData)
+                        .toList();
             }
-        } catch (Exception e) {
+        } catch (Throwable ignored) {
             // ignore
         }
         throw new PluginException(DATASOURCE_ARGUMENT_ERROR, "CONTENT_PARSE_ERROR");
+    }
+
+    @Nonnull
+    private static MultipartFormData parseMultipartFormData(JsonNode jsonObject) {
+        MultipartFormData result = new MultipartFormData();
+        result.setData(jsonObject.get("data").asText());
+        result.setName(jsonObject.get("name").asText());
+        return result;
     }
 
     private static Object parseJsonObject(String jsonString) throws ParseException {

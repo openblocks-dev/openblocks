@@ -1,7 +1,8 @@
-package com.openblocks.api.util;
+package com.openblocks.sdk.util;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * add more methods in addition to {@link org.apache.commons.collections4.MapUtils}
@@ -25,5 +26,18 @@ public class MoreMapUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * O(n)
+     */
+    public static boolean containsStringKeyIgnoreCase(Map<?, ?> map, String key) {
+        for (Entry<?, ?> entry : map.entrySet()) {
+            Object o = entry.getKey();
+            if (o instanceof String s && s.equalsIgnoreCase(key)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -30,6 +30,7 @@ import static com.openblocks.plugin.restapi.helpers.ContentTypeHelper.parseConte
 import static com.openblocks.sdk.exception.PluginCommonError.JSON_PARSE_ERROR;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
+import static com.openblocks.sdk.plugin.restapi.DataUtils.convertToMultiformFileValue;
 import static com.openblocks.sdk.plugin.restapi.DataUtils.parseJsonBody;
 import static com.openblocks.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
 import static com.openblocks.sdk.plugin.restapi.auth.RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN;
@@ -89,8 +90,10 @@ import com.openblocks.plugin.restapi.model.RestApiQueryExecutionContext;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.QueryExecutionResult;
+import com.openblocks.sdk.models.RestBodyFormFileData;
 import com.openblocks.sdk.plugin.common.QueryExecutor;
 import com.openblocks.sdk.plugin.restapi.DataUtils;
+import com.openblocks.sdk.plugin.restapi.MultipartFormData;
 import com.openblocks.sdk.plugin.restapi.RestApiDatasourceConfig;
 import com.openblocks.sdk.plugin.restapi.auth.AuthConfig;
 import com.openblocks.sdk.plugin.restapi.auth.BasicAuthConfig;
@@ -146,13 +149,14 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
 
         List<Property> updatedQueryParams = renderMustacheValueInProperties(queryParams, requestParams);
         List<Property> updatedQueryHeaders = renderMustacheValueInProperties(queryHeaders, requestParams);
-        List<Property> updatedQueryBodyParams = renderMustacheValueInProperties(queryBodyParams, requestParams);
 
         Map<String, String> allHeaders = buildHeaders(datasourceHeaders, updatedQueryHeaders);
         String contentType = parseContentType(allHeaders).toLowerCase();
         if (!isValidContentType(contentType)) {
             throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_CONTENT_TYPE", contentType);
         }
+
+        List<Property> updatedQueryBodyParams = renderMustacheValueForQueryBody(queryBodyParams, requestParams, contentType);
 
         String updatedQueryBody;
         if (isJsonContentType(contentType)) {
@@ -182,6 +186,23 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                 .authTokenMono(queryVisitorContext.getAuthTokenMono())
                 .build();
     }
+
+    private List<Property> renderMustacheValueForQueryBody(List<Property> queryBodyParams, Map<String, Object> paramMap,
+            String contentType) {
+        return queryBodyParams.stream()
+                .map(it -> {
+                    String renderedKey = renderMustacheString(it.getKey(), paramMap);
+                    if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(contentType) && it.isMultipartFileType()) {
+                        List<MultipartFormData> multiformFileData = convertToMultiformFileValue(it.getValue(), paramMap);
+                        return new RestBodyFormFileData(renderedKey, multiformFileData);
+                    }
+
+                    String renderedStringValue = renderMustacheString(it.getValue(), paramMap);
+                    return new Property(renderedKey, renderedStringValue, it.getType());
+                })
+                .toList();
+    }
+
 
     private String mergeBody(String queryBody, List<Property> datasourceBody, String contentType) {
         if (CollectionUtils.isEmpty(datasourceBody)) {
@@ -438,7 +459,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         return Stream.concat(datasourceHeaders.stream(),
                         updatedQueryHeaders.stream())
                 .filter(it -> StringUtils.isNotBlank(it.getKey()) && StringUtils.isNotBlank(it.getValue()))
-                .collect(Collectors.toUnmodifiableMap(property -> property.getKey().trim().toLowerCase(),
+                .collect(Collectors.toUnmodifiableMap(property -> property.getKey().trim(),
                         Property::getValue,
                         (oldValue, newValue) -> newValue));
     }
@@ -472,7 +493,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         return StringUtils.isBlank(requestContentType);
     }
 
-    private static List<Property> renderMustacheValueInProperties(List<Property> properties, Map<String, Object> paramMap) {
+    private List<Property> renderMustacheValueInProperties(List<Property> properties, Map<String, Object> paramMap) {
         return properties.stream()
                 .map(it -> {
                     Property newProperty = new Property(renderMustacheString(it.getKey(), paramMap),
