@@ -6,5 +6,6 @@
   "keywords": [
     "low code",
     "develop tool"
-  ]
+  ],
+  "stack": "container"
 }
