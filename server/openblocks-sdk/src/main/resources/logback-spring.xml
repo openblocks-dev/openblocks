@@ -50,6 +50,7 @@
     </appender>
 
     <logger name="queryError" level="ERROR" additivity="false">
+        <appender-ref ref="CONSOLE"/>
         <appender-ref ref="QUERY-ERROR"/>
     </logger>
 
