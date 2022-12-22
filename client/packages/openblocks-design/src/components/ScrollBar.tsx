@@ -22,6 +22,7 @@ const ScrollBarWrapper = styled.div`
 
   .simplebar-content-wrapper {
     height: 100% !important;
+    outline: none !important;
   }
 
   .simplebar-offset {

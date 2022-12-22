@@ -19,6 +19,7 @@ buildVars.forEach(({ name, defaultValue }) => {
   shell.env[name] = shell.env[name] ?? defaultValue;
 });
 
+shell.exec(`BUILD_TARGET=browserCheck yarn workspace openblocks build`, { fatal: true });
 shell.exec(`yarn workspace openblocks build`, { fatal: true });
 
 if (process.argv.includes("--internal-deploy")) {

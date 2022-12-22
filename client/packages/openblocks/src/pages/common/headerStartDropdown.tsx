@@ -90,11 +90,10 @@ export function HeaderStartDropdown(props: { setEdit: () => void }) {
                 setShowCopyModal(true);
               } else if (e.key === "delete") {
                 CustomModal.confirm({
-                  title: trans("home.deleteElementTitle", {
-                    name: TypeName[application?.applicationType!]?.toLowerCase(),
-                  }),
+                  title: trans("home.moveToTrash"),
                   content: trans("home.moveToTrashSubTitle", {
-                    name: TypeName[application?.applicationType!]?.toLowerCase(),
+                    type: TypeName[application?.applicationType!],
+                    name: application?.name || '',
                   }),
                   onConfirm: () =>
                     dispatch(
@@ -108,7 +107,7 @@ export function HeaderStartDropdown(props: { setEdit: () => void }) {
                       )
                     ),
                   confirmBtnType: "delete",
-                  okText: trans("delete"),
+                  okText: trans("home.moveToTrash"),
                 });
               }
             }}
@@ -135,9 +134,7 @@ export function HeaderStartDropdown(props: { setEdit: () => void }) {
                 key: "delete",
                 label: (
                   <CommonTextLabelDelete>
-                    {trans("header.delete", {
-                      type: TypeName[application?.applicationType!]?.toLowerCase(),
-                    })}
+                    {trans("home.moveToTrash")}
                   </CommonTextLabelDelete>
                 ),
               },

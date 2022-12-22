@@ -9,6 +9,7 @@ import {
   MongoIcon,
   MSSQLIcon,
   MysqlIcon,
+  OpenBlocksQueryIcon,
   OracleIcon,
   PostgresIcon,
   QueryLibraryIcon,
@@ -85,6 +86,8 @@ export const getBottomResIcon = (
         return <GoogleSheetsIcon />;
       case "graphql":
         return <GraphqlIcon />;
+      case "openblocksApi":
+        return <OpenBlocksQueryIcon />;
       default:
         return <RestApiIcon />;
     }

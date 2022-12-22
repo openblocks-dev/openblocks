@@ -4,7 +4,19 @@ import { getDynamicStringSegments, isDynamicSegment } from "openblocks-core";
 import { format as formatSQL } from "sql-formatter";
 import { Language } from "./codeEditorTypes";
 
-export async function getJavascriptFormatter() {
+export async function cssFormatter(text: string) {
+  const prettier = await import("prettier/standalone");
+  const parserPlugin = await import("prettier/parser-postcss");
+  return prettier.format(text, { parser: "css", plugins: [parserPlugin], semi: false }).trim();
+}
+
+export async function htmlFormatter(text: string) {
+  const prettier = await import("prettier/standalone");
+  const parserPlugin = await import("prettier/parser-html");
+  return prettier.format(text, { parser: "html", plugins: [parserPlugin], semi: false }).trim();
+}
+
+async function getJavascriptFormatter() {
   const prettier = await import("prettier/standalone");
   const parserBabel = await import("prettier/parser-babel");
   return (text: string) =>
@@ -121,6 +133,10 @@ export function getFormatter(
     }
   } else {
     switch (language) {
+      case "css":
+        return cssFormatter;
+      case "html":
+        return htmlFormatter;
       case "sql":
         return formatSqlWithJsSnippets;
       case "javascript":

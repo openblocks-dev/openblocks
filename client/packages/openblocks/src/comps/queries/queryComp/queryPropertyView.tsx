@@ -12,6 +12,7 @@ import {
 } from "openblocks-core";
 import {
   CustomModal,
+  Dropdown,
   QueryConfigItemWrapper,
   QueryConfigLabel,
   QueryConfigWrapper,
@@ -20,7 +21,6 @@ import {
   TriggerTypeStyled,
 } from "openblocks-design";
 import { ResourceDropdown } from "../resourceDropdown";
-import { onlyManualTrigger } from "../queryCompUtils";
 import { QueryComp } from "../queryComp";
 import { includes, mapValues } from "lodash";
 import { PreparedStatementConfig } from "../../../api/datasourceApi";
@@ -170,6 +170,8 @@ export const QueryGeneralPropertyView = (props: {
   const dispatch = comp.dispatch;
   let datasourceId = children.datasourceId.getView();
   const datasourceType = children.compType.getView();
+  const datasourceConfig = datasource.find((d) => d.datasource.id === datasourceId)?.datasource
+    .datasourceConfig;
 
   // transfer old quick REST API datasource to new
   const oldQuickRestId = useMemo(
@@ -291,11 +293,24 @@ export const QueryGeneralPropertyView = (props: {
 
         {placement === "editor" && (
           <TriggerTypeStyled>
-            {children.triggerType.propertyView({
-              label: trans("query.triggerType"),
-              placement: "bottom",
-              disabled: onlyManualTrigger(children.compType.getView()),
-            })}
+            <Dropdown
+              placement={"bottom"}
+              label={trans("query.triggerType")}
+              options={
+                [
+                  {
+                    label:
+                      children.compType.getView() === "js"
+                        ? trans("query.triggerTypePageLoad")
+                        : trans("query.triggerTypeAuto"),
+                    value: "automatic",
+                  },
+                  { label: trans("query.triggerTypeManual"), value: "manual" },
+                ] as const
+              }
+              value={children.triggerType.getView()}
+              onChange={(value) => children.triggerType.dispatchChangeValueAction(value)}
+            />
           </TriggerTypeStyled>
         )}
       </QuerySectionWrapper>
@@ -307,6 +322,18 @@ export const QueryGeneralPropertyView = (props: {
             })
           : children.comp.getPropertyView()}
       </QuerySectionWrapper>
+
+      {placement === "queryLibrary" &&
+        datasourceConfig &&
+        (datasourceConfig as PreparedStatementConfig).enableTurnOffPreparedStatement && (
+          <>
+            {(children.comp.children as any).disablePreparedStatement.propertyView({
+              label: trans("query.disablePreparedStatement"),
+              type: "checkbox",
+              tooltip: trans("query.disablePreparedStatementTooltip"),
+            })}
+          </>
+        )}
 
       {placement === "editor" && (
         <QuerySectionWrapper>

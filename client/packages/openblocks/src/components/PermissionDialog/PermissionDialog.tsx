@@ -43,6 +43,7 @@ const AddPermissionButton = styled(TacoButton)`
 
 export const PermissionDialog = (props: {
   title: string;
+  ownerLabel: string;
   visible: boolean;
   onVisibleChange: (visible: boolean) => void;
   viewBodyRender?: (list: ReactNode) => ReactNode;

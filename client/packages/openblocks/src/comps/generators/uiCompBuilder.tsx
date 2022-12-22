@@ -123,12 +123,19 @@ export class UICompBuilder<ChildrenCompMap extends Record<string, Comp<unknown>>
   }
 }
 
+export const DisabledContext = React.createContext<boolean>(false);
+
 /**
  * Guaranteed to be in a react component, so that react hooks can be used internally
  */
 function UIView(props: { comp: any; viewFn: any }) {
   const comp = props.comp;
   const childrenProps = childrenToProps(comp.children);
+  const parentDisabled = useContext(DisabledContext);
+  const disabled = childrenProps["disabled"];
+  if (disabled !== undefined && typeof disabled === "boolean") {
+    childrenProps["disabled"] = disabled || parentDisabled;
+  }
   return (
     <HidableView hidden={childrenProps.hidden as boolean}>
       {props.viewFn(childrenProps, comp.dispatch)}

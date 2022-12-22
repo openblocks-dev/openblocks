@@ -7,7 +7,7 @@ import {
   ViewUpdate,
   WidgetType,
 } from "@codemirror/view";
-import { useIconViewByValue } from "openblocks-design";
+import { useIcon } from "openblocks-design";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 
@@ -32,8 +32,8 @@ const IconContainer = styled.div`
 export const iconWidgetClass = "cm-icon-widget-cls";
 
 function IconElement(props: { value: string }) {
-  const view = useIconViewByValue(props.value);
-  return <IconContainer className={iconWidgetClass}>{view}</IconContainer>;
+  const icon = useIcon(props.value);
+  return <IconContainer className={iconWidgetClass}>{icon?.getView()}</IconContainer>;
 }
 
 class IconWidget extends WidgetType {

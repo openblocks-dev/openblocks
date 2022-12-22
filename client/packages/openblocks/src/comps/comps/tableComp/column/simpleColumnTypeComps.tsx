@@ -3,73 +3,15 @@ import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCo
 import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
 import {
   BoolCodeControl,
-  NumberControl,
   StringControl,
   stringUnionControl,
 } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { withDefault } from "comps/generators";
 import { disabledPropertyView, loadingPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { TacoImage } from "openblocks-design";
 import styled from "styled-components";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
-
-export const ImageComp = (function () {
-  const childrenMap = {
-    src: withDefault(StringControl, "{{currentCell}}"),
-    size: withDefault(NumberControl, "50"),
-  };
-  return new ColumnTypeCompBuilder(
-    childrenMap,
-    (props) => {
-      return <TacoImage style={{ pointerEvents: "auto" }} src={props.src} width={props.size} />;
-    },
-    (nodeValue) => nodeValue.src.value
-  )
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          {children.src.propertyView({
-            label: trans("table.imageSrc"),
-            tooltip: ColumnValueTooltip,
-          })}
-          {children.size.propertyView({
-            label: trans("table.imageSize"),
-          })}
-        </>
-      );
-    })
-    .build();
-})();
-
-export const LinkComp = (function () {
-  const childrenMap = {
-    text: StringControl,
-    onClick: ActionSelectorControlInContext,
-  };
-  return new ColumnTypeCompBuilder(
-    childrenMap,
-    (props) => {
-      return <a onClick={props.onClick}>{props.text}</a>;
-    },
-    (nodeValue) => nodeValue.text.value
-  )
-    .setPropertyViewFn((children) => (
-      <>
-        {children.text.propertyView({
-          label: trans("table.columnValue"),
-          tooltip: ColumnValueTooltip,
-        })}
-        {children.onClick.propertyView({
-          label: trans("table.action"),
-          placement: "table",
-        })}
-      </>
-    ))
-    .build();
-})();
 
 const Button100 = styled(Button)`
   width: 100%;

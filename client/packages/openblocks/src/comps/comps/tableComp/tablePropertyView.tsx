@@ -146,6 +146,9 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
       <Section name={sectionNames.interaction}>
         {comp.children.onEvent.getPropertyView()}
         {loadingPropertyView(comp.children)}
+        {comp.children.showDataLoadSpinner.propertyView({
+          label: trans("table.showDataLoadSpinner"),
+        })}
         {comp.children.viewModeResizable.propertyView({
           label: trans("table.viewModeResizable"),
           tooltip: trans("table.viewModeResizableTooltip"),

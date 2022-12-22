@@ -73,6 +73,7 @@
   },
   "dependencies": {
     "chalk": "4",
+    "number-precision": "^1.6.0",
     "react-player": "^2.11.0",
     "tui-image-editor": "^3.15.3"
   }

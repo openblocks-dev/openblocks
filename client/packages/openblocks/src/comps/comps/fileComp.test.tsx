@@ -4,7 +4,7 @@ import mime from "mime";
 
 global.TextDecoder = require("util").TextDecoder;
 
-const expectParseValue = [
+const expectJSONParseValue = [
   { id: 1, name: "Reagen Gilberthorpe", date: "7/5/2022", department: "Marketing" },
   {
     id: 2,
@@ -42,8 +42,7 @@ const expectParseValue = [
   },
 ];
 
-// csv use raw data to avoid number format
-const expectCSVParseValue = [
+const expectParseValue = [
   { id: "1", name: "Reagen Gilberthorpe", date: "7/5/2022", department: "Marketing" },
   {
     id: "2",
@@ -108,9 +107,9 @@ test("test resolveParsedValue", async () => {
     getFile("packages/openblocks/src/comps/comps/fileComp.test.xlsx"),
   ]);
   const parsedValue = await resolveParsedValue(files as any);
-  expect(parsedValue[0]).toMatchObject(expectCSVParseValue);
-  expect(parsedValue[1]).toMatchObject(expectParseValue);
+  expect(parsedValue[0]).toMatchObject(expectParseValue);
+  expect(parsedValue[1]).toMatchObject(expectJSONParseValue);
   expect(parsedValue[2]).toBeNull();
-  expect(parsedValue[3]).toMatchObject(expectParseValue);
+  expect(parsedValue[3]).toMatchObject(expectJSONParseValue);
   expect(parsedValue[4]).toMatchObject(expectParseValue);
 });

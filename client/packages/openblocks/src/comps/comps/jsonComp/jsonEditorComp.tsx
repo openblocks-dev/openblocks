@@ -3,12 +3,9 @@ import { UICompBuilder } from "../../generators";
 import { NameConfigHidden, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { defaultData } from "./jsonConstants";
 import styled from "styled-components";
-import { JSONValue } from "util/jsonTypes";
 import { jsonValueExposingStateControl } from "comps/controls/codeStateControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import Editor from "@monaco-editor/react";
-import { useEffect, useState } from "react";
-import { jsonValueControl } from "comps/controls/codeControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { LabelControl } from "comps/controls/labelControl";
@@ -16,8 +13,7 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { JsonEditorStyle } from "comps/controls/styleControlConstants";
 import { styleControl } from "comps/controls/styleControl";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
-import { debounce } from "lodash";
-import { RecordConstructorToView } from "openblocks-core";
+import { useRef } from "react";
 
 /**
  * JsonEditor Comp
@@ -75,17 +71,26 @@ const childrenMap = {
   ...formDataChildren,
 };
 
-const handleChange = (v: string | undefined, props: RecordConstructorToView<typeof childrenMap>) => {
-  try {
-    const value = JSON.parse(v === undefined ? "" : v);
-    props.value.onChange(value);
-    props.onEvent("change");
-  } catch (error) {}
-};
-const handleChangeDebouce = debounce(handleChange, 1000);
-
 let JsonEditorTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
+    const editContent = useRef<string | undefined>(undefined);
+    const handleChange = (v: string | undefined) => {
+      try {
+        const value = JSON.parse(v === undefined ? "" : v);
+        if (v !== JSON.stringify(value, null, 2)) {
+          // No formatting required for editing
+          editContent.current = v || "";
+        } else {
+          editContent.current = undefined;
+        }
+        props.value.onChange(value);
+        props.onEvent("change");
+      } catch (error) {}
+    };
+    const content = editContent.current;
+    if (editContent.current) {
+      editContent.current = undefined;
+    }
     return props.label({
       style: props.style,
       children: (
@@ -93,9 +98,9 @@ let JsonEditorTmpComp = (function () {
           <Editor
             height="100%"
             defaultLanguage="json"
-            value={JSON.stringify(props.value.value, null, 2)}
+            value={content || JSON.stringify(props.value.value, null, 2)}
             loading=""
-            onChange={(v) => handleChangeDebouce(v, props)}
+            onChange={handleChange}
             options={{
               contextmenu: false,
               hideCursorInOverviewRuler: true,

@@ -1,8 +1,8 @@
 import {
   CellViewReturn,
   EditableCell,
+  EditViewFn,
   TABLE_EDITABLE_SWITCH_ON,
-  UpdateChangeSet,
 } from "components/EditableCell";
 import { stateComp } from "comps/generators";
 import {
@@ -13,16 +13,14 @@ import {
 } from "comps/generators/multi";
 import _ from "lodash";
 import {
-  changeChildAction,
   CompConstructor,
   ConstructorToNodeType,
-  DispatchType,
   fromRecord,
   NodeToValue,
   RecordConstructorToComp,
   withFunction,
 } from "openblocks-core";
-import { ReactElement, ReactNode } from "react";
+import { ReactNode } from "react";
 import { JSONValue } from "util/jsonTypes";
 
 export const __COLUMN_DISPLAY_VALUE_FN = "__COLUMN_DISPLAY_VALUE_FN";
@@ -52,11 +50,7 @@ export class ColumnTypeCompBuilder<
   private propertyViewFn?: PropertyViewFnTypeForComp<
     RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtorMap, T>>
   >;
-  private editViewFn?: ColumnTypeViewFn<
-    ChildrenCtorMap,
-    T,
-    ReactElement<{ updateChangeSet?: UpdateChangeSet<T> }>
-  >;
+  private editViewFn?: EditViewFn<T>;
 
   constructor(
     childrenMap: ChildrenCtorMap,
@@ -90,21 +84,16 @@ export class ColumnTypeCompBuilder<
     const viewFn: ColumnTypeViewFn<ChildrenCtorMap, T, CellViewReturn> =
       (props, dispatch): CellViewReturn =>
       (cellProps) => {
-        const editable = this.editViewFn ? cellProps.editable : false;
-        const editView = this.editViewFn?.(props, dispatch);
         const baseValue = this.baseValueFn?.(props, dispatch);
-        const status = _.isNil(props.changeValue) ? "normal" : "toSave";
-        const updateChangeSet = updateChangeValueFn(dispatch, (value) =>
-          _.isEqual(value, baseValue)
-        );
+        const normalView = this.viewFn(props, dispatch);
         return (
-          <EditableCell
+          <EditableCell<T>
             {...cellProps}
-            status={status}
-            editable={editable}
-            normalView={this.viewFn(props, dispatch)}
-            editView={editView}
-            updateChangeSet={updateChangeSet}
+            normalView={normalView}
+            dispatch={dispatch}
+            baseValue={baseValue}
+            changeValue={props.changeValue as any}
+            editViewFn={this.editViewFn}
           />
         );
       };
@@ -150,13 +139,4 @@ export class ColumnTypeCompBuilder<
       }
     };
   }
-}
-
-export function updateChangeValueFn<T extends JSONValue>(
-  dispatch: DispatchType,
-  equalOriginFn: (value: T) => boolean
-) {
-  return (value: T) => {
-    dispatch(changeChildAction("changeValue", equalOriginFn(value) ? null : value));
-  };
 }

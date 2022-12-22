@@ -10,7 +10,7 @@ import { __COLUMN_DISPLAY_VALUE_FN } from "comps/comps/tableComp/column/columnTy
 import { ColumNodeType, RawColumnType } from "comps/comps/tableComp/column/tableColumnComp";
 import { getPageSize, PaginationNodeType } from "comps/comps/tableComp/paginationControl";
 import { TableFilter, tableFilterOperatorMap } from "comps/comps/tableComp/tableToolbarComp";
-import { RecordType, SortValue } from "comps/comps/tableComp/tableTypes";
+import { RecordType, SortValue, TableOnEventView } from "comps/comps/tableComp/tableTypes";
 import _ from "lodash";
 import { changeChildAction, CompAction, NodeToValue } from "openblocks-core";
 import { EditableIcon } from "openblocks-design";
@@ -196,10 +196,15 @@ export function columnsToAntdFormat(
     if (c.fixed === "left") {
       return -1;
     } else if (c.fixed === "right") {
-      return 1;
-    } else {
-      return 0;
+      return Number.MAX_SAFE_INTEGER;
+    } else if (dynamicColumnConfig.length > 0) {
+      // sort by dynamic config array
+      const index = dynamicColumnConfig.indexOf(c.isCustom ? c.title : c.dataIndex);
+      if (index >= 0) {
+        return index;
+      }
     }
+    return 0;
   });
   return sortedColumns.flatMap((column) => {
     if (
@@ -239,7 +244,7 @@ export function columnsToAntdFormat(
       ...(column.sortable
         ? {
             sorter: true,
-            defaultSortOrder: sortMap.get(column.dataIndex),
+            sortOrder: sortMap.get(column.dataIndex),
           }
         : {}),
     };
@@ -260,7 +265,8 @@ export function onTableChange(
   filters: Record<string, FilterValue | null>,
   sorter: SorterResult<RecordType> | SorterResult<RecordType>[],
   extra: TableCurrentDataSource<RecordType>,
-  dispatch: (action: CompAction<JSONValue>) => void
+  dispatch: (action: CompAction<JSONValue>) => void,
+  onEvent: TableOnEventView
 ) {
   if (extra.action === "sort") {
     let sortValues: SortValue[] = [];
@@ -275,6 +281,7 @@ export function onTableChange(
       v && sortValues.push(v);
     }
     dispatch(changeChildAction("sort", sortValues));
+    onEvent("sortChange");
   }
 }
 

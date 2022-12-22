@@ -18,12 +18,12 @@ import { ThemeContext } from "comps/utils/themeContext";
 import { defaultTheme } from "comps/controls/styleControlConstants";
 import { checkIsMobile } from "util/commonUtils";
 import { CanvasContainerID } from "constants/domLocators";
+import { CNRootContainer } from "constants/styleSelectors";
 
-const UICompContainer = styled.div<{ maxWidth?: number; readOnly?: boolean; bgColor?: string }>`
-  max-width: ${(props) => props.maxWidth || 1600}px;
+const UICompContainer = styled.div<{ maxWidth?: number; readOnly?: boolean }>`
   height: 100%;
   margin: 0 auto;
-  background-color: ${(props) => props.bgColor};
+  max-width: ${(props) => props.maxWidth || 1600}px;
 `;
 
 // modal/drawer container
@@ -91,7 +91,7 @@ export function CanvasView(props: ContainerBaseProps) {
 
   if (readOnly) {
     return (
-      <UICompContainer maxWidth={maxWidth} readOnly={true} bgColor={bgColor}>
+      <UICompContainer maxWidth={maxWidth} readOnly={true} className={CNRootContainer}>
         <div>
           <Profiler id="Panel" onRender={profilerCallback}>
             <InnerGrid
@@ -112,7 +112,7 @@ export function CanvasView(props: ContainerBaseProps) {
   return (
     <CanvasContainer maxWidth={maxWidth} id={CanvasContainerID}>
       <EditorContainer ref={scrollContainerRef}>
-        <UICompContainer maxWidth={maxWidth}>
+        <UICompContainer maxWidth={maxWidth} className={CNRootContainer}>
           <DragSelector
             onMouseDown={() => {
               setDragSelectedComp(EmptySet);

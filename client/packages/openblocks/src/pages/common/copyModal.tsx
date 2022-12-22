@@ -23,7 +23,13 @@ export function CopyModal(props: CopyModalProps) {
   const [copyName, setCopyName] = useState("");
   const user = useSelector(getUser);
   const folders = useSelector(foldersSelector);
-  const [folderId, setFolderId] = useState("");
+  const [folderId, setFolderId] = useState(
+    folders.find(
+      (folder) =>
+        folder.subApplications?.length &&
+        folder.subApplications?.findIndex((app) => app?.applicationId === props.id) > -1
+    )?.folderId || ""
+  );
   const { visible, close, name, type, id } = props;
 
   return (
@@ -83,7 +89,7 @@ export function CopyModal(props: CopyModalProps) {
               {trans("home.copyModalfolderLabel")}
             </span>
             <CustomSelect
-              defaultValue=""
+              defaultValue={folderId}
               style={{ width: "100%" }}
               onChange={(value: string) => setFolderId(value)}
               options={[

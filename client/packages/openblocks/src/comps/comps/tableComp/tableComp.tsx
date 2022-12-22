@@ -1,7 +1,7 @@
 import { message } from "antd";
 import { tableDataRowExample } from "comps/comps/tableComp/column/tableColumnListComp";
 import { getPageSize } from "comps/comps/tableComp/paginationControl";
-import { TableFooterBar } from "comps/comps/tableComp/tableToolbarComp";
+import { TableFilter, TableToolbar } from "comps/comps/tableComp/tableToolbarComp";
 import {
   columnsToAntdFormat,
   getDisplayData,
@@ -33,6 +33,7 @@ import { JSONObject, JSONValue } from "util/jsonTypes";
 import { ResizeableTable, TableWrapper } from "./resizeableTable";
 import { compTablePropertyView } from "./tablePropertyView";
 import { RecordType, RowColorComp, tableChildrenMap, TableChildrenView } from "./tableTypes";
+import { withMethodExposing } from "comps/generators/withMethodExposing";
 
 function TableView(props: {
   comp: InstanceType<typeof TableTmpComp>;
@@ -55,6 +56,7 @@ function TableView(props: {
   const toolbar = useMemo(() => compChildren.toolbar.getView(), [compChildren.toolbar]);
   const pagination = useMemo(() => compChildren.pagination.getView(), [compChildren.pagination]);
   const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
+  const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
   const dynamicColumn = compChildren.dynamicColumn.getView();
   const dynamicColumnConfig = useMemo(
     () => compChildren.dynamicColumnConfig.getView(),
@@ -121,23 +123,39 @@ function TableView(props: {
     [viewMode, compChildren.onEvent, compChildren.columns]
   );
 
-  const hideFooterBar =
-    !toolbar.showFilter &&
-    !toolbar.showRefresh &&
-    !toolbar.showDownload &&
-    !toolbar.columnSetting &&
-    !hasChange &&
-    pagination.pageSize >= pageDataInfo.total &&
-    pagination.hideOnSinglePage;
+  const toolbarView = (
+    <TableToolbar
+      toolbar={toolbar}
+      $style={style}
+      pagination={{
+        ...pagination,
+        total: pageDataInfo.total,
+        current: pageDataInfo.current,
+      }}
+      columns={columns}
+      onRefresh={() =>
+        onRefresh(
+          editorState.queryCompInfoList().map((info) => info.name),
+          setLoading
+        )
+      }
+      onDownload={() => onDownload(`${compName}-data`)}
+      hasChange={hasChange}
+      onSaveChanges={() => handleChangeEvent("saveChanges")}
+      onCancelChanges={() => handleChangeEvent("cancelChanges")}
+      onEvent={onEvent}
+    />
+  );
 
   return (
-    <TableWrapper $style={style} $hideFooterBar={hideFooterBar}>
+    <TableWrapper $style={style} toolbarPosition={toolbar.position}>
+      {toolbar.position === "above" && toolbarView}
       <ResizeableTable<RecordType>
         rowColor={compChildren.rowColor.getView() as any}
-        {...compChildren.selection.getView()(compChildren.onEvent.getView())}
+        {...compChildren.selection.getView()(onEvent)}
         bordered={!compChildren.hideBordered.getView()}
         onChange={(pagination, filters, sorter, extra) => {
-          onTableChange(pagination, filters, sorter, extra, comp.dispatch);
+          onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
         }}
         showHeader={!compChildren.hideHeader.getView()}
         columns={antdColumns}
@@ -146,32 +164,13 @@ function TableView(props: {
         size={compChildren.size.getView()}
         tableLayout="fixed"
         loading={
+          loading ||
           // fixme isLoading type
-          loading || (compChildren.data as any).isLoading() || compChildren.loading.getView()
+          (compChildren.showDataLoadSpinner.getView() && (compChildren.data as any).isLoading()) ||
+          compChildren.loading.getView()
         }
       />
-      {!hideFooterBar && (
-        <TableFooterBar
-          toolbar={toolbar}
-          $style={style}
-          pagination={{
-            ...pagination,
-            total: pageDataInfo.total,
-            current: pageDataInfo.current,
-          }}
-          columns={columns}
-          onRefresh={() =>
-            onRefresh(
-              editorState.queryCompInfoList().map((info) => info.name),
-              setLoading
-            )
-          }
-          onDownload={() => onDownload(`${compName}-data`)}
-          hasChange={hasChange}
-          onSaveChanges={() => handleChangeEvent("saveChanges")}
-          onCancelChanges={() => handleChangeEvent("cancelChanges")}
-        />
-      )}
+      {toolbar.position === "below" && toolbarView}
     </TableWrapper>
   );
 }
@@ -358,6 +357,59 @@ function _indexKeyToRecord(data: JSONValue[], key: string) {
   }
   return undefined;
 }
+
+TableTmpComp = withMethodExposing(TableTmpComp, [
+  {
+    method: {
+      name: "setFilter",
+      description: "",
+      params: [{ name: "filter", type: "JSON" }],
+    },
+    execute: (comp, values) => {
+      if (values[0]) {
+        const param = values[0] as TableFilter;
+        const currentVal = comp.children.toolbar.children.filter.getView();
+        comp.children.toolbar.children.filter.dispatchChangeValueAction({
+          ...currentVal,
+          ...param,
+        });
+      }
+    },
+  },
+  {
+    method: {
+      name: "setPage",
+      description: "",
+      params: [{ name: "page", type: "number" }],
+    },
+    execute: (comp, values) => {
+      const page = values[0] as number;
+      if (page && page > 0) {
+        comp.children.pagination.children.pageNo.dispatchChangeValueAction(page);
+      }
+    },
+  },
+  {
+    method: {
+      name: "setSort",
+      description: "",
+      params: [
+        { name: "sortColumn", type: "string" },
+        { name: "sortDesc", type: "boolean" },
+      ],
+    },
+    execute: (comp, values) => {
+      if (values[0]) {
+        comp.children.sort.dispatchChangeValueAction([
+          {
+            column: values[0] as string,
+            desc: values[1] as boolean,
+          },
+        ]);
+      }
+    },
+  },
+]);
 
 // exposing data
 export const TableComp = withExposingConfigs(TableTmpComp, [

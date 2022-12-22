@@ -35,6 +35,7 @@ export const AUTH_REGISTER_URL = `${USER_AUTH_URL}/register`;
 export const QR_CODE_OAUTH_URL = `${USER_AUTH_URL}/oauth/qrcode`;
 export const OAUTH_REDIRECT = `${USER_AUTH_URL}/oauth/redirect`;
 export const CAS_AUTH_REDIRECT = `${USER_AUTH_URL}/cas/redirect`;
+export const LDAP_AUTH_LOGIN_URL = `${USER_AUTH_URL}/ldap/login`;
 export const USER_INFO_COMPLETION = `${USER_AUTH_URL}/completion`;
 export const INVITE_LANDING_URL = "/invite/:invitationId";
 
@@ -71,6 +72,6 @@ export function preview(applicationId: string) {
   window.open(APPLICATION_VIEW_URL(applicationId, "preview"));
 }
 
-export const buildGroupId = (groupId: string) => `${PERMISSION_SETTING}/${groupId}`
+export const buildGroupId = (groupId: string) => `${PERMISSION_SETTING}/${groupId}`;
 
-export const buildOrgId = (orgId: string) => `${ORGANIZATION_SETTING}/${orgId}`
+export const buildOrgId = (orgId: string) => `${ORGANIZATION_SETTING}/${orgId}`;

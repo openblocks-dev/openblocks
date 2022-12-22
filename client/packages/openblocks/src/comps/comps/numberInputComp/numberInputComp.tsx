@@ -10,7 +10,8 @@ import {
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { LabelControl } from "comps/controls/labelControl";
-import { stringExposingStateControl } from "comps/controls/codeStateControl";
+import { numberExposingStateControl } from "comps/controls/codeStateControl";
+import NP from "number-precision";
 
 import {
   CommonNameConfig,
@@ -20,7 +21,7 @@ import {
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import { Section, sectionNames, ValueFromOption } from "openblocks-design";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { RecordConstructorToView } from "openblocks-core";
 import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
@@ -31,11 +32,11 @@ import { RefControl } from "../../controls/refControl";
 import { styleControl } from "comps/controls/styleControl";
 import { InputLikeStyle, InputLikeStyleType } from "comps/controls/styleControlConstants";
 import {
-  hiddenPropertyView,
   disabledPropertyView,
+  hiddenPropertyView,
   placeholderPropertyView,
-  requiredPropertyView,
   readOnlyPropertyView,
+  requiredPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
@@ -106,7 +107,7 @@ const FormatterOptions = [
 
 type Formatter = ValueFromOption<typeof FormatterOptions>;
 
-function parseNumber(value: string, allowNull?: boolean) {
+function parseNumber(value: string, allowNull?: boolean): number {
   // only keep numbers, decimal points, minus signs
   const v = value.replace(/[^\d.-]/g, "");
   if (v) {
@@ -115,7 +116,7 @@ function parseNumber(value: string, allowNull?: boolean) {
       return num;
     }
   }
-  return allowNull ? null : 0;
+  return allowNull ? Number.NaN : 0;
 }
 
 function addThousandsSeparator(value: string) {
@@ -128,14 +129,14 @@ function addThousandsSeparator(value: string) {
 }
 
 function format(
-  value: string,
+  value: number,
   allowNull: boolean,
   formatter: Formatter,
   precision: number,
   thousandsSeparator: boolean
 ) {
-  const num = parseNumber(value, allowNull);
-  if (num === null) {
+  const num = value;
+  if (isNaN(num)) {
     return "";
   }
   let v = num.toFixed(precision);
@@ -150,21 +151,21 @@ function format(
   }
 }
 
-function toNumberValue(value: string, allowNull: boolean, formatter: Formatter) {
-  const num = parseNumber(value, allowNull);
-  if (num === null) {
-    return null;
+function toNumberValue(value: number, allowNull: boolean, formatter: Formatter) {
+  const num = value;
+  if (isNaN(num)) {
+    return allowNull ? null : 0;
   }
   switch (formatter) {
     case "standard":
       return num;
     case "percent":
-      return num / 100;
+      return NP.divide(num, 100);
   }
 }
 
 type ValidationParams = {
-  value: { value: string };
+  value: { value: number };
   allowNull: boolean;
   required: boolean;
   min?: number;
@@ -179,8 +180,8 @@ function validate(props: ValidationParams): {
   if (props.customRule) {
     return { validateStatus: "error", help: props.customRule };
   }
-  const value = parseNumber(props.value.value, props.allowNull);
-  if (value === null) {
+  const value = props.value.value;
+  if (isNaN(value)) {
     if (props.required) {
       return { validateStatus: "error", help: trans("prop.required") };
     }
@@ -210,7 +211,7 @@ const UndefinedNumberControl = codeControl<number | undefined>((value: any) => {
 });
 
 const childrenMap = {
-  value: stringExposingStateControl("value"), // It is more convenient for string to handle various states, save raw input here
+  value: numberExposingStateControl("value"), // It is more convenient for string to handle various states, save raw input here
   placeholder: StringControl,
   disabled: BoolCodeControl,
   readOnly: BoolControl,
@@ -236,24 +237,36 @@ const childrenMap = {
 
 const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) => {
   const ref = useRef<HTMLInputElement | null>(null);
-  const [editing, setEditing] = useState(false);
+
+  const formatFn = (value: number) =>
+    format(value, props.allowNull, props.formatter, props.precision, props.thousandsSeparator);
+
+  const [tmpValue, setTmpValue] = useState(formatFn(props.value.value));
+
+  const handleFinish = () => {
+    const oldValue = props.value.value;
+    const newValue = parseNumber(tmpValue, props.allowNull);
+    props.value.onChange(newValue);
+    oldValue !== newValue && props.onEvent("change");
+  };
+
+  useEffect(() => {
+    setTmpValue(formatFn(props.value.value));
+  }, [
+    props.value.value,
+    props.allowNull,
+    props.formatter,
+    props.precision,
+    props.thousandsSeparator,
+  ]);
+
   return (
     <InputNumber
       ref={(input) => {
         props.viewRef(input);
         ref.current = input;
       }}
-      value={
-        editing
-          ? props.value.value
-          : format(
-              props.value.value,
-              props.allowNull,
-              props.formatter,
-              props.precision,
-              props.thousandsSeparator
-            )
-      }
+      value={tmpValue}
       controls={props.controls}
       step={props.step}
       disabled={props.disabled}
@@ -262,28 +275,31 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       stringMode={true}
       precision={props.precision}
       $style={props.style}
-      onPressEnter={() => props.onEvent("submit")}
+      onPressEnter={() => {
+        handleFinish();
+        props.onEvent("submit");
+      }}
       onChangeCapture={(e: any) => {
-        setEditing(true);
-        props.value.onChange((e.target.value?.toString() ?? "").replace("。", "."));
+        setTmpValue((e.target.value?.toString() ?? "").replace("。", "."));
       }}
       onStep={(_, info) => {
         // since percentage mode needs to be handled manually
-        const v =
-          (parseNumber(props.value.value) || 0) +
-          (info.type === "up" ? 1 : -1) * Number(info.offset);
-        props.value.onChange(v.toString());
+        const v = NP.plus(
+          parseNumber(tmpValue),
+          NP.times(info.type === "up" ? 1 : -1, Number(info.offset))
+        );
+        props.value.onChange(v);
+        props.onEvent("change");
       }}
-      onChange={() => props.onEvent("change")}
       onFocus={() => {
         props.onEvent("focus");
       }}
       onBlur={() => {
-        setEditing(false);
+        handleFinish();
         props.onEvent("blur");
       }}
       onKeyPress={(event) => {
-        const value = props.value.value;
+        const value = tmpValue;
         const cursor = ref.current?.selectionStart;
         if (/\d/.test(event.key)) {
           return;

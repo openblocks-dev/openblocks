@@ -132,6 +132,13 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
           initialValue={datasourceConfig?.params}
           labelWidth={142}
         />
+        <FormKeyValueItem
+          name={"bodyFormData"}
+          label={"Extra body"}
+          help={trans("httpQuery.extraBodyTooltip")}
+          initialValue={datasourceConfig?.bodyFormData}
+          labelWidth={142}
+        />
       </FormSection>
 
       <FormSection size={props.size}>

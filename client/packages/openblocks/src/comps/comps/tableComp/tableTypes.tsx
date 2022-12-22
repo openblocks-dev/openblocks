@@ -11,7 +11,7 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
 import { TableStyle } from "comps/controls/styleControlConstants";
-import { MultiCompBuilder, stateComp, valueComp, withContext } from "comps/generators";
+import { MultiCompBuilder, stateComp, valueComp, withContext, withDefault } from "comps/generators";
 import { uiChildren } from "comps/generators/uiCompBuilder";
 import { withIsLoadingMethod } from "comps/generators/withIsLoading";
 import { trans } from "i18n";
@@ -60,6 +60,16 @@ export const TableEventOptions = [
     value: "rowClick",
     description: trans("table.rowClick"),
   },
+  {
+    label: trans("table.filterChange"),
+    value: "filterChange",
+    description: trans("table.filterChange"),
+  },
+  {
+    label: trans("table.sortChange"),
+    value: "sortChange",
+    description: trans("table.sortChange"),
+  },
 ] as const;
 
 export type SortValue = {
@@ -93,6 +103,7 @@ export const tableChildrenMap = {
   hideBordered: BoolControl,
   hideHeader: BoolControl,
   data: withIsLoadingMethod(JSONObjectArrayControl),
+  showDataLoadSpinner: withDefault(BoolPureControl, true),
   columns: ColumnListComp,
   size: dropdownControl(sizeOptions, "middle"),
   selection: SelectionControl,

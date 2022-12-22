@@ -62,12 +62,13 @@ const CreatorTag = styled.div`
   font-size: 12px;
   color: #4965f2;
   line-height: 12px;
-  width: 48px;
+  width: fit-content;
   height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-left: 8px;
+  padding: 0 4px;
 `;
 
 export interface PermissionItem {
@@ -80,6 +81,7 @@ export interface PermissionItem {
 }
 
 function PermissionLiItem(props: {
+  ownerLabel: string;
   supportRoles: { label: string; value: PermissionRole }[];
   permissionItem: PermissionItem;
   isCreator?: boolean;
@@ -108,10 +110,11 @@ function PermissionLiItem(props: {
       {isCreator && <CreatorTag>{trans("home.creator")}</CreatorTag>}
       {isCreator || permissionItem.type === "ORG_ADMIN" ? (
         <CommonGrayLabel style={{ color: "color: #B8B9BF", margin: "0 24px 0 auto" }}>
-          {trans("home.allPermissions")}
+          {props.ownerLabel}
         </CommonGrayLabel>
       ) : (
         <StyledRoleSelect
+          style={{ marginRight: "4px" }}
           dropdownStyle={{
             width: "100px",
           }}
@@ -152,6 +155,7 @@ function PermissionLiItem(props: {
 
 export type PermissionItemsType = { permissionItem: PermissionItem; isCreator?: boolean }[];
 export const PermissionList = (props: {
+  ownerLabel: string;
   supportRoles: { label: string; value: PermissionRole }[];
   permissionItems: PermissionItemsType;
   updatePermission: (permissionId: string, role: string) => void;

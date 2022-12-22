@@ -72,6 +72,7 @@ import {
   RangeSliderCompIcon,
   RatingCompIcon,
   RichTextEditorCompIcon,
+  ScannerIcon,
   SegmentedCompIcon,
   SelectCompIcon,
   SliderCompIcon,
@@ -110,6 +111,7 @@ import { CarouselComp } from "./comps/carouselComp";
 import { ToggleButtonComp } from "./comps/buttonComp/toggleButtonComp";
 import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
 import { RemoteCompInfo } from "types/remoteComp";
+import { ScannerComp } from "./comps/buttonComp/scannerComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -765,6 +767,15 @@ const uiCompMap: Registry = {
       w: 15,
       h: 60,
     },
+  },
+  scanner: {
+    name: trans("uiComp.scannerCompName"),
+    enName: "Scanner",
+    description: trans("uiComp.scannerCompDesc"),
+    categories: ["dataInputSelect"],
+    icon: ScannerIcon,
+    keywords: trans("uiComp.scannerCompKeywords"),
+    comp: ScannerComp,
   },
 };
 

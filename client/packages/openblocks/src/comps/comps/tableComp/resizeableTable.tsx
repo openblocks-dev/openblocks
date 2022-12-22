@@ -305,11 +305,16 @@ export { ResizeableTable };
 
 export const TableWrapper = styled.div<{
   $style: TableStyleType;
-  $hideFooterBar: boolean;
+  toolbarPosition: "above" | "below" | "close";
 }>`
   overflow: hidden;
   background: white;
   border: 1px solid #d7d9e0;
+
+  .ant-table-wrapper {
+    border-top: ${(props) => (props.toolbarPosition === "above" ? "1px solid" : "unset")};
+    border-color: inherit;
+  }
 
   .ant-table {
     .ant-table-container {
@@ -343,7 +348,7 @@ export const TableWrapper = styled.div<{
 
           // hide the bottom border of the last row
           ${(props) =>
-            props.$hideFooterBar &&
+            props.toolbarPosition !== "below" &&
             `
               tbody > tr:last-child > td {
                 border-bottom: unset;

@@ -1,9 +1,17 @@
 import { SimpleAbstractComp } from "openblocks-core";
-import { Dropdown } from "openblocks-design";
-import { OptionsType, ValueFromOption } from "openblocks-design";
+import {
+  AlignBottom,
+  AlignCenter,
+  AlignJustify,
+  AlignLeft,
+  AlignRight,
+  AlignTop,
+  Dropdown,
+  OptionsType,
+  ValueFromOption,
+} from "openblocks-design";
 import { ReactNode } from "react";
 import { ControlParams } from "./controlParams";
-import { AlignCenter, AlignLeft, AlignRight, AlignTop, AlignBottom, AlignJustify } from "openblocks-design";
 
 /**
  * Leave a getView method unimplemented, because the type cannot be changed by inheritance
@@ -27,6 +35,7 @@ export function dropdownAbstractControl<T extends OptionsType>(
         disableDispatchValueChange?: boolean;
         onChange?: (value: string) => void;
         options?: T;
+        showSearch?: boolean;
       }
     ): ReactNode {
       let finalOptions = options;
@@ -43,6 +52,7 @@ export function dropdownAbstractControl<T extends OptionsType>(
           border={params.border}
           type={params.type}
           label={params.label}
+          showSearch={params.showSearch}
           onChange={(value) => {
             if (!params.disableDispatchValueChange) {
               this.dispatchChangeValueAction(value);
@@ -95,7 +105,7 @@ const alignWithStretchOptions = [
   { label: <AlignLeft />, value: "left" },
   { label: <AlignCenter />, value: "center" },
   { label: <AlignRight />, value: "right" },
-  { label: <AlignJustify />, value: "stretch" }
+  { label: <AlignJustify />, value: "stretch" },
 ] as const;
 
 export const HorizontalAlignmentControl = dropdownControl(alignOptions, "left");

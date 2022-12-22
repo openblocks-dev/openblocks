@@ -8,6 +8,7 @@ import { trans } from "i18n";
 export interface IForm {
   onEventPropertyView(title: ReactNode): ReactNode;
   submit(): Promise<void>;
+  disableSubmit(): boolean;
 }
 
 export const formDataChildren = {

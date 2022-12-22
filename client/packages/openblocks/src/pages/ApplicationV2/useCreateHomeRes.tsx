@@ -15,12 +15,16 @@ import { buildAppRouteWithState } from "../../constants/routesURL";
 import { useCreateFolder } from "./useCreateFolder";
 import { trans } from "i18n";
 import { HomeResInfo } from "util/homeResUtils";
+import { toLower } from "lodash";
 
 export const newAppPrefix = (userName: string, appType: AppTypeEnum = AppTypeEnum.Application) => {
   if (appType === AppTypeEnum.NavLayout) {
-    return trans("home.newNavLayout", { userName: userName, name: HomeResInfo[appType].name });
+    return trans("home.newNavLayout", {
+      userName: userName,
+      name: toLower(HomeResInfo[appType].name),
+    });
   }
-  return trans("home.newApp", { userName: userName, name: HomeResInfo[appType].name });
+  return trans("home.newApp", { userName: userName, name: toLower(HomeResInfo[appType].name) });
 };
 
 export function useCreateHomeRes() {

@@ -4,13 +4,13 @@ import ColumnTypeView from "comps/comps/tableComp/column/columnTypeView";
 import {
   BadgeStatusComp,
   ButtonComp,
-  ImageComp,
-  LinkComp,
 } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 import { withType } from "comps/generators";
 import { trans } from "i18n";
 import { changeValueAction } from "openblocks-core";
 import { Dropdown } from "openblocks-design";
+import { ImageComp } from "./columnTypeComps/columnImgComp";
+import { LinkComp } from "./columnTypeComps/columnLinkComp";
 import { ColumnLinksComp } from "./columnTypeComps/columnLinksComp";
 import { ColumnMarkdownComp } from "./columnTypeComps/columnMarkdownComp";
 import { ColumnTagsComp } from "./columnTypeComps/columnTagsComp";

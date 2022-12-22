@@ -15,7 +15,7 @@ import { NameGenerator } from "comps/utils";
 import { Section, sectionNames } from "openblocks-design";
 import { HintPlaceHolder } from "openblocks-design";
 import _ from "lodash";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useContext } from "react";
 import styled, { css } from "styled-components";
 import { IContainer } from "../containerBase/iContainer";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
@@ -26,8 +26,12 @@ import {
   InnerGrid,
 } from "../containerComp/containerView";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { BoolCodeControl } from "comps/controls/codeControl";
+import { DisabledContext } from "comps/generators/uiCompBuilder";
+import { EditorContext } from "comps/editorState";
+import { checkIsMobile } from "util/commonUtils";
 
 const { TabPane } = Tabs;
 
@@ -48,6 +52,7 @@ const childrenMap = {
   }),
   autoHeight: AutoHeightControl,
   onEvent: eventHandlerControl(EVENT_OPTIONS),
+  disabled: BoolCodeControl,
   style: styleControl(TabContainerStyle),
 };
 
@@ -91,7 +96,7 @@ const getStyle = (style: TabContainerStyleType) => {
   `;
 };
 
-const StyledTabs = styled(Tabs)<{ $style: TabContainerStyleType }>`
+const StyledTabs = styled(Tabs)<{ $style: TabContainerStyleType; isMobile?: boolean }>`
   &.ant-tabs {
     height: 100%;
   }
@@ -106,9 +111,13 @@ const StyledTabs = styled(Tabs)<{ $style: TabContainerStyleType }>`
   }
 
   .ant-tabs-nav {
-    padding: 0 24px;
+    padding: 0 ${(props) => (props.isMobile ? 16 : 24)}px;
     background: white;
     margin: 0px;
+  }
+
+  .ant-tabs-tab + .ant-tabs-tab {
+    margin: 0 0 0 20px;
   }
 
   .ant-tabs-nav-operations {
@@ -120,13 +129,7 @@ const StyledTabs = styled(Tabs)<{ $style: TabContainerStyleType }>`
 
 const ContainerInTab = (props: ContainerBaseProps) => {
   return (
-    <InnerGrid
-      {...props}
-      emptyRows={15}
-      containerPadding={[20, 20]}
-      bgColor={"white"}
-      hintPlaceholder={HintPlaceHolder}
-    />
+    <InnerGrid {...props} emptyRows={15} bgColor={"white"} hintPlaceholder={HintPlaceHolder} />
   );
 };
 
@@ -145,10 +148,17 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     (key: string, event: React.KeyboardEvent<Element> | React.MouseEvent<Element, MouseEvent>) => {
       // log.debug("onTabClick. event: ", event);
       const target = event.target;
-      (target as any).parentNode.click();
+      (target as any).parentNode.click
+        ? (target as any).parentNode.click()
+        : (target as any).parentNode.parentNode.click();
     },
     []
   );
+
+  const editorState = useContext(EditorContext);
+  const maxWidth = editorState.getAppSettings().maxWidth;
+  const isMobile = checkIsMobile(maxWidth);
+  const paddingWidth = isMobile ? 8 : 20;
 
   // log.debug("TabbedContainer. props: ", props);
 
@@ -164,6 +174,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
       }}
       onTabClick={onTabClick}
       animated
+      isMobile={isMobile}
       // tabBarGutter={32}
     >
       {visibleTabs.map((tab) => {
@@ -171,8 +182,20 @@ const TabbedContainer = (props: TabbedContainerProps) => {
         const id = String(tab.id);
         const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
         const containerProps = containers[id].children;
+        const hasIcon = tab.icon.props.value;
+        const label = (
+          <>
+            {tab.iconPosition === "left" && hasIcon && (
+              <span style={{ marginRight: "4px" }}>{tab.icon}</span>
+            )}
+            {tab.label}
+            {tab.iconPosition === "right" && hasIcon && (
+              <span style={{ marginLeft: "4px" }}>{tab.icon}</span>
+            )}
+          </>
+        );
         return (
-          <TabPane tab={tab.label} key={tab.key} forceRender>
+          <TabPane tab={label} key={tab.key} forceRender>
             <BackgroundColorContext.Provider value={props.style.background}>
               <ContainerInTab
                 layout={containerProps.layout.getView()}
@@ -180,6 +203,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
                 positionParams={containerProps.positionParams.getView()}
                 dispatch={childDispatch}
                 autoHeight={props.autoHeight}
+                containerPadding={[paddingWidth, 20]}
               />
             </BackgroundColorContext.Provider>
           </TabPane>
@@ -191,7 +215,11 @@ const TabbedContainer = (props: TabbedContainerProps) => {
 
 export const TabbedContainerBaseComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    return <TabbedContainer {...props} dispatch={dispatch} />;
+    return (
+      <DisabledContext.Provider value={props.disabled}>
+        <TabbedContainer {...props} dispatch={dispatch} />
+      </DisabledContext.Provider>
+    );
   })
     .setPropertyViewFn((children) => {
       return (
@@ -204,7 +232,10 @@ export const TabbedContainerBaseComp = (function () {
             {children.selectedTabKey.propertyView({ label: trans("prop.defaultValue") })}
             {children.autoHeight.getPropertyView()}
           </Section>
-          <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {disabledPropertyView(children)}
+          </Section>
           <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
           <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
         </>
