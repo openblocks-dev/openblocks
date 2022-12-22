@@ -1,0 +1,10 @@
+{
+  "name": "Openblocks",
+  "description": "Openblocks is a developer-friendly open-source low code platform to build internal apps within minutes.",
+  "repository": "https://github.com/openblocks-dev/openblocks",
+  "logo": "https://cdn-files.openblocks.dev/logo.png",
+  "keywords": [
+    "low code",
+    "develop tool"
+  ]
+}
