@@ -14,13 +14,11 @@ import { DatasourceType, ResourceType } from "@openblocks-ee/constants/queryCons
 import {
   databasePlugins,
   OPENBLOCKS_API_ID,
+  OPENBLOCKS_API_INFO,
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
 } from "../../constants/datasourceConstants";
-import {
-  apiPluginsForQueryLibrary,
-  OPENBLOCKS_API_INFO,
-} from "@openblocks-ee/constants/datasourceConstants";
+import { apiPluginsForQueryLibrary } from "@openblocks-ee/constants/datasourceConstants";
 import { QueryContext } from "../../util/context/QueryContext";
 
 const SelectOptionLabel = styled.div`

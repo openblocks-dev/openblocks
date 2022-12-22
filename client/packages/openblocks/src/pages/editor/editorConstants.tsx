@@ -64,6 +64,7 @@ export const CompStateIcon: {
   timeRange: <LeftTime />,
   button: <LeftButton />,
   link: <LeftLink />,
+  scanner: <LeftQrCode />,
   dropdown: <LeftButton />,
   text: <LeftText />,
   table: <LeftTable />,

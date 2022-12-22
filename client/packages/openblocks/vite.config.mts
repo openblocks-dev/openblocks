@@ -7,7 +7,7 @@ import checker from "vite-plugin-checker";
 import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
 import chalk from "chalk";
-import { ViteMinifyPlugin as minifyHtml } from "vite-plugin-minify";
+import { createHtmlPlugin } from "vite-plugin-html";
 import { ensureLastSlash } from "openblocks-dev-utils/util";
 import { buildVars } from "openblocks-dev-utils/buildVars";
 import { globalDepPlugin } from "openblocks-dev-utils/globalDepPlguin";
@@ -20,6 +20,8 @@ const edition = process.env.REACT_APP_EDITION;
 const isEE = edition === "enterprise";
 const isDev = nodeEnv === "development";
 const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
+const browserCheckFileName = `browser-check-${process.env.REACT_APP_COMMIT_ID}.js`;
+const base = ensureLastSlash(process.env.PUBLIC_URL);
 
 if (!apiProxyTarget && isDev) {
   console.log();
@@ -47,18 +49,17 @@ export const viteConfig: UserConfig = {
       ),
     },
   },
-  base: ensureLastSlash(process.env.PUBLIC_URL),
+  base,
   build: {
     manifest: true,
-    target: "chrome69",
+    target: "es2015",
+    cssTarget: "chrome63",
     outDir: "build",
     assetsDir: "static",
+    emptyOutDir: false,
     rollupOptions: {
       output: {
         chunkFileNames: "[hash].js",
-        manualChunks: {
-          browser: ["./src/browser-check.ts"],
-        },
       },
     },
     commonjsOptions: {
@@ -125,9 +126,45 @@ export const viteConfig: UserConfig = {
       },
     }),
     globalDepPlugin(),
-    minifyHtml(),
+    createHtmlPlugin({
+      minify: true,
+      inject: {
+        data: {
+          browserCheckScript: isDev ? "" : `<script src="${base}${browserCheckFileName}"></script>`,
+        },
+      },
+    }),
     isVisualizerEnabled && visualizer(),
   ].filter(Boolean),
 };
 
-export default defineConfig(viteConfig);
+const browserCheckConfig: UserConfig = {
+  ...viteConfig,
+  define: {
+    ...viteConfig.define,
+    "process.env.NODE_ENV": JSON.stringify("production"),
+  },
+  build: {
+    ...viteConfig.build,
+    manifest: false,
+    copyPublicDir: false,
+    emptyOutDir: true,
+    lib: {
+      formats: ["iife"],
+      name: "BrowserCheck",
+      entry: "./src/browser-check.ts",
+      fileName: () => {
+        return browserCheckFileName;
+      },
+    },
+  },
+};
+
+const buildTargets = {
+  main: viteConfig,
+  browserCheck: browserCheckConfig,
+};
+
+const buildTarget = buildTargets[process.env.BUILD_TARGET || "main"];
+
+export default defineConfig(buildTarget || viteConfig);

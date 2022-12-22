@@ -192,12 +192,7 @@ function ToolTipLabel(
       {...restProps}
     >
       {label ? (
-        <Label
-          style={labelStyle}
-          border={!!title}
-          className="tooltipLabel"
-          title={typeof label === "string" ? label : undefined}
-        >
+        <Label style={labelStyle} border={!!title} className="tooltipLabel">
           {label}
         </Label>
       ) : (

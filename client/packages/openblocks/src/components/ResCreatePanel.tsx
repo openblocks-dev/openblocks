@@ -12,9 +12,10 @@ import { LargeBottomResIconWrapper } from "util/bottomResUtils";
 import { PageType } from "../constants/pageConstants";
 import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { SizeType } from "antd/lib/config-provider/SizeContext";
-import { Datasource, OPENBLOCKS_API_INFO } from "@openblocks-ee/constants/datasourceConstants";
+import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 import {
   OPENBLOCKS_API_ID,
+  OPENBLOCKS_API_INFO,
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
 } from "../constants/datasourceConstants";

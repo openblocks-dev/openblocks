@@ -8,7 +8,7 @@ import {
   isValidColor,
 } from "components/colorSelect/colorUtils";
 import styled, { css } from "styled-components";
-import { useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { throttle } from "lodash";
 import { changeValueAction } from "openblocks-core";
 
@@ -21,7 +21,7 @@ interface ColorSelectProps {
 
 export const ColorSelect = (props: ColorSelectProps) => {
   const { color, trigger = "click", dispatch, changeColor } = props;
-  const rgbaColor = toRGBA(color);
+  const [visible, setVisible] = useState(false);
   const throttleChange = useCallback(
     throttle((rgbaColor: string) => {
       dispatch && dispatch(changeValueAction(toHex(rgbaColor)));
@@ -29,17 +29,21 @@ export const ColorSelect = (props: ColorSelectProps) => {
     }, 200),
     [dispatch]
   );
+  const rgbaColor = useMemo(() => {
+      return toRGBA(color);
+  }, [visible])
 
   return (
     <Popover
       trigger={trigger}
       destroyTooltipOnHide={true}
+      onVisibleChange={(value) => setVisible(value)}
       content={
         <PopoverContainer>
           <div style={{ position: "relative" }}>
             <RgbaStringColorPicker color={rgbaColor} onChange={throttleChange} />
             <AlphaDiv color={color?.substring(0, 7)}>
-              <BackDiv color={alphaOfRgba(rgbaColor)}></BackDiv>
+              <BackDiv color={alphaOfRgba(toRGBA(color))}></BackDiv>
             </AlphaDiv>
           </div>
           <ConstantDiv>
@@ -59,7 +63,7 @@ export const ColorSelect = (props: ColorSelectProps) => {
       }
     >
       <ColorBlock color={color?.substring(0, 7)}>
-        <BackDiv color={alphaOfRgba(rgbaColor)}></BackDiv>
+        <BackDiv color={alphaOfRgba(toRGBA(color))}></BackDiv>
       </ColorBlock>
     </Popover>
   );

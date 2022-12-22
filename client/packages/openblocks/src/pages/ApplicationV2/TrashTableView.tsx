@@ -134,11 +134,10 @@ export const TrashTableView = (props: { resources: HomeRes[] }) => {
                   className={"home-datasource-edit-button"}
                   onClick={() =>
                     CustomModal.confirm({
-                      title: trans("home.deleteElementTitle", {
-                        name: HomeResInfo[item.type].name,
-                      }),
+                      title: trans("home.deleteElementTitle"),
                       content: trans("home.deleteElementSubTitle", {
-                        name: HomeResInfo[item.type].name,
+                        type: HomeResInfo[item.type].name.toLowerCase(),
+                        name: item.name,
                       }),
                       onConfirm: () =>
                         new Promise((resolve, reject) => {

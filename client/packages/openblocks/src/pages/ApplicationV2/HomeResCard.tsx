@@ -180,7 +180,13 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
     creator: res.creator,
   });
 
-  const Icon = HomeResInfo[res.type].icon;
+  const resInfo = HomeResInfo[res.type];
+
+  if (!resInfo) {
+    return null;
+  }
+
+  const Icon = resInfo.icon;
 
   return (
     <Wrapper>

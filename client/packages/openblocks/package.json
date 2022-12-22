@@ -12,6 +12,7 @@
     "@codemirror/autocomplete": "^0.20.3",
     "@codemirror/basic-setup": "^0.20.0",
     "@codemirror/lang-css": "0.20",
+    "@codemirror/lang-html": "0.20",
     "@codemirror/lang-javascript": "^0.20.1",
     "@codemirror/lang-sql": "^0.20.4",
     "@dnd-kit/core": "^5.0.1",
@@ -67,6 +68,7 @@
     "react-joyride": "^2.4.0",
     "react-json-view": "^1.21.3",
     "react-markdown": "^8.0.0",
+    "react-qr-barcode-scanner": "^1.0.6",
     "react-quill": "^2.0.0",
     "react-redux": "^7.2.6",
     "react-resizable": "^3.0.4",
@@ -82,6 +84,7 @@
     "rehype-raw": "^6.1.1",
     "rehype-sanitize": "^5.0.1",
     "remark-gfm": "^3.0.1",
+    "resize-observer-polyfill": "^1.5.1",
     "simplebar-react": "^2.3.6",
     "sql-formatter": "^8.2.0",
     "styled-components": "^5.3.3",
@@ -118,7 +121,7 @@
     "typescript": "^4.8.4",
     "vite": "^3.2.4",
     "vite-plugin-checker": "^0.5.1",
-    "vite-plugin-minify": "^1.5.2",
+    "vite-plugin-html": "^3.2.0",
     "vite-plugin-svgr": "^2.2.2",
     "vite-tsconfig-paths": "^3.6.0"
   }

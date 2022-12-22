@@ -2,6 +2,7 @@ import _ from "lodash";
 import {
   CompAction,
   CompActionTypes,
+  ConstructorToComp,
   ConstructorToNodeType,
   customAction,
   fromRecord,
@@ -36,16 +37,27 @@ export function withContextV2<ParamNames extends readonly string[], T extends Mu
     data: ContextDataType;
   };
 
+  type SetCompAction = {
+    type: "setComp";
+    comp: ConstructorToComp<typeof WithContextV2Comp>;
+  };
+
   // @ts-ignore
   class WithContextV2Comp extends VariantComp {
     private readonly nodeValue?: ValueFn<NodeValue>;
     private readonly contextData?: ContextDataType;
-    private readonly prevChildVal?: any;
 
     static changeContextDataAction(contextData: ContextDataType) {
       return customAction({
         type: "setContextData",
         data: contextData,
+      });
+    }
+
+    static setCompAction(comp: ConstructorToComp<typeof WithContextV2Comp>) {
+      return customAction({
+        type: "setComp",
+        comp,
       });
     }
 
@@ -61,6 +73,10 @@ export function withContextV2<ParamNames extends readonly string[], T extends Mu
       if (isMyCustomAction<ChangeContextDataAction>(action, "setContextData")) {
         const data = action.value.data;
         return this.setContextData(data);
+      }
+      if (isMyCustomAction<SetCompAction>(action, "setComp")) {
+        const comp = (action.value.comp as unknown as this).changeDispatch(this.dispatch);
+        return this.contextData ? comp.setContextData(this.contextData) : comp;
       }
       if (action.type === CompActionTypes.UPDATE_NODES_V2) {
         // log.debug("withContextV2 reduce UPDATE_NODE_V2. action: ", action.value, " nodeValue: ", this.nodeValue, " equal: ", this.nodeValue === action.value);
@@ -80,13 +96,17 @@ export function withContextV2<ParamNames extends readonly string[], T extends Mu
         "with_context",
         [this.nodeWithContext(), this.children, this.contextData] as const,
         (a, b) => {
-          return a[1] === b[1] && a[2] == b[2];
+          return a[1] === b[1] && a[2] === b[2];
         }
       )[0];
       return nd;
     }
 
-    nodeWithContext() {
+    getContextData() {
+      return this.contextData;
+    }
+
+    private nodeWithContext() {
       const childNode: Node<unknown> = super.node();
       if (_.isNil(childNode)) return undefined;
       const wrapNode = childNode.wrapContext(paramNames.join(","));
@@ -103,19 +123,12 @@ export function withContextV2<ParamNames extends readonly string[], T extends Mu
 
     private refreshChildContextData(): this {
       if (this.contextData && this.nodeValue) {
-        const newValue = this.getChildValueWithContext(this.contextData);
-        if (!_.isEqual(this.prevChildVal, newValue)) {
-          const newComp = setFieldsNoTypeCheck(this.updateChildDataWithContext(this.contextData), {
-            prevChildVal: newValue,
-          });
-          return newComp;
-        }
+        const newComp = super.reduce(
+          updateNodesV2Action(this.getChildValueWithContext(this.contextData))
+        );
+        return newComp;
       }
       return this;
-    }
-
-    private updateChildDataWithContext(input: ContextDataType) {
-      return super.reduce(updateNodesV2Action(this.getChildValueWithContext(input)));
     }
 
     private getChildValueWithContext(input: ContextDataType): NodeValue | undefined {

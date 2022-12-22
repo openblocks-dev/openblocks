@@ -1,4 +1,5 @@
 import "core-js/actual";
+import ResizeObserver from "resize-observer-polyfill";
 import numbro from "numbro";
 import Papa from "papaparse";
 import * as uuid from "uuid";
@@ -12,6 +13,11 @@ import log from "loglevel";
 window.numbro = numbro;
 window.Papa = Papa;
 window.uuid = uuid;
+
+// for chrome 63
+if (!window.ResizeObserver) {
+  window.ResizeObserver = ResizeObserver;
+}
 
 function hideLoading() {
   // hide loading

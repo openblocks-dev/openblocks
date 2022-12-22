@@ -74,6 +74,7 @@ export type UICompType =
   | "timeRange"
   | "button"
   | "link"
+  | "scanner"
   | "dropdown"
   | "text"
   | "table"

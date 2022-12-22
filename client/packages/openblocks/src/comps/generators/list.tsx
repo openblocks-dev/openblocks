@@ -1,24 +1,43 @@
-import { JSONValue } from "util/jsonTypes";
-import { ConstructorToComp, ConstructorToDataType } from "openblocks-core";
 import { arrayMove, ToType } from "comps/utils";
 import { genRandomKey } from "comps/utils/idGenerator";
-import { fromRecord, FunctionNode, Node, withFunction } from "openblocks-core";
 import _ from "lodash";
+import {
+  CompAction,
+  CompActionTypes,
+  CompConstructor,
+  CompParams,
+  ConstructorToComp,
+  ConstructorToDataType,
+  CustomAction,
+  customAction,
+  fromRecord,
+  FunctionNode,
+  MultiBaseComp,
+  withFunction,
+  wrapDispatch,
+} from "openblocks-core";
 import { ReactNode } from "react";
+import { JSONValue } from "util/jsonTypes";
 import { lastValueIfEqual, setFieldsNoTypeCheck } from "util/objectUtils";
-import { CompAction, CompActionTypes, CustomAction, customAction } from "openblocks-core";
-import { CompConstructor, CompParams, MultiBaseComp, wrapDispatch } from "openblocks-core";
 
 export type ListDataType<T> = Array<ConstructorToDataType<T>>;
-type ListAction<ChildDataType extends JSONValue = JSONValue> =
+export type CustomListAction<CompCtor extends CompConstructor = CompConstructor> = CustomAction<
+  ListAction<CompCtor>
+>;
+
+type ListAction<CompCtor extends CompConstructor = CompConstructor> =
   | {
       type: "push";
-      value: ChildDataType;
+      value: ConstructorToDataType<CompCtor>;
+    }
+  | {
+      type: "pushComp";
+      value: ConstructorToComp<CompCtor>;
     }
   | {
       type: "insert";
       index: number;
-      value: ChildDataType;
+      value: ConstructorToDataType<CompCtor>;
     }
   | {
       type: "arrayMove";
@@ -30,8 +49,11 @@ type ListAction<ChildDataType extends JSONValue = JSONValue> =
       index: number;
     }
   | {
+      type: "clear";
+    }
+  | {
       type: "multi";
-      actions: Array<ToType<CustomAction>>;
+      actions: Array<ToType<CustomListAction<CompCtor>>>;
     };
 
 /**
@@ -40,30 +62,32 @@ type ListAction<ChildDataType extends JSONValue = JSONValue> =
  *
  * The reason why index is not used as key is: dispatch is routed through key, so the key of routing cannot be changed.
  */
-export function list<ChildComp extends CompConstructor<any, any>>(childConstructor: ChildComp) {
+export function list<ChildCompCtor extends CompConstructor<any, any>>(
+  childConstructor: ChildCompCtor
+) {
   function newChild(
     dispatch: (action: CompAction) => void,
     childName: string,
-    childValue: ConstructorToDataType<ChildComp>
+    childValue: ConstructorToDataType<ChildCompCtor>
   ) {
     return new childConstructor({
       dispatch: wrapDispatch(dispatch, childName),
       value: childValue,
-    }) as ConstructorToComp<ChildComp>;
+    }) as ConstructorToComp<ChildCompCtor>;
   }
   class LIST_CLASS extends MultiBaseComp<
-    Record<string, ConstructorToComp<ChildComp>>,
-    ListDataType<ChildComp>
+    Record<string, ConstructorToComp<ChildCompCtor>>,
+    ListDataType<ChildCompCtor>
   > {
     /**
      * Used to store the order of children, not persistent
      */
     private childrenOrder: Array<string>;
-    constructor(params: CompParams<ListDataType<ChildComp>>) {
+    constructor(params: CompParams<ListDataType<ChildCompCtor>>) {
       super(params);
       this.childrenOrder = _.range(params.value ? params.value.length : 0).map((x) => x + "");
     }
-    override parseChildrenFromValue(params: CompParams<ListDataType<ChildComp>>) {
+    override parseChildrenFromValue(params: CompParams<ListDataType<ChildCompCtor>>) {
       const value = params.value;
       if (!value) {
         return {};
@@ -88,8 +112,10 @@ export function list<ChildComp extends CompConstructor<any, any>>(childConstruct
     override getPropertyView(): ReactNode {
       return <>{this.getChildrenArray().map((child) => child.getPropertyView())}</>;
     }
-    override toJsonValue(): ListDataType<ChildComp> {
-      return this.getChildrenArray().map((comp) => comp.toJsonValue()) as ListDataType<ChildComp>;
+    override toJsonValue(): ListDataType<ChildCompCtor> {
+      return this.getChildrenArray().map((comp) =>
+        comp.toJsonValue()
+      ) as ListDataType<ChildCompCtor>;
     }
 
     override reduce(action: CompAction): this {
@@ -98,12 +124,12 @@ export function list<ChildComp extends CompConstructor<any, any>>(childConstruct
         return comp;
       }
       if (action.type === CompActionTypes.CUSTOM) {
-        return this.reduceCustom(action.value as ListAction<ConstructorToDataType<ChildComp>>);
+        return this.reduceCustom(action.value as ListAction<ChildCompCtor>);
       }
       return this;
     }
 
-    private reduceCustom(action: ListAction<ConstructorToDataType<ChildComp>>): this {
+    private reduceCustom(action: ListAction<ChildCompCtor>): this {
       switch (action.type) {
         case "push":
           const key = genRandomKey();
@@ -115,6 +141,17 @@ export function list<ChildComp extends CompConstructor<any, any>>(childConstruct
             children: newChildren,
             childrenOrder: [...this.childrenOrder, key],
           });
+        case "pushComp": {
+          const key = genRandomKey();
+          const newChildren = {
+            ...this.children,
+            [key]: action.value.changeDispatch(wrapDispatch(this.dispatch, key)),
+          };
+          return setFieldsNoTypeCheck(this, {
+            children: newChildren,
+            childrenOrder: [...this.childrenOrder, key],
+          });
+        }
         case "insert":
           const insertKey = genRandomKey();
           const newChildrenAfterInsert = {
@@ -140,6 +177,11 @@ export function list<ChildComp extends CompConstructor<any, any>>(childConstruct
           return setFieldsNoTypeCheck(this, {
             childrenOrder: arrayMove(this.childrenOrder, action.fromIndex, action.toIndex),
           });
+        case "clear":
+          return setFieldsNoTypeCheck(this, {
+            children: {},
+            childrenOrder: [],
+          });
         case "multi":
           let comp = this;
           action.actions.forEach((actionInner) => {
@@ -148,22 +190,29 @@ export function list<ChildComp extends CompConstructor<any, any>>(childConstruct
           return comp;
       }
     }
-    pushAction(value: ConstructorToDataType<ChildComp>) {
-      return customAction<ListAction>({
+    pushAction(value: ConstructorToDataType<ChildCompCtor>) {
+      return customAction<ListAction<ChildCompCtor>>({
         type: "push",
         value: value,
       });
     }
 
+    pushCompAction(comp: ConstructorToComp<ChildCompCtor>) {
+      return customAction<ListAction<ChildCompCtor>>({
+        type: "pushComp",
+        value: comp,
+      });
+    }
+
     deleteAction(index: number) {
-      return customAction<ListAction>({
+      return customAction<ListAction<ChildCompCtor>>({
         type: "delete",
         index: index,
       });
     }
 
-    insertAction(index: number, value: ConstructorToDataType<ChildComp>) {
-      return customAction<ListAction>({
+    insertAction(index: number, value: ConstructorToDataType<ChildCompCtor>) {
+      return customAction<ListAction<ChildCompCtor>>({
         type: "insert",
         index: index,
         value,
@@ -171,14 +220,20 @@ export function list<ChildComp extends CompConstructor<any, any>>(childConstruct
     }
 
     arrayMoveAction(fromIndex: number, toIndex: number) {
-      return customAction<ListAction>({
+      return customAction<ListAction<ChildCompCtor>>({
         type: "arrayMove",
         fromIndex: fromIndex,
         toIndex: toIndex,
       });
     }
 
-    exposingNode(): FunctionNode<any, ConstructorToDataType<ChildComp>[]> {
+    clearAction() {
+      return customAction<ListAction<ChildCompCtor>>({
+        type: "clear",
+      });
+    }
+
+    exposingNode(): FunctionNode<any, ConstructorToDataType<ChildCompCtor>[]> {
       const childrenExposingNodes = this.getChildrenArray().map((i) => (i as any).exposingNode());
       const childrenExposingNode = fromRecord(Object.fromEntries(childrenExposingNodes.entries()));
       const result = withFunction(childrenExposingNode, (i) => Object.values(i));
@@ -187,14 +242,14 @@ export function list<ChildComp extends CompConstructor<any, any>>(childConstruct
         "_expose_",
         [this.node(), result],
         (a, b) => a[0] === b[0]
-      )[1] as FunctionNode<any, ConstructorToDataType<ChildComp>[]>;
+      )[1] as FunctionNode<any, ConstructorToDataType<ChildCompCtor>[]>;
     }
 
     /**
      * Multiple actions are executed by order
      */
-    multiAction(actions: Array<CustomAction>) {
-      return customAction<ListAction>({
+    multiAction(actions: Array<CustomListAction<ChildCompCtor>>) {
+      return customAction<ListAction<ChildCompCtor>>({
         type: "multi",
         actions: actions,
       });

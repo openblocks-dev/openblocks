@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { lastValueIfEqual } from "util/objectUtils";
 import {
   Comp,
   CompAction,
@@ -34,19 +35,19 @@ export function withContextForList<
 >(VariantComp: T, paramNames: ParamNames) {
   type ContextDataType = Record<ParamNames[number], unknown>;
 
-  const ContextCompConstructor = withContextV2(VariantComp, paramNames);
-  type ContextComp = ConstructorToComp<typeof ContextCompConstructor>;
+  const ContextCompCtor = withContextV2(VariantComp, paramNames);
+  type ContextComp = ConstructorToComp<typeof ContextCompCtor>;
   const CHILD_KEY = "__comp__";
 
-  const MapConstructor = map(ContextCompConstructor);
+  const MapConstructor = map(ContextCompCtor);
   const childrenMap = {
-    [CHILD_KEY]: ContextCompConstructor,
+    [CHILD_KEY]: ContextCompCtor,
     __map__: MapConstructor,
   };
   type ChildrenType = RecordConstructorToComp<typeof childrenMap>;
   type ViewReturn = (key: string, input?: ContextDataType) => ConstructorToView<T>;
 
-  type CompNodeValue = NodeToValue<ConstructorToNodeType<typeof ContextCompConstructor>>;
+  type CompNodeValue = NodeToValue<ConstructorToNodeType<typeof ContextCompCtor>>;
   type NodeValue = {
     [CHILD_KEY]: CompNodeValue;
     __map__: Record<string, CompNodeValue>;
@@ -60,7 +61,7 @@ export function withContextForList<
       const dispatch = params.dispatch ?? _.noop;
       const newParams = { ...params, dispatch: wrapDispatch(dispatch, CHILD_KEY) };
 
-      const comp: ContextComp = new ContextCompConstructor(newParams) as unknown as ContextComp;
+      const comp: ContextComp = new ContextCompCtor(newParams) as unknown as ContextComp;
       const mapComp = new MapConstructor({ dispatch: wrapDispatch(dispatch, "__map__") });
       return { [CHILD_KEY]: comp, __map__: mapComp };
     }
@@ -80,11 +81,23 @@ export function withContextForList<
       return this.children[CHILD_KEY].getPropertyView();
     }
 
+    override node() {
+      return lastValueIfEqual(
+        this,
+        "node",
+        [this.nodeWithoutCache(), this.children.__map__, this.children[CHILD_KEY]] as const,
+        (a, b) => a[1] === b[1] && a[2] === b[2]
+      )[0];
+    }
+
     propertyView(key: string): ReactNode {
-      return (
-        this.children.__map__.children[key]?.changeDispatch(this.children[CHILD_KEY].dispatch) ??
-        this.children[CHILD_KEY]
-      ).getPropertyView();
+      const contextData = (this.children.__map__.children[key] as any)?.getContextData();
+      if (contextData) {
+        this.children[CHILD_KEY] = this.children[CHILD_KEY].reduce(
+          ContextCompCtor.changeContextDataAction(contextData)
+        );
+      }
+      return this.children[CHILD_KEY].getPropertyView();
     }
 
     override reduce(action: CompAction): this {
@@ -92,8 +105,7 @@ export function withContextForList<
 
       if (isChildAction(action) && action.path[0] === CHILD_KEY) {
         const newMap = _.mapValues(this.children.__map__.children, (comp) => {
-          const childAction = { ...action, path: _.drop(action.path) };
-          return comp.reduce(childAction);
+          return comp.reduce(ContextCompCtor.setCompAction(newComp.children.__comp__));
         });
         newComp = newComp.setChild(
           "__map__",
@@ -115,9 +127,11 @@ export function withContextForList<
         map.children[key] ??
         this.children[CHILD_KEY].changeDispatch(wrapDispatch(map.dispatch, key));
       if (input) {
-        comp = comp.reduce(ContextCompConstructor.changeContextDataAction(input));
+        comp = comp.reduce(ContextCompCtor.changeContextDataAction(input));
       }
-      map.children[key] = comp;
+      if (map.children[key] !== comp) {
+        this.children.__map__ = map.setChild(key, comp);
+      }
       return comp;
     }
   }

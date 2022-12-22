@@ -108,26 +108,44 @@ const IconItemContainer = styled.div`
   }
 `;
 
+class Icon {
+  readonly title: string;
+  constructor(readonly def: IconDefinition, readonly names: string[]) {
+    this.title = def.iconName.split("-").map(_.upperFirst).join(" ");
+  }
+  getView() {
+    return <FontAwesomeIcon icon={this.def} style={{ width: "1em", height: "1em" }} />;
+  }
+}
+
+let allIcons: Record<string, Icon> | undefined = undefined;
+
 async function getAllIcons() {
+  if (allIcons !== undefined) {
+    return allIcons;
+  }
   const [{ far }, { fas }] = await Promise.all([
     import("@fortawesome/free-regular-svg-icons"),
     import("@fortawesome/free-solid-svg-icons"),
   ]);
-
-  return Object.fromEntries(
-    Object.entries({ solid: fas, regular: far }).flatMap(([type, pack]) =>
-      Object.entries(pack).map(([k, v]) => [type + "/" + (k.startsWith("fa") ? k.slice(2) : k), v])
-    )
-  );
-}
-
-function getName(path: string) {
-  return path.slice(path.lastIndexOf("/") + 1);
-}
-
-async function getAllPaths() {
-  const allIcons = await getAllIcons();
-  return Object.values(_.groupBy(Object.keys(allIcons), getName)).flatMap((v) => v);
+  const ret: Record<string, Icon> = {};
+  for (const [type, pack] of Object.entries({ solid: fas, regular: far })) {
+    const list = Object.entries(pack);
+    for (const [k, def] of list) {
+      ret[type + "/" + def.iconName] = new Icon(def, [def.iconName]);
+    }
+    for (const [k, def] of list) {
+      const name = k.startsWith("fa") ? k.slice(2) : k;
+      ret[type + "/" + def.iconName].names.push(name);
+      // for compatibility of old data
+      const key = type + "/" + name;
+      if (ret[key] === undefined) {
+        ret[key] = new Icon(def, []);
+      }
+    }
+  }
+  allIcons = ret;
+  return ret;
 }
 
 export const iconPrefix = "/icon:";
@@ -136,62 +154,43 @@ export function removeQuote(value?: string) {
   return value ? (value.startsWith('"') && value.endsWith('"') ? value.slice(1, -1) : value) : "";
 }
 
-export function getIconPath(value?: string) {
+function getIconKey(value?: string) {
   const v = removeQuote(value);
   return v.startsWith(iconPrefix) ? v.slice(iconPrefix.length) : "";
 }
 
-function getIconViewByPath(allIcons: Record<string, IconDefinition>, path: string) {
-  if (!path) {
-    return;
-  }
-  const icon = allIcons[path];
-  if (icon !== undefined) {
-    return <FontAwesomeIcon icon={icon} style={{ width: "1em", height: "1em" }} />;
-  }
-}
-
-export function useIconViewByPath(path: string) {
-  const [view, setView] = useState<ReactNode>(null);
+export function useIcon(value?: string) {
+  const key = getIconKey(value);
+  const [icon, setIcon] = useState<Icon | undefined>(undefined);
   useEffect(() => {
-    getAllIcons().then((icons) => {
-      setView(getIconViewByPath(icons, path));
-    });
-  }, [path]);
-  return view;
+    getAllIcons().then((icons) => setIcon(icons[key]));
+  }, [key]);
+  return icon;
 }
 
-async function getIconViewByValue(value?: string) {
-  const icons = await getAllIcons();
-  return getIconViewByPath(icons, getIconPath(value));
-}
-
-export function useIconViewByValue(value?: string) {
-  const [view, setView] = useState<ReactNode>(null);
-  useEffect(() => {
-    getIconViewByValue(value).then((v) => setView(v));
-  }, [value]);
-  return view;
-}
-
-export function getDescription(path: string) {
-  return getName(path)
-    .replace(/[A-Z][a-z]+/g, (s) => " " + s + " ")
-    .replace(/[a-z][A-Z]/g, (s) => s[0] + " " + s[1])
-    .replace(/[ ]+/g, (s) => " ")
-    .trim();
-}
-
-function search(allPaths: string[], searchText: string, searchKeywords?: Record<string, string>) {
+function search(
+  allIcons: Record<string, Icon>,
+  searchText: string,
+  searchKeywords?: Record<string, string>
+) {
   const tokens = searchText
     .toLowerCase()
     .split(/\s+/g)
     .filter((t) => t);
-  return allPaths.filter((path) => {
-    const name = getName(path);
-    const desc = name.toLowerCase() + " " + (searchKeywords?.[name] ?? "");
-    return tokens.every((t) => desc.includes(t));
-  });
+  return _.sortBy(
+    Object.entries(allIcons).filter(([key, icon]) => {
+      if (icon.names.length === 0) {
+        return false;
+      }
+      let text = icon.names
+        .flatMap((name) => [name, searchKeywords?.[name]])
+        .filter((t) => t)
+        .join(" ");
+      text = (icon.title + " " + text).toLowerCase();
+      return tokens.every((t) => text.includes(t));
+    }),
+    ([key, icon]) => icon.title
+  );
 }
 
 const IconPopup = (props: {
@@ -201,29 +200,27 @@ const IconPopup = (props: {
   searchKeywords?: Record<string, string>;
 }) => {
   const [searchText, setSearchText] = useState("");
-  const [allPaths, setAllPaths] = useState<string[]>([]);
-  const [allIcons, setAllIcons] = useState<Record<string, IconDefinition>>({});
+  const [allIcons, setAllIcons] = useState<Record<string, Icon>>({});
   const searchResults = useMemo(
-    () => search(allPaths, searchText, props.searchKeywords),
-    [searchText, allPaths]
+    () => search(allIcons, searchText, props.searchKeywords),
+    [searchText, allIcons]
   );
   const onChangeRef = useRef(props.onChange);
   onChangeRef.current = props.onChange;
-  const onChangeIcon = useCallback((path: string) => onChangeRef.current(iconPrefix + path), []);
+  const onChangeIcon = useCallback((key: string) => onChangeRef.current(iconPrefix + key), []);
   const columnNum = 8;
 
   useEffect(() => {
-    getAllPaths().then(setAllPaths);
     getAllIcons().then(setAllIcons);
   }, []);
 
   const rowRenderer = useCallback(
     (p: ListRowProps) => (
       <IconRow key={p.key} style={p.style}>
-        {searchResults.slice(p.index * columnNum, (p.index + 1) * columnNum).map((path) => (
+        {searchResults.slice(p.index * columnNum, (p.index + 1) * columnNum).map(([key, icon]) => (
           <Tooltip
-            key={path}
-            title={getDescription(path)}
+            key={key}
+            title={icon.title}
             placement="bottom"
             align={{ offset: [0, -7, 0, 0] }}
             destroyTooltipOnHide
@@ -231,10 +228,10 @@ const IconPopup = (props: {
             <IconItemContainer
               tabIndex={0}
               onClick={() => {
-                onChangeIcon(path);
+                onChangeIcon(key);
               }}
             >
-              {getIconViewByPath(allIcons, path)}
+              {icon.getView()}
             </IconItemContainer>
           </Tooltip>
         ))}

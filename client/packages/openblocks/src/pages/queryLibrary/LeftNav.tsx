@@ -20,6 +20,7 @@ import { EmptyContent } from "../../components/EmptyContent";
 import { ReadOnlyMask } from "../common/styledComponent";
 import { trans } from "i18n";
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
+import { saveAs } from "file-saver";
 
 const Wrapper = styled.div<{ readOnly?: boolean }>`
   display: flex;
@@ -212,16 +213,30 @@ export const LeftNav = (props: {
                             }
                           </QueryType>
                           <EditPopover
-                            del={() =>
-                              CustomModal.confirm({
-                                title: trans("queryLibrary.deleteQueryTitle"),
-                                content: trans("queryLibrary.deleteQueryContent"),
-                                onConfirm: () =>
-                                  dispatch(deleteQueryLibrary({ queryLibraryId: q.id })),
-                                confirmBtnType: "delete",
-                                okText: trans("delete"),
-                              })
-                            }
+                            items={[
+                              {
+                                text: trans("queryLibrary.export"),
+                                onClick: () => {
+                                  const blob = new Blob([JSON.stringify(q.libraryQueryDSL)], {
+                                    type: "application/json;charset=utf-16",
+                                  });
+                                  return saveAs(blob, q.name, { autoBom: true });
+                                },
+                              },
+                              {
+                                text: trans("delete"),
+                                onClick: () =>
+                                  CustomModal.confirm({
+                                    title: trans("queryLibrary.deleteQueryTitle"),
+                                    content: trans("queryLibrary.deleteQueryContent"),
+                                    onConfirm: () =>
+                                      dispatch(deleteQueryLibrary({ queryLibraryId: q.id })),
+                                    confirmBtnType: "delete",
+                                    okText: trans("delete"),
+                                  }),
+                                type: "delete",
+                              },
+                            ]}
                           >
                             <PopoverIcon tabIndex={-1} />
                           </EditPopover>

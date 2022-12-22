@@ -1,6 +1,6 @@
 {
   "name": "openblocks-plugin-demo",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "type": "module",
   "license": "MIT",
   "dependencies": {
@@ -17,11 +17,11 @@
     "comps": {
       "hello_world": {
         "name": "Hello World",
-        "icon": "./icons/demo-icon.svg"
+        "icon": "./icons/demo-icon.png"
       },
       "counter": {
         "name": "Counter",
-        "icon": "./icons/demo-icon.svg"
+        "icon": "./icons/demo-icon.png"
       }
     }
   },

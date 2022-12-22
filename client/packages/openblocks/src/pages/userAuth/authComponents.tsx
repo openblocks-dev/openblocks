@@ -1,7 +1,7 @@
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import LoginBackground from "assets/images/loginBackground.png";
 import React, { CSSProperties, useEffect, useRef, useState } from "react";
-import { CheckBox, TacoButton } from "openblocks-design";
+import { CheckBox, PackUpIcon, TacoButton } from "openblocks-design";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import ReactHotkeys from "util/hotkeys";
@@ -295,3 +295,40 @@ export const FormWrapperMobile = styled.div`
     }
   }
 `;
+
+const BackNavLink = styled.a`
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 18px;
+  color: #222222;
+  line-height: 20px;
+  margin: 6px 0 0 -4px;
+
+  span {
+    margin-left: 4px;
+  }
+
+  &:hover {
+    color: #4965f2;
+
+    svg g path {
+      fill: #4965f2;
+    }
+  }
+`;
+
+const StyledPackUpIcon = styled(PackUpIcon)`
+  transform: rotate(-90deg);
+  width: 24px;
+  height: 24px;
+`;
+
+export function AuthNavBack(props: { onBack: () => void; style?: CSSProperties }) {
+  return (
+    <BackNavLink type="button" onClick={props.onBack} style={props.style}>
+      <StyledPackUpIcon />
+      <span>{trans("back")}</span>
+    </BackNavLink>
+  );
+}

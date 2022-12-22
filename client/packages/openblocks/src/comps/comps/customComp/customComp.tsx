@@ -53,7 +53,7 @@ const defaultCode = `
     </Card>
   );
   
-  const ConnectedComponent = MJ.connect(MyCustomComponent);
+  const ConnectedComponent = ${trans("customComp.sdkGlobalVarName")}.connect(MyCustomComponent);
   
   const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(<ConnectedComponent />);
@@ -220,7 +220,7 @@ const CustomCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
       <>
         <Section name={sectionNames.basic}>
           {children.model.propertyView({ label: trans("data") })}
-          {children.code.propertyView({ label: trans("code") })}
+          {children.code.propertyView({ label: trans("code"), language: "html" })}
         </Section>
         <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
       </>

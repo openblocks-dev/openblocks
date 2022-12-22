@@ -9,6 +9,7 @@ import {
 import { esLint, javascript } from "@codemirror/lang-javascript";
 import { sql } from "@codemirror/lang-sql";
 import { css } from "@codemirror/lang-css";
+import { html } from "@codemirror/lang-html";
 import {
   crosshairCursor,
   dropCursor,
@@ -225,6 +226,7 @@ const languageSupports: Record<Language, Extension> = {
   javascript: javascript(),
   sql: sql(),
   css: css(),
+  html: html(),
 };
 
 const keyMapExtensions = Prec.highest(

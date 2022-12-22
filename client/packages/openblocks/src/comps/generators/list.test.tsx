@@ -62,6 +62,14 @@ test("list actions", () => {
   expect(comp.getView().length).toEqual(2);
   expect(comp.getView()[0].getView()).toEqual("value3");
   expect(comp.getView()[1].getView()).toEqual("value2");
+
+  const item1 = comp.getView()[0];
+
+  comp = comp.reduce(comp.clearAction());
+  expect(comp.getView().length).toEqual(0);
+  comp = comp.reduce(comp.pushCompAction(item1));
+  expect(comp.getView().length).toEqual(1);
+  expect(comp.getView()[0].getView()).toEqual("value3");
 });
 
 test("list multi action", () => {

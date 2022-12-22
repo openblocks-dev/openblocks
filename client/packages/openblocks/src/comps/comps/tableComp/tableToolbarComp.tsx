@@ -12,6 +12,9 @@ import { trans } from "i18n";
 import _, { isNil } from "lodash";
 import { changeChildAction, ConstructorToView } from "openblocks-core";
 import {
+  AlignBottom,
+  AlignClose,
+  AlignTop,
   BluePlusIcon,
   CheckBox,
   CommonTextLabel,
@@ -31,6 +34,8 @@ import {
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { JSONValue } from "util/jsonTypes";
+import { TableOnEventView } from "comps/comps/tableComp/tableTypes";
+import { dropdownControl } from "comps/controls/dropdownControl";
 
 const SaveChangeButtons = styled.div`
   display: flex;
@@ -38,9 +43,17 @@ const SaveChangeButtons = styled.div`
   gap: 8px;
 `;
 
-const getStyle = (style: TableStyleType, filtered: boolean, theme: ThemeDetail) => {
+const getStyle = (
+  style: TableStyleType,
+  filtered: boolean,
+  theme: ThemeDetail,
+  position: ToolbarRowType["position"]
+) => {
   return css`
     background-color: ${style.toolbarBackground};
+    // Implement horizontal scrollbar and vertical page number selection is not blocked
+    padding: ${position === "above" ? "13px 16px 313px 16px" : "313px 16px 13px 16px"};
+    margin: ${position === "above" ? "0 0 -300px 0" : "-300px 0 0 0"};
 
     .toolbar-icons {
       .refresh,
@@ -128,19 +141,17 @@ const getStyle = (style: TableStyleType, filtered: boolean, theme: ThemeDetail) 
   `;
 };
 
-const FooterBarWrapper = styled.div<{
+const ToolbarWrapper = styled.div<{
   $style: TableStyleType;
   $filtered: boolean;
   theme: ThemeDetail;
+  position: ToolbarRowType["position"];
 }>`
-  // Implement horizontal scrollbar and vertical page number selection is not blocked
-  margin-top: -300px;
-  padding: 313px 16px 13px 16px;
   overflow: auto;
-  ${(props) => props.$style && getStyle(props.$style, props.$filtered, props.theme)}
+  ${(props) => props.$style && getStyle(props.$style, props.$filtered, props.theme, props.position)}
 `;
 
-const FooterBarWrapper2 = styled.div`
+const ToolbarWrapper2 = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -217,6 +228,21 @@ const filterStackOptions = [
   {
     label: trans("table.or"),
     value: "or",
+  },
+] as const;
+
+const positionOptions = [
+  {
+    label: <AlignBottom />,
+    value: "below",
+  },
+  {
+    label: <AlignTop />,
+    value: "above",
+  },
+  {
+    label: <AlignClose />,
+    value: "close",
   },
 ] as const;
 
@@ -362,7 +388,12 @@ function TableFilterView(props: {
 }) {
   const { columnKeyNames, tableFilter, onFilterChange, setVisible } = props;
   const [stackTypeState, setStackTypeState] = useState(tableFilter.stackType);
-  const [filters, setFilters] = useState<FilterItemType[]>([genFilterViewItem()]);
+  const [filters, setFilters] = useState<FilterItemType[]>(() => {
+    if (tableFilter.filters.length <= 0) {
+      return [genFilterViewItem()];
+    }
+    return tableFilter.filters.map((f) => ({ key: genRandomKey(), ...f }));
+  });
   const updateFilter = (filterItem: FilterItemType) => {
     setFilters(
       filters.map((f) =>
@@ -421,6 +452,7 @@ function TableFilterView(props: {
               <CustomSelect
                 options={columnKeyNames.map((c) => ({ label: c[1], value: c[0] }))}
                 style={{ width: "160px" }}
+                value={filter.columnKey}
                 placeholder={trans("table.chooseColumnName")}
                 allowClear
                 onChange={(value) => {
@@ -508,6 +540,7 @@ export const TableToolbarComp = (function () {
     columnSetting: BoolControl,
     searchText: StringControl,
     filter: stateComp<TableFilter>({ stackType: "and", filters: [] }),
+    position: dropdownControl(positionOptions, "below"),
   };
 
   return new MultiCompBuilder(childrenMap, (props, dispatch) => {
@@ -526,6 +559,7 @@ export const TableToolbarComp = (function () {
     .setPropertyViewFn((children) => {
       return (
         <>
+          {children.position.propertyView({ label: trans("table.position"), radioButton: true })}
           {children.showFilter.propertyView({ label: trans("table.showFilter") })}
           {children.showRefresh.propertyView({ label: trans("table.showRefresh") })}
           {children.showDownload.propertyView({ label: trans("table.showDownload") })}
@@ -653,7 +687,7 @@ function ToolbarPopover(props: {
 
 type ToolbarRowType = ConstructorToView<typeof TableToolbarComp>;
 
-export function TableFooterBar(props: {
+export function TableToolbar(props: {
   toolbar: ToolbarRowType;
   $style: TableStyleType;
   pagination: PaginationProps;
@@ -663,6 +697,7 @@ export function TableFooterBar(props: {
   hasChange: boolean;
   onSaveChanges: () => void;
   onCancelChanges: () => void;
+  onEvent: TableOnEventView;
 }) {
   const {
     toolbar,
@@ -673,6 +708,7 @@ export function TableFooterBar(props: {
     hasChange,
     onSaveChanges,
     onCancelChanges,
+    onEvent,
   } = props;
   const [filterVisible, setFilterVisible] = useState(false);
   const [settingVisible, setSettingVisible] = useState(false);
@@ -686,12 +722,13 @@ export function TableFooterBar(props: {
   const theme = useContext(ThemeContext)?.theme;
 
   return (
-    <FooterBarWrapper
+    <ToolbarWrapper
       $style={props.$style}
       theme={theme}
       $filtered={toolbar.filter.filters.length > 0}
+      position={toolbar.position}
     >
-      <FooterBarWrapper2>
+      <ToolbarWrapper2>
         <ToolbarIcons className="toolbar-icons">
           {toolbar.showRefresh && <RefreshIcon className="refresh" onClick={onRefresh} />}
           {toolbar.showFilter && (
@@ -702,7 +739,15 @@ export function TableFooterBar(props: {
                 <TableFilterView
                   columnKeyNames={columnKeyNameTuple}
                   tableFilter={toolbar.filter}
-                  onFilterChange={toolbar.onFilterChange}
+                  onFilterChange={(filters, stackType) => {
+                    if (
+                      !_.isEqual(filters, toolbar.filter.filters) ||
+                      stackType !== toolbar.filter.stackType
+                    ) {
+                      toolbar.onFilterChange(filters, stackType);
+                      onEvent("filterChange");
+                    }
+                  }}
                   setVisible={(v) => setFilterVisible(v)}
                 />
               }
@@ -730,7 +775,7 @@ export function TableFooterBar(props: {
             </Button>
           </SaveChangeButtons>
         )}
-      </FooterBarWrapper2>
-    </FooterBarWrapper>
+      </ToolbarWrapper2>
+    </ToolbarWrapper>
   );
 }

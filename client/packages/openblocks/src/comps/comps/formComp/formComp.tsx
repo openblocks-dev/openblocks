@@ -38,19 +38,22 @@ import { IForm } from "./formDataConstants";
 import { message } from "antd";
 import { BoolControl } from "comps/controls/boolControl";
 import { BottomResTypeEnum } from "types/bottomRes";
-import { JSONObjectControl } from "comps/controls/codeControl";
+import { BoolCodeControl, JSONObjectControl } from "comps/controls/codeControl";
 import { JSONObject } from "util/jsonTypes";
 import { EvalParamType } from "comps/controls/actionSelector/executeCompTypes";
 import { LayoutItem } from "layout/utils";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import log from "loglevel";
+import { DisabledContext } from "comps/generators/uiCompBuilder";
 
 const eventOptions = [submitEvent] as const;
 
 const childrenMap = {
   initialData: JSONObjectControl,
   resetAfterSubmit: BoolControl,
+  disabled: BoolCodeControl,
+  disableSubmit: BoolCodeControl,
   onEvent: eventHandlerControl(eventOptions),
 };
 
@@ -154,10 +157,12 @@ const BodyPlaceholder = (props: FormProps) => {
 const FormBaseComp = (function () {
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
     return (
-      <TriContainer
-        {...props}
-        hintPlaceholder={<BodyPlaceholder {...props} dispatch={dispatch} />}
-      />
+      <DisabledContext.Provider value={props.disabled}>
+        <TriContainer
+          {...props}
+          hintPlaceholder={<BodyPlaceholder {...props} dispatch={dispatch} />}
+        />
+      </DisabledContext.Provider>
     );
   })
     .setPropertyViewFn((children) => {
@@ -167,7 +172,11 @@ const FormBaseComp = (function () {
             {false && children.initialData.propertyView({ label: trans("formComp.initialData") })}
             {children.resetAfterSubmit.propertyView({ label: trans("formComp.resetAfterSubmit") })}
           </Section>
-          <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {disabledPropertyView(children)}
+            {children.disableSubmit.propertyView({ label: trans("formComp.disableSubmit") })}
+          </Section>
           <Section name={sectionNames.layout}>
             {children.container.getPropertyView()}
             {hiddenPropertyView(children)}
@@ -253,6 +262,9 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
     return this.setData({});
   }
   submit() {
+    if (this.disableSubmit()) {
+      return Promise.reject("disableSubmit");
+    }
     if (this.validateFormItems()) {
       const promise = this.children.onEvent.getView()("submit");
       return promise.then(() => {
@@ -265,6 +277,9 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
       message.error(trans("formComp.notValidForm"));
       return Promise.reject("formComp.notValidForm");
     }
+  }
+  disableSubmit() {
+    return this.children.disabled.getView() || this.children.disableSubmit.getView();
   }
   override reduce(action: CompAction): this {
     switch (action.type) {

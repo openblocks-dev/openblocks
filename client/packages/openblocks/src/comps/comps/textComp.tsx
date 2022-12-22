@@ -40,7 +40,8 @@ const getStyle = (style: TextStyleType) => {
       h2,
       h3,
       h4,
-      h5 {
+      h5,
+      h6 {
         color: ${style.text};
       }
       img,

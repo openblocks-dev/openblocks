@@ -99,7 +99,7 @@ let QueryCompTmp = withTypeAndChildren(QueryMap, "js", {
   runTime: stateComp<number>(0), // query run time
 
   datasourceId: StringControl,
-  triggerType: dropdownControl(TriggerTypeOptions, "automatic"),
+  triggerType: valueComp<TriggerType>("automatic"),
   // onSuccess: eventHandlerControl([{label: "", value: "after",},], "query"), offline
   // onFail: eventHandlerControl([{label: "", value: "after",},], "query"), offline
   onEvent: eventHandlerControl(EventOptions, "query"),
@@ -173,7 +173,11 @@ QueryCompTmp = class extends QueryCompTmp {
   }
 
   override reduce(action: CompAction): this {
-    if (action.type === CompActionTypes.UPDATE_NODES_V2 && getTriggerType(this) === "automatic") {
+    if (
+      action.type === CompActionTypes.UPDATE_NODES_V2 &&
+      getTriggerType(this) === "automatic" &&
+      this.children.compType.getView() !== "js"
+    ) {
       const dependValues = this.children.comp.node()?.dependValues();
       const target = this as any;
       // If the dsl has not changed, but the dependent node value has changed, then trigger the query execution

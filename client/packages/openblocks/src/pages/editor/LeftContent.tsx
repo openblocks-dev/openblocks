@@ -3,11 +3,13 @@ import {
   Collapse,
   CollapseLabel as Label,
   CollapseTitle as Title,
+  CopyTextButton,
   FoldedIcon,
   LeftClose,
   LeftCommon,
   LeftOpen,
   PadDiv,
+  ScrollBar,
   Section,
   Tooltip,
   UnfoldIcon,
@@ -18,21 +20,21 @@ import { hookCompCategory } from "comps/hooks/hookCompTypes";
 import _ from "lodash";
 import styled from "styled-components";
 import { leftCompListClassName } from "pages/tutorials/tutorialsConstant";
-import { ScrollBar } from "openblocks-design";
 import UIComp from "comps/comps/uiComp";
 import { BottomResTypeEnum } from "types/bottomRes";
-import { getTreeNodeByKey, getParentNodeKeysByKey, safeJSONStringify } from "util/objectUtils";
+import { getParentNodeKeysByKey, getTreeNodeByKey, safeJSONStringify } from "util/objectUtils";
 import { Tabs, TabTitle } from "components/Tabs";
 import { BackgroundColor, TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
 import { CompTree } from "comps/comps/containerBase";
 import { CompStateIcon } from "./editorConstants";
 import { UICompType } from "comps/uiCompRegistry";
-import { DirectoryTreeStyle, Node, CollapseWrapper } from "./styledComponents";
+import { CollapseWrapper, DirectoryTreeStyle, Node } from "./styledComponents";
 import { DataNode, EventDataNode } from "antd/lib/tree";
 
 const CollapseTitleWrapper = styled.div`
   display: flex;
+  width: fit-content;
 `;
 
 function getLen(config: string | boolean | number) {
@@ -64,6 +66,20 @@ function toDataView(value: any, name: string, desc?: ReactNode) {
     <PadDiv key={name}>
       <Tooltip title={desc} placement={"right"} popupVisible={!!desc}>
         <Label label={name} />
+        &#8203;
+      </Tooltip>
+
+      <Tooltip
+        title={
+          getLen(str) > 50 ? (
+            <div style={{ display: "flex", wordBreak: "break-all" }}>
+              {getLen(str) > 300 ? str.slice(0, 300) + "..." : str}
+              <CopyTextButton text={value} style={{ color: "#fff", margin: "4px 0 0 6px" }} />
+            </div>
+          ) : null
+        }
+        placement={"right"}
+      >
         &#8203;
         <Label color="#FF9816" label={getLen(str) > 50 ? str.slice(0, 50) + "..." : str} />
       </Tooltip>
@@ -197,11 +213,13 @@ const LeftContentTabs = styled(Tabs)`
     height: 40px;
     padding: 0 16px;
     margin: 0;
+
     .ant-tabs-tab {
       padding: 0;
       font-weight: 500;
     }
   }
+
   .ant-tabs-tabpane {
     height: calc(100vh - ${TopHeaderHeight} - 40px);
   }

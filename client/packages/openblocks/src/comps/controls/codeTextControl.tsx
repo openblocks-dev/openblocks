@@ -7,9 +7,9 @@ import { exposingDataForAutoComplete } from "comps/utils/exposingTypes";
 import { ControlPropertyViewWrapper } from "openblocks-design";
 import _ from "lodash";
 import { ReactNode, useContext, useMemo } from "react";
-import { ControlParams } from "./controlParams";
+import { CodeEditorProps } from "base/codeEditor/codeEditorTypes";
 
-interface CodeTextEditorProps extends ControlParams {
+interface CodeTextEditorProps extends Omit<CodeEditorProps, "onChange"> {
   enableExposingDataAutoCompletion?: boolean;
   codeText: string;
   onChange: (code: string) => void;
@@ -36,8 +36,8 @@ function CodeTextEditor(props: CodeTextEditorProps) {
     <CodeEditor
       {...params}
       bordered
+      disableCard
       value={codeText}
-      codeType="Function"
       exposingData={expsoingData}
       onChange={(state) => onChange(state.doc.toString())}
       enableClickCompName={editorState.forceShowGrid}
@@ -57,7 +57,7 @@ export class CodeTextControl extends valueComp<string>("") {
     }, 50);
   }
 
-  propertyView(params: ControlParams) {
+  propertyView(params: Omit<CodeTextEditorProps, "onChange" | "codeText">) {
     return (
       <ControlPropertyViewWrapper {...params}>
         <CodeTextEditor onChange={this.handleChange} codeText={this.getView()} {...params} />

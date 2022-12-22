@@ -184,7 +184,9 @@ export function resolveParsedValue(files: UploadFile[]) {
             const ext = mime.getExtension(f.originFileObj?.type ?? "");
             if (ext === "xlsx" || ext === "csv") {
               const workbook = XLSX.read(a, { raw: true });
-              return XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+              return XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {
+                raw: false,
+              });
             }
             const text = new TextDecoder("utf-8").decode(a);
             if (text) {
