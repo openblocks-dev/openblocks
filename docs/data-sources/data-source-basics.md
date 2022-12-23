@@ -33,10 +33,8 @@ You can also connect to a new data source when creating or editing queries in qu
 
 ## Permissions
 
-In Openblocks, members with permissions to create, edit, delete and use data sources **** are listed as follows:
+Only workspace admins and developers can view the **Data Sources** page and create new data sources.
 
-* **Create:** workspace admins and developers
-* **Edit** or **Delete:** workspace admins and data source creators
-* **Use**: workspace admins and developers
+For each data source, workspace admins and the creator can change its **Access Control**. Go to Openblocks homepage > **Data Sources**, and click `···` > **Access Control**.
 
-In particular, members with permissions to edit an app are automatically granted access to use existing data sources in the app.
+For more information on permissions for data sources, see [Data sources](../workspace-management/permissions-for-resources.md#data-sources).
