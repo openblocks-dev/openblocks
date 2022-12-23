@@ -37,4 +37,4 @@ Only workspace admins and developers can view the **Data Sources** page and crea
 
 For each data source, workspace admins and the creator can change its **Access Control**. Go to Openblocks homepage > **Data Sources**, and click `···` > **Access Control**.
 
-For more information on permissions for data sources, see [Data sources](../workspace-management/permissions-for-resources.md#data-sources).
+For more information about permissions for data sources, see [Data sources](../workspace-management/permissions-for-resources.md#data-sources).
