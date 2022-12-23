@@ -4,6 +4,7 @@
 * [Self-hosting](self-hosting/README.md)
   * [Access local database or API](self-hosting/access-local-database-or-api.md)
   * [DigitalOcean](self-hosting/digitalocean.md)
+  * [AWS AMI](self-hosting/aws-ami.md)
 * [Security](security.md)
 
 ## Data sources
@@ -29,6 +30,7 @@
   * [Temporary state](build-apps/write-javascript/temporary-state.md)
 * [Component guides](build-apps/component-guides/README.md)
   * [Option lists](build-apps/component-guides/option-lists.md)
+  * [List View](build-apps/component-guides/list-view.md)
   * [Image](build-apps/component-guides/image.md)
   * [Use Markdown](build-apps/component-guides/use-markdown.md)
 * [Module](build-apps/module.md)
