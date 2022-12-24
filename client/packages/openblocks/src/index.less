@@ -17,8 +17,8 @@
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "Segoe UI", "PingFang SC",
-    "Microsoft Yahei", "Hiragino Sans GB", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-    "Segoe UI Symbol", "Noto Color Emoji";
+  "Microsoft Yahei", "Hiragino Sans GB", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+  "Segoe UI Symbol", "Noto Color Emoji";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -26,14 +26,17 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
+
 /* Clear PopOver inner padding */
 .ant-popover-inner-content {
   padding: 0;
 }
+
 /* Clear PopOver arrow*/
 .ant-popover-arrow {
   display: none;
 }
+
 .ant-popover-inner {
   border-radius: 8px;
 }
@@ -53,21 +56,29 @@ code {
   z-index: 1;
   background-image: none;
 }
+
 /*tooltip inner border radius*/
 .ant-tooltip-inner {
   border-radius: 4px;
 }
+
 .ant-tooltip-placement-top .ant-tooltip-arrow {
   display: none;
 }
+
 /* message border radius */
 .ant-message .ant-message-notice .ant-message-notice-content {
   border-radius: 6px;
   max-width: calc(~'100vw - 700px');
-  min-width: 300px;
   word-break: break-word;
   white-space: pre-line;
   text-align: left;
+}
+
+@media screen and (max-width: 1000px) {
+  .ant-message .ant-message-notice .ant-message-notice-content {
+    max-width: 80%;
+  }
 }
 
 @font-face {

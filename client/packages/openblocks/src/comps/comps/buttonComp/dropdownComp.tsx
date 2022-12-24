@@ -7,7 +7,7 @@ import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { Section, sectionNames } from "openblocks-design";
 import { trans } from "i18n";
-import React from "react";
+import React, { ReactElement } from "react";
 import styled from "styled-components";
 import { ButtonEventHandlerControl } from "../../controls/eventHandlerControl";
 import { DropdownOptionControl } from "../../controls/optionsControl";
@@ -62,6 +62,8 @@ const DropdownTmpComp = (function () {
     style: withDefault(ButtonStyleControl, { background: "#FFFFFF" }),
   };
   return new UICompBuilder(childrenMap, (props) => {
+    const hasIcon =
+      props.options.findIndex((option) => (option.prefixIcon as ReactElement)?.props.value) > -1;
     const items = props.options
       .filter((option) => !option.hidden)
       .map((option, index) => ({
@@ -69,6 +71,7 @@ const DropdownTmpComp = (function () {
         label: option.label,
         key: option.label + " - " + index,
         disabled: option.disabled,
+        icon: hasIcon && <span>{option.prefixIcon}</span>,
         onEvent: option.onEvent,
       }));
     const menu = (

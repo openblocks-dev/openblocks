@@ -10,6 +10,7 @@ import { Section, sectionNames } from "openblocks-design";
 import { QRCodeSVG } from "qrcode.react";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { StringControl } from "comps/controls/codeControl";
 
 const levelOptions = [
   { label: trans("QRCode.L"), value: "L" },
@@ -22,6 +23,7 @@ const childrenMap = {
   value: stringExposingStateControl("value"),
   level: dropdownControl(levelOptions, "L"),
   includeMargin: BoolControl.DEFAULT_TRUE,
+  image: StringControl,
   style: styleControl(QRCodeStyle),
 };
 
@@ -40,6 +42,9 @@ const QRCodeView = (props: RecordConstructorToView<typeof childrenMap>) => {
       bgColor={props.style.background}
       fgColor={props.style.color}
       includeMargin={props.includeMargin}
+      imageSettings={
+        props.image ? { src: props.image, width: 0, height: 0, excavate: true } : undefined
+      }
     />
   );
 };
@@ -61,6 +66,10 @@ let QRCodeBasicComp = (function () {
         </Section>
         <Section name={sectionNames.layout}>
           {children.includeMargin.propertyView({ label: trans("QRCode.includeMargin") })}
+          {children.image.propertyView({
+            label: trans("QRCode.image"),
+            placeholder: "http://logo.jpg",
+          })}
           {hiddenPropertyView(children)}
         </Section>
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>

@@ -1,19 +1,18 @@
 import { ColorCodeControl } from "./codeControl";
-import { ColorSelect } from "openblocks-design";
+import { ColorSelect, ControlPropertyViewWrapper, IconDep } from "openblocks-design";
 import styled from "styled-components";
-import { ControlPropertyViewWrapper } from "openblocks-design";
-import { IconDep } from "openblocks-design";
 import React, { useEffect, useState } from "react";
 import { ControlParams } from "./controlParams";
 import { trans } from "i18n";
 
 const ColorContainer = styled.div`
   display: inline-flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   float: right;
   gap: 6px;
   margin-left: -24px;
+
   > div:nth-of-type(1) {
     margin: 3px 0;
   }
@@ -26,6 +25,7 @@ const DepIcon = styled(IconDep)`
 `;
 
 const ColorInput = styled.div`
+  //position: absolute;
   outline: none;
   width: 140px;
   min-height: 30px;
@@ -39,21 +39,26 @@ const DepStyle = styled.div`
   align-items: center;
   padding: 4px 8px;
   cursor: pointer;
+
   span {
     display: inline-flex;
     align-items: center;
   }
+
   span:nth-of-type(1) {
     color: #8b8fa3;
   }
+
   span:nth-of-type(2) {
     color: #315efb;
     display: none;
   }
+
   &:hover {
     span:nth-of-type(1) {
       display: none;
     }
+
     span:nth-of-type(2) {
       display: inline-flex;
     }
@@ -84,13 +89,10 @@ function ColorItem(props: {
   const [showDep, setShowDep] = useState(param.isDep);
   const [focus, setFocus] = useState(false);
   const inputRef = React.createRef<HTMLDivElement>();
+  const containerRef = React.createRef<HTMLDivElement>();
 
   const input = propertyView.call(controlThis, {
     placeholder: param.panelDefaultColor,
-    expandable: false,
-    onFocus: (focused) => {
-      setFocus(focused);
-    },
   });
 
   function defaultFocus() {
@@ -104,22 +106,35 @@ function ColorItem(props: {
     if (inputRef.current) {
       if (focus) defaultFocus();
     }
-  }, [inputRef]);
+  }, [focus]);
 
   const color = controlThis.getView();
   useEffect(() => {
     setShowDep(param.isDep && !focus && !color);
   }, [color, focus, param.isDep]);
 
+  useEffect(() => {
+    const handler = (event: any) => {
+      if (containerRef.current && !containerRef.current?.contains(event.target)) {
+        setFocus(false);
+      }
+    };
+    document.addEventListener("click", handler);
+    return () => {
+      document.removeEventListener("click", handler);
+    };
+  }, [containerRef]);
+
   return (
     <ControlPropertyViewWrapper label={param.label} labelEllipsis>
-      <ColorContainer>
+      <ColorContainer ref={containerRef}>
         <ColorSelect
           dispatch={controlThis.dispatch}
           color={param.panelDefaultColor || color || DEFAULT_COLOR}
         />
-        {showDep ? (
+        <div style={{ display: "flex" }}>
           <DepStyle
+            hidden={!showDep}
             onClick={() => {
               setShowDep(false);
               setFocus(true);
@@ -131,9 +146,10 @@ function ColorItem(props: {
             </span>
             <span>{trans("style.customize")}</span>
           </DepStyle>
-        ) : (
-          <ColorInput ref={inputRef}>{input}</ColorInput>
-        )}
+          <ColorInput ref={inputRef} hidden={showDep} onClick={() => setFocus(true)}>
+            {input}
+          </ColorInput>
+        </div>
       </ColorContainer>
     </ControlPropertyViewWrapper>
   );

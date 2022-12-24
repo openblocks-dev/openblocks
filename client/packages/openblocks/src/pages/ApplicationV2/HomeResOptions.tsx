@@ -70,15 +70,14 @@ export const HomeResOptions = (props: {
       options = [
         ...options,
         {
-          text: trans("delete"),
+          text: trans("home.moveToTrash"),
           type: "delete",
           onClick: () => {
             CustomModal.confirm({
-              title: trans("home.deleteElementTitle", {
-                name: HomeResInfo[res.type].name.toLowerCase(),
-              }),
+              title: trans("home.moveToTrash"),
               content: trans("home.moveToTrashSubTitle", {
-                name: HomeResInfo[res.type].name.toLowerCase(),
+                type: HomeResInfo[res.type].name,
+                name: res.name,
               }),
               onConfirm: () =>
                 new Promise((resolve, reject) => {
@@ -94,7 +93,7 @@ export const HomeResOptions = (props: {
                   );
                 }),
               confirmBtnType: "delete",
-              okText: trans("delete"),
+              okText: trans("home.moveToTrash"),
             });
           },
         },
@@ -112,8 +111,11 @@ export const HomeResOptions = (props: {
           type: "delete",
           onClick: () => {
             CustomModal.confirm({
-              title: trans("home.deleteElementTitle", { name: HomeResInfo[res.type].name }),
-              content: trans("home.deleteElementSubTitle", { name: HomeResInfo[res.type].name }),
+              title: trans("home.deleteElementTitle"),
+              content: trans("home.deleteElementSubTitle", {
+                type: HomeResInfo[res.type].name.toLowerCase(),
+                name: res.name,
+              }),
               onConfirm: () =>
                 new Promise((resolve, reject) => {
                   dispatch(

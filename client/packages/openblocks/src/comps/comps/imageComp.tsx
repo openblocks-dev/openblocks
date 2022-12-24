@@ -5,7 +5,7 @@ import { StringStateControl } from "../controls/codeStateControl";
 import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { RecordConstructorToView } from "openblocks-core";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import _ from "lodash";
 import ReactResizeDetector from "react-resize-detector";
 import { styleControl } from "comps/controls/styleControl";
@@ -59,19 +59,28 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
 
-  const newImage = new Image(0, 0);
-  newImage.src = props.src.value;
-  newImage.onload = function () {
-    setWidth(newImage.naturalWidth);
-    setHeight(newImage.naturalHeight);
-    onResize();
-  };
-  // on safari
-  newImage.onerror = function () {
-    setWidth(imgRef.current?.clientWidth!);
-    setHeight(imgRef.current?.clientHeight!);
-    onResize();
-  };
+  const imgOnload = (img: HTMLImageElement) => {
+    img.onload = function () {
+      setWidth(img.naturalWidth);
+      setHeight(img.naturalHeight);
+    };
+  }
+
+  useEffect(() => {
+    const newImage = new Image(0, 0);
+    newImage.src = props.src.value;
+    imgOnload(newImage);
+    newImage.onerror = function (e) {
+      newImage.src = DEFAULT_IMG_URL;
+      imgOnload(newImage);
+    };
+  }, [props.src.value]);
+
+  useEffect(() =>{
+    if (height && width) {
+      onResize();
+    }
+  }, [height, width])
 
   // on safari
   const setStyle = (height: string, width: string) => {

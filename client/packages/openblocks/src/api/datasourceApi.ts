@@ -77,7 +77,7 @@ export interface HttpConfig {
   url: string;
   headers: KeyValue;
   params: KeyValue;
-  body: string;
+  // body: string;
   bodyFormData: KeyValue;
 
   authConfig: {

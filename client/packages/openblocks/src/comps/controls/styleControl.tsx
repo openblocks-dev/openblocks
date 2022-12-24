@@ -126,43 +126,54 @@ const TitleDiv = styled.div`
 const StyleContent = styled.div`
   border: 1.07px solid #d7d9e0;
   border-radius: 6px;
+
   .cm-editor,
   .cm-editor:hover,
   .cm-editor.cm-focused {
     border: none;
     box-shadow: none;
   }
+
   > div {
     padding: 1px 0 1px 12px;
     border-bottom: 1px solid #d7d9e0;
+
     &:hover,
     &:focus {
       background: #fafafa;
+
       .cm-content {
         background: #fafafa;
       }
     }
+
     > div {
-      align-items: flex-start;
+      align-items: center;
       flex-direction: row;
       gap: 0;
+
       > div:nth-of-type(1) {
         flex: 0 0 96px;
+
         div {
           line-height: 30px;
         }
       }
+
       > svg {
         height: 30px;
       }
+
       > div:nth-of-type(2) {
         flex: 1 1 auto;
       }
     }
   }
+
   > div:nth-of-type(1) {
     border-radius: 6px 6px 0 0;
   }
+
   > div:nth-last-of-type(1) {
     border: none;
     border-radius: 0 0 6px 6px;

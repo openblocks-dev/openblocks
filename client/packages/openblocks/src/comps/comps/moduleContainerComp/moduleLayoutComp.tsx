@@ -21,8 +21,14 @@ import { ModuleContainerComp } from "./moduleContainerComp";
 import { ModuleEventComp } from "./moduleEventListComp";
 import ModuleMethodListComp from "./moduleMethodListComp";
 import { ConfigViewWrapper } from "./styled";
+import { CNRootContainer } from "constants/styleSelectors";
+import styled from "styled-components";
 
 export const MODULE_LAYOUT_COMP = "@moduleLayoutComp";
+
+const ModulePreviewWrapper = styled.div`
+  height: 100%;
+`;
 
 const defaultHeight = 57;
 const defaultWidth = 24;
@@ -57,7 +63,9 @@ function ModuleLayoutView(props: IProps) {
   const { readOnly } = useContext(ExternalEditorContext);
 
   if (readOnly) {
-    return props.containerView;
+    return (
+      <ModulePreviewWrapper className={CNRootContainer}>{props.containerView}</ModulePreviewWrapper>
+    );
   }
 
   const layout = {

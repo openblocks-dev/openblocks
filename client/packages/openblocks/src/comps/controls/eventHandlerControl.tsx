@@ -1,29 +1,30 @@
-import { list } from "comps/generators/list";
+import EmptyItem from "components/EmptyItem";
+import { CustomListAction, list } from "comps/generators/list";
 import { simpleMultiComp } from "comps/generators/multi";
-import { CustomPopover, EditPopover } from "openblocks-design";
-import { OptionType, ValueFromOption } from "openblocks-design";
+import { trans } from "i18n";
 import _ from "lodash";
-import { Fragment, ReactNode, useContext, useEffect, useState } from "react";
-import { memo } from "util/cacheUtils";
+import { DispatchType } from "openblocks-core";
 import {
   AddBtn,
   AddEventIcon,
   AddLine,
+  CustomPopover,
+  EditPopover,
   EventAction,
   EventContent,
   EventDiv,
   EventTitle,
   Icon,
   InlineEventFormWrapper,
+  OptionType,
+  QueryConfigItemWrapper,
+  ValueFromOption,
 } from "openblocks-design";
-import { QueryConfigItemWrapper } from "openblocks-design";
-import { CustomAction } from "openblocks-core";
-import EmptyItem from "components/EmptyItem";
-import { DispatchType } from "openblocks-core";
+import { Fragment, ReactNode, useContext, useEffect, useState } from "react";
+import { memo } from "util/cacheUtils";
 import { EditorContext } from "../editorState";
 import { ActionSelectorControl } from "./actionSelector/actionSelectorControl";
 import { dropdownControl } from "./dropdownControl";
-import { trans } from "i18n";
 
 export interface EventConfigType extends OptionType {
   readonly description: string;
@@ -125,8 +126,8 @@ class SingleEventHandlerControl<T extends EventConfigsType> extends simpleMultiC
 
 const EventHandlerControlPropertyView = (props: {
   dispatch: DispatchType;
-  pushAction: (value: any) => CustomAction;
-  deleteAction: (index: number) => CustomAction;
+  pushAction: (value: any) => CustomListAction<typeof SingleEventHandlerControl>;
+  deleteAction: (index: number) => CustomListAction<typeof SingleEventHandlerControl>;
   items: InstanceType<typeof SingleEventHandlerControl>[];
   inline?: boolean;
   title?: ReactNode;
@@ -294,6 +295,11 @@ export const closeEvent: EventConfigType = {
   value: "close",
   description: trans("event.closeDesc"),
 };
+export const successEvent: EventConfigType = {
+  label: trans("event.success"),
+  value: "success",
+  description: trans("event.closeDesc"),
+};
 
 export const InputEventHandlerControl = eventHandlerControl([
   changeEvent,
@@ -310,4 +316,10 @@ export const SelectEventHandlerControl = eventHandlerControl([
   changeEvent,
   focusEvent,
   blurEvent,
+] as const);
+
+export const ScannerEventHandlerControl = eventHandlerControl([
+  clickEvent,
+  successEvent,
+  closeEvent,
 ] as const);

@@ -127,7 +127,10 @@ const ButtonTmpComp = (function () {
           <Button100
             $buttonStyle={props.style}
             loading={props.loading}
-            disabled={props.disabled}
+            disabled={
+              props.disabled ||
+              (!isDefault(props.type) && getForm(editorState, props.form)?.disableSubmit())
+            }
             onClick={() =>
               isDefault(props.type) ? props.onEvent("click") : submitForm(editorState, props.form)
             }

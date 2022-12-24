@@ -211,6 +211,7 @@ function JavaScriptTabPane(props: { comp: ConstructorToComp<typeof ScriptComp> }
       {props.comp.propertyView({
         expandable: false,
         styleName: "window",
+        codeType: "Function",
         language: "javascript",
         placeholder: codePlaceholder,
       })}
@@ -223,7 +224,7 @@ function CSSTabPane(props: { comp: CSSComp }) {
     props.comp.applyAllCSS();
   }, [props.comp]);
 
-  const codePlaceholder = `.text1 {\n  background-color: red; \n}`;
+  const codePlaceholder = `.top-header {\n  background-color: red; \n}`;
 
   return (
     <>

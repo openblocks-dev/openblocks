@@ -9,7 +9,6 @@ import {
   ValueAndMsg,
 } from "openblocks-core";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
-import { DeleteInputIcon, useIconViewByPath, useIconViewByValue } from "openblocks-design";
 import styled from "styled-components";
 import { ReactNode, useCallback, useState } from "react";
 import { BlockGrayLabel, TacoButton } from "openblocks-design";
@@ -18,8 +17,8 @@ import { StringControl } from "./codeControl";
 import { SwitchJsIcon, SwitchWrapper } from "openblocks-design";
 import { ControlPropertyViewWrapper } from "openblocks-design";
 import {
-  getDescription,
-  getIconPath,
+  DeleteInputIcon,
+  useIcon,
   iconPrefix,
   IconSelect,
   IconSelectBase,
@@ -67,9 +66,7 @@ const IconPicker = (props: {
   onChange: (value: string) => void;
   label?: ReactNode;
 }) => {
-  const path = getIconPath(props.value);
-  const icon = useIconViewByPath(path);
-  const description = getDescription(path);
+  const icon = useIcon(props.value);
   return (
     <IconSelect
       onChange={props.onChange}
@@ -79,8 +76,8 @@ const IconPicker = (props: {
       <TacoButton style={{ width: "100%" }}>
         {icon ? (
           <ButtonWrapper>
-            <ButtonIconWrapper>{icon}</ButtonIconWrapper>
-            <ButtonText title={description}>{description}</ButtonText>
+            <ButtonIconWrapper>{icon.getView()}</ButtonIconWrapper>
+            <ButtonText title={icon.title}>{icon.title}</ButtonText>
             <StyledDeleteInputIcon
               onClick={(e) => {
                 props.onChange("");
@@ -110,8 +107,8 @@ function onClickIcon(e: React.MouseEvent, v: EditorView) {
 }
 
 function IconSpan(props: { value: string }) {
-  const view = useIconViewByValue(props.value);
-  return <span>{view ?? props.value}</span>;
+  const icon = useIcon(props.value);
+  return <span>{icon?.getView() ?? props.value}</span>;
 }
 
 function cardRichContent(s: string) {
@@ -202,9 +199,9 @@ type ChangeModeAction = {
 
 function IconControlView(props: { value: string }) {
   const { value } = props;
-  const view = useIconViewByValue(value);
-  if (view) {
-    return <>{view}</>;
+  const icon = useIcon(value);
+  if (icon) {
+    return icon.getView();
   }
   return <StyledImage src={value} alt="" />;
 }

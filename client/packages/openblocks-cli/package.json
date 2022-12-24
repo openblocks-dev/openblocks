@@ -1,7 +1,7 @@
 {
   "name": "openblocks-cli",
   "description": "CLI tool used to start build publish openblocks components",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "bin": "./index.js",
   "type": "module",
   "exports": {

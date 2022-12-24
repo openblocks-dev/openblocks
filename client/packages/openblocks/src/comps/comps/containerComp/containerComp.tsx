@@ -10,17 +10,26 @@ import {
   ContainerChildren,
   ContainerCompBuilder,
 } from "../triContainerComp/triContainerCompBuilder";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { BoolCodeControl } from "comps/controls/codeControl";
+import { DisabledContext } from "comps/generators/uiCompBuilder";
 
 export const ContainerBaseComp = (function () {
-  const childrenMap = {};
+  const childrenMap = {
+    disabled: BoolCodeControl,
+  };
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
-    return <TriContainer {...props} />;
+    return (
+      <DisabledContext.Provider value={props.disabled}>
+        <TriContainer {...props} />
+      </DisabledContext.Provider>
+    );
   })
     .setPropertyViewFn((children) => {
       return (
         <>
+          <Section name={sectionNames.interaction}>{disabledPropertyView(children)}</Section>
           <Section name={sectionNames.layout}>
             {children.container.getPropertyView()}
             {hiddenPropertyView(children)}

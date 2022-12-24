@@ -1,7 +1,10 @@
+import _ from "lodash";
+import { changeChildAction, DispatchType } from "openblocks-core";
 import { constantColors } from "openblocks-design";
-import React, { ReactElement, ReactNode, useCallback, useMemo, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { developEnv } from "util/envUtils";
+import { JSONValue } from "util/jsonTypes";
 
 export const TABLE_EDITABLE_SWITCH_ON = developEnv();
 export type UpdateChangeSet<T> = (value: T) => void;
@@ -26,6 +29,11 @@ export interface CellProps {
   size?: string;
 }
 export type CellViewReturn = (props: CellProps) => ReactNode;
+export type EditViewFn<T> = (props: {
+  value: T;
+  onChange: (value: T) => void;
+  onChangeEnd: () => void;
+}) => ReactNode;
 
 export const SizeWrapper = styled.div<{ $size?: string }>`
   ${(props) =>
@@ -45,25 +53,43 @@ const BorderDiv = styled.div`
 `;
 
 interface EditableCellProps<T> extends CellProps {
-  status?: "normal" | "toSave";
   normalView: ReactNode;
-  editView?: ReactElement<{ updateChangeSet?: UpdateChangeSet<T> }>;
-  updateChangeSet: UpdateChangeSet<T>;
+  dispatch: DispatchType;
+
+  editViewFn?: EditViewFn<T>;
+  baseValue?: T;
+  changeValue?: T | null;
 }
 
-export function EditableCell<T>(props: EditableCellProps<T>) {
-  const { editable, normalView, status } = props;
+export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
+  const { dispatch, normalView, editViewFn, changeValue, baseValue } = props;
+  const status = _.isNil(changeValue) ? "normal" : "toSave";
+  const editable = editViewFn ? props.editable : false;
   const [isEditing, setIsEditing] = useState(false);
-  const updateChangeSet = useCallback(
+  const value = changeValue ?? baseValue!;
+
+  const [tmpValue, setTmpValue] = useState<T | null>(value);
+  useEffect(() => {
+    setTmpValue(value);
+  }, [value]);
+  const onChange = useCallback(
     (value: T) => {
-      setIsEditing(false);
-      props.updateChangeSet(value);
+      setTmpValue(value);
     },
-    [props.updateChangeSet]
+    [setTmpValue]
   );
+  const onChangeEnd = useCallback(() => {
+    setIsEditing(false);
+    dispatch(
+      changeChildAction(
+        "changeValue",
+        _.isNil(tmpValue) || _.isEqual(tmpValue, baseValue) ? null : tmpValue
+      )
+    );
+  }, [dispatch, baseValue, tmpValue]);
   const editView = useMemo(
-    () => (props.editView ? React.cloneElement(props.editView, { updateChangeSet }) : <></>),
-    [props.editView, updateChangeSet]
+    () => editViewFn?.({ value, onChange, onChangeEnd }) ?? <></>,
+    [editViewFn, value, onChange, onChangeEnd]
   );
   const enterEditFn = useCallback(() => {
     if (editable) setIsEditing(true);
@@ -86,4 +112,13 @@ export function EditableCell<T>(props: EditableCellProps<T>) {
       </SizeWrapper>
     </>
   );
+}
+
+export function updateChangeValueFn<T extends JSONValue>(
+  dispatch: DispatchType,
+  equalOriginFn: (value: T) => boolean
+) {
+  return (value: T) => {
+    dispatch(changeChildAction("changeValue", equalOriginFn(value) ? null : value));
+  };
 }

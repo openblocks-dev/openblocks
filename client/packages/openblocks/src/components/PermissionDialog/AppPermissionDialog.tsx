@@ -82,6 +82,7 @@ export const AppPermissionDialog = (props: {
     <PermissionDialog
       {...props}
       title={SHARE_TITLE}
+      ownerLabel={trans("home.allPermissions")}
       viewBodyRender={(list) => {
         if (!appPermissionInfo) {
           return <StyledLoading size={18} />;

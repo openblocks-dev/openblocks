@@ -8,7 +8,7 @@ import {
   MultiBaseComp,
 } from "openblocks-core";
 import { ArrayControl, BoolCodeControl, StringControl } from "comps/controls/codeControl";
-import { dropdownControl } from "comps/controls/dropdownControl";
+import { dropdownControl, LeftRightControl } from "comps/controls/dropdownControl";
 import { MultiCompBuilder, valueComp, withContext, withDefault } from "comps/generators";
 import { list } from "comps/generators/list";
 import { ToViewReturn } from "comps/generators/multi";
@@ -22,6 +22,7 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import styled from "styled-components";
 import { ViewDocIcon } from "assets/icons";
+import { IconControl } from "comps/controls/iconControl";
 
 const OptionTypes = [
   {
@@ -48,6 +49,18 @@ type OptionControlParam = {
   // The new option's label name
   newOptionLabel?: string;
 };
+
+type OptionPropertyParam = {
+  autoMap?: boolean;
+};
+
+interface OptionCompProperty {
+  propertyView(param: OptionPropertyParam): React.ReactNode;
+}
+
+function hasPropertyView(comp: any): comp is OptionCompProperty {
+  return !!(comp as any).propertyView;
+}
 
 // Add dataIndex to each comp, required for drag and drop sorting
 function withDataIndex<T extends OptionsControlType>(VariantComp: T) {
@@ -135,7 +148,9 @@ export function manualOptionsControl<T extends OptionsControlType>(
         <Option
           itemTitle={(comp) => comp.children.label.getView()}
           popoverTitle={() => trans("edit")}
-          content={(comp) => comp.getPropertyView()}
+          content={(comp) => {
+            return hasPropertyView(comp) ? comp.propertyView({}) : comp.getPropertyView();
+          }}
           items={manualComp.getView()}
           onAdd={() => {
             const label = getNextEntityName(
@@ -233,7 +248,9 @@ export function mapOptionsControl<T extends OptionsControlType>(
       <>
         {children.data.propertyView({ label: trans("data") })}
         <AutoArea>
-          {children.mapData.getPropertyView()}
+          {hasPropertyView(children.mapData)
+            ? children.mapData.propertyView({ autoMap: true })
+            : children.mapData.getPropertyView()}
           {OptionTip}
         </AutoArea>
       </>
@@ -324,7 +341,7 @@ export function optionsControl<T extends OptionsControlType>(
   };
 }
 
-const SelectInputOption = new MultiCompBuilder(
+let SelectInputOption = new MultiCompBuilder(
   {
     value: StringControl,
     label: StringControl,
@@ -332,16 +349,23 @@ const SelectInputOption = new MultiCompBuilder(
     hidden: BoolCodeControl,
   },
   (props) => props
-)
-  .setPropertyViewFn((children) => (
-    <>
-      {children.label.propertyView({ label: trans("label"), placeholder: "{{item}}" })}
-      {children.value.propertyView({ label: trans("value") })}
-      {disabledPropertyView(children)}
-      {hiddenPropertyView(children)}
-    </>
-  ))
-  .build();
+).build();
+
+SelectInputOption = class extends SelectInputOption implements OptionCompProperty {
+  propertyView(param: { autoMap?: boolean }) {
+    return (
+      <>
+        {this.children.label.propertyView({
+          label: trans("label"),
+          placeholder: param.autoMap ? "{{item}}" : "",
+        })}
+        {this.children.value.propertyView({ label: trans("value") })}
+        {disabledPropertyView(this.children)}
+        {hiddenPropertyView(this.children)}
+      </>
+    );
+  }
+};
 
 export const SelectInputOptionControl = optionsControl(SelectInputOption, {
   initOptions: [
@@ -354,6 +378,7 @@ export const SelectInputOptionControl = optionsControl(SelectInputOption, {
 const DropdownOption = new MultiCompBuilder(
   {
     label: StringControl,
+    prefixIcon: IconControl,
     disabled: BoolCodeControl,
     hidden: BoolCodeControl,
     onEvent: ButtonEventHandlerControl,
@@ -363,6 +388,7 @@ const DropdownOption = new MultiCompBuilder(
   .setPropertyViewFn((children) => (
     <>
       {children.label.propertyView({ label: trans("label"), placeholder: "{{item}}" })}
+      {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
       {disabledPropertyView(children)}
       {hiddenPropertyView(children)}
       {children.onEvent.getPropertyView()}
@@ -382,6 +408,8 @@ const TabsOption = new MultiCompBuilder(
     id: valueComp<number>(-1),
     label: StringControl,
     key: StringControl,
+    icon: IconControl,
+    iconPosition: withDefault(LeftRightControl, "left"),
     hidden: BoolCodeControl,
   },
   (props) => props
@@ -390,6 +418,11 @@ const TabsOption = new MultiCompBuilder(
     <>
       {children.key.propertyView({ label: trans("value") })}
       {children.label.propertyView({ label: trans("label") })}
+      {children.icon.propertyView({ label: trans("icon") })}
+      {children.iconPosition.propertyView({
+        label: trans("tabbedContainer.iconPosition"),
+        radioButton: true,
+      })}
       {hiddenPropertyView(children)}
     </>
   ))
