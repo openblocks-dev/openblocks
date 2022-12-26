@@ -24,7 +24,7 @@
       "required": false
     },
     "CORS_ALLOWED_DOMAINS": {
-      "description": "The domains supported for CORS requests. If there are multiple domain names, please separate them with commas",
+      "description": "The domains supported for CORS requests. All domains are allowed by default. If there are multiple domains, please separate them with commas.",
       "required": false
     },
     "MONGODB_URI": {
