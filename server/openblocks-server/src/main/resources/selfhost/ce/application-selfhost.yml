@@ -3,7 +3,7 @@ common:
     password: ${ENCRYPTION_PASSWORD:openblocks.dev}
     salt: ${ENCRYPTION_SALT:openblocks.dev}
   security:
-    cors-allowed-domains: ${CORS_ALLOWED_DOMAINS:*}
+    corsAllowedDomainString: ${CORS_ALLOWED_DOMAINS:*}
   max-query-request-size-in-mb: 20
   max-query-response-size-in-mb: 20
   workspace:

@@ -13,5 +13,27 @@
       "quantity": 1,
       "size": "standard-2x"
     }
+  },
+  "env": {
+    "ENCRYPTION_PASSWORD": {
+      "description": "The encryption password used to encrypt all sensitive credentials in the database. You can use any random string (eg abcd).",
+      "required": false
+    },
+    "ENCRYPTION_SALT": {
+      "description": "The encryption salt used to encrypt all sensitive credentials in the database. You can use any random string (eg abcd).",
+      "required": false
+    },
+    "CORS_ALLOWED_DOMAINS": {
+      "description": "The domains supported for CORS requests. All domains are allowed by default. If there are multiple domains, please separate them with commas.",
+      "required": false
+    },
+    "MONGODB_URI": {
+      "description": "Your Mongo Database URI.",
+      "required": false
+    },
+    "REDIS_URL": {
+      "description": "Your Redis Database URL.",
+      "required": false
+    }
   }
 }
