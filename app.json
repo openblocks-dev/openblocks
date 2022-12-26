@@ -24,7 +24,7 @@
       "required": false
     },
     "CORS_ALLOWED_DOMAINS": {
-      "description": "If not filled, the default value is *",
+      "description": "The domains supported for CORS requests. If there are multiple domain names, please separate them with commas",
       "required": false
     },
     "MONGODB_URI": {
@@ -32,7 +32,7 @@
       "required": false
     },
     "REDIS_URL": {
-      "description": "Your Redis Database URI.",
+      "description": "Your Redis Database URL.",
       "required": false
     }
   }
