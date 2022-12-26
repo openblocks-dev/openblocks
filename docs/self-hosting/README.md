@@ -10,7 +10,7 @@ description: Host Openblocks on your own device using Docker or Docker-Compose.
 * [Docker-Compose](https://docs.docker.com/compose/install/) (version 1.29.2 or above)
 
 {% hint style="info" %}
-System minimum requirements: 2-core CPU and 4 GB RAM.
+Recommended system spec: 1-core CPU and 2 GB RAM.
 
 Windows users are recommended to use PowerShell for running commands below.
 {% endhint %}

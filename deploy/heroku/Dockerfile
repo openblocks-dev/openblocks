@@ -1,3 +1,3 @@
-FROM openblocksdev/openblocks-ce
+FROM openblocksdev/openblocks-ce:heroku
 
 LABEL maintainer="openblocks"

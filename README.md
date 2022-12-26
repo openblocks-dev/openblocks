@@ -78,3 +78,4 @@ You can access Openblocks from [cloud-hosted version](https://cloud.openblocks.d
 - [generate PDF using jsPdf](https://cloud.openblocks.dev/apps/6388610b0a254922d92e3882/view)
 - [Excel Explorer](https://cloud.openblocks.dev/apps/6392ff5d51cd8a59114b0c2c/view)
 - [File upload with REST API](https://cloud.openblocks.dev/apps/63a2651e660ad97d59eb4a51/view)
+- [Shopping cart demo using transformers/state/drawer](https://cloud.openblocks.dev/apps/63a422a344075b798fe3ae06/view)

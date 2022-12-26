@@ -14,9 +14,11 @@ You can deploy Openblocks on DigitalOcean using our [Openblocks docker image](ht
 4.  The Openblocks image should already be listed as shown below, so you don't need to choose here.
 
     <figure><img src="../.gitbook/assets/DigitalOcean-3.png" alt=""><figcaption></figcaption></figure>
-5.  Choose a plan and size for your Droplet, which determines its RAM, disk space, and vCPUs as well as its price. Note that the **Basic** shared CPU with **Regular with SSD (1 GB CPU / 25GB SSD Disk / 1000GB transfer)** CPU option is more than capable of hosting an Openblocks instance.
+5.  Choose a plan and size for your Droplet, which determines its RAM, disk space, and vCPUs as well as its price. We'd recommend a system spec with **1 core CPU and 2 GB RAM** or the above.
 
     <figure><img src="../.gitbook/assets/DigitalOcean-4.png" alt=""><figcaption></figcaption></figure>
+
+    Note that the **Basic** shared CPU with **Regular with SSD (1 GB CPU / 25GB SSD Disk / 1000GB transfer)** CPU option is more than capable of hosting an Openblocks instance.
 6.  Choose an [SSH key](https://docs.digitalocean.com/products/droplets/how-to/add-ssh-keys/) if you've added one, or create a root password for the Droplet.
 
     <figure><img src="../.gitbook/assets/DigitalOcean-5.png" alt=""><figcaption></figcaption></figure>
@@ -32,8 +34,6 @@ You can deploy Openblocks on DigitalOcean using our [Openblocks docker image](ht
 For more help, see [Droplets | DigitalOcean Documentation](https://docs.digitalocean.com/products/droplets/).
 {% endhint %}
 
-## Sign up
-
 After deployment, your new Openblocks instance should be available at **http://your\_droplet\_public\_ipv4:3000**.
 
 <figure><img src="../.gitbook/assets/DigitalOcean-8.png" alt=""><figcaption></figcaption></figure>
@@ -44,16 +44,23 @@ In the welcome page, Click **Sign up** to get started. Openblocks will automatic
 
 ## Droplet Web Console
 
+You can use Droplet Web Console to connect to your instance to update the image or customize deployment configurations.&#x20;
+
 Find the deployed droplet in your [DigitalOcean projects](https://cloud.digitalocean.com/) and redirect to its details page. Click **Console** on the right to enter the Droplet Web Console.
 
 <figure><img src="../.gitbook/assets/DigitalOcean-10.png" alt=""><figcaption></figcaption></figure>
 
 <figure><img src="../.gitbook/assets/DigitalOcean-11.png" alt=""><figcaption></figcaption></figure>
 
-## Update
+### Update
 
 For information about how to update the Openblocks image to the latest version, see [Update](./#update).
 
-## Customize deployment configurations
+### Customize deployment configurations
+
+| Location                                                     | Usage                                               |
+| ------------------------------------------------------------ | --------------------------------------------------- |
+| <p><code>~/openblocks/docker-compose.yml</code><br></p>      | Setting up Docker ports, volumes, environments etc. |
+| `~/openblocks/stacks/configuration/application-selfhost.yml` | Setting up Openblocks server configurations         |
 
 For information about how to customize deployment configurations, see [Customize deployment configurations](./#customize-deployment-configurations).
