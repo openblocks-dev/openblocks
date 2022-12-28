@@ -60,6 +60,14 @@ public final class JsonUtils {
         }
     }
 
+    public static <T> T fromJsonQuietly(String obj, Class<T> tClass) {
+        try {
+            return objectMapper.readValue(obj, tClass);
+        } catch (JsonProcessingException e) {
+            return null;
+        }
+    }
+
     public static List<Object> fromJsonList(String obj) {
         return fromJsonList(obj, Object.class);
     }

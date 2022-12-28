@@ -29,7 +29,7 @@ public class Connection {
     private static final long serialVersionUID = -9218373922209100577L;
 
     @NotEmpty
-    private final String source;
+    private String source;
 
     @NotEmpty
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

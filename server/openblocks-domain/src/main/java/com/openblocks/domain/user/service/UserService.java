@@ -48,5 +48,7 @@ public interface UserService {
     Mono<Boolean> setPassword(String userId, String password);
 
     Mono<CurrentUser> buildCurrentUser(User user, boolean withoutDynamicGroups);
+
+    Mono<Boolean> markUserDeletedAndInvalidConnectionsAtEnterpriseMode(String userId);
 }
 

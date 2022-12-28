@@ -26,7 +26,7 @@ common:
   domain:
     default-value: openblocks.dev
   cloud: false
-  version: 1.1.1
+  version: 1.1.2
   block-hound-enable: false
 
 material:

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -97,5 +98,13 @@ public class User extends HasIdAndAuditing {
 
     public record TransformedUserInfo(long updateTime, Map<String, Object> extra) {
 
+    }
+
+    public void markAsDeleted() {
+        this.setState(UserState.DELETED);
+        this.setIsEnabled(false);
+        SetUtils.emptyIfNull(this.getConnections())
+                .forEach(connection -> connection.setSource(
+                        connection.getSource() + "(User deleted at " + System.currentTimeMillis() / 1000 + ")"));
     }
 }

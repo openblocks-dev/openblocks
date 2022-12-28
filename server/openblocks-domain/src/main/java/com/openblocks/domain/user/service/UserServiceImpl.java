@@ -8,7 +8,6 @@ import static com.openblocks.sdk.util.ExceptionUtils.ofError;
 import static com.openblocks.sdk.util.ExceptionUtils.ofException;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -28,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import com.openblocks.domain.asset.model.Asset;
 import com.openblocks.domain.asset.service.AssetService;
 import com.openblocks.domain.encryption.EncryptionService;
@@ -45,10 +43,12 @@ import com.openblocks.domain.user.model.User.TransformedUserInfo;
 import com.openblocks.domain.user.model.UserState;
 import com.openblocks.domain.user.repository.UserRepository;
 import com.openblocks.infra.mongo.MongoUpsertHelper;
+import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.config.dynamic.Conf;
 import com.openblocks.sdk.config.dynamic.ConfigCenter;
 import com.openblocks.sdk.constants.AuthSourceConstants;
 import com.openblocks.sdk.constants.FieldName;
+import com.openblocks.sdk.constants.WorkspaceMode;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
 import com.openblocks.sdk.util.LocaleUtils;
@@ -77,6 +77,8 @@ public class UserServiceImpl implements UserService {
     private OrgMemberService orgMemberService;
     @Autowired
     private GroupService groupService;
+    @Autowired
+    private CommonConfig commonConfig;
 
     private Conf<Integer> avatarMaxSizeInKb;
 
@@ -279,6 +281,21 @@ public class UserServiceImpl implements UserService {
                                 .build();
                     });
         });
+    }
+
+    /**
+     * In enterprise mode, user can be deleted and then related connections should be released here by appending a timestamp after the source field.
+     */
+    @Override
+    public Mono<Boolean> markUserDeletedAndInvalidConnectionsAtEnterpriseMode(String userId) {
+        if (commonConfig.getWorkspace().getMode() == WorkspaceMode.SAAS) {
+            return Mono.just(false);
+        }
+        return repository.findById(userId)
+                .flatMap(user -> {
+                    user.markAsDeleted();
+                    return mongoUpsertHelper.updateById(user, userId);
+                });
     }
 
     protected Map<String, Object> getCurrentUserExtra(User user, String orgId) {

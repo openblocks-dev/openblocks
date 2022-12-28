@@ -1,31 +1,28 @@
 package com.openblocks.api.home;
 
 import static com.openblocks.sdk.constants.GlobalContext.CURRENT_ORG_MEMBER;
-import static com.openblocks.sdk.constants.GlobalContext.VISITOR;
 import static com.openblocks.sdk.exception.BizError.UNABLE_TO_FIND_VALID_ORG;
 import static com.openblocks.sdk.util.ExceptionUtils.deferredError;
-import static com.openblocks.sdk.util.JsonUtils.fromJson;
-import static com.openblocks.sdk.util.JsonUtils.toJson;
+import static com.openblocks.sdk.util.JsonUtils.fromJsonQuietly;
 
 import java.time.Duration;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ReactiveValueOperations;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.openblocks.domain.organization.model.OrgMember;
 import com.openblocks.domain.organization.service.OrgMemberService;
 import com.openblocks.domain.user.model.User;
+import com.openblocks.domain.user.model.UserState;
 import com.openblocks.domain.user.service.UserService;
-import com.openblocks.infra.annotation.NonEmptyMono;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @Service
@@ -42,7 +39,7 @@ public class SessionUserServiceImpl implements SessionUserService {
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     @Override
     public Mono<String> getVisitorId() {
-        return getVisitorFromSecurityContext()
+        return getVisitor()
                 .map(User::getId);
     }
 
@@ -51,13 +48,8 @@ public class SessionUserServiceImpl implements SessionUserService {
      */
     @Override
     public Mono<User> getVisitor() {
-        return Mono.deferContextual(contextView -> getVisitorFromSecurityContext()
-                .flatMap(it -> {
-                    if (it.isAnonymous()) {
-                        return Mono.just(it);
-                    }
-                    return contextView.get(VISITOR);
-                }));
+        return ReactiveSecurityContextHolder.getContext()
+                .map(securityContext -> (User) securityContext.getAuthentication().getPrincipal());
     }
 
     /**
@@ -83,25 +75,16 @@ public class SessionUserServiceImpl implements SessionUserService {
                 .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "UNABLE_TO_FIND_VALID_ORG"));
     }
 
-    @NonEmptyMono
-    private Mono<User> getVisitorFromSecurityContext() {
-        return ReactiveSecurityContextHolder.getContext()
-                .flatMap(securityContext -> {
-                    Authentication authentication = securityContext.getAuthentication();
-                    return Mono.just((User) authentication.getPrincipal());
-                });
-    }
-
     @Override
     public Mono<Boolean> isAnonymousUser() {
-        return getVisitorFromSecurityContext()
+        return getVisitor()
                 .map(User::isAnonymous);
     }
 
     @Override
-    public Mono<Void> saveUserSession(String sessionId, User user) {
+    public Mono<Void> saveUserSession(String token, User user) {
         ReactiveValueOperations<String, String> ops = getRedisOps();
-        return ops.set(sessionId, toJson(user), Duration.ofDays(7))
+        return ops.set(token, Objects.requireNonNull(user.getId()), Duration.ofDays(7))
                 .then();
     }
 
@@ -115,12 +98,12 @@ public class SessionUserServiceImpl implements SessionUserService {
     }
 
     @Override
-    public Mono<Void> removeUserSession(String sessionId) {
-        if (StringUtils.isBlank(sessionId)) {
+    public Mono<Void> removeUserSession(String token) {
+        if (StringUtils.isBlank(token)) {
             return Mono.empty();
         }
         ReactiveValueOperations<String, String> ops = getRedisOps();
-        return ops.delete(sessionId)
+        return ops.delete(token)
                 .then();
     }
 
@@ -130,21 +113,19 @@ public class SessionUserServiceImpl implements SessionUserService {
             return Mono.empty();
         }
         return getRedisOps().get(token)
-                .flatMap(it -> {
-                    User user = fromJson(it, User.class);
+                .flatMap(value -> {
+                    User user = fromJsonQuietly(value, User.class);
                     if (user == null) {
-                        return Mono.empty();
+                        return userService.findById(value);
                     }
-                    return Mono.just(user);
+                    // some compatible code
+                    return userService.findById(user.getId());
                 })
-                .subscribeOn(Schedulers.boundedElastic());
+                .filter(user -> user.getState() != UserState.DELETED);
     }
-
 
     private ReactiveValueOperations<String, String> getRedisOps() {
         return reactiveTemplate.opsForValue();
     }
-
-
 }
 
