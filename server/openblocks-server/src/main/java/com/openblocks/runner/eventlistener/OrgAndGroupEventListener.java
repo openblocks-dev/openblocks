@@ -2,7 +2,7 @@ package com.openblocks.runner.eventlistener;
 
 import static com.openblocks.sdk.util.JsonUtils.toJson;
 
-import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -22,7 +22,6 @@ import com.openblocks.domain.organization.service.OrgMemberService;
 import com.openblocks.domain.permission.service.ResourcePermissionService;
 
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -74,23 +73,25 @@ public class OrgAndGroupEventListener {
     public void onUserLeaveOrg(OrgMemberLeftEvent orgMemberLeftEvent) {
         String orgId = orgMemberLeftEvent.getOrgId();
         String userId = orgMemberLeftEvent.getUserId();
-        Flux<Boolean> removeGroupMember = groupService.getByOrgId(orgId)
-                .delayElements(Duration.ofMillis(100))
+        Mono<List<Boolean>> removeGroupMember = groupService.getByOrgId(orgId)
                 .flatMap(group -> groupMemberService.removeMember(group.getId(), userId))
+                .collectList()
                 .retry(3)
                 .subscribeOn(orgEventScheduler);
 
-        Flux<Boolean> removeAppPermissions = applicationService.findByOrganizationIdWithoutDsl(orgId)
+        Mono<List<Boolean>> removeAppPermissions = applicationService.findByOrganizationIdWithoutDsl(orgId)
                 .flatMap(application -> resourcePermissionService.removeUserApplicationPermission(application.getId(), userId))
+                .collectList()
                 .retry(3)
                 .subscribeOn(orgEventScheduler);
 
-        Flux<Boolean> removeDatasourcePermissions = datasourceService.getByOrgId(orgId)
+        Mono<List<Boolean>> removeDatasourcePermissions = datasourceService.getByOrgId(orgId)
                 .flatMap(datasource -> resourcePermissionService.removeUserDatasourcePermission(datasource.getId(), userId))
+                .collectList()
                 .retry(3)
                 .subscribeOn(orgEventScheduler);
 
-        Flux.zip(removeGroupMember, removeAppPermissions, removeDatasourcePermissions)
+        Mono.zip(removeGroupMember, removeAppPermissions, removeDatasourcePermissions)
                 .subscribe();
     }
 

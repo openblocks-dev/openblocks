@@ -8,7 +8,6 @@ import static com.openblocks.sdk.constants.GlobalContext.CURRENT_ORG_MEMBER;
 import static com.openblocks.sdk.constants.GlobalContext.REQUEST_ID_LOG;
 import static com.openblocks.sdk.constants.GlobalContext.REQUEST_METHOD;
 import static com.openblocks.sdk.constants.GlobalContext.REQUEST_PATH;
-import static com.openblocks.sdk.constants.GlobalContext.VISITOR;
 import static com.openblocks.sdk.constants.GlobalContext.VISITOR_ID;
 import static com.openblocks.sdk.constants.GlobalContext.VISITOR_TOKEN;
 import static java.util.Optional.ofNullable;
@@ -33,7 +32,6 @@ import org.springframework.web.server.WebFilterChain;
 import com.openblocks.api.framework.service.GlobalContextService;
 import com.openblocks.api.home.SessionUserService;
 import com.openblocks.domain.organization.service.OrgMemberService;
-import com.openblocks.domain.user.service.UserService;
 import com.openblocks.infra.serverlog.ServerLog;
 import com.openblocks.infra.serverlog.ServerLogService;
 import com.openblocks.infra.util.NetworkUtils;
@@ -59,9 +57,6 @@ public class GlobalContextFilter implements WebFilter, Ordered {
 
     @Autowired
     private ServerLogService serverLogService;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private GlobalContextService globalContextService;
@@ -105,9 +100,6 @@ public class GlobalContextFilter implements WebFilter, Ordered {
                 .filter(x -> x.getKey().startsWith(MDC_HEADER_PREFIX))
                 .collect(toMap(v -> v.getKey().substring((MDC_HEADER_PREFIX.length())), Map.Entry::getValue));
         contextMap.put(VISITOR_ID, visitorId);
-        if (!isAnonymousUser(visitorId)) {
-            contextMap.put(VISITOR, userService.findById(visitorId).cache());
-        }
         contextMap.put(CLIENT_IP, NetworkUtils.getRemoteIp(serverWebExchange));
         contextMap.put(REQUEST_ID_LOG, getOrCreateRequestId(request));
         contextMap.put(REQUEST_PATH, request.getPath().pathWithinApplication().value());

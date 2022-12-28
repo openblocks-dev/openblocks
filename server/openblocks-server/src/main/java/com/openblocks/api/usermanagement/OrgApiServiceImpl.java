@@ -212,18 +212,19 @@ public class OrgApiServiceImpl implements OrgApiService {
                 .flatMap(file -> organizationService.uploadLogo(orgId, file));
     }
 
+    /**
+     * Remove the specified user from the organization, and if in enterprise mode, mark the user deleted.
+     */
     @Override
     public Mono<Boolean> removeUserFromOrg(String orgId, String userId) {
         return checkVisitorAdminRole(orgId)
-                .then(orgMemberService.removeMember(orgId, userId)
-                        .handle((result, sink) -> {
-                            if (result) {
-                                applicationContext.publishEvent(new OrgMemberLeftEvent(orgId, userId));
-                                sink.next(true);
-                                return;
-                            }
-                            sink.next(false);
-                        }));
+                .then(orgMemberService.removeMember(orgId, userId))
+                .doOnNext(result -> {
+                    if (result) {
+                        applicationContext.publishEvent(new OrgMemberLeftEvent(orgId, userId));
+                    }
+                })
+                .delayUntil(__ -> userService.markUserDeletedAndInvalidConnectionsAtEnterpriseMode(userId));
     }
 
     @Override
