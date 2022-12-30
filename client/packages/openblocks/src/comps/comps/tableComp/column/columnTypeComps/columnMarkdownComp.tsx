@@ -22,9 +22,7 @@ const childrenMap = {
   text: StringControl,
 };
 
-const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (
-  props
-) => props.text;
+const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
 
 export const ColumnMarkdownComp = (function () {
   return new ColumnTypeCompBuilder(
