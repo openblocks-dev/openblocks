@@ -36,6 +36,20 @@ const TextAreaStyled = styled(TextArea)<{
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
+const Wrapper = styled.div<{
+  $style: InputLikeStyleType;
+}>`
+  .ant-input-clear-icon {
+    opacity: 0.45;
+    color: ${(props) => props.$style.text};
+    top: 10px;
+    &:hover {
+      opacity: 0.65;
+      color: ${(props) => props.$style.text};
+    }
+  }
+`;
+
 let TextAreaTmpComp = (function () {
   const childrenMap = {
     ...textInputChildren,
@@ -48,13 +62,15 @@ let TextAreaTmpComp = (function () {
     return props.label({
       required: props.required,
       children: (
-        <TextAreaStyled
-          {...inputProps}
-          allowClear={props.allowClear}
-          autoSize={props.autoHeight}
-          style={{ height: "100%", maxHeight: "100%", resize: "none" }}
-          $style={props.style}
-        />
+        <Wrapper $style={props.style}>
+          <TextAreaStyled
+            {...inputProps}
+            allowClear={props.allowClear}
+            autoSize={props.autoHeight}
+            style={{ height: "100%", maxHeight: "100%", resize: "none" }}
+            $style={props.style}
+          />
+        </Wrapper>
       ),
       style: props.style,
       ...validateState,

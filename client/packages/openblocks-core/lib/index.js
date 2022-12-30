@@ -163,29 +163,75 @@ function memoized(equals) {
     };
 }
 
+var RecursivePerfUtil = /** @class */ (function () {
+    function RecursivePerfUtil(params) {
+        var _this = this;
+        this.root = Symbol("root");
+        this.stack = [];
+        this.initRecord = function () {
+            return { obj: _this.root, childrenPerfInfo: [], costMs: 0, depth: 0 };
+        };
+        this.getRecordByStack = function (stack) {
+            var curRecord = _this.record;
+            (stack !== null && stack !== void 0 ? stack : _this.stack).forEach(function (idx) {
+                curRecord = curRecord.childrenPerfInfo[idx];
+            });
+            return curRecord;
+        };
+        this.clear = function () {
+            _this.record = _this.initRecord();
+        };
+        this.print = function () {
+            var stack = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                stack[_i] = arguments[_i];
+            }
+            var record = _this.getRecordByStack(stack);
+            console.info("PerfInfo. stack: ".concat(stack, ", [info] ").concat(record.info, ", obj: "), record.obj, ", costMs: ".concat(record.costMs, ", depth: ").concat(record.depth, ", size: ").concat(_.size(record.childrenPerfInfo)));
+            record.childrenPerfInfo.forEach(function (subRecord, idx) {
+                console.info("  [".concat(idx, "]").concat(subRecord.info, ". obj: "), subRecord.obj, " costMs: ", subRecord.costMs);
+            });
+        };
+        this.name = params.name;
+        this.record = this.initRecord();
+    }
+    RecursivePerfUtil.prototype.perf = function (obj, info, fn) {
+        {
+            return fn();
+        }
+    };
+    return RecursivePerfUtil;
+}());
+var evalPerfUtil = new RecursivePerfUtil({ name: "evaluate" });
+// @ts-ignore
+globalThis.evalPerfUtil = evalPerfUtil;
+
 var AbstractNode = /** @class */ (function () {
     function AbstractNode() {
         this.type = "abstract";
         this.evalCache = {};
     }
     AbstractNode.prototype.evaluate = function (exposingNodes, methods) {
-        exposingNodes = exposingNodes !== null && exposingNodes !== void 0 ? exposingNodes : {};
-        var dependingNodeMap = this.filterNodes(exposingNodes);
-        // use cache when equals to the last dependingNodeMap
-        if (dependingNodeMapEquals(this.evalCache.dependingNodeMap, dependingNodeMap)) {
-            return this.evalCache.value;
-        }
-        // initialize cyclic field
-        this.evalCache.cyclic = false;
-        var result = this.justEval(exposingNodes, methods);
-        // write cache
-        this.evalCache.dependingNodeMap = dependingNodeMap;
-        this.evalCache.value = result;
-        if (!this.evalCache.cyclic) {
-            // check children cyclic
-            this.evalCache.cyclic = this.getChildren().some(function (node) { return node.hasCycle(); });
-        }
-        return result;
+        var _this = this;
+        return evalPerfUtil.perf(this, "eval", function () {
+            exposingNodes = exposingNodes !== null && exposingNodes !== void 0 ? exposingNodes : {};
+            var dependingNodeMap = _this.filterNodes(exposingNodes);
+            // use cache when equals to the last dependingNodeMap
+            if (dependingNodeMapEquals(_this.evalCache.dependingNodeMap, dependingNodeMap)) {
+                return _this.evalCache.value;
+            }
+            // initialize cyclic field
+            _this.evalCache.cyclic = false;
+            var result = _this.justEval(exposingNodes, methods);
+            // write cache
+            _this.evalCache.dependingNodeMap = dependingNodeMap;
+            _this.evalCache.value = result;
+            if (!_this.evalCache.cyclic) {
+                // check children cyclic
+                _this.evalCache.cyclic = _this.getChildren().some(function (node) { return node.hasCycle(); });
+            }
+            return result;
+        });
     };
     AbstractNode.prototype.hasCycle = function () {
         var _a;
@@ -254,20 +300,15 @@ var FunctionNode = /** @class */ (function (_super) {
         _this.type = "function";
         return _this;
     }
-    FunctionNode.prototype.wrapContext = function (paramName) {
+    FunctionNode.prototype.wrapContext = function () {
         var _this = this;
-        return new FunctionNode(this.child.wrapContext(paramName), function (childFn) {
-            return function () {
-                var paramValues = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    paramValues[_i] = arguments[_i];
-                }
-                return _this.func(childFn.apply(void 0, paramValues));
-            };
-        });
+        return new FunctionNode(this.child.wrapContext(), function (childFn) { return function (params) { return _this.func(childFn(params)); }; });
     };
     FunctionNode.prototype.filterNodes = function (exposingNodes) {
-        return this.child.filterNodes(exposingNodes);
+        var _this = this;
+        return evalPerfUtil.perf(this, "filterNodes", function () {
+            return _this.child.filterNodes(exposingNodes);
+        });
     };
     FunctionNode.prototype.justEval = function (exposingNodes, methods) {
         return this.func(this.child.evaluate(exposingNodes, methods));
@@ -301,27 +342,26 @@ var RecordNode = /** @class */ (function (_super) {
         _this.type = "record";
         return _this;
     }
-    RecordNode.prototype.wrapContext = function (paramName) {
-        var childrenFnRecord = new RecordNode(_.mapValues(this.children, function (v, k) { return v.wrapContext(paramName); }));
-        return new FunctionNode(childrenFnRecord, function (childrenFn) { return function () {
-            var paramValues = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                paramValues[_i] = arguments[_i];
-            }
-            return _.mapValues(childrenFn, function (fn) { return fn.apply(void 0, paramValues); });
+    RecordNode.prototype.wrapContext = function () {
+        var childrenFnRecord = new RecordNode(_.mapValues(this.children, function (v, k) { return v.wrapContext(); }));
+        return new FunctionNode(childrenFnRecord, function (childrenFn) { return function (params) {
+            return _.mapValues(childrenFn, function (fn) { return fn(params); });
         }; });
     };
     RecordNode.prototype.filterNodes = function (exposingNodes) {
-        var result = new Map();
-        Object.values(this.children).forEach(function (node) {
-            var filteredNodes = node.filterNodes(exposingNodes);
-            if (filteredNodes) {
-                filteredNodes.forEach(function (value, key) {
-                    result.set(key, value);
-                });
-            }
+        var _this = this;
+        return evalPerfUtil.perf(this, "filterNodes", function () {
+            var result = new Map();
+            Object.values(_this.children).forEach(function (node) {
+                var filteredNodes = node.filterNodes(exposingNodes);
+                if (filteredNodes) {
+                    filteredNodes.forEach(function (value, key) {
+                        result.set(key, value);
+                    });
+                }
+            });
+            return result;
         });
-        return result;
     };
     RecordNode.prototype.justEval = function (exposingNodes, methods) {
         return _.mapValues(this.children, function (v) {
@@ -1399,12 +1439,14 @@ var SimpleNode = /** @class */ (function (_super) {
         _this.type = "simple";
         return _this;
     }
-    SimpleNode.prototype.wrapContext = function (paramName) {
+    SimpleNode.prototype.wrapContext = function () {
         var _this = this;
         return new SimpleNode(function () { return _this.value; });
     };
     SimpleNode.prototype.filterNodes = function (exposingNodes) {
-        return new Map();
+        return evalPerfUtil.perf(this, "filterNodes", function () {
+            return new Map();
+        });
     };
     SimpleNode.prototype.justEval = function (exposingNodes) {
         return this.value;
@@ -1444,15 +1486,14 @@ function fromValueWithCache(value) {
 
 var WrapContextNode = /** @class */ (function (_super) {
     __extends(WrapContextNode, _super);
-    function WrapContextNode(child, paramName) {
+    function WrapContextNode(child) {
         var _this = _super.call(this) || this;
         _this.child = child;
         _this.type = "wrapContext";
-        _this.paramNames = paramName.split(",");
         return _this;
     }
-    WrapContextNode.prototype.wrapContext = function (paramName) {
-        return new WrapContextNode(this, paramName);
+    WrapContextNode.prototype.wrapContext = function () {
+        return new WrapContextNode(this);
     };
     WrapContextNode.prototype.filterNodes = function (exposingNodes) {
         return this.child.filterNodes(exposingNodes);
@@ -1460,15 +1501,11 @@ var WrapContextNode = /** @class */ (function (_super) {
     WrapContextNode.prototype.justEval = function (exposingNodes, methods) {
         var _this = this;
         var paramNodes = {};
-        return function () {
-            var paramValues = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                paramValues[_i] = arguments[_i];
-            }
-            _this.paramNames.forEach(function (paramName, i) {
+        return function (params) {
+            Object.entries(params).forEach(function (_a) {
+                var paramName = _a[0], value = _a[1];
                 // node remains unchanged if value doesn't change, to keep the cache valid
                 var paramNode = paramNodes[paramName];
-                var value = paramValues[i];
                 if (!paramNode || value !== paramNode.value) {
                     paramNodes[paramName] = fromValueWithCache(value); // requires cache
                 }
@@ -1499,8 +1536,8 @@ var CachedNode = /** @class */ (function (_super) {
         _this.child = withEvalCache(child);
         return _this;
     }
-    CachedNode.prototype.wrapContext = function (paramName) {
-        return new WrapContextNode(this, paramName);
+    CachedNode.prototype.wrapContext = function () {
+        return new WrapContextNode(this);
     };
     CachedNode.prototype.filterNodes = function (exposingNodes) {
         return this.child.filterNodes(exposingNodes);
@@ -1553,18 +1590,56 @@ function evalNodeOrMinor(mainNode, minorNode) {
     });
 }
 
+function toReadableString(value) {
+    if (value instanceof RegExp) {
+        return value.toString();
+    }
+    // fix undefined NaN Infinity -Infinity
+    if (value === undefined || typeof value === "number") {
+        return value + "";
+    }
+    if (typeof value === "string") {
+        // without escaping char
+        return '"' + value + '"';
+    }
+    // FIXME: correctly show `undefined NaN Infinity -Infinity` inside Object, they are within quotes currently
+    return JSON.stringify(value, function (key, val) {
+        switch (typeof val) {
+            case "function":
+            case "bigint":
+            case "symbol":
+            case "undefined":
+                return val + "";
+            case "number":
+                if (!isFinite(val)) {
+                    return val + "";
+                }
+        }
+        return val;
+    });
+}
+
+var ValueAndMsg = /** @class */ (function () {
+    function ValueAndMsg(value, msg, extra, midValue) {
+        this.value = value;
+        this.msg = msg;
+        this.extra = extra;
+        this.midValue = midValue;
+    }
+    ValueAndMsg.prototype.hasError = function () {
+        return this.msg !== undefined;
+    };
+    ValueAndMsg.prototype.getMsg = function (displayValueFn) {
+        var _a;
+        if (displayValueFn === void 0) { displayValueFn = toReadableString; }
+        return (_a = (this.hasError() ? this.msg : displayValueFn(this.value))) !== null && _a !== void 0 ? _a : "";
+    };
+    return ValueAndMsg;
+}());
+
 function dependsErrorMessage(node) {
     return "DependencyError: \"".concat(node.unevaledValue, "\" caused a cyclic dependency.");
 }
-/** @class */ ((function (_super) {
-    __extends(EvalTypeError, _super);
-    function EvalTypeError(msg, hint) {
-        var _this = _super.call(this, msg) || this;
-        _this.hint = hint;
-        return _this;
-    }
-    return EvalTypeError;
-})(TypeError));
 function getErrorMessage(err) {
     // todo try to use 'err instanceof EvalTypeError' instead
     if (err instanceof TypeError && err.hint) {
@@ -1815,53 +1890,6 @@ function getDependNode(subpaths, exposingNodes) {
     });
     return [record, path];
 }
-
-function toReadableString(value) {
-    if (value instanceof RegExp) {
-        return value.toString();
-    }
-    // fix undefined NaN Infinity -Infinity
-    if (value === undefined || typeof value === "number") {
-        return value + "";
-    }
-    if (typeof value === "string") {
-        // without escaping char
-        return '"' + value + '"';
-    }
-    // FIXME: correctly show `undefined NaN Infinity -Infinity` inside Object, they are within quotes currently
-    return JSON.stringify(value, function (key, val) {
-        switch (typeof val) {
-            case "function":
-            case "bigint":
-            case "symbol":
-            case "undefined":
-                return val + "";
-            case "number":
-                if (!isFinite(val)) {
-                    return val + "";
-                }
-        }
-        return val;
-    });
-}
-
-var ValueAndMsg = /** @class */ (function () {
-    function ValueAndMsg(value, msg, extra, midValue) {
-        this.value = value;
-        this.msg = msg;
-        this.extra = extra;
-        this.midValue = midValue;
-    }
-    ValueAndMsg.prototype.hasError = function () {
-        return this.msg !== undefined;
-    };
-    ValueAndMsg.prototype.getMsg = function (displayValueFn) {
-        var _a;
-        if (displayValueFn === void 0) { displayValueFn = toReadableString; }
-        return (_a = (this.hasError() ? this.msg : displayValueFn(this.value))) !== null && _a !== void 0 ? _a : "";
-    };
-    return ValueAndMsg;
-}());
 
 var loglevel = {exports: {}};
 
@@ -2659,38 +2687,27 @@ function evalFunctionResult(unevaledValue, context, methods) {
         });
     });
 }
-function string2Fn(unevaledValue, type, methods, paramNamesList) {
+function string2Fn(unevaledValue, type, methods, wrapDepth) {
     if (type) {
         switch (type) {
             case "JSON":
-                return wrapParams(paramNamesList, function (context) { return evalJson(unevaledValue, context); });
+                return wrapParams(wrapDepth, function (context) { return evalJson(unevaledValue, context); });
             case "Function":
-                return wrapParams(paramNamesList, function (context) {
-                    return evalFunction(unevaledValue, context, methods);
-                });
+                return wrapParams(wrapDepth, function (context) { return evalFunction(unevaledValue, context, methods); });
         }
     }
-    return wrapParams(paramNamesList, function (context) { return evalDefault(unevaledValue, context); });
+    return wrapParams(wrapDepth, function (context) { return evalDefault(unevaledValue, context); });
 }
-function wrapParams(paramNamesList, fn) {
-    if (!paramNamesList || paramNamesList.length === 0) {
+function wrapParams(wrapDepth, fn) {
+    if (wrapDepth === undefined || wrapDepth <= 0) {
         return fn;
     }
-    var paramNames = paramNamesList[0];
-    return wrapParams(paramNamesList.slice(1), function (context) {
-        return new ValueAndMsg(function () {
-            var paramValues = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                paramValues[_i] = arguments[_i];
-            }
+    return wrapParams(wrapDepth - 1, function (context) {
+        return new ValueAndMsg(function (params) {
             // TODO: fix duplicate calculation when no matter whether unevaledValue depends params
             // FIXME: no matter unevaledValue depends on params or not, calculation is repeated in each call.
             // should consider improve wrapContext, including list comp's exposing node
-            var newContext = __assign({}, context);
-            paramNames.forEach(function (paramName, i) {
-                newContext[paramName] = paramValues[i];
-            });
-            return fn(newContext);
+            return fn(__assign(__assign({}, context), params));
         });
     });
 }
@@ -2718,9 +2735,9 @@ var CodeNode = /** @class */ (function (_super) {
         _this.evalWithMethods = (_a = options === null || options === void 0 ? void 0 : options.evalWithMethods) !== null && _a !== void 0 ? _a : true;
         return _this;
     }
-    CodeNode.prototype.wrapContext = function (paramName) {
+    CodeNode.prototype.wrapContext = function () {
         var _a, _b;
-        var fnNode = new CodeNode(this.unevaledValue, __assign(__assign({}, this.options), { paramNamesList: __spreadArray(__spreadArray([], ((_b = (_a = this.options) === null || _a === void 0 ? void 0 : _a.paramNamesList) !== null && _b !== void 0 ? _b : []), true), [paramName.split(",")], false) }));
+        var fnNode = new CodeNode(this.unevaledValue, __assign(__assign({}, this.options), { wrapDepth: ((_b = (_a = this.options) === null || _a === void 0 ? void 0 : _a.wrapDepth) !== null && _b !== void 0 ? _b : 0) + 1 }));
         // safe wrapper
         return new FunctionNode(fnNode, function (result) { return result.value; });
     };
@@ -2771,7 +2788,7 @@ var CodeNode = /** @class */ (function (_super) {
             var dependingNodeMap = this.filterDirectDepends(exposingNodes);
             this.directDepends = dependingNodeMap;
             var dependingNodes = mergeNodesWithSameName(dependingNodeMap);
-            var fn = string2Fn(this.unevaledValue, this.codeType, this.evalWithMethods ? methods : {}, (_a = this.options) === null || _a === void 0 ? void 0 : _a.paramNamesList);
+            var fn = string2Fn(this.unevaledValue, this.codeType, this.evalWithMethods ? methods : {}, (_a = this.options) === null || _a === void 0 ? void 0 : _a.wrapDepth);
             var evalNode = withFunction(fromRecord(dependingNodes), fn);
             var valueAndMsg = evalNode.evaluate(exposingNodes);
             // log.log("unevaledValue: ", this.unevaledValue, "\ndependingNodes: ", dependingNodes, "\nvalueAndMsg: ", valueAndMsg);
@@ -2870,8 +2887,8 @@ var FetchCheckNode = /** @class */ (function (_super) {
         _this.type = "fetchCheck";
         return _this;
     }
-    FetchCheckNode.prototype.wrapContext = function (paramName) {
-        var wrapChild = this.child.wrapContext(paramName);
+    FetchCheckNode.prototype.wrapContext = function () {
+        var wrapChild = this.child.wrapContext();
         return new FunctionNode(new FetchCheckNode(wrapChild), function (fi) { return function () { return fi; }; });
     };
     FetchCheckNode.prototype.filterNodes = function (exposingNodes) {
@@ -2910,8 +2927,8 @@ var WrapNode = /** @class */ (function (_super) {
         _this.type = "wrap";
         return _this;
     }
-    WrapNode.prototype.wrapContext = function (paramName) {
-        return new WrapContextNode(this, paramName);
+    WrapNode.prototype.wrapContext = function () {
+        return new WrapContextNode(this);
     };
     WrapNode.prototype.wrap = function (exposingNodes, exposingMethods) {
         if (!this.inputNodes) {
@@ -2965,11 +2982,11 @@ var WrapContextNodeV2 = /** @class */ (function (_super) {
         _this.type = "wrapContextV2";
         return _this;
     }
-    WrapContextNodeV2.prototype.wrapContext = function (paramName) {
-        return new WrapContextNode(this, paramName);
+    WrapContextNodeV2.prototype.wrapContext = function () {
+        return new WrapContextNode(this);
     };
     WrapContextNodeV2.prototype.filterNodes = function (exposingNodes) {
-        return this.child.filterNodes(this.wrap(exposingNodes));
+        return this.child.filterNodes(exposingNodes);
     };
     WrapContextNodeV2.prototype.justEval = function (exposingNodes, methods) {
         return this.child.evaluate(this.wrap(exposingNodes), methods);
@@ -2989,6 +3006,9 @@ var WrapContextNodeV2 = /** @class */ (function (_super) {
     __decorate([
         memoized()
     ], WrapContextNodeV2.prototype, "filterNodes", null);
+    __decorate([
+        memoized()
+    ], WrapContextNodeV2.prototype, "wrap", null);
     return WrapContextNodeV2;
 }(AbstractNode));
 
@@ -3285,13 +3305,14 @@ function containFields(obj, fields) {
  */
 function setFieldsNoTypeCheck(obj, fields, params) {
     var res = Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
-    if (!(params === null || params === void 0 ? void 0 : params.keepCache)) {
-        Object.keys(res).forEach(function (key) {
-            if (key.startsWith(CACHE_PREFIX)) {
+    Object.keys(res).forEach(function (key) {
+        if (key.startsWith(CACHE_PREFIX)) {
+            var propertyKey = key.slice(CACHE_PREFIX.length);
+            if (!(params === null || params === void 0 ? void 0 : params.keepCacheKeys) || !(params === null || params === void 0 ? void 0 : params.keepCacheKeys.includes(propertyKey))) {
                 delete res[key];
             }
-        });
-    }
+        }
+    });
     return Object.assign(res, fields);
 }
 
@@ -3431,7 +3452,7 @@ var MultiBaseComp = /** @class */ (function (_super) {
                 if (shallowEqual(children, this.children) && containFields(this, extraFields)) {
                     return this;
                 }
-                return setFieldsNoTypeCheck(this, __assign((_b = { children: children }, _b[cacheKey] = value_1, _b), extraFields));
+                return setFieldsNoTypeCheck(this, __assign((_b = { children: children }, _b[cacheKey] = value_1, _b), extraFields), { keepCacheKeys: ["node"] });
             }
             case CompActionTypes.CHANGE_VALUE: {
                 return this.setChildren(this.parseChildrenFromValue({

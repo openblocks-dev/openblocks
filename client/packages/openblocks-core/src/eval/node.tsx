@@ -1,9 +1,10 @@
 import _ from "lodash";
 import { EvalMethods } from "./types/evalTypes";
+import { evalPerfUtil } from "./utils/perfUtils";
 import { WrapNode } from "./wrapNode";
 
 export type NodeToValue<NodeT> = NodeT extends Node<infer ValueType> ? ValueType : never;
-export type ValueFn<ValueType> = (...paramValues: any[]) => ValueType;
+export type ValueFn<ValueType> = (params: Record<string, unknown>) => ValueType;
 export type NodeToNodeFn<NodeT> = Node<ValueFn<NodeToValue<NodeT>>>;
 export type FetchInfo = {
   /**
@@ -37,9 +38,9 @@ export type RecordOptionalNodeToValue<T> = {
 export interface Node<T> {
   readonly type: string;
   /**
-   * generate a new node, the result is a function with "paramName" as the parameter name
+   * generate a new node, the result is a function with "params"
    */
-  wrapContext(paramName: string): Node<ValueFn<T>>;
+  wrapContext(): Node<ValueFn<T>>;
   /**
    * calculate evaluate result
    * @param exposingNodes other dependent Nodes
@@ -73,27 +74,29 @@ export abstract class AbstractNode<T> implements Node<T> {
   evalCache: EvalCache<T> = {};
 
   constructor() {}
-  abstract wrapContext(paramName: string): AbstractNode<ValueFn<T>>;
+  abstract wrapContext(): AbstractNode<ValueFn<T>>;
 
   evaluate(exposingNodes?: Record<string, Node<unknown>>, methods?: EvalMethods): T {
-    exposingNodes = exposingNodes ?? {};
-    const dependingNodeMap: Map<Node<unknown>, string[]> = this.filterNodes(exposingNodes);
-    // use cache when equals to the last dependingNodeMap
-    if (dependingNodeMapEquals(this.evalCache.dependingNodeMap, dependingNodeMap)) {
-      return this.evalCache.value as T;
-    }
-    // initialize cyclic field
-    this.evalCache.cyclic = false;
-    const result = this.justEval(exposingNodes, methods);
+    return evalPerfUtil.perf(this, "eval", () => {
+      exposingNodes = exposingNodes ?? {};
+      const dependingNodeMap: Map<Node<unknown>, string[]> = this.filterNodes(exposingNodes);
+      // use cache when equals to the last dependingNodeMap
+      if (dependingNodeMapEquals(this.evalCache.dependingNodeMap, dependingNodeMap)) {
+        return this.evalCache.value as T;
+      }
+      // initialize cyclic field
+      this.evalCache.cyclic = false;
+      const result = this.justEval(exposingNodes, methods);
 
-    // write cache
-    this.evalCache.dependingNodeMap = dependingNodeMap;
-    this.evalCache.value = result;
-    if (!this.evalCache.cyclic) {
-      // check children cyclic
-      this.evalCache.cyclic = this.getChildren().some((node) => node.hasCycle());
-    }
-    return result;
+      // write cache
+      this.evalCache.dependingNodeMap = dependingNodeMap;
+      this.evalCache.value = result;
+      if (!this.evalCache.cyclic) {
+        // check children cyclic
+        this.evalCache.cyclic = this.getChildren().some((node) => node.hasCycle());
+      }
+      return result;
+    });
   }
 
   hasCycle(): boolean {

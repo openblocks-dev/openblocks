@@ -411,6 +411,42 @@ export const SelectInputOptionControl = optionsControl(SelectInputOption, {
   uniqField: "value",
 });
 
+let SelectOption = new MultiCompBuilder(
+  {
+    value: StringControl,
+    label: StringControl,
+    prefixIcon: IconControl,
+    disabled: BoolCodeControl,
+    hidden: BoolCodeControl,
+  },
+  (props) => props
+).build();
+
+SelectOption = class extends SelectOption implements OptionCompProperty {
+  propertyView(param: { autoMap?: boolean }) {
+    return (
+      <>
+        {this.children.label.propertyView({
+          label: trans("label"),
+          placeholder: param.autoMap ? "{{item}}" : "",
+        })}
+        {this.children.value.propertyView({ label: trans("value") })}
+        {this.children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+        {disabledPropertyView(this.children)}
+        {hiddenPropertyView(this.children)}
+      </>
+    );
+  }
+};
+
+export const SelectOptionControl = optionsControl(SelectOption, {
+  initOptions: [
+    { label: trans("optionsControl.option1"), value: "1" },
+    { label: trans("optionsControl.option2"), value: "2" },
+  ],
+  uniqField: "value",
+});
+
 const DropdownOption = new MultiCompBuilder(
   {
     label: StringControl,

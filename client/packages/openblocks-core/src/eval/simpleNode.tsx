@@ -1,6 +1,7 @@
 import LRU from "lru-cache";
 import { memoized } from "util/memoize";
 import { AbstractNode, Node } from "./node";
+import { evalPerfUtil } from "./utils/perfUtils";
 
 /**
  * directly provide data
@@ -10,12 +11,14 @@ export class SimpleNode<T> extends AbstractNode<T> {
   constructor(readonly value: T) {
     super();
   }
-  override wrapContext(paramName: string): SimpleNode<() => T> {
+  override wrapContext(): SimpleNode<() => T> {
     return new SimpleNode(() => this.value);
   }
   @memoized()
   override filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]> {
-    return new Map<Node<unknown>, string[]>();
+    return evalPerfUtil.perf(this, "filterNodes", () => {
+      return new Map<Node<unknown>, string[]>();
+    });
   }
   override justEval(exposingNodes: Record<string, Node<unknown>>): T {
     return this.value;

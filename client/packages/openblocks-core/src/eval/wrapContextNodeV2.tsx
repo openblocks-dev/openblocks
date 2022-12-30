@@ -11,12 +11,12 @@ export class WrapContextNodeV2<T> extends AbstractNode<T> {
   constructor(readonly child: Node<T>, readonly paramNodes: Record<string, Node<unknown>>) {
     super();
   }
-  override wrapContext(paramName: string): AbstractNode<ValueFn<T>> {
-    return new WrapContextNode(this, paramName);
+  override wrapContext(): AbstractNode<ValueFn<T>> {
+    return new WrapContextNode(this);
   }
   @memoized()
   override filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]> {
-    return this.child.filterNodes(this.wrap(exposingNodes));
+    return this.child.filterNodes(exposingNodes);
   }
   override justEval(exposingNodes: Record<string, Node<unknown>>, methods?: EvalMethods): T {
     return this.child.evaluate(this.wrap(exposingNodes), methods);
@@ -30,6 +30,7 @@ export class WrapContextNodeV2<T> extends AbstractNode<T> {
   override fetchInfo(exposingNodes: Record<string, Node<unknown>>) {
     return this.child.fetchInfo(this.wrap(exposingNodes));
   }
+  @memoized()
   private wrap(exposingNodes: Record<string, Node<unknown>>) {
     return { ...exposingNodes, ...this.paramNodes };
   }

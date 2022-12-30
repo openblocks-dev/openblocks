@@ -16,8 +16,8 @@ export class WrapNode<T> extends AbstractNode<T> {
     super();
   }
 
-  override wrapContext(paramName: string): AbstractNode<ValueFn<T>> {
-    return new WrapContextNode(this, paramName);
+  override wrapContext(): AbstractNode<ValueFn<T>> {
+    return new WrapContextNode(this);
   }
 
   private wrap(exposingNodes: Record<string, Node<unknown>>, exposingMethods: EvalMethods) {

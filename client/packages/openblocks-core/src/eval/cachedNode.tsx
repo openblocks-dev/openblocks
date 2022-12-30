@@ -17,8 +17,8 @@ export class CachedNode<T> extends AbstractNode<CachedValue<T>> {
     super();
     this.child = withEvalCache(child);
   }
-  override wrapContext(paramName: string): AbstractNode<ValueFn<CachedValue<T>>> {
-    return new WrapContextNode(this, paramName);
+  override wrapContext(): AbstractNode<ValueFn<CachedValue<T>>> {
+    return new WrapContextNode(this);
   }
   @memoized()
   override filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]> {

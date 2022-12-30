@@ -204,38 +204,31 @@ export function string2Fn(
   unevaledValue: string,
   type?: CodeType,
   methods?: EvalMethods,
-  paramNamesList?: string[][]
+  wrapDepth?: number
 ): Fn {
   if (type) {
     switch (type) {
       case "JSON":
-        return wrapParams(paramNamesList, (context) => evalJson(unevaledValue, context));
+        return wrapParams(wrapDepth, (context) => evalJson(unevaledValue, context));
       case "Function":
-        return wrapParams(paramNamesList, (context) =>
-          evalFunction(unevaledValue, context, methods)
-        );
+        return wrapParams(wrapDepth, (context) => evalFunction(unevaledValue, context, methods));
     }
   }
-  return wrapParams(paramNamesList, (context) => evalDefault(unevaledValue, context));
+  return wrapParams(wrapDepth, (context) => evalDefault(unevaledValue, context));
 }
 
-function wrapParams(paramNamesList: string[][] | undefined, fn: Fn): Fn {
-  if (!paramNamesList || paramNamesList.length === 0) {
+function wrapParams(wrapDepth: number | undefined, fn: Fn): Fn {
+  if (wrapDepth === undefined || wrapDepth <= 0) {
     return fn;
   }
-  const paramNames = paramNamesList[0];
   return wrapParams(
-    paramNamesList.slice(1),
+    wrapDepth - 1,
     (context) =>
-      new ValueAndMsg((...paramValues: any[]) => {
+      new ValueAndMsg((params: Record<string, unknown>) => {
         // TODO: fix duplicate calculation when no matter whether unevaledValue depends params
         // FIXME: no matter unevaledValue depends on params or not, calculation is repeated in each call.
         // should consider improve wrapContext, including list comp's exposing node
-        const newContext = { ...context };
-        paramNames.forEach((paramName, i) => {
-          newContext[paramName] = paramValues[i];
-        });
-        return fn(newContext);
+        return fn({ ...context, ...params });
       })
   );
 }

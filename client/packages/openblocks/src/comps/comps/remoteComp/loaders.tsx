@@ -15,6 +15,18 @@ async function npmLoader(remoteInfo: RemoteCompInfo): Promise<CompConstructor | 
   return comp;
 }
 
+async function bundleLoader(remoteInfo: RemoteCompInfo): Promise<CompConstructor | null> {
+  const { packageName, packageVersion = "latest", compName } = remoteInfo;
+  const entry = `/${packageName}/${packageVersion}/index.js?v=${REACT_APP_COMMIT_ID}`;
+  const module = await import(/* @vite-ignore */ entry);
+  const comp = module.default?.[compName];
+  if (!comp) {
+    throw new Error(trans("npm.compNotFound", { compName }));
+  }
+  return comp;
+}
+
 export const loaders: Record<RemoteCompSource, RemoteCompLoader> = {
   npm: npmLoader,
+  bundle: bundleLoader,
 };

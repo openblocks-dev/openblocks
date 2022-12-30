@@ -157,8 +157,7 @@ export function withParamsWithDefault<
     override nodeWithoutCache() {
       const compNode: ConstructorToNodeType<TCtor> = this.getComp().node();
       if (_.isNil(compNode)) return undefined;
-      const paramName = Object.keys(defaultParamValues).join(",");
-      const wrapNode = compNode.wrapContext(paramName);
+      const wrapNode = compNode.wrapContext();
 
       const paramNodes = this.getParamNodes();
       const originalNode = new WrapContextNodeV2(compNode, paramNodes);
@@ -178,8 +177,7 @@ export function withParamsWithDefault<
     }
 
     private getWrapValue(params: ParamValues) {
-      const paramValue = Object.keys(defaultParamValues).map((key) => params[key]);
-      return this.wrapValue?.(...paramValue);
+      return this.wrapValue?.(params);
     }
   }
 

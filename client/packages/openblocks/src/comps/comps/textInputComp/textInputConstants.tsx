@@ -232,9 +232,15 @@ export function getStyle(style: InputLikeStyleType) {
         opacity: 0.4;
       }
 
-      .ant-input-password-icon.anticon {
+      .ant-input-show-count-suffix,
+      .ant-input-prefix,
+      .ant-input-suffix svg {
         opacity: 0.45;
         color: ${style.text};
+      }
+
+      .ant-input-clear-icon svg:hover {
+        opacity: 0.65;
       }
     }
   `;

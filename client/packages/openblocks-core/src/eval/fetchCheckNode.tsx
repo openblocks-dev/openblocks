@@ -10,8 +10,8 @@ export class FetchCheckNode extends AbstractNode<FetchInfo> {
   constructor(readonly child: Node<unknown>) {
     super();
   }
-  override wrapContext(paramName: string): AbstractNode<ValueFn<FetchInfo>> {
-    const wrapChild = this.child.wrapContext(paramName);
+  override wrapContext(): AbstractNode<ValueFn<FetchInfo>> {
+    const wrapChild = this.child.wrapContext();
     return new FunctionNode(new FetchCheckNode(wrapChild), (fi) => () => fi);
   }
   @memoized()
