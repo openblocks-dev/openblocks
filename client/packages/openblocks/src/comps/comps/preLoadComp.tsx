@@ -6,7 +6,7 @@ import { CodeTextControl } from "comps/controls/codeTextControl";
 import SimpleStringControl from "comps/controls/simpleStringControl";
 import { MultiCompBuilder } from "comps/generators";
 import { list } from "comps/generators/list";
-import { CustomModal, TacoButton } from "openblocks-design";
+import { CustomModal, DocLink, TacoButton } from "openblocks-design";
 import { clearMockWindow, evalFunc } from "openblocks-core";
 import { clearStyleEval, evalStyle } from "openblocks-core";
 import { useContext, useEffect, useState } from "react";
@@ -39,6 +39,15 @@ const LibListWrapper = styled.div`
     flex: 1;
     margin-right: 8px;
   }
+  .lib-list-add-btn-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .lib-list-add-btn {
+      margin-right: 8px;
+    }
+  }
 `;
 
 function runScript(code: string, inHost?: boolean) {
@@ -64,30 +73,42 @@ class LibsComp extends list(SimpleStringControl) implements RunAndClearable<stri
   runInHost: boolean = false;
   async loadScript(url: string) {
     if (this.success[url]) {
-      return;
+      return async () => {};
     }
     if (this.runInHost) {
-      await loadScript(url);
+      return async () => {
+        await loadScript(url);
+        this.success[url] = true;
+      };
     } else {
       const res = await fetch(url);
       const code = await res.text();
-      runScript(code);
+      return async () => {
+        runScript(code);
+        this.success[url] = true;
+      };
     }
-    this.success[url] = true;
   }
 
   async loadAllLibs() {
-    const scripts: Promise<void>[] = [];
+    const scriptRunners: Promise<() => Promise<void>>[] = [];
     const appLibs = this.getView().map((i) => i.getView());
     this.externalLibs.concat(appLibs).forEach((url) => {
       const trimUrl = url.trim();
       if (!/^https?.+\.js$/.test(trimUrl)) {
         return;
       }
-      scripts.push(this.loadScript(trimUrl));
+      scriptRunners.push(this.loadScript(trimUrl));
     });
 
-    return Promise.allSettled(scripts);
+    try {
+      const runners = await Promise.all(scriptRunners);
+      for await (const runner of runners) {
+        await runner();
+      }
+    } catch (e) {
+      log.warn("load preload libs error:", e);
+    }
   }
 
   async run(id: string, externalLibs: string[] = [], runInHost: boolean = false) {
@@ -183,9 +204,10 @@ function LibsTabPane(props: { libsComp: ChildrenInstance["libs"] }) {
           );
         })}
       </div>
-      <div>
+      <div className="lib-list-add-btn-wrapper">
         <TacoButton
           ghost
+          className="lib-list-add-btn"
           buttonType="primary"
           onClick={() => {
             props.libsComp.dispatch(props.libsComp.pushAction(""));
@@ -193,6 +215,9 @@ function LibsTabPane(props: { libsComp: ChildrenInstance["libs"] }) {
         >
           {trans("preLoad.add")}
         </TacoButton>
+        {trans("docUrls.thirdLib") && (
+          <DocLink href={trans("docUrls.thirdLib")}>{trans("docUrls.thirdLibUrlText")}</DocLink>
+        )}
       </div>
     </LibListWrapper>
   );

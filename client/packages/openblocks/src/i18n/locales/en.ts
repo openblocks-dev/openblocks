@@ -162,6 +162,8 @@ export const en = {
     showHeader: "Show header",
     showBody: "Show body",
     showFooter: "Show footer",
+    maskClosable: "Click the mask to close",
+    showMask: "Show mask",
   },
   autoHeightProp: {
     auto: "Auto",
@@ -897,6 +899,8 @@ export const en = {
   },
   selectInput: {
     valueDesc: "Currently selected value",
+    selectedIndexDesc: "The index of the currently selected value, or -1 if no value is selected",
+    selectedLabelDesc: "The label of the currently selected value",
   },
   file: {
     typeErrorMsg: "Must be a number with a valid file size unit, or a unitless number of bytes.",
@@ -1356,7 +1360,6 @@ export const en = {
     modalHeightTooltip: "Number, example: 222",
     modalWidth: "Modal width",
     modalWidthTooltip: "Number or percentage, example: 520, 60%",
-    maskClosable: "Click the mask to close",
   },
   listView: {
     numOfRows: "Number of rows",
@@ -1893,6 +1896,8 @@ export const en = {
     useHost: "https://docs.openblocks.dev/self-hosting/access-local-database-or-api",
     eventHandlerSlowdown:
       "https://docs.openblocks.dev/build-apps/event-handlers#debounce-and-throttle",
+    thirdLib: "https://docs.openblocks.dev/build-apps/write-javascript/use-third-party-libraries",
+    thirdLibUrlText: "Use third-party libraries",
   },
   datasourceTutorial: {
     mysql: "",

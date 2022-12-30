@@ -12,6 +12,7 @@ import {
 import { requiredPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { useState } from "react";
+import { SelectInputOptionControl } from "../../controls/optionsControl";
 
 export const SelectInputValidationChildren = {
   required: BoolControl,
@@ -84,3 +85,22 @@ export const SelectInputValidationSection = (children: ValidationComp) => (
     {children.customRule.propertyView({})}
   </Section>
 );
+
+type ChildrenType = RecordConstructorToComp<{
+  value: ReturnType<typeof stringExposingStateControl>;
+  options: typeof SelectInputOptionControl;
+}>;
+export const SelectInputCommonConfig = [
+  depsConfig<ChildrenType, ChildrenTypeToDepsKeys<ChildrenType>>({
+    name: "selectedIndex",
+    desc: trans("selectInput.selectedIndexDesc"),
+    depKeys: ["value", "options"],
+    func: (input) => input.options.findIndex?.((o: any) => o.value === input.value),
+  }),
+  depsConfig<ChildrenType, ChildrenTypeToDepsKeys<ChildrenType>>({
+    name: "selectedLabel",
+    desc: trans("selectInput.selectedLabelDesc"),
+    depKeys: ["value", "options"],
+    func: (input) => input.options.find?.((o: any) => o.value === input.value)?.label,
+  }),
+];

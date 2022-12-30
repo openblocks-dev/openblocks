@@ -3431,7 +3431,7 @@ var MultiBaseComp = /** @class */ (function (_super) {
                 if (shallowEqual(children, this.children) && containFields(this, extraFields)) {
                     return this;
                 }
-                return setFieldsNoTypeCheck(this, __assign((_b = { children: children }, _b[cacheKey] = value_1, _b), extraFields), { keepCache: true });
+                return setFieldsNoTypeCheck(this, __assign((_b = { children: children }, _b[cacheKey] = value_1, _b), extraFields));
             }
             case CompActionTypes.CHANGE_VALUE: {
                 return this.setChildren(this.parseChildrenFromValue({
