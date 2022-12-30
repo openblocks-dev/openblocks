@@ -1,8 +1,19 @@
-import { DispatchType, RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
+import {
+  changeChildAction,
+  DispatchType,
+  RecordConstructorToComp,
+  RecordConstructorToView,
+} from "openblocks-core";
 import { BoolControl, BoolPureControl } from "../../controls/boolControl";
 import { LabelControl } from "../../controls/labelControl";
 import { BoolCodeControl, StringControl } from "../../controls/codeControl";
-import { Section, sectionNames } from "openblocks-design";
+import {
+  isDarkColor,
+  lightenColor,
+  MultiselectTagIcon,
+  Section,
+  sectionNames,
+} from "openblocks-design";
 import { SelectInputOptionControl } from "../../controls/optionsControl";
 import { SelectEventHandlerControl } from "../../controls/eventHandlerControl";
 import { Select as AntdSelect } from "antd";
@@ -20,14 +31,11 @@ import {
   SelectStyleType,
   TreeSelectStyleType,
 } from "comps/controls/styleControlConstants";
-import { MultiselectTagIcon } from "openblocks-design";
-import { isDarkColor, lightenColor } from "openblocks-design";
-import { changeChildAction } from "openblocks-core";
 import { stateComp, withDefault } from "../../generators";
 import {
   allowClearPropertyView,
-  hiddenPropertyView,
   disabledPropertyView,
+  hiddenPropertyView,
   placeholderPropertyView,
   showSearchPropertyView,
 } from "comps/utils/propertyUtils";

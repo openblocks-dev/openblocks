@@ -45,7 +45,7 @@ const Right = styled.div`
   min-width: 0;
   height: 100%;
   overflow-y: hidden;
-  overflow-x: scroll;
+  overflow-x: auto;
   flex-grow: 1;
 `;
 

@@ -153,8 +153,8 @@ export abstract class MultiBaseComp<
             children: children,
             [cacheKey]: value,
             ...extraFields,
-          },
-          { keepCache: true }
+          }
+          // { keepCache: true }
         );
       }
       case CompActionTypes.CHANGE_VALUE: {
