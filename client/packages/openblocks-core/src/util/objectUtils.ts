@@ -97,13 +97,19 @@ export function setFields<T>(obj: T, fields: Partial<T>) {
  * type unsafe, users should keep safe by self.
  * pros: this function can support private fields.
  */
-export function setFieldsNoTypeCheck<T>(obj: T, fields: Record<string, any>) {
+export function setFieldsNoTypeCheck<T>(
+  obj: T,
+  fields: Record<string, any>,
+  params?: { keepCache?: boolean }
+) {
   const res = Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
-  Object.keys(res).forEach((key) => {
-    if (key.startsWith(CACHE_PREFIX)) {
-      delete res[key];
-    }
-  });
+  if (!params?.keepCache) {
+    Object.keys(res).forEach((key) => {
+      if (key.startsWith(CACHE_PREFIX)) {
+        delete res[key];
+      }
+    });
+  }
   return Object.assign(res, fields) as T;
 }
 

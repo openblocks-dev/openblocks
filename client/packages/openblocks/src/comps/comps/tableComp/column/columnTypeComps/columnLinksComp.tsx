@@ -7,6 +7,18 @@ import { manualOptionsControl } from "comps/controls/optionsControl";
 import { MultiCompBuilder } from "comps/generators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import styled from "styled-components";
+
+const LinksWrapper = styled.div`
+  white-space: nowrap;
+  > a {
+    margin-right: 8px;
+  }
+
+  > a:last-child {
+    margin-right: 0;
+  }
+`;
 
 const OptionItem = new MultiCompBuilder(
   {
@@ -57,7 +69,7 @@ export const ColumnLinksComp = (function () {
       );
 
       return (
-        <Space>
+        <LinksWrapper>
           {props.options
             .filter((o) => !o.hidden)
             .slice(0, 3)
@@ -71,7 +83,7 @@ export const ColumnLinksComp = (function () {
               <EllipsisOutlined onClick={(e) => e.preventDefault()} />
             </Dropdown>
           )}
-        </Space>
+        </LinksWrapper>
       );
     },
     () => ""

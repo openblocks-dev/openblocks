@@ -3283,13 +3283,15 @@ function containFields(obj, fields) {
  * type unsafe, users should keep safe by self.
  * pros: this function can support private fields.
  */
-function setFieldsNoTypeCheck(obj, fields) {
+function setFieldsNoTypeCheck(obj, fields, params) {
     var res = Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
-    Object.keys(res).forEach(function (key) {
-        if (key.startsWith(CACHE_PREFIX)) {
-            delete res[key];
-        }
-    });
+    if (!(params === null || params === void 0 ? void 0 : params.keepCache)) {
+        Object.keys(res).forEach(function (key) {
+            if (key.startsWith(CACHE_PREFIX)) {
+                delete res[key];
+            }
+        });
+    }
     return Object.assign(res, fields);
 }
 
@@ -3416,7 +3418,7 @@ var MultiBaseComp = /** @class */ (function (_super) {
                 var cacheKey = CACHE_PREFIX + "REDUCE_UPDATE_NODE";
                 // if constructed by the value, just return
                 if (this[cacheKey] === value_1) {
-                    // FIXME: check why this branch is not passed
+                    // console.info("inside: UPDATE_NODE_V2 cache hit. action: ", action, "\nvalue: ", value, "\nthis: ", this);
                     return this;
                 }
                 var children = _.mapValues(this.children, function (comp, childName) {
@@ -3429,7 +3431,7 @@ var MultiBaseComp = /** @class */ (function (_super) {
                 if (shallowEqual(children, this.children) && containFields(this, extraFields)) {
                     return this;
                 }
-                return setFieldsNoTypeCheck(this, __assign((_b = { children: children }, _b[cacheKey] = value_1, _b), extraFields));
+                return setFieldsNoTypeCheck(this, __assign((_b = { children: children }, _b[cacheKey] = value_1, _b), extraFields), { keepCache: true });
             }
             case CompActionTypes.CHANGE_VALUE: {
                 return this.setChildren(this.parseChildrenFromValue({

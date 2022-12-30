@@ -1,11 +1,7 @@
 import { Badge, Button } from "antd";
 import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
 import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
-import {
-  BoolCodeControl,
-  StringControl,
-  stringUnionControl,
-} from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl, stringUnionControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { disabledPropertyView, loadingPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -15,6 +11,14 @@ export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
 const Button100 = styled(Button)`
   width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;
 
 const ButtonTypeOptions = [

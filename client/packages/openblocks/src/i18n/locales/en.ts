@@ -594,7 +594,7 @@ export const en = {
   uiComp: {
     inputCompName: "Input",
     inputCompDesc: "Input component",
-    inputCompKeywords: "",
+    inputCompKeywords: "text",
     textAreaCompName: "Text Area",
     textAreaCompDesc: "Text Area component",
     textAreaCompKeywords: "",
