@@ -1,5 +1,10 @@
 package com.openblocks.api.util;
 
+import static com.openblocks.domain.permission.model.ResourceHolder.USER;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -16,18 +21,25 @@ import com.openblocks.api.home.SessionUserService;
 import com.openblocks.api.usermanagement.view.AddMemberRequest;
 import com.openblocks.api.usermanagement.view.UpdateRoleRequest;
 import com.openblocks.domain.application.service.ApplicationService;
+import com.openblocks.domain.datasource.model.Datasource;
+import com.openblocks.domain.datasource.service.DatasourceService;
 import com.openblocks.domain.folder.model.Folder;
 import com.openblocks.domain.folder.service.FolderService;
 import com.openblocks.domain.group.model.Group;
 import com.openblocks.domain.group.model.GroupMember;
 import com.openblocks.domain.group.service.GroupService;
 import com.openblocks.domain.organization.model.OrgMember;
+import com.openblocks.domain.permission.model.ResourceHolder;
+import com.openblocks.domain.permission.model.ResourcePermission;
+import com.openblocks.domain.permission.service.ResourcePermissionService;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.service.UserService;
 import com.openblocks.infra.event.ApplicationCommonEvent;
 import com.openblocks.infra.event.EventType;
 import com.openblocks.infra.event.FolderCommonEvent;
 import com.openblocks.infra.event.QueryExecutionEvent;
+import com.openblocks.infra.event.datasource.DatasourceEvent;
+import com.openblocks.infra.event.datasource.DatasourcePermissionEvent;
 import com.openblocks.infra.event.group.GroupCreateEvent;
 import com.openblocks.infra.event.group.GroupDeleteEvent;
 import com.openblocks.infra.event.group.GroupUpdateEvent;
@@ -58,6 +70,10 @@ public class BusinessEventPublisher {
     private FolderService folderService;
     @Autowired
     private ApplicationService applicationService;
+    @Autowired
+    private DatasourceService datasourceService;
+    @Autowired
+    private ResourcePermissionService resourcePermissionService;
 
     public Mono<Void> publishFolderCommonEvent(String folderId, String folderName, EventType eventType) {
         return sessionUserService.getVisitorOrgMemberCache()
@@ -365,5 +381,80 @@ public class BusinessEventPublisher {
 
     public void publishQueryExecutionEvent(QueryExecutionEvent queryExecutionEvent) {
         applicationEventPublisher.publishEvent(queryExecutionEvent);
+    }
+
+    public Mono<Void> publishDatasourceEvent(String id, EventType eventType) {
+        return datasourceService.getById(id)
+                .flatMap(datasource -> publishDatasourceEvent(datasource, eventType))
+                .onErrorResume(throwable -> {
+                    log.error("publishDatasourceEvent error.", throwable);
+                    return Mono.empty();
+                });
+    }
+
+    public Mono<Void> publishDatasourceEvent(Datasource datasource, EventType eventType) {
+        return sessionUserService.getVisitorOrgMemberCache()
+                .flatMap(orgMember -> {
+                    DatasourceEvent event = DatasourceEvent.builder()
+                            .datasourceId(datasource.getId())
+                            .name(datasource.getName())
+                            .type(datasource.getType())
+                            .eventType(eventType)
+                            .userId(orgMember.getUserId())
+                            .orgId(orgMember.getOrgId())
+                            .build();
+                    applicationEventPublisher.publishEvent(event);
+                    return Mono.<Void> empty();
+                })
+                .onErrorResume(throwable -> {
+                    log.error("publishDatasourceEvent error.", throwable);
+                    return Mono.empty();
+                });
+    }
+
+    public Mono<Void> publishDatasourcePermissionEvent(String permissionId, EventType eventType) {
+        return resourcePermissionService.getById(permissionId)
+                .zipWhen(resourcePermission -> datasourceService.getById(resourcePermission.getResourceId()))
+                .flatMap(tuple -> {
+                    ResourcePermission resourcePermission = tuple.getT1();
+                    ResourceHolder holder = resourcePermission.getResourceHolder();
+                    Datasource datasource = tuple.getT2();
+                    return publishDatasourcePermissionEvent(datasource.getId(),
+                            holder == USER ? List.of(resourcePermission.getResourceHolderId()) : Collections.emptyList(),
+                            holder == USER ? Collections.emptyList() : List.of(resourcePermission.getResourceHolderId()),
+                            resourcePermission.getResourceRole().getValue(),
+                            eventType);
+                })
+                .onErrorResume(throwable -> {
+                    log.error("publishDatasourcePermissionEvent error.", throwable);
+                    return Mono.empty();
+                });
+    }
+
+    public Mono<Void> publishDatasourcePermissionEvent(String datasourceId,
+            Collection<String> userIds, Collection<String> groupIds, String role,
+            EventType eventType) {
+        return Mono.zip(sessionUserService.getVisitorOrgMemberCache(), datasourceService.getById(datasourceId))
+                .flatMap(tuple -> {
+                    OrgMember orgMember = tuple.getT1();
+                    Datasource datasource = tuple.getT2();
+                    DatasourcePermissionEvent datasourcePermissionEvent = DatasourcePermissionEvent.builder()
+                            .datasourceId(datasourceId)
+                            .name(datasource.getName())
+                            .type(datasource.getType())
+                            .userId(orgMember.getUserId())
+                            .orgId(orgMember.getOrgId())
+                            .userIds(userIds)
+                            .groupIds(groupIds)
+                            .role(role)
+                            .eventType(eventType)
+                            .build();
+                    applicationEventPublisher.publishEvent(datasourcePermissionEvent);
+                    return Mono.<Void> empty();
+                })
+                .onErrorResume(throwable -> {
+                    log.error("publishDatasourcePermissionEvent error.", throwable);
+                    return Mono.empty();
+                });
     }
 }

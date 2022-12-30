@@ -27,7 +27,7 @@ import com.openblocks.api.usermanagement.view.OrgMemberListView.OrgMemberView;
 import com.openblocks.api.usermanagement.view.OrgView;
 import com.openblocks.api.usermanagement.view.UpdateOrgRequest;
 import com.openblocks.api.usermanagement.view.UpdateRoleRequest;
-import com.openblocks.domain.bizthreshold.BizThresholdChecker;
+import com.openblocks.domain.bizthreshold.AbstractBizThresholdChecker;
 import com.openblocks.domain.organization.event.OrgMemberLeftEvent;
 import com.openblocks.domain.organization.model.MemberRole;
 import com.openblocks.domain.organization.model.OrgMember;
@@ -61,7 +61,7 @@ public class OrgApiServiceImpl implements OrgApiService {
     @Autowired
     private OrganizationService organizationService;
     @Autowired
-    private BizThresholdChecker bizThresholdChecker;
+    private AbstractBizThresholdChecker bizThresholdChecker;
     @Autowired
     private ApplicationContext applicationContext;
     @Autowired
