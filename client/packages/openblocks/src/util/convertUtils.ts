@@ -1,5 +1,12 @@
 import { JSONObject, JSONValue } from "util/jsonTypes";
-import { EvalTypeError } from "openblocks-core/src/eval/utils/nodeUtils";
+class EvalTypeError extends TypeError {
+  hint?: string;
+
+  constructor(msg: string, hint?: string) {
+    super(msg);
+    this.hint = hint;
+  }
+}
 
 function typeErrorMsg(requiredType: string, value: any, actualType?: string) {
   let displayValue = value;

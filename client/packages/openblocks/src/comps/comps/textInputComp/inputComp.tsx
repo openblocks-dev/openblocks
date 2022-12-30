@@ -27,6 +27,8 @@ import {
   readOnlyPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { IconControl } from "comps/controls/iconControl";
+import { hasIcon } from "comps/utils";
 
 /**
  * Input Comp
@@ -41,6 +43,8 @@ const childrenMap = {
   showCount: BoolControl,
   allowClear: BoolControl,
   style: styleControl(InputLikeStyle),
+  prefixIcon: IconControl,
+  suffixIcon: IconControl,
 };
 
 export const InputComp = new UICompBuilder(childrenMap, (props) => {
@@ -53,6 +57,8 @@ export const InputComp = new UICompBuilder(childrenMap, (props) => {
         showCount={props.showCount}
         allowClear={props.allowClear}
         $style={props.style}
+        prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
+        suffix={hasIcon(props.suffixIcon) &&props.suffixIcon}
       />
     ),
     style: props.style,
@@ -72,6 +78,8 @@ export const InputComp = new UICompBuilder(childrenMap, (props) => {
           {children.showCount.propertyView({ label: trans("prop.showCount") })}
           {allowClearPropertyView(children)}
           {readOnlyPropertyView(children)}
+          {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
         </Section>
 
         <TextInputValidationSection {...children} />

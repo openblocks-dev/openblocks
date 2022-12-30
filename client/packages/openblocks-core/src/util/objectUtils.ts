@@ -100,16 +100,17 @@ export function setFields<T>(obj: T, fields: Partial<T>) {
 export function setFieldsNoTypeCheck<T>(
   obj: T,
   fields: Record<string, any>,
-  params?: { keepCache?: boolean }
+  params?: { keepCacheKeys?: string[] }
 ) {
   const res = Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
-  if (!params?.keepCache) {
-    Object.keys(res).forEach((key) => {
-      if (key.startsWith(CACHE_PREFIX)) {
+  Object.keys(res).forEach((key) => {
+    if (key.startsWith(CACHE_PREFIX)) {
+      const propertyKey = key.slice(CACHE_PREFIX.length);
+      if (!params?.keepCacheKeys || !params?.keepCacheKeys.includes(propertyKey)) {
         delete res[key];
       }
-    });
-  }
+    }
+  });
   return Object.assign(res, fields) as T;
 }
 

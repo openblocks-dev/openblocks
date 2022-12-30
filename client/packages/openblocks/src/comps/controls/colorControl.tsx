@@ -146,7 +146,15 @@ function ColorItem(props: {
             </span>
             <span>{trans("style.customize")}</span>
           </DepStyle>
-          <ColorInput ref={inputRef} hidden={showDep} onClick={() => setFocus(true)}>
+          <ColorInput
+            ref={inputRef}
+            hidden={showDep}
+            onFocus={(e) => {
+              if (!e.target.parentElement?.getElementsByClassName("cm-gutters").length) {
+                setFocus(true);
+              }
+            }}
+          >
             {input}
           </ColorInput>
         </div>

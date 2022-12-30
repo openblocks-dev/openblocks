@@ -4,6 +4,7 @@ import { EvalMethods } from "openblocks-core";
 import _ from "lodash";
 import { Comp } from "openblocks-core";
 import { exposingInfoToNodes, exposingMethods } from "./exposingTypes";
+import { ReactNode, ReactElement } from "react";
 export * from "./nameGenerator";
 
 /**
@@ -82,3 +83,5 @@ export function arrayMove<T>(data: Array<T>, start: number, end: number) {
   });
   return result;
 }
+
+export const hasIcon = (icon: ReactNode) => (icon as ReactElement).props.value;

@@ -132,12 +132,12 @@ export function getDisplayData(
         // skip hidden columns
         return;
       }
-      const columnNode = (col.render.__comp__ as any).wrap(
-        data[col.dataIndex],
-        data,
-        index % pageSize,
-        index
-      );
+      const columnNode = (col.render.__comp__ as any).wrap({
+        currentCell: data[col.dataIndex],
+        currentRow: data,
+        currentIndex: index % pageSize,
+        currentOriginalIndex: index,
+      });
       const colValue = columnNode.comp[__COLUMN_DISPLAY_VALUE_FN](columnNode.comp);
       if (colValue !== null) {
         const title = col.title.value;

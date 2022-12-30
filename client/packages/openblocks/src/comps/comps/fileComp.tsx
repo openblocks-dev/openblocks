@@ -36,6 +36,8 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import { getComponentDocUrl } from "comps/utils/compDocUtil";
 import mime from "mime";
+import { IconControl } from "comps/controls/iconControl";
+import { hasIcon } from "comps/utils";
 
 const FileSizeControl = codeControl((value) => {
   if (typeof value === "number") {
@@ -97,6 +99,8 @@ const commonChildren = {
   style: styleControl(FileStyle),
   parseFiles: BoolPureControl,
   parsedValue: stateComp<Array<JSONValue | null>>([]),
+  prefixIcon: withDefault(IconControl, "/icon:solid/arrow-up-from-bracket"),
+  suffixIcon: IconControl,
   ...validationChildren,
 };
 
@@ -156,9 +160,25 @@ const StyledUpload = styled(AntdUpload)<{ $style: FileStyleType }>`
   .ant-upload,
   .ant-btn {
     width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    > span {
+      overflow: hidden;
+      display: inline-flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 6px;
+      min-height: 1px;
+    }
   }
 
   ${(props) => props.$style && getStyle(props.$style)}
+`;
+
+const IconWrapper = styled.span`
+  display: flex;
 `;
 
 export function resolveValue(files: UploadFile[]) {
@@ -305,8 +325,12 @@ const Upload = (
         setFileList(uploadedFiles.slice(-maxFiles));
       }}
     >
-      <Button icon={<UploadOutlined />} disabled={props.disabled}>
-        {props.text}
+      <Button disabled={props.disabled}>
+        <span>
+          {hasIcon(props.prefixIcon) && <IconWrapper>{props.prefixIcon}</IconWrapper>}
+          {!!props.text && props.text}
+          {hasIcon(props.suffixIcon) && <IconWrapper>{props.suffixIcon}</IconWrapper>}
+        </span>
       </Button>
     </StyledUpload>
   );
@@ -370,7 +394,11 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => (
         </>
       </Section>
 
-      <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+      <Section name={sectionNames.layout}>
+        {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+        {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+        {hiddenPropertyView(children)}
+      </Section>
 
       <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
     </>

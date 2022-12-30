@@ -1,21 +1,21 @@
 import _ from "lodash";
 import { memoized } from "util/memoize";
-import { CodeType, EvalMethods } from "./types/evalTypes";
 import { FunctionNode, withFunction } from "./functionNode";
 import { AbstractNode, FetchInfo, Node, ValueFn } from "./node";
 import { fromRecord } from "./recordNode";
+import { CodeType, EvalMethods } from "./types/evalTypes";
+import { ValueAndMsg, ValueExtra } from "./types/valueAndMsg";
 import { filterDepends, filterTopDepends, hasCycle } from "./utils/evaluate";
 import { dependsErrorMessage, mergeNodesWithSameName } from "./utils/nodeUtils";
 import { string2Fn } from "./utils/string2Fn";
-import { ValueAndMsg, ValueExtra } from "./types/valueAndMsg";
 
 export interface CodeNodeOptions {
   codeType?: CodeType;
 
   // whether to support comp methods?
   evalWithMethods?: boolean;
-  // multi-level nested parameters. when setting, value may be multi-level nested parameters: paramValues => ... => ValueAndMsg<unknown>
-  paramNamesList?: string[][];
+  // if set, value can be: params => ... => ValueAndMsg<unknown>
+  wrapDepth?: number;
 }
 
 /**
@@ -40,10 +40,10 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
     this.evalWithMethods = options?.evalWithMethods ?? true;
   }
 
-  override wrapContext(paramName: string): AbstractNode<ValueFn<ValueAndMsg<unknown>>> {
+  override wrapContext(): AbstractNode<ValueFn<ValueAndMsg<unknown>>> {
     const fnNode = new CodeNode(this.unevaledValue, {
       ...this.options,
-      paramNamesList: [...(this.options?.paramNamesList ?? []), paramName.split(",")],
+      wrapDepth: (this.options?.wrapDepth ?? 0) + 1,
     }) as AbstractNode<ValueAndMsg<ValueFn<ValueAndMsg<unknown>>>>;
     // safe wrapper
     return new FunctionNode(fnNode, (result) => result.value);
@@ -106,7 +106,7 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
         this.unevaledValue,
         this.codeType,
         this.evalWithMethods ? methods : {},
-        this.options?.paramNamesList
+        this.options?.wrapDepth
       );
       const evalNode = withFunction(fromRecord(dependingNodes), fn);
       let valueAndMsg = evalNode.evaluate(exposingNodes);

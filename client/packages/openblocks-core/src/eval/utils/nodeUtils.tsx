@@ -6,15 +6,6 @@ export function dependsErrorMessage(node: CodeNode) {
   return `DependencyError: "${node.unevaledValue}" caused a cyclic dependency.`;
 }
 
-export class EvalTypeError extends TypeError {
-  hint?: string;
-
-  constructor(msg: string, hint?: string) {
-    super(msg);
-    this.hint = hint;
-  }
-}
-
 export function getErrorMessage(err: unknown) {
   // todo try to use 'err instanceof EvalTypeError' instead
   if (err instanceof TypeError && (err as any).hint) {

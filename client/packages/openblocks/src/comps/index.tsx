@@ -118,7 +118,7 @@ type Registry = {
 };
 
 const builtInRemoteComps: Omit<RemoteCompInfo, "compName"> = {
-  source: "npm",
+  source: !!REACT_APP_BUNDLE_BUILTIN_PLUGIN ? "bundle" : "npm",
   isRemote: true,
   packageName: "openblocks-comps",
 };

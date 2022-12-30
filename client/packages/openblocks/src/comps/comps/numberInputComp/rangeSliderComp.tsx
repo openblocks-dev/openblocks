@@ -3,7 +3,8 @@ import { Section, sectionNames } from "openblocks-design";
 import { numberExposingStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { SliderChildren, SliderPropertyView, SliderStyled } from "./sliderCompConstants";
+import { SliderChildren, SliderPropertyView, SliderStyled, SliderWrapper } from "./sliderCompConstants";
+import { hasIcon } from "comps/utils";
 
 const RangeSliderBasicComp = (function () {
   const childrenMap = {
@@ -15,12 +16,13 @@ const RangeSliderBasicComp = (function () {
     return props.label({
       style: props.style,
       children: (
-        <div
+        <SliderWrapper
           onMouseDown={(e: any) => {
             e.stopPropagation();
             return false;
           }}
         >
+          {hasIcon(props.prefixIcon) && props.prefixIcon}
           <SliderStyled
             {...props}
             range={true}
@@ -32,7 +34,8 @@ const RangeSliderBasicComp = (function () {
               props.onEvent("change");
             }}
           />
-        </div>
+          {hasIcon(props.suffixIcon) && props.suffixIcon}
+        </SliderWrapper>
       ),
     });
   })
