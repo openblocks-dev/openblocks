@@ -23,6 +23,7 @@ import com.openblocks.api.framework.view.ResponseView;
 import com.openblocks.api.util.BusinessEventPublisher;
 import com.openblocks.domain.application.model.ApplicationType;
 import com.openblocks.domain.folder.model.Folder;
+import com.openblocks.domain.folder.service.FolderService;
 import com.openblocks.domain.permission.model.ResourceRole;
 import com.openblocks.infra.constant.NewUrl;
 import com.openblocks.infra.event.EventType;
@@ -33,6 +34,8 @@ import reactor.core.publisher.Mono;
 @RequestMapping(NewUrl.FOLDER_URL)
 public class FolderController {
 
+    @Autowired
+    private FolderService folderService;
     @Autowired
     private FolderApiService folderApiService;
     @Autowired
@@ -53,11 +56,19 @@ public class FolderController {
                 .then(Mono.fromSupplier(() -> ResponseView.success(null)));
     }
 
+    /**
+     * update name only.
+     */
     @PutMapping
     public Mono<ResponseView<FolderInfoView>> update(@RequestBody Folder folder) {
-        return folderApiService.update(folder)
-                .delayUntil(__ -> businessEventPublisher.publishFolderCommonEvent(folder.getId(), folder.getName(), EventType.FOLDER_UPDATE))
-                .map(ResponseView::success);
+        return folderService.findById(folder.getId())
+                .zipWhen(__ -> folderApiService.update(folder))
+                .delayUntil(tuple2 -> {
+                    Folder old = tuple2.getT1();
+                    return businessEventPublisher.publishFolderCommonEvent(folder.getId(), old.getName() + " => " + folder.getName(),
+                            EventType.FOLDER_UPDATE);
+                })
+                .map(tuple2 -> ResponseView.success(tuple2.getT2()));
     }
 
     /**

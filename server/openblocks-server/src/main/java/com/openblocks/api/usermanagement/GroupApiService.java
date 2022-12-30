@@ -12,7 +12,6 @@ import static java.util.Collections.emptyList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,7 @@ import com.openblocks.api.usermanagement.view.GroupMemberView;
 import com.openblocks.api.usermanagement.view.GroupView;
 import com.openblocks.api.usermanagement.view.UpdateGroupRequest;
 import com.openblocks.api.usermanagement.view.UpdateRoleRequest;
-import com.openblocks.domain.bizthreshold.BizThresholdChecker;
+import com.openblocks.domain.bizthreshold.AbstractBizThresholdChecker;
 import com.openblocks.domain.group.model.Group;
 import com.openblocks.domain.group.model.GroupMember;
 import com.openblocks.domain.group.service.GroupMemberService;
@@ -51,7 +50,7 @@ public class GroupApiService {
     @Autowired
     private GroupService groupService;
     @Autowired
-    private BizThresholdChecker bizThresholdChecker;
+    private AbstractBizThresholdChecker bizThresholdChecker;
 
     public Mono<GroupMemberAggregateView> getGroupMembers(String groupId, int page, int count) {
         Mono<Tuple2<GroupMember, OrgMember>> groupAndOrgMemberInfo = getGroupAndOrgMemberInfo(groupId).cache();
@@ -89,7 +88,7 @@ public class GroupApiService {
                                         return new GroupMemberView(orgMember, user);
                                     })
                                     .filter(Objects::nonNull)
-                                    .collect(Collectors.toList()));
+                                    .toList());
                 })
                 .zipWith(visitorRoleMono)
                 .map(tuple -> {
@@ -209,7 +208,7 @@ public class GroupApiService {
         return sessionUserService.getVisitorOrgMemberCache()
                 .filter(OrgMember::isAdmin)
                 .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED))
-                .transform(bizThresholdChecker::checkMaxGroupCount)
+                .delayUntil(orgMember -> bizThresholdChecker.checkMaxGroupCount(orgMember))
                 .flatMap(orgMember -> {
                     String orgId = orgMember.getOrgId();
                     Group group = new Group();

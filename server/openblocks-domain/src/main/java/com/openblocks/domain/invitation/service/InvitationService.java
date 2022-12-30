@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import com.openblocks.domain.bizthreshold.BizThresholdChecker;
+import com.openblocks.domain.bizthreshold.AbstractBizThresholdChecker;
 import com.openblocks.domain.invitation.model.Invitation;
 import com.openblocks.domain.invitation.repository.InvitationRepository;
 import com.openblocks.domain.organization.model.MemberRole;
@@ -26,7 +26,7 @@ public class InvitationService {
     private OrgMemberService orgMemberService;
 
     @Autowired
-    private BizThresholdChecker bizThresholdChecker;
+    private AbstractBizThresholdChecker bizThresholdChecker;
 
     @Autowired
     private InvitationRepository repository;

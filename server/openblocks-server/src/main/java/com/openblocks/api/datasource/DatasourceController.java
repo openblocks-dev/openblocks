@@ -1,5 +1,11 @@
 package com.openblocks.api.datasource;
 
+import static com.openblocks.infra.event.EventType.DATA_SOURCE_CREATE;
+import static com.openblocks.infra.event.EventType.DATA_SOURCE_DELETE;
+import static com.openblocks.infra.event.EventType.DATA_SOURCE_PERMISSION_DELETE;
+import static com.openblocks.infra.event.EventType.DATA_SOURCE_PERMISSION_GRANT;
+import static com.openblocks.infra.event.EventType.DATA_SOURCE_PERMISSION_UPDATE;
+import static com.openblocks.infra.event.EventType.DATA_SOURCE_UPDATE;
 import static com.openblocks.sdk.exception.BizError.INVALID_PARAMETER;
 import static com.openblocks.sdk.util.ExceptionUtils.ofError;
 import static com.openblocks.sdk.util.LocaleUtils.getLocale;
@@ -11,6 +17,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.openblocks.api.framework.view.ResponseView;
 import com.openblocks.api.permission.view.CommonPermissionView;
+import com.openblocks.api.util.BusinessEventPublisher;
 import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.domain.datasource.service.DatasourceStructureService;
 import com.openblocks.domain.permission.model.ResourceRole;
@@ -49,13 +57,17 @@ public class DatasourceController {
     private final DatasourceStructureService datasourceStructureService;
     private final DatasourceApiService datasourceApiService;
     private final UpsertDatasourceRequestMapper upsertDatasourceRequestMapper;
+    private final BusinessEventPublisher businessEventPublisher;
 
     @Autowired
-    public DatasourceController(DatasourceStructureService datasourceStructureService,
-            DatasourceApiService datasourceApiService, UpsertDatasourceRequestMapper upsertDatasourceRequestMapper) {
+    public DatasourceController(
+            DatasourceStructureService datasourceStructureService,
+            DatasourceApiService datasourceApiService,
+            UpsertDatasourceRequestMapper upsertDatasourceRequestMapper, BusinessEventPublisher businessEventPublisher) {
         this.datasourceStructureService = datasourceStructureService;
         this.datasourceApiService = datasourceApiService;
         this.upsertDatasourceRequestMapper = upsertDatasourceRequestMapper;
+        this.businessEventPublisher = businessEventPublisher;
     }
 
     @JsonView(JsonViews.Public.class)
@@ -63,6 +75,7 @@ public class DatasourceController {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseView<Datasource>> create(@Valid @RequestBody UpsertDatasourceRequest request) {
         return datasourceApiService.create(upsertDatasourceRequestMapper.resolve(request))
+                .delayUntil(datasource -> businessEventPublisher.publishDatasourceEvent(datasource, DATA_SOURCE_CREATE))
                 .map(ResponseView::success);
     }
 
@@ -79,12 +92,19 @@ public class DatasourceController {
             @RequestBody UpsertDatasourceRequest request) {
         Datasource resolvedDatasource = upsertDatasourceRequestMapper.resolve(request);
         return datasourceApiService.update(id, resolvedDatasource)
+                .delayUntil(datasource -> businessEventPublisher.publishDatasourceEvent(datasource, DATA_SOURCE_UPDATE))
                 .map(ResponseView::success);
     }
 
     @DeleteMapping("/{id}")
     public Mono<ResponseView<Boolean>> delete(@PathVariable String id) {
         return datasourceApiService.delete(id)
+                .delayUntil(result -> {
+                    if (BooleanUtils.isTrue(result)) {
+                        return businessEventPublisher.publishDatasourceEvent(id, DATA_SOURCE_DELETE);
+                    }
+                    return Mono.empty();
+                })
                 .map(ResponseView::success);
     }
 
@@ -150,6 +170,13 @@ public class DatasourceController {
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", request.role());
         }
         return datasourceApiService.grantPermission(datasourceId, request.userIds(), request.groupIds(), role)
+                .delayUntil(result -> {
+                    if (BooleanUtils.isTrue(result)) {
+                        return businessEventPublisher.publishDatasourcePermissionEvent(datasourceId, request.userIds,
+                                request.groupIds(), request.role(), DATA_SOURCE_PERMISSION_GRANT);
+                    }
+                    return Mono.empty();
+                })
                 .map(ResponseView::success);
     }
 
@@ -160,12 +187,19 @@ public class DatasourceController {
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", request.role());
         }
         return datasourceApiService.updatePermission(permissionId, request.getResourceRole())
+                .delayUntil(result -> {
+                    if (BooleanUtils.isTrue(result)) {
+                        return businessEventPublisher.publishDatasourcePermissionEvent(permissionId, DATA_SOURCE_PERMISSION_UPDATE);
+                    }
+                    return Mono.empty();
+                })
                 .map(ResponseView::success);
     }
 
     @DeleteMapping("/permissions/{permissionId}")
     public Mono<ResponseView<Boolean>> deletePermission(@PathVariable("permissionId") String permissionId) {
-        return datasourceApiService.deletePermission(permissionId)
+        return businessEventPublisher.publishDatasourcePermissionEvent(permissionId, DATA_SOURCE_PERMISSION_DELETE)
+                .then(datasourceApiService.deletePermission(permissionId))
                 .map(ResponseView::success);
     }
 

@@ -3,6 +3,8 @@ package com.openblocks.api.config;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.openblocks.sdk.auth.AbstractAuthConfig;
 import com.openblocks.sdk.constants.WorkspaceMode;
 
@@ -15,6 +17,7 @@ public class ConfigView {
 
     private boolean isCloudHosting;
     private List<AbstractAuthConfig> authConfigs;
-    private boolean needUpdate;
+    @JsonInclude(Include.NON_EMPTY)
+    private String warning;
     private WorkspaceMode workspaceMode;
 }

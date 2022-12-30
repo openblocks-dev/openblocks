@@ -45,7 +45,7 @@ import com.openblocks.domain.application.model.Application;
 import com.openblocks.domain.application.model.ApplicationStatus;
 import com.openblocks.domain.application.model.ApplicationType;
 import com.openblocks.domain.application.service.ApplicationService;
-import com.openblocks.domain.bizthreshold.BizThresholdChecker;
+import com.openblocks.domain.bizthreshold.AbstractBizThresholdChecker;
 import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.domain.group.service.GroupService;
 import com.openblocks.domain.interaction.UserApplicationInteractionService;
@@ -104,7 +104,7 @@ public class ApplicationApiService {
     private UserService userService;
 
     @Autowired
-    private BizThresholdChecker bizThresholdChecker;
+    private AbstractBizThresholdChecker bizThresholdChecker;
 
     @Autowired
     private TemplateSolution templateSolution;
