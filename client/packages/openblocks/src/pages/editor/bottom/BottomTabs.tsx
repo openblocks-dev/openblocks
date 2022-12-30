@@ -1,16 +1,19 @@
-import { labelCss, TacoButton } from "openblocks-design";
-import { UnfoldWhiteIcon } from "openblocks-design";
+import {
+  EditText,
+  labelCss,
+  PopupCard,
+  QueryAlert,
+  ScrollBar,
+  TacoButton,
+  UnfoldWhiteIcon,
+} from "openblocks-design";
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { EditText } from "openblocks-design";
-import { PopupCard } from "openblocks-design";
 import { EditorContext } from "../../../comps/editorState";
 import _ from "lodash";
 import { ReadOnlyMask } from "pages/common/styledComponent";
 import { useSelector } from "react-redux";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
-import { ScrollBar } from "openblocks-design";
-import { QueryAlert } from "openblocks-design";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { trans } from "i18n";
 
@@ -140,6 +143,11 @@ const Icon = styled(UnfoldWhiteIcon)`
   padding-right: 2px;
   margin-right: 4px;
 `;
+const StyleScrollBar = styled(ScrollBar)`
+  .simplebar-content-wrapper {
+    overflow-x: hidden !important;
+  }
+`;
 
 type TabsConfigType = readonly {
   readonly key: string;
@@ -225,11 +233,11 @@ export function BottomTabs<T extends TabsConfigType>(props: {
         )}
       </TabContainer>
 
-      <ScrollBar height={"calc(100% - 45px)"}>
+      <StyleScrollBar height={"calc(100% - 45px)"}>
         <div style={{ padding: "8px 16px 16px" }}>
           <ReadOnlyMask readOnly={readOnly}>{valueInfoMap[key].children}</ReadOnlyMask>
         </div>
-      </ScrollBar>
+      </StyleScrollBar>
 
       {status === "error" && message && <QueryAlert message={message} />}
     </>

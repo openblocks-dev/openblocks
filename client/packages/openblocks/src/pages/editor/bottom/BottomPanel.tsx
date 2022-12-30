@@ -14,7 +14,6 @@ const StyledResizableBox = styled(ResizableBox)`
   position: relative;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   border-top: 1px solid #e1e3eb;
-  min-width: 630px;
   z-index: ${Layers.bottomPanel};
 
   .react-resizable-handle {

@@ -12,6 +12,7 @@ import {
   parseChildrenFromValueAndChildrenMap,
   ToConstructor,
   ToDataType,
+  ToNodeType,
 } from "comps/generators/multi";
 import _ from "lodash";
 import { stateComp, stateInstance, valueComp } from "./simpleGenerators";
@@ -146,13 +147,18 @@ export function withTypeAndChildrenAbstract<
       __PREV_VALUE: ReturnType<typeof stateInstance<Record<string, DataType[V]>>>;
     };
   type DataType = COMP_DATA_TYPE<T, K, V> & ToDataType<ChildrenCompMap>;
+  type NodeType = ToNodeType<ChildrenType>;
 
   const childrenWithPrev = {
     ...childrenMap,
     __PREV_VALUE: stateComp({}),
   };
 
-  abstract class WITH_TYPE_AND_CHILDREN_COMP extends MultiBaseComp<ChildrenType, DataType> {
+  abstract class WITH_TYPE_AND_CHILDREN_COMP extends MultiBaseComp<
+    ChildrenType,
+    DataType,
+    NodeType
+  > {
     override parseChildrenFromValue(params: CompParams<DataType>): ChildrenType {
       const compMap = typeof compMapOrGetter === "function" ? compMapOrGetter() : compMapOrGetter;
       return {

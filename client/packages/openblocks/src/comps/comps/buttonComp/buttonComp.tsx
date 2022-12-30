@@ -38,7 +38,7 @@ function getFormOptions(editorState: EditorState) {
 }
 
 function getForm(editorState: EditorState, formName: string) {
-  const comp = editorState.getUICompByName(formName);
+  const comp = editorState?.getUICompByName(formName);
   if (comp && comp.children.compType.getView() === "form") {
     return comp.children.comp as unknown as IForm;
   }

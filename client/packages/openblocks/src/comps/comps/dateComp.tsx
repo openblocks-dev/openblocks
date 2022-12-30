@@ -286,7 +286,7 @@ export const datePickerControl = (function () {
           }}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
-          inputReadOnly={checkIsMobile(editorState.getAppSettings().maxWidth)}
+          inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
         />
       </>
     );
@@ -375,7 +375,7 @@ export const dateRangeControl = (function () {
           }}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
-          inputReadOnly={checkIsMobile(editorState.getAppSettings().maxWidth)}
+          inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
         />
       </>
     );

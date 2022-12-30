@@ -57,6 +57,7 @@ export function AppView(props: AppViewProps) {
         return true;
       },
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [appId]
   );
 
@@ -64,6 +65,7 @@ export function AppView(props: AppViewProps) {
 
   useEffect(() => {
     onCompChange?.(comp);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [comp]);
 
   useEffect(() => {
@@ -82,6 +84,7 @@ export function AppView(props: AppViewProps) {
         );
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [moduleInputs]);
 
   return (

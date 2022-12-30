@@ -397,7 +397,13 @@ export function GridItem(props: GridItemProps) {
     // Create the child element. We clone the existing element but modify its className and style.
     let newChild: React.ReactElement = React.cloneElement(child, {
       ref: elementRef,
-      className: clsx("react-grid-item", props.name, child.props.className, props.className),
+      className: clsx(
+        "react-grid-item",
+        props.name,
+        `ui-comp-${props.compType}`,
+        child.props.className,
+        props.className
+      ),
       // We can set the width and height on the child, but unfortunately we can't set the position.
       style: {
         ...props.style,

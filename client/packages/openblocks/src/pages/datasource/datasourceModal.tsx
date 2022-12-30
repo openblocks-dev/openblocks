@@ -309,7 +309,7 @@ export function CreateDataSourceModal(props: CreateDataSourceModalProps) {
     if (dataSource) {
       setActiveStepKey("form");
     }
-  }, [dataSource]);
+  });
 
   return (
     <StepModal

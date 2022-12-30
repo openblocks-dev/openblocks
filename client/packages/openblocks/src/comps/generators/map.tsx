@@ -31,11 +31,13 @@ export type ClearAction = {
   type: "clear";
 };
 
-export function map<ChildComp extends CompConstructor<any, any>>(childConstructor: ChildComp) {
-  type Comp = ConstructorToComp<ChildComp>;
-  type DataType = ConstructorToDataType<ChildComp>;
+export function map<ChildCompCtor extends CompConstructor<any, any>>(
+  childConstructor: ChildCompCtor
+) {
+  type Comp = ConstructorToComp<ChildCompCtor>;
+  type DataType = ConstructorToDataType<ChildCompCtor>;
   type MapDataType = Record<string, DataType>;
-  type NodeValue = NodeToValue<ConstructorToNodeType<ChildComp>>;
+  type NodeValue = NodeToValue<ConstructorToNodeType<ChildCompCtor>>;
 
   function newChild(
     dispatch: (action: CompAction) => void,
