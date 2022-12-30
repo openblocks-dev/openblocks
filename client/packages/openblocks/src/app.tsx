@@ -46,7 +46,8 @@ import { isFetchUserFinished } from "redux/selectors/usersSelectors";
 
 const LazyUserAuthComp = React.lazy(() => import("@openblocks-ee/pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
-const LazyComponentDoc = React.lazy(() => import("@openblocks-ee/pages/ComponentDoc"));
+const LazyComponentDoc = React.lazy(() => import("pages/ComponentDoc"));
+const LazyComponentPlayground = React.lazy(() => import("pages/ComponentPlayground"));
 const LazyDebugComp = React.lazy(() => import("./debug"));
 const LazyDebugNewComp = React.lazy(() => import("./debugNew"));
 
@@ -128,6 +129,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             <LazyRoute path={USER_AUTH_URL} component={LazyUserAuthComp} />
             <LazyRoute path={INVITE_LANDING_URL} component={LazyInviteLanding} />
             <LazyRoute path={`${COMPONENT_DOC_URL}/:name`} component={LazyComponentDoc} />
+            <LazyRoute path={`/playground/:name/:dsl`} component={LazyComponentPlayground} />
             <Redirect to={`${COMPONENT_DOC_URL}/input`} path="/components" />
 
             {developEnv() && (

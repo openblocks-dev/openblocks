@@ -1,10 +1,10 @@
-import { AddIcon, CloseIcon, CustomModalProps, ScrollBar } from "openblocks-design";
+import { AddIcon, CloseIcon, CustomModalProps, ImportIconV2, ScrollBar } from "openblocks-design";
 import { BottomShadow, GreyTextColor, TabActiveColor } from "constants/style";
 import { trans } from "i18n";
 import _, { noop } from "lodash";
 import { CreateDataSourceModal } from "pages/datasource/datasourceModal";
 import { DataSourceButton } from "pages/datasource/pluginPanel";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useResizeDetector } from "react-resize-detector";
 import styled, { css } from "styled-components";
 import { BottomResTypeEnum } from "types/bottomRes";
@@ -20,6 +20,7 @@ import {
   QUICK_REST_API_ID,
 } from "../constants/datasourceConstants";
 import { ResourceType } from "@openblocks-ee/constants/queryConstants";
+import { Upload } from "antd";
 
 const Wrapper = styled.div<{ placement: PageType }>`
   width: 100%;
@@ -174,6 +175,7 @@ interface ResCreateModalProps extends CustomModalProps {
   onSelect: (type: BottomResTypeEnum, extraInfo?: any) => void;
   onClose: () => void;
   placement?: PageType;
+  onImport?: (options: any) => void;
 }
 
 export function ResCreatePanel(props: ResCreateModalProps) {
@@ -241,6 +243,29 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                     />
                     <ResButton size={buttonSize} identifier={"js"} onSelect={onSelect} />
                     <ResButton size={buttonSize} identifier={"libraryQuery"} onSelect={onSelect} />
+                  </DataSourceListWrapper>
+                </div>
+              </>
+            )}
+
+            {placement === "queryLibrary" && props.onImport && (
+              <>
+                <div className="section-title">{trans("home.import")}</div>
+                <div className="section">
+                  <DataSourceListWrapper placement={placement}>
+                    <Upload
+                      accept=".json"
+                      showUploadList={false}
+                      customRequest={(options) => {
+                        props.onImport!(options);
+                      }}
+                      multiple={false}
+                    >
+                      <DataSourceButton size={buttonSize}>
+                        <ImportIconV2 width="20px" height="20px" style={{ marginRight: "8px" }} />
+                        {trans("query.importFromFile")}
+                      </DataSourceButton>
+                    </Upload>
                   </DataSourceListWrapper>
                 </div>
               </>

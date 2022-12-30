@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { EditPopover, PointIcon, Search, TacoButton } from "openblocks-design";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataSource, getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
 import { deleteDatasource } from "../../redux/reduxActions/datasourceActions";
@@ -88,6 +88,10 @@ const PopoverIcon = styled(PointIcon)`
   }
 `;
 
+const SubColumnCell = styled.div`
+  color: #8b8fa3;
+`;
+
 export const DatasourceList = () => {
   const dispatch = useDispatch();
   const [searchValue, setSearchValue] = useState("");
@@ -164,6 +168,7 @@ export const DatasourceList = () => {
                 }
                 return a.type > b.type ? 1 : -1;
               },
+              render: (text) => <SubColumnCell>{text}</SubColumnCell>,
             },
             {
               title: trans("home.databaseName"),
@@ -175,8 +180,11 @@ export const DatasourceList = () => {
                 }
                 return a.database > b.database ? 1 : -1;
               },
-              render: (text) =>
-                isEmpty(text) ? <span style={{ color: "#8B8FA3" }}>--</span> : text,
+              render: (text) => (
+                <SubColumnCell>
+                  {isEmpty(text) ? <span style={{ color: "#8B8FA3" }}>--</span> : text}
+                </SubColumnCell>
+              ),
             },
             {
               title: trans("home.creator"),
@@ -189,6 +197,7 @@ export const DatasourceList = () => {
                 }
                 return a.type > b.type ? 1 : -1;
               },
+              render: (text) => <SubColumnCell>{text}</SubColumnCell>,
             },
             {
               title: trans("home.createTime"),
@@ -201,9 +210,11 @@ export const DatasourceList = () => {
                 }
                 return a.createTime > b.createTime ? 1 : -1;
               },
-              render: (text) => {
-                return timestampToHumanReadable(text, 30 * 24 * 60 * 60 * 1000);
-              },
+              render: (text) => (
+                <SubColumnCell>
+                  {timestampToHumanReadable(text, 30 * 24 * 60 * 60 * 1000)}
+                </SubColumnCell>
+              ),
             },
             { title: " ", dataIndex: "operation", width: "152px" },
           ]}

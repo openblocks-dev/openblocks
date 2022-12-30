@@ -31,6 +31,7 @@ function OpenblocksAppViewBase<I = any, O = any>(
       return;
     }
     bootstrapAppAt<I>(appId, node, options).then(setInstance);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appId]);
 
   useEffect(() => {

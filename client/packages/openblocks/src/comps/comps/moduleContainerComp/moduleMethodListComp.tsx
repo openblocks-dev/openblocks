@@ -1,16 +1,15 @@
 import { EmptyContent } from "components/EmptyContent";
 import { KeyValueItem, KeyValueItemListWithNewCreateState } from "components/KeyValueItemList";
-import { ActionSelectorControl } from "comps/controls/actionSelector/actionSelectorControl";
 import CompNameControl from "comps/controls/compNameControl";
 import { list } from "comps/generators/list";
 import { NameGenerator } from "comps/utils";
-import { Section, TacoButton } from "openblocks-design";
-import { trans } from "i18n";
-import { ModuleMethodListItemComp, WithParamsActionControl } from "./moduleMethodListItemComp";
-import { ConfigViewSection } from "./styled";
-import ModuleMethodParamListComp from "./moduleMethodParamListComp";
-import styled from "styled-components";
 import { GreyTextColor } from "constants/style";
+import { trans } from "i18n";
+import { Section, TacoButton } from "openblocks-design";
+import styled from "styled-components";
+import { ModuleMethodListItemComp, WithParamsActionControl } from "./moduleMethodListItemComp";
+import ModuleMethodParamListComp from "./moduleMethodParamListComp";
+import { ConfigViewSection } from "./styled";
 
 const MethodName = styled.div`
   color: ${GreyTextColor};
@@ -128,7 +127,7 @@ function PropertyView(props: PropertyViewProps) {
 interface MethodItemProps {
   name: InstanceType<typeof CompNameControl>;
   params: InstanceType<typeof ModuleMethodParamListComp>;
-  action: InstanceType<typeof ActionSelectorControl>;
+  action: InstanceType<typeof WithParamsActionControl>;
   onDelete: () => void;
   showPopover: boolean;
 }
@@ -144,7 +143,7 @@ function MethodItem(props: MethodItemProps) {
     <>
       {name.propertyView({ label: trans("module.name") })}
       {params.propertyView({ onParamsConfigChange: handleOnParamsConfigChange })}
-      {action.propertyView({ label: trans("module.action") })}
+      {action.getComp().propertyView({ label: trans("module.action") })}
     </>
   );
 
@@ -152,7 +151,7 @@ function MethodItem(props: MethodItemProps) {
     <KeyValueItem
       del={onDelete}
       name={name.getView()}
-      value={action.displayName()}
+      value={action.getComp().displayName()}
       clickPopoverContent={content}
       defaultShowPopover={props.showPopover}
     />

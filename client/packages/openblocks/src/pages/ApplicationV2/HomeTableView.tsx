@@ -32,6 +32,10 @@ const NameWrapper = styled.div`
   color: #333333;
 `;
 
+const SubColumnCell = styled.div`
+  color: #8b8fa3;
+`;
+
 const EditBtn = styled(TacoButton)`
   opacity: 0;
   width: 52px;
@@ -135,7 +139,11 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
               }
               return a.type > b.type ? 1 : -1;
             },
-            render: (_, record) => HomeResInfo[(record as any).type as HomeResTypeEnum].name,
+            render: (_, record) => (
+              <SubColumnCell>
+                {HomeResInfo[(record as any).type as HomeResTypeEnum].name}
+              </SubColumnCell>
+            ),
           },
           {
             title: trans("home.creator"),
@@ -147,6 +155,7 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
               }
               return a.type > b.type ? 1 : -1;
             },
+            render: (text) => <SubColumnCell>{text}</SubColumnCell>,
           },
           {
             title: trans("home.lastModified"),
@@ -159,7 +168,11 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
               }
               return a.lastModifyTime > b.lastModifyTime ? 1 : -1;
             },
-            render: (text) => timestampToHumanReadable(text, 30 * 24 * 60 * 60 * 1000),
+            render: (text) => (
+              <SubColumnCell>
+                {timestampToHumanReadable(text, 30 * 24 * 60 * 60 * 1000)}
+              </SubColumnCell>
+            ),
           },
           {
             title: " ",

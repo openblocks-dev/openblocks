@@ -84,6 +84,7 @@ const JAVA_SCRIPT_KEYWORDS = new Set([
   "toString",
   "undefined",
   "valueOf",
+  "global",
 ]);
 
 export function checkName(name: string): string {
@@ -95,6 +96,9 @@ export function checkName(name: string): string {
   }
   if (JAVA_SCRIPT_KEYWORDS.has(name)) {
     return trans("comp.nameJSKeyword");
+  }
+  if (name in window) {
+    return trans("comp.nameGlobalVariable");
   }
   return "";
 }

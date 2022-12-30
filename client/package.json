@@ -11,9 +11,8 @@
   },
   "scripts": {
     "start": "yarn workspace openblocks start",
+    "start:ee": "REACT_APP_EDITION=enterprise yarn workspace openblocks start",
     "build": "yarn node ./scripts/build.js",
-    "build:skip-main": "yarn node ./scripts/build.mjs --skip-main",
-    "build:legacy": "yarn workspace openblocks build:legacy",
     "test": "jest",
     "prepare": "yarn workspace openblocks prepare",
     "build:core": "yarn workspace openblocks-core build",
