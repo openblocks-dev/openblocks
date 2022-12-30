@@ -4,6 +4,7 @@ import {
   APP_EDITOR_URL,
   APPLICATION_VIEW_URL,
   BASE_URL,
+  COMPONENT_DOC_URL,
   DATASOURCE_CREATE_URL,
   DATASOURCE_EDIT_URL,
   DATASOURCE_URL,
@@ -11,12 +12,11 @@ import {
   FOLDERS_URL,
   IMPORT_APP_FROM_TEMPLATE_URL,
   INVITE_LANDING_URL,
+  isAuthUnRequired,
   QUERY_LIBRARY_URL,
   SETTING,
   TRASH_URL,
   USER_AUTH_URL,
-  isAuthUnRequired,
-  COMPONENT_DOC_URL,
 } from "constants/routesURL";
 import React from "react";
 import ReactDOM from "react-dom";
@@ -43,6 +43,7 @@ import ApplicationHome from "./pages/ApplicationV2";
 import { favicon } from "@openblocks-ee/assets/images";
 import { hasQueryParam } from "util/urlUtils";
 import { isFetchUserFinished } from "redux/selectors/usersSelectors";
+import { SystemWarning } from "./components/SystemWarning";
 
 const LazyUserAuthComp = React.lazy(() => import("@openblocks-ee/pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -98,6 +99,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
           <link rel="icon" href={favicon} />
           <meta name="description" content={trans("productDesc")} />
         </Helmet>
+        <SystemWarning />
         <Router history={history}>
           <Switch>
             {!this.props.orgDev && !!this.props.defaultHomePage ? (

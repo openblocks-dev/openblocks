@@ -3,18 +3,21 @@ import {
   CompActionTypes,
   customAction,
   isMyCustomAction,
+  Node,
+  NodeToValue,
   updateActionContextAction,
   updateNodesV2Action,
+  wrapContext,
+  WrapContextFn,
 } from "openblocks-core";
 import { ConstructorToNodeType, ConstructorToView, MultiCompConstructor } from "openblocks-core";
-import { NodeToNodeFn } from "openblocks-core";
 import React from "react";
 import { lastValueIfEqual, setFieldsNoTypeCheck, shallowEqual } from "util/objectUtils";
 import _ from "lodash";
 
 type NodeFnType<T> = ConstructorToNodeType<T> extends undefined
   ? undefined
-  : NodeToNodeFn<ConstructorToNodeType<T>>;
+  : Node<WrapContextFn<NodeToValue<ConstructorToNodeType<T>>>>;
 export const CompExposingContext = React.createContext<Record<string, unknown> | undefined>(
   undefined
 );
@@ -138,7 +141,7 @@ export function withContext<ParamNames extends readonly string[], T extends Mult
       if (superNode === undefined) {
         return undefined as NodeFnType<T>;
       }
-      return superNode.wrapContext() as NodeFnType<T>;
+      return wrapContext(superNode) as NodeFnType<T>;
     }
   }
 

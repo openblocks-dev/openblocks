@@ -1,11 +1,8 @@
-import _ from "lodash";
 import { EvalMethods } from "./types/evalTypes";
 import { evalPerfUtil } from "./utils/perfUtils";
 import { WrapNode } from "./wrapNode";
 
 export type NodeToValue<NodeT> = NodeT extends Node<infer ValueType> ? ValueType : never;
-export type ValueFn<ValueType> = (params: Record<string, unknown>) => ValueType;
-export type NodeToNodeFn<NodeT> = Node<ValueFn<NodeToValue<NodeT>>>;
 export type FetchInfo = {
   /**
    * whether any of dependencies' node has executing query
@@ -38,10 +35,6 @@ export type RecordOptionalNodeToValue<T> = {
 export interface Node<T> {
   readonly type: string;
   /**
-   * generate a new node, the result is a function with "params"
-   */
-  wrapContext(): Node<ValueFn<T>>;
-  /**
    * calculate evaluate result
    * @param exposingNodes other dependent Nodes
    */
@@ -58,14 +51,14 @@ export interface Node<T> {
   dependValues(): Record<string, unknown>;
 
   /**
-   * filter the real dependencies in the exposingNodes, for boosting the evaluation
+   * filter the real dependencies, for boosting the evaluation
    * @warn
    * the results include direct dependencies and dependencies of dependencies.
    * since input node's dependencies don't belong to module in the module feature, the node name may duplicate.
    *
    * FIXME: this should be a protected function.
    */
-  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]>;
+  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, Set<string>>;
   fetchInfo(exposingNodes: Record<string, Node<unknown>>): FetchInfo;
 }
 
@@ -74,12 +67,11 @@ export abstract class AbstractNode<T> implements Node<T> {
   evalCache: EvalCache<T> = {};
 
   constructor() {}
-  abstract wrapContext(): AbstractNode<ValueFn<T>>;
 
   evaluate(exposingNodes?: Record<string, Node<unknown>>, methods?: EvalMethods): T {
     return evalPerfUtil.perf(this, "eval", () => {
       exposingNodes = exposingNodes ?? {};
-      const dependingNodeMap: Map<Node<unknown>, string[]> = this.filterNodes(exposingNodes);
+      const dependingNodeMap = this.filterNodes(exposingNodes);
       // use cache when equals to the last dependingNodeMap
       if (dependingNodeMapEquals(this.evalCache.dependingNodeMap, dependingNodeMap)) {
         return this.evalCache.value as T;
@@ -112,11 +104,13 @@ export abstract class AbstractNode<T> implements Node<T> {
 
   isHitEvalCache(exposingNodes?: Record<string, Node<unknown>>): boolean {
     exposingNodes = exposingNodes ?? {};
-    const dependingNodeMap: Map<Node<unknown>, string[]> = this.filterNodes(exposingNodes);
+    const dependingNodeMap = this.filterNodes(exposingNodes);
     return dependingNodeMapEquals(this.evalCache.dependingNodeMap, dependingNodeMap);
   }
 
-  abstract filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]>;
+  abstract filterNodes(
+    exposingNodes: Record<string, Node<unknown>>
+  ): Map<Node<unknown>, Set<string>>;
 
   /**
    * evaluate without cache
@@ -127,7 +121,7 @@ export abstract class AbstractNode<T> implements Node<T> {
 }
 
 interface EvalCache<T> {
-  dependingNodeMap?: Map<Node<unknown>, string[]>;
+  dependingNodeMap?: Map<Node<unknown>, Set<string>>;
   value?: T;
 
   inEval?: boolean;
@@ -140,8 +134,8 @@ interface EvalCache<T> {
  * transform WrapNode in dependingNodeMap to actual node.
  * since WrapNode is dynamically constructed in eval process, its reference always changes.
  */
-function unWrapDependingNodeMap(depMap: Map<Node<unknown>, string[]>) {
-  const nextMap = new Map();
+function unWrapDependingNodeMap(depMap: Map<Node<unknown>, Set<string>>) {
+  const nextMap = new Map<Node<unknown>, Set<string>>();
   depMap.forEach((p, n) => {
     if (n.type === "wrap") {
       nextMap.set((n as InstanceType<typeof WrapNode>).delegate, p);
@@ -150,6 +144,10 @@ function unWrapDependingNodeMap(depMap: Map<Node<unknown>, string[]>) {
     }
   });
   return nextMap;
+}
+
+function setEquals(s1: Set<string>, s2?: Set<string>) {
+  return s2 !== undefined && s1.size === s2.size && Array.from(s2).every((v) => s1.has(v));
 }
 
 /**
@@ -162,21 +160,17 @@ function unWrapDependingNodeMap(depMap: Map<Node<unknown>, string[]>) {
  * @returns whether equals
  */
 export function dependingNodeMapEquals(
-  dependingNodeMap1: Map<Node<unknown>, string[]> | undefined,
-  dependingNodeMap2: Map<Node<unknown>, string[]>
+  dependingNodeMap1: Map<Node<unknown>, Set<string>> | undefined,
+  dependingNodeMap2: Map<Node<unknown>, Set<string>>
 ): boolean {
   if (!dependingNodeMap1 || dependingNodeMap1.size !== dependingNodeMap2.size) {
     return false;
   }
   const map1 = unWrapDependingNodeMap(dependingNodeMap1);
   const map2 = unWrapDependingNodeMap(dependingNodeMap2);
-
   let result = true;
-  map2.forEach((path1, node) => {
-    const path0 = map1.get(node);
-    if (!_.isEqual(path0, path1)) {
-      result = false;
-    }
+  map2.forEach((paths, node) => {
+    result = result && setEquals(paths, map1.get(node));
   });
   return result;
 }

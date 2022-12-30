@@ -1,34 +1,21 @@
 import _ from "lodash";
 import { Node } from "../node";
-import { fromRecord, RecordNode } from "../recordNode";
-import { mergeNodesWithSameName, nodeIsRecord } from "./nodeUtils";
+import { addDepends, addDepend } from "./dependMap";
+import { nodeIsRecord } from "./nodeUtils";
 import { getDynamicStringSegments, isDynamicSegment } from "./segmentUtils";
-
-export function listDepends(
-  unevaledValue: string,
-  exposingNodes: Record<string, Node<unknown>>
-): RecordNode<Record<string, Node<unknown>>> {
-  const nodePathMap = filterDepends(unevaledValue, exposingNodes);
-  const nameDependMap = mergeNodesWithSameName(nodePathMap);
-  return fromRecord(nameDependMap);
-}
 
 export function filterDepends(
   unevaledValue: string,
-  exposingNodes: Record<string, Node<unknown>>
-): Map<Node<unknown>, string[]> {
-  const segments: Array<string> = getDynamicStringSegments(unevaledValue.trim());
-  const nodePathMap: Map<Node<unknown>, string[]> = new Map();
-  segments
-    .filter((segment) => isDynamicSegment(segment))
-    .map((segment) => segment.slice(2, -2))
-    .forEach((jsSnippet) => {
-      parseDepends(jsSnippet, exposingNodes).forEach((path: string[], node: Node<unknown>) => {
-        nodePathMap.set(node, path);
-      });
-    });
-  // log.log("unevaledValue: ", unevaledValue, "\nfilteredDepends:", nodePathMap);
-  return nodePathMap;
+  exposingNodes: Record<string, Node<unknown>>,
+  maxDepth?: number
+) {
+  const ret = new Map<Node<unknown>, Set<string>>();
+  for (const segment of getDynamicStringSegments(unevaledValue)) {
+    if (isDynamicSegment(segment)) {
+      addDepends(ret, parseDepends(segment.slice(2, -2), exposingNodes, maxDepth));
+    }
+  }
+  return ret;
 }
 
 export function hasCycle(segment: string, exposingNodes: Record<string, Node<unknown>>): boolean {
@@ -36,30 +23,10 @@ export function hasCycle(segment: string, exposingNodes: Record<string, Node<unk
     return false;
   }
   let ret = false;
-  parseDepends(segment.slice(2, -2), exposingNodes).forEach((_, node) => {
-    if (node.hasCycle()) {
-      ret = true;
-    }
+  parseDepends(segment.slice(2, -2), exposingNodes).forEach((paths, node) => {
+    ret = ret || node.hasCycle();
   });
   return ret;
-}
-
-export function filterTopDepends(
-  unevaledValue: string,
-  exposingNodes: Record<string, Node<unknown>>
-): Map<Node<unknown>, string> {
-  const segments: Array<string> = getDynamicStringSegments(unevaledValue.trim());
-  const nodePathMap: Map<Node<unknown>, string> = new Map();
-  segments
-    .filter((segment) => isDynamicSegment(segment))
-    .map((segment) => segment.slice(2, -2))
-    .forEach((jsSnippet) => {
-      parseTopDepends(jsSnippet, exposingNodes).forEach((path: string, node: Node<unknown>) => {
-        nodePathMap.set(node, path);
-      });
-    });
-  // log.log("unevaledValue: ", unevaledValue, "\nfilteredDepends:", nodePathMap);
-  return nodePathMap;
 }
 
 export function changeDependName(
@@ -146,53 +113,42 @@ function getIdentifiers(jsSnippet: string): string[] {
 
 function parseDepends(
   jsSnippet: string,
-  exposingNodes: Record<string, Node<unknown>>
-): Map<Node<unknown>, string[]> {
-  const depends: Map<Node<unknown>, string[]> = new Map();
+  exposingNodes: Record<string, Node<unknown>>,
+  maxDepth?: number
+) {
+  const depends = new Map<Node<unknown>, Set<string>>();
   const identifiers = getIdentifiers(jsSnippet);
   identifiers.forEach((identifier) => {
     const subpaths = _.toPath(identifier);
-    const dependAndPath = getDependNode(subpaths, exposingNodes);
-    if (dependAndPath) {
-      const [depend, path] = dependAndPath;
-      depends.set(depend, path);
-    }
-  });
-  return depends;
-}
-
-function parseTopDepends(
-  jsSnippet: string,
-  exposingNodes: Record<string, Node<unknown>>
-): Map<Node<unknown>, string> {
-  const depends: Map<Node<unknown>, string> = new Map();
-  const identifiers = getIdentifiers(jsSnippet);
-  identifiers.forEach((identifier) => {
-    const subpaths = _.toPath(identifier).slice(0, 1);
-    const dependAndPath = getDependNode(subpaths, exposingNodes);
-    if (dependAndPath) {
-      const [depend, path] = dependAndPath;
-      depends.set(depend, path[0]);
+    const depend = getDependNode(maxDepth ? subpaths.slice(0, maxDepth) : subpaths, exposingNodes);
+    if (depend) {
+      addDepend(depends, depend[0], [depend[1]]);
     }
   });
   return depends;
 }
 
 function getDependNode(
-  subpaths: string[],
+  subPaths: string[],
   exposingNodes: Record<string, Node<unknown>>
-): [Node<unknown>, string[]] | undefined {
-  if (subpaths.length <= 0 || !exposingNodes.hasOwnProperty(subpaths[0])) {
+): [Node<unknown>, string] | undefined {
+  if (subPaths.length <= 0) {
     return undefined;
   }
-  const path: Array<string> = [];
-  let record: Node<unknown> = fromRecord(exposingNodes);
-  subpaths.forEach((subpath) => {
-    if (!nodeIsRecord(record) || !record.children.hasOwnProperty(subpath)) {
-      return;
+  let nodes = exposingNodes;
+  let node = undefined;
+  const path = [];
+  for (const subPath of subPaths) {
+    const subNode = nodes[subPath];
+    if (!subNode) {
+      break;
     }
-    path.push(subpath);
-    record = record.children[subpath];
-  });
-  return [record, path];
+    node = subNode;
+    path.push(subPath);
+    if (!nodeIsRecord(node)) {
+      break;
+    }
+    nodes = node.children;
+  }
+  return node ? [node, path.join(".")] : undefined;
 }

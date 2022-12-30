@@ -1,7 +1,6 @@
 import { memoized } from "util/memoize";
 import { EvalMethods } from "./types/evalTypes";
-import { AbstractNode, Node, ValueFn } from "./node";
-import { WrapContextNode } from "./wrapContextNode";
+import { AbstractNode, Node } from "./node";
 
 // encapsulate module node, use specified exposing nodes and input nodes
 export class WrapNode<T> extends AbstractNode<T> {
@@ -14,10 +13,6 @@ export class WrapNode<T> extends AbstractNode<T> {
     readonly inputNodes?: Record<string, Node<unknown> | string>
   ) {
     super();
-  }
-
-  override wrapContext(): AbstractNode<ValueFn<T>> {
-    return new WrapContextNode(this);
   }
 
   private wrap(exposingNodes: Record<string, Node<unknown>>, exposingMethods: EvalMethods) {
@@ -44,7 +39,7 @@ export class WrapNode<T> extends AbstractNode<T> {
   }
 
   @memoized()
-  override filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]> {
+  override filterNodes(exposingNodes: Record<string, Node<unknown>>) {
     return this.delegate.filterNodes(this.wrap(exposingNodes, {}));
   }
 

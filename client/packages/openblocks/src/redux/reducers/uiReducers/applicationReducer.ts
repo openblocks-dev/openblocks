@@ -239,7 +239,7 @@ const usersReducer = createReducer(initialState, {
     action: ReduxAction<UpdateAppPermissionPayload>
   ): ApplicationReduxState => {
     if (!state.appPermissionInfo) {
-      return { ...state };
+      return state;
     }
     return {
       ...state,
@@ -251,6 +251,21 @@ const usersReducer = createReducer(initialState, {
           }
           return p;
         }),
+      },
+    };
+  },
+  [ReduxActionTypes.UPDATE_APP_PERMISSION_INFO]: (
+    state: ApplicationReduxState,
+    action: ReduxAction<Partial<AppPermissionInfo>>
+  ): ApplicationReduxState => {
+    if (!state.appPermissionInfo) {
+      return state;
+    }
+    return {
+      ...state,
+      appPermissionInfo: {
+        ...state.appPermissionInfo,
+        ...action.payload,
       },
     };
   },

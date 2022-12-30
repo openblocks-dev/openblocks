@@ -11,7 +11,7 @@ import styled from "styled-components";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
@@ -35,6 +35,12 @@ const Wrapper = styled.div`
   }
 `;
 
+const CustomModalStyled = styled(CustomModal)`
+  .react-draggable {
+    max-width: 100%;
+  }
+`
+
 const BarcodeScannerComponent = React.lazy(() => import("react-qr-barcode-scanner"));
 
 const ScannerTmpComp = (function () {
@@ -56,19 +62,29 @@ const ScannerTmpComp = (function () {
     });
     const [modeList, setModeList] = useState<ItemType[]>([]);
     const [dropdownShow, setDropdownShow] = useState(false);
+    const [success, setSuccess] = useState(false)
+
+    useEffect(() =>{
+      if (!showModal && success) {
+        props.onEvent("success");
+      }
+    }, [success, showModal])
 
     const handleUpdate = (err: any, result: any) => {
       if (!!result) {
-        props.onEvent("success");
         if (props.continuous) {
           const continuousValue = cloneDeep(props.data.value);
           continuousValue.push(result.text);
           const val = props.uniqueData ? [...new Set(continuousValue)] : continuousValue;
           props.data.onChange(val);
+          props.onEvent("success");
         } else {
           props.data.onChange([result.text]);
           setShowModal(false);
+          setSuccess(true);
         }
+      } else {
+        setSuccess(false);
       }
     };
     const handleErr = (err: any) => {
@@ -77,6 +93,7 @@ const ScannerTmpComp = (function () {
       } else {
         setErrMessage(err.message);
       }
+      setSuccess(false);
     };
 
     const getModeList = () => {
@@ -100,10 +117,10 @@ const ScannerTmpComp = (function () {
             setShowModal(true);
           }}
         >
-          {props.text}
+          <span>{props.text}</span>
         </Button100>
 
-        <CustomModal
+        <CustomModalStyled
           showOkButton={false}
           showCancelButton={false}
           visible={showModal}
@@ -115,13 +132,13 @@ const ScannerTmpComp = (function () {
         >
           {!!errMessage ? (
             <Error>{errMessage}</Error>
-          ) : (
+          ) : (showModal && (
             <Wrapper>
               <Suspense fallback={<Skeleton />}>
                 <BarcodeScannerComponent
                   key={props.data.value.toString()}
                   height={250}
-                  delay={500}
+                  delay={1000}
                   onUpdate={handleUpdate}
                   onError={handleErr}
                   videoConstraints={videoConstraints}
@@ -159,8 +176,8 @@ const ScannerTmpComp = (function () {
                 </Dropdown>
               </div>
             </Wrapper>
-          )}
-        </CustomModal>
+          ))}
+        </CustomModalStyled>
       </ButtonCompWrapper>
     );
   })

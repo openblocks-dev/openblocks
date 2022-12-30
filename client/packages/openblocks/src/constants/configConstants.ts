@@ -1,7 +1,7 @@
 export type ConfigBaseInfo = {
   cloudHosting: boolean;
-  needUpdate: boolean;
   workspaceMode: "SAAS" | "ENTERPRISE";
+  warning?: string;
 };
 
 export type ConfigResponseData = {

@@ -16,7 +16,8 @@ import {
   Node,
   NodeToValue,
   updateNodesV2Action,
-  ValueFn,
+  wrapContext,
+  WrapContextFn,
   WrapContextNodeV2,
   wrapDispatch,
 } from "openblocks-core";
@@ -58,13 +59,13 @@ export function withParamsWithDefault<
     comp: ConstructorToComp<TCtor>;
   };
   type CompNodeValue = NodeToValue<ConstructorToNodeType<TCtor>>;
-  type NodeType = Node<{ wrap: ValueFn<CompNodeValue>; original: CompNodeValue }> | undefined;
+  type NodeType = Node<{ wrap: WrapContextFn<CompNodeValue>; original: CompNodeValue }> | undefined;
 
   class WithParamComp
     extends MultiBaseComp<ChildrenType, JSONValue, NodeType>
     implements Comp<ViewReturn>
   {
-    private readonly wrapValue?: ValueFn<CompNodeValue>;
+    private readonly wrapValue?: WrapContextFn<CompNodeValue>;
     private readonly params: ParamValues;
 
     /**
@@ -157,7 +158,7 @@ export function withParamsWithDefault<
     override nodeWithoutCache() {
       const compNode: ConstructorToNodeType<TCtor> = this.getComp().node();
       if (_.isNil(compNode)) return undefined;
-      const wrapNode = compNode.wrapContext();
+      const wrapNode = wrapContext(compNode);
 
       const paramNodes = this.getParamNodes();
       const originalNode = new WrapContextNodeV2(compNode, paramNodes);

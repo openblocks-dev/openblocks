@@ -57,7 +57,7 @@ export abstract class AbstractComp<
   abstract nodeWithoutCache(): NodeType;
 
   changeDispatch(dispatch: DispatchType): this {
-    return setFieldsNoTypeCheck(this, { dispatch: dispatch });
+    return setFieldsNoTypeCheck(this, { dispatch: dispatch }, { keepCacheKeys: ["node"] });
   }
 
   /**
