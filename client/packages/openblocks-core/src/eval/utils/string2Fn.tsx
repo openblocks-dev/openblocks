@@ -200,35 +200,14 @@ export async function evalFunctionResult(
   }
 }
 
-export function string2Fn(
-  unevaledValue: string,
-  type?: CodeType,
-  methods?: EvalMethods,
-  wrapDepth?: number
-): Fn {
+export function string2Fn(unevaledValue: string, type?: CodeType, methods?: EvalMethods): Fn {
   if (type) {
     switch (type) {
       case "JSON":
-        return wrapParams(wrapDepth, (context) => evalJson(unevaledValue, context));
+        return (context) => evalJson(unevaledValue, context);
       case "Function":
-        return wrapParams(wrapDepth, (context) => evalFunction(unevaledValue, context, methods));
+        return (context) => evalFunction(unevaledValue, context, methods);
     }
   }
-  return wrapParams(wrapDepth, (context) => evalDefault(unevaledValue, context));
-}
-
-function wrapParams(wrapDepth: number | undefined, fn: Fn): Fn {
-  if (wrapDepth === undefined || wrapDepth <= 0) {
-    return fn;
-  }
-  return wrapParams(
-    wrapDepth - 1,
-    (context) =>
-      new ValueAndMsg((params: Record<string, unknown>) => {
-        // TODO: fix duplicate calculation when no matter whether unevaledValue depends params
-        // FIXME: no matter unevaledValue depends on params or not, calculation is repeated in each call.
-        // should consider improve wrapContext, including list comp's exposing node
-        return fn({ ...context, ...params });
-      })
-  );
+  return (context) => evalDefault(unevaledValue, context);
 }

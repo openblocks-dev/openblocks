@@ -11,13 +11,10 @@ export class SimpleNode<T> extends AbstractNode<T> {
   constructor(readonly value: T) {
     super();
   }
-  override wrapContext(): SimpleNode<() => T> {
-    return new SimpleNode(() => this.value);
-  }
   @memoized()
-  override filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]> {
+  override filterNodes(exposingNodes: Record<string, Node<unknown>>) {
     return evalPerfUtil.perf(this, "filterNodes", () => {
-      return new Map<Node<unknown>, string[]>();
+      return new Map<Node<unknown>, Set<string>>();
     });
   }
   override justEval(exposingNodes: Record<string, Node<unknown>>): T {

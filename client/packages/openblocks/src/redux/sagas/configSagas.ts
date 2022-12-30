@@ -4,8 +4,6 @@ import { AxiosResponse } from "axios";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
 import ConfigApi, { ConfigResponse } from "api/configApi";
-import { message } from "antd";
-import { trans } from "i18n";
 import { transToSystemConfig } from "@openblocks-ee/constants/configConstants";
 
 export function* fetchConfigSaga() {
@@ -17,8 +15,6 @@ export function* fetchConfigSaga() {
         type: ReduxActionTypes.FETCH_SYS_CONFIG_SUCCESS,
         payload: transToSystemConfig(response.data.data),
       });
-
-      response.data.data.needUpdate && message.error(trans("api.needUpdate"));
     }
   } catch (error) {
     log.error("fail to fetch config:", error);

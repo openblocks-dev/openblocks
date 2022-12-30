@@ -3,8 +3,9 @@ import {
   CompParams,
   MultiBaseComp,
   Node,
-  ValueFn,
+  WrapContextFn,
   wrapChildAction,
+  wrapContext,
 } from "openblocks-core";
 import { ReactNode } from "react";
 import { lastValueIfEqual } from "util/objectUtils";
@@ -15,7 +16,7 @@ const __CONTEXT_CONTROL_FIELD_NAME = "__CONTEXT_CONTROL_FIELD_NAME";
 
 function toContextControl<T extends CodeControlType>(Control: T) {
   return class ContextControl extends MultiBaseComp<{ text: InstanceType<T> }> {
-    private readonly valueFn: ValueFn<unknown> = (params: Record<string, unknown>) => "";
+    private readonly valueFn: WrapContextFn<unknown> = (params: Record<string, unknown>) => "";
 
     override parseChildrenFromValue(params: CompParams<string>) {
       const dispatchChild = (action: CompAction): void => {
@@ -48,7 +49,7 @@ function toContextControl<T extends CodeControlType>(Control: T) {
           [__CONTEXT_CONTROL_FIELD_NAME]: lastValueIfEqual(
             this,
             "context_control_cache",
-            [this.children.text.unevaledValue, this.children.text.exposingNode().wrapContext()],
+            [this.children.text.unevaledValue, wrapContext(this.children.text.exposingNode())],
             (a, b) => a[0] === b[0]
           )[1] as Node<any>,
         },

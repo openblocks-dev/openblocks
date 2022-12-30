@@ -185,11 +185,14 @@ export abstract class MultiBaseComp<
     });
   }
 
-  protected setChildren(children: Record<string, Comp>): this {
+  protected setChildren(
+    children: Record<string, Comp>,
+    params?: { keepCacheKeys?: string[] }
+  ): this {
     if (shallowEqual(children, this.children)) {
       return this;
     }
-    return setFieldsNoTypeCheck(this, { children: children });
+    return setFieldsNoTypeCheck(this, { children: children }, params);
   }
 
   /**
@@ -224,7 +227,7 @@ export abstract class MultiBaseComp<
     const newChildren = _.mapValues(this.children, (comp, childName) => {
       return comp.changeDispatch(wrapDispatch(dispatch, childName));
     });
-    return super.changeDispatch(dispatch).setChildren(newChildren);
+    return super.changeDispatch(dispatch).setChildren(newChildren, { keepCacheKeys: ["node"] });
   }
 
   override toJsonValue(): DataType {

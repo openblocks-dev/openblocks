@@ -100,7 +100,7 @@ export function HeaderStartDropdown(props: { setEdit: () => void }) {
                       recycleApplication(
                         { applicationId: applicationId, folderId: "" },
                         () => {
-                          message.success(trans("home.deleteSuccessMsg"));
+                          message.success(trans("success"));
                           history.push(BASE_URL);
                         },
                         () => message.error(trans("home.deleteErrorMsg"))

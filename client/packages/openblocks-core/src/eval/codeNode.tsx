@@ -1,12 +1,13 @@
 import _ from "lodash";
 import { memoized } from "util/memoize";
 import { FunctionNode, withFunction } from "./functionNode";
-import { AbstractNode, FetchInfo, Node, ValueFn } from "./node";
+import { AbstractNode, FetchInfo, Node } from "./node";
 import { fromRecord } from "./recordNode";
 import { CodeType, EvalMethods } from "./types/evalTypes";
 import { ValueAndMsg, ValueExtra } from "./types/valueAndMsg";
-import { filterDepends, filterTopDepends, hasCycle } from "./utils/evaluate";
-import { dependsErrorMessage, mergeNodesWithSameName } from "./utils/nodeUtils";
+import { addDepends, addDepend } from "./utils/dependMap";
+import { filterDepends, hasCycle } from "./utils/evaluate";
+import { dependsErrorMessage, mergeNodesWithSameName, nodeIsRecord } from "./utils/nodeUtils";
 import { string2Fn } from "./utils/string2Fn";
 
 export interface CodeNodeOptions {
@@ -14,9 +15,10 @@ export interface CodeNodeOptions {
 
   // whether to support comp methods?
   evalWithMethods?: boolean;
-  // if set, value can be: params => ... => ValueAndMsg<unknown>
-  wrapDepth?: number;
 }
+
+const IS_FETCHING_FIELD = "isFetching";
+const LATEST_END_TIME_FIELD = "latestEndTime";
 
 /**
  * user input node
@@ -32,21 +34,12 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
 
   private readonly codeType?: CodeType;
   private readonly evalWithMethods: boolean;
-  private directDepends: Map<Node<unknown>, string[]> = new Map();
+  private directDepends = new Map<Node<unknown>, Set<string>>();
 
   constructor(readonly unevaledValue: string, readonly options?: CodeNodeOptions) {
     super();
     this.codeType = options?.codeType;
     this.evalWithMethods = options?.evalWithMethods ?? true;
-  }
-
-  override wrapContext(): AbstractNode<ValueFn<ValueAndMsg<unknown>>> {
-    const fnNode = new CodeNode(this.unevaledValue, {
-      ...this.options,
-      wrapDepth: (this.options?.wrapDepth ?? 0) + 1,
-    }) as AbstractNode<ValueAndMsg<ValueFn<ValueAndMsg<unknown>>>>;
-    // safe wrapper
-    return new FunctionNode(fnNode, (result) => result.value);
   }
 
   // FIXME: optimize later
@@ -58,21 +51,34 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
   }
 
   @memoized()
-  override filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]> {
+  override filterNodes(exposingNodes: Record<string, Node<unknown>>) {
     if (!!this.evalCache.inFilterNodes) {
-      return new Map();
+      return new Map<Node<unknown>, Set<string>>();
     }
     this.evalCache.inFilterNodes = true;
     try {
       const filteredDepends = this.filterDirectDepends(exposingNodes);
       // log.log("unevaledValue: ", this.unevaledValue, "\nfilteredDepends:", filteredDepends);
-      const result = new Map<Node<unknown>, string[]>(filteredDepends);
-      filteredDepends.forEach((__, node) => {
-        const filteredNodes = node.filterNodes(exposingNodes);
-        if (filteredNodes) {
-          filteredNodes.forEach((value, key) => {
-            result.set(key, value);
-          });
+
+      const result = addDepends(new Map(), filteredDepends);
+      filteredDepends.forEach((paths, node) => {
+        addDepends(result, node.filterNodes(exposingNodes));
+      });
+
+      // Add isFetching & latestEndTime node for FetchCheck
+      const topDepends = filterDepends(this.convertedValue(), exposingNodes, 1);
+      topDepends.forEach((paths, depend) => {
+        if (nodeIsRecord(depend)) {
+          for (const field of [IS_FETCHING_FIELD, LATEST_END_TIME_FIELD]) {
+            const node = depend.children[field];
+            if (node) {
+              addDepend(
+                result,
+                node,
+                Array.from(paths).map((p) => p + "." + field)
+              );
+            }
+          }
         }
       });
       return result;
@@ -83,7 +89,7 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
 
   // only includes direct depends, exlucdes depends of dependencies
   @memoized()
-  filterDirectDepends(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]> {
+  private filterDirectDepends(exposingNodes: Record<string, Node<unknown>>) {
     return filterDepends(this.convertedValue(), exposingNodes);
   }
 
@@ -102,12 +108,7 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
       const dependingNodeMap = this.filterDirectDepends(exposingNodes);
       this.directDepends = dependingNodeMap;
       const dependingNodes = mergeNodesWithSameName(dependingNodeMap);
-      const fn = string2Fn(
-        this.unevaledValue,
-        this.codeType,
-        this.evalWithMethods ? methods : {},
-        this.options?.wrapDepth
-      );
+      const fn = string2Fn(this.unevaledValue, this.codeType, this.evalWithMethods ? methods : {});
       const evalNode = withFunction(fromRecord(dependingNodes), fn);
       let valueAndMsg = evalNode.evaluate(exposingNodes);
       // log.log("unevaledValue: ", this.unevaledValue, "\ndependingNodes: ", dependingNodes, "\nvalueAndMsg: ", valueAndMsg);
@@ -133,9 +134,11 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
 
   override dependValues(): Record<string, unknown> {
     let ret: Record<string, unknown> = {};
-    this.directDepends.forEach((path, node) => {
+    this.directDepends.forEach((paths, node) => {
       if (node instanceof AbstractNode) {
-        ret[path.join(".")] = node.evalCache.value;
+        paths.forEach((path) => {
+          ret[path] = node.evalCache.value;
+        });
       }
     });
     return ret;
@@ -150,26 +153,23 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
     }
     this.evalCache.inIsFetching = true;
     try {
-      const topDepends: Map<Node<unknown>, string> = filterTopDepends(
-        this.convertedValue(),
-        exposingNodes
-      );
+      const topDepends = filterDepends(this.convertedValue(), exposingNodes, 1);
 
       let isFetching = false;
       let ready = true;
 
-      topDepends.forEach((_v, depend) => {
+      topDepends.forEach((paths, depend) => {
         const value = depend.evaluate(exposingNodes) as any;
-        if (_.has(value, "isFetching")) {
+        if (_.has(value, IS_FETCHING_FIELD)) {
           isFetching = isFetching || value.isFetching === true;
         }
-        if (_.has(value, "latestEndTime")) {
+        if (_.has(value, LATEST_END_TIME_FIELD)) {
           ready = ready && value.latestEndTime > 0;
         }
       });
 
       const dependingNodeMap = this.filterNodes(exposingNodes);
-      dependingNodeMap.forEach((_v, depend) => {
+      dependingNodeMap.forEach((paths, depend) => {
         const fi = depend.fetchInfo(exposingNodes);
         isFetching = isFetching || fi.isFetching;
         ready = ready && fi.ready;
