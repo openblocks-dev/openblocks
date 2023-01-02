@@ -24,7 +24,7 @@ export function toQueryView(params: FunctionProperty[]) {
     queryId: string;
     applicationId: string;
     applicationPath: string[];
-    args?: Record<string, unknown>;
+    args: Record<string, unknown>;
     timeout: InstanceType<ParamsControlType>;
   }): Promise<QueryResult> => {
     const { applicationId, isViewMode } = getGlobalSettings();

@@ -2137,4 +2137,15 @@ export const en = {
     center: "Center",
     justify: "Justify both ends",
   },
+  playground: {
+    data: "Data",
+    preview: "Preview",
+    property: "Property",
+    console: "Console",
+    executeMethods: "Execute methods",
+    noMethods: "No methods.",
+    methodParams: "Method params",
+    methodParamsHelp:
+      "Input method params use JSON, for example, you can set setValue's params with: [1] or 1",
+  },
 };

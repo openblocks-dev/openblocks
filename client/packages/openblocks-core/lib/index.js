@@ -729,7 +729,7 @@ function getDependNode(subPaths, exposingNodes) {
     for (var _i = 0, subPaths_1 = subPaths; _i < subPaths_1.length; _i++) {
         var subPath = subPaths_1[_i];
         var subNode = nodes[subPath];
-        if (!subNode) {
+        if (!nodes.hasOwnProperty(subPath) || !subNode) {
             break;
         }
         node = subNode;

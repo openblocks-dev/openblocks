@@ -46,15 +46,14 @@ const Wrapper = styled.div`
 `;
 
 export default function ComponentPlayground() {
+  window.__OPENBLOCKS_DEV__ = {};
+
   const params = useParams<{ name: UICompType; dsl: string }>();
   const dsl = JSON.parse(decodeURIComponent(params.dsl || ""));
   const compManifest = uiCompRegistry[params.name];
 
   return (
     <Wrapper>
-      <div className="header">
-        <div className="brand">Component Playground</div>
-      </div>
       <div className="content">
         <CompPlayground
           initialValue={dsl}

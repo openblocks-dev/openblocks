@@ -136,7 +136,7 @@ function MethodItem(props: MethodItemProps) {
   const { name, action, params, onDelete } = props;
 
   const handleOnParamsConfigChange = () => {
-    action.dispatch(WithParamsActionControl.changeParamDataAction(params.getParamsData()));
+    action.dispatch(WithParamsActionControl.setParamDataAction(params.getParamsData()));
   };
 
   const content = (

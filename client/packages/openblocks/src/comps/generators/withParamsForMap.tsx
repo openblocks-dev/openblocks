@@ -7,6 +7,7 @@ import {
   ConstructorToComp,
   ConstructorToNodeType,
   ConstructorToView,
+  fromRecord,
   isChildAction,
   MultiBaseComp,
   MultiCompConstructor,
@@ -14,6 +15,7 @@ import {
   NodeToValue,
   RecordConstructorToComp,
   wrapDispatch,
+  updateNodesV2Action,
 } from "openblocks-core";
 import { ReactNode } from "react";
 import { JSONValue } from "util/jsonTypes";
@@ -79,9 +81,10 @@ export function withParamsForMapWithDefault<
     }
 
     batchSet(paramValuesMap: Record<string, ParamValues>) {
-      const mapComp = _.mapValues(paramValuesMap, (values) =>
-        this.children[CHILD_KEY].reduce(WithParamsCompCtor.changeParamDataAction(values))
-      );
+      const mapComp = _.mapValues(paramValuesMap, (values, key) => {
+        const comp = this.getOriginalComp().setParams(values);
+        return comp;
+      });
       const mapChild = this.children.__map__.reduce(MapCtor.batchSetCompAction(mapComp));
       return this.setChild("__map__", mapChild);
     }
@@ -106,26 +109,66 @@ export function withParamsForMapWithDefault<
 
     override reduce(action: CompAction): this {
       let newComp = super.reduce(action);
+      newComp.getOriginalComp().node(); // for cache
 
       if (
         isChildAction(action) &&
         action.path[0] === CHILD_KEY &&
         action.type !== CompActionTypes.UPDATE_NODES_V2
       ) {
-        const newMap = _.mapValues(this.children.__map__.children, (comp) => {
-          return comp.reduce(WithParamsCompCtor.setCompAction(newComp.children.__comp__.getComp()));
+        const newMap = _.mapValues(this.getView(), (comp) => {
+          return comp.reduce(WithParamsCompCtor.setCompAction(newComp.getOriginalComp().getComp()));
         });
         newComp = newComp.setChild(
           "__map__",
           this.children.__map__.reduce(MapCtor.batchSetCompAction(newMap))
         );
+      } else if (
+        action.type === CompActionTypes.UPDATE_NODES_V2
+        // && newComp.getOriginalComp().getComp().node() !== this.getOriginalComp().getComp().node()
+      ) {
+        const value = action.value;
+        const newMap = _.chain(newComp.getView())
+          .mapValues((comp, key) => {
+            if (value.__map__.hasOwnProperty(key)) {
+              return comp;
+            }
+            const wrap = value[CHILD_KEY].wrap;
+            const compValue = { wrap, comp: wrap(comp.getParams()) };
+            return comp.reduce(updateNodesV2Action(compValue));
+          })
+          .value();
+        const newMapComp = newComp.children.__map__.reduce(MapCtor.batchSetCompAction(newMap));
+        newComp = newComp.setChild("__map__", newMapComp);
       }
+
+      /*
+      _.forEach(newComp.getView(), (comp, key) => {
+        if (comp.getComp().node() !== newComp.getOriginalComp().getComp().node()) {
+          console.info("node diff. key:", key, " action: ", action, " subComp: ", comp, " coreComp: ", newComp.getOriginalComp().getComp());
+        }
+      })
+      */
 
       return newComp;
     }
 
     getOriginalComp() {
       return this.children[CHILD_KEY];
+    }
+
+    override childrenNode() {
+      const compNode = this.getOriginalComp().node()!;
+      const coreNode = this.getOriginalComp().getComp().node();
+      const mapNode = fromRecord(
+        _.chain(this.getView())
+          .pickBy((comp, key) => {
+            return comp.getComp().node() !== coreNode;
+          })
+          .mapValues((comp) => comp.node()!)
+          .value()
+      );
+      return { [CHILD_KEY]: compNode, __map__: mapNode };
     }
   }
 

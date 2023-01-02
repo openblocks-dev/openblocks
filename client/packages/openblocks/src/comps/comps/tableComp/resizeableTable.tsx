@@ -346,6 +346,16 @@ export const TableWrapper = styled.div<{
             fill: #fff;
           }
 
+          > thead > tr:first-child {
+            th:first-child {
+              border-top-left-radius: 0px;
+            }
+
+            th:last-child {
+              border-top-right-radius: 0px;
+            }
+          }
+
           // hide the bottom border of the last row
           ${(props) =>
             props.toolbarPosition !== "below" &&
@@ -354,6 +364,10 @@ export const TableWrapper = styled.div<{
                 border-bottom: unset;
               }
           `}
+        }
+
+        .ant-table-expanded-row-fixed:after {
+          border-right: unset !important;
         }
       }
     }
