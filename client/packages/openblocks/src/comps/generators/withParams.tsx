@@ -2,19 +2,18 @@ import _ from "lodash";
 import {
   Comp,
   CompAction,
-  CompActionTypes,
   CompParams,
   ConstructorToComp,
   ConstructorToNodeType,
   ConstructorToView,
   customAction,
-  fromRecord,
   fromValue,
   isMyCustomAction,
   MultiBaseComp,
   MultiCompConstructor,
   Node,
   NodeToValue,
+  RecordNode,
   updateNodesV2Action,
   wrapContext,
   WrapContextFn,
@@ -58,8 +57,14 @@ export function withParamsWithDefault<
   type ChildrenType = {
     comp: ConstructorToComp<TCtor>;
   };
-  type CompNodeValue = NodeToValue<ConstructorToNodeType<TCtor>>;
-  type NodeType = Node<{ wrap: WrapContextFn<CompNodeValue>; original: CompNodeValue }> | undefined;
+  type CompNode = NonNullable<ConstructorToNodeType<TCtor>>;
+  type CompNodeValue = NodeToValue<CompNode>;
+  type NodeType =
+    | RecordNode<{
+        wrap: Node<WrapContextFn<CompNodeValue>>;
+        comp: WrapContextNodeV2<CompNodeValue>;
+      }>
+    | undefined;
 
   class WithParamComp
     extends MultiBaseComp<ChildrenType, JSONValue, NodeType>
@@ -71,7 +76,7 @@ export function withParamsWithDefault<
     /**
      * this action requires eval to be valid, don't use it directly with reduce
      */
-    static changeParamDataAction(paramData: ParamValues) {
+    static setParamDataAction(paramData: ParamValues) {
       return customAction({
         type: "setParamData",
         data: paramData,
@@ -121,19 +126,13 @@ export function withParamsWithDefault<
       }
       if (isMyCustomAction<SetCompAction>(action, "setComp")) {
         const child = action.value.comp.changeDispatch(this.getComp().dispatch);
+        if (action.value.comp.node() !== child.node()) {
+          console.error("withParams setComp node diff. action: ", action);
+        }
         return this.setChild("comp", child);
       }
-      if (action.type === CompActionTypes.UPDATE_NODES_V2) {
-        let child = this.getComp().reduce(updateNodesV2Action(action.value.original));
-        let comp = this.setChild("comp", child);
-        const wrap = action.value.wrap;
-        if (wrap && this.wrapValue !== wrap) {
-          comp = setFieldsNoTypeCheck(comp, { wrapValue: wrap });
-        }
-        // console.info("WithParamsReduce. action: ", action, " original: ", action.value.original, " oldComp: ", this, " newComp: ", comp);
-        return comp;
-      }
-      return super.reduce(action);
+      const comp = super.reduce(action);
+      return comp;
     }
 
     setParams(params: Partial<ParamValues>): this {
@@ -155,14 +154,30 @@ export function withParamsWithDefault<
       return this.params;
     }
 
-    override nodeWithoutCache() {
+    protected override childrenNode() {
+      const compNode: ConstructorToNodeType<TCtor> = this.getComp().node();
+      if (_.isNil(compNode)) return {} as {};
+      const paramNodes = this.getParamNodes();
+      const originalNode = new WrapContextNodeV2(compNode, paramNodes);
+      return { comp: originalNode };
+    }
+
+    protected override extraNode() {
       const compNode: ConstructorToNodeType<TCtor> = this.getComp().node();
       if (_.isNil(compNode)) return undefined;
       const wrapNode = wrapContext(compNode);
-
-      const paramNodes = this.getParamNodes();
-      const originalNode = new WrapContextNodeV2(compNode, paramNodes);
-      return fromRecord({ wrap: wrapNode, original: originalNode }) as NonNullable<NodeType>;
+      const result = {
+        node: { wrap: wrapNode },
+        updateNodeFields: (value: any) => {
+          return { wrapValue: value.wrap };
+        },
+      };
+      return lastValueIfEqual(
+        this,
+        "extra_node",
+        [result, compNode] as const,
+        (a, b) => a[1] === b[1]
+      )[0];
     }
 
     private getParamNodes(): Record<keyof ParamValues, Node<unknown>> {

@@ -140,7 +140,7 @@ function getDependNode(
   const path = [];
   for (const subPath of subPaths) {
     const subNode = nodes[subPath];
-    if (!subNode) {
+    if (!nodes.hasOwnProperty(subPath) || !subNode) {
       break;
     }
     node = subNode;

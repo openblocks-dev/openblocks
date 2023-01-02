@@ -189,3 +189,16 @@ export function getParentNodeKeysByKey(tree: any, key: string): string[] {
   }
   return result;
 }
+
+export const getObjectId = (function () {
+  let objectCurrentId = 0;
+  const objectMap = new WeakMap();
+  return (obj: object) => {
+    if (objectMap.has(obj)) {
+      return objectMap.get(obj);
+    }
+    const id = ++objectCurrentId;
+    objectMap.set(obj, id);
+    return id;
+  };
+})();

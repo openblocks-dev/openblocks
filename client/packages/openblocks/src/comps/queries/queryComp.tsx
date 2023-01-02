@@ -321,7 +321,7 @@ QueryCompTmp = class extends QueryCompTmp {
             queryId,
             applicationId: applicationId,
             applicationPath: parentApplicationPath,
-            args: action.args,
+            args: action.args ?? {},
             timeout: this.children.timeout,
           }),
         () => this.dispatch(changeChildAction("isFetching", false)),

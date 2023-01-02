@@ -6,6 +6,7 @@ import { Button, Space, Input, Form } from "antd";
 import styled from "styled-components";
 import { useCompInstance, GetContainerParams } from "comps/utils/useCompInstance";
 import { CanvasContainerID } from "constants/domLocators";
+import { trans } from "i18n";
 
 const Container = styled.div`
   display: flex;
@@ -148,7 +149,7 @@ export function CompPlayground(props: IProps) {
     <Container>
       <div className="main">
         <div className="panel data-panel">
-          <div className="panel-title">Data</div>
+          <div className="panel-title">{trans("playground.data")}</div>
           <div className="panel-content">
             <ReactJson
               collapsed={2}
@@ -162,7 +163,7 @@ export function CompPlayground(props: IProps) {
           </div>
         </div>
         <div className="panel preview-panel">
-          <div className="panel-title">Preview</div>
+          <div className="panel-title">{trans("playground.preview")}</div>
           <div
             className="preview-content"
             id={CanvasContainerID}
@@ -174,12 +175,14 @@ export function CompPlayground(props: IProps) {
           </div>
 
           <div className="panel bottom-panel">
-            <div className="panel-title">Console</div>
+            <div className="panel-title">{trans("playground.console")}</div>
             <div className="panel-content">
               <Form component={false} layout="horizontal">
-                <Form.Item label="Execute Methods">
+                <Form.Item label={trans("playground.executeMethods")}>
                   <Space>
-                    {methods.length === 0 && <div className="help">No methods.</div>}
+                    {methods.length === 0 && (
+                      <div className="help">{trans("playground.noMethods")}</div>
+                    )}
                     {methods.map((i) => (
                       <Button
                         key={i}
@@ -203,8 +206,8 @@ export function CompPlayground(props: IProps) {
                 </Form.Item>
                 {methods.length > 0 && (
                   <Form.Item
-                    label="Method Params"
-                    help="Input method params use JSON, for example, you can set setValue's params with: [1] or 1"
+                    label={trans("playground.methodParams")}
+                    help={trans("playground.methodParamsHelp")}
                   >
                     <ParamsTextArea
                       rows={4}
@@ -217,7 +220,7 @@ export function CompPlayground(props: IProps) {
           </div>
         </div>
         <div className="panel property-panel">
-          <div className="panel-title">Property</div>
+          <div className="panel-title">{trans("playground.preview")}</div>
           <div className="panel-content">{comp.getPropertyView()}</div>
         </div>
       </div>
