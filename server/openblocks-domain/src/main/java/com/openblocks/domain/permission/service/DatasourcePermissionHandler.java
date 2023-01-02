@@ -51,9 +51,11 @@ class DatasourcePermissionHandler extends ResourcePermissionHandler {
 
         List<String> systemStaticDatasourceIds = resourceIds.stream()
                 .filter(Datasource::isSystemStaticId)
+                .distinct()
                 .toList();
         List<String> nonSystemStaticDatasourceIds = resourceIds.stream()
                 .filter(Datasource::isNotSystemStaticId)
+                .distinct()
                 .toList();
 
         if (CollectionUtils.isEmpty(systemStaticDatasourceIds)) {
