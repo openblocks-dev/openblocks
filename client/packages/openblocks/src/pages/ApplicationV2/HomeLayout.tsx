@@ -263,7 +263,10 @@ export function HomeLayout(props: HomeLayoutProps) {
 
   const resList: HomeRes[] = elements
     .filter((e) =>
-      searchValue ? e.name.includes(searchValue) || e.createBy.includes(searchValue) : true
+      searchValue
+        ? e.name.toLocaleLowerCase().includes(searchValue) ||
+          e.createBy.toLocaleLowerCase().includes(searchValue)
+        : true
     )
     .filter(
       (e) =>

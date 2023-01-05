@@ -137,6 +137,8 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
           minWidth: "120px",
           maxWidth: "100%",
         }}
+        showSearch={true}
+        optionFilterProp={"label"}
         maxTagCount={"responsive" as const}
         dropdownMatchSelectWidth={false}
         value={JSON.stringify(props.selectedResource)}
@@ -200,7 +202,11 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
               type: datasourceType,
             };
             return (
-              <SelectOption key={JSON.stringify(value)} value={JSON.stringify(value)}>
+              <SelectOption
+                key={JSON.stringify(value)}
+                value={JSON.stringify(value)}
+                label={info.datasource.name + plugins[info.datasource.type]?.name}
+              >
                 <SelectOptionContains>
                   {datasourceType && getBottomResIcon(datasourceType)}
                   <div
@@ -230,6 +236,7 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
 
         <SelectOption
           key={JSON.stringify(QuickRestAPIValue)}
+          label={trans("query.quickRestAPI")}
           value={JSON.stringify(QuickRestAPIValue)}
         >
           <SelectOptionContains>
@@ -240,6 +247,7 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
 
         <SelectOption
           key={JSON.stringify(QuickGraphqlValue)}
+          label={trans("query.quickGraphql")}
           value={JSON.stringify(QuickGraphqlValue)}
         >
           <SelectOptionContains>
@@ -252,6 +260,7 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
           <>
             <SelectOption
               key={JSON.stringify(OpenblocksAPIValue)}
+              label={OPENBLOCKS_API_INFO.name}
               value={JSON.stringify(OpenblocksAPIValue)}
             >
               <SelectOptionContains>
@@ -260,14 +269,20 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
               </SelectOptionContains>
             </SelectOption>
 
-            <SelectOption key={JSON.stringify(JSOptionValue)} value={JSON.stringify(JSOptionValue)}>
+            <SelectOption
+              key={JSON.stringify(JSOptionValue)}
+              label={trans("query.executeJSCode")}
+              value={JSON.stringify(JSOptionValue)}
+            >
               <SelectOptionContains>
                 {getBottomResIcon("js")}
                 <SelectOptionLabel>{trans("query.executeJSCode")} </SelectOptionLabel>
               </SelectOptionContains>
             </SelectOption>
+
             <SelectOption
               key={JSON.stringify(LibraryQueryOptionValue)}
+              label={trans("query.importFromQueryLibrary")}
               value={JSON.stringify(LibraryQueryOptionValue)}
             >
               <SelectOptionContains>

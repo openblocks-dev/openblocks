@@ -49,6 +49,7 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
   const columns = comp.children.columns.getView();
   const rowExample = comp.children.dataRowExample.getView();
   const dynamicColumn = comp.children.dynamicColumn.getView();
+  const data = comp.children.data.getView();
   const columnOptionHeader = (
     <InsertDiv>
       <div style={{ display: "flex", alignItems: "center", marginRight: "auto" }}>
@@ -63,6 +64,7 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
                 rowExample,
                 doGeneColumn: true,
                 dynamicColumn: dynamicColumn,
+                data,
               });
               comp.children.dataRowExample.dispatchChangeValueAction(null);
             }}

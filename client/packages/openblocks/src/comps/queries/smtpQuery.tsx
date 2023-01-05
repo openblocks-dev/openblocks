@@ -2,6 +2,7 @@ import {
   ParamsArrayStringControl,
   ParamsJsonControl,
   ParamsStringControl,
+  ValueFunction,
 } from "../controls/paramsControl";
 import { withTypeAndChildrenAbstract } from "../generators/withType";
 import { withPropertyViewFn } from "../generators";
@@ -169,7 +170,7 @@ export const SMTPQuery = class extends SMTPQueryBasic {
             ...result,
             ...Object.entries(v).map((kv) => ({
               key: kv[0],
-              value: kv[1] as Function,
+              value: kv[1] as ValueFunction,
             })),
           ],
           []

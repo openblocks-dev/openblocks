@@ -1,9 +1,10 @@
 import { ColumnComp, newPrimaryColumn } from "comps/comps/tableComp/column/tableColumnComp";
 import { list } from "comps/generators/list";
+import { getReduceContext } from "comps/utils/reduceContext";
 import _ from "lodash";
 import { CompAction, customAction, isMyCustomAction } from "openblocks-core";
 import { JSONObject, JSONValue } from "util/jsonTypes";
-import { getReduceContext } from "comps/utils/reduceContext";
+import { getObjectId } from "util/objectUtils";
 
 /**
  * column list
@@ -19,6 +20,7 @@ type ActionDataType = {
   rowExample: RowExampleType;
   doGeneColumn: boolean;
   dynamicColumn: boolean;
+  data: Array<JSONObject>;
 };
 
 export function tableDataRowExample(data: Array<JSONObject>) {
@@ -51,7 +53,7 @@ export class ColumnListComp extends ColumnListTmpComp {
         const actions = this.geneColumnsAction(rowExample);
         comp = this.reduce(this.multiAction(actions));
       }
-      return comp.updateContext(rowExample);
+      return comp.updateRenderData(action.value.data);
     }
     return super.reduce(action);
   }
@@ -78,25 +80,25 @@ export class ColumnListComp extends ColumnListTmpComp {
     columns.forEach((column) => column.clearChangeSet());
   }
 
-  updateContext(rowExample: RowExampleType) {
-    return this.setChildren(
-      _.mapValues(this.children, (columnComp) => {
-        const columnName = columnComp.children.dataIndex.getView();
-        const isCustom = columnComp.children.isCustom.getView();
-        return columnComp;
-        // return columnComp.reduce(
-        //   wrapChildAction(
-        //     "render",
-        //     RenderComp.changeContextDataAction({
-        //       currentRow: rowExample,
-        //       currentCell: isCustom ? undefined : _.get(rowExample, columnName),
-        //       currentIndex: 0,
-        //       currentOriginalIndex: 0,
-        //     })
-        //   )
-        // );
-      })
-    );
+  updateRenderData(data: Array<JSONObject>) {
+    const columns = this.getView();
+    const actions = columns.map((col) => {
+      const dataIndex = col.children.dataIndex.getView();
+      const paramValueMap = _.chain(data)
+        .toPairs()
+        .fromPairs()
+        .mapValues((row, index) => ({
+          currentCell: row[dataIndex],
+          currentRow: row,
+          currentIndex: index,
+          currentOriginalIndex: index,
+        }))
+        .value();
+      const render = col.children.render.clear().batchSet(paramValueMap);
+      const newCol = col.setChild("render", render);
+      return this.pushCompAction(newCol);
+    });
+    return this.reduce(this.multiAction([this.clearAction(), ...actions]));
   }
 
   /**
@@ -106,6 +108,7 @@ export class ColumnListComp extends ColumnListTmpComp {
     rowExample: JSONObject;
     doGeneColumn: boolean;
     dynamicColumn: boolean;
+    data: Array<JSONObject>;
   }): void {
     this.dispatch(
       customAction<ActionDataType>({
@@ -153,4 +156,10 @@ export class ColumnListComp extends ColumnListTmpComp {
     }
     return actions;
   }
+
+  // node() {
+  //   const rNode = super.node();
+  //   console.info("ColumnListComp node id: ", getObjectId(rNode!), "\nnode: ", rNode);
+  //   return rNode;
+  // }
 }

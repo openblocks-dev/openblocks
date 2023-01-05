@@ -15,6 +15,7 @@ import { ScatterChartConfig } from "./chartConfigs/scatterChartConfig";
 import { SeriesListComp } from "./seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
+import { JSONValue } from "openblocks";
 
 export const ChartTypeOptions = [
   {
@@ -183,7 +184,18 @@ export const noDataPieChartConfig = {
 export type ChartSize = { w: number; h: number };
 
 export const getDataKeys = (data: Array<JSONObject>) => {
-  return data && data[0] ? Object.keys(data[0]) : [];
+  if (!data) {
+    return [];
+  }
+  const dataKeys: Array<string> = [];
+  data.slice(0, 50).forEach((d) => {
+    Object.keys(d).forEach((key) => {
+      if (!dataKeys.includes(key)) {
+        dataKeys.push(key);
+      }
+    });
+  });
+  return dataKeys;
 };
 
 const ChartOptionMap = {

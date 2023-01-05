@@ -1,8 +1,9 @@
-import { ColorSelect, TacoInput } from "openblocks-design";
-import { isValidColor, toHex } from "openblocks-design";
 import _ from "lodash";
 import { useEffect, useState } from "react";
-import { ConfigItem, Radius } from "../styledComponents";
+import { ConfigItem, Radius } from "../pages/setting/theme/styledComponents";
+import { isValidColor, toHex } from "components/colorSelect/colorUtils";
+import { ColorSelect } from "components/colorSelect";
+import { TacoInput } from "components/tacoInput";
 
 export type configChangeParams = {
   colorKey: string;
@@ -11,16 +12,26 @@ export type configChangeParams = {
 };
 
 type ColorConfigProps = {
+  className?: string;
   colorKey: string;
   name?: string;
   desc?: string;
   color?: string;
   radius?: string;
   configChange: (params: configChangeParams) => void;
+  showVarName?: boolean;
 };
 
-export default function ColorConfig(props: ColorConfigProps) {
-  const { colorKey, name, desc, color: defaultColor, radius: defaultRadius, configChange } = props;
+export default function ColorPicker(props: ColorConfigProps) {
+  const {
+    colorKey,
+    name,
+    desc,
+    color: defaultColor,
+    radius: defaultRadius,
+    configChange,
+    showVarName = true,
+  } = props;
   const configChangeWithDebounce = _.debounce(configChange, 0);
   const [color, setColor] = useState(defaultColor);
   const [radius, setRadius] = useState(defaultRadius);
@@ -66,16 +77,23 @@ export default function ColorConfig(props: ColorConfigProps) {
   }, [defaultRadius]);
 
   return (
-    <ConfigItem>
+    <ConfigItem className={props.className}>
       <div className="text-desc">
         <div className="name">
-          {name} <span>{varName}</span>
+          {name} {showVarName && <span>{varName}</span>}
         </div>
         <div className="desc">{desc}</div>
       </div>
       {colorKey !== "borderRadius" ? (
         <div className="config-input">
-          <ColorSelect changeColor={setColor} color={color!} trigger="hover" />
+          <ColorSelect
+            changeColor={_.debounce(setColor, 500, {
+              leading: true,
+              trailing: true,
+            })}
+            color={color!}
+            trigger="hover"
+          />
           <TacoInput
             value={color}
             onChange={(e) => setColor(e.target.value)}

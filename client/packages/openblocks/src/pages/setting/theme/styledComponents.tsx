@@ -1,8 +1,13 @@
 import { Button, Divider, Table } from "antd";
 import { ThemeDetail } from "api/commonSettingApi";
-import { ScrollBar } from "openblocks-design";
-import { CustomModal, TacoButton, TacoInput } from "openblocks-design";
-import { darkenColor, isDarkColor } from "openblocks-design";
+import {
+  CustomModal,
+  darkenColor,
+  isDarkColor,
+  ScrollBar,
+  TacoButton,
+  TacoInput,
+} from "openblocks-design";
 import styled, { css } from "styled-components";
 import { PopoverIcon } from "../permission/styledComponents";
 
@@ -124,7 +129,7 @@ export const DetailContent = styled.div`
   grid-template-columns: 1fr 1.7fr;
   > div:nth-of-type(1) {
     margin-top: -3px;
-    margin-right: 24px;
+    margin-right: 82px;
   }
 `;
 
@@ -387,13 +392,13 @@ export const SelectTitleTheme = styled(SelectTitle)`
 
 export const ConfigItem = styled.div`
   display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  flex-direction: column;
   margin: 6px 0 17px 0;
   .text-desc {
     width: 208px;
     min-width: 208px;
-    .name, .desc {
+    .name,
+    .desc {
       font-size: 13px;
       line-height: 19px;
     }
@@ -404,7 +409,7 @@ export const ConfigItem = styled.div`
     margin-right: 8px;
   }
   .config-input {
-    width: 208px;
+    width: 100%;
     min-width: 208px;
     &:hover {
       border-color: #3377ff;
@@ -438,8 +443,9 @@ export const ConfigItem = styled.div`
       }
     }
   }
-  @media screen and (max-width: 1745px){
-    .text-desc, .config-input {
+  @media screen and (max-width: 1902px) {
+    .text-desc,
+    .config-input {
       width: 100%;
     }
     .text-desc {

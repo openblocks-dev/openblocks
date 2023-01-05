@@ -1,4 +1,4 @@
-import { Input } from "openblocks-design";
+import { Input, Section, sectionNames } from "openblocks-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
 import { InputLikeStyle, InputLikeStyleType } from "comps/controls/styleControlConstants";
@@ -8,7 +8,6 @@ import {
   NameConfigRequired,
 } from "comps/generators/withExposing";
 import { MethodConfigFocus } from "comps/generators/withMethodExposing";
-import { Section, sectionNames } from "openblocks-design";
 import styled from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
@@ -58,7 +57,7 @@ export const InputComp = new UICompBuilder(childrenMap, (props) => {
         allowClear={props.allowClear}
         $style={props.style}
         prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
-        suffix={hasIcon(props.suffixIcon) &&props.suffixIcon}
+        suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
       />
     ),
     style: props.style,

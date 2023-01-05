@@ -18,6 +18,7 @@ import {
   transformWrapper,
   ValueAndMsg,
   withFunction,
+  CodeFunction,
 } from "openblocks-core";
 import { EditorContext } from "comps/editorState";
 import { withDefault } from "comps/generators/simpleGenerators";
@@ -450,10 +451,10 @@ export const RadiusControl = codeControl<string>(
   }
 );
 
-export const FunctionControl = codeControl<Function>(
+export const FunctionControl = codeControl<CodeFunction>(
   (value) => {
     if (typeof value === "function") {
-      return value as Function;
+      return value as CodeFunction;
     }
     return () => {};
   },

@@ -44,6 +44,8 @@ import { favicon } from "@openblocks-ee/assets/images";
 import { hasQueryParam } from "util/urlUtils";
 import { isFetchUserFinished } from "redux/selectors/usersSelectors";
 import { SystemWarning } from "./components/SystemWarning";
+import { getBrandingConfig } from "./redux/selectors/configSelectors";
+import { buildMaterialPreviewURL } from "./util/materialUtils";
 
 const LazyUserAuthComp = React.lazy(() => import("@openblocks-ee/pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -64,6 +66,8 @@ type AppIndexProps = {
   fetchConfig: () => void;
   getCurrentUser: () => void;
   fetchHome: () => void;
+  favicon: string;
+  brandName: string;
 };
 
 class AppIndex extends React.Component<AppIndexProps, any> {
@@ -95,8 +99,8 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     return (
       <Wrapper>
         <Helmet>
-          <title>{trans("productName")}</title>
-          <link rel="icon" href={favicon} />
+          {<title>{this.props.brandName}</title>}
+          {<link rel="icon" href={this.props.favicon} />}
           <meta name="description" content={trans("productDesc")} />
         </Helmet>
         <SystemWarning />
@@ -155,6 +159,10 @@ const mapStateToProps = (state: AppState) => ({
   orgDev: state.ui.users.user.orgDev,
   defaultHomePage: state.ui.application.homeOrg?.commonSettings.defaultHomePage,
   isFetchHomeFinished: state.ui.application.loadingStatus.fetchHomeDataFinished,
+  favicon: getBrandingConfig(state)?.favicon
+    ? buildMaterialPreviewURL(getBrandingConfig(state)?.favicon!)
+    : favicon,
+  brandName: getBrandingConfig(state)?.brandName ?? trans("productName"),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

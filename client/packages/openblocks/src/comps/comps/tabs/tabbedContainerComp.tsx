@@ -45,7 +45,7 @@ const EVENT_OPTIONS = [
 
 const childrenMap = {
   tabs: TabsOptionControl,
-  selectedTabKey: stringExposingStateControl("value", "Tab1"),
+  selectedTabKey: stringExposingStateControl("key", "Tab1"),
   containers: withDefault(sameTypeMap(SimpleContainerComp), {
     0: { layout: {}, items: {} },
     1: { layout: {}, items: {} },
@@ -96,7 +96,7 @@ const getStyle = (style: TabContainerStyleType) => {
   `;
 };
 
-const StyledTabs = styled(Tabs)<{ $style: TabContainerStyleType; isMobile?: boolean }>`
+const StyledTabs = styled(Tabs)<{ $style: TabContainerStyleType; $isMobile?: boolean }>`
   &.ant-tabs {
     height: 100%;
   }
@@ -111,7 +111,7 @@ const StyledTabs = styled(Tabs)<{ $style: TabContainerStyleType; isMobile?: bool
   }
 
   .ant-tabs-nav {
-    padding: 0 ${(props) => (props.isMobile ? 16 : 24)}px;
+    padding: 0 ${(props) => (props.$isMobile ? 16 : 24)}px;
     background: white;
     margin: 0px;
   }
@@ -174,7 +174,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
       }}
       onTabClick={onTabClick}
       animated
-      isMobile={isMobile}
+      $isMobile={isMobile}
       // tabBarGutter={32}
     >
       {visibleTabs.map((tab) => {

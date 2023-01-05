@@ -11,7 +11,7 @@ export * from "./wrapContextNodeV2";
 export { transformWrapper } from "./utils/codeNodeUtils";
 export { evalPerfUtil } from "./utils/perfUtils";
 
-export type { EvalMethods, CodeType } from "./types/evalTypes";
+export type { EvalMethods, CodeType, CodeFunction } from "./types/evalTypes";
 export { ValueAndMsg } from "./types/valueAndMsg";
 export { relaxedJSONToJSON } from "./utils/relaxedJson";
 export { getDynamicStringSegments, isDynamicSegment } from "./utils/segmentUtils";

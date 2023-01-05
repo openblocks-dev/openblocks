@@ -15,6 +15,7 @@ import { childrenToProps } from "comps/generators/multi";
 import { HidableView } from "comps/generators/uiCompBuilder";
 import { withDispatchHook } from "comps/generators/withDispatchHook";
 import { DepsConfig, NameConfig, withExposingConfigs } from "comps/generators/withExposing";
+import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { trans } from "i18n";
 import _ from "lodash";
 import {
@@ -33,7 +34,6 @@ import { JSONObject, JSONValue } from "util/jsonTypes";
 import { ResizeableTable, TableWrapper } from "./resizeableTable";
 import { compTablePropertyView } from "./tablePropertyView";
 import { RecordType, RowColorComp, tableChildrenMap, TableChildrenView } from "./tableTypes";
-import { withMethodExposing } from "comps/generators/withMethodExposing";
 
 function TableView(props: {
   comp: InstanceType<typeof TableTmpComp>;
@@ -272,6 +272,12 @@ let TableTmpComp = class extends TableTmpInitComp {
     return doGenColumn;
   }
 
+  updateContext() {
+    const data = this.children.data.getView();
+    const newColumns = this.children.columns.updateRenderData(data);
+    return this.setChild("columns", newColumns);
+  }
+
   override reduce(action: CompAction): this {
     let comp = super.reduce(action);
     if (action.type === CompActionTypes.CUSTOM) {
@@ -279,15 +285,13 @@ let TableTmpComp = class extends TableTmpInitComp {
       const columnAdded =
         comp.children.columns.getView().length !== this.children.columns.getView().length;
       if (columnAdded) {
-        const data = comp.children.data.getView();
-        const newColumns = comp.children.columns.updateContext(tableDataRowExample(data));
-        return comp.setChild("columns", newColumns);
+        comp = comp.updateContext();
       }
     } else if (action.type === CompActionTypes.UPDATE_NODES_V2) {
-      const prevRowExample = tableDataRowExample(this.children.data.getView());
       const nextRowExample = tableDataRowExample(comp.children.data.getView());
       const dataChanged =
-        comp.children.data !== this.children.data && !_.isEqual(prevRowExample, nextRowExample);
+        comp.children.data !== this.children.data &&
+        !_.isEqual(this.children.data.getView(), comp.children.data.getView());
       if (dataChanged) {
         // update rowColor context
         comp = comp.setChild(
@@ -302,6 +306,7 @@ let TableTmpComp = class extends TableTmpInitComp {
           )
         );
       }
+
       if (dataChanged) {
         const doGene = comp.shouldGenerateColumn(comp, nextRowExample);
         setTimeout(() => {
@@ -309,6 +314,7 @@ let TableTmpComp = class extends TableTmpInitComp {
             rowExample: nextRowExample || {},
             doGeneColumn: doGene,
             dynamicColumn: comp.children.dynamicColumn.getView(),
+            data: comp.children.data.getView(),
           });
           doGene && comp.children.dataRowExample.dispatchChangeValueAction(null);
         }, 0);
@@ -458,9 +464,9 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
       Object.values(input.columns).forEach((column: any) => {
         const dataIndex: string = column.dataIndex;
         // const title: string = column.title;
-        const render: Record<string, any> = column.render; // [0].comp.changeValue
-        Object.entries(render).forEach(([key, value]) => {
-          const changeValue = value.comp?.changeValue;
+        const render = column.render; // {comp, map: [0].comp.changeValue, length}
+        _.forEach(render.map, (value, key) => {
+          const changeValue = value.comp?.chagneValue;
           if (changeValue) {
             if (!record[key]) record[key] = {};
             record[key][dataIndex] = changeValue;

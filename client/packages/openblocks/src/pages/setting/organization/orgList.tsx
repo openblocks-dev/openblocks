@@ -9,10 +9,10 @@ import styled from "styled-components";
 import { trans } from "i18n";
 import { buildOrgId } from "constants/routesURL";
 import {
-  OperationWrapper,
-  EditBtn,
-  PopoverIcon,
   CreateButton,
+  EditBtn,
+  OperationWrapper,
+  PopoverIcon,
 } from "../permission/styledComponents";
 import { Table } from "components/Table";
 import history from "util/history";
@@ -125,6 +125,7 @@ function OrganizationSetting(props: OrgSettingProp) {
           ]}
           dataSource={dataSource.map((item, i) => ({
             ...item,
+            key: i,
             operation: (
               <OperationWrapper>
                 <EditBtn

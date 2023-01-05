@@ -1,11 +1,11 @@
 import styled from "styled-components";
-import { Input } from "antd";
+import { Input, InputProps } from "antd";
 import { ReactComponent as Icon } from "icons/icon-Search.svg";
 import React, { CSSProperties } from "react";
 
-const SerachInput = styled(Input)`
+const SearchInput = styled(Input)`
   margin: 0;
-  padding: 0;
+  padding: 0 11px 0 0;
   height: 32px;
   width: 100%;
   border: 1px solid #d7d9e0;
@@ -54,19 +54,20 @@ interface ISearch {
   disabled?: boolean;
 }
 
-export const Search = (props: ISearch) => {
-  const { value, onChange } = props;
+export const Search = (props: ISearch & InputProps) => {
+  const { value, onChange, style, disabled, placeholder, ...others } = props;
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange && onChange(e);
   };
   return (
-    <SearchDiv style={props.style}>
-      <SerachInput
-        disabled={props.disabled}
-        placeholder={props.placeholder}
+    <SearchDiv style={style}>
+      <SearchInput
+        disabled={disabled}
+        placeholder={placeholder}
         onChange={handleChange}
         value={value}
         prefix={<SearchIcon />}
+        {...others}
       />
     </SearchDiv>
   );

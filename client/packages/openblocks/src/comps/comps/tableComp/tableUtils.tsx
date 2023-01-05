@@ -132,12 +132,12 @@ export function getDisplayData(
         // skip hidden columns
         return;
       }
-      const columnNode = (col.render.__comp__ as any).wrap({
+      const columnNode = col.render.__comp__.wrap({
         currentCell: data[col.dataIndex],
         currentRow: data,
         currentIndex: index % pageSize,
         currentOriginalIndex: index,
-      });
+      }) as any;
       const colValue = columnNode.comp[__COLUMN_DISPLAY_VALUE_FN](columnNode.comp);
       if (colValue !== null) {
         const title = col.title.value;
@@ -232,13 +232,9 @@ export function columnsToAntdFormat(
       fixed: column.fixed === "close" ? false : column.fixed,
       onWidthResize: column.onWidthResize,
       render: (value: any, record: RecordType, index: number) => {
-        return column
-          .render(String(record.index), {
-            currentCell: value,
-            currentRow: record.record,
-            currentIndex: index,
-            currentOriginalIndex: record.index,
-          })
+        return column.render[record.index]
+          .setParams({ currentIndex: index })
+          .getView()
           .view({ editable: column.editable, size });
       },
       ...(column.sortable
@@ -299,7 +295,9 @@ export function getTableTransData(
     return [];
   }
   const renderedData: Array<JSONObject> = [];
-  data.forEach((d, index) => {
+  const length = Math.min(data.length, ...columnViews.map((column) => _.size(column.render)));
+  _.range(length).forEach((index) => {
+    const d = data[index];
     const toTransData: JSONObject = {};
     columnViews.forEach((col) => {
       if (
@@ -312,12 +310,7 @@ export function getTableTransData(
         // skip hidden columns
         return;
       }
-      const columnData = col.render(String(index), {
-        currentCell: d[col.dataIndex],
-        currentRow: d,
-        currentIndex: index % pageSize,
-        currentOriginalIndex: index,
-      }).value;
+      const columnData = col.render[index].getView().value;
       if (columnData !== null) {
         toTransData[col.dataIndex] = columnData;
       }
