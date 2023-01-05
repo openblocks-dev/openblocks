@@ -6,12 +6,13 @@ import {
   FOLDERS_URL,
   MODULE_APPLICATIONS_URL,
   QUERY_LIBRARY_URL,
-  TRASH_URL,
   SETTING,
+  TRASH_URL,
 } from "constants/routesURL";
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  EllipsisTextCss,
   FolderIcon,
   HomeActiveIcon,
   HomeDataSourceActiveIcon,
@@ -21,13 +22,13 @@ import {
   HomeModuleIcon,
   HomeQueryLibraryActiveIcon,
   HomeQueryLibraryIcon,
+  HomeSettingsActiveIcon,
+  HomeSettingsIcon,
   InviteUserIcon,
   PlusIcon,
   PointIcon,
   RecyclerActiveIcon,
   RecyclerIcon,
-  HomeSettingsActiveIcon,
-  HomeSettingsIcon,
 } from "openblocks-design";
 import React, { useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
@@ -48,7 +49,6 @@ import InviteDialog from "../common/inviteDialog";
 import { fetchFolderElements } from "../../redux/reduxActions/folderActions";
 import { ModuleView } from "./ModuleView";
 import { useCreateFolder } from "./useCreateFolder";
-import { EllipsisTextCss } from "openblocks-design";
 import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
 import Setting from "pages/setting";
@@ -142,9 +142,11 @@ const DivStyled = styled.div`
       max-width: 0 !important;
       min-width: 0 !important;
     }
+
     > div {
       display: none;
     }
+
     .ant-layout > div {
       display: none;
     }
@@ -291,9 +293,11 @@ export default function ApplicationHome() {
                   <FolderSectionLabel>
                     {trans("home.folders")}
                     <FolderCountLabel>{`(${allFolders.length})`}</FolderCountLabel>
-                    <CreateFolderIcon onClick={handleFolderCreate}>
-                      <PlusIcon />
-                    </CreateFolderIcon>
+                    {user.orgDev && (
+                      <CreateFolderIcon onClick={handleFolderCreate}>
+                        <PlusIcon />
+                      </CreateFolderIcon>
+                    )}
                   </FolderSectionLabel>
                 ),
                 items: folderItems,

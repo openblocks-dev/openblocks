@@ -62,7 +62,6 @@ export const defaultTreeData: TreeDataNode[] = [
       {
         label: trans("tree.treeDataEngland"),
         value: "england",
-        selectable: false,
       },
       {
         label: trans("tree.treeDataFrance"),

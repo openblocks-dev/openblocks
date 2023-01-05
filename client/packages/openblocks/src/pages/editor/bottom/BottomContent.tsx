@@ -42,9 +42,10 @@ const Drag = styled.div`
 `;
 const Right = styled.div`
   position: relative;
-  min-width: 70%;
+  min-width: 0;
   height: 100%;
   overflow-y: hidden;
+  overflow-x: auto;
   flex-grow: 1;
 `;
 
@@ -126,23 +127,25 @@ export const BottomContent = () => {
       </Left>
       <Drag />
       <Right>
-        <MetaDataContext.Provider value={metaData}>
-          <CompNameContext.Provider
-            value={editorState.selectedQueryComp()?.children.name.getView() || ""}
-          >
-            {selectedComp ? selectedComp.getPropertyView() : EmptyQuery}
-          </CompNameContext.Provider>
-        </MetaDataContext.Provider>
-        {isCreatePanelShow && (
-          <ResCreatePanel
-            recentlyUsed={recentlyUsed}
-            datasource={datasourceInfos
-              .map((i) => i.datasource)
-              .filter((d) => d.creationSource !== 2)}
-            onSelect={handleAdd}
-            onClose={() => showCreatePanel(false)}
-          />
-        )}
+        <div style={{ width: "100%", height: "100%", minWidth: "480px" }}>
+          <MetaDataContext.Provider value={metaData}>
+            <CompNameContext.Provider
+              value={editorState.selectedQueryComp()?.children.name.getView() || ""}
+            >
+              {selectedComp ? selectedComp.getPropertyView() : EmptyQuery}
+            </CompNameContext.Provider>
+          </MetaDataContext.Provider>
+          {isCreatePanelShow && (
+            <ResCreatePanel
+              recentlyUsed={recentlyUsed}
+              datasource={datasourceInfos
+                .map((i) => i.datasource)
+                .filter((d) => d.creationSource !== 2)}
+              onSelect={handleAdd}
+              onClose={() => showCreatePanel(false)}
+            />
+          )}
+        </div>
       </Right>
     </Container>
   );

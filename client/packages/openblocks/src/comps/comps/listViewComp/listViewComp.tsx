@@ -27,6 +27,12 @@ import {
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { trans } from "i18n";
 import { checkIsMobile } from "util/commonUtils";
+import styled from "styled-components";
+
+const Wrapper = styled.div`
+  overflow: auto;
+  overflow: overlay;
+`
 
 const ContextContainerComp = withContext(SimpleContainerComp, ["i"] as const);
 
@@ -112,14 +118,13 @@ const ListView = (props: Props) => {
   const paddingWidth = isMobile ? "4px" : "16px";
   // log.debug("renders: ", renders);
   return (
-    <div
+    <Wrapper
       ref={ref}
       style={{
         height: "100%",
         backgroundColor: props.style.background,
         border: `1px solid ${props.style.border}`,
         borderRadius: props.style.radius,
-        overflow: "overlay",
         padding: `3px ${paddingWidth}`,
       }}
     >
@@ -131,7 +136,7 @@ const ListView = (props: Props) => {
       >
         <div style={{ height: props.autoHeight ? "auto" : "100%" }}>{renders}</div>
       </ReactResizeDetector>
-    </div>
+    </Wrapper>
   );
 };
 

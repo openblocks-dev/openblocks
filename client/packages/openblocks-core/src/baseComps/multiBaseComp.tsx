@@ -8,11 +8,11 @@ import {
 } from "actions";
 import { fromRecord, Node } from "eval";
 import _ from "lodash";
+import log from "loglevel";
 import { CACHE_PREFIX } from "util/cacheUtils";
 import { JSONValue } from "util/jsonTypes";
 import { containFields, setFieldsNoTypeCheck, shallowEqual } from "util/objectUtils";
 import { AbstractComp, Comp, CompParams, DispatchType, OptionalNodeType } from "./comp";
-import log from "loglevel";
 
 /**
  * MultiBaseCompConstructor with abstract function implemented
@@ -134,7 +134,7 @@ export abstract class MultiBaseComp<
         const cacheKey = CACHE_PREFIX + "REDUCE_UPDATE_NODE";
         // if constructed by the value, just return
         if ((this as any)[cacheKey] === value) {
-          // FIXME: check why this branch is not passed
+          // console.info("inside: UPDATE_NODE_V2 cache hit. action: ", action, "\nvalue: ", value, "\nthis: ", this);
           return this;
         }
         const children = _.mapValues(this.children, (comp, childName) => {
@@ -147,11 +147,15 @@ export abstract class MultiBaseComp<
         if (shallowEqual(children, this.children) && containFields(this, extraFields)) {
           return this;
         }
-        return setFieldsNoTypeCheck(this, {
-          children: children,
-          [cacheKey]: value,
-          ...extraFields,
-        });
+        return setFieldsNoTypeCheck(
+          this,
+          {
+            children: children,
+            [cacheKey]: value,
+            ...extraFields,
+          },
+          { keepCacheKeys: ["node"] }
+        );
       }
       case CompActionTypes.CHANGE_VALUE: {
         return this.setChildren(
@@ -181,11 +185,14 @@ export abstract class MultiBaseComp<
     });
   }
 
-  protected setChildren(children: Record<string, Comp>): this {
+  protected setChildren(
+    children: Record<string, Comp>,
+    params?: { keepCacheKeys?: string[] }
+  ): this {
     if (shallowEqual(children, this.children)) {
       return this;
     }
-    return setFieldsNoTypeCheck(this, { children: children });
+    return setFieldsNoTypeCheck(this, { children: children }, params);
   }
 
   /**
@@ -220,7 +227,7 @@ export abstract class MultiBaseComp<
     const newChildren = _.mapValues(this.children, (comp, childName) => {
       return comp.changeDispatch(wrapDispatch(dispatch, childName));
     });
-    return super.changeDispatch(dispatch).setChildren(newChildren);
+    return super.changeDispatch(dispatch).setChildren(newChildren, { keepCacheKeys: ["node"] });
   }
 
   override toJsonValue(): DataType {

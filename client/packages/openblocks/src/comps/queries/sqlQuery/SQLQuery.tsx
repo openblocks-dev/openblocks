@@ -1,6 +1,10 @@
 import { MultiCompBuilder, withPropertyViewFn } from "comps/generators";
-import { ParamsStringControl, ParamsJsonControl } from "../../controls/paramsControl";
-import { FunctionProperty, toQueryView } from "../queryCompUtils";
+import {
+  ParamsJsonControl,
+  ParamsStringControl,
+  ValueFunction,
+} from "../../controls/paramsControl";
+import { toQueryView } from "../queryCompUtils";
 import { withTypeAndChildrenAbstract } from "../../generators/withType";
 import { changeValueAction, CompAction, DispatchType, MultiBaseComp } from "openblocks-core";
 import {
@@ -167,7 +171,7 @@ const SQLTmpQuery = withTypeAndChildrenAbstract(
   "command"
 );
 
-const regexp = new RegExp("(\\s|^)(update|insert|delete)(\\s|$)", "i");
+const regexp = new RegExp("(\\s|^)(update|insert|delete|drop)(\\s|$)", "i");
 
 type ChildrenType = InstanceType<typeof SQLTmpQuery> extends MultiBaseComp<infer X> ? X : never;
 
@@ -243,7 +247,7 @@ export const SQLQuery = class extends SQLTmpQuery {
           }))
         : Object.entries(this.children.command.getView()).map((e) => ({
             key: e[0],
-            value: e[1] as Function,
+            value: e[1] as ValueFunction,
           }))
     );
   }

@@ -5,6 +5,7 @@
   * [Access local database or API](self-hosting/access-local-database-or-api.md)
   * [DigitalOcean](self-hosting/digitalocean.md)
   * [AWS AMI](self-hosting/aws-ami.md)
+  * [Heroku](self-hosting/heroku.md)
 * [Security](security.md)
 
 ## Data sources

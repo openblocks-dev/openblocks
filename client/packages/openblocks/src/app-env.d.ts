@@ -38,4 +38,5 @@ declare var REACT_APP_BUILD_ID: string;
 declare var REACT_APP_LOG_LEVEL: string;
 declare var REACT_APP_SERVER_IPS: string;
 declare var REACT_APP_BUNDLE_TYPE: "sdk" | "app";
+declare var REACT_APP_BUNDLE_BUILTIN_PLUGIN: string;
 declare module "weixin-js-sdk";

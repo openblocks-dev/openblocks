@@ -248,3 +248,4 @@ export { ReactComponent as LeftVideo } from "./icon-left-comp-video.svg";
 export { ReactComponent as LeftOpen } from "./icon-left-comp-open.svg";
 export { ReactComponent as LeftClose } from "./icon-left-comp-close.svg";
 export { ReactComponent as ScannerIcon } from "./icon-scanner.svg";
+export { ReactComponent as MaterialUploadIcon } from "./icon-material-upload.svg";

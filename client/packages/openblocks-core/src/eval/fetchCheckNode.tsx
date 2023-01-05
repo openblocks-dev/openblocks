@@ -1,6 +1,5 @@
 import { memoized } from "util/memoize";
-import { FunctionNode } from "./functionNode";
-import { AbstractNode, FetchInfo, Node, ValueFn } from "./node";
+import { AbstractNode, FetchInfo, Node } from "./node";
 
 /**
  * evaluate to get FetchInfo or fetching status
@@ -10,12 +9,8 @@ export class FetchCheckNode extends AbstractNode<FetchInfo> {
   constructor(readonly child: Node<unknown>) {
     super();
   }
-  override wrapContext(paramName: string): AbstractNode<ValueFn<FetchInfo>> {
-    const wrapChild = this.child.wrapContext(paramName);
-    return new FunctionNode(new FetchCheckNode(wrapChild), (fi) => () => fi);
-  }
   @memoized()
-  override filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]> {
+  override filterNodes(exposingNodes: Record<string, Node<unknown>>) {
     return this.child.filterNodes(exposingNodes);
   }
   override justEval(exposingNodes: Record<string, Node<unknown>>) {

@@ -6,15 +6,6 @@ export function dependsErrorMessage(node: CodeNode) {
   return `DependencyError: "${node.unevaledValue}" caused a cyclic dependency.`;
 }
 
-export class EvalTypeError extends TypeError {
-  hint?: string;
-
-  constructor(msg: string, hint?: string) {
-    super(msg);
-    this.hint = hint;
-  }
-}
-
 export function getErrorMessage(err: unknown) {
   // todo try to use 'err instanceof EvalTypeError' instead
   if (err instanceof TypeError && (err as any).hint) {
@@ -27,14 +18,17 @@ export function getErrorMessage(err: unknown) {
 }
 
 export function mergeNodesWithSameName(
-  nodePathMap: Map<Node<unknown>, string[]>
+  map: Map<Node<unknown>, Set<string>>
 ): Record<string, Node<unknown>> {
   const nameDepMap: Record<string, Node<unknown>> = {};
-  nodePathMap.forEach((path: string[], node: Node<unknown>) => {
-    const dep = genDepends(path, node);
-    const name = path[0];
-    const newDep = mergeNode(nameDepMap[name], dep);
-    nameDepMap[name] = newDep;
+  map.forEach((paths, node) => {
+    paths.forEach((p) => {
+      const path = p.split(".");
+      const dep = genDepends(path, node);
+      const name = path[0];
+      const newDep = mergeNode(nameDepMap[name], dep);
+      nameDepMap[name] = newDep;
+    });
   });
 
   return nameDepMap;

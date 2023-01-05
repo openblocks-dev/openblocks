@@ -11,8 +11,9 @@ import {
   Node,
   NodeToValue,
   updateNodesV2Action,
-  ValueFn,
+  WrapContextFn,
   withFunction,
+  wrapContext,
 } from "openblocks-core";
 import React from "react";
 import { lastValueIfEqual, setFieldsNoTypeCheck, shallowEqual } from "util/objectUtils";
@@ -44,7 +45,7 @@ export function withContextV2<ParamNames extends readonly string[], T extends Mu
 
   // @ts-ignore
   class WithContextV2Comp extends VariantComp {
-    private readonly nodeValue?: ValueFn<NodeValue>;
+    private readonly nodeValue?: WrapContextFn<NodeValue>;
     private readonly contextData?: ContextDataType;
 
     static changeContextDataAction(contextData: ContextDataType) {
@@ -109,8 +110,8 @@ export function withContextV2<ParamNames extends readonly string[], T extends Mu
     private nodeWithContext() {
       const childNode: Node<unknown> = super.node();
       if (_.isNil(childNode)) return undefined;
-      const wrapNode = childNode.wrapContext(paramNames.join(","));
-      const originalNode = withFunction(wrapNode, (wrapFn) => wrapFn(this.contextData));
+      const wrapNode = wrapContext(childNode);
+      const originalNode = withFunction(wrapNode, (wrapFn) => wrapFn(this.contextData ?? {}));
       return fromRecord({ wrap: wrapNode, original: originalNode });
     }
 
@@ -132,8 +133,7 @@ export function withContextV2<ParamNames extends readonly string[], T extends Mu
     }
 
     private getChildValueWithContext(input: ContextDataType): NodeValue | undefined {
-      const paramValue = paramNames.map((name: ParamNames[number]) => input[name]);
-      return this.nodeValue?.(...paramValue);
+      return this.nodeValue?.(input);
     }
   }
 

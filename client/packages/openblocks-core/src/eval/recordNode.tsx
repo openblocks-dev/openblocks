@@ -1,8 +1,9 @@
-import { FunctionNode } from "./functionNode";
-import { AbstractNode, Node, NodeToValue, ValueFn } from "./node";
-import { EvalMethods } from "./types/evalTypes";
 import _ from "lodash";
 import { memoized } from "../util/memoize";
+import { AbstractNode, Node, NodeToValue } from "./node";
+import { EvalMethods } from "./types/evalTypes";
+import { addDepends } from "./utils/dependMap";
+import { evalPerfUtil } from "./utils/perfUtils";
 
 export type RecordNodeToValue<T> = { [K in keyof T]: NodeToValue<T[K]> };
 
@@ -16,29 +17,15 @@ export class RecordNode<T extends Record<string, Node<unknown>>> extends Abstrac
   constructor(readonly children: T) {
     super();
   }
-  override wrapContext(paramName: string): AbstractNode<ValueFn<RecordNodeToValue<T>>> {
-    const childrenFnRecord = new RecordNode(
-      _.mapValues(
-        this.children,
-        (v, k) => v.wrapContext(paramName) as AbstractNode<ValueFn<NodeToValue<typeof v>>>
-      )
-    );
-    return new FunctionNode(childrenFnRecord, (childrenFn) => (...paramValues: any[]) => {
-      return _.mapValues(childrenFn, (fn) => fn(...paramValues));
-    }) as AbstractNode<ValueFn<RecordNodeToValue<T>>>;
-  }
   @memoized()
-  override filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]> {
-    const result = new Map<Node<unknown>, string[]>();
-    Object.values(this.children).forEach((node) => {
-      const filteredNodes = node.filterNodes(exposingNodes);
-      if (filteredNodes) {
-        filteredNodes.forEach((value, key) => {
-          result.set(key, value);
-        });
-      }
+  override filterNodes(exposingNodes: Record<string, Node<unknown>>) {
+    return evalPerfUtil.perf(this, `filterNodes`, () => {
+      const result = new Map<Node<unknown>, Set<string>>();
+      Object.values(this.children).forEach((node) => {
+        addDepends(result, node.filterNodes(exposingNodes));
+      });
+      return result;
     });
-    return result;
   }
   override justEval(
     exposingNodes: Record<string, Node<unknown>>,

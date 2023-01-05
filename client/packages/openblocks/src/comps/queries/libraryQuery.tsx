@@ -5,9 +5,10 @@ import {
   CompParams,
   customAction,
   isMyCustomAction,
+  MultiBaseComp,
   wrapChildAction,
 } from "openblocks-core";
-import React, { Fragment, useEffect } from "react";
+import { Fragment, useEffect } from "react";
 import {
   parseChildrenFromValueAndChildrenMap,
   ToDataType,
@@ -27,13 +28,13 @@ import {
 } from "../../redux/selectors/queryLibrarySelectors";
 import { fetchQueryLibraryRecordDSL } from "../../redux/reduxActions/queryLibraryActions";
 import { toQueryView } from "./queryCompUtils";
-import { JSONValueControl } from "../controls/codeControl";
 import styled from "styled-components";
 import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { GreyTextColor } from "../../constants/style";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { trans } from "i18n";
+import { ContextControlType, ContextJsonControl } from "comps/controls/contextCodeControl";
 
 const NoInputsWrapper = styled.div`
   color: ${GreyTextColor};
@@ -45,7 +46,9 @@ interface InputItem {
   description: string;
 }
 
-const InputsComp = class extends simpleMultiComp({}) {
+type InputChildrenType = Record<string, InstanceType<ContextControlType>>;
+
+const InputsComp = class extends MultiBaseComp<InputChildrenType, ToDataType<InputChildrenType>> {
   params: any = {};
   inputs: InputItem[] = [];
 
@@ -55,12 +58,12 @@ const InputsComp = class extends simpleMultiComp({}) {
   }
 
   override parseChildrenFromValue(params: CompParams<Record<string, string>>) {
-    const childrenMap: any = {};
+    const childrenMap: InputChildrenType = {};
     Object.entries(params.value ?? {}).forEach((t) => {
       const dispatchChild = (action: CompAction): void => {
         params.dispatch && params.dispatch(wrapChildAction(t[0], action));
       };
-      return (childrenMap[t[0]] = new JSONValueControl({ dispatch: dispatchChild, value: t[1] }));
+      return (childrenMap[t[0]] = new ContextJsonControl({ dispatch: dispatchChild, value: t[1] }));
     });
     return childrenMap;
   }
@@ -96,9 +99,9 @@ const InputsComp = class extends simpleMultiComp({}) {
   }
 
   setInputs(inputs: InputItem[]) {
-    const childrenMap: any = {};
+    const childrenMap: Record<string, ContextControlType> = {};
     inputs.forEach(({ name }) => {
-      childrenMap[name] = JSONValueControl;
+      childrenMap[name] = ContextJsonControl;
     });
     const children = parseChildrenFromValueAndChildrenMap(
       { ...this.params, value: { ...this.params.value, ...this.toJsonValue() } },
@@ -141,7 +144,7 @@ export const LibraryQuery = class extends LibraryQueryBase {
     return toQueryView(
       Object.entries(this.children.inputs.children).map(([name, input]) => ({
         key: name,
-        value: () => input.getView(),
+        value: input.getView(),
       }))
     );
   }

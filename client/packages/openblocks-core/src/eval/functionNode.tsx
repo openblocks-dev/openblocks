@@ -1,6 +1,7 @@
-import { AbstractNode, Node, ValueFn } from "./node";
-import { EvalMethods } from "./types/evalTypes";
 import { memoized } from "../util/memoize";
+import { AbstractNode, Node } from "./node";
+import { EvalMethods } from "./types/evalTypes";
+import { evalPerfUtil } from "./utils/perfUtils";
 
 /**
  * return a new node, evaluating to a function result with the input node value as the function's input
@@ -10,17 +11,11 @@ export class FunctionNode<T, OutputType> extends AbstractNode<OutputType> {
   constructor(readonly child: Node<T>, readonly func: (params: T) => OutputType) {
     super();
   }
-  override wrapContext(paramName: string): AbstractNode<ValueFn<OutputType>> {
-    return new FunctionNode(
-      this.child.wrapContext(paramName),
-      (childFn) =>
-        (...paramValues: any[]) =>
-          this.func(childFn(...paramValues))
-    );
-  }
   @memoized()
-  override filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]> {
-    return this.child.filterNodes(exposingNodes);
+  override filterNodes(exposingNodes: Record<string, Node<unknown>>) {
+    return evalPerfUtil.perf(this, "filterNodes", () => {
+      return this.child.filterNodes(exposingNodes);
+    });
   }
   override justEval(
     exposingNodes: Record<string, Node<unknown>>,

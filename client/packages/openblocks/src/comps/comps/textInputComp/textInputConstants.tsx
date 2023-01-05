@@ -32,7 +32,7 @@ import {
   requiredPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 
 export const TextInputValidationOptions = [
   {
@@ -147,24 +147,23 @@ const textInputProps = (props: RecordConstructorToView<typeof textInputChildren>
   readOnly: props.readOnly,
   placeholder: props.placeholder,
   value: props.value.value,
-  onChange: (e: any) => {
-    props.value.onChange(e.target.value);
-    props.onEvent("change");
-  },
   onFocus: () => props.onEvent("focus"),
   onBlur: () => props.onEvent("blur"),
   onPressEnter: () => props.onEvent("submit"),
 });
 
 export const useTextInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => {
-  const { onChange, ...inputProps } = textInputProps(props);
   const [validateState, setValidateState] = useState({});
 
+  const propsRef = useRef<RecordConstructorToView<typeof textInputChildren>>(props);
+  propsRef.current = props;
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange(e);
+    props.value.onChange(e.target.value);
+    propsRef.current.onEvent("change");
     setValidateState(
       textInputValidate({
-        ...props,
+        ...propsRef.current,
         value: {
           value: e.target.value,
         },
@@ -173,7 +172,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
   };
   return [
     {
-      ...inputProps,
+      ...textInputProps(props),
       onChange: handleChange,
     },
     validateState,
@@ -232,9 +231,15 @@ export function getStyle(style: InputLikeStyleType) {
         opacity: 0.4;
       }
 
-      .ant-input-password-icon.anticon {
+      .ant-input-show-count-suffix,
+      .ant-input-prefix,
+      .ant-input-suffix svg {
         opacity: 0.45;
         color: ${style.text};
+      }
+
+      .ant-input-clear-icon svg:hover {
+        opacity: 0.65;
       }
     }
   `;

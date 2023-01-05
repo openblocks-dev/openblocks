@@ -432,7 +432,6 @@ export class EditorState {
   getAppType(): UiLayoutType {
     return this.getUIComp().children.compType.getView();
   }
-
 }
 
 export const EditorContext = React.createContext<EditorState>(undefined as any);

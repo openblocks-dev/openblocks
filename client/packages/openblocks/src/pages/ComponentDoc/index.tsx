@@ -1,6 +1,18 @@
+import { Search } from "openblocks-design";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
+import PageContent from "./common/PageContent";
 import "comps";
-import { UICompManifest, uiCompRegistry, UICompCategory } from "comps/uiCompRegistry";
+import {
+  UICompType,
+  UICompManifest,
+  uiCompRegistry,
+  uiCompCategoryNames,
+  UICompCategory,
+} from "comps/uiCompRegistry";
+import { ExampleContext } from "./ExampleContext";
+import { trans } from "i18n";
 
 type CompInfo = UICompManifest & { key: string };
 const groups: Partial<Record<UICompCategory, CompInfo[]>> = {};
@@ -68,5 +80,73 @@ const Wrapper = styled.div`
 `;
 
 export default function ComponentDoc() {
-  return <></>;
+  const params = useParams<{ name: UICompType }>();
+  const [search, setSearch] = useState("");
+  const compManifest = uiCompRegistry[params.name];
+
+  useEffect(() => {
+    const isInIFrame = window !== window.top;
+    if (!isInIFrame) {
+      return;
+    }
+    window.top?.postMessage(
+      {
+        type: "component-change",
+        componentName: params.name,
+      },
+      "*"
+    );
+  }, [params.name]);
+
+  return (
+    <ExampleContext.Provider value={{ name: params.name }}>
+      <Wrapper>
+        <div className="main">
+          <div className="sidebar">
+            <div className="search">
+              <Search
+                value={search}
+                placeholder={`${trans("componentDoc.search")}...`}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            {Object.entries(groups).map(([key, value]) => {
+              const children = value.filter((c) =>
+                c.keywords.toLowerCase().includes(search.toLowerCase())
+              );
+              if (children.length === 0) {
+                return null;
+              }
+              return (
+                <div className="nav-group" key={key}>
+                  <div className="nav-group-title">
+                    {uiCompCategoryNames[key as UICompCategory]}
+                  </div>
+                  <div>
+                    {children.map((n) => (
+                      <Link
+                        key={n.name}
+                        to={`/components/${n.key}`}
+                        className={`nav ${n.key === params.name ? "active" : ""}`}
+                      >
+                        {n.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="content">
+            {compManifest ? (
+              <PageContent name={params.name} compInfo={compManifest} />
+            ) : (
+              <div>{trans("componentDoc.componentNotFound")}</div>
+            )}
+          </div>
+        </div>
+      </Wrapper>
+    </ExampleContext.Provider>
+  );
 }

@@ -4,7 +4,8 @@ import { numberExposingStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
-import { SliderChildren, SliderPropertyView, SliderStyled } from "./sliderCompConstants";
+import { SliderChildren, SliderPropertyView, SliderStyled, SliderWrapper } from "./sliderCompConstants";
+import { hasIcon } from "comps/utils";
 
 const SliderBasicComp = (function () {
   /**
@@ -19,12 +20,13 @@ const SliderBasicComp = (function () {
     return props.label({
       style: props.style,
       children: (
-        <div
+        <SliderWrapper
           onMouseDown={(e: any) => {
             e.stopPropagation();
             return false;
           }}
         >
+          {hasIcon(props.prefixIcon) && props.prefixIcon}
           <SliderStyled
             {...props}
             value={props.value.value}
@@ -34,7 +36,8 @@ const SliderBasicComp = (function () {
               props.onEvent("change");
             }}
           />
-        </div>
+          {hasIcon(props.suffixIcon) && props.suffixIcon}
+        </SliderWrapper>
       ),
     });
   })

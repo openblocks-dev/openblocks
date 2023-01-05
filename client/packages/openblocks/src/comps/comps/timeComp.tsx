@@ -18,7 +18,7 @@ import {
 } from "../controls/eventHandlerControl";
 import { stringExposingStateControl } from "../controls/codeStateControl";
 import { LabelControl } from "../controls/labelControl";
-import { UICompBuilder } from "../generators";
+import { UICompBuilder, withDefault } from "../generators";
 import {
   CommonNameConfig,
   depsConfig,
@@ -47,6 +47,8 @@ import { TIME_FORMAT, TimeParser } from "util/dateTimeUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { checkIsMobile } from "util/commonUtils";
+import { IconControl } from "comps/controls/iconControl";
+import { hasIcon } from "comps/utils";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -68,6 +70,7 @@ const commonChildren = {
   minuteStep: RangeControl.closed(1, 60, 1),
   secondStep: RangeControl.closed(1, 60, 1),
   style: styleControl(DateTimeStyle),
+  suffixIcon: withDefault(IconControl, "/icon:regular/clock"),
   ...validationChildren,
 };
 
@@ -164,7 +167,8 @@ export const timePickerControl = (function () {
           }}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
-          inputReadOnly={checkIsMobile(editorState.getAppSettings().maxWidth)}
+          inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
+          suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
         />
       </>
     );
@@ -199,7 +203,10 @@ export const timePickerControl = (function () {
 
         <Section name={sectionNames.advanced}>{commonAdvanceSection(children)}</Section>
 
-        <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+        <Section name={sectionNames.layout}>
+          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+          {hiddenPropertyView(children)}
+        </Section>
 
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>
@@ -237,7 +244,8 @@ export const timeRangeControl = (function () {
           }}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
-          inputReadOnly={checkIsMobile(editorState.getAppSettings().maxWidth)}
+          inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
+          suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
         />
       </>
     );
@@ -284,7 +292,10 @@ export const timeRangeControl = (function () {
 
         <Section name={sectionNames.advanced}>{commonAdvanceSection(children)}</Section>
 
-        <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+        <Section name={sectionNames.layout}>
+          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+          {hiddenPropertyView(children)}
+        </Section>
 
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>

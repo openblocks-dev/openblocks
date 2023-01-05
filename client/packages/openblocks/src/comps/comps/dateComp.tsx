@@ -18,7 +18,7 @@ import {
 } from "../controls/eventHandlerControl";
 import { LabelControl } from "../controls/labelControl";
 import { stringExposingStateControl } from "../controls/codeStateControl";
-import { UICompBuilder } from "../generators";
+import { UICompBuilder, withDefault } from "../generators";
 import { CommonNameConfig, depsConfig, withExposingConfigs } from "../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
@@ -49,6 +49,8 @@ import {
 import { checkIsMobile } from "util/commonUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { IconControl } from "comps/controls/iconControl";
+import { hasIcon } from "comps/utils";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -71,6 +73,7 @@ const commonChildren = {
   minuteStep: RangeControl.closed(1, 60, 1),
   secondStep: RangeControl.closed(1, 60, 1),
   style: styleControl(DateTimeStyle),
+  suffixIcon: withDefault(IconControl, '/icon:regular/calendar'),
   ...validationChildren,
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
@@ -286,7 +289,8 @@ export const datePickerControl = (function () {
           }}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
-          inputReadOnly={checkIsMobile(editorState.getAppSettings().maxWidth)}
+          inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
+          suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
         />
       </>
     );
@@ -330,7 +334,10 @@ export const datePickerControl = (function () {
         {/*{commonAdvanceSection(children, children.dateType.value === "date")}*/}
         {commonAdvanceSection(children)}
 
-        <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+        <Section name={sectionNames.layout}>
+          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+          {hiddenPropertyView(children)}
+        </Section>
 
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>
@@ -375,7 +382,8 @@ export const dateRangeControl = (function () {
           }}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
-          inputReadOnly={checkIsMobile(editorState.getAppSettings().maxWidth)}
+          inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
+          suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
         />
       </>
     );
@@ -425,7 +433,10 @@ export const dateRangeControl = (function () {
 
         {commonAdvanceSection(children)}
 
-        <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+        <Section name={sectionNames.layout}>
+          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+          {hiddenPropertyView(children)}
+        </Section>
 
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>

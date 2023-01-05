@@ -1,7 +1,13 @@
+interface FeatureFlag {
+  enableCustomBrand: boolean;
+}
+
 export type ConfigBaseInfo = {
+  selfDomain: boolean;
   cloudHosting: boolean;
-  needUpdate: boolean;
   workspaceMode: "SAAS" | "ENTERPRISE";
+  warning?: string;
+  featureFlag: FeatureFlag;
 };
 
 export type ConfigResponseData = {

@@ -68,6 +68,7 @@ export const QueryConfigLabel = (props: { children?: ReactNode; tooltip?: ReactN
 );
 
 export const QueryConfigItemWrapper = styled.div<{ direction?: "row" | "column" }>`
+  min-width: 0;
   flex-grow: 1;
   ${(props) => {
     if (props.direction === "row") {

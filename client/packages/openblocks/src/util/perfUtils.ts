@@ -75,6 +75,16 @@ export function perfMethod(target: any, propertyKey: string, descriptor: Propert
 
 const SHOW_COST_INFO = false;
 
+export function statPerf<T>(logstr: string, fn: () => T): T {
+  if (!SHOW_COST_INFO) {
+    return fn();
+  }
+  const stopWatch = startStopWatch(logstr);
+  const result = fn();
+  stopWatch.end();
+  return result;
+}
+
 /**
  * print the running time of the input function
  * turn on the above switch when using
@@ -85,7 +95,7 @@ export function showCost<T>(logstr: string, fn: () => T): T {
   }
   const startTime = performance.now();
   const result = fn();
-  log.log(`${logstr} cost: ${performance.now() - startTime}`);
+  console.info(`${logstr} cost: ${performance.now() - startTime}`);
   return result;
 }
 

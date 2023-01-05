@@ -1,7 +1,6 @@
 import Segmented from "components/Segmented";
 import { featureSwitch } from "constants/featureSwitch";
-import { ScrollBar } from "openblocks-design";
-import { Search } from "openblocks-design";
+import { ScrollBar, Search } from "openblocks-design";
 import { useState } from "react";
 import styled from "styled-components";
 import { RightContext } from "./rightContext";
@@ -57,6 +56,7 @@ export default function InsertView(props: InsertViewProps) {
           placeholder={trans("rightPanel.searchPlaceHolder")}
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
+          allowClear={true}
         />
         {featureSwitch.ModuleEnabled && (
           <Segmented

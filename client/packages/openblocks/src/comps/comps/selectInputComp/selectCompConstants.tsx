@@ -1,9 +1,20 @@
-import { DispatchType, RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
+import {
+  changeChildAction,
+  DispatchType,
+  RecordConstructorToComp,
+  RecordConstructorToView,
+} from "openblocks-core";
 import { BoolControl, BoolPureControl } from "../../controls/boolControl";
 import { LabelControl } from "../../controls/labelControl";
 import { BoolCodeControl, StringControl } from "../../controls/codeControl";
-import { Section, sectionNames } from "openblocks-design";
-import { SelectInputOptionControl } from "../../controls/optionsControl";
+import {
+  isDarkColor,
+  lightenColor,
+  MultiselectTagIcon,
+  Section,
+  sectionNames,
+} from "openblocks-design";
+import { SelectOptionControl } from "../../controls/optionsControl";
 import { SelectEventHandlerControl } from "../../controls/eventHandlerControl";
 import { Select as AntdSelect } from "antd";
 import { ControlParams } from "../../controls/controlParams";
@@ -20,18 +31,16 @@ import {
   SelectStyleType,
   TreeSelectStyleType,
 } from "comps/controls/styleControlConstants";
-import { MultiselectTagIcon } from "openblocks-design";
-import { isDarkColor, lightenColor } from "openblocks-design";
-import { changeChildAction } from "openblocks-core";
 import { stateComp, withDefault } from "../../generators";
 import {
   allowClearPropertyView,
-  hiddenPropertyView,
   disabledPropertyView,
+  hiddenPropertyView,
   placeholderPropertyView,
   showSearchPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { hasIcon } from "comps/utils";
 
 export const getStyle = (
   style: SelectStyleType | MultiSelectStyleType | CascaderStyleType | TreeSelectStyleType
@@ -133,6 +142,19 @@ const Select = styled(AntdSelect)<{ $style: SelectStyleType & MultiSelectStyleTy
 
 const DropdownStyled = styled.div<{ $style: MultiSelectStyleType }>`
   ${(props) => props.$style && getDropdownStyle(props.$style)}
+  .option-label img {
+    min-width: 14px;
+    margin-right: 0;
+  }
+`;
+
+const Wrapper = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  img {
+    margin-right: -6px;
+  }
 `;
 
 export const SelectChildrenMap = {
@@ -140,7 +162,7 @@ export const SelectChildrenMap = {
   placeholder: StringControl,
   disabled: BoolCodeControl,
   onEvent: SelectEventHandlerControl,
-  options: SelectInputOptionControl,
+  options: SelectOptionControl,
   allowClear: BoolControl,
   inputValue: stateComp<string>(""), // user's input value when search
   showSearch: withDefault(BoolPureControl, true),
@@ -176,13 +198,6 @@ export const SelectUIView = (
     onChange={props.onChange}
     onFocus={() => props.onEvent("focus")}
     onBlur={() => props.onEvent("blur")}
-    options={props.options
-      .filter((option) => option.value !== undefined && !option.hidden)
-      .map((option) => ({
-        label: option.label,
-        value: option.value,
-        disabled: option.disabled,
-      }))}
     onSearch={
       props.showSearch
         ? (value) => {
@@ -190,7 +205,24 @@ export const SelectUIView = (
           }
         : undefined
     }
-  />
+  >
+    {props.options
+      .filter((option) => option.value !== undefined && !option.hidden)
+      .map((option) => (
+        <Select.Option
+          value={option.value}
+          label={option.label}
+          disabled={option.disabled}
+          key={option.value}
+        >
+          <Wrapper className="option-label">
+            {props.options.findIndex((option) => hasIcon(option.prefixIcon)) > -1 &&
+              option.prefixIcon}
+            {<span>{option.label}</span>}
+          </Wrapper>
+        </Select.Option>
+      ))}
+  </Select>
 );
 
 export const SelectPropertyView = (

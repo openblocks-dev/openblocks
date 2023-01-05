@@ -60,33 +60,20 @@ it("integration test", async () => {
   // expect(latestNode(x, n2).evaluate()).toEqual(n2.evaluate());
 });
 
-it("context test", () => {
-  const v1 = fromRecord({
-    xx: fromUnevaledValue("11 {{v2 + v1 + 10}}"),
-  });
-  const c1 = v1.wrapContext("v1,v2");
-  const c1Value = c1.evaluate();
-  expect(c1Value(10, 10).xx).toStrictEqual("11 30");
-  expect(c1Value(11, 11).xx).toStrictEqual("11 32");
-});
-
-it("context test 2", () => {
-  const v1 = fromRecord({
-    xx: fromUnevaledValue("{{i}}"),
-    yy: fromUnevaledValue("a{{i}}"),
-  });
-  const c1 = v1.wrapContext("i");
-  const c1Value = c1.evaluate();
-  expect(c1Value(1).xx).toStrictEqual(1);
-  expect(c1Value(1).yy).toStrictEqual("a1");
-});
-
 it("map deep compare test", () => {
   const node1 = new SimpleNode(1);
   const node2 = new SimpleNode(1);
-  const map1 = new Map<Node<unknown>, string[]>([[node1, ["n"]]]);
-  const map2 = new Map<Node<unknown>, string[]>([[node2, ["n"]]]);
+  const map1 = new Map([[node1, new Set(["n"])]]);
+  const map2 = new Map([[node2, new Set(["n"])]]);
   expect(node1 === node2).toBe(false);
   expect(_.isEqual(map1, map2)).toBe(true);
   expect(dependingNodeMapEquals(map1, map2)).toBe(false);
+  expect(dependingNodeMapEquals(map1, map1)).toBe(true);
+
+  expect(dependingNodeMapEquals(new Map(), new Map())).toBe(true);
+  expect(dependingNodeMapEquals(undefined, map1)).toBe(false);
+  expect(dependingNodeMapEquals(new Map(), map1)).toBe(false);
+  expect(dependingNodeMapEquals(map1, new Map([[node1, new Set([])]]))).toBe(false);
+  expect(dependingNodeMapEquals(map1, new Map([[node1, new Set(["b"])]]))).toBe(false);
+  expect(dependingNodeMapEquals(map1, new Map([[node1, new Set(["n"])]]))).toBe(true);
 });

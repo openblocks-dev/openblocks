@@ -5,7 +5,7 @@ import { AdvancedSetting } from "./advanced/AdvancedSetting";
 import { currentOrgAdmin } from "util/permissionUtils";
 import { trans } from "i18n";
 import AuditSetting from "@openblocks-ee/pages/setting/audit";
-import { isEE } from "util/envUtils";
+import { isEE, isEnterpriseMode, isSelfDomain } from "util/envUtils";
 import { TwoColumnSettingPageContent } from "./styled";
 import SubSideBar from "components/layout/SubSideBar";
 import { Menu } from "openblocks-design";
@@ -13,17 +13,22 @@ import { useSelector } from "react-redux";
 import { getUser } from "redux/selectors/usersSelectors";
 import history from "util/history";
 import { useParams } from "react-router-dom";
+import { BrandingSetting } from "@openblocks-ee/pages/setting/branding/BrandingSetting";
+import { selectSystemConfig } from "../../redux/selectors/configSelectors";
+import { enableCustomBrand } from "../../util/featureFlagUtils";
 
 enum SettingPageEnum {
   Member = "permission",
   Organization = "organization",
   Audit = "audit",
   Theme = "theme",
+  Branding = "branding",
   Advanced = "advanced",
 }
 
 export function SettingHome() {
   const user = useSelector(getUser);
+  const config = useSelector(selectSystemConfig);
   const selectKey = useParams<{ setting: string }>().setting || SettingPageEnum.Member;
 
   const items = [
@@ -47,6 +52,17 @@ export function SettingHome() {
       key: SettingPageEnum.Theme,
       label: trans("settings.theme"),
     },
+    ...(isEE() &&
+    currentOrgAdmin(user) &&
+    enableCustomBrand(config) &&
+    (isSelfDomain(config) || isEnterpriseMode(config))
+      ? [
+          {
+            key: SettingPageEnum.Branding,
+            label: trans("settings.branding"),
+          },
+        ]
+      : []),
     {
       key: SettingPageEnum.Advanced,
       label: trans("settings.advanced"),
@@ -69,6 +85,7 @@ export function SettingHome() {
       {selectKey === SettingPageEnum.Organization && <Organization />}
       {selectKey === SettingPageEnum.Audit && <AuditSetting />}
       {selectKey === SettingPageEnum.Theme && <ThemeHome />}
+      {selectKey === SettingPageEnum.Branding && <BrandingSetting />}
       {selectKey === SettingPageEnum.Advanced && <AdvancedSetting />}
     </TwoColumnSettingPageContent>
   );

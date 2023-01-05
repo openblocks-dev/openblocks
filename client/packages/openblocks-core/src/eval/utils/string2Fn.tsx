@@ -3,7 +3,7 @@ import _ from "lodash";
 import { getErrorMessage } from "./nodeUtils";
 import { evalFunc, evalScript } from "./evalScript";
 import { getDynamicStringSegments, isDynamicSegment } from "./segmentUtils";
-import { CodeType, EvalMethods } from "../types/evalTypes";
+import { CodeFunction, CodeType, EvalMethods } from "../types/evalTypes";
 import { relaxedJSONToJSON } from "./relaxedJson";
 
 export type Fn = (context: Record<string, unknown>) => ValueAndMsg<unknown>;
@@ -154,26 +154,19 @@ class RelaxedJsonParser extends DefaultParser {
   }
 }
 
-function mergeContext(context: Record<string, unknown>, args?: Record<string, unknown>) {
-  if (!args) {
-    return context;
-  }
-  return Object.assign(Object.assign({}, args), context);
-}
-
 export function evalFunction(
   unevaledValue: string,
   context: Record<string, unknown>,
   methods?: EvalMethods,
   isAsync?: boolean
-): ValueAndMsg<Function> {
+): ValueAndMsg<CodeFunction> {
   try {
     return new ValueAndMsg((args?: Record<string, unknown>, runInHost: boolean = false) =>
       evalFunc(
         unevaledValue.startsWith("return")
           ? unevaledValue + "\n"
           : "return function(){'use strict'; " + unevaledValue + "\n}()",
-        mergeContext(context, args),
+        args ? { ...context, ...args } : context,
         methods,
         { disableLimit: runInHost },
         isAsync
@@ -200,42 +193,14 @@ export async function evalFunctionResult(
   }
 }
 
-export function string2Fn(
-  unevaledValue: string,
-  type?: CodeType,
-  methods?: EvalMethods,
-  paramNamesList?: string[][]
-): Fn {
+export function string2Fn(unevaledValue: string, type?: CodeType, methods?: EvalMethods): Fn {
   if (type) {
     switch (type) {
       case "JSON":
-        return wrapParams(paramNamesList, (context) => evalJson(unevaledValue, context));
+        return (context) => evalJson(unevaledValue, context);
       case "Function":
-        return wrapParams(paramNamesList, (context) =>
-          evalFunction(unevaledValue, context, methods)
-        );
+        return (context) => evalFunction(unevaledValue, context, methods);
     }
   }
-  return wrapParams(paramNamesList, (context) => evalDefault(unevaledValue, context));
-}
-
-function wrapParams(paramNamesList: string[][] | undefined, fn: Fn): Fn {
-  if (!paramNamesList || paramNamesList.length === 0) {
-    return fn;
-  }
-  const paramNames = paramNamesList[0];
-  return wrapParams(
-    paramNamesList.slice(1),
-    (context) =>
-      new ValueAndMsg((...paramValues: any[]) => {
-        // TODO: fix duplicate calculation when no matter whether unevaledValue depends params
-        // FIXME: no matter unevaledValue depends on params or not, calculation is repeated in each call.
-        // should consider improve wrapContext, including list comp's exposing node
-        const newContext = { ...context };
-        paramNames.forEach((paramName, i) => {
-          newContext[paramName] = paramValues[i];
-        });
-        return fn(newContext);
-      })
-  );
+  return (context) => evalDefault(unevaledValue, context);
 }

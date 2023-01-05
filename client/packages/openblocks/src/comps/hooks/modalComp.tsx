@@ -52,10 +52,6 @@ const ModalStyled = styled.div<{ $style: ModalStyleType }>`
 const ModalWrapper = styled.div`
   // Shield the mouse events of the lower layer, the mask can be closed in the edit mode to prevent the lower layer from sliding
   pointer-events: auto;
-
-  .ant-modal-body > div {
-    overflow: overlay;
-  }
 `;
 
 // If it is a number, use the px unit by default
@@ -73,6 +69,7 @@ let TmpModalComp = (function () {
       autoHeight: AutoHeightControl,
       style: styleControl(ModalStyle),
       maskClosable: withDefault(BoolControl, true),
+      showMask: withDefault(BoolControl, true),
     },
     (props, dispatch) => {
       const userViewMode = useUserViewMode();
@@ -126,6 +123,7 @@ let TmpModalComp = (function () {
               }}
               zIndex={Layers.modal}
               modalRender={(node) => <ModalStyled $style={props.style}>{node}</ModalStyled>}
+              mask={props.showMask}
             >
               <InnerGrid
                 {...otherContainerProps}
@@ -157,7 +155,10 @@ let TmpModalComp = (function () {
             placeholder: DEFAULT_WIDTH,
           })}
           {children.maskClosable.propertyView({
-            label: trans("modalComp.maskClosable"),
+            label: trans("prop.maskClosable"),
+          })}
+          {children.showMask.propertyView({
+            label: trans("prop.showMask"),
           })}
         </Section>
         <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>

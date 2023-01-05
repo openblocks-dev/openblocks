@@ -1,5 +1,4 @@
 import _ from "lodash";
-import { lastValueIfEqual } from "util/objectUtils";
 import {
   Comp,
   CompAction,
@@ -7,6 +6,7 @@ import {
   ConstructorToComp,
   ConstructorToNodeType,
   ConstructorToView,
+  deferAction,
   isChildAction,
   MultiBaseComp,
   MultiCompConstructor,
@@ -17,6 +17,7 @@ import {
 } from "openblocks-core";
 import { ReactNode } from "react";
 import { JSONValue } from "util/jsonTypes";
+import { lastValueIfEqual } from "util/objectUtils";
 import { map } from "./map";
 import { withContextV2 } from "./withContextV2";
 
@@ -82,12 +83,12 @@ export function withContextForList<
     }
 
     override node() {
-      return lastValueIfEqual(
-        this,
-        "node",
-        [this.nodeWithoutCache(), this.children.__map__, this.children[CHILD_KEY]] as const,
-        (a, b) => a[1] === b[1] && a[2] === b[2]
-      )[0];
+      const tuples = [
+        this.nodeWithoutCache(),
+        this.children.__map__,
+        this.children[CHILD_KEY],
+      ] as const;
+      return lastValueIfEqual(this, "node", tuples, (a, b) => a[1] === b[1] && a[2] === b[2])[0];
     }
 
     propertyView(key: string): ReactNode {
@@ -131,6 +132,12 @@ export function withContextForList<
       }
       if (map.children[key] !== comp) {
         this.children.__map__ = map.setChild(key, comp);
+        setTimeout(() => {
+          this.children.__map__.children[key].dispatch(
+            deferAction(ContextCompCtor.setCompAction(comp))
+          );
+        });
+        // delete (this as any)[CACHE_PREFIX + "node"];
       }
       return comp;
     }

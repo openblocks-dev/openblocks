@@ -5,7 +5,11 @@ import { stringExposingStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { SelectChildrenMap, SelectPropertyView, SelectUIView } from "./selectCompConstants";
-import { SelectInputInvalidConfig, useSelectInputValidate } from "./selectInputConstants";
+import {
+  SelectInputCommonConfig,
+  SelectInputInvalidConfig,
+  useSelectInputValidate,
+} from "./selectInputConstants";
 
 export const SelectBasicComp = (function () {
   const childrenMap = {
@@ -42,5 +46,6 @@ export const SelectComp = withExposingConfigs(SelectBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),
   new NameConfig("inputValue", trans("select.inputValueDesc")),
   SelectInputInvalidConfig,
+  ...SelectInputCommonConfig,
   ...CommonNameConfig,
 ]);

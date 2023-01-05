@@ -42,6 +42,7 @@ import {
   databasePlugins,
   Datasource,
 } from "@openblocks-ee/constants/datasourceConstants";
+import { importQueryLibrary } from "./importQueryLibrary";
 
 const Wrapper = styled.div`
   display: flex;
@@ -186,6 +187,17 @@ export const QueryLibraryEditor = () => {
             onSelect={handleAdd}
             onClose={() => showCreatePanel(false)}
             placement={"queryLibrary"}
+            onImport={(options) =>
+              importQueryLibrary({
+                dispatch: dispatch,
+                options: options,
+                orgId: orgId,
+                onSuccess: (resp) => {
+                  setSelectedQuery(resp.data.data.id);
+                  showCreatePanel(false);
+                },
+              })
+            }
           />
         )}
       </RightContent>

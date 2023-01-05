@@ -3,6 +3,7 @@ import {
   ApplicationDetail,
   ApplicationDSLType,
   ApplicationRoleType,
+  AppPermissionInfo,
   AppTypeEnum,
 } from "constants/applicationConstants";
 import { JSONValue } from "util/jsonTypes";
@@ -148,6 +149,11 @@ export type UpdateAppPermissionPayload = {
 };
 export const updateAppPermission = (payload: UpdateAppPermissionPayload) => ({
   type: ReduxActionTypes.UPDATE_APP_PERMISSION,
+  payload: payload,
+});
+
+export const updateAppPermissionInfo = (payload: Partial<AppPermissionInfo>) => ({
+  type: ReduxActionTypes.UPDATE_APP_PERMISSION_INFO,
   payload: payload,
 });
 

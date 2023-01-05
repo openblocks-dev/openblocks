@@ -4,6 +4,7 @@ import {
   APP_EDITOR_URL,
   APPLICATION_VIEW_URL,
   BASE_URL,
+  COMPONENT_DOC_URL,
   DATASOURCE_CREATE_URL,
   DATASOURCE_EDIT_URL,
   DATASOURCE_URL,
@@ -11,12 +12,11 @@ import {
   FOLDERS_URL,
   IMPORT_APP_FROM_TEMPLATE_URL,
   INVITE_LANDING_URL,
+  isAuthUnRequired,
   QUERY_LIBRARY_URL,
   SETTING,
   TRASH_URL,
   USER_AUTH_URL,
-  isAuthUnRequired,
-  COMPONENT_DOC_URL,
 } from "constants/routesURL";
 import React from "react";
 import ReactDOM from "react-dom";
@@ -43,10 +43,14 @@ import ApplicationHome from "./pages/ApplicationV2";
 import { favicon } from "@openblocks-ee/assets/images";
 import { hasQueryParam } from "util/urlUtils";
 import { isFetchUserFinished } from "redux/selectors/usersSelectors";
+import { SystemWarning } from "./components/SystemWarning";
+import { getBrandingConfig } from "./redux/selectors/configSelectors";
+import { buildMaterialPreviewURL } from "./util/materialUtils";
 
 const LazyUserAuthComp = React.lazy(() => import("@openblocks-ee/pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
-const LazyComponentDoc = React.lazy(() => import("@openblocks-ee/pages/ComponentDoc"));
+const LazyComponentDoc = React.lazy(() => import("pages/ComponentDoc"));
+const LazyComponentPlayground = React.lazy(() => import("pages/ComponentPlayground"));
 const LazyDebugComp = React.lazy(() => import("./debug"));
 const LazyDebugNewComp = React.lazy(() => import("./debugNew"));
 
@@ -62,6 +66,8 @@ type AppIndexProps = {
   fetchConfig: () => void;
   getCurrentUser: () => void;
   fetchHome: () => void;
+  favicon: string;
+  brandName: string;
 };
 
 class AppIndex extends React.Component<AppIndexProps, any> {
@@ -93,10 +99,11 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     return (
       <Wrapper>
         <Helmet>
-          <title>{trans("productName")}</title>
-          <link rel="icon" href={favicon} />
+          {<title>{this.props.brandName}</title>}
+          {<link rel="icon" href={this.props.favicon} />}
           <meta name="description" content={trans("productDesc")} />
         </Helmet>
+        <SystemWarning />
         <Router history={history}>
           <Switch>
             {!this.props.orgDev && !!this.props.defaultHomePage ? (
@@ -128,6 +135,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             <LazyRoute path={USER_AUTH_URL} component={LazyUserAuthComp} />
             <LazyRoute path={INVITE_LANDING_URL} component={LazyInviteLanding} />
             <LazyRoute path={`${COMPONENT_DOC_URL}/:name`} component={LazyComponentDoc} />
+            <LazyRoute path={`/playground/:name/:dsl`} component={LazyComponentPlayground} />
             <Redirect to={`${COMPONENT_DOC_URL}/input`} path="/components" />
 
             {developEnv() && (
@@ -151,6 +159,10 @@ const mapStateToProps = (state: AppState) => ({
   orgDev: state.ui.users.user.orgDev,
   defaultHomePage: state.ui.application.homeOrg?.commonSettings.defaultHomePage,
   isFetchHomeFinished: state.ui.application.loadingStatus.fetchHomeDataFinished,
+  favicon: getBrandingConfig(state)?.favicon
+    ? buildMaterialPreviewURL(getBrandingConfig(state)?.favicon!)
+    : favicon,
+  brandName: getBrandingConfig(state)?.brandName ?? trans("productName"),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

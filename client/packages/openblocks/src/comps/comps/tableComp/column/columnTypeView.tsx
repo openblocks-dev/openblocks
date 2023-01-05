@@ -2,10 +2,12 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 
 const ColumnTypeViewWrapper = styled.div`
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  word-break: keep-all;
+  div {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+  }
 `;
 
 const ColumnTypeHoverView = styled.div<{
@@ -17,19 +19,15 @@ const ColumnTypeHoverView = styled.div<{
   padding: string;
   visible: boolean;
 }>`
-  > * {
-    max-height: max-content !important;
-  }
-
   position: absolute;
-  height: ${(props) => (props.adjustHeight ? props.adjustHeight + "px" : "max-content")};
-  width: ${(props) => (props.adjustWidth ? props.adjustWidth + "px" : "max-content")};
+  height: ${(props) => (props.adjustHeight ? `${props.adjustHeight}px` : "max-content")};
+  width: ${(props) => (props.adjustWidth ? `${props.adjustWidth}px` : "max-content")};
   visibility: ${(props) => (props.visible ? "visible" : "hidden")};
-  min-width: ${(props) => props.minWidth && props.minWidth + 2}px;
+  min-width: ${(props) => (props.minWidth ? `${props.minWidth}px` : "unset")};
   max-height: 150px;
   max-width: 300px;
   overflow: auto;
-  background-color: #fafafa;
+  background: inherit;
   z-index: 3;
   padding: ${(props) => props.padding};
   top: ${(props) => `${props.adjustTop || 0}px`};
@@ -51,6 +49,18 @@ const ColumnTypeHoverView = styled.div<{
     background-color: rgba(139, 143, 163, 0.5);
   }
 `;
+
+function childIsOverflow(nodes: HTMLCollection): boolean {
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    const overflow = node.clientHeight < node.scrollHeight || node.clientWidth < node.scrollWidth;
+    if (overflow) {
+      return true;
+    }
+    return childIsOverflow(node.children);
+  }
+  return false;
+}
 
 export default function ColumnTypeView(props: { children: React.ReactNode }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -80,9 +90,11 @@ export default function ColumnTypeView(props: { children: React.ReactNode }) {
       return;
     }
     const overflow =
-      wrapperEle.offsetHeight < wrapperEle.scrollHeight ||
-      wrapperEle.offsetWidth < wrapperEle.scrollWidth;
-    setHasOverflow(overflow);
+      wrapperEle.clientHeight < wrapperEle.scrollHeight ||
+      wrapperEle.clientWidth < wrapperEle.scrollWidth;
+    if (overflow || childIsOverflow(wrapperEle.children)) {
+      setHasOverflow(true);
+    }
   }, [isHover]);
 
   useEffect(() => {
@@ -106,8 +118,14 @@ export default function ColumnTypeView(props: { children: React.ReactNode }) {
     }
 
     // actual width and height of the element
-    const width = Math.min(hoverEle.offsetWidth, tableEle.offsetWidth);
-    const height = Math.min(hoverEle.offsetHeight, tableEle.offsetHeight);
+    const width = Math.min(
+      hoverEle.getBoundingClientRect().width,
+      tableEle.getBoundingClientRect().width
+    );
+    const height = Math.min(
+      hoverEle.getBoundingClientRect().height,
+      tableEle.getBoundingClientRect().height
+    );
 
     let left;
     const leftOverflow = tableEle.getBoundingClientRect().x - hoverEle.getBoundingClientRect().x;
@@ -119,7 +137,7 @@ export default function ColumnTypeView(props: { children: React.ReactNode }) {
       left = leftOverflow;
     } else if (rightOverflow < 0) {
       // minus one, to avoid flashing scrollbars
-      left = rightOverflow - 1;
+      left = rightOverflow;
     }
 
     const bottomOverflow =

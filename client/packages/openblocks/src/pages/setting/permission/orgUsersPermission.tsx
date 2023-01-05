@@ -1,13 +1,13 @@
 import { ADMIN_ROLE, OrgRoleInfo, OrgUser, TacoRoles } from "constants/orgConstants";
 import { User } from "constants/userConstants";
-import { ArrowIcon, CustomSelect } from "openblocks-design";
+import { ArrowIcon, CustomModal, CustomSelect } from "openblocks-design";
 import { MembersIcon } from "openblocks-design";
 import { SuperUserIcon } from "openblocks-design";
 import { trans } from "i18n";
 import InviteDialog from "pages/common/inviteDialog";
 import ProfileImage from "pages/common/profileImage";
 import React, { useEffect, useMemo } from "react";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { AppState } from "redux/reducers";
 import {
   deleteOrgUserAction,
@@ -32,6 +32,11 @@ import {
 } from "./styledComponents";
 import history from "util/history";
 import { PERMISSION_SETTING } from "constants/routesURL";
+import { HomeResInfo } from "util/homeResUtils";
+import { recycleApplication } from "redux/reduxActions/applicationActions";
+import { message } from "antd";
+import { isSaasMode } from "util/envUtils";
+import { selectSystemConfig } from "redux/selectors/configSelectors";
 
 const StyledMembersIcon = styled(MembersIcon)`
   g g {
@@ -50,6 +55,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
   const { Column } = TableStyled;
   const { orgId, orgUsers, orgUsersFetching, currentUser } = props;
   const adminCount = orgUsers.filter((user) => user.role === ADMIN_ROLE).length;
+  const sysConfig = useSelector(selectSystemConfig);
   const dispatch = useDispatch();
   const sortedOrgUsers = useMemo(() => {
     return [...orgUsers].sort((a, b) => {
@@ -166,12 +172,25 @@ function OrgUsersPermission(props: UsersPermissionProp) {
                   currentOrgAdmin(currentUser) && (
                     <span
                       onClick={() => {
-                        dispatch(
-                          deleteOrgUserAction({
-                            userId: record.userId,
-                            orgId: orgId,
-                          })
-                        );
+                        CustomModal.confirm({
+                          title: trans("memberSettings.moveOutOrg"),
+                          content: trans(
+                            isSaasMode(sysConfig)
+                              ? "memberSettings.moveOutOrgDescSaasMode"
+                              : "memberSettings.moveOutOrgDesc",
+                            { name: record.name }
+                          ),
+                          onConfirm: () => {
+                            dispatch(
+                              deleteOrgUserAction({
+                                userId: record.userId,
+                                orgId: orgId,
+                              })
+                            );
+                          },
+                          confirmBtnType: "delete",
+                          okText: trans("memberSettings.moveOutOrg"),
+                        });
                       }}
                     >
                       {trans("memberSettings.moveOutOrg")}

@@ -2,10 +2,9 @@ import { ReactNode } from "react";
 
 declare type EvalMethods = Record<string, Record<string, Function>>;
 declare type CodeType = undefined | "JSON" | "Function";
+declare type CodeFunction = (args?: Record<string, unknown>, runInHost?: boolean) => any;
 
 declare type NodeToValue<NodeT> = NodeT extends Node<infer ValueType> ? ValueType : never;
-declare type ValueFn<ValueType> = (...paramValues: any[]) => ValueType;
-declare type NodeToNodeFn<NodeT> = Node<ValueFn<NodeToValue<NodeT>>>;
 declare type FetchInfo = {
   /**
    * whether any of dependencies' node has executing query
@@ -34,10 +33,6 @@ declare type RecordOptionalNodeToValue<T> = {
 interface Node<T> {
   readonly type: string;
   /**
-   * generate a new node, the result is a function with "paramName" as the parameter name
-   */
-  wrapContext(paramName: string): Node<ValueFn<T>>;
-  /**
    * calculate evaluate result
    * @param exposingNodes other dependent Nodes
    */
@@ -53,28 +48,29 @@ interface Node<T> {
   dependNames(): string[];
   dependValues(): Record<string, unknown>;
   /**
-   * filter the real dependencies in the exposingNodes, for boosting the evaluation
+   * filter the real dependencies, for boosting the evaluation
    * @warn
    * the results include direct dependencies and dependencies of dependencies.
    * since input node's dependencies don't belong to module in the module feature, the node name may duplicate.
    *
    * FIXME: this should be a protected function.
    */
-  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]>;
+  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, Set<string>>;
   fetchInfo(exposingNodes: Record<string, Node<unknown>>): FetchInfo;
 }
 declare abstract class AbstractNode<T> implements Node<T> {
   readonly type: string;
   evalCache: EvalCache<T>;
   constructor();
-  abstract wrapContext(paramName: string): AbstractNode<ValueFn<T>>;
   evaluate(exposingNodes?: Record<string, Node<unknown>>, methods?: EvalMethods): T;
   hasCycle(): boolean;
   abstract getChildren(): Node<unknown>[];
   dependNames(): string[];
   abstract dependValues(): Record<string, unknown>;
   isHitEvalCache(exposingNodes?: Record<string, Node<unknown>>): boolean;
-  abstract filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]>;
+  abstract filterNodes(
+    exposingNodes: Record<string, Node<unknown>>
+  ): Map<Node<unknown>, Set<string>>;
   /**
    * evaluate without cache
    */
@@ -82,7 +78,7 @@ declare abstract class AbstractNode<T> implements Node<T> {
   abstract fetchInfo(exposingNodes: Record<string, Node<unknown>>): FetchInfo;
 }
 interface EvalCache<T> {
-  dependingNodeMap?: Map<Node<unknown>, string[]>;
+  dependingNodeMap?: Map<Node<unknown>, Set<string>>;
   value?: T;
   inEval?: boolean;
   cyclic?: boolean;
@@ -99,8 +95,8 @@ interface EvalCache<T> {
  * @returns whether equals
  */
 declare function dependingNodeMapEquals(
-  dependingNodeMap1: Map<Node<unknown>, string[]> | undefined,
-  dependingNodeMap2: Map<Node<unknown>, string[]>
+  dependingNodeMap1: Map<Node<unknown>, Set<string>> | undefined,
+  dependingNodeMap2: Map<Node<unknown>, Set<string>>
 ): boolean;
 
 interface CachedValue<T> {
@@ -111,8 +107,7 @@ declare class CachedNode<T> extends AbstractNode<CachedValue<T>> {
   type: string;
   child: AbstractNode<T>;
   constructor(child: AbstractNode<T>);
-  wrapContext(paramName: string): AbstractNode<ValueFn<CachedValue<T>>>;
-  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]>;
+  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, Set<string>>;
   justEval(exposingNodes: Record<string, Node<unknown>>, methods?: EvalMethods): CachedValue<T>;
   getChildren(): Node<unknown>[];
   dependValues(): Record<string, unknown>;
@@ -141,8 +136,7 @@ declare class FunctionNode<T, OutputType> extends AbstractNode<OutputType> {
   readonly func: (params: T) => OutputType;
   readonly type = "function";
   constructor(child: Node<T>, func: (params: T) => OutputType);
-  wrapContext(paramName: string): AbstractNode<ValueFn<OutputType>>;
-  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]>;
+  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, Set<string>>;
   justEval(exposingNodes: Record<string, Node<unknown>>, methods?: EvalMethods): OutputType;
   getChildren(): Node<unknown>[];
   dependValues(): Record<string, unknown>;
@@ -172,7 +166,6 @@ declare class ValueAndMsg<T> {
 interface CodeNodeOptions {
   codeType?: CodeType;
   evalWithMethods?: boolean;
-  paramNamesList?: string[][];
 }
 /**
  * user input node
@@ -191,10 +184,9 @@ declare class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
   private readonly evalWithMethods;
   private directDepends;
   constructor(unevaledValue: string, options?: CodeNodeOptions | undefined);
-  wrapContext(paramName: string): AbstractNode<ValueFn<ValueAndMsg<unknown>>>;
   private convertedValue;
-  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]>;
-  filterDirectDepends(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]>;
+  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, Set<string>>;
+  private filterDirectDepends;
   justEval(
     exposingNodes: Record<string, Node<unknown>>,
     methods?: EvalMethods
@@ -217,8 +209,7 @@ declare class FetchCheckNode extends AbstractNode<FetchInfo> {
   readonly child: Node<unknown>;
   readonly type = "fetchCheck";
   constructor(child: Node<unknown>);
-  wrapContext(paramName: string): AbstractNode<ValueFn<FetchInfo>>;
-  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]>;
+  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, Set<string>>;
   justEval(exposingNodes: Record<string, Node<unknown>>): FetchInfo;
   getChildren(): Node<unknown>[];
   dependValues(): Record<string, unknown>;
@@ -238,8 +229,7 @@ declare class RecordNode<T extends Record<string, Node<unknown>>> extends Abstra
   readonly children: T;
   readonly type = "record";
   constructor(children: T);
-  wrapContext(paramName: string): AbstractNode<ValueFn<RecordNodeToValue<T>>>;
-  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]>;
+  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, Set<string>>;
   justEval(
     exposingNodes: Record<string, Node<unknown>>,
     methods?: EvalMethods
@@ -260,8 +250,7 @@ declare class SimpleNode<T> extends AbstractNode<T> {
   readonly value: T;
   readonly type = "simple";
   constructor(value: T);
-  wrapContext(paramName: string): SimpleNode<() => T>;
-  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]>;
+  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, Set<string>>;
   justEval(exposingNodes: Record<string, Node<unknown>>): T;
   getChildren(): Node<unknown>[];
   dependValues(): Record<string, unknown>;
@@ -288,14 +277,16 @@ declare class WrapNode<T> extends AbstractNode<T> {
     moduleExposingMethods?: EvalMethods | undefined,
     inputNodes?: Record<string, string | Node<unknown>> | undefined
   );
-  wrapContext(paramName: string): AbstractNode<ValueFn<T>>;
   private wrap;
-  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]>;
+  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, Set<string>>;
   justEval(exposingNodes: Record<string, Node<unknown>>, methods: EvalMethods): T;
   fetchInfo(exposingNodes: Record<string, Node<unknown>>): FetchInfo;
   getChildren(): Node<unknown>[];
   dependValues(): Record<string, unknown>;
 }
+
+declare type WrapContextFn<T> = (params?: Record<string, unknown>) => T;
+declare function wrapContext<T>(node: Node<T>): Node<WrapContextFn<T>>;
 
 /**
  * build a new node by setting new dependent nodes in child node
@@ -305,8 +296,7 @@ declare class WrapContextNodeV2<T> extends AbstractNode<T> {
   readonly paramNodes: Record<string, Node<unknown>>;
   readonly type = "wrapContextV2";
   constructor(child: Node<T>, paramNodes: Record<string, Node<unknown>>);
-  wrapContext(paramName: string): AbstractNode<ValueFn<T>>;
-  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]>;
+  filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, Set<string>>;
   justEval(exposingNodes: Record<string, Node<unknown>>, methods?: EvalMethods): T;
   getChildren(): Node<unknown>[];
   dependValues(): Record<string, unknown>;
@@ -318,6 +308,30 @@ declare function transformWrapper<T>(
   transformFn: (value: unknown) => T,
   defaultValue?: T
 ): (valueAndMsg: ValueAndMsg<unknown>) => ValueAndMsg<T>;
+
+interface RecursivePerfUtilParams {
+  name: string;
+}
+interface PerfInfo {
+  obj: any;
+  childrenPerfInfo: PerfInfo[];
+  costMs: number;
+  depth: number;
+  info?: string;
+}
+declare class RecursivePerfUtil {
+  root: symbol;
+  name: string;
+  record: PerfInfo;
+  stack: number[];
+  constructor(params: RecursivePerfUtilParams);
+  private initRecord;
+  private getRecordByStack;
+  perf<T>(obj: any, info: string, fn: () => T): T;
+  clear: () => void;
+  print: (...stack: number[]) => void;
+}
+declare const evalPerfUtil: RecursivePerfUtil;
 
 declare function relaxedJSONToJSON(text: string, compact: boolean): string;
 
@@ -647,7 +661,12 @@ declare abstract class MultiBaseComp<
   reduce(action: CompAction): this;
   protected reduceOrUndefined(action: CompAction): this | undefined;
   setChild(childName: keyof ChildrenType, newChild: Comp): this;
-  protected setChildren(children: Record<string, Comp>): this;
+  protected setChildren(
+    children: Record<string, Comp>,
+    params?: {
+      keepCacheKeys?: string[];
+    }
+  ): this;
   /**
    * extended interface.
    *
@@ -742,6 +761,7 @@ export {
   BroadcastAction,
   CachedNode,
   ChangeValueAction,
+  CodeFunction,
   CodeNode,
   CodeNodeOptions,
   CodeType,
@@ -767,7 +787,6 @@ export {
   MultiChangeAction,
   MultiCompConstructor,
   Node,
-  NodeToNodeFn,
   NodeToValue,
   OptionalComp,
   OptionalNodeType,
@@ -788,7 +807,7 @@ export {
   UpdateActionContextAction,
   UpdateNodesV2Action,
   ValueAndMsg,
-  ValueFn,
+  WrapContextFn,
   WrapContextNodeV2,
   WrapNode,
   addChildAction,
@@ -804,6 +823,7 @@ export {
   evalFunc,
   evalFunctionResult,
   evalNodeOrMinor,
+  evalPerfUtil,
   evalStyle,
   executeQueryAction,
   fromRecord,
@@ -836,5 +856,6 @@ export {
   withFunction,
   wrapActionExtraInfo,
   wrapChildAction,
+  wrapContext,
   wrapDispatch,
 };

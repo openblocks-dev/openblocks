@@ -32,6 +32,8 @@ export interface LogDetail {
   queryId?: string;
   groupName?: string;
   memberName?: string;
+  folderId?: string;
+  folderName?: string;
 }
 
 export interface UserType {

@@ -7,14 +7,13 @@ import {
 } from "api/commonSettingApi";
 import history from "util/history";
 import { BASE_URL, THEME_SETTING } from "constants/routesURL";
-import ColorConfig, { configChangeParams } from "./colorConfig";
+import ColorPicker, { configChangeParams } from "../../../../components/ColorPicker";
 import React from "react";
 import { connect } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { AppState } from "redux/reducers";
 import { DETAIL_TYPE } from "../themeConstant";
-import { ArrowIcon, CustomModal } from "openblocks-design";
-import { ResetIcon } from "openblocks-design";
+import { ArrowIcon, CustomModal, ResetIcon } from "openblocks-design";
 import {
   DetailContainer,
   DetailContent,
@@ -25,10 +24,11 @@ import {
   ResetButton,
   SaveButton,
 } from "../styledComponents";
-import PreviewApp from "./previewApp";
+import PreviewApp from "../../../../components/PreviewApp";
 import { trans } from "i18n";
 import { Prompt } from "react-router";
 import { HeaderBack } from "pages/setting/permission/styledComponents";
+import dsl from "./previewDsl";
 
 type LocationProp = {
   theme: ThemeDetail;
@@ -188,54 +188,54 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
           <DetailContent>
             <div>
               <DetailTitle>{trans("theme.mainColor")}</DetailTitle>
-              <ColorConfig
+              <ColorPicker
                 colorKey="primary"
                 name={trans("themeDetail.primary")}
                 desc={trans("themeDetail.primaryDesc")}
                 color={this.state.theme.primary}
                 configChange={(params) => this.configChange(params)}
-              ></ColorConfig>
-              <ColorConfig
+              ></ColorPicker>
+              <ColorPicker
                 colorKey="canvas"
                 name={trans("themeDetail.canvas")}
                 desc={trans("themeDetail.canvasDesc")}
                 color={this.state.theme.canvas}
                 configChange={(params) => this.configChange(params)}
-              ></ColorConfig>
-              <ColorConfig
+              ></ColorPicker>
+              <ColorPicker
                 colorKey="primarySurface"
                 name={trans("themeDetail.primarySurface")}
                 desc={trans("themeDetail.primarySurfaceDesc")}
                 color={this.state.theme.primarySurface}
                 configChange={(params) => this.configChange(params)}
-              ></ColorConfig>
+              ></ColorPicker>
               <DividerStyled />
               <DetailTitle>{trans("theme.text")}</DetailTitle>
-              <ColorConfig
+              <ColorPicker
                 colorKey="textLight"
                 name={trans("themeDetail.textLight")}
                 desc={trans("themeDetail.textLightDesc")}
                 color={this.state.theme.textLight}
                 configChange={(params) => this.configChange(params)}
-              ></ColorConfig>
-              <ColorConfig
+              ></ColorPicker>
+              <ColorPicker
                 colorKey="textDark"
                 name={trans("themeDetail.textDark")}
                 desc={trans("themeDetail.textDarkDesc")}
                 color={this.state.theme.textDark}
                 configChange={(params) => this.configChange(params)}
-              ></ColorConfig>
+              ></ColorPicker>
               <DividerStyled />
               <DetailTitle>{trans("themeDetail.borderRadius")}</DetailTitle>
-              <ColorConfig
+              <ColorPicker
                 colorKey="borderRadius"
                 name={trans("themeDetail.borderRadius")}
                 desc={trans("themeDetail.borderRadiusDesc")}
                 radius={this.state.theme.borderRadius}
                 configChange={(params) => this.configChange(params)}
-              ></ColorConfig>
+              ></ColorPicker>
             </div>
-            <PreviewApp theme={this.state.theme} />
+            <PreviewApp theme={this.state.theme} dsl={dsl} />
           </DetailContent>
         </DetailContainer>
       </>

@@ -29,6 +29,8 @@ describe("deps", () => {
     expect(depsD.has(context.data)).toBe(true);
     expect(depsD.has(context.str)).toBe(true);
     expect(depsD.has(context.i)).toBe(false);
+
+    expect(filterDepends("{{new Date().toLocaleString()}}", context)).toStrictEqual(new Map());
   });
 });
 

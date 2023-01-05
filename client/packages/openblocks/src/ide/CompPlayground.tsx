@@ -6,6 +6,7 @@ import { Button, Space, Input, Form } from "antd";
 import styled from "styled-components";
 import { useCompInstance, GetContainerParams } from "comps/utils/useCompInstance";
 import { CanvasContainerID } from "constants/domLocators";
+import { trans } from "i18n";
 
 const Container = styled.div`
   display: flex;
@@ -65,11 +66,11 @@ const Container = styled.div`
 
   .bottom-panel {
     position: relative;
-    height: 180px;
+    height: 280px;
     border-top: 1px solid #efefef;
 
     .panel-content {
-      padding: 8px;
+      padding: 16px;
     }
 
     .ant-form-item {
@@ -80,6 +81,8 @@ const Container = styled.div`
       & > label {
         font-size: 12px;
         height: 28px;
+        width: 120px;
+        text-align: right;
       }
     }
 
@@ -101,13 +104,18 @@ const Container = styled.div`
   }
 `;
 
+const ParamsTextArea = styled(Input.TextArea)`
+  width: 50%;
+`;
+
 interface IProps {
+  initialValue?: any;
   compFactory: Comp<any>;
   layoutInfo: UICompLayoutInfo;
 }
 
 export function CompPlayground(props: IProps) {
-  const { compFactory, layoutInfo } = props;
+  const { compFactory, layoutInfo, initialValue } = props;
   const [methodParams, setMethodParams] = useState<string[]>([]);
 
   const handleChangeMethodParams = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -119,16 +127,16 @@ export function CompPlayground(props: IProps) {
       }
       setMethodParams([v]);
     } catch {
-      setMethodParams([]);
+      setMethodParams([e.target.value]);
     }
   };
 
   const containerParams: GetContainerParams<any> = useMemo(
     () => ({
       Comp: compFactory,
-      initialValue: {},
+      initialValue: initialValue ?? {},
     }),
-    [compFactory]
+    [compFactory, initialValue]
   );
   const [comp] = useCompInstance(containerParams);
 
@@ -141,7 +149,7 @@ export function CompPlayground(props: IProps) {
     <Container>
       <div className="main">
         <div className="panel data-panel">
-          <div className="panel-title">Data</div>
+          <div className="panel-title">{trans("playground.data")}</div>
           <div className="panel-content">
             <ReactJson
               collapsed={2}
@@ -155,57 +163,65 @@ export function CompPlayground(props: IProps) {
           </div>
         </div>
         <div className="panel preview-panel">
-          <div className="panel-title">Preview</div>
+          <div className="panel-title">{trans("playground.preview")}</div>
           <div
             className="preview-content"
             id={CanvasContainerID}
             style={{ overflow: "auto", contain: "paint" }}
           >
-            <div style={{ width: layoutInfo.w * 48, height: layoutInfo.h * 8 }}>
+            <div style={{ width: layoutInfo.w * 48, height: layoutInfo.h * 7 }}>
               {comp.getView()}
+            </div>
+          </div>
+
+          <div className="panel bottom-panel">
+            <div className="panel-title">{trans("playground.console")}</div>
+            <div className="panel-content">
+              <Form component={false} layout="horizontal">
+                <Form.Item label={trans("playground.executeMethods")}>
+                  <Space>
+                    {methods.length === 0 && (
+                      <div className="help">{trans("playground.noMethods")}</div>
+                    )}
+                    {methods.map((i) => (
+                      <Button
+                        key={i}
+                        ghost
+                        type="primary"
+                        // size="small"
+                        onClick={() => {
+                          comp.dispatch(
+                            customAction({
+                              type: "execute",
+                              methodName: i,
+                              params: methodParams,
+                            })
+                          );
+                        }}
+                      >
+                        {i}
+                      </Button>
+                    ))}
+                  </Space>
+                </Form.Item>
+                {methods.length > 0 && (
+                  <Form.Item
+                    label={trans("playground.methodParams")}
+                    help={trans("playground.methodParamsHelp")}
+                  >
+                    <ParamsTextArea
+                      rows={4}
+                      onChange={(params) => handleChangeMethodParams(params)}
+                    />
+                  </Form.Item>
+                )}
+              </Form>
             </div>
           </div>
         </div>
         <div className="panel property-panel">
-          <div className="panel-title">Property</div>
+          <div className="panel-title">{trans("playground.preview")}</div>
           <div className="panel-content">{comp.getPropertyView()}</div>
-        </div>
-      </div>
-      <div className="panel bottom-panel">
-        <div className="panel-title">Console</div>
-        <div className="panel-content">
-          <Form component={false} layout="horizontal">
-            <Form.Item label="Execute Methods">
-              <Space>
-                {methods.length === 0 && <div className="help">No methods.</div>}
-                {methods.map((i) => (
-                  <Button
-                    key={i}
-                    size="small"
-                    onClick={() => {
-                      comp.dispatch(
-                        customAction({
-                          type: "execute",
-                          methodName: i,
-                          params: methodParams,
-                        })
-                      );
-                    }}
-                  >
-                    {i}
-                  </Button>
-                ))}
-              </Space>
-            </Form.Item>
-            {methods.length > 0 && (
-              <Form.Item
-                label="Method Params"
-                help="Input method params use JSON, for example, you can set setValue's params with: [1] or 1"
-              >
-                <Input.TextArea onChange={(params) => handleChangeMethodParams(params)} />
-              </Form.Item>
-            )}
-          </Form>
         </div>
       </div>
     </Container>

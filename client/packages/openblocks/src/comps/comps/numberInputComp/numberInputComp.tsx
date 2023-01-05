@@ -39,6 +39,8 @@ import {
   requiredPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { IconControl } from "comps/controls/iconControl";
+import { hasIcon } from "comps/utils";
 
 const getStyle = (style: InputLikeStyleType) => {
   return css`
@@ -225,6 +227,7 @@ const childrenMap = {
   onEvent: InputEventHandlerControl,
   viewRef: RefControl,
   style: styleControl(InputLikeStyle),
+  prefixIcon: IconControl,
 
   // validation
   required: BoolControl,
@@ -275,6 +278,7 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       stringMode={true}
       precision={props.precision}
       $style={props.style}
+      prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
       onPressEnter={() => {
         handleFinish();
         props.onEvent("submit");
@@ -359,6 +363,7 @@ const NumberInputTmpComp = (function () {
         <Section name={sectionNames.advanced}>
           {children.step.propertyView({ label: trans("numberInput.step") })}
           {readOnlyPropertyView(children)}
+          {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
         </Section>
 
         <Section name={sectionNames.validation}>

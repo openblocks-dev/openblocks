@@ -249,9 +249,14 @@ export const QueryGeneralPropertyView = (props: {
                   queries.length > 0 &&
                     CustomModal.confirm({
                       title: trans("query.updateExceptionDataSourceTitle"),
-                      content: trans("query.updateExceptionDataSourceContent", {
-                        query: queries.map((q) => q.children.name.getView()).join("、"),
-                      }),
+                      content: (
+                        <>
+                          {trans("query.updateExceptionDataSourceContent")}
+                          {queries.map((q) => (
+                            <div style={{ fontWeight: "600" }}>{q.children.name.getView()}</div>
+                          ))}
+                        </>
+                      ),
                       bodyStyle: { marginTop: "20px" },
                       onConfirm: () => {
                         queries.forEach((q) => {

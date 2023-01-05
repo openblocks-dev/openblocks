@@ -19,7 +19,6 @@ import {
 } from "openblocks-core";
 import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { StringControl } from "comps/controls/codeControl";
-import { dropdownControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { stateComp, valueComp, withTypeAndChildren, withViewFn } from "comps/generators";
 import { list } from "comps/generators/list";
@@ -176,7 +175,9 @@ QueryCompTmp = class extends QueryCompTmp {
     if (
       action.type === CompActionTypes.UPDATE_NODES_V2 &&
       getTriggerType(this) === "automatic" &&
-      this.children.compType.getView() !== "js"
+      (this.children.compType.getView() !== "js" ||
+        (this.children.compType.getView() === "js" &&
+          this.children.lastQueryStartTime.getView() === -1)) // query which has deps can be executed on page load(first time)
     ) {
       const dependValues = this.children.comp.node()?.dependValues();
       const target = this as any;
@@ -320,7 +321,7 @@ QueryCompTmp = class extends QueryCompTmp {
             queryId,
             applicationId: applicationId,
             applicationPath: parentApplicationPath,
-            args: action.args,
+            args: action.args ?? {},
             timeout: this.children.timeout,
           }),
         () => this.dispatch(changeChildAction("isFetching", false)),

@@ -4,13 +4,13 @@ import { QueryResult, TriggerType } from "./queryComp";
 import { Comp } from "openblocks-core";
 import { MultiCompBuilder, ToConstructor } from "../generators/multi";
 import { Fragment } from "react";
-import { ParamsControlType } from "../controls/paramsControl";
+import { ParamsControlType, ValueFunction } from "../controls/paramsControl";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { ResourceType } from "@openblocks-ee/constants/queryConstants";
 
 export type FunctionProperty = {
   key: string;
-  value: Function;
+  value: ValueFunction;
 };
 
 /**
@@ -24,7 +24,7 @@ export function toQueryView(params: FunctionProperty[]) {
     queryId: string;
     applicationId: string;
     applicationPath: string[];
-    args?: Record<string, unknown>;
+    args: Record<string, unknown>;
     timeout: InstanceType<ParamsControlType>;
   }): Promise<QueryResult> => {
     const { applicationId, isViewMode } = getGlobalSettings();

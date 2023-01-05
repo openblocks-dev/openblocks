@@ -1,11 +1,11 @@
-import { changeChildAction, fromValue } from "openblocks-core";
+import { ColumnComp } from "comps/comps/tableComp/column/tableColumnComp";
+import { getTableTransData } from "comps/comps/tableComp/tableUtils";
 import { evalAndReduce } from "comps/utils";
+import _ from "lodash";
+import { changeChildAction, fromValue } from "openblocks-core";
 import { MemoryRouter } from "react-router-dom";
 import { MockTableComp } from "./mockTableComp";
-import { ColumnComp } from "comps/comps/tableComp/column/tableColumnComp";
 import { TableComp } from "./tableComp";
-import _ from "lodash";
-import { getTableTransData } from "comps/comps/tableComp/tableUtils";
 
 test("test column", () => {
   const columnData = {
@@ -29,19 +29,22 @@ test("test column render", () => {
     },
     // editable: true, // TODO: change to boolean
   };
+  const paramValueMap = {
+    0: {
+      currentCell: null,
+      currentIndex: null,
+      currentRow: { id: "hello" },
+      currentOriginalIndex: null,
+    },
+  };
   let comp = new ColumnComp({ value: columnData });
+  const render = comp.children.render.clear().batchSet(paramValueMap);
+  comp = comp.setChild("render", render);
   comp = evalAndReduce(comp);
   const columnOutput = comp.getView();
-  expect(
-    columnOutput
-      .render(String(0), {
-        currentCell: null,
-        currentIndex: null,
-        currentRow: { id: "hello" },
-        currentOriginalIndex: null,
-      })
-      .view({}).props.children.props.normalView
-  ).toEqual("hello");
+  expect(columnOutput.render[0].getView().view({}).props.children.props.normalView).toEqual(
+    "hello"
+  );
   // FIXME: see what should be output if the input is wrong
   // expect(columnOutput.render()).toEqual("");
   // expect(columnOutput.render(null, "def")).toEqual("");
@@ -166,6 +169,7 @@ test("test table data transform", () => {
     value: tableData,
   });
   comp = evalAndReduce(comp);
+  comp = comp.updateContext();
   // id sort
   comp = evalAndReduce(
     comp.reduce(

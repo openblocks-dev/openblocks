@@ -4,8 +4,7 @@ const dsl = {
   ui: {
     layout: {
       "19427536": { i: "19427536", h: 10, w: 12, x: 0, y: 0 },
-      "71170d57": { i: "71170d57", h: 5, w: 7, x: 17, y: 0 },
-      fc4622b8: { i: "fc4622b8", h: 5, w: 7, x: 17, y: 5 },
+      "71170d57": { i: "71170d57", h: 5, w: 7, x: 17, y: 5 },
       db6e8345: { i: "db6e8345", h: 37, w: 10, x: 0, y: 11 },
       "4fbf5ef0": {
         i: "4fbf5ef0",
@@ -574,38 +573,12 @@ const dsl = {
         },
         name: "container1",
       },
-      fc4622b8: {
-        compType: "switch",
-        comp: {
-          value: "",
-          label: {
-            text: trans("theme.swicthOff"),
-            tooltip: "",
-            hidden: false,
-            width: "70",
-            widthUnit: "%",
-            position: "row",
-            align: "right",
-          },
-          onEvent: [],
-          disabled: "",
-          style: {
-            label: "",
-            handle: "",
-            unchecked: "",
-            checked: "",
-          },
-          formDataKey: "",
-          hidden: "",
-        },
-        name: "switch2",
-      },
       "71170d57": {
         compType: "switch",
         comp: {
           value: "1",
           label: {
-            text: trans("theme.switchOn"),
+            text: trans("theme.switch"),
             tooltip: "",
             hidden: false,
             width: "70",

@@ -1,9 +1,8 @@
 import { memoized } from "util/memoize";
 import { FunctionNode, withFunction } from "./functionNode";
-import { AbstractNode, Node, ValueFn } from "./node";
+import { AbstractNode, Node } from "./node";
 import { RecordNode } from "./recordNode";
 import { EvalMethods } from "./types/evalTypes";
-import { WrapContextNode } from "./wrapContextNode";
 
 interface CachedValue<T> {
   value: T;
@@ -17,11 +16,8 @@ export class CachedNode<T> extends AbstractNode<CachedValue<T>> {
     super();
     this.child = withEvalCache(child);
   }
-  override wrapContext(paramName: string): AbstractNode<ValueFn<CachedValue<T>>> {
-    return new WrapContextNode(this, paramName);
-  }
   @memoized()
-  override filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, string[]> {
+  override filterNodes(exposingNodes: Record<string, Node<unknown>>) {
     return this.child.filterNodes(exposingNodes);
   }
   override justEval(

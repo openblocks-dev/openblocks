@@ -3,7 +3,7 @@ import { BoolCodeControl } from "comps/controls/codeControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { LabelControl } from "comps/controls/labelControl";
-import { SelectInputOptionControl } from "comps/controls/optionsControl";
+import { SelectOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
 import { SegmentStyle, SegmentStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
@@ -19,6 +19,7 @@ import {
 import { Section, sectionNames } from "openblocks-design";
 import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { hasIcon } from "comps/utils";
 
 const getStyle = (style: SegmentStyleType) => {
   return css`
@@ -58,7 +59,7 @@ export const SegmentChildrenMap = {
   label: LabelControl,
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
-  options: SelectInputOptionControl,
+  options: SelectOptionControl,
   style: styleControl(SegmentStyle),
 
   ...SelectInputValidationChildren,
@@ -88,6 +89,7 @@ export const SegmentedControlBasicComp = (function () {
               label: option.label,
               value: option.value,
               disabled: option.disabled,
+              icon: hasIcon(option.prefixIcon) && option.prefixIcon,
             }))}
         />
       ),

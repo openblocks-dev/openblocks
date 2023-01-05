@@ -3,18 +3,21 @@ import {
   CompActionTypes,
   customAction,
   isMyCustomAction,
+  Node,
+  NodeToValue,
   updateActionContextAction,
   updateNodesV2Action,
+  wrapContext,
+  WrapContextFn,
 } from "openblocks-core";
 import { ConstructorToNodeType, ConstructorToView, MultiCompConstructor } from "openblocks-core";
-import { NodeToNodeFn } from "openblocks-core";
 import React from "react";
 import { lastValueIfEqual, setFieldsNoTypeCheck, shallowEqual } from "util/objectUtils";
 import _ from "lodash";
 
 type NodeFnType<T> = ConstructorToNodeType<T> extends undefined
   ? undefined
-  : NodeToNodeFn<ConstructorToNodeType<T>>;
+  : Node<WrapContextFn<NodeToValue<ConstructorToNodeType<T>>>>;
 export const CompExposingContext = React.createContext<Record<string, unknown> | undefined>(
   undefined
 );
@@ -78,8 +81,7 @@ export function withContext<ParamNames extends readonly string[], T extends Mult
     }
 
     private getContextValue(input: ContextDataType) {
-      const paramValue = paramNames.map((name) => (input as any)[name]);
-      return this.valueV2(...paramValue);
+      return this.valueV2(input);
     }
 
     /**
@@ -135,12 +137,11 @@ export function withContext<ParamNames extends readonly string[], T extends Mult
 
     nodeWithContext() {
       // extra node, but the original node needs to be able to access the variable and eval the result
-      const paramName = paramNames.join(",");
       const superNode = super.nodeWithoutCache() as unknown as ConstructorToNodeType<T>;
       if (superNode === undefined) {
         return undefined as NodeFnType<T>;
       }
-      return superNode.wrapContext(paramName) as NodeFnType<T>;
+      return wrapContext(superNode) as NodeFnType<T>;
     }
   }
 

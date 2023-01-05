@@ -85,7 +85,7 @@ export const HomeResOptions = (props: {
                     recycleApplication(
                       { applicationId: res.id, folderId: folderId },
                       () => {
-                        message.success(trans("home.deleteSuccessMsg"));
+                        message.success(trans("success"));
                         resolve(true);
                       },
                       () => reject()

@@ -5,9 +5,17 @@ import {
   CompParams,
   ConstructorToDataType,
   ConstructorToView,
+  fromRecord,
   MultiBaseComp,
+  withFunction,
 } from "openblocks-core";
-import { ArrayControl, BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import {
+  ArrayControl,
+  BoolCodeControl,
+  codeControl,
+  CodeControlType,
+  StringControl,
+} from "comps/controls/codeControl";
 import { dropdownControl, LeftRightControl } from "comps/controls/dropdownControl";
 import { MultiCompBuilder, valueComp, withContext, withDefault } from "comps/generators";
 import { list } from "comps/generators/list";
@@ -16,13 +24,13 @@ import { genRandomKey } from "comps/utils/idGenerator";
 import { AutoArea, Option } from "openblocks-design";
 import { getNextEntityName } from "util/stringUtils";
 import { ButtonEventHandlerControl } from "./eventHandlerControl";
-import _ from "lodash";
-import { JSONValue } from "util/jsonTypes";
+import _, { mapValues } from "lodash";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import styled from "styled-components";
 import { ViewDocIcon } from "assets/icons";
 import { IconControl } from "comps/controls/iconControl";
+import { JSONValue } from "../../util/jsonTypes";
 
 const OptionTypes = [
   {
@@ -36,7 +44,7 @@ const OptionTypes = [
 ] as const;
 
 // All options must contain label
-type OptionChildType = { label: Comp<string> };
+type OptionChildType = { label: InstanceType<typeof StringControl> };
 type OptionsControlType = new (params: CompParams<any>) => MultiBaseComp<
   OptionChildType,
   any,
@@ -131,6 +139,17 @@ export function manualOptionsControl<T extends OptionsControlType>(
     .build();
 
   class ManualOptionControl extends TmpManualOptionControl {
+    exposingNode() {
+      return withFunction(
+        fromRecord(
+          mapValues(this.children.manual.children, (c1) =>
+            fromRecord(mapValues(c1.children, (c2) => c2.exposingNode()))
+          )
+        ),
+        (params) => Object.values(params)
+      );
+    }
+
     private getNewId(): number {
       const { autoIncField } = config;
       if (!autoIncField) return 0;
@@ -260,6 +279,17 @@ export function mapOptionsControl<T extends OptionsControlType>(
   return class extends TmpOptionControl {
     private lastDataExample: any = {};
 
+    exposingNode() {
+      return withFunction(
+        fromRecord({
+          data: this.children.data.exposingNode(),
+          mapData: this.children.mapData.node(),
+        }),
+        (params) =>
+          params.data.map((d: any, i) => mapValues((params.mapData as any)(d), (v) => v.value))
+      );
+    }
+
     override reduce(action: CompAction) {
       const comp = super.reduce(action);
       if (action.type === CompActionTypes.UPDATE_NODES_V2) {
@@ -325,6 +355,12 @@ export function optionsControl<T extends OptionsControlType>(
     .build();
 
   return class extends TmpOptionControl {
+    exposingNode() {
+      return this.children.optionType.getView() === "manual"
+        ? this.children.manual.exposingNode()
+        : this.children.mapData.exposingNode();
+    }
+
     propertyView(param: OptionControlParam) {
       return (
         <>
@@ -368,6 +404,42 @@ SelectInputOption = class extends SelectInputOption implements OptionCompPropert
 };
 
 export const SelectInputOptionControl = optionsControl(SelectInputOption, {
+  initOptions: [
+    { label: trans("optionsControl.option1"), value: "1" },
+    { label: trans("optionsControl.option2"), value: "2" },
+  ],
+  uniqField: "value",
+});
+
+let SelectOption = new MultiCompBuilder(
+  {
+    value: StringControl,
+    label: StringControl,
+    prefixIcon: IconControl,
+    disabled: BoolCodeControl,
+    hidden: BoolCodeControl,
+  },
+  (props) => props
+).build();
+
+SelectOption = class extends SelectOption implements OptionCompProperty {
+  propertyView(param: { autoMap?: boolean }) {
+    return (
+      <>
+        {this.children.label.propertyView({
+          label: trans("label"),
+          placeholder: param.autoMap ? "{{item}}" : "",
+        })}
+        {this.children.value.propertyView({ label: trans("value") })}
+        {this.children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+        {disabledPropertyView(this.children)}
+        {hiddenPropertyView(this.children)}
+      </>
+    );
+  }
+};
+
+export const SelectOptionControl = optionsControl(SelectOption, {
   initOptions: [
     { label: trans("optionsControl.option1"), value: "1" },
     { label: trans("optionsControl.option2"), value: "2" },

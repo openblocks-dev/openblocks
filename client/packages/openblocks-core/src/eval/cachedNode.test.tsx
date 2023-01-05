@@ -1,7 +1,7 @@
 import { evalNodeOrMinor } from "./cachedNode";
 import { fromUnevaledValue } from "./codeNode";
 import { fromValue } from "./simpleNode";
-import { WrapContextNode } from "./wrapContextNode";
+import { wrapContext } from "./wrapContextNode";
 
 describe("CachedNode", () => {
   it("notCached test", () => {
@@ -49,13 +49,12 @@ describe("CachedNode", () => {
   it("wrapContext: evalNodeOrMinor", () => {
     const x1 = fromUnevaledValue("{{i}}");
     const x2 = fromValue("0");
-    // const y = new WrapContextNode(evalNodeOrMinor(x1, x2), "i");
-    expect(new WrapContextNode(evalNodeOrMinor(x1, x2), "i").evaluate()(2)).toStrictEqual(2);
-    expect(new WrapContextNode(evalNodeOrMinor(x1, x2), "i").evaluate()(2)).toStrictEqual("0");
-    expect(new WrapContextNode(evalNodeOrMinor(x1, x2), "i").evaluate()(2)).toStrictEqual("0");
-    expect(new WrapContextNode(evalNodeOrMinor(x1, x2), "i").evaluate()(1)).toStrictEqual(1);
-    expect(new WrapContextNode(evalNodeOrMinor(x1, x2), "i").evaluate()(1)).toStrictEqual("0");
-    expect(new WrapContextNode(evalNodeOrMinor(x1, x2), "i").evaluate()(1)).toStrictEqual("0");
-    expect(new WrapContextNode(evalNodeOrMinor(x1, x2), "i").evaluate()(3)).toStrictEqual(3);
+    expect(wrapContext(evalNodeOrMinor(x1, x2)).evaluate()({ i: 2 })).toStrictEqual(2);
+    expect(wrapContext(evalNodeOrMinor(x1, x2)).evaluate()({ i: 2 })).toStrictEqual("0");
+    expect(wrapContext(evalNodeOrMinor(x1, x2)).evaluate()({ i: 2 })).toStrictEqual("0");
+    expect(wrapContext(evalNodeOrMinor(x1, x2)).evaluate()({ i: 1 })).toStrictEqual(1);
+    expect(wrapContext(evalNodeOrMinor(x1, x2)).evaluate()({ i: 1 })).toStrictEqual("0");
+    expect(wrapContext(evalNodeOrMinor(x1, x2)).evaluate()({ i: 1 })).toStrictEqual("0");
+    expect(wrapContext(evalNodeOrMinor(x1, x2)).evaluate()({ i: 3 })).toStrictEqual(3);
   });
 });

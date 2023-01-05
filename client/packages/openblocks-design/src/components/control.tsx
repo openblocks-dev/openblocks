@@ -81,6 +81,7 @@ const LabelWrapper = styled.div<{
   }}
 `;
 const ChildrenWrapper = styled.div<{ layout: ControlLayout }>`
+  min-width: 0;
   ${(props) => {
     switch (props.layout) {
       case "horizontal":

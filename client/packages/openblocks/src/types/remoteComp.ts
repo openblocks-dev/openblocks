@@ -1,7 +1,7 @@
 import { UICompManifest } from "comps/uiCompRegistry";
 import { CompConstructor } from "openblocks-core";
 
-export type RemoteCompSource = "npm";
+export type RemoteCompSource = "npm" | "bundle";
 export interface OpenblocksCompMeta extends Omit<UICompManifest, "comp" | "icon"> {
   icon?: string;
 }

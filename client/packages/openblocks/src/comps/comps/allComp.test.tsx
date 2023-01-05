@@ -11,7 +11,6 @@ import { QueryComp } from "comps/queries";
 import { JSQuery } from "comps/queries/jsQuery";
 import { evalAndReduce } from "comps/utils";
 import _ from "lodash";
-import log from "loglevel";
 import { CompConstructor } from "openblocks-core";
 import { ParamsStringControl } from "../controls/paramsControl";
 import { SQLQuery } from "../queries/sqlQuery/SQLQuery";
@@ -65,6 +64,22 @@ Object.keys(QueryMap).forEach((key) => {
   COMPS_MAP["query_" + key] = (QueryMap as Record<string, CompConstructor>)[key];
 });
 
+function logDiff(comp: any, newComp: any, prefix?: string) {
+  if (_.isNil(comp.children)) {
+    console.info(`diff. comp.${prefix}: `, comp, ` newComp.${prefix}: `, newComp);
+    return;
+  }
+  Object.keys(comp.children).forEach((key) => {
+    const child = comp.children[key];
+    const newChild = newComp.children[key];
+    if (child !== newChild) {
+      const outputKey = (prefix ? prefix + "." : "") + key;
+      console.info(`diff ${outputKey}. comp: `, child, ` newComp: `, newChild);
+      logDiff(child, newChild, outputKey);
+    }
+  });
+}
+
 test("test comp don't change if no value change", () => {
   Object.keys(COMPS_MAP).forEach((name) => {
     const Comp = COMPS_MAP[name];
@@ -80,11 +95,7 @@ test("test comp don't change if no value change", () => {
         // log.debug(`${name} need two eval`);
       } else {
         const newComp = evalAndReduce(comp);
-        Object.keys((comp as any).children).forEach((key) => {
-          log.log(
-            `${key}, isEqual ${(comp as any).children[key] === (newComp as any).children[key]}`
-          );
-        });
+        logDiff(comp, newComp);
         throw new Error("bad " + name);
       }
     }

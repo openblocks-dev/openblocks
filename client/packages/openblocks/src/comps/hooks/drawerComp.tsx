@@ -22,6 +22,8 @@ import styled from "styled-components";
 import { useUserViewMode } from "util/hooks";
 import { isNumeric } from "util/stringUtils";
 import { NameConfig, withExposingConfigs } from "../generators/withExposing";
+import { BoolControl } from "comps/controls/boolControl";
+import { withDefault } from "comps/generators";
 
 const EventOptions = [closeEvent] as const;
 
@@ -96,6 +98,8 @@ let TmpDrawerComp = (function () {
       autoHeight: AutoHeightControl,
       style: styleControl(DrawerStyle),
       placement: PositionControl,
+      maskClosable: withDefault(BoolControl, true),
+      showMask: withDefault(BoolControl, true),
     },
     (props, dispatch) => {
       const isTopBom = ["top", "bottom"].includes(props.placement);
@@ -140,6 +144,8 @@ let TmpDrawerComp = (function () {
                 }
               }}
               zIndex={Layers.drawer}
+              maskClosable={props.maskClosable}
+              mask={props.showMask}
             >
               <ButtonStyle
                 onClick={() => {
@@ -182,6 +188,12 @@ let TmpDrawerComp = (function () {
               tooltip: trans("drawer.heightTooltip"),
               placeholder: DEFAULT_SIZE + "",
             })}
+          {children.maskClosable.propertyView({
+            label: trans("prop.maskClosable"),
+          })}
+          {children.showMask.propertyView({
+            label: trans("prop.showMask"),
+          })}
         </Section>
         <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>

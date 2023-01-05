@@ -11,6 +11,7 @@ import {
   deleteAppPermission,
   fetchApplicationPermissions,
   updateAppPermission,
+  updateAppPermissionInfo,
 } from "../../redux/reduxActions/applicationActions";
 import { PermissionItemsType } from "./PermissionList";
 import { trans } from "../../i18n";
@@ -196,6 +197,7 @@ function AppShareView(props: {
 }) {
   const { applicationId, permissionInfo, isModule } = props;
   const [isPublic, setPublic] = useState(permissionInfo.publicToAll);
+  const dispatch = useDispatch();
   useEffect(() => {
     setPublic(permissionInfo.publicToAll);
   }, [permissionInfo.publicToAll]);
@@ -209,6 +211,7 @@ function AppShareView(props: {
             ApplicationApi.publicToAll(applicationId, checked)
               .then((resp) => {
                 validateResponse(resp);
+                dispatch(updateAppPermissionInfo({ publicToAll: checked }));
               })
               .catch((e) => {
                 message.error(e.message);

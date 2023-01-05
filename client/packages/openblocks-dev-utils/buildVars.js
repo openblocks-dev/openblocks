@@ -40,6 +40,10 @@ export const buildVars = [
     defaultValue: "",
   },
   {
+    name: "REACT_APP_BUNDLE_BUILTIN_PLUGIN",
+    defaultValue: "",
+  },
+  {
     name: "REACT_APP_BUNDLE_TYPE",
     defaultValue: "app",
   },

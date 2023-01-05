@@ -10,6 +10,8 @@ import styled, { css } from "styled-components";
 import { Slider } from "antd";
 import { darkenColor, fadeColor } from "openblocks-design";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import { IconControl } from "comps/controls/iconControl";
+import { trans } from "i18n";
 
 const getStyle = (style: SliderStyleType) => {
   return css`
@@ -44,6 +46,16 @@ export const SliderStyled = styled(Slider)<{ $style: SliderStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
+export const SliderWrapper = styled.div`
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  .ant-slider {
+    width: 100%;
+  }
+`
+
 export const SliderChildren = {
   max: withDefault(NumberControl, "100"),
   min: withDefault(NumberControl, "0"),
@@ -52,6 +64,8 @@ export const SliderChildren = {
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
   style: styleControl(SliderStyle),
+  prefixIcon: IconControl,
+  suffixIcon: IconControl,
 };
 
 export const SliderPropertyView = (
@@ -65,7 +79,11 @@ export const SliderPropertyView = (
       {disabledPropertyView(children)}
     </Section>
 
-    <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+    <Section name={sectionNames.layout}>
+      {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+      {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+      {hiddenPropertyView(children)}
+    </Section>
 
     <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
   </>
