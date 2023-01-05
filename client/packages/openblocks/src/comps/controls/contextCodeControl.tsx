@@ -16,7 +16,7 @@ const __CONTEXT_CONTROL_FIELD_NAME = "__CONTEXT_CONTROL_FIELD_NAME";
 
 function toContextControl<T extends CodeControlType>(Control: T) {
   return class ContextControl extends MultiBaseComp<{ text: InstanceType<T> }> {
-    private readonly valueFn: WrapContextFn<unknown> = (params: Record<string, unknown>) => "";
+    private readonly valueFn: WrapContextFn<unknown> = (params?: Record<string, unknown>) => "";
 
     override parseChildrenFromValue(params: CompParams<string>) {
       const dispatchChild = (action: CompAction): void => {

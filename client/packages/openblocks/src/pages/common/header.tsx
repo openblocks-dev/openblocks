@@ -37,6 +37,7 @@ import ProfileDropdown from "./profileDropdown";
 import { Logo, LogoWithName } from "@openblocks-ee/assets/images";
 import { HeaderStartDropdown } from "./headerStartDropdown";
 import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
+import { getBrandingConfig } from "../../redux/selectors/configSelectors";
 
 const StyledLink = styled.a`
   display: flex;
@@ -425,11 +426,18 @@ export default function Header(props: HeaderProps) {
 // header in manager page
 export function AppHeader() {
   const user = useSelector(getUser);
+  const brandingConfig = useSelector(getBrandingConfig);
   const headerStart = (
     <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
-      <LogoWithName />
+      <LogoWithName branding={!user.orgDev} />
     </StyledLink>
   );
   const headerEnd = <HeaderProfile user={user} />;
-  return <LayoutHeader headerStart={headerStart} headerEnd={headerEnd} />;
+  return (
+    <LayoutHeader
+      headerStart={headerStart}
+      headerEnd={headerEnd}
+      style={user.orgDev ? {} : { backgroundColor: brandingConfig?.headerColor }}
+    />
+  );
 }

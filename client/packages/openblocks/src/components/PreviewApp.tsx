@@ -1,12 +1,12 @@
 import { ThemeDetail } from "api/commonSettingApi";
-import React, { useContext, useEffect, useState } from "react";
+import React, { CSSProperties, useContext, useEffect, useState } from "react";
 import { RootComp } from "comps/comps/rootComp";
 import { Comp } from "openblocks-core";
 import { evalAndReduceWithExposing } from "comps/utils";
 import { ThemeContext } from "comps/utils/themeContext";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import styled from "styled-components";
-import dsl from "./previewDsl";
+import { JSONObject } from "../util/jsonTypes";
 
 const Preview = styled.div`
   border-radius: 8px;
@@ -16,7 +16,11 @@ const Preview = styled.div`
   position: relative;
 `;
 
-export default function PreviewApp(props: { theme: ThemeDetail }) {
+export default function PreviewApp(props: {
+  style?: CSSProperties;
+  theme: ThemeDetail;
+  dsl: JSONObject;
+}) {
   const { theme } = props;
   const [view, setView] = useState<React.ReactNode>(null);
   let ins: Comp | null = null;
@@ -34,7 +38,7 @@ export default function PreviewApp(props: { theme: ThemeDetail }) {
     update((ins as any).reduce(v));
   };
   const comp = new RootComp({
-    value: dsl as any,
+    value: props.dsl,
     dispatch,
   });
   useEffect(() => {
@@ -45,7 +49,7 @@ export default function PreviewApp(props: { theme: ThemeDetail }) {
   externalState.hideHeader = true;
 
   return (
-    <Preview>
+    <Preview style={props.style}>
       <ThemeContext.Provider value={{ previewTheme: theme }}>{view}</ThemeContext.Provider>
     </Preview>
   );

@@ -1,8 +1,7 @@
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import { dropdownControl, HorizontalAlignmentControl } from "comps/controls/dropdownControl";
-import { MultiCompBuilder, stateComp, valueComp } from "comps/generators";
-import { withContextForList } from "comps/generators/withContextForList";
+import { MultiCompBuilder, stateComp, valueComp, withParamsForMap } from "comps/generators";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { trans } from "i18n";
 import _ from "lodash";
@@ -22,7 +21,7 @@ import {
 import { AlignClose, AlignLeft, AlignRight } from "openblocks-design";
 import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
 
-export const RenderComp = withContextForList(ColumnTypeComp, [
+export const RenderComp = withParamsForMap(ColumnTypeComp, [
   "currentCell",
   "currentRow",
   "currentIndex",
@@ -96,7 +95,7 @@ const ColumnInitComp = new MultiCompBuilder(columnChildrenMap, (props, dispatch)
 export class ColumnComp extends ColumnInitComp {
   override getView() {
     const superView = super.getView();
-    const columnType = this.children.render.getOriginalComp().children.compType.getView();
+    const columnType = this.children.render.getOriginalComp().getComp().children.compType.getView();
     return {
       ...superView,
       editable: ColumnTypeCompMap[columnType].canBeEditable() && superView.editable,
@@ -107,9 +106,11 @@ export class ColumnComp extends ColumnInitComp {
     const titleNode = this.children.title.exposingNode();
     const dataIndexNode = this.children.dataIndex.exposingNode();
 
-    const renderNode = withFunction(this.children.render.children.__map__.node(), (map) =>
-      _.mapValues(map, (value: any) => value.original)
-    );
+    const renderNode = withFunction(this.children.render.node(), (render) => ({
+      wrap: render.__comp__.wrap,
+      map: _.mapValues(render.__map__, (value) => value.comp),
+      length: _.size(this.children.render.getView()),
+    }));
     return fromRecord({
       title: titleNode,
       dataIndex: dataIndexNode,
@@ -118,7 +119,7 @@ export class ColumnComp extends ColumnInitComp {
   }
 
   propertyView(key: string) {
-    const columnType = this.children.render.getOriginalComp().children.compType.getView();
+    const columnType = this.children.render.getOriginalComp().getComp().children.compType.getView();
     return (
       <>
         {this.children.title.propertyView({
@@ -152,8 +153,8 @@ export class ColumnComp extends ColumnInitComp {
 
   getChangeSet() {
     const dataIndex = this.children.dataIndex.getView();
-    const changeSet = _.mapValues(this.children.render.children.__map__.children, (value) =>
-      value.children.comp.children.changeValue.getView()
+    const changeSet = _.mapValues(this.children.render.getView(), (value) =>
+      value.getComp().children.comp.children.changeValue.getView()
     );
     return { [dataIndex]: changeSet };
   }

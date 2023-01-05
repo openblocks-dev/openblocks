@@ -1,10 +1,7 @@
 import { CellProps } from "components/EditableCell";
 import { DateTimeComp } from "comps/comps/tableComp/column/columnTypeComps/columnDateComp";
 import ColumnTypeView from "comps/comps/tableComp/column/columnTypeView";
-import {
-  BadgeStatusComp,
-  ButtonComp,
-} from "comps/comps/tableComp/column/simpleColumnTypeComps";
+import { BadgeStatusComp, ButtonComp } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 import { withType } from "comps/generators";
 import { trans } from "i18n";
 import { changeValueAction } from "openblocks-core";
@@ -73,7 +70,7 @@ export type ColumnTypeKeys = keyof ColumnTypeMapType;
 const TypedColumnTypeComp = withType(ColumnTypeCompMap, "text");
 
 export class ColumnTypeComp extends TypedColumnTypeComp {
-  override getView(): any {
+  override getView() {
     const childView = this.children.comp.getView();
     return {
       view: (cellProps: CellProps) => {

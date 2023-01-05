@@ -61,6 +61,8 @@ const LinkTmpComp = (function () {
     suffixIcon: IconControl,
   };
   return new UICompBuilder(childrenMap, (props) => {
+    // chrome86 bug: button children should not contain only empty span
+    const hasChildren = hasIcon(props.prefixIcon) || !!props.text || hasIcon(props.suffixIcon);
     return (
       <ButtonCompWrapper disabled={props.disabled}>
         <Link
@@ -70,11 +72,13 @@ const LinkTmpComp = (function () {
           onClick={() => props.onEvent("click")}
           type={"link"}
         >
-          <span>
-            {hasIcon(props.prefixIcon) && <IconWrapper>{props.prefixIcon}</IconWrapper>}
-            {!!props.text && props.text}
-            {hasIcon(props.suffixIcon) && <IconWrapper>{props.suffixIcon}</IconWrapper>}
-          </span>
+          {hasChildren && (
+            <span>
+              {hasIcon(props.prefixIcon) && <IconWrapper>{props.prefixIcon}</IconWrapper>}
+              {!!props.text && props.text}
+              {hasIcon(props.suffixIcon) && <IconWrapper>{props.suffixIcon}</IconWrapper>}
+            </span>
+          )}
         </Link>
       </ButtonCompWrapper>
     );

@@ -10,6 +10,7 @@ import { EChartsOption } from "echarts";
 import _ from "lodash";
 import { chartColorPalette, isNumeric, JSONObject } from "openblocks-sdk";
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
+import Big from "big.js";
 
 export function transformData(
   originData: JSONObject[],
@@ -38,7 +39,8 @@ export function transformData(
       if (key === xAxis) {
         return;
       } else if (isNumeric(cur[key])) {
-        prev[groupValue][key] += Number(cur[key]);
+        const bigNum = Big(cur[key]);
+        prev[groupValue][key] = bigNum.add(prev[groupValue][key]).toNumber();
       } else {
         prev[groupValue][key] += 1;
       }

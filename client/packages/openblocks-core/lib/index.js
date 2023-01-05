@@ -1497,19 +1497,13 @@ var RelaxedJsonParser = /** @class */ (function (_super) {
     };
     return RelaxedJsonParser;
 }(DefaultParser));
-function mergeContext(context, args) {
-    if (!args) {
-        return context;
-    }
-    return Object.assign(Object.assign({}, args), context);
-}
 function evalFunction(unevaledValue, context, methods, isAsync) {
     try {
         return new ValueAndMsg(function (args, runInHost) {
             if (runInHost === void 0) { runInHost = false; }
             return evalFunc(unevaledValue.startsWith("return")
                 ? unevaledValue + "\n"
-                : "return function(){'use strict'; " + unevaledValue + "\n}()", mergeContext(context, args), methods, { disableLimit: runInHost }, isAsync);
+                : "return function(){'use strict'; " + unevaledValue + "\n}()", args ? __assign(__assign({}, context), args) : context, methods, { disableLimit: runInHost }, isAsync);
         });
     }
     catch (err) {
@@ -2897,17 +2891,19 @@ var WrapContextNode = /** @class */ (function (_super) {
     };
     WrapContextNode.prototype.justEval = function (exposingNodes, methods) {
         var _this = this;
-        var paramNodes = {};
         return function (params) {
-            Object.entries(params).forEach(function (_a) {
-                var paramName = _a[0], value = _a[1];
-                // node remains unchanged if value doesn't change, to keep the cache valid
-                var paramNode = paramNodes[paramName];
-                if (!paramNode || value !== paramNode.value) {
-                    paramNodes[paramName] = fromValueWithCache(value); // requires cache
-                }
-            });
-            return _this.child.evaluate(__assign(__assign({}, exposingNodes), paramNodes), methods);
+            var nodes;
+            if (params) {
+                nodes = __assign({}, exposingNodes);
+                Object.entries(params).forEach(function (_a) {
+                    var key = _a[0], value = _a[1];
+                    nodes[key] = fromValueWithCache(value);
+                });
+            }
+            else {
+                nodes = exposingNodes;
+            }
+            return _this.child.evaluate(nodes, methods);
         };
     };
     WrapContextNode.prototype.getChildren = function () {

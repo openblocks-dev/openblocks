@@ -36,11 +36,13 @@ import { millisecondsControl, MillisecondsControlProps } from "./millisecondCont
  */
 const __PARAMS_CONTROL_FIELD_NAME = "__PARAMS_CONTROL_FIELD_NAME";
 
+export type ValueFunction = (args?: Record<string, unknown>) => any;
+
 function toParamsControl<T extends CodeControlType>(Control: T) {
   return class ParamsControl extends MultiBaseComp<{
     text: InstanceType<T>;
   }> {
-    private readonly paramValues: Record<string, Function> = {};
+    private readonly paramValues: Record<string, ValueFunction> = {};
 
     parseChildrenFromValue(params: CompParams<string>) {
       const dispatchChild = (action: CompAction): void => {

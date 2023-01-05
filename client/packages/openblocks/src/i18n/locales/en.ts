@@ -925,7 +925,7 @@ export const en = {
     filesValueDesc: "The contents of the currently uploaded file are Base64 encoded",
     filesDesc: "List of the current uploaded files. For details, refer to",
     clearValueDesc: "Clear all files",
-    parseFiles: "Parse Files",
+    parseFiles: "Parse files",
     parsedValueTooltip1:
       "If parseFiles is true, upload files will parse to object, array, or string. Parsed data can be accessed via the parsedValue array.",
     parsedValueTooltip2:
@@ -1247,6 +1247,7 @@ export const en = {
     plugin: "Plugins",
     advanced: "Advanced",
     lab: "Lab",
+    branding: "Branding",
   },
   memberSettings: {
     admin: "Admin",
@@ -1364,7 +1365,7 @@ export const en = {
     modalWidthTooltip: "Number or percentage, example: 520, 60%",
   },
   listView: {
-    numOfRows: "Number of rows",
+    numOfRows: "Row count",
     numOfRowsTooltip:
       "Number of rows in the list - This is usually set to a variable (for example, '{{query1.data.length}}') if you need to present the results of a query.",
   },
@@ -1476,8 +1477,7 @@ export const en = {
     radioLabel: "Radio",
     checkboxLabel: "Checkbox",
     buttonLabel: "Button",
-    switchOn: "Switch on",
-    swicthOff: "Swicth off",
+    switch: "Switch",
   },
   pluginSetting: {
     title: "Plugins",
@@ -1505,6 +1505,18 @@ export const en = {
     preloadLibsEmpty: "No JavaScript libraries were added",
     preloadLibsAddBtn: "Add a library",
     saveSuccess: "Saved successfully",
+  },
+  branding: {
+    title: "Branding",
+    logoTitle: "Logo",
+    logoHelp: ".JPG, .SVG or .PNG only",
+    faviconTitle: "Favicon",
+    faviconHelp: ".JPG, .SVG or .PNG only",
+    brandNameTitle: "Brand Name",
+    headColorTitle: "Head Color",
+    save: "Save",
+    saveSuccessMsg: "Saved successfully",
+    upload: "Click to upload",
   },
   networkMessage: {
     500: "Busy service, please try again later",

@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 
 declare type EvalMethods = Record<string, Record<string, Function>>;
 declare type CodeType = undefined | "JSON" | "Function";
+declare type CodeFunction = (args?: Record<string, unknown>, runInHost?: boolean) => any;
 
 declare type NodeToValue<NodeT> = NodeT extends Node<infer ValueType> ? ValueType : never;
 declare type FetchInfo = {
@@ -284,7 +285,7 @@ declare class WrapNode<T> extends AbstractNode<T> {
   dependValues(): Record<string, unknown>;
 }
 
-declare type WrapContextFn<T> = (params: Record<string, unknown>) => T;
+declare type WrapContextFn<T> = (params?: Record<string, unknown>) => T;
 declare function wrapContext<T>(node: Node<T>): Node<WrapContextFn<T>>;
 
 /**
@@ -760,6 +761,7 @@ export {
   BroadcastAction,
   CachedNode,
   ChangeValueAction,
+  CodeFunction,
   CodeNode,
   CodeNodeOptions,
   CodeType,

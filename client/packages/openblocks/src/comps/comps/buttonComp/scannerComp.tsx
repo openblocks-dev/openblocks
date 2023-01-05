@@ -11,11 +11,10 @@ import styled from "styled-components";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
-import { cloneDeep } from "lodash";
 
 const Error = styled.div`
   color: #f5222d;
@@ -70,12 +69,13 @@ const ScannerTmpComp = (function () {
       }
     }, [success, showModal])
 
+    const continuousValue = useRef<string[]>([]);
+
     const handleUpdate = (err: any, result: any) => {
       if (!!result) {
         if (props.continuous) {
-          const continuousValue = cloneDeep(props.data.value);
-          continuousValue.push(result.text);
-          const val = props.uniqueData ? [...new Set(continuousValue)] : continuousValue;
+          continuousValue.current = [...continuousValue.current, result.text];
+          const val = props.uniqueData ? [...new Set(continuousValue.current)] : continuousValue.current;
           props.data.onChange(val);
           props.onEvent("success");
         } else {
@@ -115,6 +115,7 @@ const ScannerTmpComp = (function () {
           onClick={() => {
             props.onEvent("click");
             setShowModal(true);
+            continuousValue.current = [];
           }}
         >
           <span>{props.text}</span>
@@ -136,7 +137,7 @@ const ScannerTmpComp = (function () {
             <Wrapper>
               <Suspense fallback={<Skeleton />}>
                 <BarcodeScannerComponent
-                  key={props.data.value.toString()}
+                  key={JSON.stringify(videoConstraints)}
                   height={250}
                   delay={1000}
                   onUpdate={handleUpdate}

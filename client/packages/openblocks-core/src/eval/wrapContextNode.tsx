@@ -1,9 +1,9 @@
 import { memoized } from "util/memoize";
 import { EvalMethods } from "./types/evalTypes";
 import { Node, AbstractNode } from "./node";
-import { fromValueWithCache, SimpleNode } from "./simpleNode";
+import { fromValueWithCache } from "./simpleNode";
 
-export type WrapContextFn<T> = (params: Record<string, unknown>) => T;
+export type WrapContextFn<T> = (params?: Record<string, unknown>) => T;
 
 class WrapContextNode<T> extends AbstractNode<WrapContextFn<T>> {
   readonly type = "wrapContext";
@@ -18,16 +18,17 @@ class WrapContextNode<T> extends AbstractNode<WrapContextFn<T>> {
     exposingNodes: Record<string, Node<unknown>>,
     methods?: EvalMethods
   ): WrapContextFn<T> {
-    const paramNodes: Record<string, SimpleNode<unknown>> = {};
-    return (params: Record<string, unknown>) => {
-      Object.entries(params).forEach(([paramName, value]) => {
-        // node remains unchanged if value doesn't change, to keep the cache valid
-        const paramNode = paramNodes[paramName];
-        if (!paramNode || value !== paramNode.value) {
-          paramNodes[paramName] = fromValueWithCache(value); // requires cache
-        }
-      });
-      return this.child.evaluate({ ...exposingNodes, ...paramNodes }, methods);
+    return (params?: Record<string, unknown>) => {
+      let nodes: Record<string, Node<unknown>>;
+      if (params) {
+        nodes = { ...exposingNodes };
+        Object.entries(params).forEach(([key, value]) => {
+          nodes[key] = fromValueWithCache(value);
+        });
+      } else {
+        nodes = exposingNodes;
+      }
+      return this.child.evaluate(nodes, methods);
     };
   }
   override getChildren(): Node<unknown>[] {

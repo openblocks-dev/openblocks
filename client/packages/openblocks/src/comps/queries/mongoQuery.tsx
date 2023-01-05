@@ -6,6 +6,7 @@ import {
   ParamsJsonControl,
   ParamsPositiveNumberControl,
   ParamsStringControl,
+  ValueFunction,
 } from "../controls/paramsControl";
 import { buildQueryCommand, FunctionProperty, toQueryView } from "./queryCompUtils";
 import { includes } from "lodash";
@@ -182,7 +183,7 @@ export class MongoQuery extends MongoQueryTmp {
     const params = [
       ...Object.entries(this.children.collection.getView()).map((kv) => ({
         key: kv[0],
-        value: kv[1] as Function,
+        value: kv[1] as ValueFunction,
       })),
       ...this.children.comp.getView(),
     ];

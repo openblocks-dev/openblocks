@@ -3,7 +3,7 @@ import _ from "lodash";
 import { getErrorMessage } from "./nodeUtils";
 import { evalFunc, evalScript } from "./evalScript";
 import { getDynamicStringSegments, isDynamicSegment } from "./segmentUtils";
-import { CodeType, EvalMethods } from "../types/evalTypes";
+import { CodeFunction, CodeType, EvalMethods } from "../types/evalTypes";
 import { relaxedJSONToJSON } from "./relaxedJson";
 
 export type Fn = (context: Record<string, unknown>) => ValueAndMsg<unknown>;
@@ -154,26 +154,19 @@ class RelaxedJsonParser extends DefaultParser {
   }
 }
 
-function mergeContext(context: Record<string, unknown>, args?: Record<string, unknown>) {
-  if (!args) {
-    return context;
-  }
-  return Object.assign(Object.assign({}, args), context);
-}
-
 export function evalFunction(
   unevaledValue: string,
   context: Record<string, unknown>,
   methods?: EvalMethods,
   isAsync?: boolean
-): ValueAndMsg<Function> {
+): ValueAndMsg<CodeFunction> {
   try {
     return new ValueAndMsg((args?: Record<string, unknown>, runInHost: boolean = false) =>
       evalFunc(
         unevaledValue.startsWith("return")
           ? unevaledValue + "\n"
           : "return function(){'use strict'; " + unevaledValue + "\n}()",
-        mergeContext(context, args),
+        args ? { ...context, ...args } : context,
         methods,
         { disableLimit: runInHost },
         isAsync

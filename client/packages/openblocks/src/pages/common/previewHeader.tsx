@@ -3,7 +3,7 @@ import Header from "components/layout/Header";
 import { SHARE_TITLE } from "constants/apiConstants";
 import { ALL_APPLICATIONS_URL, APPLICATION_VIEW_URL, AUTH_LOGIN_URL } from "constants/routesURL";
 import { User } from "constants/userConstants";
-import { EllipsisTextCss, TacoButton, TextEditIcon } from "openblocks-design";
+import { EllipsisTextCss, isDarkColor, TacoButton, TextEditIcon } from "openblocks-design";
 import { useSelector } from "react-redux";
 import { currentApplication, getTemplateId } from "redux/selectors/applicationSelector";
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
@@ -16,13 +16,13 @@ import { trans } from "i18n";
 import { Logo } from "@openblocks-ee/assets/images";
 import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
 import { useState } from "react";
+import { getBrandingConfig } from "../../redux/selectors/configSelectors";
 
-const HeaderFont = styled.div`
+const HeaderFont = styled.div<{ bgColor: string }>`
   font-weight: 500;
   font-size: 14px;
-  color: #ffffff;
+  color: ${(props) => (isDarkColor(props.bgColor) ? "#ffffff" : "#000000")};
   font-style: normal;
-  font-weight: 500;
   line-height: 24px;
   margin-right: 8px;
   margin-left: 20px;
@@ -100,7 +100,7 @@ const Wrapper = styled.div`
   }
 `;
 
-function HeaderProfile(props: { user: User }) {
+export function HeaderProfile(props: { user: User }) {
   const { user } = props;
   const fetchingUser = useSelector(isFetchingUser);
   const templateId = useSelector(getTemplateId);
@@ -127,14 +127,17 @@ export const PreviewHeader = () => {
   const application = useSelector(currentApplication);
   const applicationId = useApplicationId();
   const templateId = useSelector(getTemplateId);
+  const brandingConfig = useSelector(getBrandingConfig);
   const [permissionDialogVisible, setPermissionDialogVisible] = useState(false);
 
   const headerStart = (
     <>
       <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
-        <LogoIcon />
+        <LogoIcon branding={true} />
       </StyledLink>
-      <HeaderFont>{application && application.name}</HeaderFont>
+      <HeaderFont bgColor={brandingConfig?.headerColor ?? "#2c2c2c"}>
+        {application && application.name}
+      </HeaderFont>
     </>
   );
 
@@ -177,5 +180,11 @@ export const PreviewHeader = () => {
       <HeaderProfile user={user} />
     </Wrapper>
   );
-  return <Header headerStart={headerStart} headerEnd={headerEnd} />;
+  return (
+    <Header
+      headerStart={headerStart}
+      headerEnd={headerEnd}
+      style={{ backgroundColor: brandingConfig?.headerColor }}
+    />
+  );
 };

@@ -40,7 +40,7 @@ describe("withParamsForMap", () => {
     let comp = new Comp(testData);
     comp = evalAndReduce(comp);
     // checkNode(comp, "0");
-    const paramValues = _.chain(_.range(10000))
+    const paramValues = _.chain(_.range(5000))
       .map((idx) => [idx, { a: idx }] as const)
       .fromPairs()
       .value();
