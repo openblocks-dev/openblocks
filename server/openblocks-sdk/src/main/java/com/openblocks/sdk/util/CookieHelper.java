@@ -3,7 +3,6 @@ package com.openblocks.sdk.util;
 import static com.openblocks.sdk.util.UriUtils.getRefererURI;
 import static java.util.Optional.ofNullable;
 
-import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,6 +15,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 
 import com.openblocks.sdk.config.CommonConfig;
+import com.openblocks.sdk.config.CommonConfig.Cookie;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,15 +26,20 @@ public class CookieHelper {
     @Autowired
     private CommonConfig commonConfig;
 
-    public void saveCookie(String token, int cookieMaxAge, ServerWebExchange exchange) {
+    public void saveCookie(String token, ServerWebExchange exchange) {
         boolean isUsingHttps = Optional.ofNullable(getRefererURI(exchange.getRequest()))
                 .map(a -> "https".equalsIgnoreCase(a.getScheme()))
                 .orElse(false);
         ResponseCookieBuilder builder = ResponseCookie.from(getCookieName(), token)
                 .path(exchange.getRequest().getPath().contextPath().value() + "/")
-                .maxAge(Duration.ofDays(cookieMaxAge))
                 .secure(isUsingHttps)
                 .sameSite(isUsingHttps ? "None" : "Lax");
+        // set cookie max-age
+        Cookie cookie = commonConfig.getCookie();
+        if (cookie.getMaxAgeInSeconds() >= 0) {
+            builder.maxAge(cookie.getMaxAgeInSeconds());
+        }
+
         if (commonConfig.isCloud()) {
             String topPrivateDomain = UriUtils.getTopPrivateDomain(exchange);
             builder.domain(topPrivateDomain);
