@@ -4,7 +4,7 @@ When building an app, you want to reuse components and queries across different 
 
 <figure><img src="../.gitbook/assets/module-1.png" alt=""><figcaption><p>Build a <a href="module.md#demo-a-statistics-module">statistics module</a></p></figcaption></figure>
 
-<figure><img src="../.gitbook/assets/module-2 (1).png" alt=""><figcaption><p>Reuse this module anywhere</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/module-2.png" alt=""><figcaption><p>Reuse this module anywhere</p></figcaption></figure>
 
 ## Module basics
 
@@ -67,7 +67,7 @@ Module inputs are parameters passed to the module from external apps. The suppor
 
 This section guides you through the steps to build a statistics module and reuse it in an app. &#x20;
 
-<figure><img src="../.gitbook/assets/module-2 (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/module-2.png" alt=""><figcaption></figcaption></figure>
 
 1.  Create module inputs:
 
@@ -86,7 +86,7 @@ This section guides you through the steps to build a statistics module and reuse
     <figure><img src="../.gitbook/assets/module-17.png" alt=""><figcaption></figcaption></figure>
 5.  Reuse the module multiple times by passing different input values.&#x20;
 
-    <figure><img src="../.gitbook/assets/module-2 (1).png" alt=""><figcaption></figcaption></figure>
+    <figure><img src="../.gitbook/assets/module-2.png" alt=""><figcaption></figcaption></figure>
 
 #### Input Test
 
