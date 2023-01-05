@@ -70,7 +70,7 @@ https://unpkg.com/cowsay@1.5.0/build/cowsay.umd.js
 
 Navigate to the left sidebar, click <img src="../.gitbook/assets/image (1).png" alt="" data-size="line"> > **Other** > **Scripts and style** > **Add a library**. Then paste the **cowsay** link here.
 
-<figure><img src="../.gitbook/assets/Add a library (1) (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/Add a library (1) (1) (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
 
 Now you can write code in **JS query** to test its usage with `cowsay.say`:
 
