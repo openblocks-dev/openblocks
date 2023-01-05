@@ -29,6 +29,7 @@ import com.openblocks.domain.organization.model.OrganizationState;
 import com.openblocks.domain.organization.model.QOrganization;
 import com.openblocks.domain.organization.repository.OrganizationRepository;
 import com.openblocks.domain.user.model.User;
+import com.openblocks.infra.annotation.PossibleEmptyMono;
 import com.openblocks.infra.mongo.MongoUpsertHelper;
 import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.config.dynamic.Conf;
@@ -91,7 +92,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 return create(organization, user.getId());
             }
             // enterprise mode
-            return joinOrgForEnterpriseMode(user.getId())
+            return joinOrganizationInEnterpriseMode(user.getId())
                     .flatMap(join -> {
                         if (Boolean.TRUE.equals(join)) {
                             return Mono.empty();
@@ -101,7 +102,18 @@ public class OrganizationServiceImpl implements OrganizationService {
         });
     }
 
-    private Mono<Boolean> joinOrgForEnterpriseMode(String userId) {
+    private Mono<Boolean> joinOrganizationInEnterpriseMode(String userId) {
+        return getOrganizationInEnterpriseMode()
+                .flatMap(organization -> orgMemberService.addMember(organization.getId(), userId, MemberRole.MEMBER))
+                .defaultIfEmpty(false);
+    }
+
+    @Override
+    @PossibleEmptyMono
+    public Mono<Organization> getOrganizationInEnterpriseMode() {
+        if (commonConfig.getWorkspace().getMode() == WorkspaceMode.SAAS) {
+            return Mono.empty();
+        }
         return Mono.defer(() -> {
                     String enterpriseOrgId = commonConfig.getWorkspace().getEnterpriseOrgId();
                     if (StringUtils.isNotBlank(enterpriseOrgId)) {
@@ -109,9 +121,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                     }
                     return Mono.empty();
                 })
-                .switchIfEmpty(repository.findAll().next())
-                .flatMap(organization -> orgMemberService.addMember(organization.getId(), userId, MemberRole.MEMBER))
-                .defaultIfEmpty(false);
+                .switchIfEmpty(repository.findAll().next());
     }
 
     @Override

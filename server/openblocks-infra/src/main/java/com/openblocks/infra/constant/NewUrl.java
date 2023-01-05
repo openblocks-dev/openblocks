@@ -1,6 +1,10 @@
 package com.openblocks.infra.constant;
 
 public final class NewUrl {
+
+    private NewUrl() {
+    }
+
     public static final String PREFIX = "/api";
     public static final String ORGANIZATION_URL = PREFIX + "/organizations";
     public static final String DATASOURCE_URL = PREFIX + "/datasources";
@@ -21,5 +25,7 @@ public final class NewUrl {
     public static final String LIBRARY_QUERY_RECORD_URL = PREFIX + "/library-query-records";
 
     public static final String FOLDER_URL = PREFIX + "/folders";
+
+    public static final String GITHUB_STAR = PREFIX + "/misc/github-star";
     public static final String MATERIAL_URL = PREFIX + "/materials";
 }

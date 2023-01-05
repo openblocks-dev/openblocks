@@ -8,16 +8,15 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.openblocks.sdk.auth.AbstractAuthConfig;
 import com.openblocks.sdk.constants.WorkspaceMode;
 
-import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
-@Builder
 @Getter
+@SuperBuilder
 public class ConfigView {
 
     private boolean isCloudHosting;
     private List<AbstractAuthConfig> authConfigs;
-    @JsonInclude(Include.NON_EMPTY)
-    private String warning;
     private WorkspaceMode workspaceMode;
+    private boolean selfDomain;
 }

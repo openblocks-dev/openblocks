@@ -20,7 +20,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 
+import com.openblocks.api.authentication.config.EnvAuthConfig;
 import com.openblocks.api.authentication.dto.OrganizationDomainCheckResult;
+import com.openblocks.api.config.ConfigView;
 import com.openblocks.api.home.SessionUserService;
 import com.openblocks.api.usermanagement.view.OrgMemberListView;
 import com.openblocks.api.usermanagement.view.OrgMemberListView.OrgMemberView;
@@ -29,6 +31,7 @@ import com.openblocks.api.usermanagement.view.UpdateOrgRequest;
 import com.openblocks.api.usermanagement.view.UpdateRoleRequest;
 import com.openblocks.domain.bizthreshold.AbstractBizThresholdChecker;
 import com.openblocks.domain.organization.event.OrgMemberLeftEvent;
+import com.openblocks.domain.organization.model.EnterpriseConnectionConfig;
 import com.openblocks.domain.organization.model.MemberRole;
 import com.openblocks.domain.organization.model.OrgMember;
 import com.openblocks.domain.organization.model.Organization;
@@ -66,6 +69,8 @@ public class OrgApiServiceImpl implements OrgApiService {
     private ApplicationContext applicationContext;
     @Autowired
     private CommonConfig commonConfig;
+    @Autowired
+    private EnvAuthConfig envAuthConfig;
 
     @Override
     public Mono<OrgMemberListView> getOrganizationMembers(String orgId, int page, int count) {
@@ -328,6 +333,21 @@ public class OrgApiServiceImpl implements OrgApiService {
     public Mono<Boolean> tryAddUserToOrgAndSwitchOrg(String orgId, String userId) {
         return orgMemberService.tryAddOrgMember(orgId, userId, MemberRole.MEMBER)
                 .then(switchCurrentOrganizationTo(orgId));
+    }
+
+    @Override
+    public Mono<ConfigView> getOrganizationConfigs(String domain) {
+        return organizationService.getByDomain(domain)
+                .map(Organization::getOrganizationDomain)
+                .cast(EnterpriseConnectionConfig.class)
+                .defaultIfEmpty(envAuthConfig)
+                .map(authConfig -> ConfigView.builder()
+                        .authConfigs(authConfig.getAuthConfigs())
+                        .isCloudHosting(commonConfig.isCloud())
+                        .workspaceMode(commonConfig.getWorkspace().getMode())
+                        .selfDomain(authConfig instanceof OrganizationDomain)
+                        .build()
+                );
     }
 
     private Mono<Void> checkIfSaasMode() {

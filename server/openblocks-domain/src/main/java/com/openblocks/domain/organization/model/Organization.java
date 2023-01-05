@@ -84,6 +84,9 @@ public class Organization extends HasIdAndAuditing implements EncryptRequired, D
     public static class OrganizationCommonSettings extends HashMap<String, Object> {
         public static final String USER_EXTRA_TRANSFORMER = "userExtraTransformer";
         public static final String USER_EXTRA_TRANSFORMER_UPDATE_TIME = "userExtraTransformer_updateTime";
+
+        // custom branding configs
+        public static final String CUSTOM_BRANDING_KEY = "branding";
     }
 
     public long getCreateTime() {
