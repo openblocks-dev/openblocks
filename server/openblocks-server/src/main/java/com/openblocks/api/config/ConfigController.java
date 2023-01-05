@@ -1,5 +1,7 @@
 package com.openblocks.api.config;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,13 +11,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
-import com.openblocks.api.authentication.service.AuthenticationApiService;
 import com.openblocks.api.framework.view.ResponseView;
+import com.openblocks.api.usermanagement.OrgApiService;
 import com.openblocks.infra.config.model.ServerConfig;
 import com.openblocks.infra.config.repository.ServerConfigRepository;
 import com.openblocks.infra.constant.NewUrl;
 import com.openblocks.infra.constant.Url;
 import com.openblocks.sdk.config.CommonConfig;
+import com.openblocks.sdk.config.dynamic.Conf;
+import com.openblocks.sdk.config.dynamic.ConfigCenter;
 import com.openblocks.sdk.util.UriUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +37,22 @@ public class ConfigController {
     private ServerConfigRepository serverConfigRepository;
 
     @Autowired
-    private AuthenticationApiService authenticationApiService;
+    private OrgApiService orgApiService;
+
+    @Autowired
+    private ConfigCenter configCenter;
+
+    private Conf<String> deploymentIdConf;
+
+    @PostConstruct
+    public void init() {
+        deploymentIdConf = configCenter.deployment().ofString("id", "");
+    }
+
+    @GetMapping(value = "/deploymentId")
+    public Mono<String> getDeploymentId() {
+        return Mono.just(deploymentIdConf.get());
+    }
 
     @GetMapping("/{key}")
     public Mono<ResponseView<ServerConfig>> getServerConfig(@PathVariable String key) {
@@ -51,14 +70,7 @@ public class ConfigController {
     @GetMapping
     public Mono<ResponseView<ConfigView>> getConfig(ServerWebExchange exchange) {
         String domain = UriUtils.getRefererDomain(exchange);
-        return authenticationApiService.getEnterpriseConnectionConfigMono(domain)
-                .map(enterpriseConnectionConfig ->
-                        ConfigView.builder()
-                                .authConfigs(enterpriseConnectionConfig.getAuthConfigs())
-                                .isCloudHosting(commonConfig.isCloud())
-                                .workspaceMode(commonConfig.getWorkspace().getMode())
-                                .build()
-                )
+        return orgApiService.getOrganizationConfigs(domain)
                 .map(ResponseView::success);
     }
 

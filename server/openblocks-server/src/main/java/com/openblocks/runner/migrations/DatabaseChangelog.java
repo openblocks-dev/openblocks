@@ -21,6 +21,7 @@ import com.openblocks.domain.datasource.model.DatasourceStructureDO;
 import com.openblocks.domain.datasource.model.TokenBasedConnection;
 import com.openblocks.domain.group.model.Group;
 import com.openblocks.domain.group.model.QGroup;
+import com.openblocks.domain.material.model.MaterialMeta;
 import com.openblocks.domain.organization.model.Organization;
 import com.openblocks.domain.query.model.LibraryQuery;
 import com.openblocks.domain.query.model.LibraryQueryRecord;
@@ -148,6 +149,13 @@ public class DatabaseChangelog {
         dropIndexIfExists(mongoTemplate, Datasource.class, "organization_datasource_compound_index");
         ensureIndexes(mongoTemplate, Datasource.class,
                 makeIndex("organizationId", "name").named("organization_datasource_index"));
+    }
+
+
+    @ChangeSet(order = "014", id = "add-material-meta-indexes", author = "")
+    public void addMaterialMetaIndex(MongockTemplate mongoTemplate) {
+        ensureIndexes(mongoTemplate, MaterialMeta.class,
+                makeIndex("orgId", "type", "filename").unique());
     }
 
     public static Index makeIndex(String... fields) {

@@ -2,9 +2,11 @@ package com.openblocks.api.material;
 
 import static com.openblocks.infra.constant.NewUrl.MATERIAL_URL;
 
+import java.time.Duration;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -18,10 +20,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.openblocks.api.framework.view.ResponseView;
-import com.openblocks.api.util.MediaTypeUtils;
+import com.openblocks.domain.material.model.MaterialType;
 import com.openblocks.domain.material.service.meta.MaterialMetaService;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
+import com.openblocks.sdk.util.MediaTypeUtils;
 
 import lombok.Builder;
 import lombok.Data;
@@ -42,7 +45,8 @@ public class MaterialController {
 
     @PostMapping
     public Mono<ResponseView<MaterialView>> upload(@RequestBody UploadMaterialRequestDTO uploadMaterialRequestDTO) {
-        return materialApiService.upload(uploadMaterialRequestDTO.getFilename(), uploadMaterialRequestDTO.getContent())
+        return materialApiService.upload(uploadMaterialRequestDTO.getFilename(), uploadMaterialRequestDTO.getContent(),
+                        uploadMaterialRequestDTO.getType())
                 .map(materialMeta -> {
                     MaterialView view = MaterialView.builder()
                             .id(materialMeta.getId())
@@ -69,6 +73,7 @@ public class MaterialController {
                         headers.setContentDisposition(ContentDisposition.attachment().filename(materialMeta.getFilename()).build());
                     }
                     headers.setContentType(MediaTypeUtils.parse(materialMeta.getFilename()));
+                    headers.setCacheControl(CacheControl.maxAge(Duration.ofHours(1)));
                 })
                 .flatMap(materialMeta -> serverHttpResponse.writeWith(materialApiService.download(materialMeta)))
                 .then();
@@ -98,5 +103,6 @@ public class MaterialController {
 
         private String filename;
         private String content;// in base64
+        private MaterialType type;
     }
 }

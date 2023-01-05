@@ -3,6 +3,7 @@ package com.openblocks.api.usermanagement;
 import org.springframework.http.codec.multipart.Part;
 
 import com.openblocks.api.authentication.dto.OrganizationDomainCheckResult;
+import com.openblocks.api.config.ConfigView;
 import com.openblocks.api.usermanagement.view.OrgMemberListView;
 import com.openblocks.api.usermanagement.view.OrgView;
 import com.openblocks.api.usermanagement.view.UpdateOrgRequest;
@@ -43,5 +44,7 @@ public interface OrgApiService {
     Mono<Boolean> updateOrgCommonSettings(String orgId, String key, Object value);
 
     Mono<Boolean> tryAddUserToOrgAndSwitchOrg(String orgId, String userId);
+
+    Mono<ConfigView> getOrganizationConfigs(String domain);
 }
 
