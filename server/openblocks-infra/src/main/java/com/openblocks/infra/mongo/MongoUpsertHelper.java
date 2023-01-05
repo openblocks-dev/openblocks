@@ -90,25 +90,38 @@ public class MongoUpsertHelper {
     }
 
     /**
+     * reactiveMongoTemplate#upsert is not used because createdAt/createdBy/updatedAt/updatedBy params cannot be set here
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends HasIdAndAuditing> Mono<T> upsertWithAuditingParams(T newResource, Criteria criteria) {
+        return reactiveMongoTemplate.findOne(new Query(criteria), (Class<T>) newResource.getClass())
+                .flatMap(existingResource -> {
+                    newResource.setId(existingResource.getId());
+                    newResource.setCreatedAt(existingResource.getCreatedAt());
+                    newResource.setCreatedBy(existingResource.getCreatedBy());
+                    return reactiveMongoTemplate.save(newResource);
+                })
+                .switchIfEmpty(Mono.defer(() -> reactiveMongoTemplate.save(newResource)));
+    }
+
+    /**
      * used for createdAt/createdBy/updatedAt/updatedBy is not required
      */
     public <T> Mono<Boolean> upsert(T newResource, String uniqueKeyName, String uniqueKeyValue) {
-        Query query = new Query(Criteria.where(uniqueKeyName).is(uniqueKeyValue));
-        return upsert(newResource, query);
+        return upsert(newResource, Criteria.where(uniqueKeyName).is(uniqueKeyValue));
     }
 
     public Mono<Boolean> upsert(Update update, String uniqueKeyName, String uniqueKeyValue, Class<?> collection) {
-        Query query = new Query(Criteria.where(uniqueKeyName).is(uniqueKeyValue));
-        return upsert(update, query, collection);
+        return upsert(update, Criteria.where(uniqueKeyName).is(uniqueKeyValue), collection);
     }
 
-    public <T> Mono<Boolean> upsert(T newResource, Query query) {
+    public <T> Mono<Boolean> upsert(T newResource, Criteria criteria) {
         Update update = convertToUpdate(newResource);
-        return upsert(update, query, newResource.getClass());
+        return upsert(update, criteria, newResource.getClass());
     }
 
-    public Mono<Boolean> upsert(Update update, Query query, Class<?> collection) {
-        return reactiveMongoTemplate.upsert(query, update, collection)
+    public Mono<Boolean> upsert(Update update, Criteria criteria, Class<?> collection) {
+        return reactiveMongoTemplate.upsert(new Query(criteria), update, collection)
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 

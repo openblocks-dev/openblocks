@@ -15,4 +15,5 @@ public class MaterialMeta extends HasIdAndAuditing {
     private String filename;
     private String orgId;
     private long size;// in bytes
+    private MaterialType type;
 }

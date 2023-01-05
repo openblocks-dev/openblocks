@@ -1,6 +1,7 @@
 package com.openblocks.api.framework.security;
 
 
+import static com.openblocks.infra.constant.NewUrl.GITHUB_STAR;
 import static com.openblocks.infra.constant.Url.APPLICATION_URL;
 import static com.openblocks.infra.constant.Url.CONFIG_URL;
 import static com.openblocks.infra.constant.Url.CUSTOM_AUTH;
@@ -90,7 +91,7 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, GROUP_URL + "/list"), // application view
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, QUERY_URL + "/execute"), // application view
 
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/api/proxy"), // application view
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, GITHUB_STAR),
 
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.CUSTOM_AUTH + "/otp/send"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.CUSTOM_AUTH + "/phone/login"),
@@ -108,7 +109,8 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.USER_URL + "/me"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.USER_URL + "/currentUser"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.GROUP_URL + "/list"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.QUERY_URL + "/execute")
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.QUERY_URL + "/execute"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.MATERIAL_URL + "/**")
                 )
                 .permitAll()
                 .pathMatchers("/api/**")

@@ -15,8 +15,6 @@ import com.openblocks.api.authentication.request.AuthRequestContext;
 import com.openblocks.api.authentication.request.AuthRequestFactory;
 import com.openblocks.api.authentication.request.form.FormAuthRequestContext;
 import com.openblocks.api.usermanagement.OrgApiService;
-import com.openblocks.domain.organization.model.EnterpriseConnectionConfig;
-import com.openblocks.domain.organization.model.Organization;
 import com.openblocks.domain.organization.service.OrganizationService;
 import com.openblocks.domain.user.model.AuthorizedUser;
 import com.openblocks.domain.user.model.User;
@@ -78,14 +76,6 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .filter(customAuthConfig -> source.equalsIgnoreCase(customAuthConfig.getSource()))
                 .next()
                 .switchIfEmpty(ofError(LOG_IN_SOURCE_NOT_SUPPORTED, "LOG_IN_SOURCE_NOT_SUPPORTED"));
-    }
-
-    @Override
-    public Mono<EnterpriseConnectionConfig> getEnterpriseConnectionConfigMono(String domain) {
-        return organizationService.getByDomain(domain)
-                .map(Organization::getOrganizationDomain)
-                .cast(EnterpriseConnectionConfig.class)
-                .defaultIfEmpty(envAuthConfig);
     }
 
     @Override

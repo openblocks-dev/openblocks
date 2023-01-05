@@ -77,8 +77,8 @@ public class BiRelationService {
         Preconditions.checkArgument(isNotBlank(biRelation.getTargetId()));
         Preconditions.checkArgument(biRelation.getBizType() != null);
 
-        Query query = buildQuery(biRelation.getSourceId(), biRelation.getTargetId(), biRelation.getBizType());
-        return mongoUpsertHelper.upsert(biRelation, query);
+        Criteria criteria = buildCriteria(biRelation.getSourceId(), biRelation.getTargetId(), biRelation.getBizType());
+        return mongoUpsertHelper.upsert(biRelation, criteria);
     }
 
     public Flux<BiRelation> getBySourceIds(BiRelationBizType bizType, Collection<String> sourceIds) {
@@ -169,11 +169,14 @@ public class BiRelationService {
         return biRelationRepository.countByBizTypeAndTargetId(bizType, targetId);
     }
 
-    private Query buildQuery(String sourceId, String targetId, BiRelationBizType bizType) {
-        Criteria criteria = where(BIZ_TYPE).is(bizType)
+    private Criteria buildCriteria(String sourceId, String targetId, BiRelationBizType bizType) {
+        return where(BIZ_TYPE).is(bizType)
                 .and(SOURCE_ID).is(sourceId)
                 .and(TARGET_ID).is(targetId);
-        return new Query(criteria);
+    }
+
+    private Query buildQuery(String sourceId, String targetId, BiRelationBizType bizType) {
+        return new Query(buildCriteria(sourceId, targetId, bizType));
     }
 
     public Mono<BiRelation> getById(String id) {

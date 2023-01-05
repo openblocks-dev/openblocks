@@ -15,6 +15,9 @@ import reactor.core.publisher.Mono;
 
 public interface OrganizationService {
 
+    @PossibleEmptyMono
+    Mono<Organization> getOrganizationInEnterpriseMode();
+
     Mono<Organization> create(Organization organization, String creatorUserId);
 
     Mono<Organization> createDefault(User user);
