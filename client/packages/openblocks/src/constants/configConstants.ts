@@ -2,12 +2,20 @@ interface FeatureFlag {
   enableCustomBrand: boolean;
 }
 
+export interface BrandingConfig {
+  logo?: string;
+  favicon?: string;
+  brandName?: string;
+  headerColor?: string;
+}
+
 export type ConfigBaseInfo = {
   selfDomain: boolean;
   cloudHosting: boolean;
   workspaceMode: "SAAS" | "ENTERPRISE";
   warning?: string;
   featureFlag: FeatureFlag;
+  branding?: BrandingConfig;
 };
 
 export type ConfigResponseData = {

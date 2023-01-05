@@ -6,6 +6,7 @@ import {
   AbstractComp,
   changeDependName,
   changeValueAction,
+  CodeFunction,
   CodeNode,
   CodeNodeOptions,
   CompAction,
@@ -18,7 +19,6 @@ import {
   transformWrapper,
   ValueAndMsg,
   withFunction,
-  CodeFunction,
 } from "openblocks-core";
 import { EditorContext } from "comps/editorState";
 import { withDefault } from "comps/generators/simpleGenerators";
@@ -218,6 +218,9 @@ export function codeControl<
 
 function toCardTitle(expectedType?: string, value?: unknown) {
   const type = expectedType ?? toType(value);
+  if (type === "RegExp") {
+    return type;
+  }
   if (Array.isArray(value)) {
     return type + "(" + value.length + ")";
   }
@@ -257,8 +260,8 @@ function toRegExp(value: unknown): RegExp {
   if (valueType === "RegExp") {
     return value as RegExp;
   } else if (valueType === "string") {
-    const regexStr = _.trimStart(_.trimEnd(value as string, "$"), "^");
-    return new RegExp("^" + regexStr ?? ".*" + "$");
+    const regexStr = _.trimStart(value as string, "^");
+    return new RegExp("^" + (regexStr ?? ".*") + "$");
   }
   throw new TypeError(
     `must be a valid JavaScript regular expression without forward slashes around the pattern`

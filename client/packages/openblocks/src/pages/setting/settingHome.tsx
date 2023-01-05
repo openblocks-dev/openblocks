@@ -5,7 +5,7 @@ import { AdvancedSetting } from "./advanced/AdvancedSetting";
 import { currentOrgAdmin } from "util/permissionUtils";
 import { trans } from "i18n";
 import AuditSetting from "@openblocks-ee/pages/setting/audit";
-import { isEE, isEnterpriseMode, isSelfDomain } from "util/envUtils";
+import { developEnv, isEE, isEnterpriseMode, isSelfDomain } from "util/envUtils";
 import { TwoColumnSettingPageContent } from "./styled";
 import SubSideBar from "components/layout/SubSideBar";
 import { Menu } from "openblocks-design";
@@ -52,10 +52,11 @@ export function SettingHome() {
       key: SettingPageEnum.Theme,
       label: trans("settings.theme"),
     },
-    ...(isEE() &&
-    currentOrgAdmin(user) &&
-    enableCustomBrand(config) &&
-    (isSelfDomain(config) || isEnterpriseMode(config))
+    ...(developEnv() ||
+    (isEE() &&
+      currentOrgAdmin(user) &&
+      enableCustomBrand(config) &&
+      (isSelfDomain(config) || isEnterpriseMode(config)))
       ? [
           {
             key: SettingPageEnum.Branding,
