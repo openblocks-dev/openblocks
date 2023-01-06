@@ -26,6 +26,7 @@
 * [App editor](build-apps/app-editor.md)
 * [Event handlers](build-apps/event-handlers.md)
 * [Write JavaScript](build-apps/write-javascript/README.md)
+  * [Write JavaScript in \{{ \}}](build-apps/write-javascript/write-javascript-in.md)
   * [Transformers](build-apps/write-javascript/transformers.md)
   * [Temporary state](build-apps/write-javascript/temporary-state.md)
   * [Use third-party libraries](build-apps/use-third-party-libraries.md)
