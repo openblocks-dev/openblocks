@@ -1,0 +1,28 @@
+FROM node:slim AS build-client
+COPY ./client /openblocks-client
+WORKDIR /openblocks-client
+RUN yarn --immutable
+
+ARG REACT_APP_COMMIT_ID=test
+ARG REACT_APP_ENV=production
+ARG REACT_APP_EDITION=community
+RUN PUBLIC_URL="." yarn build
+
+FROM nginx:alpine-slim
+LABEL maintainer="openblocks"
+
+# Install shadow package to be able to change nginx user and group id
+RUN apk add --no-cache \
+      shadow
+
+# Copy openblocks client data
+COPY --chown=nginx:nginx --from=build-client /openblocks-client/packages/openblocks/build/ /openblocks-client
+
+# Copy additional nginx init scripts
+COPY ./deploy/docker/frontend/00-change-nginx-user.sh /docker-entrypoint.d/00-change-nginx-user.sh
+COPY ./deploy/docker/frontend/01-update-nginx-conf.sh /docker-entrypoint.d/01-update-nginx-conf.sh
+
+RUN chmod +x /docker-entrypoint.d/00-change-nginx-user.sh && \
+    chmod +x /docker-entrypoint.d/01-update-nginx-conf.sh
+
+COPY ./deploy/docker/frontend/nginx.conf /etc/nginx/nginx.conf

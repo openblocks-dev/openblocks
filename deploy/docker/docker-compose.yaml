@@ -1,0 +1,54 @@
+version: "3"
+services:
+
+
+  mongodb:
+    image: "mongo:4.4"
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_DATABASE: openblocks
+      MONGO_INITDB_ROOT_USERNAME: openblocks
+      MONGO_INITDB_ROOT_PASSWORD: secret123
+    # Uncomment to save database data into local 'mongodata' folder
+    # volumes:
+    #   - ./mogodata:/data/db
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+
+  openblocks-backend:
+    image: openblocksdev/openblocks-ce-backend
+    container_name: openblocks-backend
+    # Enabled ports to be able to access backend from host
+    #    ports:
+    #  - "3080:8080"
+    environment:
+      UID: "9001"
+      GID: "9001"
+      #CONTEXT_PATH: "/"
+      MONGODB_URI: "mongodb://openblocks:secret123@mongodb/openblocks?authSource=admin"
+      REDIS_URL: "redis://redis:6379"
+      ENCRYPTION_PASSWORD: "openblocks.dev"
+      ENCRYPTION_SALT: "openblocks.dev"
+      CORS_ALLOWED_DOMAINS: "*"
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+      - redis
+
+  openblocks-frontend:
+    image: openblocksdev/openblocks-ce-frontend
+    container_name: openblocks-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      UID: "9001"
+      GID: "9001"
+      #CONTEXT_PATH: "/"
+      OPENBLOCKS_SERVER_URL: "http://openblocks-backend:8080"
+    restart: unless-stopped
+    depends_on:
+      - openblocks-backend
+
