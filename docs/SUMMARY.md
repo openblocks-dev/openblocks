@@ -29,6 +29,7 @@
   * [Write JavaScript in \{{ \}}](build-apps/write-javascript/write-javascript-in.md)
   * [Transformers](build-apps/write-javascript/transformers.md)
   * [Temporary state](build-apps/write-javascript/temporary-state.md)
+  * [Built-in JS functions](build-apps/write-javascript/built-in-js-functions.md)
   * [Use third-party libraries](build-apps/use-third-party-libraries.md)
 * [Component guides](build-apps/component-guides/README.md)
   * [Option lists](build-apps/component-guides/option-lists.md)
