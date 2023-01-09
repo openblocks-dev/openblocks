@@ -33,6 +33,7 @@
 * [Component guides](build-apps/component-guides/README.md)
   * [Option lists](build-apps/component-guides/option-lists.md)
   * [List View](build-apps/component-guides/list-view.md)
+  * [Drawer](build-apps/component-guides/drawer.md)
   * [Image](build-apps/component-guides/image.md)
   * [Use Markdown](build-apps/component-guides/use-markdown.md)
 * [Module](build-apps/module.md)
