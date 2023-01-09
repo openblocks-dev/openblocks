@@ -1,12 +1,13 @@
 import _ from "lodash";
 import { changeChildAction, DispatchType } from "openblocks-core";
 import { constantColors } from "openblocks-design";
-import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { developEnv } from "util/envUtils";
 import { JSONValue } from "util/jsonTypes";
 
 export const TABLE_EDITABLE_SWITCH_ON = developEnv();
+export const TagsContext = React.createContext<string[]>([]);
 export type UpdateChangeSet<T> = (value: T) => void;
 
 // a top-right triangle chip
@@ -27,6 +28,7 @@ const EditableChip = styled.div`
 export interface CellProps {
   editable?: boolean;
   size?: string;
+  candidateTags?: string[];
 }
 export type CellViewReturn = (props: CellProps) => ReactNode;
 export type EditViewFn<T> = (props: {
@@ -62,7 +64,7 @@ interface EditableCellProps<T> extends CellProps {
 }
 
 export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
-  const { dispatch, normalView, editViewFn, changeValue, baseValue } = props;
+  const { dispatch, normalView, editViewFn, changeValue, baseValue, candidateTags } = props;
   const status = _.isNil(changeValue) ? "normal" : "toSave";
   const editable = editViewFn ? props.editable : false;
   const [isEditing, setIsEditing] = useState(false);
@@ -99,7 +101,7 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
     return (
       <>
         <BorderDiv />
-        {editView}
+        <TagsContext.Provider value={candidateTags ?? []}>{editView}</TagsContext.Provider>
       </>
     );
   }

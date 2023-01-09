@@ -201,7 +201,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     const { extraHeight, emptyRows } = this.props;
     const positionParams = genPositionParams(this.props);
     const { containerPadding } = positionParams;
-    const layout = this.getUILayout();
+    const layout = this.getUILayout(undefined, true);
     let nbRow = bottom(layout);
     if (!_.isNil(emptyRows) && _.size(layout) === 0) {
       nbRow = emptyRows;
@@ -902,12 +902,13 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     }
   };
 
-  getUILayout(ops?: LayoutOps): Layout {
+  getUILayout(ops?: LayoutOps, setHiddenCompHeightZero: boolean = false): Layout {
     return getUILayout(
       this.state.layout,
       this.props.extraLayout,
       this.state.changedHs,
-      ops ?? this.state.ops
+      ops ?? this.state.ops,
+      setHiddenCompHeightZero
     );
   }
 

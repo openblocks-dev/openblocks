@@ -1,14 +1,20 @@
-import { AbstractComp, CompParams, SimpleComp } from "openblocks-core";
 import { withDefault } from "comps/generators";
-import { Switch, SwitchWrapper } from "openblocks-design";
-import { SwitchJsIcon } from "openblocks-design";
-import { Node, ValueAndMsg } from "openblocks-core";
+import {
+  AbstractComp,
+  CompAction,
+  CompActionTypes,
+  CompParams,
+  customAction,
+  DispatchType,
+  Node,
+  SimpleComp,
+  ValueAndMsg,
+} from "openblocks-core";
+import { CheckBox, Switch, SwitchJsIcon, SwitchWrapper } from "openblocks-design";
 import { ReactNode } from "react";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
-import { CompAction, CompActionTypes, customAction } from "openblocks-core";
 import { BoolCodeControl } from "./codeControl";
 import { ControlParams } from "./controlParams";
-import { CheckBox } from "openblocks-design";
 
 /**
  * BoolControl without CodeEditor
@@ -134,6 +140,14 @@ class BoolControl extends AbstractComp<boolean, DataType, Node<ValueAndMsg<boole
 
   override nodeWithoutCache() {
     return this.codeControl.nodeWithoutCache();
+  }
+
+  changeDispatch(dispatch: DispatchType): this {
+    return setFieldsNoTypeCheck(
+      super.changeDispatch(dispatch),
+      { codeControl: this.codeControl.changeDispatch(dispatch) },
+      { keepCacheKeys: ["node"] }
+    );
   }
 }
 

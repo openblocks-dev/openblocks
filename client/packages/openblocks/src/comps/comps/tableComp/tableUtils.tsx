@@ -178,6 +178,17 @@ function renderTitle(props: { title: string; editable: boolean }) {
   );
 }
 
+function getUniqueTags(column: RawColumnType) {
+  const compType = column.render[0]
+    ? column.render[0].getComp().children.compType.getView()
+    : undefined;
+  const uniqueTags: string[] =
+    column.editable && compType === "tag"
+      ? _.uniq(Object.values(column.render).map((comp) => comp.getView().value))
+      : [];
+  return uniqueTags;
+}
+
 /**
  * convert column in raw format into antd format
  */
@@ -223,6 +234,7 @@ export function columnsToAntdFormat(
     ) {
       return [];
     }
+    const tags = getUniqueTags(column); // warn: this costs O(n) time
     const title = renderTitle({ title: column.title, editable: column.editable });
     return {
       title: title,
@@ -235,7 +247,7 @@ export function columnsToAntdFormat(
         return column.render[record.index]
           .setParams({ currentIndex: index })
           .getView()
-          .view({ editable: column.editable, size });
+          .view({ editable: column.editable, size, candidateTags: tags });
       },
       ...(column.sortable
         ? {

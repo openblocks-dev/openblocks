@@ -4,7 +4,7 @@ import { AppViewInstance, bootstrapAppAt, OpenblocksAppView } from "./src/index"
 
 const url = new URL(location.href);
 const appId = url.searchParams.get("appId");
-const baseUrl = url.searchParams.get("baseUrl") || "http://localhost:3000";
+const baseUrl = url.searchParams.get("baseUrl") || "http://localhost:8000";
 
 function ReactDemoApp() {
   const ref = useRef<AppViewInstance | null>(null);

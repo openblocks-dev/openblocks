@@ -1,11 +1,14 @@
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import {
-  CompAction,
+  AbstractComp,
+  AbstractNode,
   changeChildAction,
+  CompAction,
   CompActionTypes,
+  ConstructorToView,
+  evalNodeOrMinor,
   updateNodesV2Action,
 } from "openblocks-core";
-import { AbstractComp, ConstructorToView } from "openblocks-core";
 import {
   ArrayStringControl,
   BoolCodeControl,
@@ -23,21 +26,21 @@ import {
   ExposeMethodCompConstructor,
   withMethodExposingBase,
 } from "comps/generators/withMethodExposing";
-import { AbstractNode, evalNodeOrMinor } from "openblocks-core";
 import _ from "lodash";
 import { ReactNode } from "react";
 import { memo } from "util/cacheUtils";
 import {
-  toString,
-  toNumber,
   toBoolean,
   toJSONObject,
-  toStringArray,
   toJSONValue,
+  toNumber,
+  toString,
+  toStringArray,
   toStringNumberArray,
 } from "util/convertUtils";
 import { EvalParamType, ParamConfig, ParamType } from "./actionSelector/executeCompTypes";
 import { trans } from "i18n";
+import { getPromiseAfterDispatch } from "../../util/promiseUtils";
 
 export const __TMP_STATE_FIELD_NAME = "__TMP_STATE_FIELD_NAME";
 
@@ -89,7 +92,9 @@ function withTmpState<T extends CodeControlJSONType>(
     }
 
     change(value: ConstructorToView<T>) {
-      this.dispatch(changeChildAction("value", value));
+      return getPromiseAfterDispatch(this.dispatch, changeChildAction("value", value), {
+        autoHandleAfterReduce: true,
+      });
     }
 
     reset() {

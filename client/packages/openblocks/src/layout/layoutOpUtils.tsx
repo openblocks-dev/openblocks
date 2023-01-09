@@ -143,7 +143,8 @@ export let getUILayout = (
   layout: Layout,
   extraLayout: ExtraLayout | undefined,
   changedHs: Record<string, number> | undefined,
-  ops: LayoutOps | undefined
+  ops: LayoutOps | undefined,
+  setHiddenCompHeightZero: boolean = false
 ): Layout => {
   // log.log("getUILayout. layout: ", layout, " extraLayout: ", extraLayout, " changedHs: ", changedHs, " ops: ", ops);
   const stickyItemMap = getStickyItemMap(layout);
@@ -163,10 +164,12 @@ export let getUILayout = (
     layout = reduce(layout, op, stickyItemMap);
   });
   layout = cascade(layout);
-  const recoverHiddenOps = _.toPairs(hiddenItemHeight).map(([i, h]) => changeItemOp(i, { h }));
-  recoverHiddenOps.forEach((op) => {
-    layout = reduce(layout, op, stickyItemMap);
-  });
+  if (!setHiddenCompHeightZero) {
+    const recoverHiddenOps = _.toPairs(hiddenItemHeight).map(([i, h]) => changeItemOp(i, { h }));
+    recoverHiddenOps.forEach((op) => {
+      layout = reduce(layout, op, stickyItemMap);
+    });
+  }
   // log.log("getUILayout. finalLayout: ", layout);
   return layout;
 };
