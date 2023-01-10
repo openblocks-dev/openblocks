@@ -14,7 +14,6 @@ metadata:
 data:
   UID: {{ .Values.frontend.config.userId | default "9001" | quote }}
   GID: {{ .Values.frontend.config.groupId | default "9001" | quote }}
-  #CONTEXT_PATH: {{ .Values.ingress.contextPath | default "/" | quote }}
   {{- if .Values.frontend.config.backendUrl }}
   OPENBLOCKS_SERVER_URL: {{ .Values.frontend.config.backendUrl | trimSuffix "/" | quote }}
   {{- else }}

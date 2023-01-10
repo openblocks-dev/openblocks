@@ -6,7 +6,7 @@ RUN yarn --immutable
 ARG REACT_APP_COMMIT_ID=test
 ARG REACT_APP_ENV=production
 ARG REACT_APP_EDITION=community
-RUN PUBLIC_URL="." yarn build
+RUN yarn build
 
 FROM nginx:alpine-slim
 LABEL maintainer="openblocks"

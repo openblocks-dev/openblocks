@@ -19,6 +19,5 @@ data:
   {{- end }}
   UID: {{ .Values.backend.config.userId | default "9001" | quote }}
   GID: {{ .Values.backend.config.groupId | default "9001" | quote }}
-  #CONTEXT_PATH: {{ .Values.ingress.contextPath | default "/" | quote }}
   CORS_ALLOWED_DOMAINS: {{ .Values.backend.config.corsAllowedDomains | default  "*" | quote }}
 

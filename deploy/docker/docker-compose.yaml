@@ -27,7 +27,6 @@ services:
     environment:
       UID: "9001"
       GID: "9001"
-      #CONTEXT_PATH: "/"
       MONGODB_URI: "mongodb://openblocks:secret123@mongodb/openblocks?authSource=admin"
       REDIS_URL: "redis://redis:6379"
       ENCRYPTION_PASSWORD: "openblocks.dev"
@@ -46,7 +45,6 @@ services:
     environment:
       UID: "9001"
       GID: "9001"
-      #CONTEXT_PATH: "/"
       OPENBLOCKS_SERVER_URL: "http://openblocks-backend:8080"
     restart: unless-stopped
     depends_on:
