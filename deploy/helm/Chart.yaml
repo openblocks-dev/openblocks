@@ -1,0 +1,9 @@
+apiVersion: v2
+name: openblocks
+description: A Helm chart for deploying Open Blocks
+type: application
+
+version: 1.0.0
+
+# Version of deployed Open Blocks
+appVersion: "1.1.1"
