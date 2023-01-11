@@ -14,7 +14,7 @@ The following example is for you to quickly understand what JS query is and how 
 SQL query `query1` reads `id`, `first_name`, `last_name` and `tid` fields from table `players` in a PostgreSQL database.
 
 ```sql
-select id, first_name, last_name, tid from users
+select id, first_name, last_name, tid from players
 ```
 
 SQL query `query2` reads `tid`, `city` and `name` fields from table `teams` in a PostgreSQL database.
