@@ -74,6 +74,12 @@ COPY --from=build-server ${PLUGIN_JARS} /openblocks/server/plugins/
 # copy tace-fe build
 COPY --from=build-client /openblocks-client/packages/openblocks/build/ /openblocks/client/
 
+# copy node-service
+COPY ./server/node-service/ /node-service
+COPY ./deploy/docker/scripts/start-node-service.sh /node-service/start-node-service.sh
+
+RUN cd /node-service && yarn install && yarn build
+
 # copy nginx conf
 COPY ./deploy/docker/templates/nginx/* /openblocks/nginx/
 COPY ./deploy/docker/scripts/start-nginx.sh /openblocks/nginx/start-nginx.sh
