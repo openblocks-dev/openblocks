@@ -1,0 +1,27 @@
+export const en = {
+  name: "S3",
+  description: "Supports AWS S3 and object storage services that support S3",
+  skRequiredMessage: "Please input the SecretKey",
+  akRequiredMessage: "Please input the AccessKey",
+  endpointUrlTooltip: "Endpoint url of S3 compatible object storage service",
+  bucket: "Bucket",
+  returnSignedUrl: "Return signed url",
+  actions: "Actions",
+  prefix: "Prefix to filter",
+  delimiter: "Delimiter",
+  limit: "Limit",
+  fileName: "File name",
+  dataType: "Data type",
+  data: "Data",
+  region: "Region",
+  messages: {
+    bucketRequired: "Bucket is required",
+  },
+  actionName: {
+    listBuckets: "List buckets",
+    listObjects: "List files",
+    uploadFile: "Upload file",
+    readFile: "Read file",
+    deleteFile: "Delete file",
+  },
+};
