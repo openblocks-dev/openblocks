@@ -1,5 +1,5 @@
 FROM maven:3.8.4-openjdk-17-slim AS build-server
-COPY ./server /openblocks-server
+COPY ./server/api-service /openblocks-server
 WORKDIR /openblocks-server
 RUN --mount=type=cache,target=/root/.m2 mvn -f pom.xml clean package -DskipTests
 
@@ -86,8 +86,8 @@ COPY ./deploy/docker/templates/supervisord.conf /etc/supervisor/supervisord.conf
 COPY ./deploy/docker/templates/supervisord/*  /etc/supervisor/conf.d/
 
 # copy application.yml
-COPY ./server/openblocks-server/src/main/resources/selfhost/ce/application.yml /openblocks/env/
-COPY ./server/openblocks-server/src/main/resources/selfhost/ce/application-selfhost.yml /openblocks/env2/
+COPY ./server/api-service/openblocks-server/src/main/resources/selfhost/ce/application.yml /openblocks/env/
+COPY ./server/api-service/openblocks-server/src/main/resources/selfhost/ce/application-selfhost.yml /openblocks/env2/
 
 # Add bootstrapfile
 COPY ./deploy/docker/entrypoint.sh /openblocks/
