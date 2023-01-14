@@ -39,9 +39,11 @@ RUN echo "deb [ arch=amd64,arm64 ]http://repo.mongodb.org/apt/ubuntu focal/mongo
   && apt-get remove wget -y
 
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
-  && apt-get -y install --no-install-recommends -y mongodb-org=4.4.6 redis \
+  && apt-get -y install --no-install-recommends -y mongodb-org=4.4.6 redis nodejs \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
+
+RUN npm install -g yarn
 
 # Clean up cache file - Service layer
 RUN rm -rf \
@@ -58,6 +60,7 @@ RUN rm -rf \
 VOLUME [ "/openblocks-stacks" ]
 
 ENV OPENBLOCKS_SERVER_PROXY_PASS http://localhost:8080
+ENV OPENBLOCKS_NODE_PROXY_PASS http://localhost:6060
 
 # copy jre
 COPY --from=jre-build /build/jre /app

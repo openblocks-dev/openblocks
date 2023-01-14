@@ -2,10 +2,15 @@
 
 set -e
 
-init_mongodb() {
-  echo "Init mongoDB"
-  MONGO_DB_PATH="/openblocks-stacks/data/mongodb"
-  mkdir -p "$MONGO_DB_PATH"
+init_directory() {
+  # Create sub-directory to store services log in the container mounting folder
+  mkdir -p /openblocks-stacks/logs/backend
+  mkdir -p /openblocks-stacks/logs/frontend
+  mkdir -p /openblocks-stacks/logs/mongodb
+  mkdir -p /openblocks-stacks/logs/redis
+  mkdir -p /openblocks-stacks/logs/node
+  mkdir -p /openblocks-stacks/data/redis
+  mkdir -p /openblocks-stacks/data/mongodb
 }
 
 init_configuration() {
@@ -31,14 +36,8 @@ add_user() {
   chown $USER_ID:$GROUP_ID /run
 }
 
-init_mongodb
+init_directory
 init_configuration
-# Create sub-directory to store services log in the container mounting folder
-mkdir -p /openblocks-stacks/logs/backend
-mkdir -p /openblocks-stacks/logs/frontend
-mkdir -p /openblocks-stacks/logs/redis
-mkdir -p /openblocks-stacks/data/redis
-
 add_user
 
 # Handle CMD command
