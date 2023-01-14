@@ -10,14 +10,64 @@ import {
   OptionsType,
   ValueFromOption,
 } from "openblocks-design";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { ControlParams } from "./controlParams";
+
+type DropdownOptions<T extends OptionsType> = T | (() => Promise<T>);
+
+interface DropdownControlParams<T extends OptionsType> extends ControlParams {
+  radioButton?: boolean;
+  border?: boolean;
+  type?: "oneline";
+  disabled?: boolean;
+  // parent comp may batch dispatch in some cases
+  disableDispatchValueChange?: boolean;
+  onChange?: (value: string) => void;
+  options?: T;
+  showSearch?: boolean;
+}
+
+interface DropdownPropertyViewProps<T extends OptionsType>
+  extends Omit<DropdownControlParams<T>, "options"> {
+  options: DropdownOptions<T>;
+  onChange: (value: ValueFromOption<T>) => void;
+  value: ValueFromOption<T>;
+}
+
+function DropdownPropertyView<T extends OptionsType>(props: DropdownPropertyViewProps<T>) {
+  const { options, onChange, value, ...params } = props;
+  const [finalOptions, setFinalOptions] = useState<T>(
+    typeof options === "function" ? ([] as unknown as T) : options
+  );
+
+  useEffect(() => {
+    if (typeof options !== "function" || finalOptions.length > 0) {
+      return;
+    }
+    options().then((items) => setFinalOptions(items));
+  }, [finalOptions.length, options]);
+  return (
+    <Dropdown
+      placement={params.placement}
+      toolTip={params.tooltip}
+      value={value}
+      options={finalOptions}
+      radioButton={params.radioButton}
+      border={params.border}
+      type={params.type}
+      label={params.label}
+      showSearch={params.showSearch}
+      onChange={onChange}
+      disabled={params.disabled}
+    />
+  );
+}
 
 /**
  * Leave a getView method unimplemented, because the type cannot be changed by inheritance
  */
 export function dropdownAbstractControl<T extends OptionsType>(
-  options: T,
+  options: T | (() => Promise<T>),
   defaultValue: ValueFromOption<T>
 ) {
   abstract class DropdownControl extends SimpleAbstractComp<ValueFromOption<T>> {
@@ -25,41 +75,22 @@ export function dropdownAbstractControl<T extends OptionsType>(
       return defaultValue;
     }
 
-    propertyView(
-      params: ControlParams & {
-        radioButton?: boolean;
-        border?: boolean;
-        type?: "oneline";
-        disabled?: boolean;
-        // parent comp may batch dispatch in some cases
-        disableDispatchValueChange?: boolean;
-        onChange?: (value: string) => void;
-        options?: T;
-        showSearch?: boolean;
-      }
-    ): ReactNode {
+    propertyView(params: DropdownControlParams<T>): ReactNode {
       let finalOptions = options;
-      if (finalOptions.length === 0 && params.options) {
+      if (finalOptions.length === 0 && typeof finalOptions !== "function" && params.options) {
         finalOptions = params.options;
       }
       return (
-        <Dropdown
-          placement={params.placement}
-          toolTip={params.tooltip}
+        <DropdownPropertyView<T>
           value={this.value}
           options={finalOptions}
-          radioButton={params.radioButton}
-          border={params.border}
-          type={params.type}
-          label={params.label}
-          showSearch={params.showSearch}
           onChange={(value) => {
             if (!params.disableDispatchValueChange) {
               this.dispatchChangeValueAction(value);
             }
             params.onChange?.(value);
           }}
-          disabled={params.disabled}
+          {...params}
         />
       );
     }
@@ -72,8 +103,10 @@ export function dropdownAbstractControl<T extends OptionsType>(
   return DropdownControl;
 }
 
+export type DropdownControlType = ReturnType<typeof dropdownControl>;
+
 export function dropdownControl<T extends OptionsType>(
-  options: T,
+  options: T | (() => Promise<T>),
   defaultValue: ValueFromOption<T>
 ) {
   return class extends dropdownAbstractControl(options, defaultValue) {

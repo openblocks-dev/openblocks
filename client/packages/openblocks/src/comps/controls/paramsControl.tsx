@@ -18,10 +18,12 @@ import {
   JSONValueControl,
   NumberControl,
   StringControl,
+  BoolCodeControl,
 } from "./codeControl";
-import { ControlParams } from "./controlParams";
+import { ControlParams, ControlType } from "./controlParams";
 import _ from "lodash";
 import { millisecondsControl, MillisecondsControlProps } from "./millisecondControl";
+import { BoolControl } from "./boolControl";
 
 /**
  * Used in query to provide data to the server.
@@ -38,10 +40,14 @@ const __PARAMS_CONTROL_FIELD_NAME = "__PARAMS_CONTROL_FIELD_NAME";
 
 export type ValueFunction = (args?: Record<string, unknown>) => any;
 
-function toParamsControl<T extends CodeControlType>(Control: T) {
+function toParamsControl<T extends ControlType>(
+  Control: T,
+  getUnEvaledValue: (comp: InstanceType<T>) => string
+) {
   return class ParamsControl extends MultiBaseComp<{
     text: InstanceType<T>;
   }> {
+    isParamsControl = true;
     private readonly paramValues: Record<string, ValueFunction> = {};
 
     parseChildrenFromValue(params: CompParams<string>) {
@@ -70,7 +76,7 @@ function toParamsControl<T extends CodeControlType>(Control: T) {
 
     override extraNode() {
       const segs: Record<string, Node<any>> = {};
-      getDynamicStringSegments(this.children.text.unevaledValue)
+      getDynamicStringSegments(getUnEvaledValue(this.children.text))
         .filter((x) => {
           return x.startsWith("{{") && x.endsWith("}}");
         })
@@ -88,7 +94,7 @@ function toParamsControl<T extends CodeControlType>(Control: T) {
           [__PARAMS_CONTROL_FIELD_NAME]: lastValueIfEqual(
             this,
             "params_control_cache",
-            [this.children.text.unevaledValue, fromRecord(segs)],
+            [getUnEvaledValue(this.children.text), fromRecord(segs)],
             (a, b) => {
               return a[0] === b[0];
             }
@@ -113,12 +119,18 @@ function toParamsControl<T extends CodeControlType>(Control: T) {
   };
 }
 
+const codeControlToParamsControl = <T extends CodeControlType>(CodeControl: T) => {
+  return toParamsControl(CodeControl, (comp) => comp.unevaledValue);
+};
+
 export type ParamsControlType = ReturnType<typeof toParamsControl>;
 
-export const ParamsStringControl = toParamsControl(StringControl);
-export const ParamsNumberControl = toParamsControl(NumberControl);
-export const ParamsArrayStringControl = toParamsControl(ArrayStringControl);
-export const ParamsPositiveNumberControl = toParamsControl(
+export const ParamsStringControl = toParamsControl(StringControl, (a) => a.unevaledValue);
+export const ParamsNumberControl = codeControlToParamsControl(NumberControl);
+export const ParamsBooleanCodeControl = codeControlToParamsControl(BoolCodeControl);
+export const ParamsBooleanControl = toParamsControl(BoolControl, (comp) => comp.getUnEvaledValue());
+export const ParamsArrayStringControl = codeControlToParamsControl(ArrayStringControl);
+export const ParamsPositiveNumberControl = codeControlToParamsControl(
   codeControl((value: any) => {
     if (typeof value === "number") {
       return value >= 0 ? value : 0;
@@ -131,6 +143,6 @@ export const ParamsPositiveNumberControl = toParamsControl(
   })
 );
 
-export const ParamsJsonControl = toParamsControl(JSONValueControl);
+export const ParamsJsonControl = codeControlToParamsControl(JSONValueControl);
 export const paramsMillisecondsControl = (props: MillisecondsControlProps) =>
-  toParamsControl(millisecondsControl(props));
+  codeControlToParamsControl(millisecondsControl(props));

@@ -1,7 +1,7 @@
 import { changeChildAction, DispatchType, RecordConstructorToView } from "openblocks-core";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames, ValueFromOption } from "openblocks-design";
 import { TreeSelect } from "antd";
 import { useEffect } from "react";
 import styled from "styled-components";
@@ -22,11 +22,10 @@ import {
 } from "./treeUtils";
 import { getStyle } from "../selectInputComp/selectCompConstants";
 import { useSelectInputValidate } from "../selectInputComp/selectInputConstants";
-import { ValueFromOption } from "openblocks-design";
 import { StringControl } from "comps/controls/codeControl";
 import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
-import { BoolControl, BoolPureControl } from "comps/controls/boolControl";
-import { stateComp, withDefault } from "comps/generators/simpleGenerators";
+import { BoolControl } from "comps/controls/boolControl";
+import { stateComp } from "comps/generators/simpleGenerators";
 import { trans } from "i18n";
 import {
   allowClearPropertyView,
@@ -60,7 +59,7 @@ const childrenMap = {
   // TODO: more event
   onEvent: SelectEventHandlerControl,
   allowClear: BoolControl,
-  showSearch: withDefault(BoolPureControl, true),
+  showSearch: BoolControl.DEFAULT_TRUE,
   inputValue: stateComp<string>(""), // search value
   style: styleControl(TreeSelectStyle),
 };

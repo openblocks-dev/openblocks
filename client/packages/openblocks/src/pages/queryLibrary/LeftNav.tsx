@@ -12,7 +12,6 @@ import {
 } from "openblocks-design";
 import { LibraryQuery } from "../../api/queryLibraryApi";
 import { timestampToHumanReadable } from "../../util/dateTimeUtils";
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
 import { deleteQueryLibrary } from "../../redux/reduxActions/queryLibraryActions";
@@ -21,6 +20,7 @@ import { ReadOnlyMask } from "../common/styledComponent";
 import { trans } from "i18n";
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 import { saveAs } from "file-saver";
+import DataSourceIcon from "components/DataSourceIcon";
 
 const Wrapper = styled.div<{ readOnly?: boolean }>`
   display: flex;
@@ -206,7 +206,10 @@ export const LeftNav = (props: {
                       <Content>
                         <ContentTop>
                           <QueryType>
-                            {getBottomResIcon(q.libraryQueryDSL?.query?.compType, "large")}
+                            <DataSourceIcon
+                              dataSourceType={q.libraryQueryDSL?.query?.compType}
+                              size="large"
+                            />
                             {
                               datasourceTypes[q.libraryQueryDSL?.query?.compType as DatasourceType]
                                 ?.name

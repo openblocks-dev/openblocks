@@ -43,6 +43,7 @@ import {
   Datasource,
 } from "@openblocks-ee/constants/datasourceConstants";
 import { importQueryLibrary } from "./importQueryLibrary";
+import { registryDataSourcePlugin } from "@openblocks-ee/constants/queryConstants";
 
 const Wrapper = styled.div`
   display: flex;
@@ -95,7 +96,18 @@ export const QueryLibraryEditor = () => {
   useEffect(() => {
     if (orgId) {
       dispatch(fetchQueryLibrary());
-      dispatch(fetchDataSourceTypes({ organizationId: orgId }));
+      dispatch(
+        fetchDataSourceTypes({
+          organizationId: orgId,
+          onSuccess: (types) => {
+            types.forEach((type) => {
+              if (type.definition) {
+                registryDataSourcePlugin(type.id, type.definition);
+              }
+            });
+          },
+        })
+      );
       dispatch(fetchDatasource({ organizationId: orgId }));
     }
   }, [dispatch, orgId]);
@@ -113,11 +125,13 @@ export const QueryLibraryEditor = () => {
   }, [selectedQuery]);
 
   const datasource = originDatasourceInfo
-    .filter(
-      (t) =>
+    .filter((t) => {
+      return (
+        t.datasource.type.startsWith("plugin:") ||
         apiPluginsForQueryLibrary.includes(t.datasource.type) ||
         databasePlugins.includes(t.datasource.type)
-    )
+      );
+    })
     .map((info) => info.datasource);
 
   const recentlyUsed = Object.values(queryLibrary)

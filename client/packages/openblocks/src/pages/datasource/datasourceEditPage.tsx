@@ -5,14 +5,14 @@ import { useMemo } from "react";
 import { CopyTextButton, DocIcon, PackUpIcon, TacoButton } from "openblocks-design";
 import { useDatasourceForm } from "./form/useDatasourceForm";
 import { useParams } from "react-router-dom";
-import { DatasourceFormRegistry } from "@openblocks-ee/pages/datasource/form/datasourceFormRegistry";
 import { DATASOURCE_URL } from "../../constants/routesURL";
 import { useSelector } from "react-redux";
 import { getDataSource, getDataSourceTypes } from "../../redux/selectors/datasourceSelectors";
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { trans } from "i18n";
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 import { getDatasourceTutorial } from "@openblocks-ee/util/tutorialUtils";
+import { getDataSourceFormManifest } from "./getDataSourceFormManifest";
+import DataSourceIcon from "components/DataSourceIcon";
 
 const Wrapper = styled.div`
   display: flex;
@@ -163,21 +163,25 @@ export const DatasourceEditPage = () => {
     return datasourceList.find((info) => info.datasource.id === datasourceId);
   }, [datasourceId, datasourceList]);
 
-  const selectedPlugin = useMemo(() => {
+  const dataSourceTypeInfo = useMemo(() => {
     if (datasourceId) {
       return undefined;
     }
     return datasourceTypes.find((t) => t.id === datasourceType);
   }, [datasourceId, datasourceTypes, datasourceType]);
 
+  const finalDataSourceType = datasourceType || datasourceInfo?.datasource.type;
+
   const { testLoading, createLoading, form, genRequest, resolveTest, resolveCreate } =
     useDatasourceForm();
 
-  const tutorial = getDatasourceTutorial((datasourceType || datasourceInfo?.datasource.type)!);
+  if (!finalDataSourceType) {
+    return null;
+  }
 
-  const formManifest = datasourceInfo
-    ? DatasourceFormRegistry[datasourceInfo.datasource.type]
-    : DatasourceFormRegistry[datasourceType];
+  const tutorial = getDatasourceTutorial(finalDataSourceType);
+  const pluginDef = datasourceInfo?.datasource.pluginDefinition || dataSourceTypeInfo?.definition;
+  const formManifest = getDataSourceFormManifest(finalDataSourceType, pluginDef);
   const DatasourceForm = formManifest?.form;
 
   return (
@@ -192,9 +196,9 @@ export const DatasourceEditPage = () => {
 
         <FormHeader>
           <TitleWrapper>
-            {getBottomResIcon((datasourceInfo?.datasource.type ?? selectedPlugin?.id)!, "large")}
+            <DataSourceIcon dataSourceType={finalDataSourceType} size="large" />
             {datasourceInfo?.datasource.name ??
-              selectedPlugin?.name ??
+              dataSourceTypeInfo?.name ??
               trans("query.chooseDatasourceType")}
           </TitleWrapper>
 
@@ -211,6 +215,7 @@ export const DatasourceEditPage = () => {
             {DatasourceForm && (
               <DatasourceForm
                 form={form}
+                dataSourceTypeInfo={dataSourceTypeInfo}
                 datasource={datasourceInfo?.datasource!}
                 size={"middle"}
               />

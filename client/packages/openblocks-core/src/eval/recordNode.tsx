@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { shallowEqual } from "util/objectUtils";
 import { memoized } from "../util/memoize";
 import { AbstractNode, Node, NodeToValue } from "./node";
 import { EvalMethods } from "./types/evalTypes";
@@ -17,7 +18,7 @@ export class RecordNode<T extends Record<string, Node<unknown>>> extends Abstrac
   constructor(readonly children: T) {
     super();
   }
-  @memoized()
+  @memoized([shallowEqual])
   override filterNodes(exposingNodes: Record<string, Node<unknown>>) {
     return evalPerfUtil.perf(this, `filterNodes`, () => {
       const result = new Map<Node<unknown>, Set<string>>();

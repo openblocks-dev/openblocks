@@ -1,21 +1,20 @@
 import { SelectEventHandlerControl } from "../../controls/eventHandlerControl";
 import { Section, sectionNames } from "openblocks-design";
 import { RecordConstructorToComp } from "openblocks-core";
-import { JSONObjectArrayControl, BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl, JSONObjectArrayControl, StringControl } from "comps/controls/codeControl";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
-import { BoolControl, BoolPureControl } from "comps/controls/boolControl";
+import { BoolControl } from "comps/controls/boolControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { styleControl } from "comps/controls/styleControl";
 import { CascaderStyle } from "comps/controls/styleControlConstants";
 import {
   allowClearPropertyView,
-  hiddenPropertyView,
   disabledPropertyView,
+  hiddenPropertyView,
   placeholderPropertyView,
   showSearchPropertyView,
 } from "comps/utils/propertyUtils";
-import { trans, i18nObjs } from "i18n";
-import { withDefault } from "comps/generators";
+import { i18nObjs, trans } from "i18n";
 
 export const defaultDataSource = JSON.stringify(i18nObjs.cascader, null, " ");
 
@@ -28,7 +27,7 @@ export const CascaderChildren = {
   allowClear: BoolControl,
   options: JSONObjectArrayControl,
   style: styleControl(CascaderStyle),
-  showSearch: withDefault(BoolPureControl, true),
+  showSearch: BoolControl.DEFAULT_TRUE,
 };
 
 export const CascaderPropertyView = (

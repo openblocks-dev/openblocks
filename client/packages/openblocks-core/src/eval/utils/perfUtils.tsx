@@ -1,6 +1,7 @@
 import _ from "lodash";
 
 const SWITCH_PERF_ON = false;
+const COST_MS_PRINT_THR = 0;
 
 interface RecursivePerfUtilParams {
   name: string;
@@ -68,7 +69,7 @@ class RecursivePerfUtil {
     this.record = this.initRecord();
   };
 
-  print = (...stack: number[]) => {
+  print = (stack: number[], cost_ms_print_thr: number = COST_MS_PRINT_THR) => {
     const record = this.getRecordByStack(stack);
     console.info(
       `PerfInfo. stack: ${stack}, [info] ${record.info}, obj: `,
@@ -76,12 +77,14 @@ class RecursivePerfUtil {
       `, costMs: ${record.costMs}, depth: ${record.depth}, size: ${_.size(record.childrenPerfInfo)}`
     );
     record.childrenPerfInfo.forEach((subRecord, idx) => {
-      console.info(
-        `  [${idx}]${subRecord.info}. obj: `,
-        subRecord.obj,
-        " costMs: ",
-        subRecord.costMs
-      );
+      if (subRecord.costMs >= cost_ms_print_thr) {
+        console.info(
+          `  [${idx}]${subRecord.info}. obj: `,
+          subRecord.obj,
+          " costMs: ",
+          subRecord.costMs
+        );
+      }
     });
   };
 }

@@ -63,7 +63,7 @@ const HeaderTitle = styled.div`
 const SwitchWrapper = styled.div`
   display: flex;
   flex-shrink: 0;
-  align-items: baseline;
+  align-items: center;
   margin-right: 24px;
   color: #8b8fa3;
   line-height: 13px;
@@ -314,7 +314,7 @@ function useResultPanel(params: BottomResCompResult & { onClose: () => void }) {
         if (isObjectLike(data)) {
           return <ReactJson name={false} src={data} />;
         }
-        return <TextResult>{data}</TextResult>;
+        return <TextResult>{String(data)}</TextResult>;
       default:
         if (isObjectArray) {
           return (

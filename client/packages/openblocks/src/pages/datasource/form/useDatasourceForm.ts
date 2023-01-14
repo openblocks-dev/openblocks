@@ -47,6 +47,19 @@ export function useDatasourceForm() {
               username: form.getFieldsValue()["username"],
               password: form.getFieldsValue()["password"],
             },
+            sslConfig: {
+              sslCertVerificationType: form.getFieldValue("sslCertVerificationType"),
+              selfSignedCert: form.getFieldValue("selfSignedCert"),
+            },
+          };
+          break;
+        case "graphql":
+          config = {
+            ...config,
+            sslConfig: {
+              sslCertVerificationType: form.getFieldValue("sslCertVerificationType"),
+              selfSignedCert: form.getFieldValue("selfSignedCert"),
+            },
           };
           break;
         case "oracle":

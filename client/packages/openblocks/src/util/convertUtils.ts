@@ -1,4 +1,5 @@
 import { JSONObject, JSONValue } from "util/jsonTypes";
+
 class EvalTypeError extends TypeError {
   hint?: string;
 

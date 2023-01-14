@@ -22,10 +22,10 @@ import { DataSourceTypeConfig, TableColumn } from "./generate/dataSourceCommon";
 import { CompConfig } from "./generate/comp";
 import { uiCompRegistry } from "comps/uiCompRegistry";
 import { arrayMove, SortableContainer, SortableElement, SortableHandle } from "react-sortable-hoc";
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { trans } from "i18n";
 import log from "loglevel";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import DataSourceIcon from "components/DataSourceIcon";
 
 const OpenDialogButton = styled.span`
   :hover {
@@ -577,7 +577,7 @@ const CreateFormBody = (props: { onCreate: CreateHandler }) => {
                 {dataSourceItems.map(({ dataSource }) => (
                   <Select.Option key={dataSource.id} value={dataSource.id}>
                     <SelectOptionWrapper>
-                      {dataSource.type && getBottomResIcon(dataSource.type)}
+                      {dataSource.type && <DataSourceIcon dataSourceType={dataSource.type} />}
                       <SelectOptionLabel title={dataSource.name}>
                         {dataSource.name}
                       </SelectOptionLabel>

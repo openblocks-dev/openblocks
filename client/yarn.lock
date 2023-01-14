@@ -11545,13 +11545,13 @@ __metadata:
   linkType: hard
 
 "json5@npm:^1.0.1":
-  version: 1.0.2
-  resolution: "json5@npm:1.0.2"
+  version: 1.0.1
+  resolution: "json5@npm:1.0.1"
   dependencies:
     minimist: ^1.2.0
   bin:
     json5: lib/cli.js
-  checksum: 866458a8c58a95a49bef3adba929c625e82532bcff1fe93f01d29cb02cac7c3fe1f4b79951b7792c2da9de0b32871a8401a6e3c5b36778ad852bf5b8a61165d7
+  checksum: e76ea23dbb8fc1348c143da628134a98adf4c5a4e8ea2adaa74a80c455fc2cdf0e2e13e6398ef819bfe92306b610ebb2002668ed9fc1af386d593691ef346fc3
   languageName: node
   linkType: hard
 
@@ -13553,7 +13553,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"openblocks-core@^0.0.1, openblocks-core@workspace:^, openblocks-core@workspace:packages/openblocks-core":
+"openblocks-core@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "openblocks-core@npm:0.0.1"
+  dependencies:
+    "@rollup/plugin-commonjs": ^23.0.0
+    "@rollup/plugin-node-resolve": ^15.0.0
+    intl-messageformat: ^10.2.1
+    lodash: ^4.17.21
+    lru-cache: ^7.14.1
+  checksum: 78dc76b0a647bb4ada4225b5b5c524566b9fd8857e97ca6d8ec5cb5c16ddc2338a2707f1bffd53e2d0550e7f51b85d81ec8521a6a4f15055f0fb038226b94610
+  languageName: node
+  linkType: hard
+
+"openblocks-core@workspace:^, openblocks-core@workspace:packages/openblocks-core":
   version: 0.0.0-use.local
   resolution: "openblocks-core@workspace:packages/openblocks-core"
   dependencies:

@@ -10,6 +10,10 @@ export const getDataSourceTypes = (state: AppState) => {
   return state.entities.plugins.data;
 };
 
+export const getIsDataSourceTypesFetched = (state: AppState) => {
+  return state.entities.plugins.isDataSourceTypesFetched;
+};
+
 export const getDataSourceTypesMap = (state: AppState) => {
   const datasourceTypes = state.entities.plugins.data;
   return datasourceTypes

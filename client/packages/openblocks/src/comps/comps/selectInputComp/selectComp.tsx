@@ -10,6 +10,8 @@ import {
   SelectInputInvalidConfig,
   useSelectInputValidate,
 } from "./selectInputConstants";
+import { useRef } from "react";
+import { RecordConstructorToView } from "openblocks-core";
 
 export const SelectBasicComp = (function () {
   const childrenMap = {
@@ -18,8 +20,12 @@ export const SelectBasicComp = (function () {
     style: styleControl(SelectStyle),
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
+    const [validateState, handleValidate] = useSelectInputValidate(props);
+
+    const propsRef = useRef<RecordConstructorToView<typeof childrenMap>>(props);
+    propsRef.current = props;
+
     const valueSet = new Set<any>(props.options.map((o) => o.value)); // Filter illegal default values entered by the user
-    const [validateState, onChange] = useSelectInputValidate(props);
     return props.label({
       required: props.required,
       style: props.style,
@@ -28,9 +34,10 @@ export const SelectBasicComp = (function () {
           {...props}
           value={valueSet.has(props.value.value) ? props.value.value : undefined}
           onChange={(value) => {
-            onChange(value ?? "");
-            props.value.onChange(value ?? "");
-            props.onEvent("change");
+            props.value.onChange(value ?? "").then(() => {
+              propsRef.current.onEvent("change");
+              handleValidate(value ?? "");
+            });
           }}
           dispatch={dispatch}
         />

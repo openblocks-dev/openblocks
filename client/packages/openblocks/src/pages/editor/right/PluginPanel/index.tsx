@@ -4,7 +4,7 @@ import { PluginItem } from "./PluginItem";
 import { useDispatch, useSelector } from "react-redux";
 import { setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { getUser } from "redux/selectors/usersSelectors";
-import { BluePlusIcon, CustomModal, TacoButton, TacoInput } from "openblocks-design";
+import { BluePlusIcon, CustomModal, DocLink, TacoButton, TacoInput } from "openblocks-design";
 import { getCommonSettings } from "redux/selectors/commonSettingSelectors";
 import { message } from "antd";
 import styled from "styled-components";
@@ -113,6 +113,9 @@ export default function PluginPanel() {
           }}
           value={newPluginName}
         />
+        <DocLink style={{ marginTop: 8 }} href={trans("docUrls.devNpmPlugin")}>
+          {trans("docUrls.devNpmPluginText")}
+        </DocLink>
       </CustomModal>
     </>
   );

@@ -1,6 +1,6 @@
 import _ from "lodash";
-import { CACHE_PREFIX } from "./cacheUtils";
 import log from "loglevel";
+import { CACHE_PREFIX } from "./cacheUtils";
 
 /**
  * return cached value if the result equals the last result.
@@ -48,7 +48,10 @@ export function limitExecutor(
     {
       delay: delay,
       mode: mode,
-      func: (mode === "throttle" ? _.throttle : _.debounce)((x) => x(), delay),
+      func:
+        mode === "throttle"
+          ? _.throttle((x) => x(), delay, { trailing: false })
+          : _.debounce((x) => x(), delay),
     },
     (a, b) => {
       return a.delay === b.delay && a.mode === b.mode;
@@ -97,11 +100,18 @@ export function setFields<T>(obj: T, fields: Partial<T>) {
  * type unsafe, users should keep safe by self.
  * pros: this function can support private fields.
  */
-export function setFieldsNoTypeCheck<T>(obj: T, fields: Record<string, any>) {
+export function setFieldsNoTypeCheck<T>(
+  obj: T,
+  fields: Record<string, any>,
+  params?: { keepCacheKeys?: string[] }
+) {
   const res = Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
   Object.keys(res).forEach((key) => {
     if (key.startsWith(CACHE_PREFIX)) {
-      delete res[key];
+      const propertyKey = key.slice(CACHE_PREFIX.length);
+      if (!params?.keepCacheKeys || !params?.keepCacheKeys.includes(propertyKey)) {
+        delete res[key];
+      }
     }
   });
   return Object.assign(res, fields) as T;

@@ -6,7 +6,6 @@ server {
     root /openblocks/client;
     location / {
         try_files $uri /index.html;
-
         if ($request_filename ~* .*.(html|htm)$) {
             add_header Cache-Control no-cache;
         }
@@ -16,15 +15,10 @@ server {
         proxy_set_header X-Forwarded-Host $host;
         proxy_pass ${OPENBLOCKS_SERVER_PROXY_PASS};
     }
-    location /oauth2 {
+    location /node-service/plugin-icons {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
-        proxy_pass ${OPENBLOCKS_SERVER_PROXY_PASS};
-    }
-    location /login {
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_pass ${OPENBLOCKS_SERVER_PROXY_PASS};
+        proxy_pass ${OPENBLOCKS_NODE_PROXY_PASS};
     }
 }
 

@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getDataSource, getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
 import { deleteDatasource } from "../../redux/reduxActions/datasourceActions";
 import { isEmpty } from "lodash";
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import history from "../../util/history";
 import { buildDatasourceCreateUrl, buildDatasourceEditUrl } from "../../constants/routesURL";
 import { timestampToHumanReadable } from "../../util/dateTimeUtils";
@@ -15,6 +14,7 @@ import { PluginPanel } from "./pluginPanel";
 import { Table } from "../../components/Table";
 import { trans } from "../../i18n";
 import { DatasourcePermissionDialog } from "../../components/PermissionDialog/DatasourcePermissionDialog";
+import DataSourceIcon from "components/DataSourceIcon";
 
 const DatasourceWrapper = styled.div`
   display: flex;
@@ -54,7 +54,7 @@ const EditBtn = styled(TacoButton)`
 const BodyWrapper = styled.div`
   width: 100%;
   flex-grow: 1;
-  padding: 0 20px;
+  padding: 0 24px;
 `;
 
 const DatasourceName = styled.div`
@@ -90,6 +90,12 @@ const PopoverIcon = styled(PointIcon)`
 
 const SubColumnCell = styled.div`
   color: #8b8fa3;
+`;
+
+const StyledTable = styled(Table)`
+  .datasource-can-not-edit {
+    cursor: default;
+  }
 `;
 
 export const DatasourceList = () => {
@@ -138,12 +144,13 @@ export const DatasourceList = () => {
         </AddBtn>
       </HeaderWrapper>
       <BodyWrapper>
-        <Table
+        <StyledTable
+          rowClassName={(record: any) => (!record.edit ? "datasource-can-not-edit" : "")}
           tableLayout={"auto"}
           scroll={{ x: "100%" }}
           pagination={false}
-          onRow={(record) => ({
-            onClick: () => history.push(buildDatasourceEditUrl((record as any).id)),
+          onRow={(record: any) => ({
+            onClick: () => record.edit && history.push(buildDatasourceEditUrl(record.id)),
           })}
           columns={[
             {
@@ -216,7 +223,45 @@ export const DatasourceList = () => {
                 </SubColumnCell>
               ),
             },
-            { title: " ", dataIndex: "operation", width: "152px" },
+            {
+              title: " ",
+              dataIndex: "operation",
+              width: "152px",
+              render: (_, record: any) => (
+                <>
+                  {record.edit && (
+                    <OperationWrapper>
+                      {
+                        <EditBtn
+                          className={"home-datasource-edit-button"}
+                          buttonType={"primary"}
+                          onClick={() => history.push(buildDatasourceEditUrl(record.id))}
+                        >
+                          {trans("edit")}
+                        </EditBtn>
+                      }
+                      <EditPopover
+                        items={[
+                          {
+                            text: trans("accessControl"),
+                            onClick: () => setShareDatasourceId(record.id),
+                          },
+                          {
+                            text: trans("delete"),
+                            onClick: () => {
+                              dispatch(deleteDatasource({ datasourceId: record.id }));
+                            },
+                            type: "delete",
+                          },
+                        ]}
+                      >
+                        <PopoverIcon tabIndex={-1} />
+                      </EditPopover>
+                    </OperationWrapper>
+                  )}
+                </>
+              ),
+            },
           ]}
           dataSource={datasource
             .filter((info) => {
@@ -236,7 +281,7 @@ export const DatasourceList = () => {
               id: info.datasource.id,
               name: (
                 <DatasourceName>
-                  {getBottomResIcon(info.datasource.type)}
+                  <DataSourceIcon dataSourceType={info.datasource.type} />
                   {info.datasource.name}
                 </DatasourceName>
               ),
@@ -246,36 +291,7 @@ export const DatasourceList = () => {
                 (info.datasource.datasourceConfig as any)?.serviceName,
               createTime: info.datasource.createTime,
               creator: info.creatorName,
-              operation: (
-                <OperationWrapper>
-                  {info.edit && (
-                    <EditBtn
-                      className={"home-datasource-edit-button"}
-                      buttonType={"primary"}
-                      onClick={() => history.push(buildDatasourceEditUrl(info.datasource.id))}
-                    >
-                      {trans("edit")}
-                    </EditBtn>
-                  )}
-                  <EditPopover
-                    items={
-                      info.datasource.id && info.edit
-                        ? [
-                            {
-                              text: trans("accessControl"),
-                              onClick: () => setShareDatasourceId(info.datasource.id),
-                            },
-                          ]
-                        : undefined
-                    }
-                    del={() => {
-                      dispatch(deleteDatasource({ datasourceId: info.datasource.id }));
-                    }}
-                  >
-                    <PopoverIcon tabIndex={-1} />
-                  </EditPopover>
-                </OperationWrapper>
-              ),
+              edit: info.edit,
             }))}
         />
       </BodyWrapper>

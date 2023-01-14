@@ -11,7 +11,7 @@ buildVars.forEach(({ name, defaultValue }) => {
   define[name] = JSON.stringify(process.env[name] || defaultValue);
 });
 
-const apiBaseUrl = "https://api.openblocks.dev";
+const apiBaseUrl = "http://localhost:8000";
 
 export const viteConfig: UserConfig = {
   define: {

@@ -1,7 +1,8 @@
 import {
-  CompAction,
   ActionContextType,
+  CompAction,
   CompActionTypes,
+  CompConstructor,
   CustomAction,
   customAction,
   isBroadcastAction,
@@ -9,15 +10,13 @@ import {
   isMyCustomAction,
   UpdateActionContextAction,
 } from "openblocks-core";
-import { CompConstructor } from "openblocks-core";
 import { codeControl } from "comps/controls/codeControl";
 import { withTypeAndChildren } from "comps/generators";
 import { MultiCompBuilder } from "comps/generators/multi";
-import { Dropdown, Treediv } from "openblocks-design";
+import { Dropdown, HighContainer, Treediv } from "openblocks-design";
 import { omit } from "lodash";
 import { limitExecutor, setFieldsNoTypeCheck } from "util/objectUtils";
 import { getPromiseAfterExecuteDispatch, handlePromiseAfterResult } from "util/promiseUtils";
-import { HighContainer } from "openblocks-design";
 import { dropdownControl } from "../dropdownControl";
 import { CopyToClipboardAction } from "./copyToClipboardAction";
 import { DownloadAction } from "./downloadAction";
@@ -156,6 +155,7 @@ type ActionTriggered = {
 export function isTriggerAction(action: CompAction): action is CustomAction<ActionTriggered> {
   return isCustomAction<ActionTriggered>(action, ACTION_TRIGGERED_TYPE_STRING);
 }
+
 interface PropertyViewProps {
   comp: InstanceType<typeof TypedActionComp>;
   label: string;
@@ -169,6 +169,7 @@ function ActionSelectorControlPropertyView(props: PropertyViewProps) {
   return (
     <>
       <Dropdown
+        lineHeight={300}
         value={comp.children.compType.getView()}
         options={ActionOptions.filter((i) => {
           if (window.__OPENBLOCKS_DEV__) {

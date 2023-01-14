@@ -22,6 +22,8 @@ function populate(fn: (...args: any[]) => any, args: any[] = [], thisObj: any, f
 
   const value = fn.apply(thisObj, args);
   cache.isInProgress = false;
+  cache.args = args;
+  cache.time = Date.now();
   cache.value = value;
 }
 

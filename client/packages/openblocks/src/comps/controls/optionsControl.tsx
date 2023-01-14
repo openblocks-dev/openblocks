@@ -31,6 +31,7 @@ import styled from "styled-components";
 import { ViewDocIcon } from "assets/icons";
 import { IconControl } from "comps/controls/iconControl";
 import { JSONValue } from "../../util/jsonTypes";
+import { lastValueIfEqual } from "util/objectUtils";
 
 const OptionTypes = [
   {
@@ -280,7 +281,7 @@ export function mapOptionsControl<T extends OptionsControlType>(
     private lastDataExample: any = {};
 
     exposingNode() {
-      return withFunction(
+      const nd = withFunction(
         fromRecord({
           data: this.children.data.exposingNode(),
           mapData: this.children.mapData.node(),
@@ -288,6 +289,12 @@ export function mapOptionsControl<T extends OptionsControlType>(
         (params) =>
           params.data.map((d: any, i) => mapValues((params.mapData as any)(d), (v) => v.value))
       );
+      return lastValueIfEqual(
+        this,
+        "exposingNode",
+        [nd, this] as const,
+        (a, b) => a[1] === b[1]
+      )[0];
     }
 
     override reduce(action: CompAction) {

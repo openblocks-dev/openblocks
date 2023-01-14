@@ -113,11 +113,11 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
   const datasourceInfos = useSelector(getDataSource);
   const datasourceTypes = useSelector(getDataSourceTypes);
   const user = useSelector(getUser);
-  const plugins = useMemo(() => {
+  const dataSourceTypesMap = useMemo(() => {
     return datasourceTypes
-      ?.filter((plugin) => !!plugin.id)
-      .reduce((map: Partial<Record<DatasourceType, DataSourceTypeInfo>>, plugin) => {
-        map[plugin.id] = plugin;
+      ?.filter((dataSourceType) => !!dataSourceType.id)
+      .reduce((map: Partial<Record<DatasourceType, DataSourceTypeInfo>>, dataSourceType) => {
+        map[dataSourceType.id] = dataSourceType;
         return map;
       }, {});
   }, [datasourceTypes]);
@@ -155,7 +155,7 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
         }}
         onDropdownVisibleChange={onDropdownVisibleChange}
         dropdownRender={
-          Object.keys(plugins).length > 0
+          Object.keys(dataSourceTypesMap).length > 0
             ? (menu) => (
                 <DropdownWrapper>
                   {user.orgDev && (
@@ -189,6 +189,7 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
           .filter((info) => {
             if (context?.placement === "queryLibrary") {
               return (
+                info.datasource.type.startsWith("plugin:") ||
                 databasePlugins.includes(info.datasource.type) ||
                 apiPluginsForQueryLibrary.includes(info.datasource.type)
               );
@@ -205,10 +206,15 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
               <SelectOption
                 key={JSON.stringify(value)}
                 value={JSON.stringify(value)}
-                label={info.datasource.name + plugins[info.datasource.type]?.name}
+                label={info.datasource.name + dataSourceTypesMap[info.datasource.type]?.name}
               >
                 <SelectOptionContains>
-                  {datasourceType && getBottomResIcon(datasourceType)}
+                  {datasourceType &&
+                    getBottomResIcon(
+                      datasourceType,
+                      "middle",
+                      info.datasource.pluginDefinition?.icon
+                    )}
                   <div
                     style={{
                       display: "flex",
@@ -221,7 +227,7 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
                     <SelectOptionLabel style={{ flexGrow: 0 }}>
                       {info.datasource.name}
                     </SelectOptionLabel>
-                    {`(${plugins[info.datasource.type]?.name})`}
+                    {`(${dataSourceTypesMap[info.datasource.type]?.name})`}
                   </div>
                   <DatasourceModal
                     datasource={info.datasource}

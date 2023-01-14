@@ -1,4 +1,4 @@
-import { BoolControl, BoolPureControl } from "comps/controls/boolControl";
+import { BoolControl } from "comps/controls/boolControl";
 import {
   BoolCodeControl,
   NumberControl,
@@ -6,7 +6,7 @@ import {
   RegexControl,
   StringControl,
 } from "comps/controls/codeControl";
-import { trans, language } from "i18n";
+import { language, trans } from "i18n";
 
 export const hiddenPropertyView = (children: { hidden: InstanceType<typeof BoolCodeControl> }) =>
   children.hidden.propertyView({ label: trans("prop.hide") });
@@ -27,7 +27,7 @@ export const allowClearPropertyView = (children: {
 }) => children.allowClear.propertyView({ label: trans("prop.showClear") });
 
 export const showSearchPropertyView = (children: {
-  showSearch: InstanceType<typeof BoolPureControl>;
+  showSearch: InstanceType<typeof BoolControl>;
 }) => children.showSearch.propertyView({ label: trans("prop.showSearch") });
 
 export const requiredPropertyView = (children: { required: InstanceType<typeof BoolControl> }) =>

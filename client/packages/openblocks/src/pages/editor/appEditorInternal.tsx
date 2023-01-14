@@ -65,7 +65,7 @@ function useSaveComp(
   }, [comp, applicationId, prevComp, prevJsonStr, readOnly, dispatch]);
 }
 
-export function useRootCompInstance(appInfo: AppSummaryInfo, readOnly: boolean) {
+export function useRootCompInstance(appInfo: AppSummaryInfo, readOnly: boolean, isReady: boolean) {
   const appId = appInfo.id;
   const params = useMemo(() => {
     return {
@@ -82,8 +82,9 @@ export function useRootCompInstance(appInfo: AppSummaryInfo, readOnly: boolean) 
         perfMark(MarkAppInitialized);
         return root;
       },
+      isReady,
     };
-  }, [appId, appInfo.dsl, appInfo.moduleDsl, readOnly]);
+  }, [appId, appInfo.dsl, appInfo.moduleDsl, isReady, readOnly]);
   const [comp, container] = useCompInstance(params);
   const history = useAppHistory(container, readOnly, appId);
 

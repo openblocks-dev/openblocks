@@ -120,6 +120,7 @@ export interface GetContainerParams<T extends CompConstructor> {
   Comp: T;
   initialValue?: JSONValue;
   reduceContext?: PartialReduceContext;
+  isReady?: boolean;
   initHandler?: (comp: InstanceType<T>) => Promise<InstanceType<T>>;
 
   /**
@@ -134,9 +135,16 @@ export interface GetContainerParams<T extends CompConstructor> {
  * notice: keep this code unmanaged by react
  */
 export function getCompContainer<T extends CompConstructor>(params: GetContainerParams<T>) {
-  const { Comp, initialValue, initHandler, actionPreInterceptor, reduceContext } = params;
+  const {
+    Comp,
+    initialValue,
+    initHandler,
+    actionPreInterceptor,
+    reduceContext,
+    isReady = true,
+  } = params;
 
-  if (!initialValue) {
+  if (!initialValue || !isReady) {
     return null;
   }
   const [actionHandler, stats] = actionHandlerGenerator();

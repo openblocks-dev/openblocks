@@ -29,12 +29,12 @@ import {
 import { fetchQueryLibraryRecordDSL } from "../../redux/reduxActions/queryLibraryActions";
 import { toQueryView } from "./queryCompUtils";
 import styled from "styled-components";
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { GreyTextColor } from "../../constants/style";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { trans } from "i18n";
 import { ContextControlType, ContextJsonControl } from "comps/controls/contextCodeControl";
+import DataSourceIcon from "components/DataSourceIcon";
 
 const NoInputsWrapper = styled.div`
   color: ${GreyTextColor};
@@ -238,11 +238,13 @@ const PropertyView = (props: { comp: InstanceType<typeof LibraryQuery> }) => {
             options={Object.values(queryLibraryMeta).map((meta) => ({
               label: (
                 <QueryLabelWrapper>
-                  {getBottomResIcon(
-                    meta.recordMetaViewList?.find((t) => t.id === recordId)?.datasourceType ??
+                  <DataSourceIcon
+                    dataSourceType={
+                      meta.recordMetaViewList?.find((t) => t.id === recordId)?.datasourceType ??
                       meta.recordMetaViewList?.[0]?.datasourceType ??
                       meta.libraryQueryMetaView.datasourceType
-                  )}
+                    }
+                  />
                   {meta.libraryQueryMetaView.name}
                 </QueryLabelWrapper>
               ),

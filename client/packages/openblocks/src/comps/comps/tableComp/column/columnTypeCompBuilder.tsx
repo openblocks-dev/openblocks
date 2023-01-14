@@ -3,7 +3,7 @@ import {
   EditableCell,
   EditViewFn,
   TABLE_EDITABLE_SWITCH_ON,
-} from "components/EditableCell";
+} from "components/table/EditableCell";
 import { stateComp } from "comps/generators";
 import {
   MultiCompBuilder,

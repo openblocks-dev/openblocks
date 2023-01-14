@@ -1,4 +1,9 @@
-import { depsConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
+import {
+  CommonNameConfig,
+  depsConfig,
+  NameConfig,
+  withExposingConfigs,
+} from "comps/generators/withExposing";
 import { Section, sectionNames } from "openblocks-design";
 import { genQueryId } from "comps/utils/idGenerator";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
@@ -35,17 +40,22 @@ import {
 import { TriContainer } from "../triContainerComp/triContainer";
 import { traverseCompTree } from "../containerBase/utils";
 import { IForm } from "./formDataConstants";
-import { message } from "antd";
+import { message, Spin } from "antd";
 import { BoolControl } from "comps/controls/boolControl";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { BoolCodeControl, JSONObjectControl } from "comps/controls/codeControl";
 import { JSONObject } from "util/jsonTypes";
 import { EvalParamType } from "comps/controls/actionSelector/executeCompTypes";
 import { LayoutItem } from "layout/utils";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import {
+  disabledPropertyView,
+  hiddenPropertyView,
+  loadingPropertyView,
+} from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import log from "loglevel";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
+import { LoadingOutlined } from "@ant-design/icons";
 
 const eventOptions = [submitEvent] as const;
 
@@ -54,6 +64,7 @@ const childrenMap = {
   resetAfterSubmit: BoolControl,
   disabled: BoolCodeControl,
   disableSubmit: BoolCodeControl,
+  loading: BoolCodeControl,
   onEvent: eventHandlerControl(eventOptions),
 };
 
@@ -154,14 +165,18 @@ const BodyPlaceholder = (props: FormProps) => {
   );
 };
 
+const loadingIcon = <LoadingOutlined spin />;
+
 const FormBaseComp = (function () {
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
     return (
       <DisabledContext.Provider value={props.disabled}>
-        <TriContainer
-          {...props}
-          hintPlaceholder={<BodyPlaceholder {...props} dispatch={dispatch} />}
-        />
+        <Spin indicator={loadingIcon} spinning={props.loading}>
+          <TriContainer
+            {...props}
+            hintPlaceholder={<BodyPlaceholder {...props} dispatch={dispatch} />}
+          />
+        </Spin>
       </DisabledContext.Provider>
     );
   })
@@ -176,6 +191,7 @@ const FormBaseComp = (function () {
             {children.onEvent.getPropertyView()}
             {disabledPropertyView(children)}
             {children.disableSubmit.propertyView({ label: trans("formComp.disableSubmit") })}
+            {loadingPropertyView(children)}
           </Section>
           <Section name={sectionNames.layout}>
             {children.container.getPropertyView()}
@@ -354,6 +370,8 @@ FormTmpComp = withMethodExposing(FormTmpComp, [
 ]);
 
 export const FormComp = withExposingConfigs(FormTmpComp, [
+  ...CommonNameConfig,
+  new NameConfig("loading", trans("formComp.loadingDesc")),
   depsConfig({
     name: "data",
     desc: trans("formComp.dataDesc"),
@@ -384,7 +402,6 @@ export const FormComp = withExposingConfigs(FormTmpComp, [
       return false;
     },
   }),
-  NameConfigHidden,
 ]);
 
 export function defaultFormData(compName: string, nameGenerator: NameGenerator): FormDataType {
