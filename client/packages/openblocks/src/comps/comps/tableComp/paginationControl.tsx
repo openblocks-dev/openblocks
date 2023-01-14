@@ -1,7 +1,7 @@
 import { ArrayNumberControl, NumberControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { MultiCompBuilder } from "comps/generators/multi";
-import { stateComp, withDefault } from "comps/generators";
+import { stateComp, valueComp, withDefault } from "comps/generators";
 import { changeChildAction } from "openblocks-core";
 import { ConstructorToNodeType } from "openblocks-core";
 import { trans } from "i18n";
@@ -26,7 +26,7 @@ export const PaginationControl = (function () {
     showQuickJumper: BoolControl,
     showSizeChanger: BoolControl,
     hideOnSinglePage: BoolControl,
-    changeablePageSize: NumberControl,
+    changeablePageSize: valueComp<number>(5),
     pageSize: NumberControl,
     total: NumberControl,
     pageNo: stateComp<number>(1),
@@ -47,8 +47,10 @@ export const PaginationControl = (function () {
       current: props.pageNo,
       pageSizeOptions: props.pageSizeOptions,
       onChange: (page: number, pageSize: number) => {
-        props.showSizeChanger && dispatch(changeChildAction("changeablePageSize", pageSize));
-        dispatch(changeChildAction("pageNo", page));
+        props.showSizeChanger &&
+          pageSize !== props.changeablePageSize &&
+          dispatch(changeChildAction("changeablePageSize", pageSize));
+        page !== props.pageNo && dispatch(changeChildAction("pageNo", page));
       },
     };
   })

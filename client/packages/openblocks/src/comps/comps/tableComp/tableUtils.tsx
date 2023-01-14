@@ -115,7 +115,7 @@ export function getDisplayData(
     pagination.showSizeChanger.value,
     pagination.pageSize.value,
     pagination.pageSizeOptions.value,
-    pagination.changeablePageSize.value
+    pagination.changeablePageSize
   );
   const toTransDataList: Array<JSONObject> = [];
   dataList.forEach((data, index: number) => {
@@ -195,13 +195,16 @@ function getUniqueStatus(column: RawColumnType) {
     : undefined;
   const uniqueStatus =
     column.editable && compType === "badgeStatus"
-      ? _.uniqBy(Object.values(column.render).map((comp) => {
-        const value = comp.getView().value.split(' ')
-        return {
-          status: value[0],
-          text: value[1],
-        }
-      }), 'text')
+      ? _.uniqBy(
+          Object.values(column.render).map((comp) => {
+            const value = comp.getView().value.split(" ");
+            return {
+              status: value[0],
+              text: value[1],
+            };
+          }),
+          "text"
+        )
       : [];
   return uniqueStatus;
 }
