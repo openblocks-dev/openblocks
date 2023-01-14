@@ -1,6 +1,6 @@
 {
   "name": "openblocks-core",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "type": "module",
   "scripts": {
     "start": "rollup -c rollup.config.js --watch",
@@ -26,11 +26,13 @@
     "openblocks",
     "components"
   ],
-  "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
-    "lib/index.js",
-    "lib/index.d.ts"
+    "lib"
   ],
-  "author": "ioc"
+  "exports": {
+    "import": "./lib/index.js",
+    "require": "./lib/index.cjs"
+  },
+  "author": "Openblocks"
 }

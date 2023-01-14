@@ -152,6 +152,7 @@ const Wrapper = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 6px;
+
   img {
     margin-right: -6px;
   }
@@ -187,7 +188,7 @@ export const SelectUIView = (
     placeholder={props.placeholder}
     value={props.value}
     showSearch={props.showSearch}
-    filterOption={(input, option) => option?.label.includes(input)}
+    filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase())}
     dropdownRender={(originNode: ReactNode) => (
       <DropdownStyled $style={props.style as MultiSelectStyleType}>{originNode}</DropdownStyled>
     )}

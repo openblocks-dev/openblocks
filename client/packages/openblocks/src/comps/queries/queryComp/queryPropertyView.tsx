@@ -34,6 +34,7 @@ import {
   QUICK_REST_API_ID,
 } from "../../../constants/datasourceConstants";
 import { OLD_OPENBLOCKS_DATASOURCE } from "@openblocks-ee/constants/datasourceConstants";
+import { SUPPORT_GUI_SQL_QUERY } from "../sqlQuery/SQLQuery";
 
 export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> }) {
   const { comp } = props;
@@ -294,7 +295,7 @@ export const QueryGeneralPropertyView = (props: {
               }}
               status={datasourceStatus}
             />
-            {children.compType.getView() === "mysql" && (
+            {SUPPORT_GUI_SQL_QUERY.includes(children.compType.getView()) && (
               <div style={{ width: "104px", marginLeft: "8px", flexShrink: 0 }}>
                 {/* query comp should not aware of specific queryType  */}
                 {(children.comp.children as any).mode.propertyView({})}
@@ -350,7 +351,9 @@ export const QueryGeneralPropertyView = (props: {
       {placement === "editor" && (
         <QuerySectionWrapper>
           <QueryConfigWrapper>
-            <QueryConfigLabel>{trans("eventHandler.eventHandlers")}</QueryConfigLabel>
+            <QueryConfigLabel labelHeight="auto">
+              {trans("eventHandler.eventHandlers")}
+            </QueryConfigLabel>
             {children.onEvent.getPropertyView()}
           </QueryConfigWrapper>
         </QuerySectionWrapper>

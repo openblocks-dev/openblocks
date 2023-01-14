@@ -118,7 +118,7 @@ function TableView(props: {
         return;
       }
       compChildren.onEvent.getView()(eventName);
-      compChildren.columns.clearChangeSet();
+      compChildren.columns.dispatchClearChangeSet();
     },
     [viewMode, compChildren.onEvent, compChildren.columns]
   );
@@ -466,7 +466,7 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
         // const title: string = column.title;
         const render = column.render; // {comp, map: [0].comp.changeValue, length}
         _.forEach(render.map, (value, key) => {
-          const changeValue = value.comp?.chagneValue;
+          const changeValue = value.comp?.changeValue;
           if (changeValue) {
             if (!record[key]) record[key] = {};
             record[key][dataIndex] = changeValue;

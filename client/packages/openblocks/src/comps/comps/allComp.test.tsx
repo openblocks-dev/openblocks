@@ -4,7 +4,9 @@ import { ColumnComp, RenderComp } from "comps/comps/tableComp/column/tableColumn
 import { InputComp } from "comps/comps/textInputComp/inputComp";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
+import { IconControl } from "comps/controls/iconControl";
 import { LabelControl } from "comps/controls/labelControl";
+import { RefControl } from "comps/controls/refControl";
 import { MultiCompBuilder, valueComp } from "comps/generators";
 import { isExposingMethodComp } from "comps/generators/withMethodExposing";
 import { QueryComp } from "comps/queries";
@@ -41,6 +43,8 @@ const TestComp = (function () {
 
 const COMPS_MAP = {
   checkboxBasic: CheckboxComp,
+  icon: IconControl,
+  ref: RefControl,
   bool: BoolControl,
   label: LabelControl,
   string: StringControl,
@@ -143,5 +147,20 @@ test("comp exposing method duplicate name", () => {
       });
     const allMethodName = methods.flatMap((m) => m.map((methodConfig) => methodConfig.name));
     expect(allMethodName.length).toEqual(_.uniq(allMethodName).length);
+  });
+});
+
+test("changeDispatch shouldn't drop the node() cache", () => {
+  Object.values(COMPS_MAP).forEach((Comp) => {
+    let comp = new Comp({
+      dispatch: (action) => {
+        comp = evalAndReduce(comp.reduce(action));
+      },
+    });
+    comp.node();
+    let newComp = comp.changeDispatch((action) => {
+      newComp = evalAndReduce(newComp.reduce(action));
+    });
+    expect(comp.node() === newComp.node()).toBeTruthy();
   });
 });

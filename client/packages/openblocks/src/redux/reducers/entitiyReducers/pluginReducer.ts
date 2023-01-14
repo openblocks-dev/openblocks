@@ -4,19 +4,22 @@ import { DataSourceTypeInfo } from "api/datasourceApi";
 
 export interface PluginDataState {
   data: DataSourceTypeInfo[];
-  // response?: GenericApiResponse<Plugin[]>;
+  isDataSourceTypesFetched: boolean;
 }
 
 const initialState: PluginDataState = {
   data: [],
+  isDataSourceTypesFetched: false,
 };
+
 const pluginReducer = createReducer(initialState, {
-  [ReduxActionTypes.FETCH_PLUGINS_SUCCESS]: (
+  [ReduxActionTypes.FETCH_DATA_SOURCE_TYPES_SUCCESS]: (
     state: PluginDataState,
     action: ReduxAction<DataSourceTypeInfo[]>
   ): PluginDataState => {
     return {
       data: action.payload,
+      isDataSourceTypesFetched: true,
     };
   },
 });

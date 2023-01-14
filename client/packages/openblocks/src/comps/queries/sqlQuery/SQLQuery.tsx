@@ -19,6 +19,7 @@ import { TableNameComp } from "./tableNameComp";
 import { ChangeSetComp, ChangeSetTypeDropdown } from "./changeSetComp";
 import { FilterComp } from "./FilterComp";
 import { trans } from "i18n";
+import { ResourceType } from "@openblocks-ee/constants/queryConstants";
 
 const changeSetParams = {
   styleName: "medium" as const,
@@ -233,7 +234,7 @@ const SQLQueryPropertyView = (props: { children: ChildrenType; dispatch: Dispatc
 export const SQLQuery = class extends SQLTmpQuery {
   isWrite(action: CompAction): boolean {
     return (
-      (action.path.includes("sql") && regexp.test(this.children.sql.toJsonValue())) ||
+      (action.path.includes("sql") && regexp.test(this.children.sql.toJsonValue() as string)) ||
       (action.path.includes("mode") && (action as any).value === "GUI")
     );
   }
@@ -256,3 +257,5 @@ export const SQLQuery = class extends SQLTmpQuery {
     return <SQLQueryPropertyView children={this.children} dispatch={this.dispatch} />;
   }
 };
+
+export const SUPPORT_GUI_SQL_QUERY: ResourceType[] = ["mysql", "postgres"];

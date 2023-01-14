@@ -49,13 +49,13 @@ import {
   BottomResListComp,
   BottomResTypeEnum,
 } from "types/bottomRes";
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { QueryContext } from "../../util/context/QueryContext";
 import { perfMark, perfMeasure } from "util/perfUtils";
 import { trans } from "i18n";
 import { undoKey } from "util/keyUtils";
 import { manualTriggerResource, QueryMap } from "@openblocks-ee/constants/queryConstants";
 import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "../../constants/queryConstants";
+import DataSourceIcon from "components/DataSourceIcon";
 
 export type QueryResultExtra = Omit<
   QueryExecuteResponse,
@@ -450,7 +450,8 @@ QueryCompTmp = class extends QueryCompTmp implements BottomResComp {
   }
 
   icon(): ReactNode {
-    return getBottomResIcon(this.children.compType.getView());
+    const type = this.children.compType.getView();
+    return <DataSourceIcon dataSourceType={type} />;
   }
 
   order(): number {

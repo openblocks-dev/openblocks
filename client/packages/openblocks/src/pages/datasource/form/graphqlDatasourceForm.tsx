@@ -10,8 +10,10 @@ import {
   ValueFromOption,
 } from "openblocks-design";
 import { trans } from "i18n";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
+  AdvancedSettingFormSectionLabel,
+  CertValidationFormItem,
   DatasourceNameFormInputItem,
   encryptedPlaceholder,
   GeneralSettingFormSectionLabel,
@@ -135,6 +137,11 @@ export const GraphqlDatasourceForm = (props: DatasourceFormProps) => {
           labelWidth={142}
         />
         {showAuthItem(authType as AuthType)}
+      </FormSection>
+
+      <FormSection size={props.size}>
+        <AdvancedSettingFormSectionLabel />
+        <CertValidationFormItem datasource={props.datasource} />
       </FormSection>
     </DatasourceForm>
   );

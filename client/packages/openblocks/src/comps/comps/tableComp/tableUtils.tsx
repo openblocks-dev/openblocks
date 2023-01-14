@@ -189,6 +189,23 @@ function getUniqueTags(column: RawColumnType) {
   return uniqueTags;
 }
 
+function getUniqueStatus(column: RawColumnType) {
+  const compType = column.render[0]
+    ? column.render[0].getComp().children.compType.getView()
+    : undefined;
+  const uniqueStatus =
+    column.editable && compType === "badgeStatus"
+      ? _.uniqBy(Object.values(column.render).map((comp) => {
+        const value = comp.getView().value.split(' ')
+        return {
+          status: value[0],
+          text: value[1],
+        }
+      }), 'text')
+      : [];
+  return uniqueStatus;
+}
+
 /**
  * convert column in raw format into antd format
  */
@@ -235,6 +252,7 @@ export function columnsToAntdFormat(
       return [];
     }
     const tags = getUniqueTags(column); // warn: this costs O(n) time
+    const status = getUniqueStatus(column); // warn: this costs O(n) time
     const title = renderTitle({ title: column.title, editable: column.editable });
     return {
       title: title,
@@ -247,7 +265,7 @@ export function columnsToAntdFormat(
         return column.render[record.index]
           .setParams({ currentIndex: index })
           .getView()
-          .view({ editable: column.editable, size, candidateTags: tags });
+          .view({ editable: column.editable, size, candidateTags: tags, candidateStatus: status });
       },
       ...(column.sortable
         ? {

@@ -29,12 +29,22 @@ export async function getJsonFormatter() {
   return (text: string) => prettier.format(text, { parser: "json", plugins: [parserBabel] }).trim();
 }
 
+function formatJsSegment(formatter: (text: string) => string, script: string) {
+  try {
+    return formatter(script);
+  } catch (e1) {
+    try {
+      const s = formatter(`return (${script}\n);`); // same as evalScript()
+      return s.startsWith("return ") ? s.slice(7) : s;
+    } catch (e2) {
+      throw e1;
+    }
+  }
+}
+
 async function getJsSegmentFormatter() {
   const formatter = await getJavascriptFormatter();
-  return (segment: string) => {
-    const formatted = formatter(segment.slice(2, -2));
-    return "{{" + formatted + "}}";
-  };
+  return (segment: string) => "{{" + formatJsSegment(formatter, segment.slice(2, -2)) + "}}";
 }
 
 export async function formatStringWithJsSnippets(text: string): Promise<string> {

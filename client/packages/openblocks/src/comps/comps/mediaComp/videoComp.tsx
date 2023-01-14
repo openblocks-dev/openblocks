@@ -35,7 +35,7 @@ const ContainerVideo = (props: RecordConstructorToView<typeof childrenMap>) => {
             forceVideo: true,
           },
         }}
-        light={props.poster.value}
+        light={props.autoPlay ? "" : props.poster.value}
         ref={videoRef}
         url={props.src.value}
         onPlay={() => props.onEvent("play")}

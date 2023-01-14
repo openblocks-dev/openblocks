@@ -1,8 +1,12 @@
 import { ADMIN_ROLE, OrgRoleInfo, OrgUser, TacoRoles } from "constants/orgConstants";
 import { User } from "constants/userConstants";
-import { ArrowIcon, CustomModal, CustomSelect } from "openblocks-design";
-import { MembersIcon } from "openblocks-design";
-import { SuperUserIcon } from "openblocks-design";
+import {
+  ArrowIcon,
+  CustomModal,
+  CustomSelect,
+  MembersIcon,
+  SuperUserIcon,
+} from "openblocks-design";
 import { trans } from "i18n";
 import InviteDialog from "pages/common/inviteDialog";
 import ProfileImage from "pages/common/profileImage";
@@ -28,13 +32,11 @@ import {
   RoleSelectSubTitle,
   RoleSelectTitle,
   TableStyled,
+  UserDetailPopup,
   UserTableCellWrapper,
 } from "./styledComponents";
 import history from "util/history";
 import { PERMISSION_SETTING } from "constants/routesURL";
-import { HomeResInfo } from "util/homeResUtils";
-import { recycleApplication } from "redux/reduxActions/applicationActions";
-import { message } from "antd";
 import { isSaasMode } from "util/envUtils";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 
@@ -196,6 +198,9 @@ function OrgUsersPermission(props: UsersPermissionProp) {
                       {trans("memberSettings.moveOutOrg")}
                     </span>
                   )
+                )}
+                {currentOrgAdmin(currentUser) && (
+                  <UserDetailPopup userId={record.userId} title={record.name} />
                 )}
               </div>
             );

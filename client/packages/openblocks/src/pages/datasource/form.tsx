@@ -3,20 +3,29 @@ import {
   FormInputItem,
   FormInputPasswordItem,
   FormSectionLabel,
+  FormSelectItem,
+  FormTextAreaItem,
 } from "openblocks-design";
 import { trans } from "i18n";
 import { toNumber } from "lodash";
 import { useHostCheck } from "./form/useHostCheck";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import React, { useState } from "react";
+import { HttpConfig, SSLCertVerificationEnum } from "../../api/datasourceApi";
 
 export const GeneralSettingFormSectionLabel = () => {
   return <FormSectionLabel>{trans("query.generalSetting")}</FormSectionLabel>;
+};
+
+export const AdvancedSettingFormSectionLabel = () => {
+  return <FormSectionLabel>{trans("query.advancedSetting")}</FormSectionLabel>;
 };
 
 interface PortProps {
   initialValue: string;
   port: string | undefined;
 }
+
 export const PortFormInputItem = (props: PortProps) => {
   return (
     <FormInputItem
@@ -42,6 +51,7 @@ interface DatasourceNameProps {
   initialValue: string | undefined;
   labelWidth?: number;
 }
+
 export const DatasourceNameFormInputItem = (props: DatasourceNameProps) => {
   return (
     <FormInputItem
@@ -55,9 +65,11 @@ export const DatasourceNameFormInputItem = (props: DatasourceNameProps) => {
     />
   );
 };
+
 interface HostProps {
   initialValue: string | undefined;
 }
+
 export const HostFormInputItem = (props: HostProps) => {
   const hostRule = useHostCheck();
   return (
@@ -98,7 +110,8 @@ export const PasswordFormInputItem = (props: PasswordProps) => {
     <FormInputPasswordItem
       name={"password"}
       label={trans("query.password")}
-      placeholder={props.datasource ? encryptedPlaceholder : "••••••••••••"}
+      placeholder={props.datasource ? encryptedPlaceholder : ""}
+      {...props}
     />
   );
 };
@@ -131,5 +144,65 @@ export const SSLFormCheckboxItem = (props: SSLProps) => {
       label={trans("query.useSSL")}
       initialValue={props.usingSSl}
     />
+  );
+};
+
+export const CertValidationFormItem = (props: { datasource: Datasource }) => {
+  const datasourceConfig = props.datasource?.datasourceConfig as HttpConfig;
+
+  const [authType, setAuthType] = useState(datasourceConfig?.sslConfig?.sslCertVerificationType);
+
+  return (
+    <>
+      <FormSelectItem
+        name={"sslCertVerificationType"}
+        label={trans("query.sslCertVerificationType")}
+        options={
+          [
+            {
+              label: trans("query.sslCertVerificationTypeDefault"),
+              value: SSLCertVerificationEnum.VERIFY_CA_CERT,
+            },
+            {
+              label: trans("query.sslCertVerificationTypeSelf"),
+              value: SSLCertVerificationEnum.VERIFY_SELF_SIGNED_CERT,
+            },
+            {
+              label: trans("query.sslCertVerificationTypeDisabled"),
+              value: SSLCertVerificationEnum.DISABLED,
+            },
+          ] as const
+        }
+        initialValue={
+          datasourceConfig?.sslConfig?.sslCertVerificationType ??
+          SSLCertVerificationEnum.VERIFY_CA_CERT
+        }
+        afterChange={(value) => setAuthType(value)}
+        labelWidth={142}
+      />
+      {authType === SSLCertVerificationEnum.VERIFY_SELF_SIGNED_CERT && (
+        <FormTextAreaItem
+          name={"selfSignedCert"}
+          label={trans("query.selfSignedCert")}
+          required={true}
+          placeholder={
+            datasourceConfig?.sslConfig?.sslCertVerificationType ===
+            SSLCertVerificationEnum.VERIFY_SELF_SIGNED_CERT
+              ? trans("query.encryptedServer")
+              : "-----BEGIN CERTIFICATE-----\n" + "YOUR CERTIFICATE\n" + "-----END CERTIFICATE-----"
+          }
+          rules={[
+            {
+              required:
+                datasourceConfig?.sslConfig?.sslCertVerificationType !==
+                SSLCertVerificationEnum.VERIFY_SELF_SIGNED_CERT,
+              message: trans("query.selfSignedCertRequireMsg"),
+            },
+          ]}
+          labelWidth={142}
+          autoSize={{ minRows: 2, maxRows: 6 }}
+        />
+      )}
+    </>
   );
 };

@@ -274,7 +274,7 @@ export const tableFilterOperatorMap: Record<
       if (isNil(data)) {
         return false;
       }
-      return data.toString().includes(filterValue);
+      return data.toString().toLowerCase().includes(filterValue.toLowerCase());
     },
   },
   notContain: {
@@ -283,7 +283,7 @@ export const tableFilterOperatorMap: Record<
       if (isNil(data)) {
         return true;
       }
-      return !data.toString().includes(filterValue);
+      return !data.toString().toLowerCase().includes(filterValue.toLowerCase());
     },
   },
   equal: {

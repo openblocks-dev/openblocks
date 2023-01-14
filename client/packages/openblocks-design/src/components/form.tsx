@@ -1,4 +1,4 @@
-import { Form, Input, InputProps, Radio, Select } from "antd";
+import { Form, Input, InputProps, Radio, Select, InputNumber, InputNumberProps } from "antd";
 import { ReactNode } from "react";
 import { CheckBox } from "./checkBox";
 import { CustomSelect } from "./customSelect";
@@ -6,11 +6,12 @@ import { EllipsisTextCss, labelCss } from "./Label";
 import { ToolTipLabel } from "./toolTip";
 import styled from "styled-components";
 import { ReactComponent as Star } from "icons/icon-star.svg";
-import { FormItemProps } from "antd/lib/form/FormItem";
+import { FormItemProps as AntdFormItemProps } from "antd/lib/form/FormItem";
 import _ from "lodash";
 import { KeyValueList } from "./keyValueList";
 import { DropdownIcon, OptionsType, ValueFromOption } from "./Dropdown";
 import { RadioGroupProps } from "antd/lib/radio/interface";
+import { TextAreaProps } from "antd/lib/input";
 
 export type FormSize = "middle" | "small";
 
@@ -38,10 +39,20 @@ const FormInput = styled(Input)`
   border-radius: 4px;
 `;
 
+const FormNumberInput = styled(InputNumber)`
+  background: #ffffff;
+  border: 1px solid #d7d9e0;
+  border-radius: 4px;
+`;
+
 const FormInputPassword = styled(Input)`
   background: #ffffff;
   border: 1px solid #d7d9e0;
   border-radius: 4px;
+`;
+
+const FormTextArea = styled(Input.TextArea)`
+  background: #ffffff;
 `;
 
 const FormCheckbox = styled(CheckBox)`
@@ -110,7 +121,7 @@ export const FormSection = styled.div<{ size?: FormSize }>`
   }
 `;
 
-interface FormProps extends FormItemProps {
+export interface FormItemProps extends AntdFormItemProps {
   disabled?: boolean;
   label?: string;
   required?: boolean;
@@ -119,14 +130,41 @@ interface FormProps extends FormItemProps {
   labelWidth?: number;
 }
 
-const FormItemLabel = (props: Partial<FormProps>) => (
-  <LabelDiv width={props.labelWidth}>
-    <StartIcon style={{ visibility: props.required ? "visible" : "hidden" }} />
-    <ToolTipLabel title={props.help} label={props.label} labelStyle={{ fontSize: "14px" }} />
-  </LabelDiv>
-);
+const FormItemLabel = (props: Partial<FormItemProps>) => {
+  const isRequired =
+    props.required || !!props.rules?.find((i) => typeof i === "object" && i.required);
+  return (
+    <LabelDiv width={props.labelWidth}>
+      <StartIcon style={{ visibility: isRequired ? "visible" : "hidden" }} />
+      <ToolTipLabel title={props.help} label={props.label} labelStyle={{ fontSize: "14px" }} />
+    </LabelDiv>
+  );
+};
 
-export const FormInputItem = (props: FormProps & InputProps) => {
+export const FormNumberInputItem = (props: FormItemProps & InputNumberProps) => {
+  const { labelWidth, initialValue, ...restProps } = props;
+  return (
+    <FormItemContain className={"taco-form-item-wrapper"}>
+      {props.label && <FormItemLabel {...props} />}
+      <FormItem
+        name={props.name}
+        rules={props.rules}
+        initialValue={props.initialValue}
+        validateFirst={true}
+        hasFeedback={true}
+      >
+        <FormNumberInput
+          {...restProps}
+          autoComplete={"off"}
+          disabled={props.disabled}
+          placeholder={props.placeholder}
+        />
+      </FormItem>
+    </FormItemContain>
+  );
+};
+
+export const FormInputItem = (props: FormItemProps & InputProps) => {
   const { labelWidth, initialValue, ...restProps } = props;
   return (
     <FormItemContain className={"taco-form-item-wrapper"}>
@@ -149,7 +187,7 @@ export const FormInputItem = (props: FormProps & InputProps) => {
   );
 };
 
-export const FormInputPasswordItem = (props: FormProps) => (
+export const FormInputPasswordItem = (props: FormItemProps) => (
   <FormItemContain className={"taco-form-item-wrapper"}>
     <FormItemLabel {...props} />
     <FormItem
@@ -163,7 +201,27 @@ export const FormInputPasswordItem = (props: FormProps) => (
         type={"password"}
         autoComplete={"one-time-code"}
         disabled={props.disabled}
+        placeholder={props.placeholder || "••••••••••••"}
+      />
+    </FormItem>
+  </FormItemContain>
+);
+
+export const FormTextAreaItem = (props: FormItemProps & TextAreaProps) => (
+  <FormItemContain className={"taco-form-item-wrapper"} style={{ alignItems: "center" }}>
+    <FormItemLabel {...props} />
+    <FormItem
+      rules={props.rules}
+      name={props.name}
+      initialValue={props.initialValue}
+      validateFirst={true}
+      hasFeedback={true}
+    >
+      <FormTextArea
+        autoComplete={"off"}
+        disabled={props.disabled}
         placeholder={props.placeholder}
+        autoSize={props.autoSize}
       />
     </FormItem>
   </FormItemContain>
@@ -183,7 +241,7 @@ const CustomCheckbox = (props: any) => {
   );
 };
 
-export const FormCheckboxItem = (props: FormProps) => {
+export const FormCheckboxItem = (props: FormItemProps) => {
   return (
     <FormItemContain className={"taco-form-item-wrapper"}>
       <LabelDiv width={props.labelWidth} />
@@ -199,7 +257,7 @@ export const FormCheckboxItem = (props: FormProps) => {
   );
 };
 
-export const FormRadioItem = (props: FormProps & RadioGroupProps) => {
+export const FormRadioItem = (props: FormItemProps & RadioGroupProps) => {
   return (
     <FormItemContain className={"taco-form-item-wrapper"}>
       <FormItemLabel {...props} />
@@ -260,7 +318,7 @@ const FormSelect = (props: any) => {
         placeholder={props.placeholder}
         dropdownRender={props.dropdownRender}
       >
-        {props.options.map((item: any) => {
+        {props.options?.map((item: any) => {
           return (
             <Select.Option key={item.value} value={item.value}>
               <SelectLabel>{item.label}</SelectLabel>
@@ -272,12 +330,12 @@ const FormSelect = (props: any) => {
   );
 };
 
-export function FormSelectItem<T extends OptionsType>(
-  props: {
-    options: T;
-    afterChange?: (value: ValueFromOption<T>) => void;
-  } & FormProps
-) {
+export interface FormSelectItemProps<T extends OptionsType> extends FormItemProps {
+  options: T;
+  afterChange?: (value: ValueFromOption<T>) => void;
+}
+
+export function FormSelectItem<T extends OptionsType>(props: FormSelectItemProps<T>) {
   return (
     <FormItemContain className={"taco-form-item-wrapper"}>
       {props.label && <FormItemLabel {...props} />}
@@ -340,7 +398,7 @@ const FormKeyValueList = (props: any) => {
     />
   );
 };
-export const FormKeyValueItem = (props: FormProps) => (
+export const FormKeyValueItem = (props: FormItemProps) => (
   <FormItemContain className={"taco-form-item-wrapper"}>
     <FormItemLabel {...props} />
     <FormItem

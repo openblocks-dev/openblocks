@@ -6,25 +6,38 @@ import {
   apiSuccessResponseInterceptor,
 } from "api/apiUtils";
 import { API_REQUEST_HEADERS } from "constants/apiConstants";
+import { sdkConfig } from "constants/sdkConfig";
+import _ from "lodash";
 
-const apiRequestConfig: AxiosRequestConfig = {
-  baseURL: `${SERVER_HOST}/api/`,
-  timeout: REQUEST_TIMEOUT_MS,
-  headers: API_REQUEST_HEADERS,
-  withCredentials: true,
-};
+let axiosIns: AxiosInstance | null = null;
 
-const axiosInstance: AxiosInstance = axios.create(apiRequestConfig);
+function getAxiosInstance() {
+  if (axiosIns) {
+    return axiosIns;
+  }
 
-axiosInstance.interceptors.request.use(apiRequestInterceptor);
-axiosInstance.interceptors.response.use(
-  apiSuccessResponseInterceptor,
-  apiFailureResponseInterceptor
-);
+  const apiRequestConfig: AxiosRequestConfig = {
+    baseURL: `${_.trimEnd(sdkConfig.baseURL || SERVER_HOST, "/")}/api/`,
+    timeout: REQUEST_TIMEOUT_MS,
+    headers: API_REQUEST_HEADERS,
+    withCredentials: true,
+  };
+
+  const axiosInstance: AxiosInstance = axios.create(apiRequestConfig);
+  axiosInstance.interceptors.request.use(apiRequestInterceptor);
+  axiosInstance.interceptors.response.use(
+    apiSuccessResponseInterceptor,
+    apiFailureResponseInterceptor
+  );
+
+  axiosIns = axiosInstance;
+
+  return axiosIns;
+}
 
 class Api {
   static get(url: string, queryParams?: any, config: Partial<AxiosRequestConfig> = {}) {
-    return axiosInstance.request({
+    return getAxiosInstance().request({
       url,
       method: "GET",
       params: queryParams,
@@ -38,7 +51,7 @@ class Api {
     queryParams?: any,
     config: Partial<AxiosRequestConfig> = {}
   ) {
-    return axiosInstance.request({
+    return getAxiosInstance().request({
       method: "POST",
       url,
       data: body,
@@ -48,7 +61,7 @@ class Api {
   }
 
   static put(url: string, body?: any, queryParams?: any, config: Partial<AxiosRequestConfig> = {}) {
-    return axiosInstance.request({
+    return getAxiosInstance().request({
       method: "PUT",
       url,
       params: queryParams,
@@ -63,7 +76,7 @@ class Api {
     queryParams?: any,
     config: Partial<AxiosRequestConfig> = {}
   ) {
-    return axiosInstance.request({
+    return getAxiosInstance().request({
       method: "PATCH",
       url,
       data: body,
@@ -73,7 +86,7 @@ class Api {
   }
 
   static delete(url: string, queryParams?: any, config: Partial<AxiosRequestConfig> = {}) {
-    return axiosInstance.request({
+    return getAxiosInstance().request({
       method: "DELETE",
       url,
       params: queryParams,

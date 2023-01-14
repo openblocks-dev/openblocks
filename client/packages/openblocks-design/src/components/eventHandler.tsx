@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { PointIcon } from "icons";
 import { EllipsisTextCss, labelCss } from "./Label";
-import { TacoButton } from "./button";
+import { LinkButton, TacoButton } from "./button";
 import { BluePlusIcon } from "icons";
 import { ReactNode } from "react";
 import { ActiveTextColor, GreyTextColor } from "constants/style";
@@ -13,38 +13,6 @@ const InlineEventFormWrapper = styled.div`
   gap: 8px;
 `;
 
-const AddIcon = styled(BluePlusIcon)`
-  height: 8px;
-  width: 8px;
-  margin-right: 4px;
-`;
-const AddBtn = styled(TacoButton)`
-  height: 13px;
-  padding: 0;
-  color: #4965f2;
-  border: none;
-  display: flex;
-  align-items: center;
-  font-size: 13px;
-  line-height: 13px;
-  box-shadow: none;
-
-  :hover {
-    color: #315efb;
-    border: none;
-    background-color: #ffffff;
-  }
-
-  :focus {
-    color: #315efb;
-    border: none;
-    background-color: #ffffff;
-  }
-
-  &:hover ${AddIcon} g {
-    stroke: #315efb;
-  }
-`;
 const attrs = () => ({
   tabIndex: 0,
 });
@@ -152,17 +120,13 @@ const AddLine = (props: { title: ReactNode; add: () => void }) => {
   return (
     <TitleDiv>
       <TitleSpan>{props.title}</TitleSpan>
-      <AddBtn onClick={props.add}>
-        <AddIcon />
-        {trans("addItem")}
-      </AddBtn>
+      <LinkButton icon={<BluePlusIcon />} text={trans("addItem")} onClick={props.add} />
     </TitleDiv>
   );
 };
 export {
   Icon,
-  AddBtn,
-  AddIcon as AddEventIcon,
+  BluePlusIcon as AddEventIcon,
   EventDiv,
   EventContent,
   EventTitle,

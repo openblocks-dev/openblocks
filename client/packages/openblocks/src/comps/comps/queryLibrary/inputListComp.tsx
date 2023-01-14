@@ -13,7 +13,7 @@ import {
   TacoButton,
 } from "openblocks-design";
 import styled from "styled-components";
-import { Fragment, useContext, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { QueryLibraryContext } from "../../../util/context/QueryLibraryContext";
 import { trans } from "i18n";
 
@@ -151,6 +151,10 @@ const InputsWrapper = styled.div`
 export const InputListComp = withPropertyViewFn(list(InputListItemComp), (comp) => {
   const queryLibraryState = useContext(QueryLibraryContext);
   const [newIdx, setNewIdx] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    setNewIdx(undefined);
+  }, [comp]);
 
   const handleAdd = () => {
     comp.dispatch(

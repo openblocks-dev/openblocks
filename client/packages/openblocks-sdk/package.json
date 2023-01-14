@@ -1,11 +1,12 @@
 {
   "name": "openblocks-sdk",
-  "version": "0.0.28",
+  "version": "0.0.30",
   "type": "module",
   "files": [
     "src",
     "dist",
     "index.d.ts",
+    "dataSource.d.ts",
     "tsconfig.json"
   ],
   "main": "./dist/openblocks-sdk.js",
@@ -14,6 +15,9 @@
     ".": {
       "import": "./dist/openblocks-sdk.js",
       "require": "./dist/openblocks-sdk.js"
+    },
+    "./dataSource": {
+      "types": "./dataSource.d.ts"
     },
     "./dist/style.css": {
       "import": "./dist/style.css"

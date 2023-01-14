@@ -12,6 +12,7 @@ import {
 } from "openblocks-core";
 import { CheckBox, Switch, SwitchJsIcon, SwitchWrapper } from "openblocks-design";
 import { ReactNode } from "react";
+import styled from "styled-components";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { BoolCodeControl } from "./codeControl";
 import { ControlParams } from "./controlParams";
@@ -58,6 +59,17 @@ function parseValue(value?: any) {
   return { useCodeEditor, value: useCodeEditor ? value : value ? "true" : "false" };
 }
 
+const Wrapper = styled.div<{ hasLabel: boolean }>`
+  display: flex;
+  flex-direction: ${(props) => (props.hasLabel ? "column" : "row")};
+  height: ${(props) => (props.hasLabel ? "auto" : "32px")};
+  align-items: ${(props) => (props.hasLabel ? "auto" : "center")};
+`;
+
+const CodeEditorWrapper = styled.div<{ hasLabel: boolean }>`
+  ${(props) => (!props.hasLabel ? "flex: 1" : "")}
+`;
+
 /**
  * BoolControl, support switching to CodeEditor mode
  */
@@ -73,6 +85,10 @@ class BoolControl extends AbstractComp<boolean, DataType, Node<ValueAndMsg<boole
     this.codeControl = new BoolCodeControl({ ...params, value });
   }
 
+  getUnEvaledValue() {
+    return this.useCodeEditor ? this.codeControl.unevaledValue : "";
+  }
+
   getView(): boolean {
     return this.codeControl.getView();
   }
@@ -86,7 +102,7 @@ class BoolControl extends AbstractComp<boolean, DataType, Node<ValueAndMsg<boole
   }
 
   propertyView(params: ControlParams): ReactNode {
-    const jsContent = (
+    const changeModeIcon = (
       <SwitchJsIcon
         checked={this.useCodeEditor}
         onChange={() => {
@@ -94,9 +110,14 @@ class BoolControl extends AbstractComp<boolean, DataType, Node<ValueAndMsg<boole
         }}
       />
     );
+    const hasLabel = !!params.label;
     return (
-      <>
-        <SwitchWrapper label={params.label} tooltip={params.tooltip} lastNode={jsContent}>
+      <Wrapper hasLabel={hasLabel}>
+        <SwitchWrapper
+          label={params.label}
+          tooltip={params.tooltip}
+          lastNode={hasLabel && changeModeIcon}
+        >
           {!this.useCodeEditor && (
             <Switch
               value={this.getView()}
@@ -104,8 +125,19 @@ class BoolControl extends AbstractComp<boolean, DataType, Node<ValueAndMsg<boole
             ></Switch>
           )}
         </SwitchWrapper>
-        {this.useCodeEditor && this.codeControl.codeEditor(params)}
-      </>
+
+        {this.useCodeEditor && (
+          <CodeEditorWrapper hasLabel={hasLabel}>
+            {this.codeControl.codeEditor(params)}
+          </CodeEditorWrapper>
+        )}
+
+        {!hasLabel && (
+          <div style={{ marginLeft: 4, display: "flex", alignItems: "center" }}>
+            {changeModeIcon}
+          </div>
+        )}
+      </Wrapper>
     );
   }
 
@@ -142,12 +174,13 @@ class BoolControl extends AbstractComp<boolean, DataType, Node<ValueAndMsg<boole
     return this.codeControl.nodeWithoutCache();
   }
 
-  changeDispatch(dispatch: DispatchType): this {
-    return setFieldsNoTypeCheck(
+  override changeDispatch(dispatch: DispatchType): this {
+    const result = setFieldsNoTypeCheck(
       super.changeDispatch(dispatch),
       { codeControl: this.codeControl.changeDispatch(dispatch) },
       { keepCacheKeys: ["node"] }
     );
+    return result;
   }
 }
 

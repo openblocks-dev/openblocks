@@ -102,7 +102,7 @@ export function withParamsForMapWithDefault<
       let comp = this.children[CHILD_KEY];
       const params = (this.children.__map__.children[key] as any)?.getParams();
       if (params) {
-        comp = (comp as any).setParams(params);
+        comp = comp.setParams(params);
       }
       return comp.getPropertyView();
     }

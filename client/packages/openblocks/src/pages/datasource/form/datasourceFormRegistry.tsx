@@ -11,9 +11,11 @@ import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 import { sqlDatasourceForm } from "./sqlDatasourceForm";
 import { GraphqlDatasourceForm } from "./graphqlDatasourceForm";
 import { OracleDatasourceForm } from "./oracleDatasourceForm";
+import { DataSourceTypeInfo } from "api/datasourceApi";
 
 export interface DatasourceFormProps {
   form: FormInstance;
+  dataSourceTypeInfo?: DataSourceTypeInfo;
   datasource: Datasource;
   size?: FormSize;
 }

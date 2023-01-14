@@ -4,6 +4,7 @@ import {
   ReduxActionWithCallbacks,
 } from "constants/reduxActionConstants";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import { DatasourceInfo, DataSourceTypeInfo } from "api/datasourceApi";
 
 export type FetchDatasourcePayload = {
   organizationId: string;
@@ -19,16 +20,17 @@ export const fetchDatasource = ({
   };
 };
 
-export const fetchDataSourceByApp = ({
-  applicationId,
-}: {
+export interface FetchDataSourceByAppActionPayload {
   applicationId: string;
-}): EvaluationReduxAction<{
-  applicationId: string;
-}> => {
+  onSuccess?: (dataSources: DatasourceInfo[]) => void;
+}
+
+export const fetchDataSourceByApp = (
+  payload: FetchDataSourceByAppActionPayload
+): EvaluationReduxAction<FetchDataSourceByAppActionPayload> => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCE_BY_APP_INIT,
-    payload: { applicationId },
+    payload,
   };
 };
 
@@ -43,14 +45,17 @@ export const fetchDatasourceStructure = ({
   };
 };
 
-export const fetchDataSourceTypes = ({
-  organizationId,
-}: {
+export interface FetchDataSourceTypesActionPayload {
   organizationId: string;
-}): EvaluationReduxAction<{ organizationId: string }> => {
+  onSuccess?: (dataSourceTypes: DataSourceTypeInfo[]) => void;
+}
+
+export const fetchDataSourceTypes = (
+  params: FetchDataSourceTypesActionPayload
+): EvaluationReduxAction<FetchDataSourceTypesActionPayload> => {
   return {
-    type: ReduxActionTypes.FETCH_PLUGINS_INIT,
-    payload: { organizationId },
+    type: ReduxActionTypes.FETCH_DATA_SOURCE_TYPES,
+    payload: params,
   };
 };
 

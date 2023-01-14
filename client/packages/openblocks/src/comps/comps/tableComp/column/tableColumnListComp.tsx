@@ -4,7 +4,6 @@ import { getReduceContext } from "comps/utils/reduceContext";
 import _ from "lodash";
 import { CompAction, customAction, isMyCustomAction } from "openblocks-core";
 import { JSONObject, JSONValue } from "util/jsonTypes";
-import { getObjectId } from "util/objectUtils";
 
 /**
  * column list
@@ -75,9 +74,9 @@ export class ColumnListComp extends ColumnListTmpComp {
     return changeSet;
   }
 
-  clearChangeSet() {
+  dispatchClearChangeSet() {
     const columns = this.getView();
-    columns.forEach((column) => column.clearChangeSet());
+    columns.forEach((column) => column.dispatchClearChangeSet());
   }
 
   updateRenderData(data: Array<JSONObject>) {
@@ -156,10 +155,4 @@ export class ColumnListComp extends ColumnListTmpComp {
     }
     return actions;
   }
-
-  // node() {
-  //   const rNode = super.node();
-  //   console.info("ColumnListComp node id: ", getObjectId(rNode!), "\nnode: ", rNode);
-  //   return rNode;
-  // }
 }

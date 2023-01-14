@@ -1,4 +1,5 @@
 import { CodeEditorControlParams } from "base/codeEditor/codeEditorTypes";
+import { Comp } from "openblocks-core";
 // import { CodeEditorControlParams } from "../../base/codeEditor/codeEditorTypes";
 import { CSSProperties, ReactNode } from "react";
 
@@ -17,4 +18,10 @@ export interface ControlParams extends CodeEditorControlParams {
   preInputNode?: ReactNode;
   childrenWrapperStyle?: CSSProperties;
   extraChildren?: ReactNode;
+}
+
+export interface ControlType {
+  new (params: any): Comp<any> & {
+    propertyView(props: ControlParams): ReactNode;
+  };
 }

@@ -42,9 +42,7 @@ test("test column render", () => {
   comp = comp.setChild("render", render);
   comp = evalAndReduce(comp);
   const columnOutput = comp.getView();
-  expect(columnOutput.render[0].getView().view({}).props.children.props.normalView).toEqual(
-    "hello"
-  );
+  expect(columnOutput.render[0].getView().view({}).props.normalView).toEqual("hello");
   // FIXME: see what should be output if the input is wrong
   // expect(columnOutput.render()).toEqual("");
   // expect(columnOutput.render(null, "def")).toEqual("");

@@ -1,9 +1,6 @@
 import { GroupRoleInfo, GroupUser, OrgGroup, TacoRoles } from "constants/orgConstants";
 import { User } from "constants/userConstants";
-import { ArrowIcon, CustomSelect } from "openblocks-design";
-import { AddIcon } from "openblocks-design";
-import { PackUpIcon } from "openblocks-design";
-import { SuperUserIcon } from "openblocks-design";
+import { AddIcon, ArrowIcon, CustomSelect, PackUpIcon, SuperUserIcon } from "openblocks-design";
 import { trans } from "i18n";
 import ProfileImage from "pages/common/profileImage";
 import React, { useEffect, useMemo } from "react";
@@ -18,7 +15,7 @@ import {
 import { getUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import { formatTimestamp } from "util/dateTimeUtils";
-import { isGroupAdmin } from "util/permissionUtils";
+import { currentOrgAdmin, isGroupAdmin } from "util/permissionUtils";
 import AddGroupUserDialog from "./addGroupUserDialog";
 import {
   AddMemberButton,
@@ -31,6 +28,7 @@ import {
   RoleSelectSubTitle,
   RoleSelectTitle,
   TableStyled,
+  UserDetailPopup,
   UserTableCellWrapper,
 } from "./styledComponents";
 import history from "util/history";
@@ -191,6 +189,9 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                       {trans("memberSettings.moveOutGroup")}
                     </span>
                   )
+                )}
+                {currentOrgAdmin(currentUser) && (
+                  <UserDetailPopup userId={record.userId} title={record.userName} />
                 )}
               </div>
             );

@@ -10,8 +10,10 @@ import {
   ValueFromOption,
 } from "openblocks-design";
 import { trans } from "i18n";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
+  AdvancedSettingFormSectionLabel,
+  CertValidationFormItem,
   DatasourceNameFormInputItem,
   encryptedPlaceholder,
   GeneralSettingFormSectionLabel,
@@ -36,14 +38,9 @@ export type AuthType = ValueFromOption<typeof AuthTypeOptions>;
 export type HttpOAuthGrantType = ValueFromOption<typeof OAuthGrantTypeOptions>;
 
 const UrlRules: Rule[] = [
-  { required: true, message: trans("query.urlRequiredMessage") },
   {
     pattern: new RegExp("https?:\\/\\/"),
     message: trans("query.httpRequiredMessage"),
-  },
-  {
-    type: "url",
-    message: trans("query.urlErrorMessage"),
   },
 ];
 
@@ -114,7 +111,6 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
         <FormInputItem
           name={"url"}
           label="URL"
-          required={true}
           placeholder={"https://xxx.com"}
           initialValue={datasourceConfig?.url}
           rules={[...UrlRules, hostRule]}
@@ -152,6 +148,11 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
           labelWidth={142}
         />
         {showAuthItem(authType)}
+      </FormSection>
+
+      <FormSection size={props.size}>
+        <AdvancedSettingFormSectionLabel />
+        <CertValidationFormItem datasource={props.datasource} />
       </FormSection>
 
       {/*<KeyValueFormItem label={"Extra body values"} />*/}

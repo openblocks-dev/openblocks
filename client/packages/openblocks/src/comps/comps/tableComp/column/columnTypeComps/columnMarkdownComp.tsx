@@ -1,4 +1,4 @@
-import { TextArea } from "components/TextArea";
+import { Input } from "antd";
 import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,
@@ -39,7 +39,7 @@ export const ColumnMarkdownComp = (function () {
     getBaseValue
   )
     .setEditViewFn((props) => (
-      <TextArea
+      <Input
         defaultValue={props.value}
         autoFocus
         bordered={false}
@@ -48,6 +48,7 @@ export const ColumnMarkdownComp = (function () {
           props.onChange(value);
         }}
         onBlur={props.onChangeEnd}
+        onPressEnter={props.onChangeEnd}
       />
     ))
     .setPropertyViewFn((children) => (

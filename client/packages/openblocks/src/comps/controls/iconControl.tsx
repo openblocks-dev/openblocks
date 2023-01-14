@@ -7,6 +7,7 @@ import {
   customAction,
   Node,
   ValueAndMsg,
+  DispatchType,
 } from "openblocks-core";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import styled from "styled-components";
@@ -302,5 +303,14 @@ export class IconControl extends AbstractComp<ReactNode, string, Node<ValueAndMs
 
   exposingNode() {
     return this.codeControl.exposingNode();
+  }
+
+  override changeDispatch(dispatch: DispatchType): this {
+    const result = setFieldsNoTypeCheck(
+      super.changeDispatch(dispatch),
+      { codeControl: this.codeControl.changeDispatch(dispatch) },
+      { keepCacheKeys: ["node"] }
+    );
+    return result;
   }
 }

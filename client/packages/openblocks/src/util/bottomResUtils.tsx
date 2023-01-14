@@ -48,9 +48,23 @@ export const LargeBottomResIconWrapper = styled(IconWrapper)`
   }
 `;
 
+function getBottomResIconInnerByUrl(type: ResourceType, url: string) {
+  let fullUrl = url;
+  if (!fullUrl.startsWith("http")) {
+    fullUrl = `${type.startsWith("plugin:") ? "/node-service/plugin-icons" : ""}/${url}`;
+  }
+  return <img src={fullUrl} alt="" />;
+}
+
+export type BottomResType =
+  | ResourceType
+  | BottomResTypeEnum.TempState
+  | BottomResTypeEnum.Transformer;
+
 export const getBottomResIcon = (
-  type: ResourceType | BottomResTypeEnum.TempState | BottomResTypeEnum.Transformer,
-  size?: "middle" | "large"
+  type: BottomResType,
+  size?: "middle" | "large",
+  defaultIconUrl?: string
 ) => {
   const getIcon = () => {
     switch (type) {
@@ -89,6 +103,9 @@ export const getBottomResIcon = (
       case "openblocksApi":
         return <OpenBlocksQueryIcon />;
       default:
+        if (defaultIconUrl) {
+          return getBottomResIconInnerByUrl(type, defaultIconUrl);
+        }
         return <RestApiIcon />;
     }
   };

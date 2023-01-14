@@ -48,7 +48,10 @@ export function limitExecutor(
     {
       delay: delay,
       mode: mode,
-      func: (mode === "throttle" ? _.throttle : _.debounce)((x) => x(), delay),
+      func:
+        mode === "throttle"
+          ? _.throttle((x) => x(), delay, { trailing: false })
+          : _.debounce((x) => x(), delay),
     },
     (a, b) => {
       return a.delay === b.delay && a.mode === b.mode;

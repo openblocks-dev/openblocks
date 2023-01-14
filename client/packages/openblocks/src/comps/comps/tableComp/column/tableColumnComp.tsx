@@ -159,18 +159,11 @@ export class ColumnComp extends ColumnInitComp {
     return { [dataIndex]: changeSet };
   }
 
-  clearChangeSet() {
-    this.dispatch(
-      deferAction(
-        wrapChildAction(
-          "render",
-          wrapChildAction(
-            "__comp__",
-            wrapChildAction("comp", changeChildAction("changeValue", null))
-          )
-        )
-      )
-    );
+  dispatchClearChangeSet() {
+    this.children.render
+      .getOriginalComp()
+      .getComp()
+      .children.comp.children.changeValue.dispatch(deferAction(changeValueAction(null)));
   }
 }
 

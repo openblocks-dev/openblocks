@@ -153,6 +153,7 @@ export function Dropdown<T extends OptionsType>(props: {
   itemNode?: (value: string) => JSX.Element;
   preNode?: () => JSX.Element;
   showSearch?: boolean;
+  lineHeight?: number;
 }) {
   const { placement = "right" } = props;
   const valueInfoMap = _.fromPairs(props.options.map((option) => [option.value, option]));
@@ -168,6 +169,7 @@ export function Dropdown<T extends OptionsType>(props: {
         <Tooltip title={!props.label ? props.toolTip : undefined}>
           <DropdownContainer placement={placement}>
             <CustomSelect
+              listHeight={props.lineHeight}
               dropdownClassName="ob-dropdown-control-select"
               showSearch={props.showSearch}
               filterOption={(input, option) => {

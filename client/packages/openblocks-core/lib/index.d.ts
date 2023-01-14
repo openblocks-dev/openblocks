@@ -329,7 +329,7 @@ declare class RecursivePerfUtil {
   private getRecordByStack;
   perf<T>(obj: any, info: string, fn: () => T): T;
   clear: () => void;
-  print: (...stack: number[]) => void;
+  print: (stack: number[], cost_ms_print_thr?: number) => void;
 }
 declare const evalPerfUtil: RecursivePerfUtil;
 
@@ -742,7 +742,7 @@ declare type VariableValue = string | number | boolean | Date;
 declare class Translator<Messages extends object> {
   private readonly messages;
   readonly language: string;
-  constructor(fileData: object, filterLocales?: string);
+  constructor(fileData: object, filterLocales?: string, locales?: string[]);
   trans(
     key: NestedKey<Messages> | GlobalMessageKey,
     variables?: Record<string, VariableValue>
