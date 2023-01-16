@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.util.MultiValueMap;
 
 import com.openblocks.sdk.models.Property;
+import com.openblocks.sdk.plugin.common.ssl.SslConfig;
 import com.openblocks.sdk.plugin.restapi.auth.AuthConfig;
 import com.openblocks.sdk.query.QueryExecutionContext;
 
@@ -42,6 +43,7 @@ public class RestApiQueryExecutionContext extends QueryExecutionContext {
     private AuthConfig authConfig;
     @Getter
     private Mono<List<Property>> authTokenMono;
+    private SslConfig sslConfig;
 
     public URI getUri() {
         return uri;
@@ -90,5 +92,9 @@ public class RestApiQueryExecutionContext extends QueryExecutionContext {
     @Nullable
     public AuthConfig getAuthConfig() {
         return authConfig;
+    }
+
+    public SslConfig getSslConfig() {
+        return sslConfig;
     }
 }

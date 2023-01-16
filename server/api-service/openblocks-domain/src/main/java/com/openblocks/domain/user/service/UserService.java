@@ -8,7 +8,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 import com.openblocks.domain.user.model.AuthorizedUser;
 import com.openblocks.domain.user.model.Connection;
-import com.openblocks.domain.user.model.CurrentUser;
+import com.openblocks.domain.user.model.UserDetail;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.infra.annotation.NonEmptyMono;
 
@@ -47,7 +47,7 @@ public interface UserService {
 
     Mono<Boolean> setPassword(String userId, String password);
 
-    Mono<CurrentUser> buildCurrentUser(User user, boolean withoutDynamicGroups);
+    Mono<UserDetail> buildUserDetail(User user, boolean withoutDynamicGroups);
 
     Mono<Boolean> markUserDeletedAndInvalidConnectionsAtEnterpriseMode(String userId);
 }

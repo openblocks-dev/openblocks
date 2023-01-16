@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.openblocks.sdk.exception.PluginCommonError;
 import com.openblocks.sdk.models.DatasourceConnectionConfig;
 import com.openblocks.sdk.models.Property;
+import com.openblocks.sdk.plugin.common.ssl.SslConfig;
 import com.openblocks.sdk.plugin.restapi.auth.AuthConfig;
 import com.openblocks.sdk.plugin.restapi.auth.RestApiAuthType;
 
@@ -44,10 +45,13 @@ public class RestApiDatasourceConfig implements DatasourceConnectionConfig {
     @Setter
     @Nullable
     private AuthConfig authConfig;
+    @Getter
+    @Setter
+    private SslConfig sslConfig;
 
     @JsonCreator
     private RestApiDatasourceConfig(List<Property> params, String body, List<Property> bodyFormData, List<Property> headers,
-            String url, Set<String> forwardCookies, boolean forwardAllCookies, @Nullable AuthConfig authConfig) {
+            String url, Set<String> forwardCookies, boolean forwardAllCookies, @Nullable AuthConfig authConfig, SslConfig sslConfig) {
         this.params = params;
         this.body = body;
         this.bodyFormData = bodyFormData;
@@ -56,6 +60,7 @@ public class RestApiDatasourceConfig implements DatasourceConnectionConfig {
         this.forwardCookies = forwardCookies;
         this.forwardAllCookies = forwardAllCookies;
         this.authConfig = authConfig;
+        this.sslConfig = sslConfig;
     }
 
     public static RestApiDatasourceConfig buildFrom(Map<String, Object> requestMap) {
@@ -119,6 +124,9 @@ public class RestApiDatasourceConfig implements DatasourceConnectionConfig {
         if (this.authConfig != null) {
             updatedApiConfig.setAuthConfig(this.authConfig.mergeWithUpdatedConfig(updatedApiConfig.getAuthConfig()));
         }
+        if (this.sslConfig != null) {
+            updatedApiConfig.setSslConfig(this.sslConfig.mergeWithUpdatedConfig(updatedApiConfig.getSslConfig()));
+        }
         return updatedApiConfig;
     }
 
@@ -127,6 +135,9 @@ public class RestApiDatasourceConfig implements DatasourceConnectionConfig {
         if (this.authConfig != null) {
             this.authConfig.doEncrypt(encryptFunc);
         }
+        if (this.sslConfig != null) {
+            this.sslConfig.doEncrypt(encryptFunc);
+        }
         return this;
     }
 
@@ -134,6 +145,9 @@ public class RestApiDatasourceConfig implements DatasourceConnectionConfig {
     public DatasourceConnectionConfig doDecrypt(Function<String, String> decryptFunc) {
         if (this.authConfig != null) {
             this.authConfig.doDecrypt(decryptFunc);
+        }
+        if (this.sslConfig != null) {
+            this.sslConfig.doDecrypt(decryptFunc);
         }
         return this;
     }

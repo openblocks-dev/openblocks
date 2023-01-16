@@ -2,12 +2,13 @@ package com.openblocks.sdk.plugin.sqlcommand.command;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.openblocks.sdk.exception.PluginCommonError.INVALID_INSERT_COMMAND;
-import static com.openblocks.sdk.plugin.sqlcommand.changeset.BulkObjectChangeSet.parseBulkRecords;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Joiner;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.BulkObjectChangeSet;
@@ -16,21 +17,19 @@ import com.openblocks.sdk.plugin.sqlcommand.changeset.ChangeSetRow;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.ChangeSetRows;
 import com.openblocks.sdk.util.MustacheHelper;
 
-public class MysqlBulkInsertCommand extends GuiSqlCommand {
+public class BulkInsertCommand implements GuiSqlCommand {
 
-    private final String table;
-    private final BulkObjectChangeSet bulkObjectChangeSet;
+    protected final String table;
+    protected final BulkObjectChangeSet bulkObjectChangeSet;
+    private final String columnFrontDelimiter;
+    private final String columnBackDelimiter;
 
-    private MysqlBulkInsertCommand(String table, BulkObjectChangeSet bulkObjectChangeSet) {
+    protected BulkInsertCommand(String table, BulkObjectChangeSet bulkObjectChangeSet,
+            String columnFrontDelimiter, String columnBackDelimiter) {
         this.table = table;
         this.bulkObjectChangeSet = bulkObjectChangeSet;
-    }
-
-    public static MysqlBulkInsertCommand from(Map<String, Object> commandDetail) {
-        String table = parseTable(commandDetail);
-        String recordStr = parseBulkRecords(commandDetail);
-        BulkObjectChangeSet bulkObjectChangeSet = new BulkObjectChangeSet(recordStr);
-        return new MysqlBulkInsertCommand(table, bulkObjectChangeSet);
+        this.columnFrontDelimiter = columnFrontDelimiter;
+        this.columnBackDelimiter = columnBackDelimiter;
     }
 
     @SuppressWarnings("DuplicatedCode")
@@ -52,28 +51,28 @@ public class MysqlBulkInsertCommand extends GuiSqlCommand {
                 .append(" (");
 
         Set<String> columns = insertRows.getColumns();
-        for (String column : columns) {
-            sb.append("`").append(column).append("`").append(",");
-        }
+        columns.forEach(column ->
+                sb.append(columnFrontDelimiter).append(column).append(columnBackDelimiter).append(",")
+        );
 
         sb.deleteCharAt(sb.length() - 1).append(") values ");
 
         for (ChangeSetRow row : insertRows) {
-            sb.append("(");
+            appendQuestionMarks(sb, columns);
             for (String column : columns) {
                 ChangeSetItem item = row.getItem(column);
-                if (item.needPreparedStatement()) {
-                    sb.append("?,");
-                    bindParams.add(item.renderedStr());
-                } else {
-                    sb.append(item.renderedStr()).append(",");
-                }
+                bindParams.add(item.psBindValue().getValue());
             }
-            sb.deleteCharAt(sb.length() - 1).append("),");
         }
         sb.deleteCharAt(sb.length() - 1).append(";");
 
         return new GuiSqlCommandRenderResult(sb.toString(), bindParams);
+    }
+
+    private static void appendQuestionMarks(StringBuilder sb, Set<String> columns) {
+        sb.append("(")
+                .append(Joiner.on(",").join(Collections.nCopies(columns.size(), "?")))
+                .append("),");
     }
 
     @Override

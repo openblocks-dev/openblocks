@@ -1,7 +1,6 @@
 package com.openblocks.sdk.plugin.sqlcommand.changeset;
 
 import static com.openblocks.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
-import static com.openblocks.sdk.plugin.sqlcommand.changeset.ChangeSetRow.fromJsonNode;
 
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +25,7 @@ public class ObjectChangeSet extends ChangeSet {
             throw new PluginException(INVALID_GUI_SETTINGS, "GUI_INVALID_JSON_MAP_TYPE");
         }
 
-        return fromJsonNode(jsonNode);
+        return new ChangeSetRow(jsonNode);
     }
 
     @Override

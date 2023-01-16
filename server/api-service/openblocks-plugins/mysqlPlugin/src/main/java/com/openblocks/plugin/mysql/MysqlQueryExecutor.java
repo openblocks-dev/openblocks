@@ -57,11 +57,12 @@ import com.openblocks.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 import com.openblocks.sdk.plugin.mysql.MysqlDatasourceConfig;
 import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand;
 import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand.GuiSqlCommandRenderResult;
-import com.openblocks.sdk.plugin.sqlcommand.command.MysqlBulkInsertCommand;
-import com.openblocks.sdk.plugin.sqlcommand.command.MysqlDeleteCommand;
-import com.openblocks.sdk.plugin.sqlcommand.command.MysqlInsertCommand;
-import com.openblocks.sdk.plugin.sqlcommand.command.MysqlUpdateCommand;
-import com.openblocks.sdk.plugin.sqlcommand.command.MysqlUpsertCommand;
+import com.openblocks.sdk.plugin.sqlcommand.command.mysql.MysqlBulkInsertCommand;
+import com.openblocks.sdk.plugin.sqlcommand.command.mysql.MysqlBulkUpdateCommand;
+import com.openblocks.sdk.plugin.sqlcommand.command.mysql.MysqlDeleteCommand;
+import com.openblocks.sdk.plugin.sqlcommand.command.mysql.MysqlInsertCommand;
+import com.openblocks.sdk.plugin.sqlcommand.command.mysql.MysqlUpdateCommand;
+import com.openblocks.sdk.plugin.sqlcommand.command.mysql.MysqlUpsertCommand;
 import com.openblocks.sdk.query.QueryVisitorContext;
 import com.openblocks.sdk.util.MustacheHelper;
 import com.zaxxer.hikari.HikariDataSource;
@@ -119,6 +120,7 @@ public class MysqlQueryExecutor extends BlockingQueryExecutor<MysqlDatasourceCon
             case "UPSERT" -> MysqlUpsertCommand.from(detail);
             case "DELETE" -> MysqlDeleteCommand.from(detail);
             case "BULK_INSERT" -> MysqlBulkInsertCommand.from(detail);
+            case "BULK_UPDATE" -> MysqlBulkUpdateCommand.from(detail);
             default -> throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_GUI_COMMAND_TYPE", guiStatementType);
         };
     }

@@ -9,13 +9,17 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.data.annotation.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.openblocks.domain.plugin.DatasourceMetaInfoConstants;
 import com.openblocks.sdk.models.DatasourceConnectionConfig;
 import com.openblocks.sdk.models.HasIdAndAuditing;
+import com.openblocks.sdk.models.JsDatasourceConnectionConfig;
 import com.openblocks.sdk.plugin.graphql.GraphQLDatasourceConfig;
 import com.openblocks.sdk.plugin.openblocksapi.OpenblocksApiDatasourceConfig;
 import com.openblocks.sdk.plugin.restapi.RestApiDatasourceConfig;
@@ -68,6 +72,10 @@ public class Datasource extends HasIdAndAuditing {
     private String organizationId;
     private int creationSource;
     private DatasourceStatus datasourceStatus;
+    // for js data source plugin
+    @Nullable
+    @Transient
+    private Object pluginDefinition;
 
     @JsonProperty(value = "datasourceConfig")
     private DatasourceConnectionConfig detailConfig;
@@ -76,6 +84,9 @@ public class Datasource extends HasIdAndAuditing {
         setName(updatedDatasource.getName());
         Optional.of(getDetailConfig())
                 .ifPresentOrElse(currentDetailConfig -> {
+                            if (updatedDatasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConnectionConfig) {
+                                jsDatasourceConnectionConfig.setType(updatedDatasource.getType());
+                            }
                             DatasourceConnectionConfig updatedDetailConfig =
                                     currentDetailConfig.mergeWithUpdatedConfig(updatedDatasource.getDetailConfig());
                             setDetailConfig(updatedDetailConfig);

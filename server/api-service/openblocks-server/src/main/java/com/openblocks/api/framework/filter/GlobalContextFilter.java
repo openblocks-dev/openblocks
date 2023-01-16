@@ -5,6 +5,8 @@ import static com.openblocks.sdk.constants.Authentication.isAnonymousUser;
 import static com.openblocks.sdk.constants.GlobalContext.CLIENT_IP;
 import static com.openblocks.sdk.constants.GlobalContext.CLIENT_LOCALE;
 import static com.openblocks.sdk.constants.GlobalContext.CURRENT_ORG_MEMBER;
+import static com.openblocks.sdk.constants.GlobalContext.DOMAIN;
+import static com.openblocks.sdk.constants.GlobalContext.REQUEST;
 import static com.openblocks.sdk.constants.GlobalContext.REQUEST_ID_LOG;
 import static com.openblocks.sdk.constants.GlobalContext.REQUEST_METHOD;
 import static com.openblocks.sdk.constants.GlobalContext.REQUEST_PATH;
@@ -36,6 +38,7 @@ import com.openblocks.infra.serverlog.ServerLog;
 import com.openblocks.infra.serverlog.ServerLogService;
 import com.openblocks.infra.util.NetworkUtils;
 import com.openblocks.sdk.util.CookieHelper;
+import com.openblocks.sdk.util.UriUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -103,10 +106,12 @@ public class GlobalContextFilter implements WebFilter, Ordered {
         contextMap.put(CLIENT_IP, NetworkUtils.getRemoteIp(serverWebExchange));
         contextMap.put(REQUEST_ID_LOG, getOrCreateRequestId(request));
         contextMap.put(REQUEST_PATH, request.getPath().pathWithinApplication().value());
+        contextMap.put(REQUEST, request);
         contextMap.put(REQUEST_METHOD, ofNullable(request.getMethod()).map(HttpMethod::name).orElse(""));
         contextMap.put(CLIENT_LOCALE, globalContextService.getClientLocale(request));
         contextMap.put(CURRENT_ORG_MEMBER, orgMemberService.getCurrentOrgMember(visitorId).cache());
         contextMap.put(VISITOR_TOKEN, cookieHelper.getCookieToken(serverWebExchange));
+        contextMap.put(DOMAIN, UriUtils.getRefererDomain(serverWebExchange));
         return contextMap;
     }
 

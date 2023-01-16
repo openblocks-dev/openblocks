@@ -13,14 +13,30 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.openblocks.sdk.exception.PluginException;
 
-public abstract class GuiSqlCommand {
+public interface GuiSqlCommand {
 
-    public abstract GuiSqlCommandRenderResult render(Map<String, Object> requestMap);
+    GuiSqlCommandRenderResult render(Map<String, Object> requestMap);
 
-    public record GuiSqlCommandRenderResult(String sql, List<Object> bindParams) {
+    class GuiSqlCommandRenderResult {
+
+        private final String sql;
+        private final List<Object> bindParams;
+
+        public GuiSqlCommandRenderResult(String sql, List<Object> bindParams) {
+            this.sql = sql;
+            this.bindParams = bindParams;
+        }
+
+        public String sql() {
+            return sql;
+        }
+
+        public List<Object> bindParams() {
+            return bindParams;
+        }
     }
 
-    public static String parseTable(Map<String, Object> commandDetail) {
+    static String parseTable(Map<String, Object> commandDetail) {
         String table = MapUtils.getString(commandDetail, TABLE_KEY, null);
         if (StringUtils.isBlank(table)) {
             throw new PluginException(INVALID_GUI_SETTINGS, "GUI_FIELD_EMPTY");
@@ -28,11 +44,11 @@ public abstract class GuiSqlCommand {
         return table;
     }
 
-    public static boolean parseAllowMultiModify(Map<String, Object> commandDetail) {
+    static boolean parseAllowMultiModify(Map<String, Object> commandDetail) {
         return MapUtils.getBoolean(commandDetail, ALLOW_MULTI_MODIFY_KEY, false);
     }
 
-    public abstract boolean isInsertCommand();
+    boolean isInsertCommand();
 
-    public abstract Set<String> extractMustacheKeys();
+    Set<String> extractMustacheKeys();
 }

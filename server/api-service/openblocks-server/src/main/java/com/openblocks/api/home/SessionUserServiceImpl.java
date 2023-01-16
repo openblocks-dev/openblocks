@@ -20,6 +20,7 @@ import com.openblocks.domain.organization.service.OrgMemberService;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.model.UserState;
 import com.openblocks.domain.user.service.UserService;
+import com.openblocks.sdk.config.CommonConfig;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -28,6 +29,8 @@ import reactor.core.publisher.Mono;
 @Service
 public class SessionUserServiceImpl implements SessionUserService {
 
+    @Autowired
+    private CommonConfig commonConfig;
     @Autowired
     private UserService userService;
     @Autowired
@@ -84,7 +87,7 @@ public class SessionUserServiceImpl implements SessionUserService {
     @Override
     public Mono<Void> saveUserSession(String token, User user) {
         ReactiveValueOperations<String, String> ops = getRedisOps();
-        return ops.set(token, Objects.requireNonNull(user.getId()), Duration.ofDays(7))
+        return ops.set(token, Objects.requireNonNull(user.getId()), getTokenExpireTime())
                 .then();
     }
 
@@ -93,8 +96,16 @@ public class SessionUserServiceImpl implements SessionUserService {
         if (StringUtils.isBlank(token)) {
             return Mono.empty();
         }
-        return reactiveTemplate.expire(token, Duration.ofDays(7))
+        return reactiveTemplate.expire(token, getTokenExpireTime())
                 .then();
+    }
+
+    private Duration getTokenExpireTime() {
+        long maxAgeInSeconds = commonConfig.getCookie().getMaxAgeInSeconds();
+        if (maxAgeInSeconds >= 0) {
+            return Duration.ofSeconds(maxAgeInSeconds).plus(Duration.ofDays(1));
+        }
+        return Duration.ofDays(7);
     }
 
     @Override

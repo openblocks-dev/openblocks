@@ -144,6 +144,7 @@ public class SecurityConfig {
         source.registerCorsConfiguration(GROUP_URL + "/list", skipCheckCorsForAll);
         source.registerCorsConfiguration(QUERY_URL + "/execute", skipCheckCorsForAll);
         source.registerCorsConfiguration(APPLICATION_URL + "/*/view", skipCheckCorsForAll);
+        source.registerCorsConfiguration(GITHUB_STAR, skipCheckCorsForAll);
 
         source.registerCorsConfiguration(NewUrl.USER_URL + "/me", skipCheckCorsForAll);
         source.registerCorsConfiguration(NewUrl.CONFIG_URL, skipCheckCorsForAll);

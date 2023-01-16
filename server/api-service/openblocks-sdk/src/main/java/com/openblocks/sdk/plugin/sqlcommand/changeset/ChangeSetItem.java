@@ -1,4 +1,6 @@
 package com.openblocks.sdk.plugin.sqlcommand.changeset;
 
-public record ChangeSetItem(String column, String renderedStr, boolean needPreparedStatement) {
+import com.openblocks.sdk.util.SqlGuiUtils.PsBindValue;
+
+public record ChangeSetItem(String column, PsBindValue psBindValue) {
 }

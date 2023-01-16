@@ -48,7 +48,7 @@ class RjsonMustacheParser {
         return renderMustacheJson(jsonStr, paramMap).toString();
     }
 
-    public static JsonNode renderMustacheJson(String jsonStr, Map<String, Object> paramMap) {
+    public static JsonNode renderMustacheJson(String jsonStr, Map<String, ?> paramMap) {
         if (StringUtils.isBlank(jsonStr)) {
             return EMPTY_JSON_NODE;
         }
@@ -76,7 +76,7 @@ class RjsonMustacheParser {
         return traverse(json, tokenReplaceValueMap);
     }
 
-    private static Map<String, Object> getTokenReplaceValueMap(Map<String, Object> paramMap, Map<String, String> tokenReplaceMap) {
+    private static Map<String, Object> getTokenReplaceValueMap(Map<String, ?> paramMap, Map<String, String> tokenReplaceMap) {
         Map<String, Object> trimmedValueMap = paramMap.entrySet()
                 .stream()
                 .collect(toMapNullFriendly(it -> it.getKey().trim(), Entry::getValue, (a, b) -> b));
@@ -134,7 +134,7 @@ class RjsonMustacheParser {
 
     private static JsonNode tryResolve(JsonValue jsonValue, Map<String, Object> paramMap, boolean toStringType) {
 
-        String input = jsonValue.asString();
+        String input = jsonValue.asString().trim();
         if (isBlank(input)) {
             return TextNode.valueOf(input);
         }
@@ -149,7 +149,7 @@ class RjsonMustacheParser {
         }
 
         List<String> tokenize = tokenize(input);
-        if (tokenize.size() == 0) {
+        if (tokenize.isEmpty()) {
             return TextNode.valueOf(input);
         }
 
@@ -173,9 +173,8 @@ class RjsonMustacheParser {
             return valueToTree(mustacheValue);
         }
 
-        JsonNode numberNode = tryGetNumberNode(mustacheValue);
-        if (numberNode != null) {
-            return numberNode;
+        if (mustacheValue instanceof Number) {
+            return tryGetNumberNode(mustacheValue);
         }
 
         if (mustacheValue instanceof Boolean) {
@@ -202,7 +201,7 @@ class RjsonMustacheParser {
         if (number instanceof Double) {
             return DoubleNode.valueOf((double) number);
         }
-        return null;
+        throw new PluginException(JSON_PARSE_ERROR, "JSON_PARSE_ERROR", number, "unknown number node: " + number.getClass().getSimpleName());
     }
 
     private static StringCheckResult checkString(String str) {

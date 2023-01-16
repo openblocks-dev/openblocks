@@ -1,5 +1,6 @@
 package com.openblocks.sdk.config;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +32,8 @@ public class CommonConfig {
     private String cookieName;
     private int maxQueryRequestSizeInMb = 10;
     private int maxQueryResponseSizeInMb = 10;
+    private Cookie cookie = new Cookie();
+    private JsExecutor jsExecutor = new JsExecutor();
 
     public boolean isSelfHost() {
         return !isCloud();
@@ -71,5 +74,16 @@ public class CommonConfig {
 
         private WorkspaceMode mode = WorkspaceMode.SAAS;
         private String enterpriseOrgId;
+    }
+
+    @Data
+    public static class Cookie {
+
+        private long maxAgeInSeconds = Duration.ofDays(30).toSeconds();
+    }
+
+    @Data
+    public static class JsExecutor {
+        private String host;
     }
 }

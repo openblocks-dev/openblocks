@@ -15,5 +15,4 @@ public class UpsertDatasourceRequest {
     private String organizationId;
 
     private Map<String, Object> datasourceConfig;
-
 }

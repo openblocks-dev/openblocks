@@ -1,7 +1,6 @@
 package com.openblocks.api.authentication;
 
 import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +24,10 @@ import com.openblocks.domain.user.model.AuthorizedUser;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.service.UserService;
 import com.openblocks.infra.constant.NewUrl;
-import com.openblocks.sdk.config.dynamic.Conf;
-import com.openblocks.sdk.config.dynamic.ConfigCenter;
+import com.openblocks.sdk.config.AuthProperties;
 import com.openblocks.sdk.constants.AuthSourceConstants;
+import com.openblocks.sdk.exception.BizError;
+import com.openblocks.sdk.exception.BizException;
 import com.openblocks.sdk.util.CookieHelper;
 import com.openblocks.sdk.util.UriUtils;
 
@@ -49,16 +49,10 @@ public class AuthenticationController {
     private CookieHelper cookieHelper;
     @Autowired
     private InvitationApiService invitationAPiService;
-    private Conf<Integer> cookieMaxAgeInDays;
-    @Autowired
-    private ConfigCenter configCenter;
     @Autowired
     private BusinessEventPublisher businessEventPublisher;
-
-    @PostConstruct
-    private void init() {
-        cookieMaxAgeInDays = configCenter.auth().ofInteger("cookieMaxAgeInDays", 30);
-    }
+    @Autowired
+    private AuthProperties authProperties;
 
     /**
      * login by email or phone with password; or register by email for now.
@@ -73,6 +67,9 @@ public class AuthenticationController {
 
         return Mono.defer(() -> {
                     if (formLoginRequest.register()) {
+                        if (!authProperties.getEmail().isEnableRegister()) {
+                            throw new BizException(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST");
+                        }
                         return userService.register(formLoginRequest.loginId(), formLoginRequest.password(), formLoginRequest.source());
                     }
                     return authenticationApiService.getFormAuthUser(formLoginRequest.loginId(), formLoginRequest.password(), domain,
@@ -86,7 +83,7 @@ public class AuthenticationController {
     protected Mono<Void> loginWithAuthUser(User user, ServerWebExchange exchange, String invitationId,
             String source, @Nullable String orgId) {
         return setSecurityContext(user)
-                .then(saveSessionAndCookie(user, cookieMaxAgeInDays, exchange))
+                .then(saveSessionAndCookie(user, exchange))
                 .then(Mono.defer(() -> {
                     if (user.getIsNewUser()) {
                         return authenticationApiService.onUserRegister(user);
@@ -103,10 +100,10 @@ public class AuthenticationController {
                 .then(businessEventPublisher.publishUserLoginEvent(source));
     }
 
-    private Mono<Void> saveSessionAndCookie(User user, Conf<Integer> cookieMaxAgeInDays, ServerWebExchange exchange) {
+    private Mono<Void> saveSessionAndCookie(User user, ServerWebExchange exchange) {
         String token = CookieHelper.generateCookieToken();
         return sessionUserService.saveUserSession(token, user)
-                .then(Mono.fromRunnable(() -> cookieHelper.saveCookie(token, cookieMaxAgeInDays.get(), exchange)))
+                .then(Mono.fromRunnable(() -> cookieHelper.saveCookie(token, exchange)))
                 .then();
     }
 

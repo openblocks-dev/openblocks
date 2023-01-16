@@ -64,12 +64,23 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/io.github.vzhn/netty-http-authenticator -->
         <dependency>
             <groupId>io.github.vzhn</groupId>
             <artifactId>netty-http-authenticator</artifactId>
             <version>1.5</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+
+        <!--        &lt;!&ndash; https://mvnrepository.com/artifact/io.github.vzhn/netty-http-authenticator &ndash;&gt;-->
+        <!--        <dependency>-->
+        <!--            <groupId>io.github.vzhn</groupId>-->
+        <!--            <artifactId>netty-http-authenticator</artifactId>-->
+        <!--            <version>1.5</version>-->
+        <!--        </dependency>-->
 
         <!-- Test dependencies -->
         <dependency>
@@ -86,11 +97,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
             <scope>test</scope>
         </dependency>
 

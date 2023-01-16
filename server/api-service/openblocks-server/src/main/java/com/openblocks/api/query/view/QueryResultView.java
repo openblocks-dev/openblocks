@@ -41,7 +41,7 @@ public class QueryResultView {
     }
 
     public String getMessage() {
-        return queryResult.getLocaleMessage() != null ? LocaleUtils.getMessage(locale, queryResult.getLocaleMessage()) : "";
+        return queryResult.getLocaleMessage() != null ? LocaleUtils.getMessage(locale, queryResult.getLocaleMessage()) : queryResult.getMessage();
     }
 
     public Collection<String> getHintMessages() {

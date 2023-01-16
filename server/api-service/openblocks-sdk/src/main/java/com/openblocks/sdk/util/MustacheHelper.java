@@ -285,7 +285,7 @@ public final class MustacheHelper {
         return RjsonMustacheParser.renderMustacheJsonString(jsonStr, paramMap);
     }
 
-    public static JsonNode renderMustacheJson(String jsonStr, Map<String, Object> paramMap) {
+    public static JsonNode renderMustacheJson(String jsonStr, Map<String, ?> paramMap) {
         return RjsonMustacheParser.renderMustacheJson(jsonStr, paramMap);
     }
 
@@ -313,7 +313,6 @@ public final class MustacheHelper {
                 .toArray(String[]::new);
     }
 
-    @VisibleForTesting
     public static String renderMustacheTokens(List<String> tokens, Map<String, ?> paramMap) {
         return renderMustacheTokens(tokens, paramMap, true);
     }
@@ -655,7 +654,7 @@ public final class MustacheHelper {
         }
 
         List<String> tokenize = tokenize(str.trim());
-        if (tokenize.size() == 0) {
+        if (tokenize.isEmpty()) {
             return ofValue(str);
         }
 
@@ -671,7 +670,7 @@ public final class MustacheHelper {
         return ofValue(renderMustacheTokens(tokenize, paramMap));
     }
 
-    public static List<?> renderArrayValueForMysqlConcatenation(Object value, Map<String, Object> requestMap) {
+    public static List<Object> renderArrayValueForMysqlConcatenation(Object value, Map<String, Object> requestMap) {
 
         if (!(value instanceof List<?>) && !(value instanceof String)) {
             throw new PluginException(INVALID_IN_OPERATOR_SETTINGS, "INVALID_IN");

@@ -58,6 +58,9 @@ public class UserController {
     @Autowired
     private UserStatusService userStatusService;
 
+    @Autowired
+    private UserApiService userApiService;
+
     @GetMapping("/me")
     public Mono<ResponseView<?>> getUserProfile(ServerWebExchange exchange) {
         String domain = UriUtils.getRefererDomain(exchange);
@@ -152,7 +155,13 @@ public class UserController {
     @GetMapping("/currentUser")
     public Mono<ResponseView<?>> getCurrentUser(ServerWebExchange exchange) {
         return sessionUserService.getVisitor()
-                .flatMap(user -> userService.buildCurrentUser(user, false))
+                .flatMap(user -> userService.buildUserDetail(user, false))
+                .map(ResponseView::success);
+    }
+
+    @GetMapping("/userDetail/{id}")
+    public Mono<ResponseView<?>> getUserDetail(@PathVariable("id") String userId) {
+        return userApiService.getUserDetailById(userId)
                 .map(ResponseView::success);
     }
 
