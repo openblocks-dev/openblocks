@@ -17,11 +17,17 @@ import {
   SimpleColorConfig,
   SingleColorConfig,
 } from "./styleControlConstants";
-import { getThemeDetailName, isThemeColorKey, ThemeDetail } from "api/commonSettingApi";
+import {
+  getThemeDetailName,
+  isThemeColorKey,
+  ThemeDetail,
+} from "api/commonSettingApi";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { trans } from "i18n";
 
-function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
+function isSimpleColorConfig(
+  config: SingleColorConfig
+): config is SimpleColorConfig {
   return config.hasOwnProperty("color");
 }
 function isDepColorConfig(config: SingleColorConfig): config is DepColorConfig {
@@ -33,7 +39,9 @@ function isRadiusConfig(config: SingleColorConfig): config is RadiusConfig {
 
 // function styleControl(colorConfig: Array<SingleColorConfig>) {
 type Names<T extends readonly SingleColorConfig[]> = T[number]["name"];
-export type StyleConfigType<T extends readonly SingleColorConfig[]> = { [K in Names<T>]: string };
+export type StyleConfigType<T extends readonly SingleColorConfig[]> = {
+  [K in Names<T>]: string;
+};
 // Options[number]["value"]
 function isEmptyColor(color: string) {
   return _.isEmpty(color);
@@ -50,7 +58,10 @@ function calcColors<ColorMap extends Record<string, string>>(
   theme?: ThemeDetail,
   bgColor?: string
 ) {
-  const themeWithDefault = (theme || defaultTheme) as unknown as Record<string, string>;
+  const themeWithDefault = (theme || defaultTheme) as unknown as Record<
+    string,
+    string
+  >;
   // Cover what is not there for the first pass
   let res: Record<string, string> = {};
   colorConfigs.forEach((config) => {
@@ -89,7 +100,9 @@ function calcColors<ColorMap extends Record<string, string>>(
     if (isDepColorConfig(config)) {
       if (config.depType && config.depType === DEP_TYPE.CONTRAST_TEXT) {
         // bgColor is the background color of the container component, equivalent to canvas
-        let depKey = config.depName ? res[config.depName] : themeWithDefault[config.depTheme!];
+        let depKey = config.depName
+          ? res[config.depName]
+          : themeWithDefault[config.depTheme!];
         if (bgColor && config.depTheme === "canvas") {
           depKey = bgColor;
         }
@@ -98,7 +111,11 @@ function calcColors<ColorMap extends Record<string, string>>(
           themeWithDefault.textDark,
           themeWithDefault.textLight
         );
-      } else if (config?.depType === DEP_TYPE.SELF && config.depTheme === "canvas" && bgColor) {
+      } else if (
+        config?.depType === DEP_TYPE.SELF &&
+        config.depTheme === "canvas" &&
+        bgColor
+      ) {
         res[name] = bgColor;
       } else {
         const rest = [];
@@ -190,12 +207,14 @@ const ResetIcon = styled(IconReset)`
   }
 `;
 
-export function styleControl<T extends readonly SingleColorConfig[]>(colorConfigs: T) {
+export function styleControl<T extends readonly SingleColorConfig[]>(
+  colorConfigs: T
+) {
   type ColorMap = { [K in Names<T>]: string };
   const childrenMap: any = {};
   colorConfigs.map((config) => {
     const name: Names<T> = config.name;
-    if (name === "radius") {
+    if (name === "radius" || name === "gap" || name === "cardRadius") {
       childrenMap[name] = RadiusControl;
     } else {
       childrenMap[name] = ColorControl;
@@ -220,7 +239,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
         theme?.theme,
         bgColor
       );
-      const showReset = Object.values(childrenToProps(children)).findIndex((item) => item) > -1;
+      const showReset =
+        Object.values(childrenToProps(children)).findIndex((item) => item) > -1;
       return (
         <>
           <TitleDiv>
@@ -238,7 +258,10 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                   });
                 }}
               >
-                <Tooltip placement="topRight" title={trans("style.resetTooltip")}>
+                <Tooltip
+                  placement="topRight"
+                  title={trans("style.resetTooltip")}
+                >
                   <ResetIcon title="" />
                 </Tooltip>
               </span>
@@ -251,7 +274,10 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
               if (isDepColorConfig(config)) {
                 if (config.depType === DEP_TYPE.CONTRAST_TEXT) {
                   depMsg = trans("style.contrastText");
-                } else if (config.depType === DEP_TYPE.SELF && config.depTheme) {
+                } else if (
+                  config.depType === DEP_TYPE.SELF &&
+                  config.depTheme
+                ) {
                   depMsg = getThemeDetailName(config.depTheme);
                 } else {
                   depMsg = trans("style.generated");
@@ -259,8 +285,10 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
               }
               return (
                 <div key={index}>
-                  {name === "radius"
-                    ? (children[name] as InstanceType<typeof RadiusControl>).propertyView({
+                  {name === "radius" || name === "gap" || name === "cardRadius"
+                    ? (
+                        children[name] as InstanceType<typeof RadiusControl>
+                      ).propertyView({
                         label: config.label,
                         preInputNode: <RadiusIcon title="" />,
                         placeholder: props[name],

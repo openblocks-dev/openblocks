@@ -173,6 +173,33 @@ const RADIUS = {
   radius: "borderRadius",
 } as const;
 
+const GAP = {
+  name: "gap",
+  label: "Column Space",
+  depName: "gap",
+  depType: DEP_TYPE.CONTRAST_TEXT,
+  transformer: toSelf,
+} as const;
+
+const CARD_COLOR = {
+  name: "cardColor",
+  label: "Card Background",
+  depType: DEP_TYPE.SELF,
+  transformer: toSelf,
+} as const;
+const CARD_BORDER = {
+  name: "cardBorder",
+  label: "Card Border",
+  depType: DEP_TYPE.SELF,
+  transformer: toSelf,
+} as const;
+const CARD_RADIUS = {
+  name: "cardRadius",
+  label: "Card Radius",
+  depType: DEP_TYPE.SELF,
+  transformer: toSelf,
+} as const;
+
 const getStaticBorder = (color: string = SECOND_SURFACE_COLOR) =>
   ({
     name: "border",
@@ -612,6 +639,14 @@ export const ImageStyle = [getStaticBorder("#00000000"), RADIUS] as const;
 
 export const ListViewStyle = BG_STATIC_BORDER_RADIUS;
 
+export const MasonryStyle = [
+  ...BG_STATIC_BORDER_RADIUS,
+  GAP,
+  CARD_COLOR,
+  CARD_BORDER,
+  CARD_RADIUS,
+];
+
 export const JsonSchemaFormStyle = BG_STATIC_BORDER_RADIUS;
 
 export const QRCodeStyle = [
@@ -663,6 +698,7 @@ export type ProgressStyleType = StyleConfigType<typeof ProgressStyle>;
 export type NavigationStyleType = StyleConfigType<typeof NavigationStyle>;
 export type ImageStyleType = StyleConfigType<typeof ImageStyle>;
 export type ListViewStyleType = StyleConfigType<typeof ListViewStyle>;
+export type MasonryStyleType = StyleConfigType<typeof MasonryStyle>;
 export type JsonSchemaFormStyleType = StyleConfigType<typeof JsonSchemaFormStyle>;
 export type TreeSelectStyleType = StyleConfigType<typeof TreeSelectStyle>;
 export type DrawerStyleType = StyleConfigType<typeof DrawerStyle>;
