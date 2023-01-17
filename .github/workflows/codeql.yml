@@ -44,7 +44,6 @@ jobs:
 
     - name: Checkout repository
       uses: actions/checkout@v3
-        path:./server/api-service
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
