@@ -186,7 +186,7 @@ public class DatasourceServiceImpl implements DatasourceService {
     }
 
     /**
-     * before merge, encrypt, decrypt
+     * before merge, encrypt, decrypt, and removePasswords
      */
     @Override
     public Mono<Void> processJsDatasourcePlugin(Datasource datasource) {
@@ -205,6 +205,17 @@ public class DatasourceServiceImpl implements DatasourceService {
             }
             return Mono.empty();
         });
+    }
+
+    @Override
+    public Mono<Void> removePasswordTypeKeysFromJsDatasourcePluginConfig(Datasource datasource) {
+        return processJsDatasourcePlugin(datasource)
+                .doFinally(__ -> {
+                    if (datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType())
+                            && datasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConnectionConfig) {
+                        jsDatasourceConnectionConfig.removePasswords();
+                    }
+                });
     }
 
     @Override

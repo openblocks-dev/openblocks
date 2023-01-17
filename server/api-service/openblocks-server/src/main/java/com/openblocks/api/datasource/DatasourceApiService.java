@@ -113,16 +113,18 @@ public class DatasourceApiService {
                 .cache();
 
         // build view
-        return datasourceFlux.flatMap(datasource ->
-                Mono.zip(datasourceId2MaxPermissionMapMono, userMapMono)
-                        .map(tuple -> {
-                            Map<String, ResourcePermission> datasourceId2MaxPermissionMap = tuple.getT1();
-                            Map<String, User> userMap = tuple.getT2();
-                            User creator = userMap.get(datasource.getCreatedBy());
-                            ResourcePermission maxPermission = datasourceId2MaxPermissionMap.get(datasource.getId());
-                            boolean manage = maxPermission != null && maxPermission.getResourceRole().canDo(MANAGE_DATASOURCES);
-                            return new DatasourceView(datasource, manage, creator == null ? null : creator.getName());
-                        }));
+        return datasourceFlux
+                .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
+                .flatMap(datasource ->
+                        Mono.zip(datasourceId2MaxPermissionMapMono, userMapMono)
+                                .map(tuple -> {
+                                    Map<String, ResourcePermission> datasourceId2MaxPermissionMap = tuple.getT1();
+                                    Map<String, User> userMap = tuple.getT2();
+                                    User creator = userMap.get(datasource.getCreatedBy());
+                                    ResourcePermission maxPermission = datasourceId2MaxPermissionMap.get(datasource.getId());
+                                    boolean manage = maxPermission != null && maxPermission.getResourceRole().canDo(MANAGE_DATASOURCES);
+                                    return new DatasourceView(datasource, manage, creator == null ? null : creator.getName());
+                                }));
     }
 
     public Flux<DatasourceView> listAppDataSources(String appId) {
