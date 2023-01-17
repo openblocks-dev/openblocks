@@ -1,6 +1,5 @@
 package com.openblocks.sdk.helpers;
 
-import static com.openblocks.sdk.util.JsonUtils.toJson;
 import static com.openblocks.sdk.util.MustacheHelper.extractMustacheKeys;
 import static com.openblocks.sdk.util.MustacheHelper.extractMustacheKeysInOrder;
 import static com.openblocks.sdk.util.MustacheHelper.tokenize;
@@ -46,11 +45,8 @@ public class MustacheHelperTest {
 
     @Test
     public void testParse() {
-        List<String> tokenize = tokenize("    {{token1}}      \n".trim());
-        System.out.println(toJson(tokenize));
-
-        List<String> tokenize1 = tokenize("    token1      \n".trim());
-        System.out.println(toJson(tokenize1));
+        Assert.assertArrayEquals(new String[] {"{{token1}}"}, tokenize("    {{token1}}      \n".trim()).toArray());
+        Assert.assertArrayEquals(new String[] {"token1"}, tokenize("    token1      \n".trim()).toArray());
     }
 
     @Test
@@ -442,12 +438,14 @@ public class MustacheHelperTest {
         String json = "{source  :{{table1.data}} }";
         Map<String, Object> map = new HashMap<>();
         map.put("table1.data", Lists.newArrayList(1, 2, 3, 4));
-        String s = MustacheHelper.renderMustacheJsonString(json, map);
-        System.out.println(s);
+        String result = MustacheHelper.renderMustacheJsonString(json, map);
+        assertThat(result).isEqualTo("{\"source\":[1,2,3,4]}");
     }
 
     @Test
     public void typeJudgment() {
+        Object nullObj = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("null", Map.of()));
+        Assert.assertNull(nullObj);
         Object number = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("1", Map.of()));
         Assert.assertTrue(number instanceof Integer);
         Object b = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("true", Map.of()));
@@ -461,14 +459,14 @@ public class MustacheHelperTest {
         Object o2 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("{a:1, b:2}", Map.of()));
         Assert.assertTrue(o2 instanceof Map<?, ?>);
         Object o3 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("{{3}}3", Map.of("3", 3)));
-        Assert.assertEquals(o3, "33");
+        Assert.assertEquals("33", o3);
         Object o4 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("{{3}}3", Map.of("3", "3")));
-        Assert.assertEquals(o4, "33");
+        Assert.assertEquals("33", o4);
         Object o5 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("{{t}}rue", Map.of("t", "t")));
-        Assert.assertEquals(o5, "true");
+        Assert.assertEquals("true", o5);
         Object o6 = JsonUtils.jsonNodeToObject(MustacheHelper.renderMustacheJson("[1, {{3}}3]", Map.of("3", 3)));
         Object[] objects = ((Collection<?>) o6).toArray();
-        Assert.assertEquals(objects[0], 1);
-        Assert.assertEquals(objects[1], "33");
+        Assert.assertEquals(1, objects[0]);
+        Assert.assertEquals("33", objects[1]);
     }
 }

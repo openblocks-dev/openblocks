@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.domain.plugin.service.DatasourceMetaInfoService;
+import com.openblocks.sdk.models.JsDatasourceConnectionConfig;
+import com.openblocks.sdk.util.JsonUtils;
 
 @Component
 public class UpsertDatasourceRequestMapper {
@@ -35,7 +37,11 @@ public class UpsertDatasourceRequestMapper {
         datasource.setName(dto.getName());
         datasource.setType(dto.getType());
         datasource.setOrganizationId(dto.getOrganizationId());
-        datasource.setDetailConfig(datasourceMetaInfoService.resolveDetailConfig(dto.getDatasourceConfig(), dto.getType()));
+        if (datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType())) {
+            datasource.setDetailConfig(JsonUtils.fromJson(JsonUtils.toJson(dto.getDatasourceConfig()), JsDatasourceConnectionConfig.class));
+        } else {
+            datasource.setDetailConfig(datasourceMetaInfoService.resolveDetailConfig(dto.getDatasourceConfig(), dto.getType()));
+        }
         return datasource;
     }
 

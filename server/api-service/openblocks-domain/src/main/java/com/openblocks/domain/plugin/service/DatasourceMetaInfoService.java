@@ -9,11 +9,25 @@ import com.openblocks.sdk.plugin.common.DatasourceConnector;
 import com.openblocks.sdk.plugin.common.QueryExecutor;
 import com.openblocks.sdk.query.QueryExecutionContext;
 
+import reactor.core.publisher.Flux;
+
 public interface DatasourceMetaInfoService {
 
     DatasourceMetaInfo getDatasourceMetaInfo(String datasourceType);
 
-    List<DatasourceMetaInfo> getSupportedDatasourceMetaInfos();
+    /**
+     * java based data sources only
+     */
+    List<DatasourceMetaInfo> getJavaBasedSupportedDatasourceMetaInfos();
+
+    boolean isJavaDatasourcePlugin(String type);
+
+    boolean isJsDatasourcePlugin(String type);
+
+    /**
+     * all data sources, include java based, js based...
+     */
+    Flux<DatasourceMetaInfo> getAllSupportedDatasourceMetaInfos();
 
     DatasourceConnector<Object, ? extends DatasourceConnectionConfig> getDatasourceConnector(String datasourceType);
 

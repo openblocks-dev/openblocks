@@ -142,6 +142,7 @@ public class TemplateSolution {
         copyDatasource.setCreationSource(DatasourceCreationSource.CLONE_FROM_TEMPLATE.getValue());
         copyDatasource.setOrganizationId(organizationId);
         return datasourceService.create(copyDatasource, visitorId)
+
                 .map(Datasource::getId);
     }
 

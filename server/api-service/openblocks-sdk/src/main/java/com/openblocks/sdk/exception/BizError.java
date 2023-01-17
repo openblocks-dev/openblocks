@@ -74,6 +74,7 @@ public enum BizError {
     DATASOURCE_CLOSE_FAILED(500, 5509, VERBOSE),
 
     DATASOURCE_AND_APP_ORG_NOT_MATCH(500, 5510),
+    CERTIFICATE_IS_EMPTY(400, 5511),
 
 
     // login related, code range 5600 - 5699

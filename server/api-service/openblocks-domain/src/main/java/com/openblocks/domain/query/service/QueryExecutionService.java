@@ -5,8 +5,10 @@ import static com.openblocks.sdk.exception.PluginCommonError.QUERY_EXECUTION_TIM
 import static com.openblocks.sdk.util.ExceptionUtils.ofException;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.domain.datasource.model.DatasourceConnectionHolder;
 import com.openblocks.domain.datasource.service.DatasourceConnectionPool;
+import com.openblocks.domain.plugin.client.DatasourcePluginClient;
 import com.openblocks.domain.plugin.service.DatasourceMetaInfoService;
 import com.openblocks.domain.query.util.QueryTimeoutUtils;
 import com.openblocks.sdk.exception.BizException;
@@ -35,20 +38,19 @@ public class QueryExecutionService {
     @Autowired
     private DatasourceMetaInfoService datasourceMetaInfoService;
 
+    @Autowired
+    private DatasourcePluginClient datasourcePluginClient;
+
     public Mono<QueryExecutionResult> executeQuery(Datasource datasource, Map<String, Object> queryConfig, Map<String, Object> requestParams,
             String timeoutStr, QueryVisitorContext queryVisitorContext) {
-        var queryExecutor = datasourceMetaInfoService.getQueryExecutor(datasource.getType());
 
-        Mono<QueryExecutionContext> queryContext = Mono.fromSupplier(() -> queryExecutor.doBuildQueryExecutionContext(datasource.getDetailConfig(),
-                queryConfig, requestParams, queryVisitorContext));
         int timeoutMs = QueryTimeoutUtils.parseQueryTimeoutMs(timeoutStr, requestParams);
 
-        return queryContext.zipWhen(context -> datasourceConnectionPool.getOrCreateConnection(datasource))
-                .flatMap(tuple -> {
-                    QueryExecutionContext queryExecutionRequest = tuple.getT1();
-                    DatasourceConnectionHolder connectionHolder = tuple.getT2();
-                    return queryExecutor.doExecuteQuery(connectionHolder.connection(), queryExecutionRequest)
-                            .doOnError(connectionHolder::onQueryError);
+        return Mono.defer(() -> {
+                    if (datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType())) {
+                        return executeByNodeJs(datasource, queryConfig, requestParams);
+                    }
+                    return executeLocally(datasource, queryConfig, requestParams, queryVisitorContext);
                 })
                 .timeout(Duration.ofMillis(timeoutMs))
                 .onErrorMap(TimeoutException.class, e -> new PluginException(QUERY_EXECUTION_TIMEOUT, "PLUGIN_EXECUTION_TIMEOUT", timeoutMs))
@@ -62,4 +64,27 @@ public class QueryExecutionService {
                 });
     }
 
+    private Mono<QueryExecutionResult> executeLocally(Datasource datasource, Map<String, Object> queryConfig, Map<String, Object> requestParams,
+            QueryVisitorContext queryVisitorContext) {
+        var queryExecutor = datasourceMetaInfoService.getQueryExecutor(datasource.getType());
+
+        Mono<QueryExecutionContext> queryContext = Mono.fromSupplier(() -> queryExecutor.doBuildQueryExecutionContext(datasource.getDetailConfig(),
+                queryConfig, requestParams, queryVisitorContext));
+
+        return queryContext.zipWhen(context -> datasourceConnectionPool.getOrCreateConnection(datasource))
+                .flatMap(tuple -> {
+                    QueryExecutionContext queryExecutionRequest = tuple.getT1();
+                    DatasourceConnectionHolder connectionHolder = tuple.getT2();
+                    return queryExecutor.doExecuteQuery(connectionHolder.connection(), queryExecutionRequest)
+                            .doOnError(connectionHolder::onQueryError);
+                });
+    }
+
+    private Mono<QueryExecutionResult> executeByNodeJs(Datasource datasource, Map<String, Object> queryConfig, Map<String, Object> requestParams) {
+        List<Map<String, Object>> context = requestParams.entrySet()
+                .stream()
+                .map(entry -> Map.of("key", entry.getKey(), "value", entry.getValue()))
+                .collect(Collectors.toList());
+        return datasourcePluginClient.executeQuery(datasource.getType(), queryConfig, context, datasource.getDetailConfig());
+    }
 }

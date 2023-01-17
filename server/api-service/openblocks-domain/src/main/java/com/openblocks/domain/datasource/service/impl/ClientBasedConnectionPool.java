@@ -75,7 +75,7 @@ public class ClientBasedConnectionPool implements DatasourceConnectionPool {
 
     @PostConstruct
     public void init() {
-        List<DatasourceMetaInfo> supportedDatasourceTypes = datasourceMetaInfoService.getSupportedDatasourceMetaInfos();
+        List<DatasourceMetaInfo> supportedDatasourceTypes = datasourceMetaInfoService.getJavaBasedSupportedDatasourceMetaInfos();
         supportedDatasourceTypes.stream()
                 .filter(datasourceMetaInfo -> datasourceMetaInfo.getConnectionPool() == ClientBasedConnectionPool.class)
                 .forEach(datasourceMetaInfo ->

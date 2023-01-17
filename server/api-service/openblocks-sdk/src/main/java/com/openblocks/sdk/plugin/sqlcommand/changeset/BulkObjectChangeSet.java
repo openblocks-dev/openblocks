@@ -1,6 +1,7 @@
 package com.openblocks.sdk.plugin.sqlcommand.changeset;
 
 import static com.openblocks.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
+import static com.openblocks.sdk.plugin.common.constant.Constants.PRIMARY_KEY_FORM_KEY;
 import static com.openblocks.sdk.plugin.common.constant.Constants.RECORD_FORM_KEY;
 
 import java.util.Map;
@@ -33,6 +34,14 @@ public class BulkObjectChangeSet {
         Object o = commandDetail.get(RECORD_FORM_KEY);
         if (!(o instanceof String str)) {
             throw new PluginException(INVALID_GUI_SETTINGS, "GUI_CHANGE_SET_EMPTY");
+        }
+        return str;
+    }
+
+    public static String parsePrimaryKey(Map<String, Object> commandDetail) {
+        Object o = commandDetail.get(PRIMARY_KEY_FORM_KEY);
+        if (!(o instanceof String str)) {
+            throw new PluginException(INVALID_GUI_SETTINGS, "GUI_PRIMARY_KEY_EMPTY");
         }
         return str;
     }

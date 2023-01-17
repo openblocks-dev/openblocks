@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -25,12 +26,14 @@ import com.openblocks.domain.datasource.repository.DatasourceRepository;
 import com.openblocks.domain.datasource.service.DatasourceService;
 import com.openblocks.domain.permission.model.ResourceRole;
 import com.openblocks.domain.permission.service.ResourcePermissionService;
+import com.openblocks.domain.plugin.client.DatasourcePluginClient;
 import com.openblocks.domain.plugin.service.DatasourceMetaInfoService;
 import com.openblocks.sdk.constants.FieldName;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
 import com.openblocks.sdk.models.DatasourceConnectionConfig;
 import com.openblocks.sdk.models.DatasourceTestResult;
+import com.openblocks.sdk.models.JsDatasourceConnectionConfig;
 import com.openblocks.sdk.util.LocaleUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +55,8 @@ public class DatasourceServiceImpl implements DatasourceService {
     private ResourcePermissionService resourcePermissionService;
     @Autowired
     private DatasourceRepository repository;
+    @Autowired
+    private DatasourcePluginClient datasourcePluginClient;
 
     @Override
     public Mono<Datasource> create(Datasource datasource, String creatorId) {
@@ -74,6 +79,7 @@ public class DatasourceServiceImpl implements DatasourceService {
         }
 
         return repository.findById(datasourceId)
+                .delayUntil(this::processJsDatasourcePlugin)
                 .map(currentDatasource -> currentDatasource.mergeWith(updatedDatasource))
                 .flatMap(this::validateDatasource)
                 .flatMap(this::trySaveDatasource);
@@ -109,6 +115,10 @@ public class DatasourceServiceImpl implements DatasourceService {
 
         if (datasource.getType() == null) {
             throw new BizException(BizError.DATASOURCE_PLUGIN_ID_NOT_GIVEN, "DATASOURCE_PLUGIN_ID_NOT_GIVEN");
+        }
+
+        if (datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType())) {
+            return Mono.just(datasource);
         }
 
         return Mono.deferContextual(ctx -> {
@@ -148,19 +158,51 @@ public class DatasourceServiceImpl implements DatasourceService {
         if (testDatasource.getId() != null) {
             datasourceMono = getById(testDatasource.getId())
                     .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                    .delayUntil(this::processJsDatasourcePlugin)
                     .map(datasource -> datasource.mergeWith(testDatasource));
         }
 
         return datasourceMono
                 .flatMap(this::validateDatasource)
-                .flatMap(this::testDatasourceConnection);
+                .flatMap(datasource -> {
+                    if (datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType())) {
+                        return testDatasourceByNodeJs(datasource);
+                    }
+                    return testDatasourceLocally(datasource);
+                });
     }
 
-    private Mono<DatasourceTestResult> testDatasourceConnection(Datasource datasource) {
+    private Mono<DatasourceTestResult> testDatasourceLocally(Datasource datasource) {
         return datasourceMetaInfoService.getDatasourceConnector(datasource.getType())
                 .doTestConnection(datasource.getDetailConfig())
                 .timeout(DEFAULT_TEST_CONNECTION_TIMEOUT)
                 .onErrorResume(error -> Mono.just(DatasourceTestResult.testFail(error)));
+    }
+
+    private Mono<DatasourceTestResult> testDatasourceByNodeJs(Datasource datasource) {
+        return datasourcePluginClient.test(datasource.getType(), datasource.getDetailConfig());
+    }
+
+    /**
+     * before merge, encrypt, decrypt
+     */
+    @Override
+    public Mono<Void> processJsDatasourcePlugin(Datasource datasource) {
+        return Mono.defer(() -> {
+            if (datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType())
+                    && datasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConfig
+                    && ObjectUtils.anyNull(datasource.getPluginDefinition(), jsDatasourceConfig.getDefinition(), jsDatasourceConfig.getType())) {
+
+                return datasourcePluginClient.getDatasourcePlugin(datasource.getType())
+                        .doOnNext(datasourcePluginDTO -> {
+                            datasource.setPluginDefinition(datasourcePluginDTO);
+                            jsDatasourceConfig.setDefinition(datasourcePluginDTO);
+                            jsDatasourceConfig.setType(datasource.getType());
+                        })
+                        .then();
+            }
+            return Mono.empty();
+        });
     }
 
     @Override

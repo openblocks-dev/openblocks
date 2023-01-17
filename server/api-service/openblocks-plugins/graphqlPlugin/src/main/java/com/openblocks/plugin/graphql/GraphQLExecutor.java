@@ -14,6 +14,8 @@ import static com.openblocks.sdk.util.JsonUtils.toJsonThrows;
 import static com.openblocks.sdk.util.MustacheHelper.renderMustacheString;
 import static com.openblocks.sdk.util.StreamUtils.collectList;
 import static com.openblocks.sdk.util.StreamUtils.distinctByKey;
+import static com.openblocks.sdk.webclient.WebClients.builder;
+import static com.openblocks.sdk.webclient.WebClients.withSafeHost;
 import static org.apache.commons.lang3.StringUtils.firstNonBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
@@ -75,7 +77,6 @@ import com.openblocks.sdk.query.QueryVisitorContext;
 import com.openblocks.sdk.util.JsonUtils;
 import com.openblocks.sdk.util.MoreMapUtils;
 import com.openblocks.sdk.util.MustacheHelper;
-import com.openblocks.sdk.webclient.WebClients;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -245,7 +246,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
                 return Mono.just(QueryExecutionResult.error(QUERY_ARGUMENT_ERROR, "QUERY_ARGUMENT_ERROR", e));
             }
 
-            WebClient.Builder webClientBuilder = WebClients.builder();
+            WebClient.Builder webClientBuilder = withSafeHost(builder());
 
             Map<String, String> allHeaders = context.getHeaders();
             String contentType = context.getContentType();

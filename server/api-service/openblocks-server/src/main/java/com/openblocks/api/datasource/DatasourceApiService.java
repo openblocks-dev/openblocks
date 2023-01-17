@@ -71,7 +71,6 @@ public class DatasourceApiService {
     @Autowired
     private ApplicationService applicationService;
 
-
     public Mono<Datasource> create(Datasource datasource) {
         return sessionUserService.getVisitorId()
                 .flatMap(userId -> orgMemberService.getOrgMember(datasource.getOrganizationId(), userId))

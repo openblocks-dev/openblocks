@@ -2,7 +2,7 @@ package com.openblocks.domain.user.service;
 
 
 import static com.google.common.collect.Sets.newHashSet;
-import static com.openblocks.domain.user.model.CurrentUser.ANONYMOUS_CURRENT_USER;
+import static com.openblocks.domain.user.model.UserDetail.ANONYMOUS_CURRENT_USER;
 import static com.openblocks.sdk.constants.GlobalContext.CLIENT_IP;
 import static com.openblocks.sdk.util.ExceptionUtils.ofError;
 import static com.openblocks.sdk.util.ExceptionUtils.ofException;
@@ -37,7 +37,7 @@ import com.openblocks.domain.organization.model.OrgMember;
 import com.openblocks.domain.organization.service.OrgMemberService;
 import com.openblocks.domain.user.model.AuthorizedUser;
 import com.openblocks.domain.user.model.Connection;
-import com.openblocks.domain.user.model.CurrentUser;
+import com.openblocks.domain.user.model.UserDetail;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.model.User.TransformedUserInfo;
 import com.openblocks.domain.user.model.UserState;
@@ -258,7 +258,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public Mono<CurrentUser> buildCurrentUser(User user, boolean withoutDynamicGroups) {
+    public Mono<UserDetail> buildUserDetail(User user, boolean withoutDynamicGroups) {
         if (user.isAnonymous()) {
             return Mono.just(ANONYMOUS_CURRENT_USER);
         }
@@ -266,18 +266,18 @@ public class UserServiceImpl implements UserService {
             String ip = contextView.getOrDefault(CLIENT_IP, "");
             Locale locale = LocaleUtils.getLocale(contextView);
             return orgMemberService.getCurrentOrgMember(user.getId())
-                    .zipWhen(orgMember -> buildCurrentUserGroups(user.getId(), orgMember, withoutDynamicGroups, locale))
+                    .zipWhen(orgMember -> buildUserDetailGroups(user.getId(), orgMember, withoutDynamicGroups, locale))
                     .map(tuple2 -> {
                         OrgMember orgMember = tuple2.getT1();
                         List<Map<String, String>> groups = tuple2.getT2();
-                        return CurrentUser.builder()
+                        return UserDetail.builder()
                                 .id(user.getId())
                                 .name(user.getName())
                                 .avatarUrl(user.getAvatarUrl())
                                 .email(convertEmail(user.getConnections()))
                                 .ip(ip)
                                 .groups(groups)
-                                .extra(getCurrentUserExtra(user, orgMember.getOrgId()))
+                                .extra(getUserDetailExtra(user, orgMember.getOrgId()))
                                 .build();
                     });
         });
@@ -298,14 +298,14 @@ public class UserServiceImpl implements UserService {
                 });
     }
 
-    protected Map<String, Object> getCurrentUserExtra(User user, String orgId) {
+    protected Map<String, Object> getUserDetailExtra(User user, String orgId) {
         return Optional.ofNullable(user.getOrgTransformedUserInfo())
                 .map(orgTransformedUserInfo -> orgTransformedUserInfo.get(orgId))
                 .map(TransformedUserInfo::extra)
                 .orElse(convertConnections(user.getConnections()));
     }
 
-    protected Mono<List<Map<String, String>>> buildCurrentUserGroups(String userId, OrgMember orgMember, boolean withoutDynamicGroups,
+    protected Mono<List<Map<String, String>>> buildUserDetailGroups(String userId, OrgMember orgMember, boolean withoutDynamicGroups,
             Locale locale) {
         String orgId = orgMember.getOrgId();
         Flux<Group> groups;

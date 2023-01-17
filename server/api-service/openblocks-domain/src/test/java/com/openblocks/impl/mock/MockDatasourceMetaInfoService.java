@@ -1,5 +1,7 @@
 package com.openblocks.impl.mock;
 
+import reactor.core.publisher.Flux;
+
 import java.util.List;
 import java.util.Map;
 
@@ -15,8 +17,23 @@ public class MockDatasourceMetaInfoService implements DatasourceMetaInfoService 
     MockDatasourceConnector mockDatasourceConnectionFactory = new MockDatasourceConnector();
 
     @Override
-    public List<DatasourceMetaInfo> getSupportedDatasourceMetaInfos() {
+    public List<DatasourceMetaInfo> getJavaBasedSupportedDatasourceMetaInfos() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isJavaDatasourcePlugin(String type) {
+        return false;
+    }
+
+    @Override
+    public boolean isJsDatasourcePlugin(String type) {
+        return false;
+    }
+
+    @Override
+    public Flux<DatasourceMetaInfo> getAllSupportedDatasourceMetaInfos() {
+        return null;
     }
 
     @Override

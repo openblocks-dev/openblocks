@@ -17,6 +17,7 @@ import com.openblocks.domain.datasource.service.impl.StatelessConnectionPool;
 import com.openblocks.domain.datasource.service.impl.TokenBasedConnectionPool;
 import com.openblocks.domain.plugin.DatasourceMetaInfo;
 import com.openblocks.domain.plugin.DatasourceMetaInfoConstants;
+import com.openblocks.domain.plugin.client.DatasourcePluginClient;
 import com.openblocks.domain.plugin.service.DatasourceMetaInfoService;
 import com.openblocks.sdk.constants.ConfigTypes;
 import com.openblocks.sdk.exception.BizError;
@@ -25,6 +26,8 @@ import com.openblocks.sdk.models.DatasourceConnectionConfig;
 import com.openblocks.sdk.plugin.common.DatasourceConnector;
 import com.openblocks.sdk.plugin.common.QueryExecutor;
 import com.openblocks.sdk.query.QueryExecutionContext;
+
+import reactor.core.publisher.Flux;
 
 @SuppressWarnings("unused")
 @Component
@@ -145,9 +148,37 @@ public class DatasourceMetaInfoServiceImpl implements DatasourceMetaInfoService 
     @Autowired
     private PluginManager pluginManager;
 
+    @Autowired
+    private DatasourcePluginClient datasourcePluginClient;
+
     @Override
-    public List<DatasourceMetaInfo> getSupportedDatasourceMetaInfos() {
+    public List<DatasourceMetaInfo> getJavaBasedSupportedDatasourceMetaInfos() {
         return datasourceMetaInfos;
+    }
+
+    @Override
+    public boolean isJavaDatasourcePlugin(String type) {
+        return getJavaBasedSupportedDatasourceMetaInfos()
+                .stream()
+                .anyMatch(datasourceMetaInfo -> datasourceMetaInfo.getType().equals(type));
+    }
+
+    @Override
+    public boolean isJsDatasourcePlugin(String type) {
+        return !isJavaDatasourcePlugin(type);
+    }
+
+    @Override
+    public Flux<DatasourceMetaInfo> getAllSupportedDatasourceMetaInfos() {
+        Flux<DatasourceMetaInfo> datasourceMetaInfoFlux = datasourcePluginClient.getDatasourcePlugins()
+                .map(datasourcePluginDTO -> DatasourceMetaInfo.builder()
+                        .type(datasourcePluginDTO.getId())
+                        .displayName(datasourcePluginDTO.getName())
+                        .definition(datasourcePluginDTO)
+                        .build());
+
+        return Flux.fromIterable(getJavaBasedSupportedDatasourceMetaInfos())
+                .concatWith(datasourceMetaInfoFlux);
     }
 
     @SuppressWarnings("unchecked")
@@ -163,7 +194,7 @@ public class DatasourceMetaInfoServiceImpl implements DatasourceMetaInfoService 
 
     @Override
     public DatasourceMetaInfo getDatasourceMetaInfo(String datasourceType) {
-        return getSupportedDatasourceMetaInfos()
+        return getJavaBasedSupportedDatasourceMetaInfos()
                 .stream()
                 .filter(value -> value.getType().equalsIgnoreCase(datasourceType))
                 .findFirst()
