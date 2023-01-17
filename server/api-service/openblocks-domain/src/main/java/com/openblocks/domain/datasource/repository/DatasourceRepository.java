@@ -3,6 +3,12 @@ package com.openblocks.domain.datasource.repository;
 import static com.openblocks.sdk.util.JsonUtils.fromJsonMap;
 import static com.openblocks.sdk.util.JsonUtils.toJson;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Function;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,6 +22,7 @@ import com.openblocks.domain.plugin.client.DatasourcePluginClient;
 import com.openblocks.domain.plugin.service.DatasourceMetaInfoService;
 import com.openblocks.infra.mongo.MongoUpsertHelper;
 import com.openblocks.sdk.models.DatasourceConnectionConfig;
+import com.openblocks.sdk.models.HasIdAndAuditing;
 import com.openblocks.sdk.models.JsDatasourceConnectionConfig;
 import com.openblocks.sdk.util.JsonUtils;
 
@@ -75,6 +82,23 @@ public class DatasourceRepository {
         Datasource datasource = new Datasource();
         datasource.setDatasourceStatus(DatasourceStatus.DELETED);
         return mongoUpsertHelper.updateById(datasource, datasourceId);
+    }
+
+    public Flux<String> retainNoneExistAndNonCurrentOrgDatasourceIds(Collection<String> datasourceIds, String orgId) {
+        if (CollectionUtils.isEmpty(datasourceIds)) {
+            return Flux.empty();
+        }
+        return repository.findAllById(new HashSet<>(datasourceIds))
+                .collectList()
+                .map(existDatasources -> {
+                    Set<String> result = new HashSet<>(datasourceIds);
+                    existDatasources.stream()
+                            .filter(datasource -> datasource.getOrganizationId().equals(orgId))
+                            .map(HasIdAndAuditing::getId)
+                            .forEach(result::remove);
+                    return result;
+                })
+                .flatMapIterable(Function.identity());
     }
 
     public Mono<Long> countByOrganizationId(String orgId) {

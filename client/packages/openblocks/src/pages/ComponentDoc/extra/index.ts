@@ -1,8 +1,8 @@
 import { UICompType } from "comps/uiCompRegistry";
-import table from "@openblocks-ee/pages/ComponentDoc/extra/table.md";
+import { trans } from "i18n";
 
 const extra: { [key in UICompType]?: string } = {
-  table,
+  table: trans("componentDocExtra.table"),
 };
 
 export default extra;

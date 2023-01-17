@@ -7,6 +7,7 @@ import static com.openblocks.infra.constant.Url.CONFIG_URL;
 import static com.openblocks.infra.constant.Url.CUSTOM_AUTH;
 import static com.openblocks.infra.constant.Url.GROUP_URL;
 import static com.openblocks.infra.constant.Url.INVITATION_URL;
+import static com.openblocks.infra.constant.Url.ORGANIZATION_URL;
 import static com.openblocks.infra.constant.Url.QUERY_URL;
 import static com.openblocks.infra.constant.Url.STATE_URL;
 import static com.openblocks.infra.constant.Url.USER_URL;
@@ -90,6 +91,7 @@ public class SecurityConfig {
 
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, GROUP_URL + "/list"), // application view
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, QUERY_URL + "/execute"), // application view
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ORGANIZATION_URL + "/*/datasourceTypes"), // datasource types
 
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, GITHUB_STAR),
 
@@ -110,7 +112,8 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.USER_URL + "/currentUser"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.GROUP_URL + "/list"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.QUERY_URL + "/execute"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.MATERIAL_URL + "/**")
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.MATERIAL_URL + "/**"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.ORGANIZATION_URL + "/*/datasourceTypes") // datasource types
                 )
                 .permitAll()
                 .pathMatchers("/api/**")
@@ -145,12 +148,14 @@ public class SecurityConfig {
         source.registerCorsConfiguration(QUERY_URL + "/execute", skipCheckCorsForAll);
         source.registerCorsConfiguration(APPLICATION_URL + "/*/view", skipCheckCorsForAll);
         source.registerCorsConfiguration(GITHUB_STAR, skipCheckCorsForAll);
+        source.registerCorsConfiguration(ORGANIZATION_URL + "/*/datasourceTypes", skipCheckCorsForAll);
 
         source.registerCorsConfiguration(NewUrl.USER_URL + "/me", skipCheckCorsForAll);
         source.registerCorsConfiguration(NewUrl.CONFIG_URL, skipCheckCorsForAll);
         source.registerCorsConfiguration(NewUrl.GROUP_URL + "/list", skipCheckCorsForAll);
         source.registerCorsConfiguration(NewUrl.QUERY_URL + "/execute", skipCheckCorsForAll);
         source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/*/view", skipCheckCorsForAll);
+        source.registerCorsConfiguration(NewUrl.ORGANIZATION_URL + "/*/datasourceTypes", skipCheckCorsForAll);
 
         source.registerCorsConfiguration("/**", skipCheckCorsForAllowListDomains);
         return source;

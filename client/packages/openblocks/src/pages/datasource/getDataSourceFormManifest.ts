@@ -8,10 +8,10 @@ export function getDataSourceFormManifest(
   dataSourceType: DatasourceType,
   plugin?: DataSourcePluginMeta
 ): DatasourceFormManifest | undefined {
-  if (dataSourceType?.startsWith("plugin:")) {
+  if (plugin) {
     return {
       form: PluginDataSourceForm,
-      enableTest: !!plugin?.shouldValidateDataSourceConfig,
+      enableTest: !!plugin.shouldValidateDataSourceConfig,
     };
   }
 

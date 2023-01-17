@@ -358,7 +358,14 @@ export function UserDetailPopup(props: { userId: string; title: string }) {
           if (validateResponse(resp)) {
             setUserInfo({
               success: true,
-              view: <ReactJson name={false} src={resp.data.data} collapsed={3} />,
+              view: (
+                <ReactJson
+                  name={false}
+                  src={resp.data.data}
+                  collapsed={3}
+                  style={{ wordBreak: "break-word" }}
+                />
+              ),
             });
           }
         })
@@ -381,8 +388,8 @@ export function UserDetailPopup(props: { userId: string; title: string }) {
         {trans("memberSettings.userDetail")}
       </OperationLink>
       <CustomModal
-        width={500}
-        bodyStyle={{ maxHeight: "500px", overflow: "auto", maxWidth: "500px", width: "500px" }}
+        width={550}
+        bodyStyle={{ maxHeight: "500px", overflow: "auto", maxWidth: "550px", width: "550px" }}
         visible={visible}
         onCancel={() => setVisible(false)}
         title={title}

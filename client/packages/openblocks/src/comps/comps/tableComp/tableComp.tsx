@@ -502,7 +502,7 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
         input.showSizeChanger.value,
         input.pageSize.value,
         input.pageSizeOptions.value,
-        input.changeablePageSize.value
+        input.changeablePageSize
       );
     },
     trans("table.pageSizeDesc")
@@ -557,7 +557,7 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
           input.showSizeChanger.value,
           input.pageSize.value,
           input.pageSizeOptions.value,
-          input.changeablePageSize.value
+          input.changeablePageSize
         ) *
         (input.pageNo - 1)
       );

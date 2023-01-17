@@ -6,12 +6,14 @@ import static com.openblocks.sdk.util.LocaleUtils.getLocale;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -184,7 +186,7 @@ public class DatasourceServiceImpl implements DatasourceService {
     }
 
     /**
-     * before merge, encrypt, decrypt
+     * before merge, encrypt, decrypt, and removePasswords
      */
     @Override
     public Mono<Void> processJsDatasourcePlugin(Datasource datasource) {
@@ -206,6 +208,17 @@ public class DatasourceServiceImpl implements DatasourceService {
     }
 
     @Override
+    public Mono<Void> removePasswordTypeKeysFromJsDatasourcePluginConfig(Datasource datasource) {
+        return processJsDatasourcePlugin(datasource)
+                .doFinally(__ -> {
+                    if (datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType())
+                            && datasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConnectionConfig) {
+                        jsDatasourceConnectionConfig.removePasswords();
+                    }
+                });
+    }
+
+    @Override
     public Flux<Datasource> getByOrgId(String orgId) {
         return repository.findAllByOrganizationId(orgId);
     }
@@ -218,6 +231,14 @@ public class DatasourceServiceImpl implements DatasourceService {
     @Override
     public Mono<Datasource> findWorkspacePredefinedDatasource(String organizationId, String type) {
         return repository.findWorkspacePredefinedDatasourceByOrgIdAndType(organizationId, type);
+    }
+
+    @Override
+    public Flux<String> retainNoneExistAndNonCurrentOrgDatasourceIds(Collection<String> datasourceIds, String orgId) {
+        if (CollectionUtils.isEmpty(datasourceIds)) {
+            return Flux.empty();
+        }
+        return repository.retainNoneExistAndNonCurrentOrgDatasourceIds(datasourceIds, orgId);
     }
 
     @Override

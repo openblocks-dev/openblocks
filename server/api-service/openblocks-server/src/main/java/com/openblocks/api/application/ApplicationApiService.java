@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.openblocks.api.application.ApplicationController.CreateApplicationRequest;
 import com.openblocks.api.application.view.ApplicationInfoView;
 import com.openblocks.api.application.view.ApplicationPermissionView;
@@ -47,6 +48,7 @@ import com.openblocks.domain.application.model.ApplicationType;
 import com.openblocks.domain.application.service.ApplicationService;
 import com.openblocks.domain.bizthreshold.AbstractBizThresholdChecker;
 import com.openblocks.domain.datasource.model.Datasource;
+import com.openblocks.domain.datasource.service.DatasourceService;
 import com.openblocks.domain.group.service.GroupService;
 import com.openblocks.domain.interaction.UserApplicationInteractionService;
 import com.openblocks.domain.organization.model.Organization;
@@ -68,6 +70,7 @@ import com.openblocks.infra.util.TupleUtils;
 import com.openblocks.sdk.constants.Authentication;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
+import com.openblocks.sdk.plugin.common.QueryExecutor;
 import com.openblocks.sdk.util.ExceptionUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -128,6 +131,8 @@ public class ApplicationApiService {
     private TemplateService templateService;
     @Autowired
     private PermissionHelper permissionHelper;
+    @Autowired
+    private DatasourceService datasourceService;
 
     public Mono<ApplicationView> create(CreateApplicationRequest createApplicationRequest) {
 
@@ -517,7 +522,12 @@ public class ApplicationApiService {
                 VIEW_DATASOURCE_TYPE.equalsIgnoreCase(datasourceType)) {
             return queryMap;
         }
-        var queryExecutor = datasourceMetaInfoService.getQueryExecutor(datasourceType);
+        QueryExecutor<?, Object, ?> queryExecutor;
+        try {
+            queryExecutor = datasourceMetaInfoService.getQueryExecutor(datasourceType);
+        } catch (Exception e) {
+            return queryMap;
+        }
         Object comp = queryMap.get("comp");
         if (!(comp instanceof Map<?, ?> queryConfig)) {
             return queryMap;
@@ -551,10 +561,15 @@ public class ApplicationApiService {
                 return Mono.empty();
             }
 
+            String organizationId = application.getOrganizationId();
             return sessionUserService.getVisitorId()
-                    .flatMap(userId -> resourcePermissionService.haveAllEnoughPermissions(userId, datasourceIds, USE_DATASOURCES))
-                    .flatMap(havePermissions -> {
-                        if (havePermissions) {
+                    .flatMap(userId -> resourcePermissionService.getMaxMatchingPermission(userId, datasourceIds, USE_DATASOURCES))
+                    .zipWith(datasourceService.retainNoneExistAndNonCurrentOrgDatasourceIds(datasourceIds, organizationId).collectList())
+                    .flatMap(tuple -> {
+                        Set<String> hasPermissionDatasourceIds = tuple.getT1().keySet();
+                        List<String> noneExistDatasourceIds = tuple.getT2();
+
+                        if (Sets.union(hasPermissionDatasourceIds, new HashSet<>(noneExistDatasourceIds)).containsAll(datasourceIds)) {
                             return Mono.empty();
                         }
                         return ExceptionUtils.ofError(BizError.NOT_AUTHORIZED, "APPLICATION_EDIT_ERROR_LACK_OF_DATASOURCE_PERMISSIONS");

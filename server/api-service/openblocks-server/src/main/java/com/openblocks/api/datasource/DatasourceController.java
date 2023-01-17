@@ -37,6 +37,7 @@ import com.openblocks.api.framework.view.ResponseView;
 import com.openblocks.api.permission.view.CommonPermissionView;
 import com.openblocks.api.util.BusinessEventPublisher;
 import com.openblocks.domain.datasource.model.Datasource;
+import com.openblocks.domain.datasource.service.DatasourceService;
 import com.openblocks.domain.datasource.service.DatasourceStructureService;
 import com.openblocks.domain.permission.model.ResourceRole;
 import com.openblocks.infra.constant.NewUrl;
@@ -58,16 +59,20 @@ public class DatasourceController {
     private final DatasourceApiService datasourceApiService;
     private final UpsertDatasourceRequestMapper upsertDatasourceRequestMapper;
     private final BusinessEventPublisher businessEventPublisher;
+    private final DatasourceService datasourceService;
 
     @Autowired
     public DatasourceController(
             DatasourceStructureService datasourceStructureService,
             DatasourceApiService datasourceApiService,
-            UpsertDatasourceRequestMapper upsertDatasourceRequestMapper, BusinessEventPublisher businessEventPublisher) {
+            UpsertDatasourceRequestMapper upsertDatasourceRequestMapper,
+            BusinessEventPublisher businessEventPublisher,
+            DatasourceService datasourceService) {
         this.datasourceStructureService = datasourceStructureService;
         this.datasourceApiService = datasourceApiService;
         this.upsertDatasourceRequestMapper = upsertDatasourceRequestMapper;
         this.businessEventPublisher = businessEventPublisher;
+        this.datasourceService = datasourceService;
     }
 
     @JsonView(JsonViews.Public.class)
@@ -75,6 +80,7 @@ public class DatasourceController {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseView<Datasource>> create(@Valid @RequestBody UpsertDatasourceRequest request) {
         return datasourceApiService.create(upsertDatasourceRequestMapper.resolve(request))
+                .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
                 .delayUntil(datasource -> businessEventPublisher.publishDatasourceEvent(datasource, DATA_SOURCE_CREATE))
                 .map(ResponseView::success);
     }
@@ -83,6 +89,7 @@ public class DatasourceController {
     @GetMapping("/{id}")
     public Mono<ResponseView<Datasource>> getById(@PathVariable String id) {
         return datasourceApiService.findByIdWithPermission(id)
+                .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
                 .map(ResponseView::success);
     }
 
@@ -92,6 +99,7 @@ public class DatasourceController {
             @RequestBody UpsertDatasourceRequest request) {
         Datasource resolvedDatasource = upsertDatasourceRequestMapper.resolve(request);
         return datasourceApiService.update(id, resolvedDatasource)
+                .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
                 .delayUntil(datasource -> businessEventPublisher.publishDatasourceEvent(datasource, DATA_SOURCE_UPDATE))
                 .map(ResponseView::success);
     }
