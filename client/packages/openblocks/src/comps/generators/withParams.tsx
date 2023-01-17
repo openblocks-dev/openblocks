@@ -119,7 +119,7 @@ export function withParamsWithDefault<
     override getPropertyView(): ReactNode {
       return (
         <CompExposingContext.Provider value={this.params}>
-          {this.getComp().getPropertyView()};
+          {this.getComp().getPropertyView()}
         </CompExposingContext.Provider>
       );
     }

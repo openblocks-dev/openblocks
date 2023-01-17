@@ -160,6 +160,9 @@ function GroupUsersPermission(props: GroupPermissionProp) {
           render={(value, record: GroupUser) => {
             return (
               <div className="operation-cell-div-wrapper">
+                {currentOrgAdmin(currentUser) && (
+                  <UserDetailPopup userId={record.userId} title={record.userName} />
+                )}
                 {record.userId === currentUser.id ? (
                   isGroupAdmin(record.role) && adminCount === 1 ? (
                     <QuestionTooltip title={LAST_ADMIN_QUIT} />
@@ -189,9 +192,6 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                       {trans("memberSettings.moveOutGroup")}
                     </span>
                   )
-                )}
-                {currentOrgAdmin(currentUser) && (
-                  <UserDetailPopup userId={record.userId} title={record.userName} />
                 )}
               </div>
             );

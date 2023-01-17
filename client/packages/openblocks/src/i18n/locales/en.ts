@@ -1,3 +1,5 @@
+import table from "./componentDocExtra/table.md?url";
+
 export const en = {
   productName: "Openblocks",
   productDesc: "Build internal tools fast, with no limitations",
@@ -512,7 +514,9 @@ export const en = {
     update: "Update",
     delete: "Delete",
     bulkInsert: "Bulk insert",
+    bulkUpdate: "Bulk update",
     table: "Table",
+    primaryKeyColumn: "Primary key column",
   },
   EsQuery: {
     rawCommand: "Raw command",
@@ -1927,7 +1931,7 @@ export const en = {
   },
   docUrls: {
     docHome: "https://docs.openblocks.dev/",
-    components: "",
+    components: "https://cloud.openblocks.dev/components?n={compType}",
     module: "",
     optionList: "",
     terms: "",
@@ -2182,12 +2186,15 @@ export const en = {
   playground: {
     data: "Data",
     preview: "Preview",
-    property: "Property",
+    property: "Properties",
     console: "Console",
     executeMethods: "Execute methods",
     noMethods: "No methods.",
     methodParams: "Method params",
     methodParamsHelp:
       "Input method params use JSON, for example, you can set setValue's params with: [1] or 1",
+  },
+  componentDocExtra: {
+    table,
   },
 };

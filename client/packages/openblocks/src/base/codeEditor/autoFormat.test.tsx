@@ -60,4 +60,7 @@ test("formatStringWithJsSnippets", async () => {
   await expect(formatStringWithJsSnippets("{{function(){}()}}")).resolves.toBe(
     "{{(function () {})()}}"
   );
+  await expect(formatStringWithJsSnippets("{{(function () {})()}}")).resolves.toBe(
+    "{{(function () {})()}}"
+  );
 });

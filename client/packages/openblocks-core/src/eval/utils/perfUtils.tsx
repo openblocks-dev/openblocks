@@ -3,32 +3,29 @@ import _ from "lodash";
 const SWITCH_PERF_ON = false;
 const COST_MS_PRINT_THR = 0;
 
-interface RecursivePerfUtilParams {
-  name: string;
-}
-
 interface PerfInfo {
   obj: any;
+  name: string;
   childrenPerfInfo: PerfInfo[];
   costMs: number;
   depth: number;
-  info?: string;
+  info: Record<string, any>;
 }
+
+type Log = (key: string, log: any) => void;
 
 class RecursivePerfUtil {
   root = Symbol("root");
-  name: string;
 
   record: PerfInfo;
   stack: number[] = [];
 
-  constructor(params: RecursivePerfUtilParams) {
-    this.name = params.name;
+  constructor() {
     this.record = this.initRecord();
   }
 
   private initRecord = () => {
-    return { obj: this.root, childrenPerfInfo: [], costMs: 0, depth: 0 };
+    return { obj: this.root, name: "@root", childrenPerfInfo: [], costMs: 0, depth: 0, info: {} };
   };
 
   private getRecordByStack = (stack?: number[]) => {
@@ -39,23 +36,30 @@ class RecursivePerfUtil {
     return curRecord;
   };
 
-  perf<T>(obj: any, info: string, fn: () => T): T {
+  log(info: Record<string, any>, key: string, log: any) {
+    info[key] = log;
+  }
+
+  perf<T>(obj: any, name: string, fn: (log: Log) => T): T {
     if (!SWITCH_PERF_ON) {
-      return fn();
+      return fn(_.noop);
     }
     const curRecord = this.getRecordByStack();
     const childrenSize = _.size(curRecord.childrenPerfInfo);
-    curRecord.childrenPerfInfo.push({
+    const nextPerfInfo = {
       obj,
+      name,
       childrenPerfInfo: [],
       costMs: 0,
       depth: curRecord.depth + 1,
-      info,
-    });
+      info: {},
+    };
+    curRecord.childrenPerfInfo.push(nextPerfInfo);
     this.stack.push(childrenSize);
     const startMs = performance.now();
 
-    const result = fn();
+    const wrapLog: Log = (key, log) => this.log(nextPerfInfo.info, key, log);
+    const result = fn(wrapLog);
 
     const costMs = performance.now() - startMs;
     this.stack.pop();
@@ -72,24 +76,29 @@ class RecursivePerfUtil {
   print = (stack: number[], cost_ms_print_thr: number = COST_MS_PRINT_THR) => {
     const record = this.getRecordByStack(stack);
     console.info(
-      `PerfInfo. stack: ${stack}, [info] ${record.info}, obj: `,
+      `~~ PerfInfo. costMs: ${record.costMs.toFixed(3)}, stack: ${stack}, [name]${
+        record.name
+      }, [info]`,
+      record.info,
+      `, obj: `,
       record.obj,
-      `, costMs: ${record.costMs}, depth: ${record.depth}, size: ${_.size(record.childrenPerfInfo)}`
+      `, depth: ${record.depth}, size: ${_.size(record.childrenPerfInfo)}`
     );
     record.childrenPerfInfo.forEach((subRecord, idx) => {
       if (subRecord.costMs >= cost_ms_print_thr) {
         console.info(
-          `  [${idx}]${subRecord.info}. obj: `,
+          `  costMs: ${subRecord.costMs.toFixed(3)} [${idx}]${subRecord.name} [info]`,
+          subRecord.info,
+          `. obj: `,
           subRecord.obj,
-          " costMs: ",
-          subRecord.costMs
+          ``
         );
       }
     });
   };
 }
 
-export const evalPerfUtil = new RecursivePerfUtil({ name: "evaluate" });
+export const evalPerfUtil = new RecursivePerfUtil();
 
 // @ts-ignore
 globalThis.evalPerfUtil = evalPerfUtil;

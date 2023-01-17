@@ -65,6 +65,12 @@ public class JsDatasourceConnectionConfig extends HashMap<String, Object> implem
         return Collections.emptyList();
     }
 
+    public void removePasswords() {
+        for (String passwordKey : getPasswordTypeKeys()) {
+            this.remove(passwordKey);
+        }
+    }
+
     @Override
     public DatasourceConnectionConfig mergeWithUpdatedConfig(DatasourceConnectionConfig detailConfig) {
         if (!(detailConfig instanceof JsDatasourceConnectionConfig jsDatasourceConnectionConfig)) {

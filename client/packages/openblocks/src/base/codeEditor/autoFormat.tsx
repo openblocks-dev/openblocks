@@ -31,7 +31,8 @@ export async function getJsonFormatter() {
 
 function formatJsSegment(formatter: (text: string) => string, script: string) {
   try {
-    return formatter(script);
+    const s = formatter(script);
+    return s.startsWith(";") ? s.slice(1) : s;
   } catch (e1) {
     try {
       const s = formatter(`return (${script}\n);`); // same as evalScript()

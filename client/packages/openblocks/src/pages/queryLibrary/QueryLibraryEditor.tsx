@@ -127,7 +127,7 @@ export const QueryLibraryEditor = () => {
   const datasource = originDatasourceInfo
     .filter((t) => {
       return (
-        t.datasource.type.startsWith("plugin:") ||
+        !!t.datasource.pluginDefinition ||
         apiPluginsForQueryLibrary.includes(t.datasource.type) ||
         databasePlugins.includes(t.datasource.type)
       );

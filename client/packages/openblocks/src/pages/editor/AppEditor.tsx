@@ -68,48 +68,30 @@ export default function AppEditor() {
 
   // fetch dataSource and plugin
   useEffect(() => {
-    if (orgId) {
-      if (params.viewMode === "edit") {
-        dispatch(
-          fetchDataSourceTypes({
-            organizationId: orgId,
-            onSuccess: (dataSourceTypes) => {
-              dataSourceTypes.forEach((dataSourceType) => {
-                const { definition } = dataSourceType;
-                if (!definition) {
-                  return;
-                }
-                registryDataSourcePlugin(definition.id, definition);
-              });
-              setIsDataSourcePluginRegistered(true);
-            },
-          })
-        );
-        dispatch(fetchFolderElements({}));
-      }
-    }
-  }, [dispatch, orgId, params.viewMode]);
-
-  useEffect(() => {
-    if (!applicationId) {
-      return;
-    }
     dispatch(
-      fetchDataSourceByApp({
-        applicationId: applicationId,
-        onSuccess: (dataSources) => {
-          if (params.viewMode !== "edit") {
-            dataSources.forEach((dataSource) => {
-              const plugin = dataSource.datasource.pluginDefinition;
-              if (plugin) {
-                registryDataSourcePlugin(plugin.id, plugin);
-              }
-            });
-            setIsDataSourcePluginRegistered(true);
-          }
+      fetchDataSourceTypes({
+        organizationId: "fake",
+        onSuccess: (dataSourceTypes) => {
+          dataSourceTypes.forEach((dataSourceType) => {
+            const { definition } = dataSourceType;
+            if (!definition) {
+              return;
+            }
+            registryDataSourcePlugin(definition.id, definition);
+          });
+          setIsDataSourcePluginRegistered(true);
         },
       })
     );
+    if (params.viewMode === "edit") {
+      dispatch(fetchFolderElements({}));
+    }
+  }, [dispatch, params.viewMode]);
+
+  useEffect(() => {
+    if (applicationId && params.viewMode === "edit") {
+      dispatch(fetchDataSourceByApp({ applicationId: applicationId }));
+    }
   }, [dispatch, applicationId, params.viewMode]);
 
   useEffect(() => {
