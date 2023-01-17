@@ -3,7 +3,6 @@ import { EditorContext } from "../../editorState";
 import { BottomTabs } from "pages/editor/bottom/BottomTabs";
 import { useSelector } from "react-redux";
 import { getDataSource, getDataSourceTypes } from "redux/selectors/datasourceSelectors";
-import { InputStatus } from "antd/es/_util/statusUtils";
 import {
   changeValueAction,
   deferAction,
@@ -27,7 +26,7 @@ import { PreparedStatementConfig } from "../../../api/datasourceApi";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { PageType } from "../../../constants/pageConstants";
 import { trans } from "i18n";
-import { manualTriggerResource } from "@openblocks-ee/constants/queryConstants";
+import { manualTriggerResource, ResourceType } from "@openblocks-ee/constants/queryConstants";
 import {
   OPENBLOCKS_API_ID,
   QUICK_GRAPHQL_ID,
@@ -41,7 +40,6 @@ export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> 
 
   const editorState = useContext(EditorContext);
   const datasource = useSelector(getDataSource);
-  const datasourceTypes = useSelector(getDataSourceTypes);
 
   const children = comp.children;
   const dispatch = comp.dispatch;
@@ -50,24 +48,7 @@ export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> 
   const datasourceConfig = datasource.find((d) => d.datasource.id === datasourceId)?.datasource
     .datasourceConfig;
 
-  const datasourceStatus: InputStatus = useMemo(() => {
-    if (
-      datasourceType === "js" ||
-      datasourceType === "libraryQuery" ||
-      datasourceId === QUICK_REST_API_ID ||
-      datasourceId === QUICK_GRAPHQL_ID ||
-      datasourceId === OPENBLOCKS_API_ID
-    ) {
-      return "";
-    }
-    if (
-      datasource.find((info) => info.datasource.id === datasourceId) &&
-      datasourceTypes.find((type) => type.id === datasourceType)
-    ) {
-      return "";
-    }
-    return "error";
-  }, [datasource, datasourceTypes, datasourceId, datasourceType]);
+  const datasourceStatus = useDatasourceStatus(datasourceId, datasourceType);
 
   return (
     <BottomTabs
@@ -77,7 +58,7 @@ export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> 
           {
             key: "general",
             title: trans("query.generalTab"),
-            children: <QueryGeneralPropertyView comp={comp} datasourceStatus={datasourceStatus} />,
+            children: <QueryGeneralPropertyView comp={comp} />,
           },
           {
             key: "notification",
@@ -160,10 +141,9 @@ export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> 
 
 export const QueryGeneralPropertyView = (props: {
   comp: InstanceType<typeof QueryComp>;
-  datasourceStatus?: InputStatus;
   placement?: PageType;
 }) => {
-  const { datasourceStatus = "", comp, placement = "editor" } = props;
+  const { comp, placement = "editor" } = props;
   const editorState = useContext(EditorContext);
   const datasource = useSelector(getDataSource);
 
@@ -173,6 +153,8 @@ export const QueryGeneralPropertyView = (props: {
   let datasourceType = children.compType.getView();
   const datasourceConfig = datasource.find((d) => d.datasource.id === datasourceId)?.datasource
     .datasourceConfig;
+
+  const datasourceStatus = useDatasourceStatus(datasourceId, datasourceType);
 
   // transfer old quick REST API datasource to new
   const oldQuickRestId = useMemo(
@@ -361,3 +343,27 @@ export const QueryGeneralPropertyView = (props: {
     </QueryPropertyViewWrapper>
   );
 };
+
+function useDatasourceStatus(datasourceId: string, datasourceType: ResourceType) {
+  const datasource = useSelector(getDataSource);
+  const datasourceTypes = useSelector(getDataSourceTypes);
+
+  return useMemo(() => {
+    if (
+      datasourceType === "js" ||
+      datasourceType === "libraryQuery" ||
+      datasourceId === QUICK_REST_API_ID ||
+      datasourceId === QUICK_GRAPHQL_ID ||
+      datasourceId === OPENBLOCKS_API_ID
+    ) {
+      return "";
+    }
+    if (
+      datasource.find((info) => info.datasource.id === datasourceId) &&
+      datasourceTypes.find((type) => type.id === datasourceType)
+    ) {
+      return "";
+    }
+    return "error";
+  }, [datasource, datasourceTypes, datasourceId, datasourceType]);
+}

@@ -53,7 +53,7 @@ function getBottomResIconInnerByUrl(type: ResourceType, url: string) {
   if (!fullUrl.startsWith("http")) {
     fullUrl = `${REACT_APP_API_HOST}/node-service/plugin-icons/${url}`;
   }
-  return <img src={fullUrl} alt="" />;
+  return <img style={{ width: "100%", height: "100%" }} src={fullUrl} alt="" />;
 }
 
 export type BottomResType =
