@@ -29,6 +29,8 @@ common:
   cloud: false
   version: 1.1.4
   block-hound-enable: false
+  js-executor:
+    host: ${JS_EXECUTOR_URI:http://127.0.0.1:6060}
 
 material:
   mongodb-grid-fs:
