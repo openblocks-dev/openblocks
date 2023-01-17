@@ -1,5 +1,7 @@
 package com.openblocks.domain.datasource.service;
 
+import java.util.Collection;
+
 import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.sdk.models.DatasourceTestResult;
 
@@ -25,4 +27,6 @@ public interface DatasourceService {
     Mono<Long> countByOrganizationId(String orgId);
 
     Mono<Datasource> findWorkspacePredefinedDatasource(String organizationId, String datasourceType);
+
+    Flux<String> retainNoneExistAndNonCurrentOrgDatasourceIds(Collection<String> datasourceIds, String organizationId);
 }

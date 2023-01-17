@@ -103,21 +103,27 @@ public class LibraryQueryApiService {
         Flux<LibraryQuery> libraryQueryFlux = libraryQueryService.getByOrganizationId(orgId)
                 .cache();
 
-        Mono<HashSet<String>> datasourceIdSetWithPermissions = libraryQueryFlux.map(libraryQuery -> libraryQuery.getQuery().getDatasourceId())
+        Mono<List<String>> datasourceIdListMono = libraryQueryFlux.map(libraryQuery -> libraryQuery.getQuery().getDatasourceId())
                 .filter(StringUtils::isNotBlank)
                 .collectList()
+                .cache();
+
+        Mono<HashSet<String>> datasourceIdSetWithPermissionsOrNoneExists = datasourceIdListMono
                 .zipWith(sessionUserService.getVisitorId())
                 .flatMapMany(tuple -> {
                     List<String> datasourceIds = tuple.getT1();
                     String userId = tuple.getT2();
                     return resourcePermissionService.filterResourceWithPermission(userId, datasourceIds, ResourceAction.USE_DATASOURCES);
                 })
+                .concatWith(datasourceIdListMono.flatMapMany(
+                        datasourceIds -> datasourceService.retainNoneExistAndNonCurrentOrgDatasourceIds(datasourceIds, orgId)))
                 .collectList()
                 .map(HashSet::new)
                 .cache();
 
         return libraryQueryFlux
-                .filterWhen(libraryQuery -> datasourceIdSetWithPermissions.map(set -> set.contains(libraryQuery.getQuery().getDatasourceId())));
+                .filterWhen(libraryQuery -> datasourceIdSetWithPermissionsOrNoneExists.map(
+                        set -> set.contains(libraryQuery.getQuery().getDatasourceId())));
     }
 
     public Mono<LibraryQueryView> create(LibraryQuery libraryQuery) {
@@ -275,7 +281,7 @@ public class LibraryQueryApiService {
         Mono<BaseQuery> baseQueryMono = libraryQueryService.getEditingBaseQueryByLibraryQueryId(
                 queryExecutionRequest.getLibraryQueryCombineId().libraryQueryId()).cache();
         Mono<Datasource> datasourceMono = baseQueryMono.flatMap(query -> datasourceService.getById(query.getDatasourceId())
-                        .switchIfEmpty(deferredError(BizError.DATASOURCE_NOT_FOUND, "DATASOURCE_NOT_FOUND", query.getDatasourceId()))).cache();
+                .switchIfEmpty(deferredError(BizError.DATASOURCE_NOT_FOUND, "DATASOURCE_NOT_FOUND", query.getDatasourceId()))).cache();
 
         return orgDevChecker.checkCurrentOrgDev()
                 .then(Mono.zip(sessionUserService.getVisitorOrgMemberCache(),
