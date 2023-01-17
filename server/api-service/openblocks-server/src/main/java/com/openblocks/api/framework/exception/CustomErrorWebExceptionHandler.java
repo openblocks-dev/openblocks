@@ -1,10 +1,10 @@
 package com.openblocks.api.framework.exception;
 
 import static com.openblocks.sdk.util.ExceptionUtils.ofException;
-import static com.openblocks.sdk.util.LocaleUtils.getLocale;
 import static org.springframework.web.reactive.function.server.RequestPredicates.all;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -32,6 +32,7 @@ import org.springframework.web.reactive.result.view.ViewResolver;
 import com.mongodb.MongoExecutionTimeoutException;
 import com.mongodb.MongoSocketReadTimeoutException;
 import com.mongodb.MongoTimeoutException;
+import com.openblocks.api.framework.service.GlobalContextService;
 import com.openblocks.api.framework.view.ResponseView;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
@@ -50,6 +51,9 @@ public class CustomErrorWebExceptionHandler extends DefaultErrorWebExceptionHand
     private ApiPerfHelper apiPerfHelper;
 
     @Autowired
+    private GlobalContextService globalContextService;
+
+    @Autowired
     public CustomErrorWebExceptionHandler(ErrorAttributes errorAttributes, Resources resources,
             ServerProperties serverProperties, ApplicationContext applicationContext,
             ObjectProvider<ViewResolver> viewResolvers,
@@ -66,6 +70,9 @@ public class CustomErrorWebExceptionHandler extends DefaultErrorWebExceptionHand
         return route(all(), this::render);
     }
 
+    /**
+     * can't use {@link Mono#deferContextual} in this method!
+     */
     private Mono<ServerResponse> render(ServerRequest request) {
         Map<String, Object> error = getErrorAttributes(request, ErrorAttributeOptions.defaults());
         int httpErrorCode = getHttpStatus(error);
@@ -84,11 +91,12 @@ public class CustomErrorWebExceptionHandler extends DefaultErrorWebExceptionHand
         if (throwable != null) {
             errorFileLog.error("oops {}, {}", throwable.getClass(), throwable.getMessage());
         }
-        return Mono.deferContextual(contextView -> Mono.just(getLocale(contextView)))
-                .flatMap(locale -> ServerResponse.status(bizException.getError().getHttpErrorCode())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(BodyInserters.fromValue(ResponseView.error(bizException.getError().getBizErrorCode(),
-                                LocaleUtils.getMessage(locale, bizException.getMessageKey(), bizException.getArgs())))));
+
+        Locale locale = globalContextService.getClientLocale(request);
+        return ServerResponse.status(bizException.getError().getHttpErrorCode())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(ResponseView.error(bizException.getError().getBizErrorCode(),
+                        LocaleUtils.getMessage(locale, bizException.getMessageKey(), bizException.getArgs()))));
     }
 
     private BizException parseBizException(Throwable error) {

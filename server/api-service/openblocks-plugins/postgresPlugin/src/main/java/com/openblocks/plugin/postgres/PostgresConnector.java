@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
 
@@ -28,11 +29,20 @@ import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
 @Extension
 public class PostgresConnector extends BlockingDatasourceConnector<HikariDataSource, PostgresDatasourceConfig> {
     private final Conf<Integer> maxPoolSize;
-    private final Conf<Integer> idleTimeoutMinutes;
+    private final Conf<Long> idleTimeoutMs;
+
+    private static final long LEAK_DETECTION_THRESHOLD_MS = Duration.ofSeconds(30).toMillis();
+    private static final long MAX_LIFETIME_MS = TimeUnit.MINUTES.toMillis(30);
+    private static final long KEEPALIVE_TIME_MS = TimeUnit.MINUTES.toMillis(3);
+    private static final long CONNECTION_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);
+    private static final long VALIDATION_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(3);
+    private static final long INITIALIZATION_FAIL_TIMEOUT = TimeUnit.SECONDS.toMillis(4);
 
     public PostgresConnector(ConfigCenter configCenter) {
         maxPoolSize = configCenter.postgresPlugin().ofInteger("maxPoolSize", 100);
-        idleTimeoutMinutes = configCenter.postgresPlugin().ofInteger("idleTimeoutMinutes", 5);
+        idleTimeoutMs = configCenter.postgresPlugin().ofInteger("idleTimeoutMinutes", 5)
+                .then(Duration::ofMinutes)
+                .then(Duration::toMillis);
     }
 
     @Nonnull
@@ -58,9 +68,14 @@ public class PostgresConnector extends BlockingDatasourceConnector<HikariDataSou
         HikariConfig config = new HikariConfig();
         config.setDriverClassName("org.postgresql.Driver");
         config.setMinimumIdle(1);
-        config.setIdleTimeout(Duration.ofMinutes(idleTimeoutMinutes.get()).toMillis());
+        config.setMaxLifetime(MAX_LIFETIME_MS);
+        config.setKeepaliveTime(KEEPALIVE_TIME_MS);
+        config.setIdleTimeout(idleTimeoutMs.get());
         config.setMaximumPoolSize(maxPoolSize.get());
-        config.setLeakDetectionThreshold(Duration.ofSeconds(30).toMillis());
+        config.setLeakDetectionThreshold(LEAK_DETECTION_THRESHOLD_MS);
+        config.setConnectionTimeout(CONNECTION_TIMEOUT_MS);
+        config.setValidationTimeout(VALIDATION_TIMEOUT_MS);
+        config.setInitializationFailTimeout(INITIALIZATION_FAIL_TIMEOUT);
 
         // Set authentication properties
         String username = datasourceConfig.getUsername();
@@ -85,7 +100,6 @@ public class PostgresConnector extends BlockingDatasourceConnector<HikariDataSou
             config.addDataSourceProperty("ssl", "false");
             config.addDataSourceProperty("sslmode", "disable");
         }
-
 
         if (datasourceConfig.isReadonly()) {
             config.setReadOnly(true);

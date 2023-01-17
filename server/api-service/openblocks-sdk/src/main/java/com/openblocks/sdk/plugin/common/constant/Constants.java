@@ -4,6 +4,8 @@ public final class Constants {
 
     public static final String CHANGE_SET_FORM_KEY = "changeSet";
     public static final String RECORD_FORM_KEY = "records";
+
+    public static final String PRIMARY_KEY_FORM_KEY = "primaryKey";
     public static final String COMP_TYPE_KEY = "compType";
     public static final String COMP_KEY = "comp";
     public static final String TABLE_KEY = "table";

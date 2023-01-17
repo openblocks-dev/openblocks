@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import javax.annotation.Nonnull;
 
@@ -25,7 +27,7 @@ public record ChangeSetRows(List<ChangeSetRow> rows) implements Iterable<ChangeS
         }
 
         List<ChangeSetRow> changeSetRows = Streams.stream(arrayNode.iterator())
-                .map(ChangeSetRow::fromJsonNode)
+                .map(ChangeSetRow::new)
                 .toList();
         return new ChangeSetRows(changeSetRows);
     }
@@ -38,6 +40,10 @@ public record ChangeSetRows(List<ChangeSetRow> rows) implements Iterable<ChangeS
 
     public boolean isEmpty() {
         return rows.isEmpty();
+    }
+
+    public Stream<ChangeSetRow> stream() {
+        return StreamSupport.stream(spliterator(), false);
     }
 
     public boolean checkRowColumnAligned() {
@@ -59,6 +65,10 @@ public record ChangeSetRows(List<ChangeSetRow> rows) implements Iterable<ChangeS
             return false;
         }
         return columns.containsAll(otherColumns);
+    }
+
+    public int size() {
+        return rows.size();
     }
 
     public Set<String> getColumns() {

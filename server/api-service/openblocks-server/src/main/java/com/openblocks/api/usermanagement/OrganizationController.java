@@ -119,7 +119,8 @@ public class OrganizationController {
 
     @GetMapping("/{orgId}/datasourceTypes")
     public Mono<ResponseView<List<DatasourceMetaInfo>>> getSupportedDatasourceTypes(@PathVariable String orgId) {
-        return Mono.just(datasourceMetaInfoService.getSupportedDatasourceMetaInfos())
+        return datasourceMetaInfoService.getAllSupportedDatasourceMetaInfos()
+                .collectList()
                 .map(ResponseView::success);
     }
 

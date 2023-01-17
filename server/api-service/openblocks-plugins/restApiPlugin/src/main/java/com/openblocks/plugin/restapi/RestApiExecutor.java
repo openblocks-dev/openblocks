@@ -42,6 +42,7 @@ import static com.openblocks.sdk.util.MustacheHelper.renderMustacheString;
 import static com.openblocks.sdk.util.StreamUtils.collectList;
 import static org.apache.commons.collections4.MapUtils.emptyIfNull;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.springframework.web.reactive.function.client.WebClient.builder;
 
 import java.io.IOException;
 import java.net.URI;
@@ -168,7 +169,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         Map<String, String> urlParams = buildUrlParams(datasourceUrlParams, updatedQueryParams);
         List<Property> bodyParams = mergeBody(datasourceBodyFormData, updatedQueryBodyParams);
 
-        URI uri = RestApiUriBuilder.buildUri(urlDomain, updatedQueryPath, requestParams, urlParams, encodeParams);
+        URI uri = RestApiUriBuilder.buildUri(urlDomain, updatedQueryPath, requestParams, urlParams);
 
         return RestApiQueryExecutionContext.builder()
                 .httpMethod(httpMethod)
@@ -183,6 +184,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                 .forwardAllCookies(forwardAllCookies)
                 .requestCookies(queryVisitorContext.getCookies())
                 .authConfig(datasourceConfig.getAuthConfig())
+                .sslConfig(datasourceConfig.getSslConfig())
                 .authTokenMono(queryVisitorContext.getAuthTokenMono())
                 .build();
     }
@@ -226,7 +228,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
 
         return Mono.defer(() -> authByOauth2InheritFromLogin(context))
                 .then(Mono.defer(() -> {
-                    WebClient.Builder webClientBuilder = WebClients.builder();
+                    WebClient.Builder webClientBuilder = WebClients.withSafeHostAndSecure(builder(), context.getSslConfig());
 
                     Map<String, String> allHeaders = context.getHeaders();
                     String contentType = context.getContentType();

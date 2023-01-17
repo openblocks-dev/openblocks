@@ -2,13 +2,12 @@ package com.openblocks.sdk.plugin.sqlcommand.filter;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.openblocks.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
+import static com.openblocks.sdk.exception.PluginCommonError.INVALID_IN_OPERATOR_SETTINGS;
 import static com.openblocks.sdk.util.JsonUtils.toJson;
-import static com.openblocks.sdk.util.MustacheHelper.renderArrayValueForMysqlConcatenation;
-import static com.openblocks.sdk.util.MustacheHelper.renderNonArrayValueForMysqlConcatenation;
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang3.StringUtils.substring;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,14 +15,14 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.ForwardingList;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand.GuiSqlCommandRenderResult;
 import com.openblocks.sdk.plugin.sqlcommand.filter.FilterSet.FilterCondition;
 import com.openblocks.sdk.util.MustacheHelper;
-import com.openblocks.sdk.util.MustacheHelper.SqlConcatenationValueHolder;
+import com.openblocks.sdk.util.SqlGuiUtils;
+import com.openblocks.sdk.util.SqlGuiUtils.PsBindValue;
 
 public class FilterSet extends ForwardingList<FilterCondition> {
 
@@ -38,7 +37,8 @@ public class FilterSet extends ForwardingList<FilterCondition> {
         return filters;
     }
 
-    public GuiSqlCommandRenderResult render(Map<String, Object> requestMap) {
+    public GuiSqlCommandRenderResult render(Map<String, Object> requestMap,
+            String columnFrontDelimiter, String columnBackDelimiter) {
 
         if (filters.isEmpty()) {
             return new GuiSqlCommandRenderResult("", emptyList());
@@ -51,12 +51,11 @@ public class FilterSet extends ForwardingList<FilterCondition> {
             Object value = filters.get(i).value();
             String condition = filters.get(i).condition();
 
-            Pair<String, String> pair = renderCondition(condition, value, requestMap);
-            String sql = pair.getLeft();
-            String bindValue = pair.getRight();
-            sb.append(column).append(sql);
-            if (bindValue != null) {
-                bindParams.add(bindValue);
+            RenderItem renderItem = renderCondition(condition, value, requestMap, column,
+                    columnFrontDelimiter, columnBackDelimiter);
+            sb.append(renderItem.conditionSql());
+            if (renderItem.needBind()) {
+                bindParams.add(renderItem.bindValue());
             }
             if (i != filters.size() - 1) {
                 sb.append(" and ");
@@ -66,22 +65,52 @@ public class FilterSet extends ForwardingList<FilterCondition> {
         return new GuiSqlCommandRenderResult(sb.toString(), bindParams);
     }
 
-    private Pair<String, String> renderCondition(String condition, Object value, Map<String, Object> requestMap) {
+    private RenderItem renderCondition(String condition, Object value, Map<String, Object> requestMap, String column,
+            String columnFrontDelimiter,
+            String columnBackDelimiter) {
+        String columnWithDelimiter = columnFrontDelimiter + column + columnBackDelimiter;
+
         switch (condition) {
-            case "=", "!=", ">", "<", "<=", ">=", "IS", "IS NOT" -> {
-                SqlConcatenationValueHolder valueHolder = renderNonArrayValueForMysqlConcatenation(value, requestMap);
-                if (valueHolder.needBindPreparedStatement()) {
-                    return Pair.of(" " + condition + " ? ", valueHolder.strValue());
-                }
-                return Pair.of(" " + condition + " " + valueHolder.strValue(), null);
+            case "=", "!=", ">", "<", "<=", ">=" -> {
+                PsBindValue psBindValue = SqlGuiUtils.renderPsBindValue(value, requestMap);
+                return new RenderItem(columnWithDelimiter + " " + condition + " ? ", psBindValue.getValue(), true);
+            }
+            case "IS", "IS NOT" -> {
+                PsBindValue psBindValue = SqlGuiUtils.renderPsBindValue(value, requestMap);
+                return new RenderItem(columnWithDelimiter + " " + condition + " " + psBindValue.getValue() + " ", null, false);
             }
             case "IN", "NOT IN" -> {
-                List<?> listValue = renderArrayValueForMysqlConcatenation(value, requestMap);
-                String jsonArray = toJson(listValue);
-                return Pair.of(" " + condition + " (" + substring(jsonArray, 1, jsonArray.length() - 1) + ")", null);
+                PsBindValue psBindValue = SqlGuiUtils.renderPsBindValue(value, requestMap);
+                if (!(psBindValue.getRawValue() instanceof List<?> list)) {
+                    throw new PluginException(INVALID_IN_OPERATOR_SETTINGS, "INVALID_IN");
+                }
+                if (list.isEmpty()) {
+                    return new RenderItem("false", null, false);
+                }
+
+                return new RenderItem(columnWithDelimiter + " " + condition + getCollectionStr(list),
+                        null, false);
             }
             default -> throw new PluginException(INVALID_GUI_SETTINGS, "GUI_INVALID_FILTER_FIELD", condition);
         }
+    }
+
+    private static String getCollectionStr(List<?> list) {
+        String result = list.stream()
+                .map(obj -> {
+                    if (obj instanceof String) {
+                        return "'" + obj + "'";
+                    }
+                    if (obj instanceof Collection<?> || obj instanceof Map<?, ?>) {
+                        return toJson(obj);
+                    }
+                    return String.valueOf(obj);
+                })
+                .collect(Collectors.joining(","));
+        return " (" + result + ")";
+    }
+
+    private record RenderItem(String conditionSql, Object bindValue, boolean needBind) {
     }
 
 

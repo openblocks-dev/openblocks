@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.openblocks.domain.datasource.service.DatasourceConnectionPool;
 
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
 public final class DatasourceMetaInfo {
@@ -16,6 +17,8 @@ public final class DatasourceMetaInfo {
     private final String pluginExecutorKey;
     private final String version;
     private final boolean hasStructureInfo;
+    @Getter
+    private final Object definition;
 
     // connection pool type
     private final Class<? extends DatasourceConnectionPool> connectionPool;

@@ -522,7 +522,12 @@ public class ApplicationApiService {
         if (!(comp instanceof Map<?, ?> queryConfig)) {
             return queryMap;
         }
-        Map<String, Object> sanitizedQueryConfig = queryExecutor.sanitizeQueryConfig((Map<String, Object>) queryConfig);
+        Map<String, Object> sanitizedQueryConfig;
+        try {
+            sanitizedQueryConfig = queryExecutor.sanitizeQueryConfig((Map<String, Object>) queryConfig);
+        } catch (Exception e) {
+            return queryMap;
+        }
         queryMap.put("comp", sanitizedQueryConfig);
         if (isDesensitizedQueryConfig(sanitizedQueryConfig)) {
             queryMap.put("compType", "view");

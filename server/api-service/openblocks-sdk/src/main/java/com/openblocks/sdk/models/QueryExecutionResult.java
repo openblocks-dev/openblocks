@@ -17,7 +17,10 @@ import lombok.Getter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 public class QueryExecutionResult {
+
+    private static final String CODE_FAILED = "FAILED";
     private static final String CODE_OK = "OK";
+
     private String queryCode = CODE_OK;
     private JsonNode headers;
     private Object data;
@@ -27,6 +30,7 @@ public class QueryExecutionResult {
     private Object[] messageArgs;
     @JsonIgnore
     private List<LocaleMessage> hintLocaleMessages = new ArrayList<>();
+    private String message;
 
     private QueryExecutionResult() {
     }
@@ -63,6 +67,13 @@ public class QueryExecutionResult {
         return result;
     }
 
+    public static QueryExecutionResult errorWithMessage(String message) {
+        QueryExecutionResult result = new QueryExecutionResult();
+        result.queryCode = CODE_FAILED;
+        result.message = message;
+        return result;
+    }
+
     public static QueryExecutionResult ofRestApiResult(HttpStatus httpStatus, JsonNode resultHeaders, Object body) {
         QueryExecutionResult result = new QueryExecutionResult();
         if (!httpStatus.is2xxSuccessful()) {
@@ -75,10 +86,6 @@ public class QueryExecutionResult {
 
     public boolean isSuccess() {
         return queryCode.equals(CODE_OK);
-    }
-
-    public String getMessage() {
-        return messageKey;
     }
 
     @JsonIgnore

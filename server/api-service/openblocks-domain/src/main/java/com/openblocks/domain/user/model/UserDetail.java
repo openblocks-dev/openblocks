@@ -9,8 +9,8 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class CurrentUser {
-    public static final CurrentUser ANONYMOUS_CURRENT_USER = CurrentUser.builder()
+public class UserDetail {
+    public static final UserDetail ANONYMOUS_CURRENT_USER = UserDetail.builder()
             .id("")
             .name("ANONYMOUS")
             .avatarUrl("")

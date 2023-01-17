@@ -1,7 +1,5 @@
 package com.openblocks.sdk.plugin.sqlcommand.command;
 
-import static com.openblocks.sdk.plugin.sqlcommand.filter.FilterSet.parseFilterSet;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -10,27 +8,22 @@ import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand;
 import com.openblocks.sdk.plugin.sqlcommand.filter.FilterSet;
 import com.openblocks.sdk.util.MustacheHelper;
 
-public class MysqlDeleteCommand extends GuiSqlCommand {
+public class DeleteCommand implements GuiSqlCommand {
 
-    private final String table;
-    private final FilterSet filterSet;
-    private final boolean allowMultiModify;
+    protected final String table;
+    protected final FilterSet filterSet;
+    protected final boolean allowMultiModify;
+    protected final String columnFrontDelimiter;
+    protected final String columnBackDelimiter;
 
-    private MysqlDeleteCommand(String table, FilterSet filterSet, boolean allowMultiModify) {
+    protected DeleteCommand(String table, FilterSet filterSet, boolean allowMultiModify,
+            String columnFrontDelimiter, String columnBackDelimiter) {
         this.table = table;
         this.filterSet = filterSet;
         this.allowMultiModify = allowMultiModify;
+        this.columnFrontDelimiter = columnFrontDelimiter;
+        this.columnBackDelimiter = columnBackDelimiter;
     }
-
-    public static MysqlDeleteCommand from(Map<String, Object> commandDetail) {
-        String table = parseTable(commandDetail);
-
-        FilterSet filterSet = parseFilterSet(commandDetail);
-        boolean allowMultiModify = parseAllowMultiModify(commandDetail);
-
-        return new MysqlDeleteCommand(table, filterSet, allowMultiModify);
-    }
-
 
     @Override
     public GuiSqlCommandRenderResult render(Map<String, Object> requestMap) {
@@ -46,7 +39,7 @@ public class MysqlDeleteCommand extends GuiSqlCommand {
             return new GuiSqlCommandRenderResult(sb.toString(), Collections.emptyList());
         }
 
-        GuiSqlCommandRenderResult render = filterSet.render(requestMap);
+        GuiSqlCommandRenderResult render = filterSet.render(requestMap, columnFrontDelimiter, columnBackDelimiter);
         sb.append(render.sql());
         if (!allowMultiModify) {
             sb.append(" limit 1");

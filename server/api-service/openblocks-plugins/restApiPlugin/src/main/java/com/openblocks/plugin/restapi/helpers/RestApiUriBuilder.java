@@ -1,16 +1,15 @@
 package com.openblocks.plugin.restapi.helpers;
 
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
+import static com.openblocks.sdk.util.ExceptionUtils.wrapException;
 import static com.openblocks.sdk.util.MustacheHelper.renderMustacheString;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.apache.http.client.utils.URIBuilder;
 
 import com.openblocks.sdk.exception.PluginException;
 
@@ -20,7 +19,7 @@ public final class RestApiUriBuilder {
     }
 
     public static URI buildUri(String urlPrefix, String urlSuffix, Map<String, Object> paramsMap,
-            Map<String, String> urlParams, boolean encodeParams) {
+            Map<String, String> urlParams) {
         String trimmedPrefix = urlPrefix.trim();
         String trimmedSuffix = urlSuffix.trim();
 
@@ -39,25 +38,20 @@ public final class RestApiUriBuilder {
         url = renderMustacheString(url, paramsMap);
         url = url.replaceAll("(?<!http:|https:)/{2,}", "/"); // remove redundant "/"
 
-        URI uri;
+
+        URIBuilder uriBuilder;
         try {
-            uri = new URI(url).normalize();
+            uriBuilder = new URIBuilder(url);
         } catch (URISyntaxException e) {
-            throw new PluginException(QUERY_ARGUMENT_ERROR, "INVALID_REQUEST_URL", url);
+            throw wrapException(QUERY_ARGUMENT_ERROR, "INVALID_REQUEST_URL", e);
         }
 
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        uriBuilder.uri(uri);
-        urlParams.forEach((key, value) -> {
-            if (encodeParams) {
-                uriBuilder.queryParam(URLEncoder.encode(key, StandardCharsets.UTF_8),
-                        URLEncoder.encode(value, StandardCharsets.UTF_8)
-                );
-            } else {
-                uriBuilder.queryParam(key, value);
-            }
-        });
-        return uriBuilder.build(true).toUri();
+        urlParams.forEach(uriBuilder::addParameter);
+        try {
+            return uriBuilder.build();
+        } catch (URISyntaxException e) {
+            throw wrapException(QUERY_ARGUMENT_ERROR, "INVALID_REQUEST_URL", e);
+        }
     }
 
 }

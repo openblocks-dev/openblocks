@@ -18,6 +18,8 @@ public interface DatasourceService {
 
     Mono<DatasourceTestResult> testDatasource(Datasource datasource);
 
+    Mono<Void> processJsDatasourcePlugin(Datasource datasource);
+
     Flux<Datasource> getByOrgId(String orgId);
 
     Mono<Long> countByOrganizationId(String orgId);

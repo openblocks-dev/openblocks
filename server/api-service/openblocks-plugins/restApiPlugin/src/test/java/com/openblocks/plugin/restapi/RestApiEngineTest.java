@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.collect.ImmutableMap;
 import com.openblocks.plugin.restapi.helpers.RestApiUriBuilder;
 import com.openblocks.plugin.restapi.model.RestApiQueryExecutionContext;
-import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.QueryExecutionResult;
 import com.openblocks.sdk.plugin.restapi.RestApiDatasourceConfig;
@@ -42,25 +41,25 @@ public class RestApiEngineTest {
 
     @Test
     public void testUrlConcatenationWithUriBuilder() {
-        URI test1 = RestApiUriBuilder.buildUri("http://google.com", "test", emptyMap(), emptyMap(), true);
+        URI test1 = RestApiUriBuilder.buildUri("http://google.com", "test", emptyMap(), emptyMap());
         assertEquals("http://google.com/test", test1.toString());
 
-        URI test2 = RestApiUriBuilder.buildUri("http://google.com", "/test", emptyMap(), emptyMap(), true);
+        URI test2 = RestApiUriBuilder.buildUri("http://google.com", "/test", emptyMap(), emptyMap());
         assertEquals("http://google.com/test", test2.toString());
 
-        URI test3 = RestApiUriBuilder.buildUri("http://google.com/", "/test", emptyMap(), emptyMap(), true);
+        URI test3 = RestApiUriBuilder.buildUri("http://google.com/", "/test", emptyMap(), emptyMap());
         assertEquals("http://google.com/test", test3.toString());
 
-        URI test4 = RestApiUriBuilder.buildUri("http://google.com", "//test", emptyMap(), emptyMap(), true);
+        URI test4 = RestApiUriBuilder.buildUri("http://google.com", "//test", emptyMap(), emptyMap());
         assertEquals("http://google.com/test", test4.toString());
 
-        URI test5 = RestApiUriBuilder.buildUri("http://google.com/", "//test", emptyMap(), emptyMap(), true);
+        URI test5 = RestApiUriBuilder.buildUri("http://google.com/", "//test", emptyMap(), emptyMap());
         assertEquals("http://google.com/test", test5.toString());
 
-        URI test6 = RestApiUriBuilder.buildUri(" ", "http://google.com/test", emptyMap(), emptyMap(), true);
+        URI test6 = RestApiUriBuilder.buildUri(" ", "http://google.com/test", emptyMap(), emptyMap());
         assertEquals("http://google.com/test", test6.toString());
 
-        URI test7 = RestApiUriBuilder.buildUri("http://google.com/test", " ", emptyMap(), emptyMap(), true);
+        URI test7 = RestApiUriBuilder.buildUri("http://google.com/test", " ", emptyMap(), emptyMap());
         assertEquals("http://google.com/test", test7.toString());
     }
 
@@ -187,28 +186,6 @@ public class RestApiEngineTest {
                     assertEquals("\"https://postman-echo.com/post?param=value+with+blank\"", url.toString());
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    public void testDisableEncodingParams() {
-
-        RestApiDatasourceConfig datasourceConfig = RestApiDatasourceConfig.builder()
-                .url("https://postman-echo.com/post")
-                .build();
-        ImmutableMap<String, Object> queryConfig = ImmutableMap.of(
-                "httpMethod", "POST",
-                "headers", List.of(new Property("content-type", "application/json")),
-                "body", "body",
-                "params", List.of(new Property("key", "value with blank")),
-                "disableEncodingParams", true
-        );
-
-        StepVerifier.create(Mono.fromSupplier(() -> executor.doBuildQueryExecutionContext(datasourceConfig,
-                        queryConfig, emptyMap(), queryVisitorContext)))
-                .verifyErrorSatisfies(e -> {
-                    assertTrue(e instanceof PluginException);
-                    assertTrue(e.getMessage().contains("Invalid character ' ' for QUERY_PARAM"));
-                });
     }
 
     @Test
