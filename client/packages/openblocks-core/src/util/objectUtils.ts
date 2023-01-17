@@ -140,3 +140,17 @@ export function safeJSONStringify(obj: any): string {
     return "";
   }
 }
+
+export const getObjectId = (function () {
+  let objectCurrentId = 0;
+  const objectMap = new WeakMap();
+  return (obj: object | undefined) => {
+    if (_.isNil(obj)) return 0;
+    if (objectMap.has(obj)) {
+      return objectMap.get(obj);
+    }
+    const id = ++objectCurrentId;
+    objectMap.set(obj, id);
+    return id;
+  };
+})();

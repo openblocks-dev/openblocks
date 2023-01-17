@@ -4,7 +4,7 @@ import {
   RecordConstructorToComp,
   RecordConstructorToView,
 } from "openblocks-core";
-import { BoolControl, BoolPureControl } from "../../controls/boolControl";
+import { BoolControl } from "../../controls/boolControl";
 import { LabelControl } from "../../controls/labelControl";
 import { BoolCodeControl, StringControl } from "../../controls/codeControl";
 import {
@@ -31,7 +31,7 @@ import {
   SelectStyleType,
   TreeSelectStyleType,
 } from "comps/controls/styleControlConstants";
-import { stateComp, withDefault } from "../../generators";
+import { stateComp } from "../../generators";
 import {
   allowClearPropertyView,
   disabledPropertyView,
@@ -152,6 +152,7 @@ const Wrapper = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 6px;
+
   img {
     margin-right: -6px;
   }
@@ -165,7 +166,7 @@ export const SelectChildrenMap = {
   options: SelectOptionControl,
   allowClear: BoolControl,
   inputValue: stateComp<string>(""), // user's input value when search
-  showSearch: withDefault(BoolPureControl, true),
+  showSearch: BoolControl.DEFAULT_TRUE,
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -187,7 +188,7 @@ export const SelectUIView = (
     placeholder={props.placeholder}
     value={props.value}
     showSearch={props.showSearch}
-    filterOption={(input, option) => option?.label.includes(input)}
+    filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase())}
     dropdownRender={(originNode: ReactNode) => (
       <DropdownStyled $style={props.style as MultiSelectStyleType}>{originNode}</DropdownStyled>
     )}

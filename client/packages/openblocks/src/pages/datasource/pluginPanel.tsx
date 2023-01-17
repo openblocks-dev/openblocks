@@ -11,6 +11,7 @@ import {
   apiPluginsForQueryLibrary,
   databasePlugins,
 } from "@openblocks-ee/constants/datasourceConstants";
+import { DataSourcePluginMeta } from "openblocks-sdk/dataSource";
 
 export const DataSourceButton = styled(AntdButton)`
   width: 184px;
@@ -74,23 +75,25 @@ export const PluginPanel = (props: { onSelect: (t: DataSourceTypeInfo) => void }
         <SectionLabel>{trans("query.database")}</SectionLabel>
         <SectionBody>
           {datasourceTypes
-            .filter((t) => databasePlugins.includes(t.id))
-            .map((t) => (
-              <DataSourceButton key={t.id} onClick={() => props.onSelect(t)}>
-                {t.id && getBottomResIcon(t.id, "large")}
-                {t.name}
-              </DataSourceButton>
-            ))}
+            .filter((t) => databasePlugins.includes(t.id) || t.definition?.category === "database")
+            .map((t) => {
+              return (
+                <DataSourceButton key={t.id} onClick={() => props.onSelect(t)}>
+                  {t.id && getBottomResIcon(t.id, "large", t.definition?.icon)}
+                  {t.name}
+                </DataSourceButton>
+              );
+            })}
         </SectionBody>
       </SectionWrapper>
       <SectionWrapper>
         <SectionLabel>APIS</SectionLabel>
         <SectionBody>
           {datasourceTypes
-            .filter((t) => apiList.includes(t.id))
+            .filter((t) => apiList.includes(t.id) || t.definition?.category === "api")
             .map((t) => (
               <DataSourceButton key={t.id} onClick={() => props.onSelect(t)}>
-                {t.id && getBottomResIcon(t.id, "large")}
+                {t.id && getBottomResIcon(t.id, "large", t.definition?.icon)}
                 {t.name}
               </DataSourceButton>
             ))}

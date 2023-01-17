@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { defineConfig, UserConfig } from "vite";
+import { defineConfig, ServerOptions, UserConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 import svgrPlugin from "vite-plugin-svgr";
@@ -15,6 +15,7 @@ import { globalDepPlugin } from "openblocks-dev-utils/globalDepPlguin";
 dotenv.config();
 
 const apiProxyTarget = process.env.API_PROXY_TARGET;
+const nodeServiceApiProxyTarget = process.env.NODE_SERVICE_API_PROXY_TARGET;
 const nodeEnv = process.env.NODE_ENV ?? "development";
 const edition = process.env.REACT_APP_EDITION;
 const isEE = edition === "enterprise";
@@ -29,6 +30,19 @@ if (!apiProxyTarget && isDev) {
   console.log(chalk.cyan`Start with command: API_PROXY_TARGET=\{backend-api-addr\} yarn start`);
   console.log();
   process.exit(1);
+}
+
+const proxyConfig: ServerOptions["proxy"] = {
+  "/api": {
+    target: apiProxyTarget,
+    changeOrigin: false,
+  },
+};
+
+if (nodeServiceApiProxyTarget) {
+  proxyConfig["/node-service"] = {
+    target: nodeServiceApiProxyTarget,
+  };
 }
 
 const define = {};
@@ -89,12 +103,7 @@ export const viteConfig: UserConfig = {
     cors: true,
     port: 8000,
     host: "0.0.0.0",
-    proxy: {
-      "/api": {
-        target: apiProxyTarget,
-        changeOrigin: false,
-      },
-    },
+    proxy: proxyConfig,
   },
   plugins: [
     checker({

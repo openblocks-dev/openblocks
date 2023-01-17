@@ -34,6 +34,7 @@ shell.env["CI"] = false;
 shell.env["NODE_OPTIONS"] = "--max_old_space_size=4096";
 shell.env["NODE_ENV"] = "production";
 shell.env["REACT_APP_LOG_LEVEL"] = "error";
+shell.env["REACT_APP_BUNDLE_BUILTIN_PLUGIN"] = "true";
 
 buildVars.forEach(({ name, defaultValue }) => {
   shell.env[name] = shell.env[name] ?? defaultValue;

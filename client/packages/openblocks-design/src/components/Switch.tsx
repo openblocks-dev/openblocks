@@ -23,8 +23,9 @@ const SwitchStyle: any = styled.input`
   caret-color: transparent;
   user-select: none;
   outline: none;
-  transform: translateY(18%);
-  transition: all 0.4s ease;
+  position: relative;
+  transform: translateY(0);
+  /* transition: all 0.4s ease; */
 
   :hover {
     cursor: pointer;

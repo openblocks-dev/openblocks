@@ -6,7 +6,7 @@ import {
   handleToSelectedRow,
   TableStyleType,
 } from "comps/controls/styleControlConstants";
-import { darkenColor } from "openblocks-design";
+import { darkenColor, isDarkColor } from "openblocks-design";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Resizable } from "react-resizable";
 import styled, { css } from "styled-components";
@@ -22,6 +22,7 @@ const getStyle = (style: TableStyleType) => {
   const selectedRowBackground = genLinerGradient(style.selectedRowBackground);
   const hoverRowBackground = genLinerGradient(style.hoverRowBackground);
   const alternateBackground = genLinerGradient(style.alternateBackground);
+  const isDark = isDarkColor(style.background);
   return css`
     border-color: ${style.border};
     border-radius: ${style.radius};
@@ -104,6 +105,14 @@ const getStyle = (style: TableStyleType) => {
         &,
         > div:nth-of-type(2) {
           background: ${hoverRowBackground}, ${alternateBackground};
+        }
+      }
+
+      // link color
+      td a {
+        color: ${isDark && "#A6FFFF"};
+        &:hover {
+          color: ${isDark && "#2EE6E6"};
         }
       }
     }

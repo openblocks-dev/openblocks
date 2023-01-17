@@ -27,6 +27,7 @@
 * [Event handlers](build-apps/event-handlers.md)
 * [Write JavaScript](build-apps/write-javascript/README.md)
   * [Write JavaScript in \{{ \}}](build-apps/write-javascript/write-javascript-in.md)
+  * [JavaScript query](build-apps/write-javascript/javascript-query.md)
   * [Transformers](build-apps/write-javascript/transformers.md)
   * [Temporary state](build-apps/write-javascript/temporary-state.md)
   * [Built-in JavaScript functions](build-apps/write-javascript/built-in-javascript-functions.md)

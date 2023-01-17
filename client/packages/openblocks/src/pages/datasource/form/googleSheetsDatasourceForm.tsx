@@ -3,7 +3,7 @@ import { GoogleSheetsConfig } from "../../../api/datasourceApi";
 import { DatasourceFormProps } from "./datasourceFormRegistry";
 import { DatasourceNameFormInputItem, GeneralSettingFormSectionLabel } from "../form";
 import { trans } from "i18n";
-import { DatasourceForm, FormInputPasswordItem, FormSection } from "openblocks-design";
+import { DatasourceForm, FormSection, FormTextAreaItem } from "openblocks-design";
 
 /**
  * todo check service account
@@ -23,11 +23,29 @@ export const GoogleSheetsDatasourceForm = (props: DatasourceFormProps) => {
 
       <FormSection size={props.size}>
         <GeneralSettingFormSectionLabel />
-        <FormInputPasswordItem
+        <FormTextAreaItem
           name={"serviceAccount"}
           label="Service Account"
           required={true}
-          placeholder={datasource ? trans("query.encryptedServer") : "••••••••••••"}
+          autoSize={{ minRows: 9, maxRows: 9 }}
+          placeholder={
+            datasource
+              ? trans("query.encryptedServer")
+              : "{\n" +
+                '  "type": "service_account",\n' +
+                '  "project_id": "yourProjectId",\n' +
+                '  "private_key_id": "yourPrivateKeyId",\n' +
+                '  "private_key": "-----BEGIN PRIVATE KEY-----\n' +
+                "YOUR PRIVATE KEY\n" +
+                '-----END PRIVATE KEY-----",\n' +
+                '  "client_email": "yourClientEmail",\n' +
+                '  "client_id": "yourClientId",\n' +
+                '  "auth_uri": "https://accounts.google.com/o/oauth2/auth",\n' +
+                '  "token_uri": "https://oauth2.googleapis.com/token",\n' +
+                '  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",\n' +
+                '  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/googlesheetsxxx.iam.gserviceaccount.com"\n' +
+                "}"
+          }
           rules={[
             {
               required: !datasourceConfig,

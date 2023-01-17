@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { shallowEqual } from "util/objectUtils";
 import { memoized } from "../util/memoize";
 import { AbstractNode, Node, NodeToValue } from "./node";
 import { EvalMethods } from "./types/evalTypes";
@@ -31,8 +32,8 @@ export class RecordNode<T extends Record<string, Node<unknown>>> extends Abstrac
     exposingNodes: Record<string, Node<unknown>>,
     methods?: EvalMethods
   ): RecordNodeToValue<T> {
-    return _.mapValues(this.children, (v) =>
-      v.evaluate(exposingNodes, methods)
+    return _.mapValues(this.children, (v, key) =>
+      evalPerfUtil.perf(this, `eval-${key}`, () => v.evaluate(exposingNodes, methods))
     ) as RecordNodeToValue<T>;
   }
   override getChildren(): Node<unknown>[] {

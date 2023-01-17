@@ -7,7 +7,10 @@ import { GenericApiResponse } from "api/apiResponses";
 import { all, put, takeEvery } from "redux-saga/effects";
 import { AxiosResponse } from "axios";
 import { DatasourceApi, DatasourceInfo, DatasourceStructure } from "api/datasourceApi";
-import { FetchDatasourcePayload } from "redux/reduxActions/datasourceActions";
+import {
+  FetchDataSourceByAppActionPayload,
+  FetchDatasourcePayload,
+} from "redux/reduxActions/datasourceActions";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
 import { message } from "antd";
@@ -32,9 +35,9 @@ export function* fetchDatasourceSaga(action: EvaluationReduxAction<FetchDatasour
 }
 
 export function* fetchDatasourceByAppSaga(
-  action: EvaluationReduxAction<{ applicationId: string }>
+  action: EvaluationReduxAction<FetchDataSourceByAppActionPayload>
 ) {
-  const { applicationId } = action.payload;
+  const { applicationId, onSuccess } = action.payload;
   try {
     const response: AxiosResponse<GenericApiResponse<DatasourceInfo[]>> =
       yield DatasourceApi.fetchDatasourceByApp(applicationId);
@@ -44,6 +47,7 @@ export function* fetchDatasourceByAppSaga(
         type: ReduxActionTypes.FETCH_DATASOURCE_SUCCESS,
         payload: response.data.data,
       });
+      onSuccess?.(response.data.data);
     }
   } catch (error: any) {
     log.error("fetch datasource by app error: ", error);

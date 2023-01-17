@@ -11,7 +11,7 @@ import {
 } from "../../controls/codeStateControl";
 import { requiredPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { SelectInputOptionControl } from "../../controls/optionsControl";
 
 export const SelectInputValidationChildren = {
@@ -43,17 +43,21 @@ export const selectInputValidate = (
 };
 
 export const useSelectInputValidate = (props: ValidationParams) => {
+  const propsRef = useRef<ValidationParams>(props);
+  propsRef.current = props;
+
   const [validateState, setValidateState] = useState({});
-  const handleChange = (value: string | (string | number)[]) => {
-    const validateRes = selectInputValidate({
-      ...props,
-      value: {
-        value,
-      },
-    });
-    setValidateState(validateRes);
+  const handleValidate = (value: string | (string | number)[]) => {
+    setValidateState(
+      selectInputValidate({
+        ...propsRef.current,
+        value: {
+          value,
+        },
+      })
+    );
   };
-  return [validateState, handleChange] as const;
+  return [validateState, handleValidate] as const;
 };
 
 type ValidationCompWithValue = ValidationComp & {

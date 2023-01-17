@@ -23,6 +23,7 @@ import {
 import { ReactNode } from "react";
 import { JSONValue } from "util/jsonTypes";
 import { lastValueIfEqual, setFieldsNoTypeCheck, shallowEqual } from "util/objectUtils";
+import { CompExposingContext } from "./withContext";
 
 export function withParams<
   ParamNames extends readonly string[],
@@ -116,7 +117,11 @@ export function withParamsWithDefault<
     }
 
     override getPropertyView(): ReactNode {
-      return this.getComp().getPropertyView();
+      return (
+        <CompExposingContext.Provider value={this.params}>
+          {this.getComp().getPropertyView()}
+        </CompExposingContext.Provider>
+      );
     }
 
     override reduce(action: CompAction): this {

@@ -1,5 +1,5 @@
 interface FeatureFlag {
-  enableCustomBrand: boolean;
+  enableCustomBranding: boolean;
 }
 
 export interface BrandingConfig {

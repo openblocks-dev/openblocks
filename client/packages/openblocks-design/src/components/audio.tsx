@@ -31,12 +31,12 @@ export function TacoAudio(props: {
       }}
       ref={props.audioRef}
       draggable={false}
-      autoPlay={autoPlay}
       loop={loop}
       controls
       className={className}
       style={style}
       url={url}
+      playing={autoPlay}
       onPlay={() => onPlay && onPlay()}
       onPause={() => onPause && onPause()}
       onEnded={() => onEnded && onEnded()}

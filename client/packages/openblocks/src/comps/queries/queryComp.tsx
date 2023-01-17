@@ -49,13 +49,13 @@ import {
   BottomResListComp,
   BottomResTypeEnum,
 } from "types/bottomRes";
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { QueryContext } from "../../util/context/QueryContext";
 import { perfMark, perfMeasure } from "util/perfUtils";
 import { trans } from "i18n";
 import { undoKey } from "util/keyUtils";
 import { manualTriggerResource, QueryMap } from "@openblocks-ee/constants/queryConstants";
 import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "../../constants/queryConstants";
+import DataSourceIcon from "components/DataSourceIcon";
 
 export type QueryResultExtra = Omit<
   QueryExecuteResponse,
@@ -321,7 +321,7 @@ QueryCompTmp = class extends QueryCompTmp {
             queryId,
             applicationId: applicationId,
             applicationPath: parentApplicationPath,
-            args: action.args ?? {},
+            args: action.args,
             timeout: this.children.timeout,
           }),
         () => this.dispatch(changeChildAction("isFetching", false)),
@@ -366,7 +366,12 @@ QueryCompTmp = class extends QueryCompTmp {
 
   override getPropertyView() {
     return (
-      <QueryContext.Provider value={{ datasourceId: this.children.datasourceId.getView() }}>
+      <QueryContext.Provider
+        value={{
+          datasourceId: this.children.datasourceId.getView(),
+          resourceType: this.children.compType.getView(),
+        }}
+      >
         <QueryPropertyView comp={this as any} />
       </QueryContext.Provider>
     );
@@ -450,7 +455,8 @@ QueryCompTmp = class extends QueryCompTmp implements BottomResComp {
   }
 
   icon(): ReactNode {
-    return getBottomResIcon(this.children.compType.getView());
+    const type = this.children.compType.getView();
+    return <DataSourceIcon dataSourceType={type} />;
   }
 
   order(): number {

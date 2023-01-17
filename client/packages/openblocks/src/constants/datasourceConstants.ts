@@ -2,6 +2,7 @@ import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 import { DatasourceConfigType } from "../api/datasourceApi";
 import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { trans } from "../i18n";
+import { DataSourcePluginMeta } from "openblocks-sdk/dataSource";
 
 export const databasePlugins: Partial<DatasourceType>[] = [
   "mysql",
@@ -12,10 +13,14 @@ export const databasePlugins: Partial<DatasourceType>[] = [
   "mssql",
   "oracle",
   "clickHouse",
-  "googleSheets",
 ];
 
-export const apiPluginsForQueryLibrary: Partial<DatasourceType>[] = ["restApi", "smtp", "graphql"];
+export const apiPluginsForQueryLibrary: Partial<DatasourceType>[] = [
+  "restApi",
+  "smtp",
+  "graphql",
+  "googleSheets",
+];
 
 export const apiPlugins: Partial<DatasourceType>[] = [...apiPluginsForQueryLibrary];
 
@@ -30,6 +35,7 @@ export interface Datasource {
   // SYSTEM_PREDEFINED(2) for example: rest api empty datasource
   creationSource: 0 | 1 | 2;
   createTime: number;
+  pluginDefinition?: DataSourcePluginMeta;
 }
 
 export const QUICK_REST_API_ID = "#QUICK_REST_API";

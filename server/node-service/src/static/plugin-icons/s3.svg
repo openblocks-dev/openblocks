@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.3.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+	y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+	<style type="text/css">
+		.st0 {
+			fill: #8C3123;
+		}
+
+		.st1 {
+			fill: #E05243;
+		}
+
+		.st2 {
+			fill: #5E1F18;
+		}
+
+		.st3 {
+			fill: #F2B0A9;
+		}
+	</style>
+	<g id="XMLID_1_">
+		<polyline id="XMLID_2_" class="st0" points="78.27,88.79 44.19,105.91 44.19,405.39 78.27,422.36 78.55,422.08 78.55,89.07 
+		78.27,88.79 	" />
+		<polyline id="XMLID_3_" class="st1"
+			points="260.91,378.88 78.27,422.36 78.27,88.79 260.91,131.3 260.91,378.88 	" />
+		<polyline id="XMLID_4_" class="st0" points="178.57,310.85 256,320.67 256.42,319.54 256.98,192.6 256,191.61 178.57,201.29 
+		178.57,310.85 	" />
+		<polyline id="XMLID_5_" class="st0" points="256,379.44 433.59,422.51 433.87,422.08 433.87,89.07 433.59,88.79 256,131.86 
+		256,379.44 	" />
+		<polyline id="XMLID_6_" class="st1"
+			points="333.43,310.85 256,320.67 256,191.61 333.43,201.29 333.43,310.85 	" />
+		<polyline id="XMLID_7_" class="st2"
+			points="333.43,148.27 256,162.44 178.57,148.27 255.86,128.07 333.43,148.27 	" />
+		<polyline id="XMLID_8_" class="st3"
+			points="333.43,363.73 256,349.42 178.57,363.73 255.86,385.33 333.43,363.73 	" />
+		<polyline id="XMLID_9_" class="st0" points="178.57,148.27 256,129.19 256.56,128.91 256.56,0.56 256,0 178.57,38.72 
+		178.57,148.27 	" />
+		<polyline id="XMLID_10_" class="st1" points="333.43,148.27 256,129.19 256,0 333.43,38.72 333.43,148.27 	" />
+		<polyline id="XMLID_11_" class="st0" points="256,512 178.57,473.28 178.57,363.73 256,382.81 257.12,384.21 256.84,509.76 
+		256,512 	" />
+		<polyline id="XMLID_12_" class="st1" points="256,512 333.43,473.28 333.43,363.73 256,382.81 256,512 	" />
+		<polyline id="XMLID_13_" class="st1"
+			points="433.59,88.79 467.81,105.91 467.81,405.39 433.59,422.51 433.59,88.79 	" />
+	</g>
+</svg>

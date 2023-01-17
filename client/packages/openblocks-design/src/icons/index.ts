@@ -12,6 +12,7 @@ export { ReactComponent as AuditDbIcon } from "./icon-audit-db.svg";
 export { ReactComponent as TreeFoldIcon } from "./icon-audit-fold.svg";
 export { ReactComponent as AuditQueryIcon } from "./icon-audit-query.svg";
 export { ReactComponent as AuditUserIcon } from "./icon-audit-user.svg";
+export { ReactComponent as AuditFolderIcon } from "./icon-audit-folder.svg";
 export { ReactComponent as AutoCompleteIcon } from "./icon-autoComplete.svg";
 export { ReactComponent as CalendarIcon } from "./icon-calendar.svg";
 export { ReactComponent as CaptchaIcon } from "./icon-captcha.svg";

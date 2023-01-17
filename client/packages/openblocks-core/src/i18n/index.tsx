@@ -4,10 +4,15 @@ import log from "loglevel";
 
 const defaultLocale = "en";
 
-const locales =
-  navigator.languages && navigator.languages.length > 0
-    ? [...navigator.languages]
-    : [navigator.language || ((navigator as any).userLanguage as string) || defaultLocale];
+let locales = [defaultLocale];
+
+if (globalThis.navigator) {
+  if (navigator.languages && navigator.languages.length > 0) {
+    locales = [...navigator.languages];
+  } else {
+    locales = [navigator.language || ((navigator as any).userLanguage as string) || defaultLocale];
+  }
+}
 
 interface LocaleInfo {
   locale: string; // e.g. "en-US", "zh-Hans-CN"
@@ -56,12 +61,25 @@ export function getValueByLocale<T>(defaultValue: T, func: (info: LocaleInfo) =>
   return defaultValue;
 }
 
-function getDataByLocale<T>(fileData: any, suffix: "" | "Obj", filterLocales?: string) {
+function getDataByLocale<T>(
+  fileData: any,
+  suffix: "" | "Obj",
+  filterLocales?: string,
+  targetLocales?: string[]
+) {
+  let localeInfos = [...fallbackLocaleInfos];
+
+  const targetLocaleInfo = parseLocales(targetLocales || []);
+  if (targetLocaleInfo.length > 0) {
+    localeInfos = [...targetLocaleInfo, ...localeInfos];
+  }
+
   const filterNames = parseLocales((filterLocales ?? "").split(","))
     .map((l) => l.language + (l.region ?? ""))
     .filter((s) => fileData[s + suffix] !== undefined);
+
   const names = [
-    ...fallbackLocaleInfos
+    ...localeInfos
       .flatMap(({ language, region }) => [
         region ? language + region : undefined,
         language,
@@ -70,12 +88,14 @@ function getDataByLocale<T>(fileData: any, suffix: "" | "Obj", filterLocales?: s
       .filter((s) => s && (!filterLocales || filterNames.includes(s))),
     ...filterNames,
   ].map((s) => s + suffix);
+
   for (const name of names) {
     const data = fileData[name];
     if (data !== undefined) {
       return { data: data as T, language: name.slice(0, 2) };
     }
   }
+
   throw new Error(`Not found ${names}`);
 }
 
@@ -105,14 +125,17 @@ type GlobalMessageKey = NestedKey<typeof globalMessages>;
 type VariableValue = string | number | boolean | Date;
 export class Translator<Messages extends object> {
   private readonly messages: Messages & typeof globalMessages;
+
   // language of Translator, can be different from i18n.language
   readonly language: string;
-  constructor(fileData: object, filterLocales?: string) {
-    const { data, language } = getDataByLocale<Messages>(fileData, "", filterLocales);
+
+  constructor(fileData: object, filterLocales?: string, locales?: string[]) {
+    const { data, language } = getDataByLocale<Messages>(fileData, "", filterLocales, locales);
     this.messages = Object.assign({}, data, globalMessages);
     this.language = language;
     this.trans = this.trans.bind(this);
   }
+
   trans(
     key: NestedKey<Messages> | GlobalMessageKey,
     variables?: Record<string, VariableValue>
@@ -120,6 +143,7 @@ export class Translator<Messages extends object> {
     const message = this.getMessage(key);
     return new IntlMessageFormat(message, i18n.locale).format(variables).toString();
   }
+
   private getMessage(key: NestedKey<Messages> | GlobalMessageKey) {
     const value = this.messages[key];
     if (value !== undefined) {

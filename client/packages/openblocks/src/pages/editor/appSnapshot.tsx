@@ -144,7 +144,7 @@ export function AppSnapshot(props: { currentAppInfo: AppSummaryInfo }) {
   const [latestDsl, setLatestDsl] = useState<AppSnapshotDslInfo>();
   const [appInfo, setAppInfo] = useState<AppSummaryInfo>(currentAppInfo);
   const isSnapshotDslLoading = useSelector(isAppSnapshotDslFetching);
-  const compInstance = useRootCompInstance(appInfo, true);
+  const compInstance = useRootCompInstance(appInfo, true, true);
 
   const fetchSnapshotList = (page: number, onSuccess?: (snapshots: AppSnapshotList) => void) => {
     dispatch(setSelectSnapshotId(""));

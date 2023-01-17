@@ -10,7 +10,6 @@ import styled, { css } from "styled-components";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { LargeBottomResIconWrapper } from "util/bottomResUtils";
 import { PageType } from "../constants/pageConstants";
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { SizeType } from "antd/lib/config-provider/SizeContext";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 import {
@@ -21,6 +20,9 @@ import {
 } from "../constants/datasourceConstants";
 import { ResourceType } from "@openblocks-ee/constants/queryConstants";
 import { Upload } from "antd";
+import { useSelector } from "react-redux";
+import { getUser } from "../redux/selectors/usersSelectors";
+import DataSourceIcon from "./DataSourceIcon";
 
 const Wrapper = styled.div<{ placement: PageType }>`
   width: 100%;
@@ -34,25 +36,24 @@ const Wrapper = styled.div<{ placement: PageType }>`
           top: 0;
         `
       : css`
-          padding: 36px 36px 0 0;
+          padding: 36px 0 0 0;
         `;
   }}
-}
 
-.section-title {
-  font-size: 13px;
-  line-height: 1;
-  color: ${GreyTextColor};
-  margin-bottom: 8px;
-}
-
-.section {
-  margin-bottom: 12px;
-
-  &:last-child {
-    margin-bottom: 0px;
+  .section-title {
+    font-size: 13px;
+    line-height: 1;
+    color: ${GreyTextColor};
+    margin-bottom: 8px;
   }
-}
+
+  .section {
+    margin-bottom: 12px;
+
+    &:last-child {
+      margin-bottom: 0px;
+    }
+  }
 `;
 
 const Title = styled.div<{ shadow: boolean; placement: PageType }>`
@@ -105,9 +106,13 @@ const ResButton = (props: {
 }) => {
   let label = "";
   let handleClick = noop;
-  let icon = getBottomResIcon(
-    typeof props.identifier === "object" ? props.identifier.type : props.identifier,
-    "large"
+  let icon = (
+    <DataSourceIcon
+      size="large"
+      dataSourceType={
+        typeof props.identifier === "object" ? props.identifier.type : props.identifier
+      }
+    />
   );
   if (props.identifier === BottomResTypeEnum.TempState) {
     label = trans("query.tempState");
@@ -182,6 +187,8 @@ export function ResCreatePanel(props: ResCreateModalProps) {
   const { onSelect, onClose, recentlyUsed, datasource, placement = "editor" } = props;
   const [isScrolling, setScrolling] = useState(false);
   const [visible, setVisible] = useState(false);
+
+  const user = useSelector(getUser);
 
   const { width, ref } = useResizeDetector({ handleHeight: false });
   const count = width ? Math.floor((width + 8) / (184 + 8)) : 3;
@@ -283,12 +290,15 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                 {datasource.map((i) => (
                   <ResButton size={buttonSize} key={i.id} identifier={i} onSelect={onSelect} />
                 ))}
-                <DataSourceButton size={buttonSize} onClick={() => setVisible(true)}>
-                  <LargeBottomResIconWrapper>
-                    <AddIcon />
-                  </LargeBottomResIconWrapper>
-                  {trans("query.newDatasource")}
-                </DataSourceButton>
+
+                {user.orgDev && (
+                  <DataSourceButton size={buttonSize} onClick={() => setVisible(true)}>
+                    <LargeBottomResIconWrapper>
+                      <AddIcon />
+                    </LargeBottomResIconWrapper>
+                    {trans("query.newDatasource")}
+                  </DataSourceButton>
+                )}
               </DataSourceListWrapper>
             </div>
           </InnerContent>

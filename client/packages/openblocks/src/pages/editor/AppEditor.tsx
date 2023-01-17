@@ -25,6 +25,7 @@ import { useMount, useUnmount } from "react-use";
 import { fetchQueryLibraryDropdown } from "../../redux/reduxActions/queryLibraryActions";
 import { clearGlobalSettings, setGlobalSettings } from "comps/utils/globalSettings";
 import { fetchFolderElements } from "redux/reduxActions/folderActions";
+import { registryDataSourcePlugin } from "@openblocks-ee/constants/queryConstants";
 
 export default function AppEditor() {
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
@@ -38,6 +39,7 @@ export default function AppEditor() {
   const isCommonSettingsFetching = useSelector(getIsCommonSettingFetching);
   const orgId = currentUser.currentOrgId;
   const firstRendered = useRef(false);
+  const [isDataSourcePluginRegistered, setIsDataSourcePluginRegistered] = useState(false);
 
   setGlobalSettings({ applicationId, isViewMode: params.viewMode === "view" });
 
@@ -62,17 +64,29 @@ export default function AppEditor() {
   });
 
   const readOnly = isUserViewMode;
-  const compInstance = useRootCompInstance(appInfo, readOnly);
+  const compInstance = useRootCompInstance(appInfo, readOnly, isDataSourcePluginRegistered);
 
   // fetch dataSource and plugin
   useEffect(() => {
-    if (orgId) {
-      if (params.viewMode === "edit") {
-        dispatch(fetchDataSourceTypes({ organizationId: orgId }));
-        dispatch(fetchFolderElements({}));
-      }
+    dispatch(
+      fetchDataSourceTypes({
+        organizationId: "fake",
+        onSuccess: (dataSourceTypes) => {
+          dataSourceTypes.forEach((dataSourceType) => {
+            const { definition } = dataSourceType;
+            if (!definition) {
+              return;
+            }
+            registryDataSourcePlugin(definition.id, definition);
+          });
+          setIsDataSourcePluginRegistered(true);
+        },
+      })
+    );
+    if (params.viewMode === "edit") {
+      dispatch(fetchFolderElements({}));
     }
-  }, [dispatch, orgId, params.viewMode]);
+  }, [dispatch, params.viewMode]);
 
   useEffect(() => {
     if (applicationId && params.viewMode === "edit") {
@@ -125,7 +139,9 @@ export default function AppEditor() {
         <AppEditorInternalView
           appInfo={appInfo}
           readOnly={readOnly}
-          loading={!fetchOrgGroupsFinished || isCommonSettingsFetching}
+          loading={
+            !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
+          }
           compInstance={compInstance}
         />
       )}

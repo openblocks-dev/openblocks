@@ -2,6 +2,7 @@ import { ApplicationResp } from "api/applicationApi";
 import axios from "axios";
 import { RootComp } from "comps/comps/rootComp";
 import { setGlobalSettings } from "comps/utils/globalSettings";
+import { sdkConfig } from "constants/sdkConfig";
 import _ from "lodash";
 import ReactDOM from "react-dom";
 import { StyleSheetManager } from "styled-components";
@@ -35,6 +36,11 @@ export class AppViewInstance<I = any, O = any> {
 
   constructor(private appId: string, private node: Element, options: AppViewInstanceOptions = {}) {
     Object.assign(this.options, options);
+
+    if (this.options.baseUrl) {
+      sdkConfig.baseURL = this.options.baseUrl;
+    }
+
     this.dataPromise = this.loadData();
     this.render();
   }

@@ -6,7 +6,6 @@ import { Button } from "antd";
 import { useDatasourceForm } from "./form/useDatasourceForm";
 import { PluginPanel } from "./pluginPanel";
 import { DatasourceFormManifest } from "./form/datasourceFormRegistry";
-import { DatasourceFormRegistry } from "@openblocks-ee/pages/datasource/form/datasourceFormRegistry";
 import StepModal, { StepItem, StepModalProps } from "components/StepModal";
 import { GreyTextColor } from "constants/style";
 import { trans } from "i18n";
@@ -16,6 +15,7 @@ import { useSelector } from "react-redux";
 import { getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
 import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import { getDataSourceFormManifest } from "./getDataSourceFormManifest";
 
 const EditButton = styled(Button)`
   font-size: 13px;
@@ -227,7 +227,9 @@ export function useDataSourceModalSteps(params: UseDataSourceModalStepsParams) {
   const datasourceTypes = useSelector(getDataSourceTypesMap);
   const datasourceForm = useDatasourceForm();
   const datasourceType = datasource?.type ?? selectedPlugin?.id;
-  const formManifest = datasourceType && DatasourceFormRegistry[datasourceType];
+  const datasourcePluginDef = datasource?.pluginDefinition || selectedPlugin?.definition;
+  const formManifest =
+    datasourceType && getDataSourceFormManifest(datasourceType, datasourcePluginDef);
   const DataSourceForm = formManifest?.form;
   const steps: StepItem[] = useMemo(
     () => [
@@ -255,7 +257,7 @@ export function useDataSourceModalSteps(params: UseDataSourceModalStepsParams) {
               title={
                 (datasourceType && (
                   <DatasourceTypeLabel>
-                    {getBottomResIcon(datasourceType)}
+                    {getBottomResIcon(datasourceType, "middle", datasourcePluginDef?.icon)}
                     {datasourceTypes[datasourceType]?.name}
                   </DatasourceTypeLabel>
                 )) ||
@@ -265,8 +267,19 @@ export function useDataSourceModalSteps(params: UseDataSourceModalStepsParams) {
             />
           );
         },
-        bodyRender: () =>
-          DataSourceForm && <DataSourceForm form={datasourceForm.form} datasource={datasource!} />,
+        bodyRender: () => {
+          const dataSourceTypeInfo = datasourceType && datasourceTypes[datasourceType];
+          if (!dataSourceTypeInfo || !DataSourceForm) {
+            return null;
+          }
+          return (
+            <DataSourceForm
+              dataSourceTypeInfo={dataSourceTypeInfo}
+              form={datasourceForm.form}
+              datasource={datasource!}
+            />
+          );
+        },
         footerRender: () => (
           <DatasourceModalFooter
             dataSourceId={datasource?.id}
@@ -279,14 +292,14 @@ export function useDataSourceModalSteps(params: UseDataSourceModalStepsParams) {
       },
     ],
     [
-      DataSourceForm,
       datasource,
-      datasourceForm,
       datasourceType,
+      datasourcePluginDef?.icon,
+      datasourceTypes,
+      DataSourceForm,
+      datasourceForm,
       formManifest,
       onCreated,
-      selectedPlugin?.name,
-      datasourceTypes,
     ]
   );
   return steps;

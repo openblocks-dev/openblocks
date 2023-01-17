@@ -1,7 +1,7 @@
-import { Badge, Button } from "antd";
+import { Button } from "antd";
 import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
 import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
-import { BoolCodeControl, StringControl, stringUnionControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { disabledPropertyView, loadingPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -75,47 +75,5 @@ export const ButtonComp = (function () {
         })}
       </>
     ))
-    .build();
-})();
-
-const BadgeStatusOptions = [
-  "none",
-  "success",
-  "error",
-  "default",
-  "warning",
-  "processing",
-] as const;
-
-export const BadgeStatusComp = (function () {
-  const childrenMap = {
-    text: StringControl,
-    status: stringUnionControl(BadgeStatusOptions, "none"),
-  };
-  return new ColumnTypeCompBuilder(
-    childrenMap,
-    (props) => {
-      return props.status === "none" ? (
-        props.text
-      ) : (
-        <Badge status={props.status} text={props.text} />
-      );
-    },
-    (nodeValue) => [nodeValue.status.value, nodeValue.text.value].filter((t) => t).join(" ")
-  )
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          {children.text.propertyView({
-            label: trans("table.columnValue"),
-            tooltip: ColumnValueTooltip,
-          })}
-          {children.status.propertyView({
-            label: trans("table.status"),
-            tooltip: trans("table.statusTooltip"),
-          })}
-        </>
-      );
-    })
     .build();
 })();

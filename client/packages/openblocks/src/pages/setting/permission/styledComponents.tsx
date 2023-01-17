@@ -1,11 +1,23 @@
-import { Table as AntdTable } from "antd";
-import { PointIcon, TacoButton, Tooltip } from "openblocks-design";
+import { Popover, Table as AntdTable } from "antd";
+import {
+  CustomModal,
+  LockIcon,
+  PointIcon,
+  QuestionIcon,
+  SuspensionBox,
+  TacoButton,
+  Tooltip,
+  WhiteLoading,
+} from "openblocks-design";
 import styled from "styled-components";
-import React from "react";
-import { LockIcon } from "openblocks-design";
-import { QuestionIcon } from "openblocks-design";
-import { trans } from "i18n";
+import React, { useEffect, useState } from "react";
+import { i18nObjs, trans } from "i18n";
 import { Table } from "components/Table";
+import UserApi from "api/userApi";
+import { validateResponse } from "api/apiUtils";
+import ReactJson from "react-json-view";
+import { StyledLink } from "pages/common/styledComponent";
+import _ from "lodash";
 
 export const StyledTable = styled(AntdTable)`
   .ant-table-cell {
@@ -168,7 +180,6 @@ export const RoleSelectSubTitle = styled.div`
   color: #8b8fa3;
   line-height: 16px;
   margin-top: 6px;
-  word-break: keep-all;
   white-space: normal;
   display: inline-block;
 `;
@@ -229,16 +240,19 @@ export const HeaderBack = styled.div`
   height: 20px;
   display: flex;
   align-items: center;
+
   > span:nth-of-type(1) {
     color: #8b8fa3;
     cursor: pointer;
   }
+
   > span:nth-of-type(2),
   > div {
     color: #222222;
     font-weight: 500;
     font-size: 20px;
   }
+
   svg {
     margin: 0 8px;
   }
@@ -282,6 +296,7 @@ export const CreateButton = styled(TacoButton)`
     width: 12px;
     height: 12px;
   }
+
   box-shadow: none;
 `;
 
@@ -289,9 +304,16 @@ export const TableStyled = styled(Table)`
   .ant-table-tbody > tr > td {
     padding: 11px 12px;
   }
+
   .ant-table-tbody {
     .operation-cell-div-wrapper {
       visibility: hidden;
+      display: flex;
+      align-items: center;
+
+      > * {
+        margin-right: 8px;
+      }
 
       span {
         cursor: pointer;
@@ -301,12 +323,81 @@ export const TableStyled = styled(Table)`
         line-height: 14px;
       }
     }
-  }
-  tr > td.ant-table-cell-row-hover {
-    background: unset;
 
-    .operation-cell-div-wrapper {
-      visibility: unset;
+    tr > td.ant-table-cell-row-hover {
+      background: unset;
+
+      .operation-cell-div-wrapper {
+        visibility: unset;
+      }
     }
+`;
+
+const OperationLink = styled(StyledLink)`
+  font-size: 14px;
+`;
+
+const UserDetailPopWrapper = styled.div`
+  min-height: 150px;
+
+  .loading-class {
+    height: 150px;
   }
 `;
+
+export function UserDetailPopup(props: { userId: string; title: string }) {
+  const { userId, title } = props;
+  const [userInfo, setUserInfo] = useState({ success: false, view: <></> });
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (!userInfo.success && visible) {
+      setUserInfo({ success: false, view: <WhiteLoading className="loading-class" /> });
+      UserApi.getUserDetail(userId)
+        .then((resp) => {
+          if (validateResponse(resp)) {
+            setUserInfo({
+              success: true,
+              view: (
+                <ReactJson
+                  name={false}
+                  src={resp.data.data}
+                  collapsed={3}
+                  style={{ wordBreak: "break-word" }}
+                />
+              ),
+            });
+          }
+        })
+        .catch((e) => {
+          setUserInfo({
+            success: false,
+            view: <span>{e.message}</span>,
+          });
+        });
+    }
+  }, [visible]);
+
+  return (
+    <>
+      <OperationLink
+        onClick={(e) => {
+          setVisible(true);
+        }}
+      >
+        {trans("memberSettings.userDetail")}
+      </OperationLink>
+      <CustomModal
+        width={550}
+        bodyStyle={{ maxHeight: "500px", overflow: "auto", maxWidth: "550px", width: "550px" }}
+        visible={visible}
+        onCancel={() => setVisible(false)}
+        title={title}
+        showOkButton={false}
+        showCancelButton={false}
+      >
+        <UserDetailPopWrapper>{userInfo.view}</UserDetailPopWrapper>
+      </CustomModal>
+    </>
+  );
+}

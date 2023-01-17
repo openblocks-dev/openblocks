@@ -238,6 +238,7 @@ export default function Example(props: IProps) {
               {trans("componentDoc.showBorder")}
             </OperationBtn>
             <OperationBtn
+              target="_blank"
               href={`/playground/${name}/${encodeURIComponent(JSON.stringify(config))}`}
             >
               <StyledEditIcon />

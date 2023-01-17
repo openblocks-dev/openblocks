@@ -57,4 +57,10 @@ test("formatStringWithJsSnippets", async () => {
   const text = 'abc {{12+ 5}}efefe {{"users" +3}}';
   const expected = 'abc {{12 + 5}}efefe {{"users" + 3}}';
   await expect(formatStringWithJsSnippets(text)).resolves.toBe(expected);
+  await expect(formatStringWithJsSnippets("{{function(){}()}}")).resolves.toBe(
+    "{{(function () {})()}}"
+  );
+  await expect(formatStringWithJsSnippets("{{(function () {})()}}")).resolves.toBe(
+    "{{(function () {})()}}"
+  );
 });

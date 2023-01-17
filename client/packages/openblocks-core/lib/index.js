@@ -106,18 +106,15 @@ function createCache(obj, fnName, args) {
     if (!obj.__cache) {
         obj.__cache = {};
     }
-    if (!obj.__cache[fnName]) {
-        obj.__cache[fnName] = {
-            id: Symbol("id"),
-            args: args,
-            isInProgress: true,
-            time: Date.now(),
-        };
-    }
+    obj.__cache[fnName] = {
+        id: Symbol("id"),
+        args: args,
+        isInProgress: true,
+        time: Date.now(),
+    };
     return getCache(obj, fnName);
 }
-function populate(fn, args, thisObj, fnName) {
-    if (args === void 0) { args = []; }
+function genCache(fn, args, thisObj, fnName) {
     var cache = createCache(thisObj, fnName, args);
     var value = fn.apply(thisObj, args);
     cache.isInProgress = false;
@@ -127,25 +124,21 @@ function read(thisObj, fnName) {
     var cache = getCache(thisObj, fnName);
     return cache && cache.value;
 }
-function isValid(args, thisObj, fnName, equals) {
-    if (args === void 0) { args = []; }
+function hitCache(args, thisObj, fnName, equals) {
     var cache = getCache(thisObj, fnName);
     if (!cache || !cache.args)
         return false;
     if (args.length === 0 && cache.args.length === 0)
         return true;
-    return cache.args.reduce(function (result, arg, index) {
-        return result && ((equals === null || equals === void 0 ? void 0 : equals[index]) ? equals[index](arg, args[index]) : arg === args[index]);
-    }, true);
+    return cache.args.every(function (arg, index) { var _a, _b; return (_b = (_a = equals === null || equals === void 0 ? void 0 : equals[index]) === null || _a === void 0 ? void 0 : _a.call(equals, arg, args[index])) !== null && _b !== void 0 ? _b : arg === args[index]; });
 }
-function isInProgress(thisObj, fnName) {
+function isCyclic(thisObj, fnName) {
     var cache = getCache(thisObj, fnName);
     return cache && cache.isInProgress;
 }
 function cache(fn, args, thisObj, fnName, equals) {
-    if (args === void 0) { args = []; }
-    if (!isValid(args, thisObj, fnName, equals) && !isInProgress(thisObj, fnName)) {
-        populate(fn, args, thisObj, fnName);
+    if (!hitCache(args, thisObj, fnName, equals) && !isCyclic(thisObj, fnName)) {
+        genCache(fn, args, thisObj, fnName);
     }
     return read(thisObj, fnName);
 }
@@ -163,13 +156,14 @@ function memoized(equals) {
     };
 }
 
+var COST_MS_PRINT_THR = 0;
 var RecursivePerfUtil = /** @class */ (function () {
-    function RecursivePerfUtil(params) {
+    function RecursivePerfUtil() {
         var _this = this;
         this.root = Symbol("root");
         this.stack = [];
         this.initRecord = function () {
-            return { obj: _this.root, childrenPerfInfo: [], costMs: 0, depth: 0 };
+            return { obj: _this.root, name: "@root", childrenPerfInfo: [], costMs: 0, depth: 0, info: {} };
         };
         this.getRecordByStack = function (stack) {
             var curRecord = _this.record;
@@ -181,28 +175,29 @@ var RecursivePerfUtil = /** @class */ (function () {
         this.clear = function () {
             _this.record = _this.initRecord();
         };
-        this.print = function () {
-            var stack = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                stack[_i] = arguments[_i];
-            }
+        this.print = function (stack, cost_ms_print_thr) {
+            if (cost_ms_print_thr === void 0) { cost_ms_print_thr = COST_MS_PRINT_THR; }
             var record = _this.getRecordByStack(stack);
-            console.info("PerfInfo. stack: ".concat(stack, ", [info] ").concat(record.info, ", obj: "), record.obj, ", costMs: ".concat(record.costMs, ", depth: ").concat(record.depth, ", size: ").concat(_.size(record.childrenPerfInfo)));
+            console.info("~~ PerfInfo. costMs: ".concat(record.costMs.toFixed(3), ", stack: ").concat(stack, ", [name]").concat(record.name, ", [info]"), record.info, ", obj: ", record.obj, ", depth: ".concat(record.depth, ", size: ").concat(_.size(record.childrenPerfInfo)));
             record.childrenPerfInfo.forEach(function (subRecord, idx) {
-                console.info("  [".concat(idx, "]").concat(subRecord.info, ". obj: "), subRecord.obj, " costMs: ", subRecord.costMs);
+                if (subRecord.costMs >= cost_ms_print_thr) {
+                    console.info("  costMs: ".concat(subRecord.costMs.toFixed(3), " [").concat(idx, "]").concat(subRecord.name, " [info]"), subRecord.info, ". obj: ", subRecord.obj, "");
+                }
             });
         };
-        this.name = params.name;
         this.record = this.initRecord();
     }
-    RecursivePerfUtil.prototype.perf = function (obj, info, fn) {
+    RecursivePerfUtil.prototype.log = function (info, key, log) {
+        info[key] = log;
+    };
+    RecursivePerfUtil.prototype.perf = function (obj, name, fn) {
         {
-            return fn();
+            return fn(_.noop);
         }
     };
     return RecursivePerfUtil;
 }());
-var evalPerfUtil = new RecursivePerfUtil({ name: "evaluate" });
+var evalPerfUtil = new RecursivePerfUtil();
 // @ts-ignore
 globalThis.evalPerfUtil = evalPerfUtil;
 
@@ -365,8 +360,9 @@ var RecordNode = /** @class */ (function (_super) {
         });
     };
     RecordNode.prototype.justEval = function (exposingNodes, methods) {
-        return _.mapValues(this.children, function (v) {
-            return v.evaluate(exposingNodes, methods);
+        var _this = this;
+        return _.mapValues(this.children, function (v, key) {
+            return evalPerfUtil.perf(_this, "eval-".concat(key), function () { return v.evaluate(exposingNodes, methods); });
         });
     };
     RecordNode.prototype.getChildren = function () {
@@ -7396,8 +7392,15 @@ See the accompanying LICENSE file for terms.
 var IntlMessageFormat = IntlMessageFormat$1;
 
 var defaultLocale = "en";
-var locales = navigator.languages && navigator.languages.length > 0
-    ? __spreadArray([], navigator.languages, true) : [navigator.language || navigator.userLanguage || defaultLocale];
+var locales = [defaultLocale];
+if (globalThis.navigator) {
+    if (navigator.languages && navigator.languages.length > 0) {
+        locales = __spreadArray([], navigator.languages, true);
+    }
+    else {
+        locales = [navigator.language || navigator.userLanguage || defaultLocale];
+    }
+}
 function parseLocale(s) {
     var locale = s.trim();
     if (!locale) {
@@ -7431,11 +7434,16 @@ function getValueByLocale(defaultValue, func) {
     }
     return defaultValue;
 }
-function getDataByLocale(fileData, suffix, filterLocales) {
+function getDataByLocale(fileData, suffix, filterLocales, targetLocales) {
+    var localeInfos = __spreadArray([], fallbackLocaleInfos, true);
+    var targetLocaleInfo = parseLocales(targetLocales || []);
+    if (targetLocaleInfo.length > 0) {
+        localeInfos = __spreadArray(__spreadArray([], targetLocaleInfo, true), localeInfos, true);
+    }
     var filterNames = parseLocales((filterLocales !== null && filterLocales !== void 0 ? filterLocales : "").split(","))
         .map(function (l) { var _a; return l.language + ((_a = l.region) !== null && _a !== void 0 ? _a : ""); })
         .filter(function (s) { return fileData[s + suffix] !== undefined; });
-    var names = __spreadArray(__spreadArray([], fallbackLocaleInfos
+    var names = __spreadArray(__spreadArray([], localeInfos
         .flatMap(function (_a) {
         var language = _a.language, region = _a.region;
         return [
@@ -7463,8 +7471,8 @@ var globalMessages = Object.fromEntries(Object.entries(getDataByLocale(localeDat
     ];
 }));
 var Translator = /** @class */ (function () {
-    function Translator(fileData, filterLocales) {
-        var _a = getDataByLocale(fileData, "", filterLocales), data = _a.data, language = _a.language;
+    function Translator(fileData, filterLocales, locales) {
+        var _a = getDataByLocale(fileData, "", filterLocales, locales), data = _a.data, language = _a.language;
         this.messages = Object.assign({}, data, globalMessages);
         this.language = language;
         this.trans = this.trans.bind(this);

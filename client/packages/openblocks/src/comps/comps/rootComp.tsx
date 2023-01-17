@@ -17,10 +17,8 @@ import EditorSkeletonView from "pages/editor/editorSkeletonView";
 import { ThemeContext } from "comps/utils/themeContext";
 import { ModuleLayoutCompName } from "constants/compConstants";
 import { defaultTheme as localDefaultTheme } from "comps/controls/styleControlConstants";
-import { useSelector } from "redux/store/store";
-import { getDefaultTheme, getThemeList } from "redux/selectors/commonSettingSelectors";
-import { ThemeDetail } from "api/commonSettingApi";
 import { ModuleLoading } from "components/ModuleLoading";
+import { getGlobalSettings } from "comps/utils/globalSettings";
 
 interface RootViewProps extends HTMLAttributes<HTMLDivElement> {
   comp: InstanceType<typeof RootComp>;
@@ -42,14 +40,14 @@ function RootView(props: RootViewProps) {
   const { comp, isModuleRoot, ...divProps } = props;
   const [editorState, setEditorState] = useState<EditorState>();
   const themeId = comp.children.settings.getView().themeId;
-  const themeList = useSelector(getThemeList) || [];
-  const defaultTheme = useSelector(getDefaultTheme);
-  let theme = {} as ThemeDetail;
+  const { orgCommonSettings } = getGlobalSettings();
+  const themeList = orgCommonSettings?.themeList || [];
+  const defaultTheme = orgCommonSettings?.defaultTheme || [];
+
+  let theme = localDefaultTheme;
   if (themeId === "default") {
     theme = themeList.find((theme) => theme.id === defaultTheme)?.theme || localDefaultTheme;
-  } else if (themeId === "") {
-    theme = localDefaultTheme;
-  } else {
+  } else if (themeId) {
     theme = themeList.find((theme) => theme.id === themeId)?.theme || localDefaultTheme;
   }
   theme = previewTheme?.previewTheme || theme;

@@ -1,7 +1,6 @@
-import { CellProps } from "components/EditableCell";
+import { CellProps } from "components/table/EditableCell";
 import { DateTimeComp } from "comps/comps/tableComp/column/columnTypeComps/columnDateComp";
-import ColumnTypeView from "comps/comps/tableComp/column/columnTypeView";
-import { BadgeStatusComp, ButtonComp } from "comps/comps/tableComp/column/simpleColumnTypeComps";
+import { ButtonComp } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 import { withType } from "comps/generators";
 import { trans } from "i18n";
 import { changeValueAction } from "openblocks-core";
@@ -12,6 +11,7 @@ import { ColumnLinksComp } from "./columnTypeComps/columnLinksComp";
 import { ColumnMarkdownComp } from "./columnTypeComps/columnMarkdownComp";
 import { ColumnTagsComp } from "./columnTypeComps/columnTagsComp";
 import { SimpleTextComp } from "./columnTypeComps/simpleTextComp";
+import { BadgeStatusComp } from './columnTypeComps/columnStatusComp';
 
 const actionOptions = [
   {
@@ -74,8 +74,7 @@ export class ColumnTypeComp extends TypedColumnTypeComp {
     const childView = this.children.comp.getView();
     return {
       view: (cellProps: CellProps) => {
-        const thisView = typeof childView === "function" ? childView(cellProps) : childView;
-        return <ColumnTypeView>{thisView}</ColumnTypeView>;
+        return childView(cellProps);
       },
       value: this.children.comp.getDisplayValue(),
     };

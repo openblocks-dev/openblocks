@@ -309,27 +309,26 @@ declare function transformWrapper<T>(
   defaultValue?: T
 ): (valueAndMsg: ValueAndMsg<unknown>) => ValueAndMsg<T>;
 
-interface RecursivePerfUtilParams {
-  name: string;
-}
 interface PerfInfo {
   obj: any;
+  name: string;
   childrenPerfInfo: PerfInfo[];
   costMs: number;
   depth: number;
-  info?: string;
+  info: Record<string, any>;
 }
+declare type Log = (key: string, log: any) => void;
 declare class RecursivePerfUtil {
   root: symbol;
-  name: string;
   record: PerfInfo;
   stack: number[];
-  constructor(params: RecursivePerfUtilParams);
+  constructor();
   private initRecord;
   private getRecordByStack;
-  perf<T>(obj: any, info: string, fn: () => T): T;
+  log(info: Record<string, any>, key: string, log: any): void;
+  perf<T>(obj: any, name: string, fn: (log: Log) => T): T;
   clear: () => void;
-  print: (...stack: number[]) => void;
+  print: (stack: number[], cost_ms_print_thr?: number) => void;
 }
 declare const evalPerfUtil: RecursivePerfUtil;
 
@@ -742,7 +741,7 @@ declare type VariableValue = string | number | boolean | Date;
 declare class Translator<Messages extends object> {
   private readonly messages;
   readonly language: string;
-  constructor(fileData: object, filterLocales?: string);
+  constructor(fileData: object, filterLocales?: string, locales?: string[]);
   trans(
     key: NestedKey<Messages> | GlobalMessageKey,
     variables?: Record<string, VariableValue>

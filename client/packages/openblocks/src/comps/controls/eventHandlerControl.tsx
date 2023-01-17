@@ -5,7 +5,6 @@ import { trans } from "i18n";
 import _ from "lodash";
 import { DispatchType } from "openblocks-core";
 import {
-  AddBtn,
   AddEventIcon,
   AddLine,
   CustomPopover,
@@ -16,6 +15,7 @@ import {
   EventTitle,
   Icon,
   InlineEventFormWrapper,
+  LinkButton,
   OptionType,
   QueryConfigItemWrapper,
   ValueFromOption,
@@ -187,15 +187,14 @@ const EventHandlerControlPropertyView = (props: {
   if (type === "query") {
     return (
       <QueryConfigItemWrapper>
-        <AddBtn
+        <LinkButton
+          text={trans("addItem")}
+          icon={<AddEventIcon />}
           onClick={() => {
             dispatch(pushAction({}));
             setShowNewCreate(true);
           }}
-        >
-          <AddEventIcon />
-          {trans("addItem")}
-        </AddBtn>
+        />
         <div style={{ height: "8px" }} />
         {renderItems()}
       </QueryConfigItemWrapper>
@@ -254,6 +253,7 @@ export function eventHandlerControl<T extends EventConfigsType>(eventConfigs?: T
     getEventNames() {
       return eventConfigs;
     }
+
     propertyView(options?: { inline?: boolean; title?: ReactNode; eventConfigs?: T }) {
       return super.propertyView({
         ...options,
@@ -262,6 +262,7 @@ export function eventHandlerControl<T extends EventConfigsType>(eventConfigs?: T
       });
     }
   }
+
   return EventHandlerTempControl;
 }
 

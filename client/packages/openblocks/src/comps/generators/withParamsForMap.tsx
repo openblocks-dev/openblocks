@@ -14,8 +14,8 @@ import {
   Node,
   NodeToValue,
   RecordConstructorToComp,
-  wrapDispatch,
   updateNodesV2Action,
+  wrapDispatch,
 } from "openblocks-core";
 import { ReactNode } from "react";
 import { JSONValue } from "util/jsonTypes";
@@ -100,9 +100,9 @@ export function withParamsForMapWithDefault<
 
     propertyView(key: string): ReactNode {
       let comp = this.children[CHILD_KEY];
-      const params = (this.children.__map__.children[key] as any)?.getParams();
+      const params = this.getView()[key]?.getParams();
       if (params) {
-        comp = (comp as any).setParams(params);
+        comp = comp.setParams(params);
       }
       return comp.getPropertyView();
     }

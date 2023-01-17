@@ -56,10 +56,10 @@ const FooterDiv = styled.div`
 
 interface Iprops {
   title: string;
-  onClose: () => void;
+  onClose?: () => void;
   content: any;
   width?: number;
-  contentMaxHeight?: number | string;
+  contentMaxHeight?: string | number;
   footer?: React.ReactNode;
   scrollable?: boolean;
 }
@@ -78,7 +78,7 @@ export const SuspensionBox = (props: Iprops) => {
     <Container width={width}>
       <TitleDiv>
         <TitleText>{title}</TitleText>
-        <CloseIcon onClick={onClose} />
+        {onClose && <CloseIcon onClick={onClose} />}
       </TitleDiv>
       {scrollable ? (
         <ScrollBar style={{ maxHeight: contentMaxHeight }}>

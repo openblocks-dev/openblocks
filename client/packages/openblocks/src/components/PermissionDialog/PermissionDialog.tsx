@@ -88,7 +88,7 @@ export const PermissionDialog = (props: {
           footerRender: (props) => (
             <BottomWrapper>
               <AddPermissionButton
-                style={{ width: 95, height: 28 }}
+                style={{ height: 28 }}
                 icon={<AddIcon style={{ color: GreyTextColor }} />}
                 onClick={() => {
                   props.next();

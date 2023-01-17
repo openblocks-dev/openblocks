@@ -1,4 +1,4 @@
-import { MultiCompBuilder, withPropertyViewFn } from "comps/generators";
+import { MultiCompBuilder, valueComp, withPropertyViewFn } from "comps/generators";
 import {
   ParamsJsonControl,
   ParamsStringControl,
@@ -19,6 +19,10 @@ import { TableNameComp } from "./tableNameComp";
 import { ChangeSetComp, ChangeSetTypeDropdown } from "./changeSetComp";
 import { FilterComp } from "./FilterComp";
 import { trans } from "i18n";
+import { ResourceType } from "@openblocks-ee/constants/queryConstants";
+import { ColumnNameDropdown } from "./columnNameDropdown";
+import React, { useContext } from "react";
+import { QueryContext } from "../../../util/context/QueryContext";
 
 const changeSetParams = {
   styleName: "medium" as const,
@@ -149,6 +153,23 @@ const CommandMap = {
   )
     .setPropertyViewFn((children) => <>{children.records.getPropertyView()}</>)
     .build(),
+  BULK_UPDATE: new MultiCompBuilder(
+    { table: TableNameComp, primaryKey: valueComp<string>(""), records: RecordsComp },
+    (props) => props.records
+  )
+    .setPropertyViewFn((children) => (
+      <>
+        <ColumnNameDropdown
+          table={children.table.value}
+          value={children.primaryKey.value}
+          dispatch={children.primaryKey.dispatch}
+          placement={"bottom"}
+          label={trans("sqlQuery.primaryKeyColumn")}
+        />
+        {children.records.getPropertyView()}
+      </>
+    ))
+    .build(),
 } as const;
 
 const childrenMap = {
@@ -177,6 +198,7 @@ type ChildrenType = InstanceType<typeof SQLTmpQuery> extends MultiBaseComp<infer
 
 const SQLQueryPropertyView = (props: { children: ChildrenType; dispatch: DispatchType }) => {
   const { children, dispatch } = props;
+  const context = useContext(QueryContext);
 
   return (
     <>
@@ -197,13 +219,13 @@ const SQLQueryPropertyView = (props: { children: ChildrenType; dispatch: Dispatc
             options={
               [
                 { label: trans("sqlQuery.insert"), value: "INSERT" },
-                {
-                  label: trans("sqlQuery.upsert"),
-                  value: "UPSERT",
-                },
+                ...(context?.resourceType === "postgres"
+                  ? []
+                  : [{ label: trans("sqlQuery.upsert"), value: "UPSERT" }]),
                 { label: trans("sqlQuery.update"), value: "UPDATE" },
                 { label: trans("sqlQuery.delete"), value: "DELETE" },
                 { label: trans("sqlQuery.bulkInsert"), value: "BULK_INSERT" },
+                { label: trans("sqlQuery.bulkUpdate"), value: "BULK_UPDATE" },
               ] as const
             }
             value={children.commandType.getView()}
@@ -233,7 +255,7 @@ const SQLQueryPropertyView = (props: { children: ChildrenType; dispatch: Dispatc
 export const SQLQuery = class extends SQLTmpQuery {
   isWrite(action: CompAction): boolean {
     return (
-      (action.path.includes("sql") && regexp.test(this.children.sql.toJsonValue())) ||
+      (action.path.includes("sql") && regexp.test(this.children.sql.toJsonValue() as string)) ||
       (action.path.includes("mode") && (action as any).value === "GUI")
     );
   }
@@ -256,3 +278,5 @@ export const SQLQuery = class extends SQLTmpQuery {
     return <SQLQueryPropertyView children={this.children} dispatch={this.dispatch} />;
   }
 };
+
+export const SUPPORT_GUI_SQL_QUERY: ResourceType[] = ["mysql", "postgres"];

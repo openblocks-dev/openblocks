@@ -1,4 +1,3 @@
-import { UploadOutlined } from "@ant-design/icons";
 import { Button, message, Upload as AntdUpload } from "antd";
 import { UploadChangeParam } from "antd/lib/upload";
 import { UploadFile, UploadProps } from "antd/lib/upload/interface";
@@ -164,6 +163,7 @@ const StyledUpload = styled(AntdUpload)<{ $style: FileStyleType }>`
     justify-content: center;
     align-items: center;
     gap: 6px;
+
     > span {
       overflow: hidden;
       display: inline-flex;
@@ -228,12 +228,16 @@ const Upload = (
   }
 ) => {
   const { dispatch, files, style } = props;
-  const [fileList, setFileList] = useState<UploadFile[]>(files as any);
+  const [fileList, setFileList] = useState<UploadFile[]>(
+    files.map((f) => ({ ...f, status: "done" })) as UploadFile[]
+  );
   useEffect(() => {
     if (files.length === 0 && fileList.length !== 0) {
       setFileList([]);
     }
   }, [files]);
+  // chrome86 bug: button children should not contain only empty span
+  const hasChildren = hasIcon(props.prefixIcon) || !!props.text || hasIcon(props.suffixIcon);
   return (
     <StyledUpload
       {...commonProps(props)}
@@ -326,11 +330,13 @@ const Upload = (
       }}
     >
       <Button disabled={props.disabled}>
-        <span>
-          {hasIcon(props.prefixIcon) && <IconWrapper>{props.prefixIcon}</IconWrapper>}
-          {!!props.text && props.text}
-          {hasIcon(props.suffixIcon) && <IconWrapper>{props.suffixIcon}</IconWrapper>}
-        </span>
+        {hasChildren && (
+          <span>
+            {hasIcon(props.prefixIcon) && <IconWrapper>{props.prefixIcon}</IconWrapper>}
+            {!!props.text && props.text}
+            {hasIcon(props.suffixIcon) && <IconWrapper>{props.suffixIcon}</IconWrapper>}
+          </span>
+        )}
       </Button>
     </StyledUpload>
   );

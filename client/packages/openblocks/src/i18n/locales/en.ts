@@ -1,3 +1,5 @@
+import table from "./componentDocExtra/table.md?url";
+
 export const en = {
   productName: "Openblocks",
   productDesc: "Build internal tools fast, with no limitations",
@@ -436,6 +438,7 @@ export const en = {
     datasourceName: "Name",
     datasourceNameRuleMessage: "Please enter a data source name",
     generalSetting: "General settings",
+    advancedSetting: "Advanced settings",
     port: "Port",
     portRequiredMessage: "Please enter a port",
     portErrorMessage: "Please enter a correct port",
@@ -458,6 +461,12 @@ export const en = {
     passwordRequiredMessage: "Please enter your password",
     authentication: "Authentication",
     authenticationType: "Authentication Type",
+    sslCertVerificationType: "SSL Cert Verification",
+    sslCertVerificationTypeDefault: "Verify CA Cert",
+    sslCertVerificationTypeSelf: "Verify Self Signed Cert",
+    sslCertVerificationTypeDisabled: "Disabled",
+    selfSignedCert: "Self-signed Cert",
+    selfSignedCertRequireMsg: "Please enter your Certificate",
     enableTurnOffPreparedStatement: "Enable toggling prepared statements for queries",
     enableTurnOffPreparedStatementTooltip:
       "You can enable or disable prepared statements in query Advanced tab",
@@ -505,7 +514,9 @@ export const en = {
     update: "Update",
     delete: "Delete",
     bulkInsert: "Bulk insert",
+    bulkUpdate: "Bulk update",
     table: "Table",
+    primaryKeyColumn: "Primary key column",
   },
   EsQuery: {
     rawCommand: "Raw command",
@@ -904,8 +915,8 @@ export const en = {
   },
   file: {
     typeErrorMsg: "Must be a number with a valid file size unit, or a unitless number of bytes.",
-    fileEmptyErrorMsg: "Upload failed. The file size is empty",
-    fileSizeExceedErrorMsg: "Upload failed. The file size exceeds the limit",
+    fileEmptyErrorMsg: "upload failed. The file size is empty.",
+    fileSizeExceedErrorMsg: "upload failed. The file size exceeds the limit.",
     minSize: "Min size",
     minSizeTooltip: `The minimum size of uploaded files with optional file size units (e.g., "5kb", "10 MB"). If no unit is provided, the value will be considered a number of bytes.`,
     maxSize: "Max size",
@@ -1159,7 +1170,7 @@ export const en = {
   },
   audio: {
     src: "Audio URL",
-    defaultSrcUrl: "",
+    defaultSrcUrl: "https://cdn-files.openblocks.dev/canon-excerpt.mp3",
     autoPlay: "Autoplay",
     loop: "Loop",
     srcDesc: "Current audio URL",
@@ -1172,7 +1183,7 @@ export const en = {
   },
   video: {
     src: "Video URL",
-    defaultSrcUrl: "",
+    defaultSrcUrl: "https://www.youtube.com/watch?v=pRpeEdMmmQ0",
     poster: "Poster URL",
     defaultPosterUrl: "",
     autoPlay: "Autoplay",
@@ -1287,6 +1298,7 @@ export const en = {
     groupName: "Group name",
     createTime: "Create time",
     manageBtn: "Manage",
+    userDetail: "Detail",
   },
   orgSettings: {
     newOrg: "New workspace",
@@ -1315,7 +1327,7 @@ export const en = {
     iconPosition: "Icon position",
   },
   formComp: {
-    containerPlaceholder: "Drag components from the right panel or",
+    containerPlaceholder: "Drag components from the right pane or",
     openDialogButton: "generate form from data",
     resetAfterSubmit: "Reset after successful submit",
     initialData: "Initial data",
@@ -1352,6 +1364,7 @@ export const en = {
     valuesLengthError: "Parameter number error",
     valueTypeError: "Parameter type error",
     dataDesc: "Current form data",
+    loadingDesc: "Whether the form is loading?",
   },
   modalComp: {
     close: "Close",
@@ -1478,6 +1491,15 @@ export const en = {
     checkboxLabel: "Checkbox",
     buttonLabel: "Button",
     switch: "Switch",
+    previewDate: "16/10/2022",
+    previewEmail1: "ted.com",
+    previewEmail2: "skype.com",
+    previewEmail3: "imgur.com",
+    previewEmail4: "globo.com",
+    previewPhone1: "+63-317-333-0093",
+    previewPhone2: "+30-668-580-6521",
+    previewPhone3: "+86-369-925-2071",
+    previewPhone4: "+7-883-227-8093",
   },
   pluginSetting: {
     title: "Plugins",
@@ -1667,10 +1689,10 @@ export const en = {
     global: "Global",
     toggleShortcutList: "Toggle keyboard shortcuts",
     editor: "Editor",
-    toggleLeftPanel: "Toggle left Panel",
-    toggleBottomPanel: "Toggle bottom panel",
-    toggleRightPanel: "Toggle right panel",
-    toggleAllPanels: "Toggle all panels",
+    toggleLeftPanel: "Toggle left pane",
+    toggleBottomPanel: "Toggle bottom pane",
+    toggleRightPanel: "Toggle right pane",
+    toggleAllPanels: "Toggle all panes",
     preview: "Preview",
     undo: "Undo",
     redo: "Redo",
@@ -1689,7 +1711,7 @@ export const en = {
     excuteQuery: "Run current query",
     editBox: "Text editor",
     formatting: "Format",
-    openInLeftPanel: "Open in left panel",
+    openInLeftPanel: "Open in left pane",
   },
   help: {
     videoText: "Overview",
@@ -1899,7 +1921,7 @@ export const en = {
   },
   docUrls: {
     docHome: "https://docs.openblocks.dev/",
-    components: "",
+    components: "https://cloud.openblocks.dev/components?n={compType}",
     module: "",
     optionList: "",
     terms: "",
@@ -1907,6 +1929,8 @@ export const en = {
     aboutUs: "",
     changeLog: "",
     introVideo: "",
+    devNpmPlugin: "https://docs.openblocks.dev/build-plugins/develop-your-first-plugin",
+    devNpmPluginText: "How to develop npm plugin",
     useHost: "https://docs.openblocks.dev/self-hosting/access-local-database-or-api",
     eventHandlerSlowdown:
       "https://docs.openblocks.dev/build-apps/event-handlers#debounce-and-throttle",
@@ -2152,12 +2176,15 @@ export const en = {
   playground: {
     data: "Data",
     preview: "Preview",
-    property: "Property",
+    property: "Properties",
     console: "Console",
     executeMethods: "Execute methods",
     noMethods: "No methods.",
     methodParams: "Method params",
     methodParamsHelp:
       "Input method params use JSON, for example, you can set setValue's params with: [1] or 1",
+  },
+  componentDocExtra: {
+    table,
   },
 };

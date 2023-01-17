@@ -6,6 +6,7 @@ import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 import { JSONArray } from "../util/jsonTypes";
 import { AuthType, HttpOAuthGrantType } from "../pages/datasource/form/httpDatasourceForm";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import { DataSourcePluginMeta } from "openblocks-sdk/dataSource";
 
 export interface PreparedStatementConfig {
   enableTurnOffPreparedStatement: boolean;
@@ -73,6 +74,17 @@ export interface OAuthConfig extends OAuthBasicConfig {
   // isAuthorized: false;
 }
 
+export enum SSLCertVerificationEnum {
+  VERIFY_CA_CERT = "VERIFY_CA_CERT",
+  VERIFY_SELF_SIGNED_CERT = "VERIFY_SELF_SIGNED_CERT",
+  DISABLED = "DISABLED",
+}
+
+export interface SSLConfig {
+  sslCertVerificationType: SSLCertVerificationEnum;
+  selfSignedCert?: string;
+}
+
 export interface HttpConfig {
   url: string;
   headers: KeyValue;
@@ -89,6 +101,8 @@ export interface HttpConfig {
       }
     | OAuthConfig
   );
+
+  sslConfig: SSLConfig;
 }
 
 export type DatasourceConfigType =
@@ -122,9 +136,8 @@ export interface DataSourceTypeInfo {
   id: DatasourceType;
   name: string;
   version: string;
-  iconUrl: string;
-  documentUrl: string;
   hasStructureInfo: boolean;
+  definition?: DataSourcePluginMeta;
 }
 
 export class DatasourceApi extends Api {
