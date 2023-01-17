@@ -4,12 +4,11 @@ import { changeChildAction, DispatchType } from "openblocks-core";
 import { constantColors } from "openblocks-design";
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { developEnv } from "util/envUtils";
 import { JSONValue } from "util/jsonTypes";
 import ColumnTypeView from "./columnTypeView";
 
 type StatusType = PresetStatusColorType | "none";
-export const TABLE_EDITABLE_SWITCH_ON = developEnv();
+export const TABLE_EDITABLE_SWITCH_ON = true;
 export const TagsContext = React.createContext<string[]>([]);
 export const StatusContext = React.createContext<{ text: string; status: StatusType }[]>([]);
 export type UpdateChangeSet<T> = (value: T) => void;

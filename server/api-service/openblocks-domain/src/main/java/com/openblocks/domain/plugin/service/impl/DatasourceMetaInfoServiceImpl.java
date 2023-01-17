@@ -158,7 +158,9 @@ public class DatasourceMetaInfoServiceImpl implements DatasourceMetaInfoService 
 
     @Override
     public boolean isJavaDatasourcePlugin(String type) {
-        return getJavaBasedSupportedDatasourceMetaInfos()
+        return "majiangInternal".equals(type)
+                || "openblocksApi".equals(type)
+                || getJavaBasedSupportedDatasourceMetaInfos()
                 .stream()
                 .anyMatch(datasourceMetaInfo -> datasourceMetaInfo.getType().equals(type));
     }

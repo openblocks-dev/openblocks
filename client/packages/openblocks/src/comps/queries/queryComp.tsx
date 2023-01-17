@@ -366,7 +366,12 @@ QueryCompTmp = class extends QueryCompTmp {
 
   override getPropertyView() {
     return (
-      <QueryContext.Provider value={{ datasourceId: this.children.datasourceId.getView() }}>
+      <QueryContext.Provider
+        value={{
+          datasourceId: this.children.datasourceId.getView(),
+          resourceType: this.children.compType.getView(),
+        }}
+      >
         <QueryPropertyView comp={this as any} />
       </QueryContext.Provider>
     );

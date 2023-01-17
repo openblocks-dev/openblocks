@@ -75,12 +75,9 @@ function hasPropertyView(comp: any): comp is OptionCompProperty {
 function withDataIndex<T extends OptionsControlType>(VariantComp: T) {
   // @ts-ignore
   class WithDataIndexComp extends VariantComp {
-    dataIndex: string = "";
+    dataIndex: string = genRandomKey();
 
     getDataIndex() {
-      if (!this.dataIndex) {
-        this.dataIndex = genRandomKey();
-      }
       return this.dataIndex;
     }
   }

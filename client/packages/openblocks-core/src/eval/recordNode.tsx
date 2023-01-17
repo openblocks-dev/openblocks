@@ -18,7 +18,7 @@ export class RecordNode<T extends Record<string, Node<unknown>>> extends Abstrac
   constructor(readonly children: T) {
     super();
   }
-  @memoized([shallowEqual])
+  @memoized()
   override filterNodes(exposingNodes: Record<string, Node<unknown>>) {
     return evalPerfUtil.perf(this, `filterNodes`, () => {
       const result = new Map<Node<unknown>, Set<string>>();
@@ -32,8 +32,8 @@ export class RecordNode<T extends Record<string, Node<unknown>>> extends Abstrac
     exposingNodes: Record<string, Node<unknown>>,
     methods?: EvalMethods
   ): RecordNodeToValue<T> {
-    return _.mapValues(this.children, (v) =>
-      v.evaluate(exposingNodes, methods)
+    return _.mapValues(this.children, (v, key) =>
+      evalPerfUtil.perf(this, `eval-${key}`, () => v.evaluate(exposingNodes, methods))
     ) as RecordNodeToValue<T>;
   }
   override getChildren(): Node<unknown>[] {

@@ -5,10 +5,10 @@ import {
   QueryDataType,
 } from "./dataSourceCommon";
 import {
+  allCompSelection,
   booleanCompSelection,
   CompSelection,
   dateCompSelection,
-  allCompSelection,
   numberCompSelection,
   timeCompSelection,
   timestampCompSelection,
@@ -64,7 +64,14 @@ function getQueryInitData(
     comp: {
       sql: generateInsertSql(tableName, infos),
       commandType: "INSERT",
-      mode: "SQL",
+      mode: "GUI",
+      command: {
+        table: tableName,
+        changeSet: {
+          compType: "OBJECT",
+          comp: `{{ ${formName}.data }}`,
+        },
+      },
     },
   };
 }

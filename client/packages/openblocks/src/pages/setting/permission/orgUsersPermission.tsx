@@ -158,6 +158,9 @@ function OrgUsersPermission(props: UsersPermissionProp) {
           render={(value, record: OrgUser) => {
             return (
               <div className="operation-cell-div-wrapper">
+                {currentOrgAdmin(currentUser) && (
+                  <UserDetailPopup userId={record.userId} title={record.name} />
+                )}
                 {record.userId === currentUser.id ? (
                   record.role === ADMIN_ROLE && adminCount === 1 ? (
                     <QuestionTooltip title={LAST_ADMIN_QUIT} />
@@ -198,9 +201,6 @@ function OrgUsersPermission(props: UsersPermissionProp) {
                       {trans("memberSettings.moveOutOrg")}
                     </span>
                   )
-                )}
-                {currentOrgAdmin(currentUser) && (
-                  <UserDetailPopup userId={record.userId} title={record.name} />
                 )}
               </div>
             );
