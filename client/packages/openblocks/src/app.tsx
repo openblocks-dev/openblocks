@@ -44,7 +44,7 @@ import { favicon } from "@openblocks-ee/assets/images";
 import { hasQueryParam } from "util/urlUtils";
 import { isFetchUserFinished } from "redux/selectors/usersSelectors";
 import { SystemWarning } from "./components/SystemWarning";
-import { getBrandingConfig } from "./redux/selectors/configSelectors";
+import { getBrandingConfig, getSystemConfigFetching } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
 
 const LazyUserAuthComp = React.lazy(() => import("@openblocks-ee/pages/userAuth"));
@@ -61,6 +61,7 @@ const Wrapper = (props: { children: React.ReactNode }) => {
 type AppIndexProps = {
   isFetchUserFinished: boolean;
   isFetchHomeFinished: boolean;
+  isFetchingConfig: boolean;
   orgDev: boolean;
   defaultHomePage: string | null | undefined;
   fetchConfig: () => void;
@@ -91,6 +92,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     // make sure all users in this app have checked login info
     if (
       !this.props.isFetchUserFinished ||
+      this.props.isFetchingConfig ||
       (pathname === BASE_URL && !this.props.isFetchHomeFinished)
     ) {
       const hideLoadingHeader = isTemplate || isAuthUnRequired(pathname);
@@ -156,6 +158,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
 
 const mapStateToProps = (state: AppState) => ({
   isFetchUserFinished: isFetchUserFinished(state),
+  isFetchingConfig: getSystemConfigFetching(state),
   orgDev: state.ui.users.user.orgDev,
   defaultHomePage: state.ui.application.homeOrg?.commonSettings.defaultHomePage,
   isFetchHomeFinished: state.ui.application.loadingStatus.fetchHomeDataFinished,

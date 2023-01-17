@@ -39,10 +39,13 @@ const TextAreaStyled = styled(TextArea)<{
 const Wrapper = styled.div<{
   $style: InputLikeStyleType;
 }>`
+  height: 100%;
+
   .ant-input-clear-icon {
     opacity: 0.45;
     color: ${(props) => props.$style.text};
     top: 10px;
+
     &:hover {
       opacity: 0.65;
       color: ${(props) => props.$style.text};

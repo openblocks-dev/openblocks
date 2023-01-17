@@ -220,7 +220,7 @@ export function CompPlayground(props: IProps) {
           </div>
         </div>
         <div className="panel property-panel">
-          <div className="panel-title">{trans("playground.preview")}</div>
+          <div className="panel-title">{trans("playground.property")}</div>
           <div className="panel-content">{comp.getPropertyView()}</div>
         </div>
       </div>
