@@ -725,6 +725,9 @@ export const en = {
     listViewCompName: "List View",
     listViewCompDesc: "List View component",
     listViewCompKeywords: "",
+    masonryCompName: "Masonry View",
+    masonryCompDesc: "Masonry View component",
+    masonryCompKeywords: "",
     navigationCompName: "Navigation",
     navigationCompDesc: "Navigation component",
     navigationCompKeywords: "",
@@ -1381,6 +1384,13 @@ export const en = {
     numOfRows: "Row count",
     numOfRowsTooltip:
       "Number of rows in the list - This is usually set to a variable (for example, '{{query1.data.length}}') if you need to present the results of a query.",
+  },
+  masonryView: {
+    numOfRows: "Number of Cards",
+    numOfRowsTooltip:
+      "Number of cards in the Masonry - This is usually set to a variable (for example, '{{query1.data.length}}') if you need to present the results of a query.",
+    numOfCols: "Number of Columns",
+    numOfColsTooltip: "Number of Columns in the Masonry Layout.",
   },
   navigation: {
     addText: "Add submenu item",

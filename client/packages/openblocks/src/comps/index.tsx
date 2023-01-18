@@ -93,6 +93,10 @@ import {
 import { defaultFormData, FormComp } from "./comps/formComp/formComp";
 import { IFrameComp } from "./comps/iframeComp";
 import { defaultListViewData, ListViewComp } from "./comps/listViewComp/listViewComp";
+import {
+  defaultMasonryData,
+  MasonryViewComp,
+} from "./comps/masonryComp/masonryComp";
 import { ModuleComp } from "./comps/moduleComp/moduleComp";
 import { NavComp } from "./comps/navComp/navComp";
 import { TableComp } from "./comps/tableComp";
@@ -570,6 +574,21 @@ const uiCompMap: Registry = {
       delayCollision: true,
     },
     defaultDataFn: defaultListViewData,
+  },
+  masonryView: {
+    name: trans("uiComp.masonryCompName"),
+    enName: "Masonry View",
+    icon: ListViewIcon,
+    description: trans("uiComp.masonryCompDesc"),
+    categories: ["container", "common"],
+    keywords: trans("uiComp.masonryCompKeywords"),
+    comp: MasonryViewComp,
+    layoutInfo: {
+      w: 15,
+      h: 39,
+      delayCollision: true,
+    },
+    defaultDataFn: defaultMasonryData,
   },
   navigation: {
     name: trans("uiComp.navigationCompName"),
