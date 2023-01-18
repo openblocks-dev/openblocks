@@ -81,3 +81,4 @@ You can access Openblocks from [cloud-hosted version](https://cloud.openblocks.d
 - [File upload with REST API](https://cloud.openblocks.dev/apps/63a2651e660ad97d59eb4a51/view)
 - [Shopping cart demo using transformers/state/drawer](https://cloud.openblocks.dev/apps/63a422a344075b798fe3ae06/view)
 - [Module demo: color picker](https://cloud.openblocks.dev/apps/63a58f1e85d4cb49cebad1d4/view)
+- [S3 File Management](https://cloud.openblocks.dev/apps/63c7aa55686c4f301cf4d755/view)
