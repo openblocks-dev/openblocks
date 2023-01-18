@@ -12,11 +12,7 @@ export const QueryConfirmationModal = new MultiCompBuilder(
     confirmationMessage: StringControl,
   },
   (props) =>
-    (
-      onConfirm: () => Promise<QueryResult>,
-      onCancel: () => void,
-      isManual: boolean
-    ): Promise<QueryResult> =>
+    (onConfirm: () => Promise<QueryResult>, isManual: boolean): Promise<QueryResult> =>
       new Promise<QueryResult>((resolve) => {
         props.showConfirmationModal && isManual
           ? CustomModal.confirm({
@@ -26,7 +22,6 @@ export const QueryConfirmationModal = new MultiCompBuilder(
               onConfirm: () => {
                 resolve(onConfirm());
               },
-              onCancel: onCancel,
               confirmBtnType: "primary",
               style: { top: "-100px" },
               bodyStyle: { marginTop: 0, height: "42px" },

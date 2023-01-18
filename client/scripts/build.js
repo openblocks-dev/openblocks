@@ -1,9 +1,31 @@
+import fs from "node:fs";
+import path from "node:path";
+import https from "node:https";
 import shell from "shelljs";
 import chalk from "chalk";
 import axios from "axios";
 import { buildVars } from "openblocks-dev-utils/buildVars.js";
 
 const builtinPlugins = ["openblocks-comps"];
+
+async function downloadFile(url, dest) {
+  const file = fs.createWriteStream(dest);
+  return new Promise((resolve, reject) => {
+    https
+      .get(url, function (response) {
+        response.pipe(file);
+        file.on("finish", function () {
+          file.close(() => {
+            resolve();
+          });
+        });
+      })
+      .on("error", function (err) {
+        fs.unlink(dest);
+        reject(err);
+      });
+  });
+}
 
 async function downloadBuiltinPlugin(name) {
   console.log();
@@ -17,7 +39,9 @@ async function downloadBuiltinPlugin(name) {
   console.log(chalk.blue`tarball: ${tarball}`);
 
   shell.mkdir("-p", targetDir);
-  shell.exec(`curl ${tarball} -o ${tarballFileName}`, { fatal: true, silent: true });
+
+  await downloadFile(tarball, path.join(process.cwd(), tarballFileName));
+
   shell.exec(`tar -zxf ${tarballFileName} -C ${targetDir} --strip-components 1`, { fatal: true });
   shell.rm(tarballFileName);
 }

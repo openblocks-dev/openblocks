@@ -14,7 +14,12 @@ import { UICompBuilder, withPropertyViewFn, withViewFn } from "comps/generators"
 import { childrenToProps } from "comps/generators/multi";
 import { HidableView } from "comps/generators/uiCompBuilder";
 import { withDispatchHook } from "comps/generators/withDispatchHook";
-import { DepsConfig, NameConfig, withExposingConfigs } from "comps/generators/withExposing";
+import {
+  depsConfig,
+  DepsConfig,
+  NameConfig,
+  withExposingConfigs,
+} from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { trans } from "i18n";
 import _ from "lodash";
@@ -454,12 +459,11 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     },
     trans("table.selectedRowsDesc")
   ),
-  new DepsConfig(
-    "changeSet",
-    (children) => {
-      return { columns: children.columns.exposingNode() };
-    },
-    (input) => {
+  depsConfig({
+    name: "changeSet",
+    desc: trans("table.changeSetDesc"),
+    depKeys: ["columns"],
+    func: (input) => {
       const record: Record<string, Record<string, JSONValue>> = {};
       Object.values(input.columns).forEach((column: any) => {
         const dataIndex: string = column.dataIndex;
@@ -467,7 +471,7 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
         const render = column.render; // {comp, map: [0].comp.changeValue, length}
         _.forEach(render.map, (value, key) => {
           const changeValue = value.comp?.changeValue;
-          if (changeValue) {
+          if (!_.isNil(changeValue)) {
             if (!record[key]) record[key] = {};
             record[key][dataIndex] = changeValue;
           }
@@ -475,8 +479,7 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
       });
       return record;
     },
-    trans("table.changeSetDesc")
-  ),
+  }),
   new DepsConfig(
     "pageNo",
     (children) => {
@@ -517,7 +520,7 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     },
     (input) => {
       const sortIndex = input.sort[0]?.column;
-      const column = Object.values(input.columns).find(
+      const column = Object.values(input.columns as any).find(
         (c: any) => c.dataIndex === sortIndex
       ) as any;
       if (column?.isCustom && column?.title.value) {
@@ -528,18 +531,14 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     },
     trans("table.sortColumnDesc")
   ),
-  new DepsConfig(
-    "sortDesc",
-    (children) => {
-      return {
-        sort: children.sort.node(),
-      };
-    },
-    (input) => {
+  depsConfig({
+    name: "sortDesc",
+    desc: trans("table.sortDesc"),
+    depKeys: ["sort"],
+    func: (input) => {
       return input.sort[0]?.desc || false;
     },
-    trans("table.sortDesc")
-  ),
+  }),
   new DepsConfig(
     "pageOffset",
     (children) => {
@@ -579,7 +578,7 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
       return getDisplayData(
         input.data,
         input.pagination,
-        input.columns,
+        input.columns as any,
         input.toolbar.filter,
         input.sort,
         input.toolbar.searchText.value,
@@ -593,11 +592,11 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     "filter",
     (children) => {
       return {
-        toolbar: children.toolbar.node(),
+        filter: children.toolbar.children.filter.node(),
       };
     },
     (input) => {
-      return input.toolbar.filter;
+      return input.filter;
     },
     trans("table.filterDesc")
   ),

@@ -1,4 +1,4 @@
-import { message, Typography } from "antd";
+import { message } from "antd";
 import { TacoButton } from "openblocks-design";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
@@ -19,6 +19,7 @@ import { trans } from "../../i18n";
 import { checkIsMobile } from "util/commonUtils";
 import history from "util/history";
 import { APPLICATION_VIEW_URL } from "constants/routesURL";
+import { TypographyText } from "../../components/TypographyText";
 
 const EditButton = styled(TacoButton)`
   width: 52px;
@@ -46,6 +47,7 @@ const ExecButton = styled(TacoButton)`
     border: 1px solid #c2d6ff;
     color: #315efb;
   }
+
   @media screen and (max-width: 500px) {
     margin-right: 0;
     display: none;
@@ -81,10 +83,12 @@ const Card = styled.div`
       opacity: 1;
     }
   }
+
   @media screen and (max-width: 500px) {
     button {
       opacity: 1;
     }
+
     padding: 0;
   }
 `;
@@ -107,45 +111,8 @@ const CardInfo = styled.div`
     }
   }
 
-  span.ant-typography {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-  }
-
   .ant-typography {
     padding: 0 0 8px 0;
-
-    font-size: 14px;
-    color: #333333;
-    line-height: 14px;
-  }
-
-  .ant-typography-edit-content {
-    padding: unset;
-    margin: unset;
-    left: unset;
-  }
-
-  .ant-input,
-  .ant-input:focus,
-  .ant-input-focused {
-    height: 24px !important;
-    min-height: 24px;
-    background: #ffffff;
-    border: 1px solid #3377ff;
-    border-radius: 4px;
-    padding: 4px 8px;
-    margin: -5px 0 3px -9px;
-    white-space: nowrap;
-
-    font-size: 14px;
-    color: #333333;
-    line-height: 14px;
-
-    ::-webkit-scrollbar {
-      display: none;
-    }
   }
 `;
 
@@ -210,30 +177,22 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
             }
           }}
         >
-          <Typography.Text
-            title={res.name}
-            editable={{
-              enterIcon: null,
-              tooltip: false,
-              editing: appNameEditing,
-              icon: null,
-              triggerType: ["text"],
-              onChange: (value) => {
-                if (!value.trim()) {
-                  message.warn(trans("home.nameCheckMessage"));
-                  return;
-                }
-                if (res.type === HomeResTypeEnum.Folder) {
-                  dispatch(updateFolder({ id: res.id, name: value }));
-                } else {
-                  dispatch(updateAppMetaAction(res.id, value));
-                }
-                setAppNameEditing(false);
-              },
+          <TypographyText
+            value={res.name}
+            editing={appNameEditing}
+            onChange={(value) => {
+              if (!value.trim()) {
+                message.warn(trans("home.nameCheckMessage"));
+                return;
+              }
+              if (res.type === HomeResTypeEnum.Folder) {
+                dispatch(updateFolder({ id: res.id, name: value }));
+              } else {
+                dispatch(updateAppMetaAction(res.id, value));
+              }
+              setAppNameEditing(false);
             }}
-          >
-            {res.name}
-          </Typography.Text>
+          />
           <AppTimeOwnerInfoLabel title={subTitle}>{subTitle}</AppTimeOwnerInfoLabel>
         </CardInfo>
         <OperationWrapper>

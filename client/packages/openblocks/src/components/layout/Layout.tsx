@@ -22,7 +22,7 @@ const SideBarV2 = styled(SideBar)`
   .sidebar-section:not(:last-child)::after {
     content: "";
     display: block;
-    width: 192px;
+    width: 204px;
     height: 1px;
     background-color: #ebebeb;
     margin: 0 auto 4px;

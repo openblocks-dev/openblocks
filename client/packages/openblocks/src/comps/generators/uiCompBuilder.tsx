@@ -12,7 +12,7 @@ import {
   ToNodeType,
   ViewFnTypeForComp,
 } from "./multi";
-import { ExposingConfig, withExposingConfigs } from "./withExposing";
+import { ChildrenToComp, ExposingConfig, withExposingConfigs } from "./withExposing";
 import {
   ExposeMethodCompConstructor,
   MethodConfigsType,
@@ -55,7 +55,7 @@ export class UICompBuilder<ChildrenCompMap extends Record<string, Comp<unknown>>
   private childrenMap: ToConstructor<ChildrenCompMap>;
   private viewFn: ViewFnTypeForComp<ViewReturn, NewChildren<ChildrenCompMap>>;
   private propertyViewFn: PropertyViewFnTypeForComp<NewChildren<ChildrenCompMap>> = () => null;
-  private stateConfigs: ExposingConfig<ChildrenCompMap>[] = [];
+  private stateConfigs: ExposingConfig<ChildrenToComp<ChildrenCompMap>>[] = [];
   private methodConfigs: MethodConfigsType<ExposeMethodCompConstructor<any>> = [];
 
   /**
@@ -74,7 +74,7 @@ export class UICompBuilder<ChildrenCompMap extends Record<string, Comp<unknown>>
     return this;
   }
 
-  setExposeStateConfigs(configs: ExposingConfig<ChildrenCompMap>[]) {
+  setExposeStateConfigs(configs: ExposingConfig<ChildrenToComp<ChildrenCompMap>>[]) {
     this.stateConfigs = configs;
     return this;
   }

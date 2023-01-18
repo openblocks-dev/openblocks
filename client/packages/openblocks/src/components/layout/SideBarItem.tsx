@@ -12,7 +12,7 @@ const Wrapper = styled.div<{ size?: SideBarSize; selected?: boolean }>`
   border-radius: 4px;
   display: flex;
   align-items: center;
-  padding: 0 26px;
+  padding: 0 8px 0 26px;
   cursor: pointer;
 
   :hover {

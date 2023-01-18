@@ -1,4 +1,10 @@
-import { Comp, ConstructorToComp, mergeExtra, MultiCompConstructor } from "openblocks-core";
+import {
+  Comp,
+  ConstructorToComp,
+  mergeExtra,
+  MultiCompConstructor,
+  RecordNodeToValue,
+} from "openblocks-core";
 import { ExposingInfo, MethodInfo } from "comps/utils/exposingTypes";
 import { fromRecord, fromValue, Node, withFunction } from "openblocks-core";
 import { lastValueIfEqual, shallowEqual } from "util/objectUtils";
@@ -10,9 +16,12 @@ import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { trans } from "i18n";
 import log from "loglevel";
 
-type TComp = MultiCompConstructor;
-type Children<T extends TComp> = ConstructorToComp<T>["children"];
-export type ChildrenKeys<T extends Children<TComp>> = Extract<keyof T, string>;
+type CompCtor = MultiCompConstructor;
+type Children<TCtor extends CompCtor> = ConstructorToComp<TCtor>["children"];
+export type ChildrenToComp<Children> = {
+  children: Children;
+};
+export type ChildrenKeys<T extends Children<CompCtor>> = Extract<keyof T, string>;
 
 const __EXPOSING_FIELD_NAME = "__EXPOSING_FIELD_NAME";
 
@@ -44,12 +53,12 @@ export interface IExposingComp {
  * Add the ability to expose data for multi Comp.
  * Add exposingNode when going up node, and put it in a local variable when going down.
  */
-export function withExposingRaw<T extends TComp, NodeType extends Node<any>>(
-  VariantComp: T,
+export function withExposingRaw<TCtor extends CompCtor, NodeType extends Node<any>>(
+  VariantComp: TCtor,
   propertyDescOrGetter:
     | Record<string, ReactNode>
-    | ((target: ConstructorToComp<T>) => Record<string, ReactNode>),
-  exposingFn: (target: ConstructorToComp<T>) => NodeType
+    | ((target: ConstructorToComp<TCtor>) => Record<string, ReactNode>),
+  exposingFn: (target: ConstructorToComp<TCtor>) => NodeType
 ) {
   // @ts-ignore
   class ExposingComp extends VariantComp {
@@ -57,7 +66,7 @@ export function withExposingRaw<T extends TComp, NodeType extends Node<any>>(
 
     private exposingPropertyDesc() {
       if (typeof propertyDescOrGetter === "function") {
-        return propertyDescOrGetter(this as ConstructorToComp<T>);
+        return propertyDescOrGetter(this as ConstructorToComp<TCtor>);
       }
       return propertyDescOrGetter;
     }
@@ -118,7 +127,7 @@ export function withExposingRaw<T extends TComp, NodeType extends Node<any>>(
     }
 
     exposingNode() {
-      return exposingFn(this as ConstructorToComp<T>);
+      return exposingFn(this as ConstructorToComp<TCtor>);
     }
 
     override extraNode() {
@@ -135,9 +144,9 @@ export function withExposingRaw<T extends TComp, NodeType extends Node<any>>(
     }
   }
 
-  return ExposingComp as unknown as T extends new (...args: infer A) => infer R
+  return ExposingComp as unknown as TCtor extends new (...args: infer A) => infer R
     ? new (...args: A) => R & IExposingComp
-    : T;
+    : TCtor;
 }
 
 type NodeRecord = Record<string, Node<any>>;
@@ -163,18 +172,18 @@ class SimpleCacheContent implements CacheContent {
   }
 }
 
-export interface ExposingConfig<ChildrenType> {
+export interface ExposingConfig<Comp> {
   name: string;
   desc: ReactNode;
-  depsFn: (children: ChildrenType) => CacheContent;
+  depsFn: (comp: Comp) => CacheContent;
 }
 
 /**
  * By default, components with hidden and disabled properties will expose these two properties
  */
-export function withExposingConfigs<T extends TComp>(
-  VariantComp: T,
-  configs: ExposingConfig<Children<T>>[]
+export function withExposingConfigs<TCtor extends CompCtor>(
+  VariantComp: TCtor,
+  configs: ExposingConfig<ConstructorToComp<TCtor>>[]
 ) {
   const propertyDesc = configs.reduce<Record<string, ReactNode>>((acc, cur) => {
     acc[cur.name] = cur.desc;
@@ -182,11 +191,10 @@ export function withExposingConfigs<T extends TComp>(
   }, {});
 
   return withExposingRaw(VariantComp, propertyDesc, (target) => {
-    const children = target.children;
     const res: NodeRecord = {};
 
     configs.forEach((config) => {
-      const cacheContent = config.depsFn(children);
+      const cacheContent = config.depsFn(target);
       res[config.name] = lastValueIfEqual(
         target,
         "withExposing_" + config.name,
@@ -203,7 +211,7 @@ export function withExposingConfigs<T extends TComp>(
 }
 
 export class NameConfig<ChildrenType extends Record<string, Comp<unknown>>>
-  implements ExposingConfig<ChildrenType>
+  implements ExposingConfig<ChildrenToComp<ChildrenType>>
 {
   name: ChildrenKeys<ChildrenType>;
   desc: ReactNode;
@@ -213,8 +221,8 @@ export class NameConfig<ChildrenType extends Record<string, Comp<unknown>>>
     this.desc = desc ?? "";
   }
 
-  depsFn(children: ChildrenType): CacheContent {
-    const childComp = children[this.name] as any as HasExposingNode;
+  depsFn(comp: ChildrenToComp<ChildrenType>): CacheContent {
+    const childComp = comp.children[this.name] as any as HasExposingNode;
     try {
       // FIXME: remove this type cast later
       return new SimpleCacheContent(childComp.exposingNode()) as unknown as CacheContent;
@@ -256,9 +264,10 @@ class NodeRecordCacheContent implements CacheContent {
 
 /**
  * @deprecated
+ * refer to depsConfig
  */
 export class DepsConfig<ChildrenType extends Record<string, Comp<unknown>>, T extends NodeRecord>
-  implements ExposingConfig<ChildrenType>
+  implements ExposingConfig<ChildrenToComp<ChildrenType>>
 {
   name: string;
   desc: ReactNode;
@@ -275,7 +284,7 @@ export class DepsConfig<ChildrenType extends Record<string, Comp<unknown>>, T ex
   constructor(
     name: string,
     depNodesFn: (children: ChildrenType) => T,
-    func: (input: Record<keyof T, any>) => any,
+    func: (input: RecordNodeToValue<T>) => any,
     desc?: ReactNode
   ) {
     this.name = name;
@@ -284,8 +293,45 @@ export class DepsConfig<ChildrenType extends Record<string, Comp<unknown>>, T ex
     this.func = func;
   }
 
-  depsFn(children: ChildrenType): CacheContent {
-    const recordNode = this.depNodesFn(children);
+  depsFn(comp: ChildrenToComp<ChildrenType>): CacheContent {
+    const recordNode = this.depNodesFn(comp.children);
+    // FIXME: remove this type cast later
+    return new NodeRecordCacheContent(
+      recordNode,
+      withFunction(fromRecord(recordNode), this.func)
+    ) as unknown as CacheContent;
+  }
+}
+
+export class CompDepsConfig<Comp extends ConstructorToComp<CompCtor>, T extends NodeRecord>
+  implements ExposingConfig<Comp>
+{
+  name: string;
+  desc: ReactNode;
+  depNodesFn: (comp: Comp) => T;
+  func: (input: Record<keyof T, any>) => any;
+
+  /**
+   * a complex configuration of exposed data, simple can use NameConfig
+   * @param name exposing name
+   * @param depNodesFn Return the dependent node, note that a cached version is need (currently the node function has a cache).
+   * @param func Calculate the new value by the dependent node
+   * @param desc descriptive documentation
+   */
+  constructor(
+    name: string,
+    depNodesFn: (comp: Comp) => T,
+    func: (input: RecordNodeToValue<T>) => any,
+    desc?: ReactNode
+  ) {
+    this.name = name;
+    this.desc = desc ?? "";
+    this.depNodesFn = depNodesFn;
+    this.func = func;
+  }
+
+  depsFn(comp: Comp): CacheContent {
+    const recordNode = this.depNodesFn(comp);
     // FIXME: remove this type cast later
     return new NodeRecordCacheContent(
       recordNode,
@@ -324,14 +370,14 @@ export function depsConfig<
   desc: ReactNode;
   depKeys: DepsKeys;
   func: (input: GetExposingType<Pick<ChildrenType, DepsKeys[number]>>) => any;
-}): ExposingConfig<ChildrenType> {
+}): ExposingConfig<ChildrenToComp<ChildrenType>> {
   return {
     name: props.name,
     desc: props.desc,
-    depsFn: (children: ChildrenType) => {
+    depsFn: (comp: ChildrenToComp<ChildrenType>) => {
       const recordNode: NodeRecord = {};
       props.depKeys.forEach((key) => {
-        recordNode[key] = (children[key] as any as HasExposingNode).exposingNode();
+        recordNode[key] = (comp.children[key] as any as HasExposingNode).exposingNode();
       });
       return new NodeRecordCacheContent(
         recordNode,
@@ -341,9 +387,9 @@ export function depsConfig<
   };
 }
 
-export function withSimpleExposing<T extends MultiCompConstructor>(
-  VariantComp: T,
-  valueFn: (comp: ConstructorToComp<T>) => any
+export function withSimpleExposing<TCtor extends CompCtor>(
+  VariantComp: TCtor,
+  valueFn: (comp: ConstructorToComp<TCtor>) => any
 ) {
   return withExposingRaw(VariantComp, {}, (comp) => {
     const node = fromValue(valueFn(comp));

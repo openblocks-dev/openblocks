@@ -12,6 +12,7 @@ import {
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  EditPopover,
   EllipsisTextCss,
   FolderIcon,
   HomeActiveIcon,
@@ -46,12 +47,14 @@ import { TrashView } from "./TrashView";
 import { SideBarItemType } from "../../components/layout/SideBarSection";
 import { RootFolderListView } from "./RootFolderListView";
 import InviteDialog from "../common/inviteDialog";
-import { fetchFolderElements } from "../../redux/reduxActions/folderActions";
+import { fetchFolderElements, updateFolder } from "../../redux/reduxActions/folderActions";
 import { ModuleView } from "./ModuleView";
 import { useCreateFolder } from "./useCreateFolder";
 import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
 import Setting from "pages/setting";
+import { message } from "antd";
+import { TypographyText } from "../../components/TypographyText";
 
 const TabLabel = styled.div`
   font-weight: 500;
@@ -63,7 +66,7 @@ const FolderSectionLabel = styled.div`
   font-weight: 500;
   font-size: 14px;
   line-height: 14px;
-  padding: 0 12px 0 26px;
+  padding: 0 8px 0 26px;
   height: 30px;
 `;
 
@@ -74,9 +77,62 @@ const FolderCountLabel = styled.span`
   color: #b8b9bf;
 `;
 
-const FolderLabel = styled.div<{ selected: boolean }>`
-  max-width: 140px;
+const FolderNameWrapper = styled.div<{ selected: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-grow: 1;
   ${EllipsisTextCss};
+  height: 100%;
+
+  ${(props) => {
+    if (props.selected) {
+      return css`
+        font-weight: 500;
+
+        svg {
+          display: inline-block;
+        }
+      `;
+    }
+  }}
+  .ant-typography {
+    max-width: 138px;
+  }
+
+  :hover {
+    svg {
+      display: inline-block;
+    }
+  }
+`;
+
+const FolderName = (props: { id: string; name: string }) => {
+  const dispatch = useDispatch();
+  const [folderNameEditing, setFolderNameEditing] = useState(false);
+
+  return (
+    <>
+      <TypographyText
+        value={props.name}
+        editing={folderNameEditing}
+        onChange={(value) => {
+          if (!value.trim()) {
+            message.warn(trans("home.nameCheckMessage"));
+            return;
+          }
+          dispatch(updateFolder({ id: props.id, name: value }));
+          setFolderNameEditing(false);
+        }}
+      />
+      <EditPopover items={[{ text: trans("rename"), onClick: () => setFolderNameEditing(true) }]}>
+        <PopoverIcon tabIndex={-1} />
+      </EditPopover>
+    </>
+  );
+};
+
+const MoreFoldersWrapper = styled.div<{ selected: boolean }>`
   ${(props) => {
     if (props.selected) {
       return css`
@@ -86,12 +142,32 @@ const FolderLabel = styled.div<{ selected: boolean }>`
   }}
 `;
 
-const PopoverIcon = styled(PointIcon)<{ selected: boolean }>`
+const MoreFoldersIcon = styled(PointIcon)<{ selected: boolean }>`
   cursor: pointer;
   flex-shrink: 0;
 
   g {
     fill: ${(props) => (props.selected ? "#4965f2" : "#8b8fa3")};
+  }
+`;
+
+const PopoverIcon = styled(PointIcon)`
+  cursor: pointer;
+  flex-shrink: 0;
+  display: none;
+
+  g {
+    fill: #8b8fa3;
+  }
+
+  :hover {
+    background-color: #e1e3eb;
+    border-radius: 4px;
+    cursor: pointer;
+
+    g {
+      fill: #3377ff;
+    }
   }
 `;
 
@@ -215,7 +291,9 @@ export default function ApplicationHome() {
       return {
         onSelected: (_, currentPath) => currentPath === path,
         text: (props: { selected: boolean }) => (
-          <FolderLabel selected={props.selected}>{folder.name}</FolderLabel>
+          <FolderNameWrapper selected={props.selected}>
+            <FolderName name={folder.name} id={folder.folderId} />
+          </FolderNameWrapper>
         ),
         routePath: FOLDER_URL,
         routePathExact: false,
@@ -231,11 +309,11 @@ export default function ApplicationHome() {
       ...folderItems,
       {
         text: (props: { selected: boolean }) => (
-          <FolderLabel selected={props.selected}>{trans("more")}</FolderLabel>
+          <MoreFoldersWrapper selected={props.selected}>{trans("more")}</MoreFoldersWrapper>
         ),
         routePath: FOLDERS_URL,
         routeComp: RootFolderListView,
-        icon: PopoverIcon,
+        icon: MoreFoldersIcon,
         size: "small",
       },
     ];
