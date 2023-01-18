@@ -129,12 +129,3 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
     </ColumnTypeView>
   );
 }
-
-export function updateChangeValueFn<T extends JSONValue>(
-  dispatch: DispatchType,
-  equalOriginFn: (value: T) => boolean
-) {
-  return (value: T) => {
-    dispatch(changeChildAction("changeValue", equalOriginFn(value) ? null : value));
-  };
-}

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from "fs-extra";
 import path from "node:path";
-import { spawn } from "node:child_process";
+import { spawn } from "cross-spawn";
 import { writeFileSync, existsSync } from "node:fs";
 import chalk from "chalk";
 import { createCommand } from "commander";

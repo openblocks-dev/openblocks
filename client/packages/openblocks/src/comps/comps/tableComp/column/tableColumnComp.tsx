@@ -6,7 +6,6 @@ import { genRandomKey } from "comps/utils/idGenerator";
 import { trans } from "i18n";
 import _ from "lodash";
 import {
-  changeChildAction,
   changeValueAction,
   ConstructorToComp,
   ConstructorToDataType,
@@ -16,7 +15,6 @@ import {
   fromRecord,
   multiChangeAction,
   withFunction,
-  wrapChildAction,
 } from "openblocks-core";
 import { AlignClose, AlignLeft, AlignRight } from "openblocks-design";
 import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";

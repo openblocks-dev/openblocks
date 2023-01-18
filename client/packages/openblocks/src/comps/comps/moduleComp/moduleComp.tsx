@@ -281,21 +281,22 @@ class ModuleTmpComp extends ModuleCompBase {
         this.dispatch(customAction<ModuleReadyAction>({ type: "moduleReady", comp }));
       });
 
-      return setFieldsNoTypeCheck(this, { moduleRootComp, moduleDsl });
+      return setFieldsNoTypeCheck(this, { moduleDsl });
     }
 
     // module ready
     if (isMyCustomAction<ModuleReadyAction>(action, "moduleReady")) {
-      if (!this.moduleRootComp) {
+      const moduleRootComp = action.value.comp;
+      if (!moduleRootComp) {
         return this;
       }
 
       let updateFields: Record<string, any> = {
         isReady: true,
-        moduleRootComp: action.value.comp,
+        moduleRootComp,
       };
 
-      const moduleLayoutComp = this.moduleRootComp.children.ui.getModuleLayoutComp();
+      const moduleLayoutComp = moduleRootComp.children.ui.getModuleLayoutComp();
       if (moduleLayoutComp) {
         const inputs = moduleLayoutComp.getInputs().map((i) => i.getView());
         const inputChild = this.children.inputs.setInputs(inputs);

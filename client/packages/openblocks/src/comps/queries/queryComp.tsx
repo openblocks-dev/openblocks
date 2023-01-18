@@ -315,18 +315,21 @@ QueryCompTmp = class extends QueryCompTmp {
     const promiseParams = getPromiseParams(action);
     const { applicationId, parentApplicationPath } = getReduceContext();
     this.children.confirmationModal
-      .getView()(
-        () =>
-          queryFunc({
-            queryId,
-            applicationId: applicationId,
-            applicationPath: parentApplicationPath,
-            args: action.args,
-            timeout: this.children.timeout,
-          }),
-        () => this.dispatch(changeChildAction("isFetching", false)),
-        getTriggerType(this) === "manual"
-      )
+      .getView()(() => {
+        this.dispatch(
+          multiChangeAction({
+            isFetching: changeValueAction(true),
+            lastQueryStartTime: changeValueAction(startTime),
+          })
+        );
+        return queryFunc({
+          queryId,
+          applicationId: applicationId,
+          applicationPath: parentApplicationPath,
+          args: action.args,
+          timeout: this.children.timeout,
+        });
+      }, getTriggerType(this) === "manual")
       .then(
         (result) => {
           this.processResult(result, action, startTime);
@@ -356,12 +359,7 @@ QueryCompTmp = class extends QueryCompTmp {
         message.error(JSON.stringify(e));
       });
     promiseParams && promiseParams.setHandled();
-    return this.reduce(
-      multiChangeAction({
-        isFetching: changeValueAction(true),
-        lastQueryStartTime: changeValueAction(startTime),
-      })
-    );
+    return this;
   }
 
   override getPropertyView() {
@@ -559,7 +557,7 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
         ]
       )
     );
-    editorState.setSelectedBottomRes(name, BottomResTypeEnum.Query);
+    editorState.setSelectedBottomRes(newQueryName, BottomResTypeEnum.Query);
   }
 
   delete(name: string) {

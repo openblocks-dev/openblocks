@@ -176,7 +176,7 @@ export class TransformerListComp extends TransformerListCompBase implements Bott
         ]
       )
     );
-    editorState.setSelectedBottomRes(name, BottomResTypeEnum.Transformer);
+    editorState.setSelectedBottomRes(newCompName, BottomResTypeEnum.Transformer);
   }
 
   delete(name: string) {
