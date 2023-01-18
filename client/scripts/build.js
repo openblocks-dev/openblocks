@@ -42,7 +42,6 @@ async function downloadBuiltinPlugin(name) {
 
   await downloadFile(tarball, path.join(process.cwd(), tarballFileName));
 
-  shell.exec(`curl ${tarball} -o ${tarballFileName}`, { fatal: true, silent: true });
   shell.exec(`tar -zxf ${tarballFileName} -C ${targetDir} --strip-components 1`, { fatal: true });
   shell.rm(tarballFileName);
 }

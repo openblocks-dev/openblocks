@@ -78,52 +78,6 @@ export const ColumnName = styled(InlineFlexAlignCenter)`
   }
 `;
 
-export const NameDiv = styled(FlexAlignCenter)`
-  display: flex;
-
-  .ant-typography {
-    display: flex;
-    padding: 8px 0;
-    height: 32px;
-    width: fit-content;
-    font-weight: 500;
-    font-size: 18px;
-    color: #222222;
-    line-height: 18px;
-  }
-
-  .ant-typography-edit-content {
-    padding: unset;
-    margin: unset;
-    left: unset;
-  }
-
-  .ant-typography-edit {
-    height: 16px;
-    width: 16px;
-  }
-
-  .ant-input,
-  .ant-input:focus,
-  .ant-input-focused {
-    height: 32px !important;
-    background: #ffffff;
-    border: 1px solid #3377ff;
-    border-radius: 4px;
-    font-weight: 500;
-    font-size: 16px;
-    color: #222222;
-    line-height: 16px;
-    padding: 7px 12px;
-    white-space: nowrap;
-    width: 435px;
-
-    ::-webkit-scrollbar {
-      display: none;
-    }
-  }
-`;
-
 export const DetailContent = styled.div`
   display: grid;
   grid-template-columns: 1fr 1.7fr;
