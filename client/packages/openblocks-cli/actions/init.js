@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs-extra";
-import { spawn } from "child_process";
+import { spawn } from "cross-spawn";
 import paths from "../config/paths.js";
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
@@ -84,9 +84,9 @@ export default async function initAction(options) {
 
   const notCopiedFiles = ["package.json", "README.md", "README-template.md", "node_modules"];
   fs.copySync(templateDir, "./", {
-    filter: (src) => notCopiedFiles.every((i) => !src.startsWith(`${templateDir}/${i}`)),
+    filter: (src) => notCopiedFiles.every((i) => !src.startsWith(path.join(templateDir, i))),
   });
-  fs.copyFile(`${templateDir}/README-template.md`, "./README.md");
+  fs.copyFile(path.join(templateDir, "README-template.md"), "./README.md");
   console.log("template files copied");
 
   const dependencies = [];

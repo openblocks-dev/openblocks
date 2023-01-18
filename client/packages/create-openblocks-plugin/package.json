@@ -1,11 +1,12 @@
 {
   "name": "create-openblocks-plugin",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "bin": "./index.js",
   "type": "module",
   "dependencies": {
     "chalk": "4",
     "commander": "^9.4.1",
+    "cross-spawn": "^7.0.3",
     "fs-extra": "^10.1.0",
     "openblocks-dev-utils": "workspace:^"
   },

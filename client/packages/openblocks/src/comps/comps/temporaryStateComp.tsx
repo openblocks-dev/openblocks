@@ -198,7 +198,7 @@ export class TemporaryStateListComp
         ]
       )
     );
-    editorState.setSelectedBottomRes(name, BottomResTypeEnum.TempState);
+    editorState.setSelectedBottomRes(newStateName, BottomResTypeEnum.TempState);
   }
 
   delete(name: string) {

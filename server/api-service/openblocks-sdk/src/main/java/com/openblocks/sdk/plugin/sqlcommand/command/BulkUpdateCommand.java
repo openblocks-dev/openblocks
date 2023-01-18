@@ -88,20 +88,21 @@ public class BulkUpdateCommand implements GuiSqlCommand {
         );
 
         columnToIdAndValue.asMap().forEach((column, pkAndValues) -> {
-                    sb.append(columnFrontDelimiter).append(column).append(columnBackDelimiter)
+                    String columnWithDelimiter = columnFrontDelimiter + column + columnBackDelimiter;
+                    sb.append(columnWithDelimiter)
                             .append(" = CASE ");
-            pkAndValues.forEach(pkAndValue -> {
-                Object pkValue = pkAndValue.getKey();
-                Object updateValue = pkAndValue.getValue();
-                sb.append("WHEN ")
-                        .append(columnFrontDelimiter)
-                        .append(primaryKey)
-                        .append(columnBackDelimiter)
-                        .append(" = ? THEN ? ");
-                bindParams.add(pkValue);
-                bindParams.add(updateValue);
-            });
-                    sb.append("END,\n");
+                    pkAndValues.forEach(pkAndValue -> {
+                        Object pkValue = pkAndValue.getKey();
+                        Object updateValue = pkAndValue.getValue();
+                        sb.append("WHEN ")
+                                .append(columnFrontDelimiter)
+                                .append(primaryKey)
+                                .append(columnBackDelimiter)
+                                .append(" = ? THEN ? ");
+                        bindParams.add(pkValue);
+                        bindParams.add(updateValue);
+                    });
+                    sb.append("ELSE ").append(columnWithDelimiter).append(" END,\n");
                 }
         );
         sb.deleteCharAt(sb.length() - 1)
