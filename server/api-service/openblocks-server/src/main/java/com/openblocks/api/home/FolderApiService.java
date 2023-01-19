@@ -157,7 +157,7 @@ public class FolderApiService {
         return checkManagePermission(folderId)
                 .flatMap(orgMember -> buildFolderTree(orgMember.getOrgId()))
                 .flatMap(tree -> {
-                    FolderNode<?, Folder> folderNode = tree.get(folderId);
+                    FolderNode<Object, Folder> folderNode = tree.get(folderId);
                     if (folderNode == null) {
                         return Mono.error(new BizException(FOLDER_NOT_EXIST, "FOLDER_NOT_EXIST", folderId));
                     }
@@ -260,7 +260,7 @@ public class FolderApiService {
                 });
     }
 
-    private <T> Mono<Tree<T, Folder>> buildFolderTree(String orgId) {
+    private Mono<Tree<Object, Folder>> buildFolderTree(String orgId) {
         return folderService.findByOrganizationId(orgId)
                 .collectList()
                 .map(folders -> new Tree<>(folders, Folder::getId, Folder::getParentFolderId, Collections.emptyList(), null, null));
