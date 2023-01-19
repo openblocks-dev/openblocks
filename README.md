@@ -58,7 +58,7 @@ If you have any questions, please feel free to contact us or share with our comm
 🔎 Submit an issue here on [GitHub](https://github.com/openblocks-dev/openblocks/issues)
 
 ## 💻 Deployment Options
-You can access Openblocks from [cloud-hosted version](https://cloud.openblocks.dev/) at any time, or use the following resources for deploying Openblocks on different platforms:
+You can access Openblocks from [cloud-hosted version](https://openblocks.dev/) at any time, or use the following resources for deploying Openblocks on different platforms:
 - [Docker](https://docs.openblocks.dev/self-hosting)
 - [AWS AMI](https://docs.openblocks.dev/self-hosting/aws-ami)
 - [DigitalOcean](https://docs.openblocks.dev/self-hosting/digitalocean)
@@ -82,3 +82,4 @@ You can access Openblocks from [cloud-hosted version](https://cloud.openblocks.d
 - [Shopping cart demo using transformers/state/drawer](https://cloud.openblocks.dev/apps/63a422a344075b798fe3ae06/view)
 - [Module demo: color picker](https://cloud.openblocks.dev/apps/63a58f1e85d4cb49cebad1d4/view)
 - [S3 File Management](https://cloud.openblocks.dev/apps/63c7aa55686c4f301cf4d755/view)
+- [Custom Markdown Style](https://cloud.openblocks.dev/apps/6374b98091a9a3454b683489/view)
