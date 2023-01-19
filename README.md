@@ -1,6 +1,6 @@
 <div align="center">
 <h1 style="border-bottom: none">
-    <b><a href="https://cloud.openblocks.dev">Openblocks</a></b><br />
+    <b><a href="https://openblocks.dev/">Openblocks</a></b><br />
     The Open Source Retool Alternative
 </h1>
 <p>
@@ -82,3 +82,4 @@ You can access Openblocks from [cloud-hosted version](https://cloud.openblocks.d
 - [Shopping cart demo using transformers/state/drawer](https://cloud.openblocks.dev/apps/63a422a344075b798fe3ae06/view)
 - [Module demo: color picker](https://cloud.openblocks.dev/apps/63a58f1e85d4cb49cebad1d4/view)
 - [S3 File Management](https://cloud.openblocks.dev/apps/63c7aa55686c4f301cf4d755/view)
+- [Custom Markdown Style](https://cloud.openblocks.dev/apps/63c8bdb9de760726cd253c90/view)
