@@ -1,10 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
-set -e
+set -e 
 
-USER_ID=${PUID:=9001}
-GROUP_ID=${PGID:=9001}
-CLIENT_ROOT=/openblocks/client
+NODE_SERVICE_ROOT=/openblocks/node-service
 
 # Update ID of openblocks user if required
 if [ ! `id --user openblocks` -eq ${USER_ID} ]; then
@@ -20,9 +18,10 @@ if [ ! `id --group openblocks` -eq ${GROUP_ID} ]; then
     DO_CHOWN="true"
 fi;
 
-# Update api-server installation owner
+# Update node-server installation owner
 if [ "${DO_CHOWN}" = "true" ]; then
-    chown -R ${USER_ID}:${GROUP_ID} ${CLIENT_ROOT}
-    echo "Openblocks client files owner modified."
+    echo "Changing node-service owner to ${USER_ID}:${GROUP_ID}"
+    chown -R ${USER_ID}:${GROUP_ID} ${NODE_SERVICE_ROOT}
 fi;
 
+echo "Openblocks node-service setup finished."
