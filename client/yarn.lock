@@ -3605,6 +3605,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@lottiefiles/react-lottie-player@npm:^3.5.0":
+  version: 3.5.0
+  resolution: "@lottiefiles/react-lottie-player@npm:3.5.0"
+  dependencies:
+    lottie-web: ^5.10.0
+  peerDependencies:
+    react: 16 - 18
+  checksum: 250a6c585612dfc302e8d70d719e32f0a5b706eccbf05e9d7b427c771e966fc5fd1fec8ecd0d948d9bf4da7e5a57ef036cf93d5853be7839fd3e78a88327871b
+  languageName: node
+  linkType: hard
+
 "@manaflair/redux-batch@npm:^1.0.0":
   version: 1.0.0
   resolution: "@manaflair/redux-batch@npm:1.0.0"
@@ -12034,6 +12045,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lottie-web@npm:^5.10.0":
+  version: 5.10.2
+  resolution: "lottie-web@npm:5.10.2"
+  checksum: 9ec80b479d8d03c079bd4f246d301f0c4aac2c4d6f8daaa79f6f3fc285aaba377c64879f6748d49c1db52b9854aea81c3203d858e9c686f7a47cd8b771d112d0
+  languageName: node
+  linkType: hard
+
 "lower-case@npm:^2.0.2":
   version: 2.0.2
   resolution: "lower-case@npm:2.0.2"
@@ -17455,6 +17473,7 @@ __metadata:
   dependencies:
     "@babel/preset-env": ^7.20.2
     "@babel/preset-typescript": ^7.18.6
+    "@lottiefiles/react-lottie-player": ^3.5.0
     "@rollup/plugin-typescript": ^8.5.0
     "@testing-library/jest-dom": ^5.16.5
     "@testing-library/react": ^12.0.0

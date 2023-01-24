@@ -3,7 +3,10 @@ import { ModalComp } from "comps/hooks/modalComp";
 import { ButtonComp } from "./comps/buttonComp/buttonComp";
 import { DropdownComp } from "./comps/buttonComp/dropdownComp";
 import { LinkComp } from "./comps/buttonComp/linkComp";
-import { ContainerComp, defaultContainerData } from "./comps/containerComp/containerComp";
+import {
+  ContainerComp,
+  defaultContainerData,
+} from "./comps/containerComp/containerComp";
 import { CustomComp } from "./comps/customComp/customComp";
 import { DatePickerComp, DateRangeComp } from "./comps/dateComp";
 import { DividerComp } from "./comps/dividerComp";
@@ -32,6 +35,7 @@ import { InputComp } from "./comps/textInputComp/inputComp";
 import { PasswordComp } from "./comps/textInputComp/passwordComp";
 import { TextAreaComp } from "./comps/textInputComp/textAreaComp";
 import { TimePickerComp, TimeRangeComp } from "./comps/timeComp";
+import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
 import "comps/comps/layout/navLayout";
 
 import {
@@ -92,7 +96,10 @@ import {
 
 import { defaultFormData, FormComp } from "./comps/formComp/formComp";
 import { IFrameComp } from "./comps/iframeComp";
-import { defaultListViewData, ListViewComp } from "./comps/listViewComp/listViewComp";
+import {
+  defaultListViewData,
+  ListViewComp,
+} from "./comps/listViewComp/listViewComp";
 import {
   defaultMasonryData,
   MasonryViewComp,
@@ -650,6 +657,19 @@ const uiCompMap: Registry = {
     icon: JsonExplorerCompIcon,
     keywords: trans("uiComp.jsonExplorerCompKeywords"),
     comp: JsonExplorerComp,
+    layoutInfo: {
+      w: 10,
+      h: 47,
+    },
+  },
+  jsonLottie: {
+    name: trans("uiComp.jsonLottieCompName"),
+    enName: "Lottie Animation",
+    description: trans("uiComp.jsonLottieCompDesc"),
+    categories: ["dataDisplay"],
+    icon: JsonExplorerCompIcon,
+    keywords: trans("uiComp.jsonLottieCompKeywords"),
+    comp: JsonLottieComp,
     layoutInfo: {
       w: 10,
       h: 47,

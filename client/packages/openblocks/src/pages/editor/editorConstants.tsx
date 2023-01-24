@@ -86,6 +86,7 @@ export const CompStateIcon: {
   iframe: <LeftIframe />,
   custom: <LeftCommon />,
   jsonExplorer: <LeftJsonEditor />,
+  jsonLottie: <LeftJsonEditor />,
   jsonEditor: <LeftJsonEditor />,
   tree: <LeftTree />,
   treeSelect: <LeftSelect />,
