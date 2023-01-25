@@ -69,6 +69,7 @@ export type UICompType =
   | "checkbox"
   | "radio"
   | "segmentedControl"
+  | "tabsControl"
   | "file"
   | "date"
   | "dateRange"
