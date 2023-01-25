@@ -57,7 +57,7 @@ const getStyle = (style: SegmentStyleType) => {
     }
   `;
 };
-const Segmented = styled(AntdSegmented)<{ $style: SegmentStyleType }>`
+const Segmented = styled(AntdSegmented) <{ $style: SegmentStyleType }>`
   width: 100%;
   height: 32px; // keep the height unchanged when there are no options
   ${(props) => props.$style && getStyle(props.$style)}
@@ -73,7 +73,7 @@ export const SegmentChildrenMap = {
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
-export const SegmentedControlBasicComp = (function () {
+export const SegmentedControlBasicComp = (function() {
   return new UICompBuilder(SegmentChildrenMap, (props) => {
     const [validateState, handleValidate] = useSelectInputValidate(props);
     return props.label({
@@ -114,7 +114,7 @@ export const SegmentedControlBasicComp = (function () {
           {children.options.propertyView({})}
           {children.value.propertyView({ label: trans("prop.defaultValue") })}
           {children.orientation.propertyView({
-            label: trans("prop.defaultValue"),
+            label: trans("prop.orientation"),
           })}
         </Section>
         <FormDataPropertyView {...children} />
