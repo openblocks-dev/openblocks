@@ -36,6 +36,7 @@ import { PasswordComp } from "./comps/textInputComp/passwordComp";
 import { TextAreaComp } from "./comps/textInputComp/textAreaComp";
 import { TimePickerComp, TimeRangeComp } from "./comps/timeComp";
 import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
+import { TabsControlComp } from "./comps/selectInputComp/tabsControl";
 import "comps/comps/layout/navLayout";
 
 import {
@@ -297,6 +298,15 @@ const uiCompMap: Registry = {
     icon: SegmentedCompIcon,
     keywords: trans("uiComp.segmentedControlCompKeywords"),
     comp: SegmentedControlComp,
+  },
+  tabsControl: {
+    name: trans("uiComp.tabsControlCompName"),
+    enName: "Tabs Control",
+    description: trans("uiComp.tabsControlCompDesc"),
+    categories: ["dataInputSelect"],
+    icon: SegmentedCompIcon,
+    keywords: trans("uiComp.tabsControlCompKeywords"),
+    comp: TabsControlComp,
   },
   file: {
     name: trans("uiComp.fileUploadCompName"),
