@@ -7,8 +7,8 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.openblocks.plugin.restapi.helpers.RestApiUriBuilder;
 import com.openblocks.sdk.exception.PluginException;
+import com.openblocks.sdk.plugin.common.RestApiUriBuilder;
 
 public class RestApiUriBuilderTest {
 

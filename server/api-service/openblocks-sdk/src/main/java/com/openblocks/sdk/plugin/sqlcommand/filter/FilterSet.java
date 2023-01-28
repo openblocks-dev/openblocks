@@ -22,7 +22,8 @@ import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand.GuiSqlCommandRenderRes
 import com.openblocks.sdk.plugin.sqlcommand.filter.FilterSet.FilterCondition;
 import com.openblocks.sdk.util.MustacheHelper;
 import com.openblocks.sdk.util.SqlGuiUtils;
-import com.openblocks.sdk.util.SqlGuiUtils.PsBindValue;
+import com.openblocks.sdk.util.SqlGuiUtils.GuiSqlValue;
+import com.openblocks.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
 public class FilterSet extends ForwardingList<FilterCondition> {
 
@@ -38,7 +39,7 @@ public class FilterSet extends ForwardingList<FilterCondition> {
     }
 
     public GuiSqlCommandRenderResult render(Map<String, Object> requestMap,
-            String columnFrontDelimiter, String columnBackDelimiter) {
+            String columnFrontDelimiter, String columnBackDelimiter, boolean renderWithRawSql, EscapeSql escapeSql) {
 
         if (filters.isEmpty()) {
             return new GuiSqlCommandRenderResult("", emptyList());
@@ -52,7 +53,7 @@ public class FilterSet extends ForwardingList<FilterCondition> {
             String condition = filters.get(i).condition();
 
             RenderItem renderItem = renderCondition(condition, value, requestMap, column,
-                    columnFrontDelimiter, columnBackDelimiter);
+                    columnFrontDelimiter, columnBackDelimiter, renderWithRawSql, escapeSql);
             sb.append(renderItem.conditionSql());
             if (renderItem.needBind()) {
                 bindParams.add(renderItem.bindValue());
@@ -66,30 +67,34 @@ public class FilterSet extends ForwardingList<FilterCondition> {
     }
 
     private RenderItem renderCondition(String condition, Object value, Map<String, Object> requestMap, String column,
-            String columnFrontDelimiter,
-            String columnBackDelimiter) {
+            String columnFrontDelimiter, String columnBackDelimiter, boolean renderWithRawSql, EscapeSql escapeSql) {
         String columnWithDelimiter = columnFrontDelimiter + column + columnBackDelimiter;
 
         switch (condition) {
             case "=", "!=", ">", "<", "<=", ">=" -> {
-                PsBindValue psBindValue = SqlGuiUtils.renderPsBindValue(value, requestMap);
-                return new RenderItem(columnWithDelimiter + " " + condition + " ? ", psBindValue.getValue(), true);
+                GuiSqlValue guiSqlValue = SqlGuiUtils.renderPsBindValue(value, requestMap);
+                if (renderWithRawSql) {
+                    return RenderItem.withRawSql(columnWithDelimiter + " " + condition + " " + guiSqlValue.getConcatSqlStr(escapeSql));
+                }
+                return RenderItem.withPs(columnWithDelimiter + " " + condition + " ? ", guiSqlValue.getValue());
             }
             case "IS", "IS NOT" -> {
-                PsBindValue psBindValue = SqlGuiUtils.renderPsBindValue(value, requestMap);
-                return new RenderItem(columnWithDelimiter + " " + condition + " " + psBindValue.getValue() + " ", null, false);
+                GuiSqlValue guiSqlValue = SqlGuiUtils.renderPsBindValue(value, requestMap);
+                if (guiSqlValue.getValue() == null || guiSqlValue.getValue() instanceof Boolean) {
+                    return RenderItem.withRawSql(columnWithDelimiter + " " + condition + " " + guiSqlValue.getValue() + " ");
+                }
+                throw new PluginException(INVALID_IN_OPERATOR_SETTINGS, "INVALID_IS");
             }
             case "IN", "NOT IN" -> {
-                PsBindValue psBindValue = SqlGuiUtils.renderPsBindValue(value, requestMap);
-                if (!(psBindValue.getRawValue() instanceof List<?> list)) {
+                GuiSqlValue guiSqlValue = SqlGuiUtils.renderPsBindValue(value, requestMap);
+                if (!(guiSqlValue.getRawValue() instanceof List<?> list)) {
                     throw new PluginException(INVALID_IN_OPERATOR_SETTINGS, "INVALID_IN");
                 }
                 if (list.isEmpty()) {
-                    return new RenderItem("false", null, false);
+                    return RenderItem.withRawSql("false");
                 }
 
-                return new RenderItem(columnWithDelimiter + " " + condition + getCollectionStr(list),
-                        null, false);
+                return RenderItem.withRawSql(columnWithDelimiter + " " + condition + getCollectionStr(list));
             }
             default -> throw new PluginException(INVALID_GUI_SETTINGS, "GUI_INVALID_FILTER_FIELD", condition);
         }
@@ -111,6 +116,14 @@ public class FilterSet extends ForwardingList<FilterCondition> {
     }
 
     private record RenderItem(String conditionSql, Object bindValue, boolean needBind) {
+
+        public static RenderItem withPs(String conditionSql, Object bindValue) {
+            return new RenderItem(conditionSql, bindValue, true);
+        }
+
+        public static RenderItem withRawSql(String conditionSql) {
+            return new RenderItem(conditionSql, null, false);
+        }
     }
 
 
@@ -131,7 +144,7 @@ public class FilterSet extends ForwardingList<FilterCondition> {
         FilterSet filterSet = new FilterSet();
         for (Object o : list) {
             if (!(o instanceof Map<?, ?>)) {
-                throw new PluginException(INVALID_GUI_SETTINGS, "11104 " + o.getClass().getSimpleName());
+                throw new PluginException(INVALID_GUI_SETTINGS, "GUI_INVALID_FILTER_FIELD", o.getClass().getSimpleName());
             }
 
             Map<String, Object> map = (Map<String, Object>) o;
@@ -150,7 +163,8 @@ public class FilterSet extends ForwardingList<FilterCondition> {
 
     public Set<String> extractMustacheKeys() {
         return stream()
-                .map(filterCondition -> MustacheHelper.extractMustacheKeysWithCurlyBraces(filterCondition.condition()))
+                .filter(it -> it.value() instanceof String)
+                .map(filterCondition -> MustacheHelper.extractMustacheKeysWithCurlyBraces((String) filterCondition.value()))
                 .flatMap(Set::stream)
                 .collect(Collectors.toSet());
     }

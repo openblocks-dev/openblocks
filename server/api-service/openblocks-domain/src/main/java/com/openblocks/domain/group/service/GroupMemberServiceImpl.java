@@ -93,5 +93,4 @@ public class GroupMemberServiceImpl implements GroupMemberService {
                 .collectList();
     }
 
-
 }

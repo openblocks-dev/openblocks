@@ -1,13 +1,14 @@
 package com.openblocks.sdk.plugin.sqlcommand.command.mysql;
 
 import static com.openblocks.sdk.util.JsonUtils.toJson;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,7 +16,7 @@ import com.openblocks.sdk.plugin.sqlcommand.changeset.BulkObjectChangeSet;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.KeyValuePairChangeSet;
 import com.openblocks.sdk.plugin.sqlcommand.filter.FilterSet;
 
-public class MysqlCommandTest {
+public class MysqlGuiCommandTest {
 
     @Test
     public void testInsertCommand() {
@@ -36,8 +37,9 @@ public class MysqlCommandTest {
         var render = command.render(Map.of("email", email, "info", infoMap));
 
         Assert.assertEquals("insert into user (`id`,`name`,`email`,`info`) values (?,?,?,?);", render.sql());
-        Assertions.assertThat(render.bindParams()).isEqualTo(List.of(Integer.parseInt(id), name, email, toJson(infoMap)));
+        assertThat(render.bindParams()).isEqualTo(List.of(Integer.parseInt(id), name, email, toJson(infoMap)));
 
+        assertThat(command.extractMustacheKeys()).isEqualTo(Set.of("{{ email }}", "{{ info }}"));
     }
 
     @Test
@@ -57,13 +59,13 @@ public class MysqlCommandTest {
         var changeSet = KeyValuePairChangeSet.buildForTest(treeMap);
 
         var filterSet = new FilterSet();
-        filterSet.addCondition("name", "=", "jack");
+        filterSet.addCondition("name", "=", "{{ name }}");
         filterSet.addCondition("status", ">", 1);
-        filterSet.addCondition("id", "IN", "[1,2, 5]");
+        filterSet.addCondition("id", "IN", "{{ids}}");
         filterSet.addCondition("phone", "IS", "null");
 
         var command = new MysqlUpdateCommand("user", changeSet, filterSet, false);
-        var render = command.render(Map.of("email", email, "info", infoMap));
+        var render = command.render(Map.of("email", email, "info", infoMap, "name", name, "ids", List.of(1, 2, 5)));
 
         Assert.assertEquals(
                 "update user set `id`=?,`name`=?,`email`=?,`info`=? "
@@ -77,8 +79,8 @@ public class MysqlCommandTest {
         expectedParams.add(toJson(infoMap));
         expectedParams.add("jack");
         expectedParams.add(1);
-        Assertions.assertThat(render.bindParams()).isEqualTo(expectedParams);
-
+        assertThat(render.bindParams()).isEqualTo(expectedParams);
+        assertThat(command.extractMustacheKeys()).isEqualTo(Set.of("{{ email }}", "{{ info }}", "{{ name }}", "{{ids}}"));
     }
 
     @Test
@@ -97,8 +99,15 @@ public class MysqlCommandTest {
         treeMap.put("info", " {{ info }}");
         var changeSet = KeyValuePairChangeSet.buildForTest(treeMap);
 
-        var command = new MysqlUpsertCommand("user", changeSet, changeSet);
-        var render = command.render(Map.of("email", email, "info", infoMap));
+        Map<String, Object> treeMap2 = new LinkedHashMap<>();
+        treeMap2.put("id", "{{id}}");
+        treeMap2.put("name", "{{name}}");
+        treeMap2.put("email", email);
+        treeMap2.put("info", toJson(infoMap));
+        var changeSet2 = KeyValuePairChangeSet.buildForTest(treeMap2);
+
+        var command = new MysqlUpsertCommand("user", changeSet, changeSet2);
+        var render = command.render(Map.of("email", email, "info", infoMap, "id", Integer.parseInt(id), "name", name));
 
         Assert.assertEquals(
                 "insert into user (`id`,`name`,`email`,`info`) values (?,?,?,?) on duplicate key update `id`=?,`name`=?,`email`=?,`info`=?",
@@ -115,8 +124,9 @@ public class MysqlCommandTest {
         expectedParams.add(name);
         expectedParams.add(email);
         expectedParams.add(toJson(infoMap));
-        Assertions.assertThat(render.bindParams()).isEqualTo(expectedParams);
+        assertThat(render.bindParams()).isEqualTo(expectedParams);
 
+        assertThat(command.extractMustacheKeys()).isEqualTo(Set.of("{{ email }}", "{{ info }}", "{{name}}", "{{id}}"));
     }
 
     @Test
@@ -127,13 +137,13 @@ public class MysqlCommandTest {
         Map<String, ?> infoMap = Map.of("age", 35, "job", "sales");
 
         var filterSet = new FilterSet();
-        filterSet.addCondition("name", "=", name);
+        filterSet.addCondition("name", "=", "{{ name }}");
         filterSet.addCondition("status", ">", 1);
-        filterSet.addCondition("id", "IN", "[1,2, 5]");
+        filterSet.addCondition("id", "IN", "{{ids}}");
         filterSet.addCondition("phone", "IS", "null");
 
         var command = new MysqlDeleteCommand("user", filterSet, false);
-        var render = command.render(Map.of("email", email, "info", infoMap));
+        var render = command.render(Map.of("email", email, "info", infoMap, "name", name, "ids", List.of(1, 2, 5)));
 
         Assert.assertEquals(
                 "delete from user where `name` = ?  and `status` > ?  and `id` IN (1,2,5) and `phone` IS null  limit 1",
@@ -142,8 +152,8 @@ public class MysqlCommandTest {
         List<Object> expectedParams = new ArrayList<>();
         expectedParams.add("jack");
         expectedParams.add(1);
-        Assertions.assertThat(render.bindParams()).isEqualTo(expectedParams);
-
+        assertThat(render.bindParams()).isEqualTo(expectedParams);
+        assertThat(command.extractMustacheKeys()).isEqualTo(Set.of("{{ name }}", "{{ids}}"));
     }
 
     @Test
@@ -181,33 +191,34 @@ public class MysqlCommandTest {
         expectedParams.add(name);
         expectedParams.add(email);
         expectedParams.add(toJson(infoMap));
-        Assertions.assertThat(render.bindParams()).isEqualTo(expectedParams);
+        assertThat(render.bindParams()).isEqualTo(expectedParams);
+        assertThat(command.extractMustacheKeys()).isEqualTo(Set.of("{{ email }}", "{{ info }}"));
 
     }
 
     @Test
     public void testBulkUpdateCommand() {
 
-        List<Map<String, Object>> updateList = List.of(Map.of("id", 1,
+        List<Map<String, Object>> updateList = List.of(Map.of("id", "{{id1}}",
                         "name", "jack",
-                        "email", "jack@jack.com"
+                        "email", "{{email}}"
                 ),
                 Map.of("id", 2,
-                        "name", "rose",
+                        "name", "{{rose}}",
                         "info", Map.of("age", 35, "job", "sales")
                 )
         );
 
         var command = new MysqlBulkUpdateCommand("user",
                 new BulkObjectChangeSet(toJson(updateList)), "id");
-        var render = command.render(Map.of());
+        var render = command.render(Map.of("rose", "rose", "email", "jack@jack.com", "id1", 1));
 
         Assert.assertEquals(
                 """
                         UPDATE user set
-                        `name` = CASE WHEN `id` = ? THEN ? WHEN `id` = ? THEN ? END,
-                        `email` = CASE WHEN `id` = ? THEN ? END,
-                        `info` = CASE WHEN `id` = ? THEN ? END
+                        `name` = CASE WHEN `id` = ? THEN ? WHEN `id` = ? THEN ? ELSE `name` END,
+                        `email` = CASE WHEN `id` = ? THEN ? ELSE `email` END,
+                        `info` = CASE WHEN `id` = ? THEN ? ELSE `info` END
                         where id in (?,?)""",
                 render.sql());
 
@@ -215,17 +226,18 @@ public class MysqlCommandTest {
             [1, "jack", 2, "rose", 1, "jack@jack.com", 2, "{"job":"sales","age":35}", 1, 2]
          */
         List<Object> expectedParams = new ArrayList<>();
-        expectedParams.add(1);
+        expectedParams.add("1");
         expectedParams.add("jack");
         expectedParams.add(2);
         expectedParams.add("rose");
-        expectedParams.add(1);
+        expectedParams.add("1");
         expectedParams.add("jack@jack.com");
         expectedParams.add(2);
         expectedParams.add(toJson(Map.of("age", 35, "job", "sales")));
-        expectedParams.add(1);
+        expectedParams.add("1");
         expectedParams.add(2);
-        Assertions.assertThat(render.bindParams()).isEqualTo(expectedParams);
+        assertThat(render.bindParams()).isEqualTo(expectedParams);
+        assertThat(command.extractMustacheKeys()).isEqualTo(Set.of("{{email}}", "{{rose}}", "{{id1}}"));
     }
 
 }

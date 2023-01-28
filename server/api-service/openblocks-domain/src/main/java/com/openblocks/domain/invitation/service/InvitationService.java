@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import com.openblocks.domain.bizthreshold.AbstractBizThresholdChecker;
 import com.openblocks.domain.invitation.model.Invitation;
 import com.openblocks.domain.invitation.repository.InvitationRepository;
 import com.openblocks.domain.organization.model.MemberRole;
@@ -26,9 +25,6 @@ public class InvitationService {
     private OrgMemberService orgMemberService;
 
     @Autowired
-    private AbstractBizThresholdChecker bizThresholdChecker;
-
-    @Autowired
     private InvitationRepository repository;
 
     public Mono<Invitation> create(Invitation invitation) {
@@ -40,9 +36,7 @@ public class InvitationService {
     }
 
     public Mono<Boolean> inviteToOrg(String userId, String orgId) {
-        return bizThresholdChecker.checkMaxOrgCount(userId)
-                .then(bizThresholdChecker.checkMaxOrgMemberCount(orgId))
-                .then(orgMemberService.addMember(orgId, userId, MemberRole.MEMBER));
+        return orgMemberService.addMember(orgId, userId, MemberRole.MEMBER);
     }
 
 }

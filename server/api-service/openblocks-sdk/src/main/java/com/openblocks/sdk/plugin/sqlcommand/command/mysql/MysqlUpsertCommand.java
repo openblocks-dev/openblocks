@@ -16,20 +16,21 @@ import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.ChangeSet;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.ChangeSetRow;
 import com.openblocks.sdk.plugin.sqlcommand.command.UpsertCommand;
+import com.openblocks.sdk.plugin.sqlcommand.filter.FilterSet;
 import com.openblocks.sdk.util.MustacheHelper;
 
 public class MysqlUpsertCommand extends UpsertCommand {
 
     @VisibleForTesting
     protected MysqlUpsertCommand(String table, ChangeSet insertChangeSet, ChangeSet updateChangeSet) {
-        super(table, insertChangeSet, updateChangeSet, null, MYSQL_COLUMN_DELIMITER, MYSQL_COLUMN_DELIMITER);
+        super(table, insertChangeSet, updateChangeSet, new FilterSet(), MYSQL_COLUMN_DELIMITER, MYSQL_COLUMN_DELIMITER);
     }
 
     protected MysqlUpsertCommand(Map<String, Object> commandDetail) {
         super(GuiSqlCommand.parseTable(commandDetail),
                 parseChangeSet(commandDetail, INSERT_CHANGE_SET_FORM_KEY),
                 parseChangeSet(commandDetail, UPDATE_CHANGE_SET_FORM_KEY),
-                null,
+                new FilterSet(),
                 MYSQL_COLUMN_DELIMITER, MYSQL_COLUMN_DELIMITER
         );
     }

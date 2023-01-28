@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import com.openblocks.api.authentication.config.EnvAuthConfig;
 import com.openblocks.api.authentication.dto.OrganizationDomainCheckResult;
+import com.openblocks.api.bizthreshold.AbstractBizThresholdChecker;
 import com.openblocks.api.config.ConfigView;
 import com.openblocks.api.home.SessionUserService;
 import com.openblocks.api.usermanagement.view.OrgMemberListView;
@@ -29,7 +30,7 @@ import com.openblocks.api.usermanagement.view.OrgMemberListView.OrgMemberView;
 import com.openblocks.api.usermanagement.view.OrgView;
 import com.openblocks.api.usermanagement.view.UpdateOrgRequest;
 import com.openblocks.api.usermanagement.view.UpdateRoleRequest;
-import com.openblocks.domain.bizthreshold.AbstractBizThresholdChecker;
+import com.openblocks.domain.group.service.GroupService;
 import com.openblocks.domain.organization.event.OrgMemberLeftEvent;
 import com.openblocks.domain.organization.model.EnterpriseConnectionConfig;
 import com.openblocks.domain.organization.model.MemberRole;
@@ -71,6 +72,8 @@ public class OrgApiServiceImpl implements OrgApiService {
     private CommonConfig commonConfig;
     @Autowired
     private EnvAuthConfig envAuthConfig;
+    @Autowired
+    private GroupService groupService;
 
     @Override
     public Mono<OrgMemberListView> getOrganizationMembers(String orgId, int page, int count) {
@@ -138,6 +141,7 @@ public class OrgApiServiceImpl implements OrgApiService {
     @Override
     public Mono<Boolean> updateRoleForMember(String orgId, UpdateRoleRequest updateRoleRequest) {
         return checkVisitorAdminRole(orgId)
+                .then(checkDeveloperCount(orgId, updateRoleRequest.getRole(), updateRoleRequest.getUserId()))
                 .then(orgMemberService.updateMemberRole(orgId,
                         updateRoleRequest.getUserId(),
                         MemberRole.fromValue(updateRoleRequest.getRole())));
@@ -149,6 +153,15 @@ public class OrgApiServiceImpl implements OrgApiService {
                 .filter(it -> it.getRole() == MemberRole.ADMIN)
                 .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"));
     }
+
+    private Mono<Void> checkDeveloperCount(String orgId, String role, String userId) {
+        if (!MemberRole.isAdmin(role)) {
+            return Mono.empty();
+        }
+        return groupService.getDevGroup(orgId)
+                .flatMap(group -> bizThresholdChecker.checkMaxDeveloperCount(orgId, group.getId(), userId));
+    }
+
 
     @Override
     public Mono<Boolean> switchCurrentOrganizationTo(String nextCurrentOrgId) {

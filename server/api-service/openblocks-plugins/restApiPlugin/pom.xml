@@ -70,10 +70,7 @@
             <version>1.5</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
+
 
         <!--        &lt;!&ndash; https://mvnrepository.com/artifact/io.github.vzhn/netty-http-authenticator &ndash;&gt;-->
         <!--        <dependency>-->

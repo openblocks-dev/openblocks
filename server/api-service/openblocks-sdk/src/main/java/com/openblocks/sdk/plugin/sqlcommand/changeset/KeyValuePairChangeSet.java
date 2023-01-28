@@ -20,7 +20,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.util.MustacheHelper;
 import com.openblocks.sdk.util.SqlGuiUtils;
-import com.openblocks.sdk.util.SqlGuiUtils.PsBindValue;
+import com.openblocks.sdk.util.SqlGuiUtils.GuiSqlValue;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -72,8 +72,8 @@ public class KeyValuePairChangeSet extends ChangeSet {
         for (var entry : columnValueMap.entrySet()) {
             String column = entry.getKey();
             Object value = entry.getValue();
-            PsBindValue psBindValue = SqlGuiUtils.renderPsBindValue(value, requestMap);
-            result.add(new ChangeSetItem(column, psBindValue));
+            GuiSqlValue guiSqlValue = SqlGuiUtils.renderPsBindValue(value, requestMap);
+            result.add(new ChangeSetItem(column, guiSqlValue));
         }
         return new ChangeSetRow(result);
     }
@@ -82,8 +82,7 @@ public class KeyValuePairChangeSet extends ChangeSet {
     public Set<String> extractMustacheKeys() {
         return columnValueMap.values().stream()
                 .filter(String.class::isInstance)
-                .map(o -> MustacheHelper.extractMustacheKeysWithCurlyBraces((String) o))
-                .flatMap(Set::stream)
+                .flatMap(o -> MustacheHelper.extractMustacheKeysWithCurlyBraces((String) o).stream())
                 .collect(Collectors.toSet());
     }
 }

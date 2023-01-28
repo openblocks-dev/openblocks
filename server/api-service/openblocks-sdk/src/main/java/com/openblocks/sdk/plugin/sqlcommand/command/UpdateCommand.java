@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.ChangeSet;
@@ -72,8 +73,23 @@ public class UpdateCommand implements GuiSqlCommand {
     }
 
     protected void appendSet(ChangeSetRow updateRow, StringBuilder sb, List<Object> bindParams) {
+
+        if (isRenderWithRawSql()) {
+            sb.append(" set ");
+            updateRow
+                    .forEach(item -> sb.append(columnFrontDelimiter)
+                            .append(item.column())
+                            .append(columnBackDelimiter)
+                            .append("=")
+                            .append(item.guiSqlValue().getConcatSqlStr(escapeStrFunc()))
+                            .append(",")
+                    );
+            sb.deleteCharAt(sb.length() - 1);
+            return;
+        }
+
         List<Object> setValueParams = updateRow.stream()
-                .map(it -> it.psBindValue().getValue())
+                .map(it -> it.guiSqlValue().getValue())
                 .toList();
         bindParams.addAll(setValueParams);
 
@@ -92,7 +108,8 @@ public class UpdateCommand implements GuiSqlCommand {
     }
 
     protected void appendFilter(Map<String, Object> requestMap, StringBuilder sb, List<Object> bindParams) {
-        GuiSqlCommandRenderResult render = filterSet.render(requestMap, columnFrontDelimiter, columnBackDelimiter);
+        GuiSqlCommandRenderResult render = filterSet.render(requestMap,
+                columnFrontDelimiter, columnBackDelimiter, isRenderWithRawSql(), escapeStrFunc());
         sb.append(render.sql());
         bindParams.addAll(render.bindParams());
     }
@@ -110,6 +127,6 @@ public class UpdateCommand implements GuiSqlCommand {
 
     @Override
     public Set<String> extractMustacheKeys() {
-        return changeSet.extractMustacheKeys();
+        return Sets.union(filterSet.extractMustacheKeys(), changeSet.extractMustacheKeys());
     }
 }
