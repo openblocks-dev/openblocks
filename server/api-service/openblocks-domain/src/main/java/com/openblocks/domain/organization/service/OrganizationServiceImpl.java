@@ -1,14 +1,18 @@
 package com.openblocks.domain.organization.service;
 
 import static com.openblocks.domain.organization.model.OrganizationState.ACTIVE;
+import static com.openblocks.domain.organization.model.OrganizationState.DELETED;
 import static com.openblocks.domain.util.QueryDslUtils.fieldName;
 import static com.openblocks.sdk.exception.BizError.UNABLE_TO_FIND_VALID_ORG;
 import static com.openblocks.sdk.util.ExceptionUtils.deferredError;
+import static com.openblocks.sdk.util.ExceptionUtils.ofError;
 import static com.openblocks.sdk.util.LocaleUtils.getLocale;
 import static com.openblocks.sdk.util.LocaleUtils.getMessage;
 
 import java.util.Collection;
 import java.util.Locale;
+
+import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,14 +118,24 @@ public class OrganizationServiceImpl implements OrganizationService {
         if (commonConfig.getWorkspace().getMode() == WorkspaceMode.SAAS) {
             return Mono.empty();
         }
-        return Mono.defer(() -> {
-                    String enterpriseOrgId = commonConfig.getWorkspace().getEnterpriseOrgId();
-                    if (StringUtils.isNotBlank(enterpriseOrgId)) {
-                        return repository.findById(enterpriseOrgId);
-                    }
-                    return Mono.empty();
-                })
-                .switchIfEmpty(repository.findAll().next());
+        return getByEnterpriseOrgId()
+                .switchIfEmpty(repository.findFirstByStateMatches(ACTIVE));
+    }
+
+    @Nonnull
+    private Mono<Organization> getByEnterpriseOrgId() {
+        String enterpriseOrgId = commonConfig.getWorkspace().getEnterpriseOrgId();
+        if (StringUtils.isBlank(enterpriseOrgId)) {
+            return Mono.empty();
+        }
+        return repository.findById(enterpriseOrgId)
+                .delayUntil(org -> {
+                            if (org.getState() == DELETED) {
+                                return ofError(BizError.ORG_DELETED_FOR_ENTERPRISE_MODE, "ORG_DELETED_FOR_ENTERPRISE_MODE");
+                            }
+                            return Mono.empty();
+                        }
+                );
     }
 
     @Override
