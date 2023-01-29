@@ -4,8 +4,6 @@ common:
     salt: ${ENCRYPTION_SALT:openblocks.dev}
   security:
     corsAllowedDomainString: ${CORS_ALLOWED_DOMAINS:*}
-  max-query-request-size-in-mb: 20
-  max-query-response-size-in-mb: 20
   workspace:
     mode: ENTERPRISE
 
@@ -15,5 +13,3 @@ spring:
       uri: ${MONGODB_URI:mongodb://localhost:27017/openblocks?socketTimeoutMS=5000}
   redis:
     url: ${REDIS_URL:redis://localhost:6379}
-  codec:
-    max-in-memory-size: 20MB
