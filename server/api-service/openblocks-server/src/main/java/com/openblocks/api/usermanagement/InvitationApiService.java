@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.openblocks.api.home.SessionUserService;
 import com.openblocks.api.usermanagement.view.InvitationVO;
+import com.openblocks.api.bizthreshold.AbstractBizThresholdChecker;
 import com.openblocks.domain.invitation.model.Invitation;
 import com.openblocks.domain.invitation.service.InvitationService;
 import com.openblocks.domain.organization.model.Organization;
@@ -45,6 +46,9 @@ public class InvitationApiService {
     @Autowired
     private OrgMemberService orgMemberService;
 
+    @Autowired
+    private AbstractBizThresholdChecker bizThresholdChecker;
+
     public Mono<Boolean> inviteUser(String invitationId) {
         return sessionUserService.getVisitorId()
                 .zipWith(invitationService.getById(invitationId)
@@ -76,7 +80,9 @@ public class InvitationApiService {
                                 return Mono.just(new JoinOrgResult(true, false));
                             }
 
-                            return invitationService.inviteToOrg(visitorId, orgId)
+                            return bizThresholdChecker.checkMaxOrgCount(visitorId)
+                                    .then(bizThresholdChecker.checkMaxOrgMemberCount(orgId))
+                                    .then(invitationService.inviteToOrg(visitorId, orgId))
                                     .map(result -> new JoinOrgResult(false, result));
                         }));
     }

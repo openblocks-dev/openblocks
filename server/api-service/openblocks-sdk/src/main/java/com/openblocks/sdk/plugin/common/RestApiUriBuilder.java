@@ -1,4 +1,4 @@
-package com.openblocks.plugin.restapi.helpers;
+package com.openblocks.sdk.plugin.common;
 
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 import static com.openblocks.sdk.util.ExceptionUtils.wrapException;
@@ -30,7 +30,10 @@ public final class RestApiUriBuilder {
         } else {
             url = trimmedPrefix + trimmedSuffix;
         }
+        return buildUri(url, paramsMap, urlParams);
+    }
 
+    public static URI buildUri(String url, Map<String, Object> paramsMap, Map<String, String> urlParams) {
         if (StringUtils.isEmpty(url)) {
             throw new PluginException(QUERY_ARGUMENT_ERROR, "REQUEST_URL_EMPTY");
         }
@@ -46,12 +49,16 @@ public final class RestApiUriBuilder {
             throw wrapException(QUERY_ARGUMENT_ERROR, "INVALID_REQUEST_URL", e);
         }
 
-        urlParams.forEach(uriBuilder::addParameter);
+        urlParams.forEach((param, value) -> {
+            if (StringUtils.isBlank(param)) {
+                return;
+            }
+            uriBuilder.addParameter(param, value);
+        });
         try {
             return uriBuilder.build();
         } catch (URISyntaxException e) {
             throw wrapException(QUERY_ARGUMENT_ERROR, "INVALID_REQUEST_URL", e);
         }
     }
-
 }

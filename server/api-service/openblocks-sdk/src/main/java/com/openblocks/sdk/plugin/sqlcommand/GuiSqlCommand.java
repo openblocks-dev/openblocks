@@ -12,6 +12,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.openblocks.sdk.exception.PluginException;
+import com.openblocks.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
 public interface GuiSqlCommand {
 
@@ -51,4 +52,14 @@ public interface GuiSqlCommand {
     boolean isInsertCommand();
 
     Set<String> extractMustacheKeys();
+
+    default boolean isRenderWithRawSql() {
+        return false;
+    }
+
+    default EscapeSql escapeStrFunc() {
+        return s -> {
+            throw new UnsupportedOperationException("This func should be implemented by each SQL dialect if needed");
+        };
+    }
 }

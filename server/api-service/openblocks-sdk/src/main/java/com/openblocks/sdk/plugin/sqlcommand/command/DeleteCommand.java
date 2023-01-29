@@ -39,7 +39,8 @@ public class DeleteCommand implements GuiSqlCommand {
             return new GuiSqlCommandRenderResult(sb.toString(), Collections.emptyList());
         }
 
-        GuiSqlCommandRenderResult render = filterSet.render(requestMap, columnFrontDelimiter, columnBackDelimiter);
+        GuiSqlCommandRenderResult render = filterSet.render(requestMap, columnFrontDelimiter, columnBackDelimiter, isRenderWithRawSql(),
+                escapeStrFunc());
         sb.append(render.sql());
         if (!allowMultiModify) {
             sb.append(" limit 1");

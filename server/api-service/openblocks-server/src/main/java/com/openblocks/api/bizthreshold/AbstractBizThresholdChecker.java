@@ -1,17 +1,25 @@
-package com.openblocks.domain.bizthreshold;
+package com.openblocks.api.bizthreshold;
 
 import static com.openblocks.sdk.util.ExceptionUtils.deferredError;
+import static com.openblocks.sdk.util.ExceptionUtils.ofError;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.openblocks.domain.application.model.ApplicationStatus;
 import com.openblocks.domain.application.service.ApplicationService;
+import com.openblocks.domain.group.model.GroupMember;
+import com.openblocks.domain.group.service.GroupMemberService;
 import com.openblocks.domain.group.service.GroupService;
 import com.openblocks.domain.organization.model.OrgMember;
 import com.openblocks.domain.organization.service.OrgMemberService;
+import com.openblocks.infra.util.TupleUtils;
 import com.openblocks.sdk.exception.BizError;
 
 import reactor.core.publisher.Mono;
@@ -24,6 +32,9 @@ public abstract class AbstractBizThresholdChecker {
 
     @Autowired
     private GroupService groupService;
+
+    @Autowired
+    private GroupMemberService groupMemberService;
 
     @Autowired
     private ApplicationService applicationService;
@@ -41,6 +52,8 @@ public abstract class AbstractBizThresholdChecker {
     protected abstract Map<String, Integer> getOrgMemberCountWhiteList();
 
     protected abstract Map<String, Integer> getOrgAppCountWhiteList();
+
+    protected abstract Mono<Integer> getMaxDeveloperCount();
 
     public Mono<Void> checkMaxOrgCount(String userId) {
         return orgMemberService.countAllActiveOrgs(userId)
@@ -84,4 +97,21 @@ public abstract class AbstractBizThresholdChecker {
         return orgAppCount < Math.max(getMaxOrgAppCount(), getOrgAppCountWhiteList().getOrDefault(orgId, 0));
     }
 
+    public Mono<Void> checkMaxDeveloperCount(String orgId, String developGroupId, String userId) {
+        return orgMemberService.getAllOrgAdmins(orgId)
+                .zipWith(groupMemberService.getGroupMembers(developGroupId, 1, 100))
+                .zipWith(getMaxDeveloperCount(), TupleUtils::merge)
+                .flatMap(tuple -> {
+                    List<OrgMember> t1 = tuple.getT1();
+                    List<GroupMember> t2 = tuple.getT2();
+                    Integer t3 = tuple.getT3();
+                    Set<String> developerIds = Stream.concat(t1.stream().map(OrgMember::getUserId), t2.stream().map(GroupMember::getUserId))
+                            .collect(Collectors.toSet());
+                    developerIds.add(userId);
+                    if (developerIds.size() > t3) {
+                        return ofError(BizError.EXCEED_MAX_DEVELOPER_COUNT, "EXCEED_MAX_DEVELOPER_COUNT");
+                    }
+                    return Mono.empty();
+                });
+    }
 }

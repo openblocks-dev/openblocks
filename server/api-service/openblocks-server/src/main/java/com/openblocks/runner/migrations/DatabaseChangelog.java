@@ -158,6 +158,12 @@ public class DatabaseChangelog {
                 makeIndex("orgId", "type", "filename").unique());
     }
 
+    @ChangeSet(order = "015", id = "add-bi-relation-indexes", author = "")
+    public void addBiRelationIndex(MongockTemplate mongoTemplate) {
+        ensureIndexes(mongoTemplate, BiRelation.class,
+                makeIndex("bizType", "sourceId", "relation"));
+    }
+
     public static Index makeIndex(String... fields) {
         if (fields.length == 1) {
             return new Index(fields[0], Sort.Direction.ASC).named(fields[0]);

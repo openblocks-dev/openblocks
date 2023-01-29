@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -17,6 +18,7 @@ import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.BulkObjectChangeSet;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.ChangeSetRows;
 import com.openblocks.sdk.util.MustacheHelper;
+import com.openblocks.sdk.util.SqlGuiUtils.GuiSqlValue;
 
 public class BulkUpdateCommand implements GuiSqlCommand {
 
@@ -61,13 +63,24 @@ public class BulkUpdateCommand implements GuiSqlCommand {
     }
 
     private void appendWhere(ChangeSetRows updateRows, StringBuilder sb, List<Object> bindParams) {
+        if (isRenderWithRawSql()) {
+            String pkStr = updateRows.stream()
+                    .map(row -> row.getItem(primaryKey).guiSqlValue().getConcatSqlStr(escapeStrFunc()))
+                    .collect(Collectors.joining(","));
+            sb.append("where ").append(primaryKey)
+                    .append(" in (")
+                    .append(pkStr)
+                    .append(")");
+            return;
+        }
+
         String questionMarks = Joiner.on(",").join(Collections.nCopies(updateRows.size(), "?"));
         sb.append("where ").append(primaryKey)
                 .append(" in (")
                 .append(questionMarks)
                 .append(")");
         bindParams.addAll(updateRows.stream()
-                .map(row -> row.getItem(primaryKey).psBindValue().getValue())
+                .map(row -> row.getItem(primaryKey).guiSqlValue().getValue())
                 .toList());
     }
 
@@ -76,17 +89,16 @@ public class BulkUpdateCommand implements GuiSqlCommand {
         ArrayListMultimap<String, Pair<Object, Object>> columnToIdAndValue = ArrayListMultimap.create();
 
         updateRows.stream().forEach(row -> {
-                    Object pkValue = row.getItem(primaryKey).psBindValue().getValue();
+            Object pkValue = row.getItem(primaryKey).guiSqlValue().getValue();
                     row.stream()
                             .filter(changeSetItem -> !primaryKey.equals(changeSetItem.column()))
                             .forEach(changeSetItem -> {
                                 String column = changeSetItem.column();
-                                Object value = changeSetItem.psBindValue().getValue();
+                                Object value = changeSetItem.guiSqlValue().getValue();
                                 columnToIdAndValue.put(column, Pair.of(pkValue, value));
                             });
                 }
         );
-
         columnToIdAndValue.asMap().forEach((column, pkAndValues) -> {
                     String columnWithDelimiter = columnFrontDelimiter + column + columnBackDelimiter;
                     sb.append(columnWithDelimiter)
@@ -94,13 +106,26 @@ public class BulkUpdateCommand implements GuiSqlCommand {
                     pkAndValues.forEach(pkAndValue -> {
                         Object pkValue = pkAndValue.getKey();
                         Object updateValue = pkAndValue.getValue();
-                        sb.append("WHEN ")
-                                .append(columnFrontDelimiter)
-                                .append(primaryKey)
-                                .append(columnBackDelimiter)
-                                .append(" = ? THEN ? ");
-                        bindParams.add(pkValue);
-                        bindParams.add(updateValue);
+
+                        if (isRenderWithRawSql()) {
+                            sb.append("WHEN ")
+                                    .append(columnFrontDelimiter)
+                                    .append(primaryKey)
+                                    .append(columnBackDelimiter)
+                                    .append(" = ")
+                                    .append(GuiSqlValue.from(pkValue).getConcatSqlStr(escapeStrFunc()))
+                                    .append(" THEN ")
+                                    .append(GuiSqlValue.from(updateValue).getConcatSqlStr(escapeStrFunc()))
+                                    .append(" ");
+                        } else {
+                            sb.append("WHEN ")
+                                    .append(columnFrontDelimiter)
+                                    .append(primaryKey)
+                                    .append(columnBackDelimiter)
+                                    .append(" = ? THEN ? ");
+                            bindParams.add(pkValue);
+                            bindParams.add(updateValue);
+                        }
                     });
                     sb.append("ELSE ").append(columnWithDelimiter).append(" END,\n");
                 }

@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Streams;
 import com.openblocks.sdk.exception.PluginException;
-import com.openblocks.sdk.util.SqlGuiUtils.PsBindValue;
+import com.openblocks.sdk.util.SqlGuiUtils.GuiSqlValue;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ChangeSetRow implements Iterable<ChangeSetItem> {
@@ -42,7 +42,7 @@ public class ChangeSetRow implements Iterable<ChangeSetItem> {
                 .map(next -> {
                     String column = next.getKey();
                     JsonNode value = next.getValue();
-                    return new ChangeSetItem(column, PsBindValue.fromJsonNode(value));
+                    return new ChangeSetItem(column, GuiSqlValue.fromJsonNode(value));
                 })
                 .toList();
     }
