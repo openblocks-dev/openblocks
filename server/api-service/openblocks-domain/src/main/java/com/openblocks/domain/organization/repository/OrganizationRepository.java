@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface OrganizationRepository extends ReactiveMongoRepository<Organization, String> {
+    Mono<Organization> findFirstByStateMatches(OrganizationState state);
 
     Flux<Organization> findByIdInAndState(Collection<String> id, OrganizationState state);
 

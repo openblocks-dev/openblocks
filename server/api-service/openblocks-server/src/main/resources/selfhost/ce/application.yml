@@ -11,6 +11,8 @@ spring:
   main:
     allow-bean-definition-overriding: true
     allow-circular-references: true
+  codec:
+    max-in-memory-size: 20MB
 
 server:
   compression:
@@ -31,6 +33,8 @@ common:
   block-hound-enable: false
   js-executor:
     host: ${JS_EXECUTOR_URI:http://127.0.0.1:6060}
+  max-query-request-size-in-mb: 20
+  max-query-response-size-in-mb: 20
 
 material:
   mongodb-grid-fs:
