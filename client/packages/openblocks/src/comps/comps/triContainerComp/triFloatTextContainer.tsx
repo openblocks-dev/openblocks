@@ -1,7 +1,7 @@
 import { ContainerStyleType } from "comps/controls/styleControlConstants";
 import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
-import { HintPlaceHolder } from "openblocks-design";
+import { HintPlaceHolder, TacoMarkDown } from "openblocks-design";
 import { ReactNode, useContext } from "react";
 import styled, { css } from "styled-components";
 import { checkIsMobile } from "util/commonUtils";
@@ -63,10 +63,15 @@ const FooterInnerGrid = styled(InnerGrid)<{
 
 export type TriContainerProps = TriContainerViewProps & {
   hintPlaceholder?: ReactNode;
+  text: {
+    value: string;
+  };
+  type: string;
+  float: string;
 };
 
 export function TriContainer(props: TriContainerProps) {
-  const { container } = props;
+  const { container, text } = props;
   const { showHeader, showFooter } = container;
   // When the header and footer are not displayed, the body must be displayed
   const showBody = container.showBody || (!showHeader && !showFooter);
@@ -102,22 +107,42 @@ export function TriContainer(props: TriContainerProps) {
       )}
       {showBody && (
         <BackgroundColorContext.Provider value={container.style.background}>
-          <BodyInnerGrid
-            showBorder={showHeader}
-            {...otherBodyProps}
-            items={gridItemCompToGridItems(bodyItems)}
-            autoHeight={container.autoHeight}
-            emptyRows={14}
-            minHeight={showHeader ? "143px" : "142px"}
-            containerPadding={
-              (showHeader && showFooter) || showHeader
-                ? [paddingWidth, 11.5]
-                : [paddingWidth, 11]
-            }
-            hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
-            backgroundColor={style?.background}
-            borderColor={style?.border}
-          />
+          <div
+            style={{
+              overflow: "auto",
+              background: `${container.style.background}`,
+            }}
+          >
+            <BodyInnerGrid
+              showBorder={showHeader}
+              {...otherBodyProps}
+              items={gridItemCompToGridItems(bodyItems)}
+              autoHeight={container.autoHeight}
+              emptyRows={14}
+              minHeight={showHeader ? "143px" : "142px"}
+              containerPadding={
+                (showHeader && showFooter) || showHeader
+                  ? [paddingWidth, 11.5]
+                  : [paddingWidth, 11]
+              }
+              hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
+              backgroundColor={style?.background}
+              borderColor={style?.border}
+              style={{
+                float: `${props.float}`,
+                width: `${props.float === "none" ? "100%" : "60%"}`,
+                height: "100%",
+                margin: "10px",
+              }}
+            />
+            <p style={{ textAlign: "justify", margin: "20px 30px" }}>
+              {props.type === "markdown" ? (
+                <TacoMarkDown>{text.value}</TacoMarkDown>
+              ) : (
+                text.value
+              )}
+            </p>
+          </div>
         </BackgroundColorContext.Provider>
       )}
       {showFooter && (

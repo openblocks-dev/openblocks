@@ -53,6 +53,7 @@ export type UICompType =
   | "input"
   | "module"
   | "moduleContainer"
+  | "floatTextContainer"
   | "textArea"
   | "chart"
   | "imageEditor"

@@ -37,6 +37,7 @@ import { TextAreaComp } from "./comps/textInputComp/textAreaComp";
 import { TimePickerComp, TimeRangeComp } from "./comps/timeComp";
 import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
 import { TabsControlComp } from "./comps/selectInputComp/tabsControl";
+import { ContainerComp as FloatTextContainerComp } from "./comps/containerComp/textContainerComp";
 import "comps/comps/layout/navLayout";
 
 import {
@@ -542,6 +543,23 @@ const uiCompMap: Registry = {
     icon: ContainerCompIcon,
     keywords: trans("uiComp.containerCompKeywords"),
     comp: ContainerComp,
+    withoutLoading: true,
+    layoutInfo: {
+      w: 9,
+      h: 25,
+      // static: true,
+      delayCollision: true,
+    },
+    defaultDataFn: defaultContainerData,
+  },
+  floatTextContainer: {
+    name: trans("uiComp.floatTextContainerCompName"),
+    enName: "Container",
+    description: trans("uiComp.floatTextContainerCompDesc"),
+    categories: ["container", "common"],
+    icon: ContainerCompIcon,
+    keywords: trans("uiComp.floatTextContainerCompKeywords"),
+    comp: FloatTextContainerComp,
     withoutLoading: true,
     layoutInfo: {
       w: 9,
