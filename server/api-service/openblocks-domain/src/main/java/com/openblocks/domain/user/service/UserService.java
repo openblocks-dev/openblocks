@@ -8,8 +8,8 @@ import org.springframework.web.server.ServerWebExchange;
 
 import com.openblocks.domain.user.model.AuthorizedUser;
 import com.openblocks.domain.user.model.Connection;
-import com.openblocks.domain.user.model.UserDetail;
 import com.openblocks.domain.user.model.User;
+import com.openblocks.domain.user.model.UserDetail;
 import com.openblocks.infra.annotation.NonEmptyMono;
 
 import reactor.core.publisher.Mono;
@@ -44,6 +44,8 @@ public interface UserService {
     Mono<User> register(String loginId, String password, String source);
 
     Mono<Boolean> updatePassword(String userId, String oldPassword, String newPassword);
+
+    Mono<String> resetPassword(String userId);
 
     Mono<Boolean> setPassword(String userId, String password);
 

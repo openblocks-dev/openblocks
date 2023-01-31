@@ -32,6 +32,7 @@ import com.openblocks.domain.user.service.UserService;
 import com.openblocks.domain.user.service.UserStatusService;
 import com.openblocks.infra.constant.NewUrl;
 import com.openblocks.infra.constant.Url;
+import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.util.UriUtils;
 
@@ -60,6 +61,9 @@ public class UserController {
 
     @Autowired
     private UserApiService userApiService;
+
+    @Autowired
+    private CommonConfig commonConfig;
 
     @GetMapping("/me")
     public Mono<ResponseView<?>> getUserProfile(ServerWebExchange exchange) {
@@ -133,11 +137,23 @@ public class UserController {
 
     @PutMapping("/password")
     public Mono<ResponseView<Boolean>> updatePassword(@RequestBody UpdatePasswordRequest request) {
-        if (StringUtils.isBlank(request.oldPassword) || StringUtils.isBlank(request.newPassword)) {
+        if (StringUtils.isBlank(request.oldPassword()) || StringUtils.isBlank(request.newPassword())) {
             return ofError(BizError.INVALID_PARAMETER, "PASSWORD_EMPTY");
         }
         return sessionUserService.getVisitorId()
-                .flatMap(user -> userService.updatePassword(user, request.oldPassword, request.newPassword))
+                .flatMap(user -> userService.updatePassword(user, request.oldPassword(), request.newPassword()))
+                .map(ResponseView::success);
+    }
+
+    @PostMapping("/reset-password")
+    public Mono<ResponseView<String>> resetPassword(@RequestBody ResetPasswordRequest request) {
+        if (!commonConfig.isEnterpriseMode()) {
+            return ofError(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST");
+        }
+        if (StringUtils.isBlank(request.userId())) {
+            return ofError(BizError.INVALID_PARAMETER, "INVALID_USER_ID");
+        }
+        return userApiService.resetPassword(request.userId())
                 .map(ResponseView::success);
 
     }
@@ -163,6 +179,9 @@ public class UserController {
     public Mono<ResponseView<?>> getUserDetail(@PathVariable("id") String userId) {
         return userApiService.getUserDetailById(userId)
                 .map(ResponseView::success);
+    }
+
+    public record ResetPasswordRequest(String userId) {
     }
 
     public record UpdatePasswordRequest(String oldPassword, String newPassword) {
