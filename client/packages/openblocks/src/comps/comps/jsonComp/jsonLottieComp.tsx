@@ -63,7 +63,7 @@ let JsonLottieTmpComp = (function () {
         background={props.backgroundColor}
         speed={props.speed}
         src={props.value}
-        style={{ height: `${props.height}px`, width: `${props.width}px` }}
+        style={{ height: `${props.height}%`, width: `${props.width}%` }}
       />
     </JsonLottieContainer>
   ))
@@ -72,7 +72,7 @@ let JsonLottieTmpComp = (function () {
         <>
           <Section name={sectionNames.basic}>
             {children.value.propertyView({
-              label: trans("data"),
+              label: trans("lottieJson"),
             })}
             {children.speed.propertyView({
               label: trans("jsonLottie.speed"),
@@ -86,11 +86,6 @@ let JsonLottieTmpComp = (function () {
 
             {children.backgroundColor.propertyView({
               label: trans("jsonLottie.backgroundColor"),
-            })}
-          </Section>
-          <Section name={sectionNames.style}>
-            {children.theme.propertyView({
-              label: trans("jsonLottie.theme"),
             })}
           </Section>
           <Section name={sectionNames.layout}>

@@ -124,7 +124,7 @@ import { ToggleButtonComp } from "./comps/buttonComp/toggleButtonComp";
 import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
 import { RemoteCompInfo } from "types/remoteComp";
 import { ScannerComp } from "./comps/buttonComp/scannerComp";
-
+import {LottieIcon} from "../assets/icons"
 type Registry = {
   [key in UICompType]?: UICompManifest;
 };
@@ -677,7 +677,7 @@ const uiCompMap: Registry = {
     enName: "Lottie Animation",
     description: trans("uiComp.jsonLottieCompDesc"),
     categories: ["dataDisplay"],
-    icon: JsonExplorerCompIcon,
+    icon: LottieIcon,
     keywords: trans("uiComp.jsonLottieCompKeywords"),
     comp: JsonLottieComp,
     layoutInfo: {

@@ -44,6 +44,7 @@ export const en = {
   search: "Search",
   back: "Back",
   accessControl: " Access Control",
+  lottieJson: "Lottie JSON",
   api: {
     publishSuccess: "Published",
     recoverFailed: "Recover failed",
