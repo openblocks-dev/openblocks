@@ -11,7 +11,7 @@ RUN jlink --add-modules java.base,java.compiler,java.datatransfer,java.desktop,j
 ##
 ## Build Openblocks api-service application
 ##
-FROM maven:3.8-eclipse-temurin-17-alpine AS build-api-service
+FROM maven:3.8-eclipse-temurin-17 AS build-api-service
 COPY ./server/api-service /openblocks-server
 WORKDIR /openblocks-server
 RUN --mount=type=cache,target=/root/.m2 mvn -f pom.xml clean package -DskipTests
@@ -66,16 +66,12 @@ CMD [ "sh" , "/openblocks/api-service/entrypoint.sh" ]
 ##
 FROM ubuntu:jammy as build-node-service
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl xz-utils ca-certificates \
-  && mkdir -p /openblocks/node-service/nodejs
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates
 
-# Download and extract nodejs
-RUN curl -fsSL 'https://nodejs.org/dist/v19.4.0/node-v19.4.0-linux-x64.tar.xz' | tar --directory /openblocks/node-service/nodejs --strip-components=1 -Jxf -
-
-# Install yarn
-ENV PATH="/openblocks/node-service/nodejs/bin:${PATH}"
-#RUN export PATH=${PATH}:/openblocks/node-service/nodejs/bin \
-RUN npm install -g yarn
+# Download nodejs and install yarn
+RUN curl -sL https://deb.nodesource.com/setup_19.x | bash - \
+&& apt-get install --no-install-recommends -y nodejs \
+&& npm install -g yarn
 
 # Copy and build the node-service app
 COPY server/node-service/ /openblocks/node-service/app/
@@ -97,7 +93,10 @@ RUN chmod +x /openblocks/node-service/*.sh
 FROM ubuntu:jammy as openblocks-ce-node-service
 LABEL maintainer="openblocks"
 
-RUN apt-get update && apt-get install -y --no-install-recommends gosu \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates \
+  && curl -sL https://deb.nodesource.com/setup_19.x | bash - \
+  && apt-get install --no-install-recommends -y nodejs gosu \
+  && npm install -g yarn \
   && rm -rf /var/cache/apt/lists \
   && addgroup --system --gid 9001 openblocks \
   && adduser --system --disabled-password --no-create-home --uid 9001 --gid 9001 openblocks
@@ -165,12 +164,15 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
   && curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg \
   && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb bullseye main" | tee /etc/apt/sources.list.d/redis.list \
   && curl -fsSL https://www.mongodb.org/static/pgp/server-4.4.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg] http://repo.mongodb.org/apt/debian buster/mongodb-org/4.4 main" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
+  && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg arch=amd64,arm64] http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
+  && curl -sL https://deb.nodesource.com/setup_19.x | bash - \
   && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
-      mongodb-org=4.4.6 \
+      mongodb-org \
       redis \
       supervisor \
       gosu \
+      nodejs \
+  && npm install -g yarn \
   && rm -rf /var/cache/apt/lists
 
 # Add openblocks api-service
