@@ -8,7 +8,11 @@ import { AlignLeft } from "openblocks-design";
 import { AlignRight } from "openblocks-design";
 import { HorizontalAlignmentControl } from "../controls/dropdownControl";
 import { UICompBuilder } from "../generators";
-import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
+import {
+  NameConfig,
+  NameConfigHidden,
+  withExposingConfigs,
+} from "../generators/withExposing";
 import { markdownCompCss, TacoMarkDown } from "openblocks-design";
 import { styleControl } from "comps/controls/styleControl";
 import { TextStyle, TextStyleType } from "comps/controls/styleControlConstants";
@@ -60,7 +64,8 @@ const TextContainer = styled.div<{ type: string; styleConfig: TextStyleType }>`
   overflow: auto;
   margin: 0;
   ${(props) =>
-    props.type === "text" && "white-space:break-spaces;line-height: 1.9;padding: 3px 0;"};
+    props.type === "text" &&
+    "white-space:break-spaces;line-height: 1.9;padding: 3px 0;"};
   ${(props) => props.styleConfig && getStyle(props.styleConfig)}
   display: flex;
   font-size: 13px;
@@ -120,7 +125,11 @@ let TextTmpComp = (function () {
           textAlign: props.horizontalAlignment,
         }}
       >
-        {props.type === "markdown" ? <TacoMarkDown>{value}</TacoMarkDown> : value}
+        {props.type === "markdown" ? (
+          <TacoMarkDown>{value}</TacoMarkDown>
+        ) : (
+          value
+        )}
       </TextContainer>
     );
   })
@@ -150,7 +159,9 @@ let TextTmpComp = (function () {
             {hiddenPropertyView(children)}
           </Section>
 
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
         </>
       );
     })
