@@ -7,6 +7,7 @@ import static com.openblocks.sdk.constants.GlobalContext.CLIENT_IP;
 import static com.openblocks.sdk.util.ExceptionUtils.ofError;
 import static com.openblocks.sdk.util.ExceptionUtils.ofException;
 
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -17,9 +18,11 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.codec.multipart.Part;
@@ -37,9 +40,9 @@ import com.openblocks.domain.organization.model.OrgMember;
 import com.openblocks.domain.organization.service.OrgMemberService;
 import com.openblocks.domain.user.model.AuthorizedUser;
 import com.openblocks.domain.user.model.Connection;
-import com.openblocks.domain.user.model.UserDetail;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.model.User.TransformedUserInfo;
+import com.openblocks.domain.user.model.UserDetail;
 import com.openblocks.domain.user.model.UserState;
 import com.openblocks.domain.user.repository.UserRepository;
 import com.openblocks.infra.mongo.MongoUpsertHelper;
@@ -243,6 +246,31 @@ public class UserServiceImpl implements UserService {
                 })
                 .flatMap(repository::save)
                 .thenReturn(true);
+    }
+
+    @Override
+    public Mono<String> resetPassword(String userId) {
+        return findById(userId)
+                .flatMap(user -> {
+                    String password = user.getPassword();
+                    if (StringUtils.isBlank(password)) {
+                        return ofError(BizError.INVALID_PASSWORD, "PASSWORD_NOT_SET_YET");
+                    }
+
+                    String randomStr = generateNewRandomPwd();
+                    user.setPassword(encryptionService.encryptPassword(randomStr));
+                    return repository.save(user)
+                            .thenReturn(randomStr);
+                });
+    }
+
+    @SuppressWarnings("SpellCheckingInspection")
+    @Nonnull
+    private static String generateNewRandomPwd() {
+        char[] possibleCharacters = ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~`!@#$%^&*()-_=+[{]}<>?")
+                .toCharArray();
+        return RandomStringUtils.random(12, 0, possibleCharacters.length - 1,
+                false, false, possibleCharacters, new SecureRandom());
     }
 
     @Override

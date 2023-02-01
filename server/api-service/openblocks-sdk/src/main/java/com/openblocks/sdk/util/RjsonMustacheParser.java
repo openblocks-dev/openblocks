@@ -54,10 +54,20 @@ class RjsonMustacheParser {
         }
 
         List<String> tokens = tokenize(jsonStr.trim());
-        // handle cases like " {{ map }} "
-        if (tokens.size() == 1 && isMustacheToken(tokens.get(0))) {
-            Object value = paramMap.get(removeCurlyBraces(tokens.get(0)));
-            return convertToJsonNode(value);
+        // handle cases like " {{ map }} " / "2022-05-05 11:12:13"
+        if (tokens.size() == 1) {
+            String oneTokenStr = tokens.get(0);
+            if (isMustacheToken(oneTokenStr)) {
+                Object value = paramMap.get(removeCurlyBraces(oneTokenStr));
+                return convertToJsonNode(value);
+            }
+
+            try {
+                return traverse(RjsonParser.parse(oneTokenStr), Map.of());
+            } catch (Throwable e) {
+                // return as a textNode if fails to parse
+                return TextNode.valueOf(oneTokenStr);
+            }
         }
 
         Map<String, String> tokenReplaceMap = new HashMap<>();

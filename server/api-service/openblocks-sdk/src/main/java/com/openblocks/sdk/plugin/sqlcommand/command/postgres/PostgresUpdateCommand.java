@@ -4,6 +4,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.openblocks.sdk.exception.PluginCommonError.INVALID_UPDATE_COMMAND;
 import static com.openblocks.sdk.plugin.sqlcommand.command.GuiConstants.POSTGRES_COLUMN_DELIMITER;
 import static com.openblocks.sdk.util.MustacheHelper.renderMustacheString;
+import static com.openblocks.sdk.util.SqlGuiUtils.POSTGRES_SQL_STR_ESCAPE;
 
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import com.openblocks.sdk.plugin.sqlcommand.changeset.ChangeSetRow;
 import com.openblocks.sdk.plugin.sqlcommand.command.UpdateCommand;
 import com.openblocks.sdk.plugin.sqlcommand.command.UpdateOrDeleteSingleCommandResult;
 import com.openblocks.sdk.plugin.sqlcommand.filter.FilterSet;
+import com.openblocks.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
 public class PostgresUpdateCommand extends UpdateCommand {
 
@@ -62,5 +64,13 @@ public class PostgresUpdateCommand extends UpdateCommand {
 
     }
 
+    @Override
+    public boolean isRenderWithRawSql() {
+        return true;
+    }
 
+    @Override
+    public EscapeSql escapeStrFunc() {
+        return POSTGRES_SQL_STR_ESCAPE;
+    }
 }

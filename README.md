@@ -29,7 +29,7 @@ Openblocks wants to take a step forward. More specifically, Openblocks is
 ## 🪄 Features
 - **Visual UI builder** with 50+ built-in components.
 - **Module and Query Library** for reusable components and queries in the UI builder.
-- **Custom components** to share through React and Openblocks SDK (instead of iFrame). (Pre-alpha)
+- **Custom components** to share through React and Openblocks SDK (instead of iFrame).
 - **Native connections** to PostgreSQL, MongoDB, MySQL, Redis, Elasticsearch, REST API, SMTP, etc.
 - **JavaScript supported everywhere** to transform data, control components, etc.
 - **Embed Openblocks pages as a React component** (instead of iFrame). [Demo](https://github.com/openblocks-dev/openblocks-sdk-demo)
@@ -76,10 +76,11 @@ You can access Openblocks from [cloud-hosted version](https://cloud.openblocks.d
 - [JSON schema parsing using a third-party lib](https://cloud.openblocks.dev/apps/638dc95c75cfb658566143c5/view)
 - [Custom Echarts demo](https://cloud.openblocks.dev/apps/63779dd6c54c5224c70ea537/view), [Echarts source](https://echarts.apache.org/examples/en/editor.html?c=area-stack)
 - [Periodically user action report demo](https://cloud.openblocks.dev/apps/637f38daa899fe1ffcb17f0b/view)
-- [generate PDF using jsPdf](https://cloud.openblocks.dev/apps/6388610b0a254922d92e3882/view)
+- [Generate PDF using jsPdf](https://cloud.openblocks.dev/apps/6388610b0a254922d92e3882/view)
 - [Excel Explorer](https://cloud.openblocks.dev/apps/6392ff5d51cd8a59114b0c2c/view)
 - [File upload with REST API](https://cloud.openblocks.dev/apps/63a2651e660ad97d59eb4a51/view)
 - [Shopping cart demo using transformers/state/drawer](https://cloud.openblocks.dev/apps/63a422a344075b798fe3ae06/view)
 - [Module demo: color picker](https://cloud.openblocks.dev/apps/63a58f1e85d4cb49cebad1d4/view)
 - [S3 File Management](https://cloud.openblocks.dev/apps/63c7aa55686c4f301cf4d755/view)
 - [Custom Markdown Style](https://cloud.openblocks.dev/apps/63c8bdb9de760726cd253c90/view)
+- [Use JS query to orchestrate other queries](https://cloud.openblocks.dev/apps/63c8fb1e0279b679be2b5a09/view)

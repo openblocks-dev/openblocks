@@ -2,6 +2,7 @@ package com.openblocks.sdk.plugin.sqlcommand.command.postgres;
 
 import static com.openblocks.sdk.plugin.sqlcommand.command.GuiConstants.POSTGRES_COLUMN_DELIMITER;
 import static com.openblocks.sdk.plugin.sqlcommand.filter.FilterSet.parseFilterSet;
+import static com.openblocks.sdk.util.SqlGuiUtils.POSTGRES_SQL_STR_ESCAPE;
 import static java.util.Collections.emptyList;
 
 import java.util.Map;
@@ -11,6 +12,7 @@ import com.openblocks.sdk.plugin.sqlcommand.command.DeleteCommand;
 import com.openblocks.sdk.plugin.sqlcommand.command.UpdateOrDeleteSingleCommandResult;
 import com.openblocks.sdk.plugin.sqlcommand.filter.FilterSet;
 import com.openblocks.sdk.util.MustacheHelper;
+import com.openblocks.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
 public class PostgresDeleteCommand extends DeleteCommand {
 
@@ -39,7 +41,8 @@ public class PostgresDeleteCommand extends DeleteCommand {
             return new GuiSqlCommandRenderResult(deleteSql.toString(), emptyList());
         }
 
-        GuiSqlCommandRenderResult filterRender = filterSet.render(requestMap, columnFrontDelimiter, columnBackDelimiter);
+        GuiSqlCommandRenderResult filterRender = filterSet.render(requestMap, columnFrontDelimiter, columnBackDelimiter, isRenderWithRawSql(),
+                escapeStrFunc());
         deleteSql.append(filterRender.sql());
 
         String selectSql = "select count(1) as count from " + renderedTable + filterRender.sql();
@@ -49,5 +52,15 @@ public class PostgresDeleteCommand extends DeleteCommand {
                     deleteSql.toString(), filterRender.bindParams());
         }
         return new GuiSqlCommandRenderResult(deleteSql.toString(), filterRender.bindParams());
+    }
+
+    @Override
+    public boolean isRenderWithRawSql() {
+        return true;
+    }
+
+    @Override
+    public EscapeSql escapeStrFunc() {
+        return POSTGRES_SQL_STR_ESCAPE;
     }
 }

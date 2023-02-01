@@ -30,4 +30,8 @@ public enum MemberRole {
         return VALUE_MAP.getOrDefault(str, MEMBER);
     }
 
+    public static boolean isAdmin(String str) {
+        return ADMIN == fromValue(str);
+    }
+
 }

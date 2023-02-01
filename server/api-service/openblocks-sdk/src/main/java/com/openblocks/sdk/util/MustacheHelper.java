@@ -20,12 +20,8 @@
 package com.openblocks.sdk.util;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.openblocks.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
-import static com.openblocks.sdk.exception.PluginCommonError.INVALID_IN_OPERATOR_SETTINGS;
 import static com.openblocks.sdk.exception.PluginCommonError.SQL_IN_OPERATOR_PARSE_ERROR;
-import static com.openblocks.sdk.util.JsonUtils.fromJsonList;
 import static com.openblocks.sdk.util.JsonUtils.toJson;
-import static com.openblocks.sdk.util.MustacheHelper.SqlConcatenationValueHolder.ofValue;
 import static com.openblocks.sdk.util.StreamUtils.collectMap;
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -634,128 +630,6 @@ public final class MustacheHelper {
         }
 
         return tokenize.get(index - 1).endsWith("\"") && tokenize.get(index + 1).startsWith("\"");
-    }
-
-    @Nonnull
-    public static SqlConcatenationValueHolder renderNonArrayValueForMysqlConcatenation(Object obj, Map<String, ?> paramMap) {
-        if (obj == null) {
-            return ofValue(null);
-        }
-
-        if (!(obj instanceof String str)) {
-            if (obj instanceof Collection<?> || obj instanceof Map<?, ?>) {
-                throw new PluginException(INVALID_GUI_SETTINGS, "GUI_NOT_SUPPORT_COLLECTION");
-            }
-            return ofValue(obj);
-        }
-
-        if (isBlank(str)) {
-            return ofValue(str);
-        }
-
-        List<String> tokenize = tokenize(str.trim());
-        if (tokenize.isEmpty()) {
-            return ofValue(str);
-        }
-
-        if (tokenize.stream().noneMatch(MustacheHelper::isMustacheToken)) {
-            return ofValue(str);
-        }
-
-        if (tokenize.size() == 1) {
-            String token = tokenize.get(0);
-            return ofValue(paramMap.get(removeCurlyBraces(token).trim()));
-        }
-
-        return ofValue(renderMustacheTokens(tokenize, paramMap));
-    }
-
-    public static List<Object> renderArrayValueForMysqlConcatenation(Object value, Map<String, Object> requestMap) {
-
-        if (!(value instanceof List<?>) && !(value instanceof String)) {
-            throw new PluginException(INVALID_IN_OPERATOR_SETTINGS, "INVALID_IN");
-        }
-
-        String str = value instanceof List<?> ? toJson(value) : (String) value;
-        try {
-            return fromJsonList(renderMustacheJsonString(str, requestMap));
-        } catch (Throwable e) {
-            throw new PluginException(INVALID_IN_OPERATOR_SETTINGS, "INVALID_IN");
-        }
-
-    }
-
-    public static class SqlConcatenationValueHolder {
-        private final SqlConcatenationString sqlConcatenationString;
-
-        private SqlConcatenationValueHolder(Object inputValue) {
-            this.sqlConcatenationString = parse(inputValue);
-        }
-
-        public String strValue() {
-            return sqlConcatenationString.value();
-        }
-
-        public boolean needBindPreparedStatement() {
-            return sqlConcatenationString.needPreparedStatement();
-        }
-
-        public static SqlConcatenationValueHolder ofValue(Object value) {
-            return new SqlConcatenationValueHolder(value);
-        }
-
-        private SqlConcatenationString parse(Object value) {
-            if (value == null) {
-                return new SqlConcatenationString("null", false);
-            }
-
-            if (value instanceof Boolean) {
-                return new SqlConcatenationString(String.valueOf(value), false);
-            }
-
-            if (value instanceof String strValue) {
-                if ("null".equalsIgnoreCase(strValue) || "true".equalsIgnoreCase(strValue) || "false".equalsIgnoreCase(strValue)) {
-                    return new SqlConcatenationString(strValue, false);
-                }
-
-                return new SqlConcatenationString(strValue, true);
-            }
-
-            if (value instanceof Map<?, ?> || value instanceof Collection<?>) {
-                return new SqlConcatenationString(toJson(value), true);
-            }
-
-            return new SqlConcatenationString(String.valueOf(value), true);
-        }
-
-        public record SqlConcatenationString(String value, boolean needPreparedStatement) {
-        }
-
-        public static SqlConcatenationValueHolder fromJsonNode(JsonNode jsonNode) {
-            if (jsonNode.isNull()) {
-                return ofValue(null);
-            }
-            if (jsonNode.isArray() || jsonNode.isObject()) {
-                return ofValue(jsonNode.toString());
-            }
-            if (jsonNode.isInt()) {
-                return ofValue(jsonNode.intValue());
-            }
-            if (jsonNode.isLong()) {
-                return ofValue(jsonNode.longValue());
-            }
-            if (jsonNode.isFloat()) {
-                return ofValue(jsonNode.floatValue());
-            }
-            if (jsonNode.isDouble()) {
-                return ofValue(jsonNode.doubleValue());
-            }
-            if (jsonNode.isBoolean()) {
-                return ofValue(jsonNode.booleanValue());
-            }
-
-            return ofValue(jsonNode.textValue());
-        }
     }
 
 }

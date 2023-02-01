@@ -1,4 +1,4 @@
-package com.openblocks.domain.bizthreshold;
+package com.openblocks.api.bizthreshold;
 
 import java.util.Collections;
 import java.util.Map;
@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.openblocks.sdk.config.dynamic.Conf;
 import com.openblocks.sdk.config.dynamic.ConfigCenter;
 import com.openblocks.sdk.config.dynamic.ConfigInstance;
+
+import reactor.core.publisher.Mono;
 
 @Service
 public class BizThresholdChecker extends AbstractBizThresholdChecker {
@@ -25,6 +27,7 @@ public class BizThresholdChecker extends AbstractBizThresholdChecker {
     private Conf<Map<String, Integer>> userOrgCountWhiteList;
     private Conf<Map<String, Integer>> orgMemberCountWhiteList;
     private Conf<Map<String, Integer>> orgAppCountWhiteList;
+    private Conf<Integer> maxDeveloperCount;
 
     @PostConstruct
     private void init() {
@@ -36,6 +39,7 @@ public class BizThresholdChecker extends AbstractBizThresholdChecker {
         maxOrgGroupCount = threshold.ofInteger("maxOrgGroupCount", 10);
         maxOrgAppCount = threshold.ofInteger("maxOrgAppCount", 50);
         orgAppCountWhiteList = threshold.ofMap("orgAppCountWhiteList", String.class, Integer.class, Collections.emptyMap());
+        maxDeveloperCount = threshold.ofInteger("maxDeveloperCount", 50);
     }
 
     @Override
@@ -71,5 +75,10 @@ public class BizThresholdChecker extends AbstractBizThresholdChecker {
     @Override
     protected Map<String, Integer> getOrgAppCountWhiteList() {
         return orgAppCountWhiteList.get();
+    }
+
+    @Override
+    protected Mono<Integer> getMaxDeveloperCount() {
+        return Mono.just(maxDeveloperCount.get());
     }
 }

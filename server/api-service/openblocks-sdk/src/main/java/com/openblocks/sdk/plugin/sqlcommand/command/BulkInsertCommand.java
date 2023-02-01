@@ -57,11 +57,22 @@ public class BulkInsertCommand implements GuiSqlCommand {
 
         sb.deleteCharAt(sb.length() - 1).append(") values ");
 
-        for (ChangeSetRow row : insertRows) {
-            appendQuestionMarks(sb, columns);
-            for (String column : columns) {
-                ChangeSetItem item = row.getItem(column);
-                bindParams.add(item.psBindValue().getValue());
+        if (isRenderWithRawSql()) {
+            for (ChangeSetRow row : insertRows) {
+                sb.append("(");
+                for (String column : columns) {
+                    ChangeSetItem item = row.getItem(column);
+                    sb.append(item.guiSqlValue().getConcatSqlStr(escapeStrFunc())).append(",");
+                }
+                sb.deleteCharAt(sb.length() - 1).append("),");
+            }
+        } else {
+            for (ChangeSetRow row : insertRows) {
+                appendQuestionMarks(sb, columns);
+                for (String column : columns) {
+                    ChangeSetItem item = row.getItem(column);
+                    bindParams.add(item.guiSqlValue().getValue());
+                }
             }
         }
         sb.deleteCharAt(sb.length() - 1).append(";");

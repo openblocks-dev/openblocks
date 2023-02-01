@@ -39,6 +39,10 @@ public class CommonConfig {
         return !isCloud();
     }
 
+    public boolean isEnterpriseMode() {
+        return workspace.getMode() == WorkspaceMode.ENTERPRISE;
+    }
+
     @Data
     public static class Domain {
         private String defaultValue;

@@ -23,7 +23,7 @@ import com.openblocks.api.usermanagement.view.GroupMemberView;
 import com.openblocks.api.usermanagement.view.GroupView;
 import com.openblocks.api.usermanagement.view.UpdateGroupRequest;
 import com.openblocks.api.usermanagement.view.UpdateRoleRequest;
-import com.openblocks.domain.bizthreshold.AbstractBizThresholdChecker;
+import com.openblocks.api.bizthreshold.AbstractBizThresholdChecker;
 import com.openblocks.domain.group.model.Group;
 import com.openblocks.domain.group.model.GroupMember;
 import com.openblocks.domain.group.service.GroupMemberService;
@@ -32,6 +32,7 @@ import com.openblocks.domain.organization.model.MemberRole;
 import com.openblocks.domain.organization.model.OrgMember;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.service.UserService;
+import com.openblocks.infra.util.TupleUtils;
 import com.openblocks.sdk.exception.BizError;
 
 import reactor.core.publisher.Mono;
@@ -132,8 +133,13 @@ public class GroupApiService {
         return getGroupAndOrgMemberInfo(groupId)
                 .filter(this::hasManagePermission)
                 .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED))
+                .zipWith(groupService.getById(groupId), TupleUtils::merge)
                 .flatMap(tuple -> {
                     String orgId = tuple.getT2().getOrgId();
+                    if (tuple.getT3().isDevGroup()) {
+                        return bizThresholdChecker.checkMaxDeveloperCount(orgId, groupId, newUserId)
+                                .then(groupMemberService.addMember(orgId, groupId, newUserId, MemberRole.fromValue(roleName)));
+                    }
                     return groupMemberService.addMember(orgId, groupId, newUserId, MemberRole.fromValue(roleName));
                 });
     }

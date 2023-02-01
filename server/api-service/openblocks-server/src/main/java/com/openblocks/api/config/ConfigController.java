@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.openblocks.api.framework.view.ResponseView;
 import com.openblocks.api.usermanagement.OrgApiService;
 import com.openblocks.infra.config.model.ServerConfig;
@@ -18,6 +19,7 @@ import com.openblocks.infra.config.repository.ServerConfigRepository;
 import com.openblocks.infra.constant.NewUrl;
 import com.openblocks.infra.constant.Url;
 import com.openblocks.sdk.config.CommonConfig;
+import com.openblocks.sdk.config.SerializeConfig.JsonViews;
 import com.openblocks.sdk.config.dynamic.Conf;
 import com.openblocks.sdk.config.dynamic.ConfigCenter;
 import com.openblocks.sdk.util.UriUtils;
@@ -67,6 +69,7 @@ public class ConfigController {
                 .map(ResponseView::success);
     }
 
+    @JsonView(JsonViews.Public.class)
     @GetMapping
     public Mono<ResponseView<ConfigView>> getConfig(ServerWebExchange exchange) {
         String domain = UriUtils.getRefererDomain(exchange);

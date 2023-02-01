@@ -22,9 +22,9 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -53,7 +53,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -68,6 +67,7 @@ import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.QueryExecutionResult;
 import com.openblocks.sdk.plugin.common.QueryExecutionUtils;
 import com.openblocks.sdk.plugin.common.QueryExecutor;
+import com.openblocks.sdk.plugin.common.RestApiUriBuilder;
 import com.openblocks.sdk.plugin.graphql.GraphQLDatasourceConfig;
 import com.openblocks.sdk.plugin.restapi.DataUtils;
 import com.openblocks.sdk.plugin.restapi.auth.AuthConfig;
@@ -140,8 +140,13 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
         List<Property> updatedQueryHeaders = renderMustacheValueInProperties(queryHeaders, requestParams);
         List<Property> updatedQueryBodyParams = renderMustacheValueInProperties(queryBodyParams, requestParams);
         var updatedVariables = JsonUtils.createObjectNode();
-        queryConfig.getVariables().forEach(property -> updatedVariables.set(property.getKey(),
-                MustacheHelper.renderMustacheJson(property.getValue(), requestParams)));
+        queryConfig.getVariables().forEach(property -> {
+            if (StringUtils.isAllBlank(property.getKey(), property.getValue())) {
+                return;
+            }
+            updatedVariables.set(property.getKey(),
+                    MustacheHelper.renderMustacheJson(property.getValue(), requestParams));
+        });
         String updatedQueryBody = renderMustacheString(queryBody, requestParams);
         String normalizedUrl = buildUrl(urlDomain, updatedQueryPath, requestParams);
         Map<String, String> allHeaders = buildHeaders(datasourceHeaders, updatedQueryHeaders);
@@ -239,13 +244,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
     @Override
     public Mono<QueryExecutionResult> executeQuery(Object o, GraphQLQueryExecutionContext context) {
         return Mono.defer(() -> {
-            URI uri;
-            try {
-                uri = buildUri(context.getUrl(), context.getUrlParams(), context.isEncodeParams());
-            } catch (URISyntaxException e) {
-                return Mono.just(QueryExecutionResult.error(QUERY_ARGUMENT_ERROR, "QUERY_ARGUMENT_ERROR", e));
-            }
-
+            URI uri = RestApiUriBuilder.buildUri(context.getUrl(), new HashMap<>(), context.getUrlParams());
             WebClient.Builder webClientBuilder = withSafeHost(builder());
 
             Map<String, String> allHeaders = context.getHeaders();
@@ -289,24 +288,6 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
                                 QueryExecutionResult.error(GRAPHQL_EXECUTION_ERROR, "GRAPHQL_EXECUTION_ERROR", error));
                     });
         });
-    }
-
-    private URI buildUri(String url, Map<String, String> urlParams, boolean encodeParams) throws URISyntaxException {
-        String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
-        httpUrl = httpUrl.replaceAll("(?<!http:|https:)/{2,}", "/"); // remove redundant "/"
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        uriBuilder.uri(new URI(httpUrl));
-
-        urlParams.forEach((key, value) -> {
-            if (encodeParams) {
-                uriBuilder.queryParam(URLEncoder.encode(key, StandardCharsets.UTF_8),
-                        URLEncoder.encode(value, StandardCharsets.UTF_8)
-                );
-            } else {
-                uriBuilder.queryParam(key, value);
-            }
-        });
-        return uriBuilder.build(true).toUri();
     }
 
     private Consumer<MultiValueMap<String, String>> injectCookies(GraphQLQueryExecutionContext request) {

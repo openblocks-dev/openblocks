@@ -20,7 +20,10 @@ import com.openblocks.api.query.view.LibraryQueryPublishRequest;
 import com.openblocks.api.query.view.LibraryQueryRecordMetaView;
 import com.openblocks.api.query.view.LibraryQueryView;
 import com.openblocks.api.query.view.UpsertLibraryQueryRequest;
+import com.openblocks.api.util.BusinessEventPublisher;
 import com.openblocks.domain.query.model.LibraryQuery;
+import com.openblocks.domain.query.service.LibraryQueryService;
+import com.openblocks.infra.event.EventType;
 
 import reactor.core.publisher.Mono;
 
@@ -29,7 +32,11 @@ import reactor.core.publisher.Mono;
 public class LibraryQueryController {
 
     @Autowired
+    private LibraryQueryService libraryQueryService;
+    @Autowired
     private LibraryQueryApiService libraryQueryApiService;
+    @Autowired
+    private BusinessEventPublisher businessEventPublisher;
 
     @GetMapping("/dropDownList")
     public Mono<ResponseView<List<LibraryQueryAggregateView>>> dropDownList() {
@@ -46,6 +53,9 @@ public class LibraryQueryController {
     @PostMapping
     public Mono<ResponseView<LibraryQueryView>> create(@RequestBody LibraryQuery libraryQuery) {
         return libraryQueryApiService.create(libraryQuery)
+                .delayUntil(libraryQueryView ->
+                        businessEventPublisher.publishLibraryQueryEvent(libraryQueryView.id(), libraryQueryView.name(),
+                                EventType.LIBRARY_QUERY_CREATE))
                 .map(ResponseView::success);
     }
 
@@ -58,7 +68,10 @@ public class LibraryQueryController {
 
     @DeleteMapping("/{libraryQueryId}")
     public Mono<ResponseView<Boolean>> delete(@PathVariable String libraryQueryId) {
-        return libraryQueryApiService.delete(libraryQueryId)
+        return libraryQueryService.getById(libraryQueryId)
+                .delayUntil(__ -> libraryQueryApiService.delete(libraryQueryId))
+                .delayUntil(libraryQuery -> businessEventPublisher.publishLibraryQueryEvent(libraryQuery.getId(), libraryQuery.getName(),
+                        EventType.LIBRARY_QUERY_DELETE))
                 .thenReturn(ResponseView.success(true));
     }
 
@@ -66,6 +79,8 @@ public class LibraryQueryController {
     public Mono<ResponseView<LibraryQueryRecordMetaView>> publish(@PathVariable String libraryQueryId,
             @RequestBody LibraryQueryPublishRequest libraryQueryPublishRequest) {
         return libraryQueryApiService.publish(libraryQueryId, libraryQueryPublishRequest)
+                .delayUntil(__ -> libraryQueryService.getById(libraryQueryId)
+                        .flatMap(libraryQuery -> businessEventPublisher.publishLibraryQuery(libraryQuery, EventType.LIBRARY_QUERY_PUBLISH)))
                 .map(ResponseView::success);
     }
 

@@ -39,7 +39,7 @@ public abstract class UpsertCommand implements GuiSqlCommand {
                     .append(column)
                     .append(columnBackDelimiter)
                     .append("=?,");
-            bindParams.add(item.psBindValue().getValue());
+            bindParams.add(item.guiSqlValue().getValue());
         }
         sb.deleteCharAt(sb.length() - 1);
     }
@@ -58,7 +58,7 @@ public abstract class UpsertCommand implements GuiSqlCommand {
         }
         sb.deleteCharAt(sb.length() - 1).append(") values (");
         for (ChangeSetItem item : insertRow) {
-            Object value = item.psBindValue().getValue();
+            Object value = item.guiSqlValue().getValue();
             sb.append("?,");
             bindParams.add(value);
         }
@@ -80,6 +80,7 @@ public abstract class UpsertCommand implements GuiSqlCommand {
 
     @Override
     public Set<String> extractMustacheKeys() {
-        return Sets.union(insertChangeSet.extractMustacheKeys(), updateChangeSet.extractMustacheKeys());
+        return Sets.union(filterSet.extractMustacheKeys(),
+                Sets.union(insertChangeSet.extractMustacheKeys(), updateChangeSet.extractMustacheKeys()));
     }
 }

@@ -28,13 +28,13 @@ public class UserApiService {
     private UserService userService;
 
     public Mono<UserDetail> getUserDetailById(String userId) {
-        return checkPermission(userId)
+        return checkAdminPermissionAndUserBelongsToCurrentOrg(userId)
                 .then(userService.findById(userId)
                         .flatMap(user -> userService.buildUserDetail(user, false)));
     }
 
-    private Mono<Void> checkPermission(String userId) {
-        return sessionUserService.getVisitorOrgMember()
+    private Mono<Void> checkAdminPermissionAndUserBelongsToCurrentOrg(String userId) {
+        return sessionUserService.getVisitorOrgMemberCache()
                 .flatMap(orgMember -> {
                     if (!orgMember.isAdmin()) {
                         return ofError(UNSUPPORTED_OPERATION, "BAD_REQUEST");
@@ -50,4 +50,8 @@ public class UserApiService {
                 });
     }
 
+    public Mono<String> resetPassword(String userId) {
+        return checkAdminPermissionAndUserBelongsToCurrentOrg(userId)
+                .then(userService.resetPassword(userId));
+    }
 }

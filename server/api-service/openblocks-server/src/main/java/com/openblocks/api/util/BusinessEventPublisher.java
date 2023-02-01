@@ -32,11 +32,13 @@ import com.openblocks.domain.organization.model.OrgMember;
 import com.openblocks.domain.permission.model.ResourceHolder;
 import com.openblocks.domain.permission.model.ResourcePermission;
 import com.openblocks.domain.permission.service.ResourcePermissionService;
+import com.openblocks.domain.query.model.LibraryQuery;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.service.UserService;
 import com.openblocks.infra.event.ApplicationCommonEvent;
 import com.openblocks.infra.event.EventType;
 import com.openblocks.infra.event.FolderCommonEvent;
+import com.openblocks.infra.event.LibraryQueryEvent;
 import com.openblocks.infra.event.QueryExecutionEvent;
 import com.openblocks.infra.event.datasource.DatasourceEvent;
 import com.openblocks.infra.event.datasource.DatasourcePermissionEvent;
@@ -454,6 +456,27 @@ public class BusinessEventPublisher {
                 })
                 .onErrorResume(throwable -> {
                     log.error("publishDatasourcePermissionEvent error.", throwable);
+                    return Mono.empty();
+                });
+    }
+
+    public Mono<Void> publishLibraryQuery(LibraryQuery libraryQuery, EventType eventType) {
+        return publishLibraryQueryEvent(libraryQuery.getId(), libraryQuery.getName(), eventType);
+    }
+
+    public Mono<Void> publishLibraryQueryEvent(String id, String name, EventType eventType) {
+        return sessionUserService.getVisitorOrgMemberCache()
+                .map(orgMember -> LibraryQueryEvent.builder()
+                        .userId(orgMember.getUserId())
+                        .orgId(orgMember.getOrgId())
+                        .id(id)
+                        .name(name)
+                        .eventType(eventType)
+                        .build())
+                .doOnNext(applicationEventPublisher::publishEvent)
+                .then()
+                .onErrorResume(throwable -> {
+                    log.error("publishLibraryQueryEvent error.", throwable);
                     return Mono.empty();
                 });
     }

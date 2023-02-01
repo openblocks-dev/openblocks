@@ -3,6 +3,7 @@ package com.openblocks.sdk.plugin.sqlcommand.command;
 import static com.openblocks.sdk.exception.PluginCommonError.INVALID_INSERT_COMMAND;
 import static com.openblocks.sdk.plugin.sqlcommand.changeset.ChangeSet.parseChangeSet;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,8 +18,9 @@ import com.openblocks.sdk.plugin.sqlcommand.changeset.ChangeSet;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.ChangeSetItem;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.ChangeSetRow;
 import com.openblocks.sdk.util.MustacheHelper;
+import com.openblocks.sdk.util.SqlGuiUtils.GuiSqlValue;
 
-public class InsertCommand implements GuiSqlCommand {
+public abstract class InsertCommand implements GuiSqlCommand {
 
     private final String table;
     private final ChangeSet changeSet;
@@ -47,14 +49,41 @@ public class InsertCommand implements GuiSqlCommand {
             throw new PluginException(INVALID_INSERT_COMMAND, "INSERT_DATA_EMPTY");
         }
 
-        return doRender(renderedTable, insertRow);
+        if (isRenderWithRawSql()) {
+            return renderWithRawSql(renderedTable, insertRow);
+        }
+        return renderWithPreparedStatement(renderedTable, insertRow);
     }
 
     @Nonnull
-    private GuiSqlCommandRenderResult doRender(String table, ChangeSetRow insertRow) {
+    private GuiSqlCommandRenderResult renderWithRawSql(String table, ChangeSetRow insertRow) {
+        return new GuiSqlCommandRenderResult(buildRawSql(table, insertRow), Collections.emptyList());
+    }
+
+    private String buildRawSql(String table, ChangeSetRow insertRow) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("insert into ")
+                .append(table)
+                .append(" (");
+        for (ChangeSetItem item : insertRow) {
+            String column = item.column();
+            sb.append(columnFrontDelimiter).append(column).append(columnBackDelimiter).append(",");
+        }
+        sb.deleteCharAt(sb.length() - 1).append(") values (");
+
+        for (ChangeSetItem item : insertRow) {
+            GuiSqlValue guiSqlValue = item.guiSqlValue();
+            sb.append(guiSqlValue.getConcatSqlStr(escapeStrFunc())).append(",");
+        }
+        sb.deleteCharAt(sb.length() - 1).append(");");
+        return sb.toString();
+    }
+
+    @Nonnull
+    private GuiSqlCommandRenderResult renderWithPreparedStatement(String table, ChangeSetRow insertRow) {
         String sql = buildPsSql(table, insertRow);
         List<Object> bindParams = insertRow.stream()
-                .map(item -> item.psBindValue().getValue())
+                .map(item -> item.guiSqlValue().getValue())
                 .toList();
         return new GuiSqlCommandRenderResult(sql, bindParams);
     }
