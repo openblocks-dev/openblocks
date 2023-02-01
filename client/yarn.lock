@@ -13765,7 +13765,7 @@ __metadata:
     toposort: ^2.0.2
     typescript: ^4.8.4
     typescript-collections: ^1.3.3
-    ua-parser-js: ^1.0.2
+    ua-parser-js: ^1.0.33
     uuid: ^9.0.0
     vite: ^3.2.4
     vite-plugin-checker: ^0.5.1
@@ -18014,10 +18014,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ua-parser-js@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "ua-parser-js@npm:1.0.2"
-  checksum: ff7f6d79a9c1a38aa85a0e751040fc7e17a0b621bda876838d14ebe55aca4e50e68da0350f181e58801c2d8a35e7db4e12473776e558910c4b7cabcec96aa3bf
+"ua-parser-js@npm:^1.0.33":
+  version: 1.0.33
+  resolution: "ua-parser-js@npm:1.0.33"
+  checksum: 460adef51235267345b221842979b6b167543725d03f7c9c4f9ca6af4da835a71d016390da139d2b32828063c4730dcfae6e53b9dce815f4000be4e1fe1c7737
   languageName: node
   linkType: hard
 

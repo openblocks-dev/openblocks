@@ -1,0 +1,37 @@
+version: "3"
+services:
+
+  ##
+  ## Start Openblocks (all-in-one)
+  ##
+  openblocks-api-service:
+    image: openblocksdev/openblocks-ce:latest
+    container_name: openblocks
+    ports:
+      - "3000:3000"
+    environment:
+      # enable services
+      REDIS_ENABLED: "true"
+      MONGODB_ENABLED: "true"
+      API_SERVICE_ENABLED: "true"
+      NODE_SERVICE_ENABLED: "true"
+      FRONTEND_ENABLED: "true"
+      # generic parameters
+      PUID: "1000"
+      PGID: "1000"
+      # api-service parameters
+      #MONGODB_URI: "mongodb://openblocks:secret123@mongodb/openblocks?authSource=admin"
+      MONGODB_URI: "mongodb://localhost:27017/openblocks?authSource=admin"
+      REDIS_URL: "redis://localhost:6379"
+      JS_EXECUTOR_URI: "http://localhost:6060"
+      ENABLE_USER_SIGN_UP: "true"
+      ENCRYPTION_PASSWORD: "openblocks.dev"
+      ENCRYPTION_SALT: "openblocks.dev"
+      CORS_ALLOWED_DOMAINS: "*"
+      # api and node service parameters
+      OPENBLOCKS_API_SERVICE_URL: "http://localhost:8080"
+      OPENBLOCKS_NODE_SERVICE_URL: "http://localhost:6060"
+    volumes:
+      - ./openblocks-stacks:/openblocks-stacks
+    restart: unless-stopped
+
