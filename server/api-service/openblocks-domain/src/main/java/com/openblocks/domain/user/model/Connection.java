@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.openblocks.sdk.constants.AuthSourceConstants;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -77,6 +78,9 @@ public class Connection {
     }
 
     public Map<String, Object> getRawUserInfo() {
+        if (AuthSourceConstants.EMAIL.equals(this.getSource())) {
+            return Map.of("email", this.getRawId());
+        }
         return emptyIfNull(rawUserInfo);
     }
 
