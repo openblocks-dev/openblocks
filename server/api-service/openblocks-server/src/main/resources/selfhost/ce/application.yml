@@ -1,7 +1,7 @@
 auth:
   email:
     enable: true
-    enable-register: ${ENABLE_USER_SIGN_UP:true}
+    enable-register: true
 
 spring:
   data:

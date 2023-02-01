@@ -7,6 +7,11 @@ common:
   workspace:
     mode: ENTERPRISE
 
+auth:
+  email:
+    enable: ${LOGIN_CHANNEL_EMAIL:true}
+    enable-register: ${LOGIN_CHANNEL_EMAIL_REGISTER:true}
+
 spring:
   data:
     mongodb:
