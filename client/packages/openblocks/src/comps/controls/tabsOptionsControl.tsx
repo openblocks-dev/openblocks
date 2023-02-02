@@ -335,7 +335,7 @@ const SelectInputOption = new MultiCompBuilder(
         placeholder: "{{item}}",
       })}
       {children.value.propertyView({ label: trans("value") })}
-      {children.image.propertyView({ label: trans("uiComp.imageCompName") })}
+      {children.image.propertyView({ label: trans("imageUrl") })}
       {disabledPropertyView(children)}
       {hiddenPropertyView(children)}
     </>

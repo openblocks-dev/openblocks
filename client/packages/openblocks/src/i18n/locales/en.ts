@@ -67,6 +67,7 @@ export const en = {
     notSupportError: "Only support upload {types} image",
     exceedSizeError: "Image size should not exceeds {size}",
   },
+  imageUrl: "Image URL",
   gridCompOperator: {
     notSupport: "Not support",
     selectAtLeastOneComponent: "Please select at least one component",
