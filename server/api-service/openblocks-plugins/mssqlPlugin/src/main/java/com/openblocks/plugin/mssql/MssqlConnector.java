@@ -16,7 +16,6 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
 
@@ -129,11 +128,20 @@ public class MssqlConnector implements DatasourceConnector<HikariDataSource, Mss
         String database = datasourceConfig.getDatabase();
 
         StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append("jdbc:sqlserver://")
-                .append(host)
-                .append(":")
-                .append(ObjectUtils.defaultIfNull(port, 5432L))
-                .append(";");
+        urlBuilder.append("jdbc:sqlserver://");
+
+        // SQL Server supports instanceName like this: jdbc:sqlserver://INNOWAVE-99\SQLEXPRESS01;databaseName=EDS
+        // And when host contains instanceName, port should be ignored, see https://stackoverflow.com/a/40830281/2139436
+        if (host.contains("\\")) {
+            urlBuilder.append(host)
+                    .append(";");
+        } else {
+            urlBuilder.append(host)
+                    .append(":")
+                    .append(port)
+                    .append(";");
+        }
+
 
         if (isNotBlank(database)) {
             urlBuilder.append("database=")
