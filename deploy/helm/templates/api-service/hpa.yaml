@@ -1,0 +1,28 @@
+{{- if .Values.apiService.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "openblocks.fullname" . }}-api-service
+  labels:
+    {{- include "openblocks.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "openblocks.fullname" . }}-api-service
+  minReplicas: {{ .Values.apiService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.apiService.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.apiService.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.apiService.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.apiService.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.apiService.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}
