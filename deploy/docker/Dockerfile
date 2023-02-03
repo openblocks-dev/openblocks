@@ -119,7 +119,6 @@ RUN yarn --immutable
 # curl is required for yarn build to succeed, because it calls it while building client
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
 
-ARG REACT_APP_COMMIT_ID=test
 ARG REACT_APP_ENV=production
 ARG REACT_APP_EDITION=community
 RUN yarn build
