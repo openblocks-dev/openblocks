@@ -1,0 +1,185 @@
+# Default values for openblocks.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+#
+# Redis
+#
+# For using external redis:
+#   - set enabled to false
+#   - specify redis connection url in externalUrl
+#
+# To install redis, set enabled to 'true'
+# Find out more about configuration options at: https://github.com/bitnami/charts/tree/main/bitnami/redis/#parameters
+#
+redis:
+  #externalUrl: 
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+    #password: 
+
+# Mongo database
+#
+# For using external mongodb:
+#   - set enabled to 'false'
+#   - specify mongodb connection string in externalUrl
+#
+# To install mongodb, set enabled to 'true'
+# Find out more about configuration options at: https://github.com/bitnami/charts/tree/main/bitnami/mongodb/#parameters
+#
+mongodb:
+  #externalUrl:
+  enabled: true
+  service:
+    nameOverride: openblocks-mongodb
+  auth:
+    rootUser: root
+    rootPassword: secret
+    usernames:
+      - openblocks
+    passwords:
+      - supersecret
+    databases:
+      - openblocks
+
+# Openblocks backend API service
+#
+# Find out more about configuration options at: https://github.com/openblocks-dev/openblocks/tree/develop/deploy/docker#configuration-1
+#
+apiService:
+  image:
+    repository: openblocksdev/openblocks-ce-api-service
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    #tag: "latest"
+
+  config:
+    userId: 9001
+    groupId: 9001
+    corsAllowedDomains: "*"
+    enableUserSignUp: true
+    encryption:
+      password: "openblocks.dev"
+      salt: "openblocks.dev"
+    #nodeServiceUrl: 
+
+  service:
+    type: ClusterIP
+    port: 80
+    #nodePort: 30088
+
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+# Openblocks backend node service
+#
+# Find out more about configuration options at: https://github.com/openblocks-dev/openblocks/tree/develop/deploy/docker#configuration-3
+#
+nodeService:
+  image:
+    repository: openblocksdev/openblocks-ce-node-service
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    #tag: "latest"
+
+  config:
+    userId: 9001
+    groupId: 9001
+    #apiServiceUrl: 
+
+  service:
+    type: ClusterIP
+    port: 80
+    #nodePort: 30088
+
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+ 
+# Openblocks frontend
+frontend:
+  image:
+    repository: openblocksdev/openblocks-ce-frontend
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    #tag: "latest"
+
+  config:
+    userId: 9001
+    groupId: 9001
+    #apiServiceUrl: 
+    #nodeServiceUrl: 
+
+  service:
+    type: NodePort
+    port: 80
+    nodePort: 30099
+
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+ 
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

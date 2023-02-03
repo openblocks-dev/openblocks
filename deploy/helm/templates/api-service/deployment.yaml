@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "openblocks.fullname" . }}-api-service
+  labels:
+    {{- include "openblocks.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.apiService.autoscaling.enabled }}
+  replicas: {{ .Values.apiService.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "openblocks.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "openblocks.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "openblocks.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.mongodb.enabled }}
+      initContainers:
+        - name: {{ .Chart.Name }}-wait-for-mongo
+          image: curlimages/curl:7.87.0
+          command:
+            - /bin/sh
+          args:
+            - -ec
+            - |
+              echo "Wait for mongo database to be ready"
+              while [[ $(curl --connect-timeout 2 -sw '%{http_code}' 'http://{{ .Values.mongodb.service.nameOverride }}:27017' -o /dev/null) -ne 200 ]]; do 
+                 sleep 1; 
+                 echo '  still waiting...';
+              done; 
+              echo 'Connection with MongoDB established.'
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.apiService.image.repository }}:{{ .Values.apiService.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.apiService.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "openblocks.fullname" . }}-api-service
+            - secretRef:
+                name: {{ include "openblocks.fullname" . }}-api-service
+          ports:
+            - name: openblocks-api
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 30
+            httpGet:
+              path: /actuator/health
+              port: openblocks-api
+          readinessProbe:
+            initialDelaySeconds: 30
+            httpGet:
+              path: /actuator/health
+              port: openblocks-api
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
