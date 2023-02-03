@@ -10,7 +10,7 @@ common:
 auth:
   email:
     enable: ${LOGIN_CHANNEL_EMAIL:true}
-    enable-register: ${LOGIN_CHANNEL_EMAIL_REGISTER:true}
+    enable-register: ${ENABLE_USER_SIGN_UP:true}
 
 spring:
   data:
