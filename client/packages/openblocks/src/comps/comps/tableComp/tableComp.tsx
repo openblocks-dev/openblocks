@@ -420,6 +420,17 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
       }
     },
   },
+  {
+    method:{
+      name: "clearSelections",
+      description: "",
+      params: [],
+    },
+    execute: (comp) => {
+      comp.children.selection.children.selectedRowKey.dispatchChangeValueAction("0");
+      comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction([]);
+    },
+  },
 ]);
 
 // exposing data
