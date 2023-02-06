@@ -4,7 +4,6 @@ set -e
 
 export USER_ID=${PUID:=9001}
 export GROUP_ID=${PGID:=9001}
-export PATH="/openblocks/node-service/nodejs/bin:${PATH}"
 export API_HOST="${OPENBLOCKS_API_SERVICE_URL:=http://localhost:8080}"
 
 # Run init script

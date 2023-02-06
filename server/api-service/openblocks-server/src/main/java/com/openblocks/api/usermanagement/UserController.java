@@ -28,6 +28,7 @@ import com.openblocks.api.usermanagement.view.UpdateUserRequest;
 import com.openblocks.api.usermanagement.view.UserProfileView;
 import com.openblocks.domain.user.constant.UserStatusType;
 import com.openblocks.domain.user.model.User;
+import com.openblocks.domain.user.model.UserDetail;
 import com.openblocks.domain.user.service.UserService;
 import com.openblocks.domain.user.service.UserStatusService;
 import com.openblocks.infra.constant.NewUrl;
@@ -169,7 +170,7 @@ public class UserController {
     }
 
     @GetMapping("/currentUser")
-    public Mono<ResponseView<?>> getCurrentUser(ServerWebExchange exchange) {
+    public Mono<ResponseView<UserDetail>> getCurrentUser(ServerWebExchange exchange) {
         return sessionUserService.getVisitor()
                 .flatMap(user -> userService.buildUserDetail(user, false))
                 .map(ResponseView::success);
