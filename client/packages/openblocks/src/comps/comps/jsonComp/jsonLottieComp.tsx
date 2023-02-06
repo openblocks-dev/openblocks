@@ -1,48 +1,34 @@
-import { Section, sectionNames } from "openblocks-design";
-import { UICompBuilder, withDefault } from "../../generators";
-import {
-  NameConfigHidden,
-  NameConfig,
-  withExposingConfigs,
-} from "../../generators/withExposing";
-import styled from "styled-components";
-import { dropdownControl } from "comps/controls/dropdownControl";
+import { Player } from "@lottiefiles/react-lottie-player";
 import {
   ArrayOrJSONObjectControl,
   NumberControl,
-  StringControl,
 } from "comps/controls/codeControl";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import { styleControl } from "comps/controls/styleControl";
+import { LottieStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
-import { Player } from "@lottiefiles/react-lottie-player";
+import { Section, sectionNames } from "openblocks-design";
+import { UICompBuilder, withDefault } from "../../generators";
+import {
+  NameConfig,
+  NameConfigHidden,
+  withExposingConfigs,
+} from "../../generators/withExposing";
 import { defaultLottie } from "./jsonConstants";
 /**
  * JsonLottie Comp
  */
-const themeOptions = [
-  { label: trans("jsonLottie.default"), value: "shapeshifter:inverted" },
-  { label: trans("jsonLottie.defaultDark"), value: "shapeshifter" },
-  { label: trans("jsonLottie.neutralLight"), value: "grayscale:inverted" },
-  { label: trans("jsonLottie.neutralDark"), value: "grayscale" },
-  { label: trans("jsonLottie.azure"), value: "apathy:inverted" },
-  { label: trans("jsonLottie.darkBlue"), value: "flat" },
-];
-const bgColorMap = {
-  "shapeshifter:inverted": "#ffffff",
-  shapeshifter: "#000000",
-  "grayscale:inverted": "#ffffff",
-  grayscale: "#000000",
-  "apathy:inverted": "#efffff",
-  flat: "#2c3e50",
-};
-const JsonLottieContainer = styled.div<{ $theme: keyof typeof bgColorMap }>`
-  height: 100%;
-  overflow-y: scroll;
-  background-color: ${(props) => bgColorMap[props.$theme] || "#ffffff"};
-  border: 1px solid #d7d9e0;
-  border-radius: 4px;
-  padding: 10px;
-`;
+const animationStartOptions = [
+  {
+    label: "Auto",
+    value: "auto",
+  },
+  {
+    label: "On Hover",
+    value: "on hover",
+  },
+] as const;
+
 let JsonLottieTmpComp = (function () {
   const childrenMap = {
     value: withDefault(
@@ -52,20 +38,27 @@ let JsonLottieTmpComp = (function () {
     speed: withDefault(NumberControl, 1),
     width: withDefault(NumberControl, 100),
     height: withDefault(NumberControl, 100),
-    backgroundColor: withDefault(StringControl, "transparent"),
-    theme: dropdownControl(themeOptions, "shapeshifter:inverted"),
+    backgroundColor: styleControl(LottieStyle),
+    animationStart: dropdownControl(animationStartOptions, "auto"),
   };
+
   return new UICompBuilder(childrenMap, (props) => (
-    <JsonLottieContainer $theme={props.theme as keyof typeof bgColorMap}>
+    <div
+      style={{
+        height: "100%",
+        overflowY: "scroll",
+        backgroundColor: `${props.backgroundColor.background}`,
+      }}
+    >
       <Player
-        autoplay
+        autoplay={props.animationStart === "auto" && true}
+        hover={props.animationStart === "on hover" && true}
         loop
-        background={props.backgroundColor}
         speed={props.speed}
         src={props.value}
-        style={{ height: `${props.height}%`, width: `${props.width}%` }}
+        style={{ height: "100%", width: "100%" }}
       />
-    </JsonLottieContainer>
+    </div>
   ))
     .setPropertyViewFn((children) => {
       return (
@@ -77,19 +70,12 @@ let JsonLottieTmpComp = (function () {
             {children.speed.propertyView({
               label: trans("jsonLottie.speed"),
             })}
-            {children.width.propertyView({
-              label: trans("jsonLottie.width"),
-            })}
-            {children.height.propertyView({
-              label: trans("jsonLottie.height"),
-            })}
-
-            {children.backgroundColor.propertyView({
-              label: trans("jsonLottie.backgroundColor"),
+            {children.animationStart.propertyView({
+              label: trans("jsonLottie.animationStart"),
             })}
           </Section>
-          <Section name={sectionNames.layout}>
-            {hiddenPropertyView(children)}
+          <Section name={sectionNames.style}>
+            {children.backgroundColor.getPropertyView()}
           </Section>
         </>
       );
