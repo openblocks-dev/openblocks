@@ -422,7 +422,7 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
   },
   {
     method:{
-      name: "clearSelections",
+      name: "resetSelections",
       description: "",
       params: [],
     },
