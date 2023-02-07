@@ -1013,6 +1013,7 @@ export const en = {
     verticalAlignment: "Vertical alignment",
     horizontalAlignment: "Horizontal alignment",
     textDesc: "Text displayed in the current text box",
+    width: "Width",
   },
   table: {
     editable: "Editable",
