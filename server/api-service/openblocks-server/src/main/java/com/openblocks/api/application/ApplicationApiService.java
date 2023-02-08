@@ -36,6 +36,7 @@ import com.openblocks.api.application.ApplicationController.CreateApplicationReq
 import com.openblocks.api.application.view.ApplicationInfoView;
 import com.openblocks.api.application.view.ApplicationPermissionView;
 import com.openblocks.api.application.view.ApplicationView;
+import com.openblocks.api.bizthreshold.AbstractBizThresholdChecker;
 import com.openblocks.api.home.FolderApiService;
 import com.openblocks.api.home.SessionUserService;
 import com.openblocks.api.home.UserHomeApiService;
@@ -46,7 +47,6 @@ import com.openblocks.domain.application.model.Application;
 import com.openblocks.domain.application.model.ApplicationStatus;
 import com.openblocks.domain.application.model.ApplicationType;
 import com.openblocks.domain.application.service.ApplicationService;
-import com.openblocks.api.bizthreshold.AbstractBizThresholdChecker;
 import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.domain.datasource.service.DatasourceService;
 import com.openblocks.domain.group.service.GroupService;
@@ -446,7 +446,7 @@ public class ApplicationApiService {
     }
 
     @Nonnull
-    private Mono<ResourcePermission> checkPermissionWithReadableErrorMsg(String applicationId, ResourceAction action) {
+    public Mono<ResourcePermission> checkPermissionWithReadableErrorMsg(String applicationId, ResourceAction action) {
         return sessionUserService.getVisitorId()
                 .flatMap(visitorId -> resourcePermissionService.checkUserPermissionStatusOnResource(visitorId, applicationId, action))
                 .flatMap(permissionStatus -> {

@@ -16,7 +16,7 @@ import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.domain.datasource.model.DatasourceCreationSource;
 import com.openblocks.domain.datasource.model.DatasourceDO;
 import com.openblocks.domain.datasource.model.DatasourceStatus;
-import com.openblocks.domain.datasource.service.DatasourceService;
+import com.openblocks.domain.datasource.service.JsDatasourceHelper;
 import com.openblocks.domain.encryption.EncryptionService;
 import com.openblocks.domain.plugin.client.DatasourcePluginClient;
 import com.openblocks.domain.plugin.service.DatasourceMetaInfoService;
@@ -54,7 +54,7 @@ public class DatasourceRepository {
     private DatasourcePluginClient datasourcePluginClient;
 
     @Autowired
-    private DatasourceService datasourceService;
+    private JsDatasourceHelper jsDatasourceHelper;
 
     public Mono<Datasource> findById(String datasourceId) {
         return repository.findById(datasourceId)
@@ -64,6 +64,11 @@ public class DatasourceRepository {
     public Mono<Datasource> findWorkspacePredefinedDatasourceByOrgIdAndType(String organizationId, String type) {
         return repository.findByOrganizationIdAndTypeAndCreationSource(organizationId, type,
                         DatasourceCreationSource.LEGACY_WORKSPACE_PREDEFINED.getValue())
+                .flatMap(this::convertToDomainObjectAndDecrypt);
+    }
+
+    public Flux<Datasource> findAllById(Iterable<String> ids) {
+        return repository.findAllById(ids)
                 .flatMap(this::convertToDomainObjectAndDecrypt);
     }
 
@@ -136,7 +141,7 @@ public class DatasourceRepository {
                         datasource.setDetailConfig(detailConfig);
                     }
                 })
-                .delayUntil(datasourceService::processJsDatasourcePlugin)
+                .delayUntil(jsDatasourceHelper::fillPluginDefinition)
                 .doOnNext(datasource -> {
                     DatasourceConnectionConfig decryptedDetailConfig = datasource.getDetailConfig().doDecrypt(encryptionService::decryptString);
                     // override
@@ -164,7 +169,7 @@ public class DatasourceRepository {
                     result.setModifiedBy(datasource.getModifiedBy());
                     return result;
                 })
-                .delayUntil(__ -> datasourceService.processJsDatasourcePlugin(datasource))
+                .delayUntil(__ -> jsDatasourceHelper.fillPluginDefinition(datasource))
                 .doOnNext(datasourceDO -> {
                     DatasourceConnectionConfig detailConfig = datasource.getDetailConfig();
                     DatasourceConnectionConfig encryptedConfig = detailConfig.doEncrypt(encryptionService::encryptString);
