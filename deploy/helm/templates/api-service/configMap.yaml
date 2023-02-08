@@ -1,0 +1,29 @@
+{{- $nameSpace := include "openblocks.namespace" . -}}
+{{- $name := include "openblocks.fullname" . -}}
+{{- $openblocksDatabase := first .Values.mongodb.auth.databases -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openblocks.fullname" . }}-api-service
+  labels:
+    {{- include "openblocks.labels" . | nindent 4 }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  {{- if .Values.redis.enabled }}
+  REDIS_URL: "redis://{{ $name }}-redis-master.{{ $nameSpace }}.svc.cluster.local:6379"
+  {{- else }}
+  REDIS_URL: {{- .Values.redis.externalUrl | quote }}
+  {{- end }}
+  {{- if .Values.apiService.nodeServiceUrl }}
+  JS_EXECUTOR_URI: {{ .Values.apiService.nodeServiceUrl | quote }}
+  {{- else }}
+  JS_EXECUTOR_URI: "http://{{ $name }}-node-service:{{ .Values.nodeService.service.port }}"
+  {{- end }}
+  PUID: {{ .Values.apiService.config.userId | default "9001" | quote }}
+  PGID: {{ .Values.apiService.config.groupId | default "9001" | quote }}
+  CORS_ALLOWED_DOMAINS: {{ .Values.apiService.config.corsAllowedDomains | default  "*" | quote }}
+  ENABLE_USER_SIGN_UP: {{ .Values.apiService.config.enableUserSignUp | default "true" | quote }}
+

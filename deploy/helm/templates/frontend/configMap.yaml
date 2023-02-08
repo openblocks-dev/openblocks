@@ -1,0 +1,26 @@
+{{- $nameSpace := include "openblocks.namespace" . -}}
+{{- $name := include "openblocks.fullname" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openblocks.fullname" . }}-frontend
+  labels:
+    {{- include "openblocks.labels" . | nindent 4 }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  PUID: {{ .Values.frontend.config.userId | default "9001" | quote }}
+  PGID: {{ .Values.frontend.config.groupId | default "9001" | quote }}
+  {{- if .Values.frontend.config.apiServiceUrl }}
+  OPENBLOCKS_API_SERVICE_URL: {{ .Values.frontend.config.apiServiceUrl | trimSuffix "/" | quote }}
+  {{- else }}
+  OPENBLOCKS_API_SERVICE_URL: "http://{{ $name }}-api-service:{{ .Values.apiService.service.port }}"
+  {{- end }}
+  {{- if .Values.frontend.config.nodeServiceUrl }}
+  OPENBLOCKS_NODE_SERVICE_URL: {{ .Values.frontend.config.nodeServiceUrl | trimSuffix "/" | quote }}
+  {{- else }}
+  OPENBLOCKS_NODE_SERVICE_URL: "http://{{ $name }}-node-service:{{ .Values.nodeService.service.port }}"
+  {{- end }}
+
