@@ -1,4 +1,7 @@
-package com.openblocks.sdk.plugin.sqlcommand.command.mssql;
+package com.openblocks.plugin.mssql.gui;
+
+import static com.openblocks.plugin.mssql.gui.GuiConstants.MSSQL_COLUMN_DELIMITER_BACK;
+import static com.openblocks.plugin.mssql.gui.GuiConstants.MSSQL_COLUMN_DELIMITER_FRONT;
 
 import java.util.Map;
 
@@ -7,9 +10,6 @@ import com.openblocks.sdk.plugin.sqlcommand.changeset.ChangeSet;
 import com.openblocks.sdk.plugin.sqlcommand.command.InsertCommand;
 
 public class MssqlInsertCommand extends InsertCommand {
-
-    private static final String MSSQL_COLUMN_DELIMITER_FRONT = "[";
-    private static final String MSSQL_COLUMN_DELIMITER_BACK = "]";
 
     private MssqlInsertCommand(Map<String, Object> commandDetail) {
         super(commandDetail, MSSQL_COLUMN_DELIMITER_FRONT, MSSQL_COLUMN_DELIMITER_BACK);
