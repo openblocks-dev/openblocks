@@ -11,6 +11,7 @@ import static com.openblocks.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERRO
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 import static com.openblocks.sdk.plugin.common.QueryExecutionUtils.getIdenticalColumns;
 import static com.openblocks.sdk.plugin.common.SqlQueryUtils.isInsertQuery;
+import static com.openblocks.sdk.util.ExceptionUtils.wrapException;
 import static com.openblocks.sdk.util.JsonUtils.toJson;
 import static com.openblocks.sdk.util.MustacheHelper.doPrepareStatement;
 import static com.openblocks.sdk.util.MustacheHelper.extractMustacheKeysInOrder;
@@ -36,6 +37,7 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
@@ -243,10 +245,7 @@ public class MysqlQueryExecutor extends BlockingQueryExecutor<MysqlDatasourceCon
                 bindParam(index + 1, value, preparedQuery, "");
             }
         } catch (Exception e) {
-            if (e instanceof PluginException pluginException) {
-                throw pluginException;
-            }
-            throw new PluginException(PREPARED_STATEMENT_BIND_PARAMETERS_ERROR, "PREPARED_STATEMENT_BIND_PARAMETERS_ERROR", e.getMessage());
+            throw wrapException(PREPARED_STATEMENT_BIND_PARAMETERS_ERROR, "PREPARED_STATEMENT_BIND_PARAMETERS_ERROR", e);
         }
     }
 
@@ -298,7 +297,7 @@ public class MysqlQueryExecutor extends BlockingQueryExecutor<MysqlDatasourceCon
     private List<LocaleMessage> populateHintMessages(List<String> columnNames) {
         List<LocaleMessage> messages = new ArrayList<>();
         List<String> identicalColumns = getIdenticalColumns(columnNames);
-        if (!org.springframework.util.CollectionUtils.isEmpty(identicalColumns)) {
+        if (!CollectionUtils.isEmpty(identicalColumns)) {
             messages.add(new LocaleMessage("DUPLICATE_COLUMN", String.join("/", identicalColumns)));
         }
         return messages;
@@ -316,10 +315,7 @@ public class MysqlQueryExecutor extends BlockingQueryExecutor<MysqlDatasourceCon
                 bindParam(index + 1, value, preparedStatement, mustacheKey);
             }
         } catch (Exception e) {
-            if (e instanceof PluginException pluginException) {
-                throw pluginException;
-            }
-            throw new PluginException(PREPARED_STATEMENT_BIND_PARAMETERS_ERROR, "PREPARED_STATEMENT_BIND_PARAMETERS_ERROR", e.getMessage());
+            throw wrapException(PREPARED_STATEMENT_BIND_PARAMETERS_ERROR, "PREPARED_STATEMENT_BIND_PARAMETERS_ERROR", e);
         }
     }
 
@@ -353,7 +349,8 @@ public class MysqlQueryExecutor extends BlockingQueryExecutor<MysqlDatasourceCon
             return;
         }
         throw new PluginException(PREPARED_STATEMENT_BIND_PARAMETERS_ERROR, "PS_BIND_ERROR",
-                bindKeyName, value.getClass().getSimpleName());
+                StringUtils.isBlank(bindKeyName) ? String.valueOf(value) : bindKeyName,
+                value.getClass().getSimpleName());
     }
 
     private void releaseResources(AutoCloseable... autoCloseables) {
