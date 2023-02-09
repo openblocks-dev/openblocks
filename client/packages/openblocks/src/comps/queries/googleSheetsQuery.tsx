@@ -5,7 +5,6 @@ import { trans } from "i18n";
 import { withPropertyViewFn } from "../generators";
 import { ParamsStringControl } from "../controls/paramsControl";
 import { buildQueryCommand, toQueryView } from "./queryCompUtils";
-import { ChangeSetTypeDropdown } from "./sqlQuery/changeSetComp";
 import { QueryConfigLabelMethod } from "./query";
 import { QueryTutorials } from "util/tutorialUtils";
 import {
@@ -58,28 +57,14 @@ const CommandMap = {
   appendData: buildQueryCommand({
     ...IdChildren,
     changeSet: withPropertyViewFn(InputChangeSet, (comp) => (
-      <>
-        <ChangeSetTypeDropdown
-          label={trans("googleSheets.appendData")}
-          value={comp.children.compType.getView()}
-          dispatch={comp.dispatch}
-        />
-        {comp.children.comp.propertyView(changeSetParams)}
-      </>
+      <>{comp.propertyView({ label: trans("googleSheets.appendData") })}</>
     )),
   }),
   updateData: buildQueryCommand({
     ...IdChildren,
     rowIndexString: RowIndex,
     changeSet: withPropertyViewFn(InputChangeSet, (comp) => (
-      <>
-        <ChangeSetTypeDropdown
-          label={trans("googleSheets.updateData")}
-          value={comp.children.compType.getView()}
-          dispatch={comp.dispatch}
-        />
-        {comp.children.comp.propertyView(changeSetParams)}
-      </>
+      <>{comp.propertyView({ label: trans("googleSheets.updateData") })}</>
     )),
   }),
   clearData: buildQueryCommand({

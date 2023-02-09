@@ -143,6 +143,12 @@ export function toJSONArray(value: any) {
   return toArray(value, toJSONValue);
 }
 
+export function toNumberOrJSONObjectArray(value: any) {
+  const num = Number(value);
+  if (Number.isFinite(num)) return num;
+  return toArray(value, toJSONObject);
+}
+
 export function toArrayJSONObject(value: any) {
   if (Array.isArray(value)) {
     return toJSONArray(value);

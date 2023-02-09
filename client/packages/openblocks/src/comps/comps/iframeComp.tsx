@@ -61,7 +61,7 @@ let IFrameCompBase = new UICompBuilder(
   .setPropertyViewFn((children) => (
     <>
       <Section name={sectionNames.basic}>
-        {children.url.propertyView({ label: "URL", placeholder: "https://xxx.com" })}
+        {children.url.propertyView({ label: "URL", placeholder: "https://example.com" })}
       </Section>
 
       <Section name={sectionNames.advanced}>

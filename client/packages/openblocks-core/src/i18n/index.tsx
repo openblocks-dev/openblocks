@@ -122,7 +122,8 @@ const globalMessages = Object.fromEntries(
 ) as AddPrefix<typeof localeData.en, typeof globalMessageKeyPrefix>;
 
 type GlobalMessageKey = NestedKey<typeof globalMessages>;
-type VariableValue = string | number | boolean | Date;
+type VariableValue = string | number | boolean | Date | React.ReactNode;
+
 export class Translator<Messages extends object> {
   private readonly messages: Messages & typeof globalMessages;
 
@@ -134,14 +135,22 @@ export class Translator<Messages extends object> {
     this.messages = Object.assign({}, data, globalMessages);
     this.language = language;
     this.trans = this.trans.bind(this);
+    this.transToNode = this.transToNode.bind(this);
   }
 
   trans(
     key: NestedKey<Messages> | GlobalMessageKey,
     variables?: Record<string, VariableValue>
   ): string {
+    return this.transToNode(key, variables).toString();
+  }
+
+  transToNode(
+    key: NestedKey<Messages> | GlobalMessageKey,
+    variables?: Record<string, VariableValue>
+  ) {
     const message = this.getMessage(key);
-    return new IntlMessageFormat(message, i18n.locale).format(variables).toString();
+    return new IntlMessageFormat(message, i18n.locale).format(variables);
   }
 
   private getMessage(key: NestedKey<Messages> | GlobalMessageKey) {

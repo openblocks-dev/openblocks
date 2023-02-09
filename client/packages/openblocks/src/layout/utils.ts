@@ -743,3 +743,8 @@ export function calcTotalHeight(items: LayoutItem[]) {
   const bottom = Math.max(...items.map((item) => item.y + item.h));
   return Math.max(0, bottom - top);
 }
+
+export type FlowLayoutItem = {
+  i: string;
+};
+export type FlowLayout = Array<FlowLayoutItem>;

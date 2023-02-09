@@ -84,8 +84,9 @@ export function withDefault<T extends CompConstructor>(
       const newParams = { value: defaultValue, ...params };
       super(newParams);
     }
+    readonly IGNORABLE_DEFAULT_VALUE = undefined;
   }
-  return TEMP_CLASS as T;
+  return TEMP_CLASS as unknown as T;
 }
 
 /**

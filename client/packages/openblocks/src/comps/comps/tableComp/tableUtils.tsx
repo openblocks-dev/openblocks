@@ -7,7 +7,7 @@ import {
 } from "antd/es/table/interface";
 import { SortOrder } from "antd/lib/table/interface";
 import { __COLUMN_DISPLAY_VALUE_FN } from "comps/comps/tableComp/column/columnTypeCompBuilder";
-import { ColumNodeType, RawColumnType } from "comps/comps/tableComp/column/tableColumnComp";
+import { ColumNodeType, RawColumnType, Render } from "comps/comps/tableComp/column/tableColumnComp";
 import { getPageSize, PaginationNodeType } from "comps/comps/tableComp/paginationControl";
 import { TableFilter, tableFilterOperatorMap } from "comps/comps/tableComp/tableToolbarComp";
 import { RecordType, SortValue, TableOnEventView } from "comps/comps/tableComp/tableTypes";
@@ -81,6 +81,94 @@ function transformData(
   return resultData;
 }
 
+export function filterData(
+  data: Array<JSONObject>,
+  hideInfo: Record<string, { hide: boolean; tempHide: boolean }>,
+  searchValue: string,
+  filter: TableFilter,
+  showFilter: boolean,
+  enableColumnSetting: boolean
+) {
+  let resultData = data;
+  if (!_.isEmpty(hideInfo)) {
+    resultData = resultData.map((row) =>
+      _.omitBy(
+        row,
+        (cell, key) => hideInfo[key] && columnHide({ ...hideInfo[key], enableColumnSetting })
+      )
+    );
+  }
+  if (searchValue) {
+    resultData = resultData.filter((d) => {
+      let searchLower = searchValue?.toLowerCase();
+      if (!searchLower) {
+        return true;
+      } else {
+        return Object.values(d).find((v) => v?.toString().toLowerCase().includes(searchLower));
+      }
+    });
+  }
+  if (showFilter && filter.filters.length > 0) {
+    resultData = resultData.filter((d) => {
+      // filter
+      for (let f of filter.filters) {
+        const columnValue = d[f.columnKey];
+        const result = tableFilterOperatorMap[f.operator].filter(f.filterValue, columnValue);
+        if (filter.stackType === "or" && result) {
+          // one condition is met
+          return true;
+        } else if (filter.stackType === "and" && !result) {
+          // one condition is not met
+          return false;
+        }
+      }
+      if (filter.filters.length === 0) {
+        return true;
+      } else if (filter.stackType === "and") {
+        return true;
+      } else if (filter.stackType === "or") {
+        return false;
+      }
+      return true;
+    });
+  }
+  return resultData;
+}
+
+export function sortData(
+  data: Array<JSONObject>,
+  columns: Record<string, { sortable: boolean }>, // key: dataIndex
+  sorter: Array<SortValue>
+) {
+  let resultData = data;
+  if (sorter.length > 0) {
+    const [sortColumns, sortMethods] = _(sorter)
+      .filter((s) => !!s.column && columns[s.column].sortable)
+      .map((s) => [s.column, s.desc ? "desc" : "asc"] as const)
+      .unzip()
+      .value() as [string[], ("desc" | "asc")[]];
+    resultData = _.orderBy(resultData, sortColumns, sortMethods);
+  }
+  return resultData;
+}
+
+export function hideData(
+  data: Array<JSONObject>,
+  hideInfo: Record<
+    string,
+    {
+      hide: boolean;
+      tempHide: boolean;
+      enableColumnSetting: boolean;
+    }
+  >
+) {
+  if (_.size(hideInfo) === 0) return data;
+  return data.map((row) =>
+    _.omitBy(row, (cell, key) => hideInfo[key] && columnHide(hideInfo[key]))
+  );
+}
+
 function columnHide({
   hide,
   tempHide,
@@ -95,6 +183,34 @@ function columnHide({
   } else {
     return hide;
   }
+}
+
+export function getDisplayDataV2(
+  data: Array<JSONObject>,
+  pageSize: number,
+  columns: Array<{
+    dataIndex: string;
+    title: string;
+    render: NodeToValue<ReturnType<Render["node"]>>;
+  }>
+) {
+  return data.map((row, idx) => {
+    const displayData: JSONObject = {};
+    columns.forEach((col) => {
+      // if (!row.hasOwnProperty(col.dataIndex)) return;
+      const node = col.render.wrap({
+        currentCell: row[col.dataIndex],
+        currentRow: row,
+        currentIndex: idx % pageSize,
+        currentOriginalIndex: idx,
+      }) as any;
+      const colValue = node.comp[__COLUMN_DISPLAY_VALUE_FN](node.comp);
+      if (colValue !== null) {
+        displayData[col.title || col.dataIndex] = colValue;
+      }
+    });
+    return displayData;
+  });
 }
 
 export function getDisplayData(
@@ -261,7 +377,7 @@ export function columnsToAntdFormat(
       title: title,
       dataIndex: ["record", column.dataIndex],
       align: column.align,
-      width: column.autoWidth === "auto" ? -1 : column.width,
+      width: column.autoWidth === "auto" ? 0 : column.width,
       fixed: column.fixed === "close" ? false : column.fixed,
       onWidthResize: column.onWidthResize,
       render: (value: any, record: RecordType, index: number) => {

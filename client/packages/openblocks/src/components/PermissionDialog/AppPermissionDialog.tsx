@@ -171,9 +171,9 @@ const AppInviteView = (props: { appId: string }) => {
           buttonType="primary"
           onClick={() => {
             if (copy(inviteLink)) {
-              message.success(trans("home.copySuccess"));
+              message.success(trans("copySuccess"));
             } else {
-              message.error(trans("home.copyErrorMessage"));
+              message.error(trans("copyError"));
             }
           }}
         >

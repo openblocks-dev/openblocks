@@ -208,7 +208,9 @@ export function ProfileInfoItem(props: {
           {props.value}
         </CommonTextLabel>
       ) : (
-        <CommonGrayLabel style={{ marginLeft: "7px" }}>{props.infoLabel}</CommonGrayLabel>
+        <CommonGrayLabel style={{ marginLeft: "7px", maxWidth: "165px" }}>
+          {props.infoLabel}
+        </CommonGrayLabel>
       )}
       {!props.actionButtonConfig.hidden && (
         <button

@@ -51,6 +51,7 @@ import {
   DropdownCompIcon,
   FileViewerCompIcon,
   FormCompIcon,
+  GridCompIcon,
   IFrameCompIcon,
   ImageCompIcon,
   imageEditorIcon,
@@ -92,7 +93,7 @@ import {
 
 import { defaultFormData, FormComp } from "./comps/formComp/formComp";
 import { IFrameComp } from "./comps/iframeComp";
-import { defaultListViewData, ListViewComp } from "./comps/listViewComp/listViewComp";
+import { defaultGridData, defaultListViewData, GridComp, ListViewComp } from "./comps/listViewComp";
 import { ModuleComp } from "./comps/moduleComp/moduleComp";
 import { NavComp } from "./comps/navComp/navComp";
 import { TableComp } from "./comps/tableComp";
@@ -565,11 +566,26 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.listViewCompKeywords"),
     comp: ListViewComp,
     layoutInfo: {
-      w: 15,
-      h: 39,
+      h: 92,
+      w: 6,
       delayCollision: true,
     },
     defaultDataFn: defaultListViewData,
+  },
+  grid: {
+    name: trans("uiComp.gridCompName"),
+    enName: "Grid",
+    icon: GridCompIcon,
+    description: trans("uiComp.gridCompDesc"),
+    categories: ["container"],
+    keywords: trans("uiComp.gridCompKeywords"),
+    comp: GridComp,
+    layoutInfo: {
+      h: 32,
+      w: 15,
+      delayCollision: true,
+    },
+    defaultDataFn: defaultGridData,
   },
   navigation: {
     name: trans("uiComp.navigationCompName"),

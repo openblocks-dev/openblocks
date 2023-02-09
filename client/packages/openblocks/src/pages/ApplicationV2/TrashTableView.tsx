@@ -8,7 +8,7 @@ import { HomeResTypeEnum } from "../../types/homeRes";
 import { deleteApplication, restoreApplication } from "../../redux/reduxActions/applicationActions";
 import { HomeRes } from "./HomeLayout";
 import { message } from "antd";
-import { trans } from "../../i18n";
+import { trans, transToNode } from "../../i18n";
 
 const OperationWrapper = styled.div`
   display: flex;
@@ -135,9 +135,9 @@ export const TrashTableView = (props: { resources: HomeRes[] }) => {
                   onClick={() =>
                     CustomModal.confirm({
                       title: trans("home.deleteElementTitle"),
-                      content: trans("home.deleteElementSubTitle", {
+                      content: transToNode("home.deleteElementSubTitle", {
                         type: HomeResInfo[item.type].name.toLowerCase(),
-                        name: item.name,
+                        name: <b>{item.name}</b>,
                       }),
                       onConfirm: () =>
                         new Promise((resolve, reject) => {

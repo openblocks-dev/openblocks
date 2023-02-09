@@ -34,6 +34,7 @@ export interface LogDetail {
   memberName?: string;
   folderId?: string;
   folderName?: string;
+  name?: string;
 }
 
 export interface UserType {

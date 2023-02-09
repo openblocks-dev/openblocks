@@ -61,6 +61,11 @@ export const QueryConfigWrapper = styled.div<{ $width?: string }>`
   flex-wrap: nowrap;
 `;
 
+const QueryConfigLabelWrapper = styled.div`
+  width: 112px;
+  flex-shrink: 0;
+`;
+
 interface QueryConfigLabelProps {
   children?: ReactNode;
   tooltip?: ReactNode;
@@ -68,13 +73,24 @@ interface QueryConfigLabelProps {
 }
 
 export const QueryConfigLabel = (props: QueryConfigLabelProps) => (
-  <div style={{ width: "112px", flexShrink: 0 }}>
+  <QueryConfigLabelWrapper>
     <ToolTipLabel
       title={props.tooltip}
       label={props.children}
-      labelStyle={{ height: props.labelHeight ?? 32, display: "flex", alignItems: "center" }}
+      labelStyle={
+        props.labelHeight
+          ? { height: props.labelHeight }
+          : {
+              height: 32,
+              lineHeight: "32px",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+              maxWidth: "100%",
+            }
+      }
     />
-  </div>
+  </QueryConfigLabelWrapper>
 );
 
 export const QueryConfigItemWrapper = styled.div<{ direction?: "row" | "column" }>`

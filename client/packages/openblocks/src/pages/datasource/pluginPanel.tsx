@@ -11,7 +11,6 @@ import {
   apiPluginsForQueryLibrary,
   databasePlugins,
 } from "@openblocks-ee/constants/datasourceConstants";
-import { DataSourcePluginMeta } from "openblocks-sdk/dataSource";
 
 export const DataSourceButton = styled(AntdButton)`
   width: 184px;

@@ -156,6 +156,10 @@ export class LayoutMenuItemComp extends MultiBaseComp<ChildrenType> {
     }) as unknown as ChildrenType;
   }
 
+  protected override ignoreChildDefaultValue() {
+    return true;
+  }
+
   addSubItem(value: any) {
     this.children.items.addItem(value);
   }

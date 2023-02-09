@@ -122,6 +122,20 @@ const defaultTheme = EditorView.theme({
   },
   ".cm-scroller": {
     "line-height": "22px",
+    "font-family": "RobotoMono",
+  },
+  ".cm-scroller::-webkit-scrollbar": {
+    width: "16px",
+  },
+  ".cm-scroller::-webkit-scrollbar-thumb": {
+    border: "5px solid transparent",
+    "background-clip": "content-box",
+    "border-radius": "9999px",
+    "background-color": "rgba(139, 143, 163, 0.2)",
+    "min-height": "30px",
+  },
+  ".cm-scroller::-webkit-scrollbar-thumb:hover": {
+    "background-color": "rgba(139, 143, 163, 0.5)",
   },
   "&.cm-editor:hover": {
     transition: "all .4s ease",

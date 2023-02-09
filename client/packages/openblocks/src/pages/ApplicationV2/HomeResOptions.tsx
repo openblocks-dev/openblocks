@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 import React, { useState } from "react";
 import styled from "styled-components";
 import { message } from "antd";
-import { trans } from "../../i18n";
+import { trans, transToNode } from "../../i18n";
 import { useParams } from "react-router-dom";
 import { TypeName } from "pages/common/headerStartDropdown";
 import { AppTypeEnum } from "constants/applicationConstants";
@@ -75,9 +75,9 @@ export const HomeResOptions = (props: {
           onClick: () => {
             CustomModal.confirm({
               title: trans("home.moveToTrash"),
-              content: trans("home.moveToTrashSubTitle", {
+              content: transToNode("home.moveToTrashSubTitle", {
                 type: HomeResInfo[res.type].name,
-                name: res.name,
+                name: <b>{res.name}</b>,
               }),
               onConfirm: () =>
                 new Promise((resolve, reject) => {
@@ -112,9 +112,9 @@ export const HomeResOptions = (props: {
           onClick: () => {
             CustomModal.confirm({
               title: trans("home.deleteElementTitle"),
-              content: trans("home.deleteElementSubTitle", {
+              content: transToNode("home.deleteElementSubTitle", {
                 type: HomeResInfo[res.type].name.toLowerCase(),
-                name: res.name,
+                name: <b>{res.name}</b>,
               }),
               onConfirm: () =>
                 new Promise((resolve, reject) => {

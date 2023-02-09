@@ -123,22 +123,22 @@ const SMTPPropertyView = (props: { children: ChildrenType; dispatch: DispatchTyp
     {props.children.from.propertyView({
       label: trans("smtpQuery.sender"),
       placement: "bottom",
-      placeholder: "name@xxx.com",
+      placeholder: "name@example.com",
     })}
     {props.children.to.propertyView({
       label: trans("smtpQuery.recipient"),
       placement: "bottom",
-      placeholder: "[name1@xxx.com, name2@xxx.com]",
+      placeholder: "[name1@example.com, name2@example.com]",
     })}
     {props.children.cc.propertyView({
       label: trans("smtpQuery.carbonCopy"),
       placement: "bottom",
-      placeholder: "[name1@xxx.com, name2@xxx.com]",
+      placeholder: "[name1@example.com, name2@example.com]",
     })}
     {props.children.bcc.propertyView({
       label: trans("smtpQuery.blindCarbonCopy"),
       placement: "bottom",
-      placeholder: "[name1@xxx.com, name2@xxx.com]",
+      placeholder: "[name1@example.com, name2@example.com]",
     })}
     {props.children.subject.propertyView({
       label: trans("smtpQuery.subject"),

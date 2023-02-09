@@ -1,218 +1,197 @@
-import { JSONValue } from "util/jsonTypes";
-import { CompAction, CompActionTypes, customAction, wrapChildAction } from "openblocks-core";
-import { DispatchType, RecordConstructorToView } from "openblocks-core";
-import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { BoolControl } from "comps/controls/boolControl";
-import { NumberControl, RangeControl } from "comps/controls/codeControl";
-import { styleControl } from "comps/controls/styleControl";
-import { ListViewStyle } from "comps/controls/styleControlConstants";
-import { EditorContext } from "comps/editorState";
-import { UICompBuilder, withContext, withDefault } from "comps/generators";
-import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
-import { NameGenerator } from "comps/utils";
-import { reduceInContext } from "comps/utils/reduceContext";
-import { Section, sectionNames } from "openblocks-design";
-import { HintPlaceHolder } from "openblocks-design";
-import _ from "lodash";
-import { useContext, useRef } from "react";
-import ReactResizeDetector from "react-resize-detector";
-import { useDelayState } from "util/hooks";
-import { CompTree, IContainer } from "../containerBase";
-import { SimpleContainerComp, toSimpleContainerData } from "../containerBase/simpleContainerComp";
+import { UICompBuilder, withPropertyViewFn, withViewFn } from "comps/generators";
 import {
-  ContainerBaseProps,
-  gridItemCompToGridItems,
-  InnerGrid,
-} from "../containerComp/containerView";
-import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
+  CompDepsConfig,
+  depsConfig,
+  NameConfigHidden,
+  withExposingConfigs,
+} from "comps/generators/withExposing";
+import { MAP_KEY } from "comps/generators/withMultiContext";
+import { NameGenerator } from "comps/utils";
+import { getReduceContext, reduceInContext } from "comps/utils/reduceContext";
 import { trans } from "i18n";
-import { checkIsMobile } from "util/commonUtils";
-import styled from "styled-components";
+import _ from "lodash";
+import {
+  CompAction,
+  CompActionTypes,
+  fromRecord,
+  fromValue,
+  isCustomAction,
+  Node,
+  withFunction,
+  WrapContextNodeV2,
+} from "openblocks-core";
+import { JSONValue } from "util/jsonTypes";
+import { lastValueIfEqual, shallowEqual } from "util/objectUtils";
+import { CompTree, getAllCompItems, IContainer } from "../containerBase";
+import { SimpleContainerComp, toSimpleContainerData } from "../containerBase/simpleContainerComp";
+import { ListView } from "./listView";
+import { listPropertyView } from "./listViewPropertyView";
+import { childrenMap, ContextContainerComp, getCurrentItemParams, getData } from "./listViewUtils";
 
-const Wrapper = styled.div`
-  overflow: auto;
-  overflow: overlay;
-`
-
-const ContextContainerComp = withContext(SimpleContainerComp, ["i"] as const);
-
-const childrenMap = {
-  noOfRows: withDefault(RangeControl.closed(0, 100), 3),
-  dynamicHeight: AutoHeightControl,
-  heightUnitOfRow: withDefault(NumberControl, 1),
-  container: ContextContainerComp,
-  autoHeight: AutoHeightControl,
-  showBorder: BoolControl,
-  style: styleControl(ListViewStyle),
-};
-
-type ViewProps = RecordConstructorToView<typeof childrenMap>;
-type Props = ViewProps & { dispatch: DispatchType };
-
-const ContainerInListView = (props: ContainerBaseProps) => {
-  return (
-    <InnerGrid
-      {...props}
-      emptyRows={15}
-      containerPadding={[4, 4]}
-      hintPlaceholder={HintPlaceHolder}
-    />
-  );
-};
-
-const ListView = (props: Props) => {
-  const ref = useRef(null);
-  const editorState = useContext(EditorContext);
-  const isDragging = editorState.isDragging;
-  const containerProps = (props.container as any)({ i: 0 });
-  const isOneRow =
-    props.noOfRows > 0 && (_.size(containerProps.layout) === 0 || editorState.isDragging);
-  const noOfRows = isOneRow ? 1 : props.noOfRows;
-  // const rowHeight = calcRowHeight( noOfRows, props.dynamicHeight, props.heightUnitOfRow, props.autoHeight);
-  const rowHeight = isOneRow
-    ? "100%"
-    : props.dynamicHeight
-    ? "auto"
-    : props.heightUnitOfRow * 44 + "px";
-
-  const [listHeight, setListHeight] = useDelayState(0, isDragging);
-  // minHeight is used to ensure that the container height will not shrink when dragging, and the current padding needs to be subtracted during calculation
-  const minHeight = isDragging && props.autoHeight ? listHeight + "px" : "100%";
-  // log.log("List. listHeight: ", listHeight, " minHeight: ", minHeight);
-  const renders = _.range(0, noOfRows).map((i) => {
-    const containerProps = (props.container as any)({ i });
-    // log.log("renders. i: ", i, "containerProps: ", containerProps, " text: ", Object.values(containerProps.items as Record<string, any>)[0].children.comp.children.text);
-    const render = (
-      <div
-        key={i}
-        style={{
-          height: rowHeight,
-          // border: "0.5px solid #d9d9d9"
-        }}
-      >
-        <BackgroundColorContext.Provider value={props.style.background}>
-          <ContainerInListView
-            layout={containerProps.layout}
-            items={gridItemCompToGridItems(containerProps.items)}
-            positionParams={containerProps.positionParams}
-            dispatch={containerProps.dispatch}
-            style={{ height: "100%", backgroundColor: "transparent" }}
-            autoHeight={isDragging || props.dynamicHeight}
-            isDroppable={i === 0}
-            isDraggable={i === 0}
-            isResizable={i === 0}
-            isSelectable={i === 0}
-            scrollContainerRef={ref}
-            overflow={"hidden"}
-            minHeight={minHeight}
-            enableGridLines={true}
-          />
-        </BackgroundColorContext.Provider>
-      </div>
-    );
-    return render;
-  });
-
-  const maxWidth = editorState.getAppSettings().maxWidth;
-  const isMobile = checkIsMobile(maxWidth);
-  const paddingWidth = isMobile ? "4px" : "16px";
-  // log.debug("renders: ", renders);
-  return (
-    <Wrapper
-      ref={ref}
-      style={{
-        height: "100%",
-        backgroundColor: props.style.background,
-        border: `1px solid ${props.style.border}`,
-        borderRadius: props.style.radius,
-        padding: `3px ${paddingWidth}`,
-      }}
-    >
-      <ReactResizeDetector
-        onResize={(width?: number, height?: number) => {
-          if (height) setListHeight(height);
-        }}
-        observerOptions={{ box: "border-box" }}
-      >
-        <div style={{ height: props.autoHeight ? "auto" : "100%" }}>{renders}</div>
-      </ReactResizeDetector>
-    </Wrapper>
-  );
-};
-
-const ListViewTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => (
-  <ListView {...props} dispatch={dispatch}></ListView>
-))
-  .setPropertyViewFn((children) => (
-    <>
-      <Section name={sectionNames.basic}>
-        {children.noOfRows.propertyView({
-          label: trans("listView.numOfRows"),
-          tooltip: trans("listView.numOfRowsTooltip"),
-        })}
-        {/* {children.dynamicHeight.propertyView({ label: "" })}
-        {!children.dynamicHeight.getView() &&
-          children.heightUnitOfRow.propertyView({
-            label: "",
-            tooltip: "",
-          })} */}
-      </Section>
-      <Section name={sectionNames.layout}>{children.autoHeight.getPropertyView()}</Section>
-      {/* <Section name={sectionNames.style}>{children.showBorder.propertyView({ label: "" })}</Section> */}
-      <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-    </>
-  ))
+const ListViewTmpComp = new UICompBuilder(childrenMap, () => <></>)
+  .setPropertyViewFn(() => <></>)
   .build();
 
-class ListViewImplComp extends ListViewTmpComp implements IContainer {
+export class ListViewImplComp extends ListViewTmpComp implements IContainer {
+  private getOriginalContainer() {
+    return this.children.container.getOriginalComp().getComp();
+  }
   realSimpleContainer(key?: string): SimpleContainerComp | undefined {
-    return this.children.container;
+    return this.getOriginalContainer().realSimpleContainer(key);
   }
   getCompTree(): CompTree {
-    return this.children.container.getCompTree();
+    return this.getOriginalContainer().getCompTree();
   }
   findContainer(key: string): IContainer | undefined {
-    return this.children.container.findContainer(key);
+    return this.getOriginalContainer().findContainer(key);
   }
   getPasteValue(nameGenerator: NameGenerator): JSONValue {
-    return this.children.container.getPasteValue(nameGenerator);
+    return this.getOriginalContainer().getPasteValue(nameGenerator);
   }
   override autoHeight(): boolean {
     return this.children.autoHeight.getView();
   }
-  updateContext(i: number): this {
-    return this.reduce(
-      wrapChildAction("container", ContextContainerComp.changeContextDataAction({ i }))
-    );
-  }
   override reduce(action: CompAction): this {
-    switch (action.type) {
-      case CompActionTypes.UPDATE_NODES_V2:
-        return this.updateContext(0).reduce(customAction(action));
-      case CompActionTypes.CUSTOM:
-        const cAction = action.value as CompAction;
-        if (cAction.type === CompActionTypes.UPDATE_NODES_V2) {
-          return super.reduce(cAction);
-        }
+    // console.info("listView reduce. action: ", action);
+    const listViewContext = getReduceContext().listViewContext;
+    const { data: thisData } = getData(this.children.noOfRows.getView());
+    let comp = reduceInContext(
+      {
+        inEventContext: true,
+        listViewContext: {
+          listViewDepth: listViewContext.listViewDepth + 1,
+          currentItem: { ...listViewContext.currentItem, ...getCurrentItemParams(thisData) },
+        },
+      },
+      () => super.reduce(action)
+    );
+
+    if (isCustomAction(action, "moduleReady")) {
+      // mirror the 0-th item to the origin
+      const thisMapComps = this.children.container.children[MAP_KEY].getView();
+      const compMapComps = comp.children.container.children[MAP_KEY].getView();
+      const topItemChanged = thisMapComps[0] !== compMapComps[0];
+      if (topItemChanged) {
+        comp = comp.setChild(
+          "container",
+          comp.children.container.reduce(ContextContainerComp.mirrorToOriginAction("0"))
+        );
+      }
     }
-    return reduceInContext({ inEventContext: true }, () => super.reduce(action));
+
+    if (action.type === CompActionTypes.UPDATE_NODES_V2) {
+      const { data: compData } = getData(comp.children.noOfRows.getView());
+      const paramsChanged = !_.isEqual(
+        getCurrentItemParams(thisData),
+        getCurrentItemParams(compData)
+      );
+      if (paramsChanged) {
+        // keep original comp's params same as the 0-th comp
+        comp = comp.setChild(
+          "container",
+          comp.children.container.reduce(
+            ContextContainerComp.setOriginalParamsAction({
+              currentItem: getCurrentItemParams(compData),
+            })
+          )
+        );
+      }
+    }
+    // console.info("listView reduce. action: ", action, "\nthis: ", this, "\ncomp: ", comp);
+    return comp;
+  }
+  /** expose the data from inner comps */
+  itemsNode(): Node<Record<string, unknown>[]> {
+    const { itemCount } = getData(this.children.noOfRows.getView());
+    // for each container expose each comps with params
+    const exposingRecord = _(_.range(0, itemCount))
+      .toPairs()
+      .fromPairs()
+      .mapValues((i) => {
+        let hitCache = true;
+        let container = this.children.container.getCachedComp(String(i));
+        if (!container) {
+          hitCache = false;
+          container = this.children.container.getOriginalComp();
+        }
+        // FIXME: replace allComps as non-list-view comps
+        const allComps = getAllCompItems(container.getComp().getCompTree());
+        const nodeRecord = _(allComps)
+          .mapKeys((gridItemComp) => gridItemComp.children.name.getView())
+          .mapValues((gridItemComp) => gridItemComp.children.comp.exposingNode())
+          .value();
+        const resNode = new WrapContextNodeV2(fromRecord(nodeRecord), {
+          i: fromValue(i),
+          currentItem: withFunction(this.children.noOfRows.exposingNode(), (value) =>
+            typeof value === "number" ? {} : value[i]
+          ),
+        });
+        // const resNode = hitCache
+        //   ? new WrapContextNodeV2(fromRecord(nodeRecord), container.getParamNodes())
+        //   : withFunction(wrapContext(fromRecord(nodeRecord)), (fn) => fn({ i }));
+        const res = lastValueIfEqual(
+          this,
+          "exposing_row_" + i,
+          [resNode, nodeRecord] as const,
+          (a, b) => shallowEqual(a[1], b[1])
+        )[0];
+        // console.info("listView exposingRecord. i: ", i, " res id: ", getObjectId(res), " container id: ", getObjectId(container), " hitCache: ", hitCache);
+        return res;
+      })
+      .value();
+    // transform record to array
+    const exposings = withFunction(fromRecord(exposingRecord), (record) => {
+      return _.range(0, itemCount).map((i) => record[i]);
+    });
+
+    return lastValueIfEqual(this, "exposing_data", [exposings, exposingRecord] as const, (a, b) =>
+      shallowEqual(a[1], b[1])
+    )[0];
   }
 }
 
-export const ListViewComp = withExposingConfigs(ListViewImplComp, [NameConfigHidden]);
+const ListViewRenderComp = withViewFn(ListViewImplComp, (comp) => <ListView comp={comp} />);
+const ListPropertyView = listPropertyView("listView");
+const ListViewPropertyComp = withPropertyViewFn(ListViewRenderComp, (comp) => {
+  return <ListPropertyView comp={comp} />;
+});
+
+export const ListViewComp = withExposingConfigs(ListViewPropertyComp, [
+  new CompDepsConfig(
+    "items",
+    (comp) => ({ data: comp.itemsNode() }),
+    (input) => input.data,
+    trans("listView.itemsDesc")
+  ),
+  depsConfig({
+    name: "data",
+    desc: trans("listView.dataDesc"),
+    depKeys: ["noOfRows"],
+    func: (input) => {
+      const { data } = getData(input.noOfRows);
+      return data;
+    },
+  }),
+  NameConfigHidden,
+]);
 
 export function defaultListViewData(compName: string, nameGenerator: NameGenerator) {
   return {
+    noOfRows:
+      '[\n  {\n    "rate": "9.2",\n    "title": "The Shawshank Redemption",\n    "url": "https://www.imdb.com/title/tt0111161/",\n    "cover": "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_UY67_CR0,0,45,67_AL_.jpg"\n  },\n  {\n    "rate": "9.2",\n    "title": "The Godfather",\n    "url": "https://www.imdb.com/title/tt0068646/",\n    "cover": "https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYzZlODY3ZTk3OTFlXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_UY67_CR1,0,45,67_AL_.jpg"\n  },\n  {\n    "rate": "9.0",\n    "title": "The Dark Knight",\n    "url": "https://www.imdb.com/title/tt0468569/",\n    "cover": "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_UY67_CR0,0,45,67_AL_.jpg"\n  },\n  {\n    "rate": "9.0",\n    "title": "The Godfather Part II",\n    "url": "https://www.imdb.com/title/tt0071562/",\n    "cover": "https://m.media-amazon.com/images/M/MV5BMWMwMGQzZTItY2JlNC00OWZiLWIyMDctNDk2ZDQ2YjRjMWQ0XkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_UY67_CR1,0,45,67_AL_.jpg"\n  },\n  {\n    "rate": "9.0",\n    "title": "12 Angry Men",\n    "url": "https://www.imdb.com/title/tt0050083/",\n    "cover": "https://m.media-amazon.com/images/M/MV5BMWU4N2FjNzYtNTVkNC00NzQ0LTg0MjAtYTJlMjFhNGUxZDFmXkEyXkFqcGdeQXVyNjc1NTYyMjg@._V1_UX45_CR0,0,45,67_AL_.jpg"\n  },\n  {\n    "rate": "8.9",\n    "title": "Schindler\'s List",\n    "url": "https://www.imdb.com/title/tt0108052/",\n    "cover": "https://m.media-amazon.com/images/M/MV5BNDE4OTMxMTctNmRhYy00NWE2LTg3YzItYTk3M2UwOTU5Njg4XkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_UX45_CR0,0,45,67_AL_.jpg"\n  }\n]',
     container: toSimpleContainerData([
       {
         item: {
           compType: "image",
           name: nameGenerator.genItemName("image"),
-          comp: {},
+          comp: {
+            src: "{{currentItem.cover}}",
+            autoHeight: "fixed",
+          },
         },
         layoutItem: {
           i: "",
-          w: 7,
+          w: 6,
           h: 14,
           x: 0,
           y: 0,
@@ -220,18 +199,56 @@ export function defaultListViewData(compName: string, nameGenerator: NameGenerat
       },
       {
         item: {
-          compType: "text",
-          name: nameGenerator.genItemName("text"),
+          compType: "link",
+          name: nameGenerator.genItemName("link"),
           comp: {
-            text: "### 00{{i}}",
+            text: "{{i+1}}. {{currentItem.title}}",
+            onEvent: [
+              {
+                name: "click",
+                handler: {
+                  compType: "goToURL",
+                  comp: { url: "{{currentItem.url}}" },
+                  condition: "",
+                  slowdown: "debounce",
+                  delay: "",
+                },
+              },
+            ],
           },
         },
         layoutItem: {
           i: "",
-          w: 8,
           h: 5,
+          w: 17,
           x: 7,
           y: 0,
+        },
+      },
+      {
+        item: {
+          compType: "rating",
+          name: nameGenerator.genItemName("rating"),
+          comp: {
+            value: "{{currentItem.rate / 2}}",
+            max: "5",
+            label: {
+              text: "",
+              width: "33",
+              widthUnit: "%",
+              position: "row",
+              align: "right",
+            },
+            allowHalf: true,
+            disabled: true,
+          },
+        },
+        layoutItem: {
+          i: "",
+          h: 5,
+          w: 17,
+          x: 7,
+          y: 9,
         },
       },
     ]),

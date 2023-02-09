@@ -117,6 +117,13 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             ) : (
               <Redirect exact from={BASE_URL} to={ALL_APPLICATIONS_URL} />
             )}
+            {!this.props.orgDev && !!this.props.defaultHomePage && (
+              <Redirect
+                exact
+                from={ALL_APPLICATIONS_URL}
+                to={APPLICATION_VIEW_URL(this.props.defaultHomePage, "view")}
+              />
+            )}
             <Route exact path={IMPORT_APP_FROM_TEMPLATE_URL} component={AppFromTemplate} />
             <Route path={APP_EDITOR_URL} component={AppEditor} />
             <Route

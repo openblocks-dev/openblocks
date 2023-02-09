@@ -18,8 +18,17 @@ import {
   SMTPIcon,
   TempStateIcon,
   TransformerIcon,
+  DeleteApiIcon,
+  GetApiIcon,
+  PatchApiIcon,
+  PostApiIcon,
+  PutApiIcon,
+  OptionsApiIcon,
+  HeadApiIcon,
+  TraceApiIcon,
 } from "openblocks-design";
 import { BottomResTypeEnum } from "types/bottomRes";
+import { HttpMethod } from "api/api";
 
 const QueryLibrary = styled(QueryLibraryIcon)`
   g g g {
@@ -27,10 +36,10 @@ const QueryLibrary = styled(QueryLibraryIcon)`
   }
 `;
 
-const IconWrapper = styled.div`
+const IconWrapper = styled.div<{ isRestApi?: boolean }>`
   display: flex;
-  width: 16px;
-  height: 16px;
+  width: ${(props) => (props.isRestApi ? "26px" : "16px")};
+  height: ${(props) => (props.isRestApi ? "13px" : "16px")};
   border-radius: 2px;
   flex-shrink: 0;
   margin-right: 4px;
@@ -38,13 +47,13 @@ const IconWrapper = styled.div`
 `;
 
 export const LargeBottomResIconWrapper = styled(IconWrapper)`
-  width: 20px;
-  height: 20px;
+  width: ${(props) => (props.isRestApi ? "32px" : "20px")};
+  height: ${(props) => (props.isRestApi ? "16px" : "20px")};
   margin-right: 8px;
 
   svg {
-    width: 20px;
-    height: 20px;
+    width: ${(props) => (props.isRestApi ? "32px" : "20px")};
+    height: ${(props) => (props.isRestApi ? "16px" : "20px")};
   }
 `;
 
@@ -61,10 +70,22 @@ export type BottomResType =
   | BottomResTypeEnum.TempState
   | BottomResTypeEnum.Transformer;
 
+const HttpMethodIcon = {
+  DELETE: <DeleteApiIcon />,
+  GET: <GetApiIcon />,
+  PATCH: <PatchApiIcon />,
+  POST: <PostApiIcon />,
+  PUT: <PutApiIcon />,
+  HEAD: <HeadApiIcon />,
+  OPTIONS: <OptionsApiIcon />,
+  TRACE: <TraceApiIcon />,
+};
+
 export const getBottomResIcon = (
   type: BottomResType,
   size?: "middle" | "large",
-  defaultIconUrl?: string
+  defaultIconUrl?: string,
+  httpMethod?: HttpMethod
 ) => {
   const getIcon = () => {
     switch (type) {
@@ -77,7 +98,7 @@ export const getBottomResIcon = (
       case "mongodb":
         return <MongoIcon />;
       case "restApi":
-        return <RestApiIcon />;
+        return httpMethod ? HttpMethodIcon[httpMethod] : <RestApiIcon />;
       case "postgres":
         return <PostgresIcon />;
       case "js":
@@ -109,9 +130,10 @@ export const getBottomResIcon = (
         return <RestApiIcon />;
     }
   };
+  const isRestApi = type === "restApi" && !!httpMethod;
   return size === "large" ? (
-    <LargeBottomResIconWrapper>{getIcon()}</LargeBottomResIconWrapper>
+    <LargeBottomResIconWrapper isRestApi={isRestApi}>{getIcon()}</LargeBottomResIconWrapper>
   ) : (
-    <IconWrapper>{getIcon()}</IconWrapper>
+    <IconWrapper isRestApi={isRestApi}>{getIcon()}</IconWrapper>
   );
 };

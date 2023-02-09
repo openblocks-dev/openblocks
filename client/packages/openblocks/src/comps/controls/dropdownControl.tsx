@@ -41,11 +41,15 @@ function DropdownPropertyView<T extends OptionsType>(props: DropdownPropertyView
   );
 
   useEffect(() => {
-    if (typeof options !== "function" || finalOptions.length > 0) {
+    if (typeof options !== "function") {
+      setFinalOptions(options);
       return;
     }
-    options().then((items) => setFinalOptions(items));
+    if (!finalOptions?.length) {
+      options().then((items) => setFinalOptions(items));
+    }
   }, [finalOptions.length, options]);
+
   return (
     <Dropdown
       placement={params.placement}

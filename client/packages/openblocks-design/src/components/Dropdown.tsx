@@ -1,4 +1,5 @@
-import { Segmented as AntdSegmented } from "antd";
+import { Segmented as AntdSegmented, SelectProps } from "antd";
+import { GreyTextColor } from "constants/style";
 import { ReactComponent as Packup } from "icons/icon-Pack-up.svg";
 import _ from "lodash";
 import { ReactNode } from "react";
@@ -132,13 +133,13 @@ const LabelWrapper = styled.div<{ placement: ControlPlacement }>`
 export type OptionType = {
   readonly label: ReactNode;
   readonly value: string;
+  [key: string]: any;
 };
 export type OptionsType = readonly OptionType[];
 export type ValueFromOption<Options extends OptionsType> = Options[number]["value"];
 
-export function Dropdown<T extends OptionsType>(props: {
+interface DropdownProps<T extends OptionsType> extends Omit<SelectProps, "placement" | "options"> {
   label?: ReactNode;
-  placeholder?: string;
   options: T;
   defaultValue?: ValueFromOption<T>;
   value?: ValueFromOption<T>;
@@ -148,13 +149,12 @@ export function Dropdown<T extends OptionsType>(props: {
   type?: "oneline";
   toolTip?: string | React.ReactNode;
   placement?: ControlPlacement;
-  disabled?: boolean;
-  allowClear?: boolean;
   itemNode?: (value: string) => JSX.Element;
   preNode?: () => JSX.Element;
-  showSearch?: boolean;
   lineHeight?: number;
-}) {
+}
+
+export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
   const { placement = "right" } = props;
   const valueInfoMap = _.fromPairs(props.options.map((option) => [option.value, option]));
   return (
@@ -169,10 +169,18 @@ export function Dropdown<T extends OptionsType>(props: {
         <Tooltip title={!props.label ? props.toolTip : undefined}>
           <DropdownContainer placement={placement}>
             <CustomSelect
+              open={props.open}
               listHeight={props.lineHeight}
               dropdownClassName="ob-dropdown-control-select"
               showSearch={props.showSearch}
               filterOption={(input, option) => {
+                if (props.optionFilterProp) {
+                  const value = (option as any)[props.optionFilterProp];
+                  if (value && typeof value === "string") {
+                    return value.toLowerCase().includes(input.toLowerCase());
+                  }
+                }
+
                 if (!option?.value) {
                   return false;
                 }
@@ -182,7 +190,7 @@ export function Dropdown<T extends OptionsType>(props: {
                   typeof label === "string" ||
                   typeof label === "boolean"
                 ) {
-                  return label.toString().toLowerCase().includes(input);
+                  return label.toString().toLowerCase().includes(input.toLowerCase());
                 }
                 return false;
               }}
@@ -195,7 +203,7 @@ export function Dropdown<T extends OptionsType>(props: {
               disabled={props.disabled}
               allowClear={props.allowClear}
               placeholder={props.placeholder}
-              optionLabelProp="children"
+              optionLabelProp={props.optionLabelProp}
               dropdownRender={(menu) =>
                 props.preNode ? (
                   <>
@@ -207,13 +215,14 @@ export function Dropdown<T extends OptionsType>(props: {
                 )
               }
             >
-              {props.options.map((item, index) => {
+              {props.options.map((item) => {
+                const { value, label, ...others } = item;
                 return (
-                  <CustomSelect.Option key={item.value} value={item.value}>
+                  <CustomSelect.Option key={value} value={value} {...others}>
                     {props.itemNode ? (
-                      props.itemNode(item.value)
+                      props.itemNode(value)
                     ) : (
-                      <DropDownItemLabel>{item.label}</DropDownItemLabel>
+                      <DropDownItemLabel>{label}</DropDownItemLabel>
                     )}
                   </CustomSelect.Option>
                 );
@@ -235,5 +244,20 @@ export function Dropdown<T extends OptionsType>(props: {
         </SegmentedWrapper>
       )}
     </FlexDiv>
+  );
+}
+
+interface DropdownOptionLabelWithDescProps {
+  label: string;
+  description: string;
+}
+
+export function DropdownOptionLabelWithDesc(props: DropdownOptionLabelWithDescProps) {
+  const { label, description } = props;
+  return (
+    <div style={{ padding: 0 }}>
+      <div style={{ fontWeight: 700, marginBottom: 4 }}>{label}</div>
+      {description && <div style={{ fontSize: 12, color: GreyTextColor }}>{description}</div>}
+    </div>
   );
 }

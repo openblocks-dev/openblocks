@@ -13,7 +13,6 @@ import {
   EventContent,
   EventDiv,
   EventTitle,
-  Icon,
   InlineEventFormWrapper,
   LinkButton,
   OptionType,
@@ -43,7 +42,7 @@ interface SingleEventHandlerProperViewProps {
 
 const childrenMap = {
   name: dropdownControl<EventConfigsType>([], ""), // event name
-  // FIXME: refactor the parameter config the same as retool
+  // FIXME: refactor the parameter config more properly
   handler: ActionSelectorControl,
 };
 
@@ -116,9 +115,7 @@ class SingleEventHandlerControl<T extends EventConfigsType> extends simpleMultiC
             <EventAction>{eventAction}</EventAction>
           </EventContent>
         </CustomPopover>
-        <EditPopover copy={props.onCopy} del={props.onDelete}>
-          <Icon tabIndex={-1} />
-        </EditPopover>
+        <EditPopover copy={props.onCopy} del={props.onDelete} />
       </EventDiv>
     );
   }
@@ -140,6 +137,10 @@ const EventHandlerControlPropertyView = (props: {
 
   useEffect(() => setShowNewCreate(false), [dispatch]);
 
+  const queryHandler = {
+    name: eventConfigs[0].value,
+  };
+
   const handleAdd = () => {
     if (eventConfigs.length === 0) {
       return;
@@ -158,7 +159,7 @@ const EventHandlerControlPropertyView = (props: {
       name: eventConfigs[0].value,
       handler: isInDevIde ? messageHandler : queryExecHandler,
     } as const;
-    dispatch(pushAction(type !== "query" ? newHandler : {}));
+    dispatch(pushAction(type !== "query" ? newHandler : queryHandler));
     setShowNewCreate(true);
   };
 
@@ -191,7 +192,7 @@ const EventHandlerControlPropertyView = (props: {
           text={trans("addItem")}
           icon={<AddEventIcon />}
           onClick={() => {
-            dispatch(pushAction({}));
+            dispatch(pushAction(queryHandler));
             setShowNewCreate(true);
           }}
         />
