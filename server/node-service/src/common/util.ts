@@ -1,3 +1,5 @@
+import { relaxedJSONToJSON } from "openblocks-core";
+
 export function toString(value: any): string {
   if (value === undefined || value === null) {
     return "";
@@ -36,4 +38,17 @@ export function toBoolean(value: any): boolean {
     return false;
   }
   return !!value;
+}
+
+export function toJsonValue(value: any): any {
+  if (typeof value !== "string") {
+    return value;
+  }
+  try {
+    const json = relaxedJSONToJSON(value, true);
+    return JSON.parse(json);
+  } catch (e) {
+    console.info("invalid json input:", value);
+    return {};
+  }
 }

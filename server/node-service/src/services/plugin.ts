@@ -1,9 +1,18 @@
 import _ from "lodash";
-import { toString, toNumber, toBoolean } from "../common/util";
+import { toString, toNumber, toBoolean, toJsonValue } from "../common/util";
 import { getDynamicStringSegments, isDynamicSegment } from "openblocks-core";
+import jsonPath from "jsonpath";
 import plugins from "../plugins";
-import { Config, DataSourcePluginMeta, PluginContext } from "openblocks-sdk/dataSource";
-import { ServiceError } from "../common/error";
+import {
+  Config,
+  DataSourcePlugin,
+  DataSourcePluginMeta,
+  DynamicConfig,
+  DynamicConfigObject,
+  MixedConfig,
+  PluginContext,
+} from "openblocks-sdk/dataSource";
+import { badRequest, ServiceError } from "../common/error";
 import { Request } from "express";
 
 function isReadOnlyArray(obj: any): obj is readonly any[] {
@@ -35,29 +44,34 @@ function evalCodeToValue(dsl: any, context: EvalContext) {
   return values.length === 1 ? values[0] : values.join("");
 }
 
-export function evalToValue<T extends Config>(config: T, dsl: any, context: EvalContext): any {
+export async function evalToValue<T extends Config>(
+  cfg: T,
+  dsl: any,
+  context: EvalContext,
+  dataSourceData: any
+): Promise<any> {
+  const config = isDynamicConfig(cfg) ? await cfg(dataSourceData) : cfg;
+
   if (isReadOnlyArray(config)) {
-    const result: any = {};
-    config.map((item) => {
-      result[item.key] = evalToValue(item, _.get(dsl, item.key), context);
-    });
+    const result: Record<string, any> = {};
+    for (const item of config) {
+      result[item.key] = await evalToValue(item, _.get(dsl, item.key), context, dataSourceData);
+    }
     return result;
   }
 
   if (config.type === "query") {
-    const commandType = dsl["actionName"];
-    for (const child of config.actions) {
-      if (child.actionName === commandType) {
-        return {
-          actionName: commandType,
-          ...evalToValue(child.params, dsl["action"], context),
-        };
-      }
+    const actionName = dsl["actionName"];
+    const action = config.actions.find((i) => i.actionName === actionName);
+    if (!action) {
+      throw badRequest(`invalid query dsl, the action name ${actionName} not defined in plugin`);
     }
-    throw new ServiceError(
-      `invalid query dsl, command type ${commandType} not defined in plugin`,
-      400
-    );
+    const actionDsl = dsl["action"];
+    const actionCompValue = await evalToValue(action.params, actionDsl, context, dataSourceData);
+    return {
+      actionName,
+      ...actionCompValue,
+    };
   }
 
   if (config.type === "textInput" || config.type === "select" || config.type === "password") {
@@ -72,25 +86,27 @@ export function evalToValue<T extends Config>(config: T, dsl: any, context: Eval
     return toBoolean(evalCodeToValue(dsl, context));
   }
 
+  if (config.type === "jsonInput") {
+    return toJsonValue(evalCodeToValue(dsl, context));
+  }
+
+  if (config.type === "file") {
+    return toString(evalCodeToValue(dsl, context));
+  }
+
   throw new ServiceError(`invalid plugin definition, unknown config type: ${(config as any).type}`);
 }
 
-const PLUGIN_NAME_PREFIX = "plugin:";
-
 export function getPlugin(id: string, ctx: PluginContext) {
-  if (!id.startsWith(PLUGIN_NAME_PREFIX)) {
-    throw new ServiceError(`invalid plugin name: ${id}`, 400);
-  }
-  const realPluginName = id.substring(PLUGIN_NAME_PREFIX.length);
   for (const item of plugins) {
     if (typeof item === "function") {
       const plugin = item(ctx);
-      if (plugin.id === realPluginName) {
+      if (plugin.id === id) {
         return plugin;
       }
       continue;
     }
-    if (item.id === realPluginName) {
+    if (item.id === id) {
       return item;
     }
   }
@@ -103,15 +119,53 @@ export function getPluginContext(req: Request): PluginContext {
   };
 }
 
-export function listPlugins(ctx: PluginContext) {
-  const pluginMetaList: DataSourcePluginMeta[] = plugins.map((i) => {
-    const plugin = typeof i === "function" ? i(ctx) : i;
+async function getQueryConfig(plugin: DataSourcePlugin, dataSourceConfig: any = {}) {
+  if (typeof plugin.queryConfig === "function") {
+    return plugin.queryConfig(dataSourceConfig);
+  }
+  return plugin.queryConfig;
+}
+
+function isDynamicConfig(config: MixedConfig): config is DynamicConfig {
+  return typeof config === "function";
+}
+
+function maybeDynamicConfig<T extends MixedConfig>(config: T): T | DynamicConfigObject {
+  if (isDynamicConfig(config)) {
     return {
-      ..._.omit(plugin, ["run", "validateDataSourceConfig"]),
-      id: `${PLUGIN_NAME_PREFIX}${plugin.id}`,
-      shouldValidateDataSourceConfig: !!plugin.validateDataSourceConfig,
+      type: "dynamic",
     };
+  }
+  return config;
+}
+
+function removeFromJson() {
+  return undefined;
+}
+
+const pluginMetaOps: [string, (v: any) => any][] = [
+  ["$.queryConfig", maybeDynamicConfig],
+  ["$.dataSourceConfig.extra", maybeDynamicConfig],
+  ["$.validateDataSourceConfig", removeFromJson],
+  ["$.run", removeFromJson],
+];
+export function listPlugins(ctx: PluginContext, ids: string[] = []) {
+  const pluginMetaList: DataSourcePluginMeta[] = [];
+
+  plugins.forEach((i) => {
+    const plugin = typeof i === "function" ? i(ctx) : _.cloneDeep(i);
+    if (ids.length > 0 && !ids.includes(plugin.id)) {
+      return;
+    }
+    pluginMetaOps.forEach(([path, fn]) => {
+      jsonPath.apply(plugin, path, fn);
+    });
+    pluginMetaList.push({
+      ...plugin,
+      shouldValidateDataSourceConfig: !!plugin.validateDataSourceConfig,
+    } as DataSourcePluginMeta);
   });
+
   return pluginMetaList;
 }
 
@@ -123,11 +177,12 @@ export async function runPluginQuery(
   pluginContext: PluginContext
 ) {
   const plugin = getPlugin(pluginName, pluginContext);
-  const action = evalToValue(plugin.queryConfig, dsl, context);
+  const queryConfig = await getQueryConfig(plugin, dataSourceConfig);
+  const action = await evalToValue(queryConfig, dsl, context, dataSourceConfig);
   const result = await plugin.run(action, dataSourceConfig, pluginContext);
 
   return {
-    result,
+    result: result || {},
   };
 }
 
@@ -143,4 +198,26 @@ export async function validatePluginDataSourceConfig(
 
   const result = await plugin.validateDataSourceConfig(dataSourceConfig, pluginContext);
   return result;
+}
+
+export async function getDynamicConfigDef(
+  id: string,
+  path: string,
+  dataSourceConfig: any,
+  ctx: PluginContext
+): Promise<Config> {
+  const plugin = getPlugin(id, ctx);
+  const results = jsonPath.query(plugin, path);
+  if (results.length === 0) {
+    throw badRequest(`No field found with path ${path} and id ${id}`);
+  }
+  if (results.length > 1) {
+    throw badRequest(`More than one fields found with path ${path} and id ${id}`);
+  }
+
+  const targetConfig = results[0];
+  if (!isDynamicConfig(targetConfig)) {
+    throw badRequest(`Target field is not a dynamic config`);
+  }
+  return targetConfig(dataSourceConfig);
 }

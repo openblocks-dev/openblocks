@@ -5,3 +5,7 @@ export class ServiceError extends Error {
     this.code = code;
   }
 }
+
+export function badRequest(message: string) {
+  return new ServiceError(message, 400);
+}

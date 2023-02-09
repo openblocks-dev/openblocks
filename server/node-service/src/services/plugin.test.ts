@@ -51,8 +51,8 @@ const context = [
   },
 ];
 
-test("test action run", () => {
-  const value = evalToValue(queryConfig, dsl, context);
+test("test action run", async () => {
+  const value = await evalToValue(queryConfig, dsl, context, {});
   expect(value.actionName).toBe("action1");
   expect(value.k11).toBe("2, 4");
   expect(value.k12).toBe(3);
@@ -61,12 +61,10 @@ test("test action run", () => {
 test("list plugins", () => {
   const plugins = listPlugins({ languages: ["en"] });
   expect(plugins.length).toBeGreaterThan(0);
-  expect(plugins[0].id.startsWith("plugin:")).toBe(true);
 });
 
 test("get plugins", () => {
   const ctx = { languages: ["en"] };
-  expect(() => getPlugin("s3", ctx)).toThrow("invalid plugin name: s3");
-  expect(() => getPlugin("plugin:not-found", ctx)).toThrow("plugin not found: plugin:not-found");
-  expect(() => getPlugin("plugin:s3", ctx)).not.toThrow();
+  expect(() => getPlugin("not-found", ctx)).toThrow("plugin not found: not-found");
+  expect(() => getPlugin("s3", ctx)).not.toThrow();
 });

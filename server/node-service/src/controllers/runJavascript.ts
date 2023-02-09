@@ -22,8 +22,17 @@ type BatchEvalResult = {
 };
 
 async function evalJs(req: EvalRequest, cookie?: string): Promise<EvalResult> {
-  const runQueryLibrary = (query: string) =>
-    QueryApi.executeQuery({ libraryQueryName: query }, cookie).then((r) => {
+  const runQueryLibrary = (query: string, params?: Record<string, any>) =>
+    QueryApi.executeQuery(
+      {
+        libraryQueryName: query,
+        params:
+          typeof params === "object" && params !== null
+            ? Object.entries(params).map(([key, value]) => ({ key, value }))
+            : undefined,
+      },
+      cookie
+    ).then((r) => {
       const data = r.data;
       if (data.success) {
         return Promise.resolve(data.data);
@@ -33,6 +42,7 @@ async function evalJs(req: EvalRequest, cookie?: string): Promise<EvalResult> {
   try {
     return { result: await evalFunc(req.jsCode || "", { ...req.context, runQueryLibrary }) };
   } catch (e) {
+    console.error("get error when eval js:", e);
     return { error: getErrorMessage(e) };
   }
 }
