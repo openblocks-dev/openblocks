@@ -83,13 +83,17 @@ function CachedPropertyView(props: { comp: Comp; name: string; listViewContext: 
     [prevHints?.currentItems]
   );
   const { listViewContext } = props;
+  const currentItem = useMemo(
+    () => ({ ...prevCurrentItems, ...listViewContext.currentItem }),
+    [listViewContext.currentItem, prevCurrentItems]
+  );
   const hints = useMemo(
     () => ({
       ...prevHints,
       ...getListExposingHints(listViewContext.listViewDepth),
-      currentItem: { ...prevCurrentItems, ...listViewContext.currentItem },
+      ...(_.isEmpty(currentItem) ? {} : { currentItem }),
     }),
-    [prevHints, listViewContext.listViewDepth, listViewContext.currentItem, prevCurrentItems]
+    [prevHints, listViewContext.listViewDepth, currentItem]
   );
 
   return useMemo(() => {
