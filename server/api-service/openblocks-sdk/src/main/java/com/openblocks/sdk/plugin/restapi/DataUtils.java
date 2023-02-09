@@ -45,6 +45,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Streams;
 import com.google.gson.JsonSyntaxException;
 import com.openblocks.sdk.exception.PluginException;
+import com.openblocks.sdk.exception.ServerException;
 import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.RestBodyFormFileData;
 import com.openblocks.sdk.util.ExceptionUtils;
@@ -155,11 +156,8 @@ public class DataUtils {
                                     return;
                                 }
 
-                                try {
-                                    populateMultiformFileData(bodyBuilder, property);
-                                } catch (Exception e) {
-                                    throw ExceptionUtils.wrapException(DATASOURCE_ARGUMENT_ERROR, "CONTENT_PARSE_ERROR", e);
-                                }
+                                populateMultiformFileData(bodyBuilder, property);
+
                             });
 
                     return BodyInserters.fromMultipartData(bodyBuilder.build())
@@ -172,7 +170,12 @@ public class DataUtils {
                 .forEach(multipartFormData -> {
                     String name = multipartFormData.getName();
                     String data = multipartFormData.getData();
-                    byte[] decodedValue = Base64.getDecoder().decode(data);
+                    byte[] decodedValue;
+                    try {
+                        decodedValue = Base64.getDecoder().decode(data);
+                    } catch (Exception e) {
+                        throw ExceptionUtils.wrapException(DATASOURCE_ARGUMENT_ERROR, "FAIL_TO_PARSE_BASE64_STRING", e);
+                    }
                     bodyBuilder.part(property.getKey(), decodedValue)
                             .filename(name);
                 });
@@ -182,7 +185,7 @@ public class DataUtils {
         if (property instanceof RestBodyFormFileData restBodyFormFileData) {
             return restBodyFormFileData.getFileData();
         }
-        throw new PluginException(DATASOURCE_ARGUMENT_ERROR, "CONTENT_PARSE_ERROR");
+        throw new ServerException("invalid data type for MultipartForm");
     }
 
     public static List<MultipartFormData> convertToMultiformFileValue(String fileValue, Map<String, Object> paramMap) {
@@ -198,7 +201,8 @@ public class DataUtils {
                         .map(DataUtils::parseMultipartFormData)
                         .toList();
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable e) {
+            throw ExceptionUtils.wrapException(DATASOURCE_ARGUMENT_ERROR, "CONTENT_PARSE_ERROR", e);
             // ignore
         }
         throw new PluginException(DATASOURCE_ARGUMENT_ERROR, "CONTENT_PARSE_ERROR");
@@ -207,8 +211,17 @@ public class DataUtils {
     @Nonnull
     private static MultipartFormData parseMultipartFormData(JsonNode jsonObject) {
         MultipartFormData result = new MultipartFormData();
-        result.setData(jsonObject.get("data").asText());
-        result.setName(jsonObject.get("name").asText());
+        JsonNode data = jsonObject.get("data");
+        if (!data.isTextual()) {
+            throw new PluginException(DATASOURCE_ARGUMENT_ERROR, "MULTIFORM_DATA_IS_NOT_STRING");
+        }
+        result.setData(data.asText());
+
+        JsonNode name = jsonObject.get("name");
+        if (!name.isTextual()) {
+            throw new PluginException(DATASOURCE_ARGUMENT_ERROR, "MULTIFORM_NAME_IS_NOT_STRING");
+        }
+        result.setName(name.asText());
         return result;
     }
 

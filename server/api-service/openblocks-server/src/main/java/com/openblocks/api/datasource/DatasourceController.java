@@ -10,6 +10,7 @@ import static com.openblocks.sdk.exception.BizError.INVALID_PARAMETER;
 import static com.openblocks.sdk.util.ExceptionUtils.ofError;
 import static com.openblocks.sdk.util.LocaleUtils.getLocale;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -17,6 +18,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.validation.Valid;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,8 @@ import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.domain.datasource.service.DatasourceService;
 import com.openblocks.domain.datasource.service.DatasourceStructureService;
 import com.openblocks.domain.permission.model.ResourceRole;
+import com.openblocks.domain.plugin.client.DatasourcePluginClient;
+import com.openblocks.domain.plugin.client.dto.GetPluginDynamicConfigRequestDTO;
 import com.openblocks.infra.constant.NewUrl;
 import com.openblocks.infra.constant.Url;
 import com.openblocks.sdk.config.SerializeConfig.JsonViews;
@@ -60,6 +64,7 @@ public class DatasourceController {
     private final UpsertDatasourceRequestMapper upsertDatasourceRequestMapper;
     private final BusinessEventPublisher businessEventPublisher;
     private final DatasourceService datasourceService;
+    private final DatasourcePluginClient datasourcePluginClient;
 
     @Autowired
     public DatasourceController(
@@ -67,12 +72,13 @@ public class DatasourceController {
             DatasourceApiService datasourceApiService,
             UpsertDatasourceRequestMapper upsertDatasourceRequestMapper,
             BusinessEventPublisher businessEventPublisher,
-            DatasourceService datasourceService) {
+            DatasourceService datasourceService, DatasourcePluginClient datasourcePluginClient) {
         this.datasourceStructureService = datasourceStructureService;
         this.datasourceApiService = datasourceApiService;
         this.upsertDatasourceRequestMapper = upsertDatasourceRequestMapper;
         this.businessEventPublisher = businessEventPublisher;
         this.datasourceService = datasourceService;
+        this.datasourcePluginClient = datasourcePluginClient;
     }
 
     @JsonView(JsonViews.Public.class)
@@ -140,6 +146,30 @@ public class DatasourceController {
                 .map(ResponseView::success);
     }
 
+    /**
+     * Returns the information of all the js data source plugins by the org id which we get by the applicationId, including the data source id,
+     * name, type... and the plugin definition of it, excluding the detail configs such as the connection uri, password...
+     */
+    @GetMapping("/jsDatasourcePlugins")
+    public Mono<ResponseView<List<Datasource>>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId) {
+        return datasourceApiService.listJsDatasourcePlugins(applicationId)
+                .collectList()
+                .map(ResponseView::success);
+    }
+
+    /**
+     * Proxy the request to the node service, besides, add the "extra" information from the data source config stored in the mongodb if exists to
+     * the request dto. And then return the response from the node service.
+     */
+    @PostMapping("/getPluginDynamicConfig")
+    public Mono<ResponseView<List<Object>>> getPluginDynamicConfig(
+            @RequestBody List<GetPluginDynamicConfigRequestDTO> getPluginDynamicConfigRequestDTOS) {
+        if (CollectionUtils.isEmpty(getPluginDynamicConfigRequestDTOS)) {
+            return Mono.just(ResponseView.success(Collections.emptyList()));
+        }
+        return datasourceApiService.getPluginDynamicConfig(getPluginDynamicConfigRequestDTOS)
+                .map(ResponseView::success);
+    }
 
     @JsonView(JsonViews.Public.class)
     @GetMapping("/listByOrg")

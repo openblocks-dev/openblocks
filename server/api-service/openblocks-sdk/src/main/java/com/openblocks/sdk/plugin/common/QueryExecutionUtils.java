@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.util.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -57,7 +57,7 @@ public class QueryExecutionUtils {
 
     @SuppressWarnings("unchecked")
     public static Object getValueSafelyFromFormData(Map<String, Object> formData, String field) {
-        if (CollectionUtils.isEmpty(formData)) {
+        if (MapUtils.isEmpty(formData)) {
             return null;
         }
 

@@ -31,21 +31,27 @@ public class DeleteCommand implements GuiSqlCommand {
         String renderedTable = MustacheHelper.renderMustacheString(table, requestMap);
 
         StringBuilder sb = new StringBuilder();
-        sb.append("delete from ").append(renderedTable);
+        renderTable(renderedTable, sb);
         if (filterSet.isEmpty()) {
-            if (!allowMultiModify) {
-                sb.append(" limit 1");
-            }
+            renderLimit(sb);
             return new GuiSqlCommandRenderResult(sb.toString(), Collections.emptyList());
         }
 
         GuiSqlCommandRenderResult render = filterSet.render(requestMap, columnFrontDelimiter, columnBackDelimiter, isRenderWithRawSql(),
                 escapeStrFunc());
         sb.append(render.sql());
+        renderLimit(sb);
+        return new GuiSqlCommandRenderResult(sb.toString(), render.bindParams());
+    }
+
+    protected void renderTable(String renderedTable, StringBuilder sb) {
+        sb.append("delete from ").append(renderedTable);
+    }
+
+    protected void renderLimit(StringBuilder sb) {
         if (!allowMultiModify) {
             sb.append(" limit 1");
         }
-        return new GuiSqlCommandRenderResult(sb.toString(), render.bindParams());
     }
 
     @Override

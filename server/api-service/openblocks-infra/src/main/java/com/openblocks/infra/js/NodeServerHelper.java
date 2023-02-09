@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.openblocks.sdk.config.CommonConfig;
+import com.openblocks.sdk.config.CommonConfigHelper;
 
 @Component
 public class NodeServerHelper {
@@ -14,7 +14,7 @@ public class NodeServerHelper {
     private static final String PREFIX = "node-service/api";
 
     @Autowired
-    private CommonConfig commonConfig;
+    private CommonConfigHelper commonConfigHelper;
 
     public URI createUri(String path) {
         if (path.startsWith("/")) {
@@ -23,7 +23,7 @@ public class NodeServerHelper {
         if (path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
         }
-        return UriComponentsBuilder.fromUriString(commonConfig.getJsExecutor().getHost())
+        return UriComponentsBuilder.fromUriString(commonConfigHelper.getHost())
                 .pathSegment(PREFIX, path)
                 .build()
                 .toUri();
