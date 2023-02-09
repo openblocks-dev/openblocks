@@ -132,7 +132,7 @@ function TableView(props: {
         return;
       }
       compChildren.onEvent.getView()(eventName);
-      compChildren.columns.dispatchClearChangeSet();
+      setTimeout(() => compChildren.columns.dispatchClearChangeSet(), 0);
     },
     [viewMode, compChildren.onEvent, compChildren.columns]
   );

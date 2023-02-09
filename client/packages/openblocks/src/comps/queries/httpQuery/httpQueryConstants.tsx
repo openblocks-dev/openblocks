@@ -51,7 +51,8 @@ export const HttpPathPropertyView = (props: {
           {props.comp.children.path.propertyView({
             placement: "bottom",
             placeholder:
-              props.urlPlaceholder || (httpConfig?.url ? "/v1/test" : "https://xxx.com/v1/test"),
+              props.urlPlaceholder ||
+              (httpConfig?.url ? "/v1/test" : "https://example.com/v1/test"),
           })}
         </UrlInput>
       </QueryConfigItemWrapper>

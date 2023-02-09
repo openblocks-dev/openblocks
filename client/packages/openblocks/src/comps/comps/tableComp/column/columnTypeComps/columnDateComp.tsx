@@ -124,8 +124,7 @@ const childrenMap = {
   format: withDefault(StringControl, DATE_FORMAT),
 };
 
-const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) =>
-  formatDate(props.text, props.format);
+const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
 
 type DateTimeEditProps = {
   value: string;
@@ -135,6 +134,10 @@ type DateTimeEditProps = {
 
 const DateTimeEdit = (props: DateTimeEditProps) => {
   const [panelOpen, setPanelOpen] = useState(true);
+  let value = moment(props.value, DateParser);
+  if (!value.isValid()) {
+    value = moment(0, DateParser);
+  }
   return (
     <Wrapper
       onKeyDown={(e) => {
@@ -153,7 +156,7 @@ const DateTimeEdit = (props: DateTimeEditProps) => {
         allowClear={false}
         bordered={false}
         autoFocus
-        defaultValue={moment(props.value)}
+        defaultValue={value}
         showTime
         showNow={true}
         defaultOpen={true}

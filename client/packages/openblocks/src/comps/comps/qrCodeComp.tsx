@@ -57,7 +57,7 @@ let QRCodeBasicComp = (function () {
           {children.value.propertyView({
             label: trans("QRCode.value"),
             tooltip: trans("QRCode.valueTooltip"),
-            placeholder: "https://xxx.com",
+            placeholder: "https://example.com",
           })}
           {children.level.propertyView({
             label: trans("QRCode.level"),

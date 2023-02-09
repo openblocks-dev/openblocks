@@ -5,6 +5,7 @@ import { stateComp, valueComp, withDefault } from "comps/generators";
 import { changeChildAction } from "openblocks-core";
 import { ConstructorToNodeType } from "openblocks-core";
 import { trans } from "i18n";
+import _ from "lodash";
 
 const DEFAULT_PAGE_SIZE = 5;
 
@@ -21,12 +22,22 @@ export function getPageSize(
   }
 }
 
+function numberControlToValueComp(defaultValue: number) {
+  class ValueComp extends valueComp<number>(5) {
+    override oldValueToNew(value: number | string | undefined) {
+      if (_.isNil(value)) return value;
+      return Number(value);
+    }
+  }
+  return ValueComp;
+}
+
 export const PaginationControl = (function () {
   const childrenMap = {
     showQuickJumper: BoolControl,
     showSizeChanger: BoolControl,
     hideOnSinglePage: BoolControl,
-    changeablePageSize: valueComp<number>(5),
+    changeablePageSize: numberControlToValueComp(5),
     pageSize: NumberControl,
     total: NumberControl,
     pageNo: stateComp<number>(1),
