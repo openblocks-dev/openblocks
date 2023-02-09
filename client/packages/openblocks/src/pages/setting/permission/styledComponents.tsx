@@ -331,6 +331,7 @@ export const TableStyled = styled(Table)`
         visibility: unset;
       }
     }
+  }
 `;
 
 const OperationLink = styled(StyledLink)`

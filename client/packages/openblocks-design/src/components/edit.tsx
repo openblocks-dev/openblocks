@@ -19,8 +19,8 @@ export const EditTextWrapper = styled.div<{ disabled?: boolean; hasPrefix?: bool
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 8px;
-  padding-left: ${(props) => (props.hasPrefix ? "28px" : "8px")};
+  padding: 0 8px 0 4px;
+  padding-left: ${(props) => (props.hasPrefix ? "28px" : "4px")};
   border-radius: 4px;
   width: 220px;
   height: 28px;
@@ -35,6 +35,9 @@ export const EditTextWrapper = styled.div<{ disabled?: boolean; hasPrefix?: bool
 
   :hover svg {
     visibility: ${(props) => (props.disabled ? "hidden" : "visible")};
+    &:hover g {
+      fill: #315efb;
+    }
   }
 `;
 export const TextWrapper = styled.div`
@@ -63,8 +66,8 @@ const TextInput = styled(Input)<InputProps & { $hasPrefix?: boolean }>`
   min-height: 0;
   background-color: #8b8fa34c;
   border: none;
-  padding: 0 8px;
-  padding-left: ${(props) => (props.$hasPrefix ? "28px" : "8px")};
+  padding: 0 8px 0 4px;
+  padding-left: ${(props) => (props.$hasPrefix ? "28px" : "4px")};
   color: #ffffff;
   line-height: 28px;
   font-size: 14px;

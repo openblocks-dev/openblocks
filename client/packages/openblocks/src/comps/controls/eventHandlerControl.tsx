@@ -42,7 +42,7 @@ interface SingleEventHandlerProperViewProps {
 
 const childrenMap = {
   name: dropdownControl<EventConfigsType>([], ""), // event name
-  // FIXME: refactor the parameter config the same as retool
+  // FIXME: refactor the parameter config more properly
   handler: ActionSelectorControl,
 };
 

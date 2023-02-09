@@ -687,6 +687,8 @@ declare abstract class MultiBaseComp<
   };
   nodeWithoutCache(): NodeType;
   changeDispatch(dispatch: DispatchType): this;
+  protected ignoreChildDefaultValue(): boolean;
+  readonly IGNORABLE_DEFAULT_VALUE: {};
   toJsonValue(): DataType;
   autoHeight(): boolean;
 }

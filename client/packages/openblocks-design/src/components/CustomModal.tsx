@@ -177,6 +177,7 @@ function ModalFooter(props: {
             if (result && !!result.then) {
               return result.then(model && model.destroy).finally(() => setConfirmLoading(false));
             }
+            setConfirmLoading(false)
             model && model.destroy();
           }}
           autoFocus={autoFocusButton === "ok"}

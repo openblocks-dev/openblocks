@@ -6,12 +6,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "../../../redux/selectors/usersSelectors";
 import { createDatasource, updateDatasource } from "../../../redux/reduxActions/datasourceActions";
 import { trans } from "i18n";
+import { registryDataSourcePlugin } from "constants/queryConstants";
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 
 export function useDatasourceForm() {
   const [testLoading, setTestLoading] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
+  const [isReadyToSubmit, setIsReadyToSubmit] = useState(true);
   const currentUser = useSelector(getUser);
   const orgId = currentUser.currentOrgId;
   const [form] = Form.useForm();
@@ -21,6 +23,8 @@ export function useDatasourceForm() {
     testLoading: testLoading,
     createLoading: createLoading,
     form: form,
+    isReadyToSubmit,
+    setIsReadyToSubmit,
     genRequest: ({
       datasourceId,
       datasourceType,
@@ -109,7 +113,11 @@ export function useDatasourceForm() {
 
         const onSuccessCallback = (response: any) => {
           message.success(trans("query.saveSuccessfully"));
-          afterCreate?.(response.data.data);
+          const dataSource: Datasource = response.data.data;
+          afterCreate?.(dataSource);
+          if (dataSource.pluginDefinition) {
+            registryDataSourcePlugin(dataSource.type, dataSource.id, dataSource.pluginDefinition);
+          }
           setCreateLoading(false);
         };
 

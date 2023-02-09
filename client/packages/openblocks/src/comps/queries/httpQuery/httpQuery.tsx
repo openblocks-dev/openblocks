@@ -104,6 +104,10 @@ export class HttpQuery extends HttpTmpQuery {
   }) {
     return <HttpQueryPropertyView {...props} comp={this} />;
   }
+
+  getHttpMethod() {
+    return this.children.httpMethod.getView();
+  }
 }
 
 type ChildrenType = InstanceType<typeof HttpQuery> extends MultiBaseComp<infer X> ? X : never;

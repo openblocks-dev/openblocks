@@ -9,6 +9,7 @@ import {
   Node,
   WrapNode,
   CompParams,
+  DispatchType,
 } from "openblocks-core";
 import { RootComp } from "comps/comps/rootComp";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
@@ -207,6 +208,21 @@ class ModuleTmpComp extends ModuleCompBase {
       parentApplicationPath: isModule ? [...parentApplicationPath, applicationId] : [],
     };
     return ctx;
+  }
+
+  override changeDispatch(dispatch: DispatchType) {
+    const next = super.changeDispatch(dispatch);
+    const nextModuleRootComp = this.moduleRootComp?.changeDispatch(next.getModuleDispatchFn());
+    if (!nextModuleRootComp) {
+      return next;
+    }
+    return setFieldsNoTypeCheck(
+      next,
+      {
+        moduleRootComp: nextModuleRootComp,
+      },
+      { keepCacheKeys: ["node"] }
+    );
   }
 
   getModuleDispatchFn() {

@@ -91,6 +91,7 @@ export type UICompType =
   | "tabbedContainer"
   | "modal"
   | "listView"
+  | "grid"
   | "navigation"
   | "iframe"
   | "custom"

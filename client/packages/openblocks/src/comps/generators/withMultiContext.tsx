@@ -7,7 +7,9 @@ import {
   ConstructorToComp,
   ConstructorToNodeType,
   ConstructorToView,
+  customAction,
   isChildAction,
+  isMyCustomAction,
   MultiBaseComp,
   MultiCompConstructor,
   Node,
@@ -47,11 +49,6 @@ export function withMultiContextWithDefault<
   TCtor extends MultiCompConstructor,
   ParamValues extends Record<string, unknown>
 >(VariantCompCtor: TCtor, paramValues: ParamValues) {
-  type SetOriginalParamsAction = {
-    type: "setOriginalParams";
-    params: Partial<ParamValues>;
-  };
-
   const WithParamCompCtor = withParamsWithDefault(VariantCompCtor, paramValues);
   type WithParamComp = ConstructorToComp<typeof WithParamCompCtor>;
   const MapCtor = map(WithParamCompCtor);
@@ -127,6 +124,27 @@ export function withMultiContextWithDefault<
     }
 
     override reduce(action: CompAction): this {
+      if (isMyCustomAction<MirrorToOrigin>(action, "mirrorToOrigin")) {
+        const key = action.value.key;
+        const mapComps = this.children[MAP_KEY].getView();
+        if (mapComps.hasOwnProperty(key)) {
+          const newMapComps = _.mapValues(this.cacheParamsMap, (params, key) => {
+            if (mapComps.hasOwnProperty(key)) return mapComps[key];
+            return this.getOriginalComp()
+              .setParams(params)
+              .changeDispatch(wrapDispatch(this.children[MAP_KEY].dispatch, key));
+          });
+          const newMap = this.children[MAP_KEY].reduce(MapCtor.clearAction()).reduce(
+            MapCtor.batchSetCompAction(newMapComps)
+          );
+          const newOriginalComp = mapComps[key].changeDispatch(this.getOriginalComp().dispatch);
+          return this.setChildren({ [CHILD_KEY]: newOriginalComp, [MAP_KEY]: newMap });
+        } else if (this.cacheParamsMap.hasOwnProperty(key)) {
+          const params = this.cacheParamsMap[key];
+          return this.setChild(CHILD_KEY, this.getOriginalComp().setParams(params));
+        }
+        return this;
+      }
       // a virtual path is activated, should generate a new comp in __map__
       if (isChildAction(action) && action.path[0] === VIRTUAL_NAME) {
         const [key, childAction] = unwrapChildAction(unwrapChildAction(action)[1]);
@@ -169,7 +187,19 @@ export function withMultiContextWithDefault<
     static setOriginalParamsAction(params: Partial<ParamValues>) {
       return wrapChildAction(CHILD_KEY, WithParamCompCtor.setParamDataAction(params));
     }
+
+    static mirrorToOriginAction(key: string) {
+      return customAction<MirrorToOrigin>({
+        type: "mirrorToOrigin",
+        key,
+      });
+    }
   }
 
   return WithMultiContextComp;
+
+  type MirrorToOrigin = {
+    type: "mirrorToOrigin";
+    key: string;
+  };
 }

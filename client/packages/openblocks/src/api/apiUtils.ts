@@ -124,7 +124,7 @@ export const apiFailureResponseInterceptor = (error: any) => {
           // Redirect to login and set a redirect url.
           StoreRegistry.getStore().dispatch(
             logoutAction({
-              noLogoutReq: true,
+              notAuthorised: true,
             })
           );
           return Promise.reject({

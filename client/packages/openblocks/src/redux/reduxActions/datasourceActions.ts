@@ -8,15 +8,15 @@ import { DatasourceInfo, DataSourceTypeInfo } from "api/datasourceApi";
 
 export type FetchDatasourcePayload = {
   organizationId: string;
+  onSuccess?: (dataSources: DatasourceInfo[]) => void;
 };
-export const fetchDatasource = ({
-  organizationId,
-}: {
-  organizationId: string;
-}): EvaluationReduxAction<FetchDatasourcePayload> => {
+
+export const fetchDatasource = (
+  payload: FetchDatasourcePayload
+): EvaluationReduxAction<FetchDatasourcePayload> => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCE_INIT,
-    payload: { organizationId },
+    payload,
   };
 };
 

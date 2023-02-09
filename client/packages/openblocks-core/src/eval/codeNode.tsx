@@ -182,7 +182,7 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
 
       const dependingNodeMap = this.filterNodes(exposingNodes);
       dependingNodeMap.forEach((paths, depend) => {
-        const fi = depend.fetchInfo(exposingNodes);
+        const fi = depend.fetchInfo(exposingNodes, options);
         isFetching = isFetching || fi.isFetching;
         ready = ready && fi.ready;
       });

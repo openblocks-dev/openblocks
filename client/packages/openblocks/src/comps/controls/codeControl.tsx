@@ -74,6 +74,8 @@ export function codeControl<
     private readonly _exposingNode: Node<T>;
     private readonly handleChange: (editorState: EditorState) => void;
 
+    readonly IGNORABLE_DEFAULT_VALUE = defaultCode ? undefined : "";
+
     override getView() {
       return this.valueAndMsg.value;
     }

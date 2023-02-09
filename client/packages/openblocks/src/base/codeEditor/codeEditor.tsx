@@ -278,6 +278,21 @@ const CodeEditorPanelContainer = styled.div<{
   overflow: auto;
   border-bottom-right-radius: 8px;
   border-bottom-left-radius: 8px;
+  ::-webkit-scrollbar {
+    width: 16px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border: 5px solid transparent;
+    background-clip: content-box;
+    border-radius: 9999px;
+    background-color: rgba(139, 143, 163, 0.2);
+    min-height: 30px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(139, 143, 163, 0.5);
+  }
 
   .cm-content {
     padding-top: 12px;
@@ -425,10 +440,13 @@ const Container = styled.div<{
     padding-right: 8px;
   }
 
-  .cm-editor,
+  .cm-editor {
+    min-height: ${(props) => getStyle(props.styleName).minHeight};
+  }
   .cm-content,
   .cm-gutter {
     min-height: ${(props) => getStyle(props.styleName).minHeight};
+    min-height: calc(${(props) => getStyle(props.styleName).minHeight} - 2px);
   }
 
   .cm-editor {

@@ -4,6 +4,7 @@
 import { CompName } from "components/CompName";
 import { CompNameContext } from "comps/editorState";
 import { withIsLoading, withTypeAndChildren } from "comps/generators";
+import { ToInstanceType } from "comps/generators/multi";
 import { CompExposingContext } from "comps/generators/withContext";
 import { withErrorBoundary } from "comps/generators/withErrorBoundary";
 import {
@@ -14,11 +15,13 @@ import {
 } from "comps/uiCompRegistry";
 import { ExposingInfo } from "comps/utils/exposingTypes";
 import { getReduceContext, ListViewContext } from "comps/utils/reduceContext";
+import { parseCompType } from "comps/utils/remote";
 import _ from "lodash";
 import { Comp, CompAction, ConstructorToDataType } from "openblocks-core";
 import React, { Profiler, useContext, useMemo } from "react";
 import { profilerCallback } from "util/cacheUtils";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
+import { remoteComp } from "./remoteComp/remoteComp";
 import { SimpleNameComp } from "./simpleNameComp";
 
 const ITEM_CHAR = "ijklmn";
@@ -30,26 +33,35 @@ function getListExposingHints(listViewDepth: number): Record<typeof ITEM_CHAR[nu
     .value();
 }
 
-const compMap: Record<string, ExposingMultiCompConstructor> = {};
-
-function getCompMap() {
-  if (!compMap) {
-    return compMap;
-  }
-  Object.entries(uiCompRegistry).forEach(([name, manifest]) => {
-    const comp = manifest.withoutLoading ? manifest.comp : withIsLoading(manifest.comp);
-    compMap[name as UICompType] = withErrorBoundary(comp);
-  });
-  return compMap;
-}
-
 export function defaultLayout(compType: UICompType): UICompLayoutInfo {
   return uiCompRegistry[compType]?.layoutInfo ?? { w: 5, h: 5 };
 }
 
-const TmpComp = withTypeAndChildren(getCompMap, "button", {
+const childrenMap = {
   name: SimpleNameComp,
-});
+};
+
+const TmpComp = withTypeAndChildren<
+  Record<string, ExposingMultiCompConstructor>,
+  ToInstanceType<typeof childrenMap>
+>(
+  (type) => {
+    const compInfo = parseCompType(type);
+    if (compInfo.isRemote) {
+      return remoteComp(compInfo);
+    }
+    const entries = Object.entries(uiCompRegistry);
+    for (let [name, manifest] of entries) {
+      if (name !== type) {
+        continue;
+      }
+      const comp = manifest.withoutLoading ? manifest.comp : withIsLoading(manifest.comp);
+      return withErrorBoundary(comp) as ExposingMultiCompConstructor;
+    }
+  },
+  "button",
+  childrenMap
+);
 
 function CachedView(props: { comp: Comp; name: string }) {
   return React.useMemo(

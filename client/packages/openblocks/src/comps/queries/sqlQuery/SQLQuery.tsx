@@ -191,7 +191,7 @@ const SQLQueryPropertyView = (props: { comp: InstanceType<typeof SQLQuery> }) =>
             options={
               [
                 { label: trans("sqlQuery.insert"), value: "INSERT" },
-                ...(context?.resourceType === "postgres"
+                ...(context?.resourceType === "postgres" || context?.resourceType === "mssql"
                   ? []
                   : [{ label: trans("sqlQuery.upsert"), value: "UPSERT" }]),
                 { label: trans("sqlQuery.update"), value: "UPDATE" },
@@ -203,6 +203,7 @@ const SQLQueryPropertyView = (props: { comp: InstanceType<typeof SQLQuery> }) =>
             value={children.commandType.getView()}
             onChange={(value: any) => {
               props.comp.dispatchChangeAndPreserveAction({
+                command: { table: children.command.children.table.getView() },
                 commandType: value,
                 mode: children.mode.toJsonValue(),
                 sql: children.sql.toJsonValue(),
@@ -244,4 +245,4 @@ export const SQLQuery = class extends SQLTmpQuery {
   }
 };
 
-export const SUPPORT_GUI_SQL_QUERY: ResourceType[] = ["mysql", "postgres"];
+export const SUPPORT_GUI_SQL_QUERY: ResourceType[] = ["mysql", "postgres", "mssql"];

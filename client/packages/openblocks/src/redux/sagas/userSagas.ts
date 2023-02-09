@@ -130,16 +130,19 @@ export function* updateUserSaga(action: ReduxAction<UpdateUserPayload>) {
 
 export function* logoutSaga(action: LogoutActionType) {
   try {
-    const currentUrl = window.location.href;
-    let redirectURL = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(currentUrl)}`;
-    const urlObj = new URL(currentUrl);
-    // Add loginType param for auto login jump
-    const loginType = urlObj.searchParams.get(AuthSearchParams.loginType);
-    if (loginType) {
-      redirectURL = redirectURL + `&${AuthSearchParams.loginType}=${loginType}`;
+    let redirectURL = AUTH_LOGIN_URL;
+    if (action.payload.notAuthorised) {
+      const currentUrl = window.location.href;
+      redirectURL = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(currentUrl)}`;
+      const urlObj = new URL(currentUrl);
+      // Add loginType param for auto login jump
+      const loginType = urlObj.searchParams.get(AuthSearchParams.loginType);
+      if (loginType) {
+        redirectURL = redirectURL + `&${AuthSearchParams.loginType}=${loginType}`;
+      }
     }
     let isValidResponse = true;
-    if (!action.payload.noLogoutReq) {
+    if (!action.payload.notAuthorised) {
       const response: AxiosResponse<ApiResponse> = yield call(UserApi.userLogout);
       isValidResponse = validateResponse(response);
     }

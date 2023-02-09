@@ -377,7 +377,7 @@ export function columnsToAntdFormat(
       title: title,
       dataIndex: ["record", column.dataIndex],
       align: column.align,
-      width: column.autoWidth === "auto" ? -1 : column.width,
+      width: column.autoWidth === "auto" ? 0 : column.width,
       fixed: column.fixed === "close" ? false : column.fixed,
       onWidthResize: column.onWidthResize,
       render: (value: any, record: RecordType, index: number) => {

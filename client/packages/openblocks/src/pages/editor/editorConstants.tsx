@@ -81,6 +81,7 @@ export const CompStateIcon: {
   tabbedContainer: <LeftContainer />,
   modal: <LeftModal />,
   listView: <LeftListView />,
+  grid: <LeftListView />,
   navigation: <LeftNavigation />,
   iframe: <LeftIframe />,
   custom: <LeftCommon />,

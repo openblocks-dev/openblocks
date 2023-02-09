@@ -1683,7 +1683,7 @@ var CodeNode = /** @class */ (function (_super) {
             });
             var dependingNodeMap = this.filterNodes(exposingNodes);
             dependingNodeMap.forEach(function (paths, depend) {
-                var fi = depend.fetchInfo(exposingNodes);
+                var fi = depend.fetchInfo(exposingNodes, options);
                 isFetching_1 = isFetching_1 || fi.isFetching;
                 ready_1 = ready_1 && fi.ready;
             });
@@ -3321,6 +3321,7 @@ var MultiBaseComp = /** @class */ (function (_super) {
     __extends(MultiBaseComp, _super);
     function MultiBaseComp(params) {
         var _this = _super.call(this, params) || this;
+        _this.IGNORABLE_DEFAULT_VALUE = {};
         _this.children = _this.parseChildrenFromValue(params);
         return _this;
     }
@@ -3464,16 +3465,24 @@ var MultiBaseComp = /** @class */ (function (_super) {
         });
         return _super.prototype.changeDispatch.call(this, dispatch).setChildren(newChildren, { keepCacheKeys: ["node"] });
     };
+    MultiBaseComp.prototype.ignoreChildDefaultValue = function () {
+        return false;
+    };
     MultiBaseComp.prototype.toJsonValue = function () {
         var _this = this;
         var result = {};
+        var ignore = this.ignoreChildDefaultValue();
         Object.keys(this.children).forEach(function (key) {
             var comp = _this.children[key];
             // FIXME: this implementation is a little tricky, better choose a encapsulated implementation
             if (comp.hasOwnProperty("NO_PERSISTENCE")) {
                 return;
             }
-            result[key] = comp.toJsonValue();
+            var value = comp.toJsonValue();
+            if (ignore && _.isEqual(value, comp["IGNORABLE_DEFAULT_VALUE"])) {
+                return;
+            }
+            result[key] = value;
         });
         return result;
     };

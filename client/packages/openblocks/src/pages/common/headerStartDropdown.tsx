@@ -141,7 +141,7 @@ export function HeaderStartDropdown(props: { setEdit: () => void }) {
         }
       >
         <EditTextWrapper
-          style={{ width: "fit-content", maxWidth: "288px" }}
+          style={{ width: "fit-content", maxWidth: "288px", padding: "0 8px" }}
           disabled={showAppSnapshot}
         >
           {isModule && (

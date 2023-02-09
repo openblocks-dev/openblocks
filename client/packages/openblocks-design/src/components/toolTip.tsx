@@ -147,11 +147,14 @@ const TooltipTitleWrapper = styled.span`
 `;
 
 export const UnderlineCss = css`
-  background-image: linear-gradient(to right, #8b8fa3 50%, #fff 0%);
-  background-size: 4px 1px;
-  background-position: 5px bottom;
-  background-repeat: repeat-x;
-  padding-bottom: 2.5px !important;
+  span {
+    background-image: linear-gradient(to right, #8b8fa3 50%, #fff 0%);
+    background-size: 4px 1px;
+    background-position: 5px bottom;
+    background-repeat: repeat-x;
+    padding-bottom: 2.5px !important;
+    line-height: 18px;
+  }
 `;
 
 function Tooltip(props: TooltipProps) {
@@ -193,7 +196,7 @@ function ToolTipLabel(
     >
       {label ? (
         <Label style={labelStyle} border={!!title} className="tooltipLabel">
-          {label}
+          <span>{label}</span>
         </Label>
       ) : (
         children

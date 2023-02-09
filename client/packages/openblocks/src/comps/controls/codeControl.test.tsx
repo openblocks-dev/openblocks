@@ -1,7 +1,7 @@
 import { changeValueAction } from "openblocks-core";
 import { Comp } from "openblocks-core";
 import { evalAndReduce } from "comps/utils";
-import { StringControl } from "./codeControl";
+import { NumberControl, StringControl } from "./codeControl";
 
 function serialize(comp: Comp) {
   return JSON.stringify(comp.toJsonValue());
@@ -20,4 +20,18 @@ test("test code editor value", () => {
   expect(serialize(comp)).toEqual('"INIT_VALUE"');
   comp = evalAndReduce(comp);
   expect(comp.getView()).toEqual("INIT_VALUE");
+});
+
+test("test number control", () => {
+  // number control with string
+  let comp = new NumberControl({ value: "111" });
+  expect(serialize(comp)).toEqual('"111"');
+  comp = evalAndReduce(comp);
+  expect(comp.getView()).toEqual(111);
+
+  // number control with number
+  comp = new NumberControl({ value: -1 });
+  expect(serialize(comp)).toEqual('"-1"');
+  comp = evalAndReduce(comp);
+  expect(comp.getView()).toEqual(-1);
 });

@@ -30,7 +30,7 @@ const AdvancedSettingContent = styled.div`
     margin-bottom: 8px;
   }
   .section-content {
-    margin-bottom: 32px;
+    margin-bottom: 28px;
   }
   .section-option {
     color: ${GreyTextColor};

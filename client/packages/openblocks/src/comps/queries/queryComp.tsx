@@ -53,10 +53,20 @@ import { QueryContext } from "../../util/context/QueryContext";
 import { perfMark, perfMeasure } from "util/perfUtils";
 import { trans } from "i18n";
 import { undoKey } from "util/keyUtils";
-import { manualTriggerResource, QueryMap } from "@openblocks-ee/constants/queryConstants";
-import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "../../constants/queryConstants";
+import {
+  manualTriggerResource,
+  QueryMap,
+  ResourceType,
+} from "@openblocks-ee/constants/queryConstants";
+import {
+  QUERY_EXECUTION_ERROR,
+  QUERY_EXECUTION_OK,
+  JsPluginQueryMap,
+} from "../../constants/queryConstants";
 import DataSourceIcon from "components/DataSourceIcon";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
+import { ToInstanceType } from "comps/generators/multi";
+import { HttpQuery } from "./httpQuery/httpQuery";
 
 export type QueryResultExtra = Omit<
   QueryExecuteResponse,
@@ -83,7 +93,7 @@ const EventOptions = [
   { label: trans("query.fail"), value: "fail", description: trans("query.failDesc") },
 ] as const;
 
-let QueryCompTmp = withTypeAndChildren(QueryMap, "js", {
+const childrenMap = {
   id: valueComp<string>(""),
   name: SimpleNameComp,
   order: valueComp<number>(0),
@@ -125,7 +135,24 @@ let QueryCompTmp = withTypeAndChildren(QueryMap, "js", {
       return unit === "s" ? value * 1000 : value;
     },
   }),
-});
+};
+
+let QueryCompTmp = withTypeAndChildren<typeof QueryMap, ToInstanceType<typeof childrenMap>>(
+  (type, value) => {
+    const resourceType = type as ResourceType;
+    const Comp = QueryMap[resourceType];
+    if (Comp) {
+      return Comp;
+    }
+    if (!value?.datasourceId) {
+      return;
+    }
+    const typeWithDataSourceId = `${type}:${value.datasourceId}` as `${string}:${string}`;
+    return JsPluginQueryMap[typeWithDataSourceId];
+  },
+  "js",
+  childrenMap
+);
 
 export type QueryChildrenType = InstanceType<typeof QueryCompTmp> extends MultiBaseComp<infer X>
   ? X
@@ -482,7 +509,12 @@ QueryCompTmp = class extends QueryCompTmp implements BottomResComp {
 
   icon(): ReactNode {
     const type = this.children.compType.getView();
-    return <DataSourceIcon dataSourceType={type} />;
+    let method = undefined;
+    if (type === "restApi") {
+      const childComp = this.children.comp as HttpQuery;
+      method = childComp.getHttpMethod();
+    }
+    return <DataSourceIcon dataSourceType={type} httpMethod={method} />;
   }
 
   order(): number {

@@ -1,4 +1,5 @@
 import { trans } from "i18n";
+import { ChartGreenTheme, ChartTheme, ChartYellowTheme } from "./chartThemeConstant";
 
 export enum MENU_TYPE {
   DELETE = "delete",
@@ -27,6 +28,7 @@ export const themeTemplateList = [
       canvas: "#F5F5F6",
       primarySurface: "#FFFFFF",
       borderRadius: "4px",
+      chart: JSON.stringify(ChartTheme, null, 2),
     },
   },
   {
@@ -37,9 +39,10 @@ export const themeTemplateList = [
       primary: "#F2CB55",
       textDark: "#222222",
       textLight: "#FFFFFF",
-      canvas: "#2E354D",
-      primarySurface: "#54628C",
+      canvas: "#29324F",
+      primarySurface: "#495780",
       borderRadius: "4px",
+      chart: JSON.stringify(ChartYellowTheme, null, 2),
     },
   },
   {
@@ -53,6 +56,7 @@ export const themeTemplateList = [
       canvas: "#F5F5F6",
       primarySurface: "#FFFFFF",
       borderRadius: "4px",
+      chart: JSON.stringify(ChartGreenTheme, null, 2),
     },
   },
 ];

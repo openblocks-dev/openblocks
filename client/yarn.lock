@@ -13657,8 +13657,8 @@ __metadata:
     vite-plugin-svgr: ^2.2.2
     vite-tsconfig-paths: ^3.6.0
   peerDependencies:
-    react: ^17
-    react-dom: ^17
+    react: ">=17"
+    react-dom: ">=17"
   languageName: unknown
   linkType: soft
 

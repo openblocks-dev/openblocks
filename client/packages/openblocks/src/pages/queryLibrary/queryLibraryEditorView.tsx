@@ -51,6 +51,7 @@ const HeaderLeft = styled.div`
       border-color: #3377ff;
       box-shadow: 0 0 0 2px #d6e4ff;
     }
+  }
 `;
 const QueryTime = styled.div`
   display: flex;

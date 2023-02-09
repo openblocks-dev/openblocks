@@ -9,6 +9,9 @@ import { withMultiContextWithDefault } from "comps/generators/withMultiContext";
 import { JSONObject } from "util/jsonTypes";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 
+export const EMPTY_OBJECT = {};
+export type ListCompType = "listView" | "grid";
+
 export const ContextContainerComp = withMultiContextWithDefault(SimpleContainerComp, {
   i: 0,
   currentItem: {} as JSONObject,
@@ -16,6 +19,7 @@ export const ContextContainerComp = withMultiContextWithDefault(SimpleContainerC
 
 export const childrenMap = {
   noOfRows: withIsLoadingMethod(NumberOrJSONObjectArrayControl), // FIXME: migrate "noOfRows" to "data"
+  noOfColumns: withDefault(NumberControl, 1),
   dynamicHeight: AutoHeightControl,
   heightUnitOfRow: withDefault(NumberControl, 1),
   container: ContextContainerComp,
@@ -26,12 +30,12 @@ export const childrenMap = {
 
 export function getData(data: number | Array<JSONObject>): {
   data: Array<JSONObject>;
-  noOfRows: number;
+  itemCount: number;
 } {
-  if (typeof data === "number") return { data: [], noOfRows: data };
-  return { data, noOfRows: data.length };
+  if (typeof data === "number") return { data: [], itemCount: data };
+  return { data, itemCount: data.length };
 }
 
-export function getCurrentItemParams(data: Array<JSONObject>) {
-  return data[0] ?? {};
+export function getCurrentItemParams(data: Array<JSONObject>, idx?: number) {
+  return data[idx ?? 0] ?? EMPTY_OBJECT;
 }
