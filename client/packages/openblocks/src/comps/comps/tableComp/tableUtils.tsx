@@ -143,7 +143,9 @@ export function sortData(
   let resultData = data;
   if (sorter.length > 0) {
     const [sortColumns, sortMethods] = _(sorter)
-      .filter((s) => !!s.column && columns[s.column].sortable)
+      .filter((s) => {
+        return !!s.column && columns[s.column]?.sortable;
+      })
       .map((s) => [s.column, s.desc ? "desc" : "asc"] as const)
       .unzip()
       .value() as [string[], ("desc" | "asc")[]];
