@@ -66,6 +66,7 @@ const HeaderRight = styled.div`
 `;
 
 const Body = styled.div`
+  position: relative;
   display: flex;
   height: calc(100% - 95px);
   width: 100%;

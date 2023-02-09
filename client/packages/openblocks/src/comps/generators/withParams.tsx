@@ -60,12 +60,10 @@ export function withParamsWithDefault<
   };
   type CompNode = NonNullable<ConstructorToNodeType<TCtor>>;
   type CompNodeValue = NodeToValue<CompNode>;
-  type NodeType =
-    | RecordNode<{
-        wrap: Node<WrapContextFn<CompNodeValue>>;
-        comp: WrapContextNodeV2<CompNodeValue>;
-      }>
-    | undefined;
+  type NodeType = RecordNode<{
+    wrap: Node<WrapContextFn<CompNodeValue>>;
+    comp: WrapContextNodeV2<CompNodeValue>;
+  }>;
 
   class WithParamComp
     extends MultiBaseComp<ChildrenType, JSONValue, NodeType>

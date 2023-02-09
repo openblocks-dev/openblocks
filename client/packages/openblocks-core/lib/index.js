@@ -7476,10 +7476,14 @@ var Translator = /** @class */ (function () {
         this.messages = Object.assign({}, data, globalMessages);
         this.language = language;
         this.trans = this.trans.bind(this);
+        this.transToNode = this.transToNode.bind(this);
     }
     Translator.prototype.trans = function (key, variables) {
+        return this.transToNode(key, variables).toString();
+    };
+    Translator.prototype.transToNode = function (key, variables) {
         var message = this.getMessage(key);
-        return new IntlMessageFormat(message, i18n.locale).format(variables).toString();
+        return new IntlMessageFormat(message, i18n.locale).format(variables);
     };
     Translator.prototype.getMessage = function (key) {
         var value = this.messages[key];

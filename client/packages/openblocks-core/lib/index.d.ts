@@ -1,3 +1,5 @@
+/// <reference types="react" />
+import * as react from "react";
 import { ReactNode } from "react";
 
 declare type EvalMethods = Record<string, Record<string, Function>>;
@@ -737,7 +739,7 @@ declare type AddPrefix<T, P extends string> = {
 };
 declare const globalMessages: AddPrefix<{}, "@">;
 declare type GlobalMessageKey = NestedKey<typeof globalMessages>;
-declare type VariableValue = string | number | boolean | Date;
+declare type VariableValue = string | number | boolean | Date | React.ReactNode;
 declare class Translator<Messages extends object> {
   private readonly messages;
   readonly language: string;
@@ -746,6 +748,22 @@ declare class Translator<Messages extends object> {
     key: NestedKey<Messages> | GlobalMessageKey,
     variables?: Record<string, VariableValue>
   ): string;
+  transToNode(
+    key: NestedKey<Messages> | GlobalMessageKey,
+    variables?: Record<string, VariableValue>
+  ):
+    | string
+    | {}
+    | react.ReactElement<any, string | react.JSXElementConstructor<any>>
+    | Iterable<react.ReactNode>
+    | react.ReactPortal
+    | (
+        | string
+        | {}
+        | react.ReactElement<any, string | react.JSXElementConstructor<any>>
+        | Iterable<react.ReactNode>
+        | react.ReactPortal
+      )[];
   private getMessage;
 }
 declare function getI18nObjects<I18nObjects>(fileData: object, filterLocales?: string): I18nObjects;
