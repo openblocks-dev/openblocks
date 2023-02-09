@@ -1507,7 +1507,7 @@ function evalFunction(unevaledValue, context, methods, isAsync) {
             if (runInHost === void 0) { runInHost = false; }
             return evalFunc(unevaledValue.startsWith("return")
                 ? unevaledValue + "\n"
-                : "return function(){'use strict'; " + unevaledValue + "\n}()", args ? __assign(__assign({}, context), args) : context, methods, { disableLimit: runInHost }, isAsync);
+                : "return ".concat(isAsync ? "async " : "", "function(){'use strict'; ").concat(unevaledValue, "\n}()"), args ? __assign(__assign({}, context), args) : context, methods, { disableLimit: runInHost }, isAsync);
         });
     }
     catch (err) {
