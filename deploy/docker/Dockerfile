@@ -122,6 +122,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certifi
 ARG REACT_APP_COMMIT_ID=test
 ARG REACT_APP_ENV=production
 ARG REACT_APP_EDITION=community
+ARG REACT_APP_DISABLE_JS_SANDBOX=true
 RUN yarn build
 
 
