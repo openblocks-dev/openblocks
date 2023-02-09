@@ -135,9 +135,7 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
     bottom: 35,
   };
   let config: EChartsOption = {
-    color: chartColorPalette,
     title: { text: props.title, left: "center" },
-    backgroundColor: "#fff",
     tooltip: {
       confine: true,
       trigger: axisChart ? "axis" : "item",

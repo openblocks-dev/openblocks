@@ -2,7 +2,6 @@ import { MultiCompBuilder } from "comps/generators";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 
 const children = {
-  // name view refer to retool
   view: SimpleContainerComp,
   // FIXME: keep extensible
 };

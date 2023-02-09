@@ -2,6 +2,7 @@ import { AxiosPromise } from "axios";
 import Api from "./api";
 import { GenericApiResponse } from "./apiResponses";
 import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "../constants/apiConstants";
+import { Datasource as CEDatasource } from "../constants/datasourceConstants";
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 import { JSONArray } from "../util/jsonTypes";
 import { AuthType, HttpOAuthGrantType } from "../pages/datasource/form/httpDatasourceForm";
@@ -120,6 +121,10 @@ export interface DatasourceInfo {
   creatorName?: string;
 }
 
+export interface NodePluginDatasourceInfo extends Omit<CEDatasource, "datasourceConfig"> {
+  pluginDefinition: DataSourcePluginMeta;
+}
+
 export interface DatasourceStructure {
   columns: {
     name: string;
@@ -142,6 +147,13 @@ export interface DataSourceTypeInfo {
 
 export class DatasourceApi extends Api {
   static url = "v1/datasources";
+
+  // this api can be accessed by anonymous users when app is public.
+  static fetchJsDatasourceByApp(
+    appId: string
+  ): AxiosPromise<GenericApiResponse<NodePluginDatasourceInfo[]>> {
+    return Api.get(DatasourceApi.url + `/jsDatasourcePlugins?appId=${appId}`);
+  }
 
   static fetchDatasourceByApp(appId: string): AxiosPromise<GenericApiResponse<DatasourceInfo[]>> {
     return Api.get(DatasourceApi.url + `/listByApp?appId=${appId}`);
@@ -187,5 +199,16 @@ export class DatasourceApi extends Api {
     orgId: string
   ): AxiosPromise<GenericApiResponse<DataSourceTypeInfo[]>> {
     return Api.get(`/v1/organizations/${orgId}/datasourceTypes`);
+  }
+
+  static fetchDynamicPluginConfig<T = any>(
+    pluginName: string,
+    path: string,
+    dataSourceConfig: any,
+    dataSourceId?: string
+  ): AxiosPromise<GenericApiResponse<T[]>> {
+    return Api.post(DatasourceApi.url + `/getPluginDynamicConfig`, [
+      { pluginName, path, dataSourceConfig, dataSourceId },
+    ]);
   }
 }

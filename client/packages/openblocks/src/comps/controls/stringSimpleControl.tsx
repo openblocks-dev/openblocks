@@ -7,6 +7,7 @@ import { ControlParams } from "./controlParams";
 
 export function stringSimpleControl(defaultValue?: string) {
   class StringSimpleControl extends SimpleComp<string> {
+    readonly IGNORABLE_DEFAULT_VALUE = defaultValue ? undefined : "";
     protected getDefaultValue(): string {
       return defaultValue ?? "";
     }

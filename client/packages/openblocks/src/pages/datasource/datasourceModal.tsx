@@ -171,7 +171,8 @@ interface DatasourceModalFooterProps {
 
 export function DatasourceModalFooter(props: DatasourceModalFooterProps) {
   const { dataSourceType, dataSourceId, formManifest, onCreated, datasourceForm } = props;
-  const { testLoading, createLoading, genRequest, resolveTest, resolveCreate } = datasourceForm;
+  const { testLoading, isReadyToSubmit, createLoading, genRequest, resolveTest, resolveCreate } =
+    datasourceForm;
   if (!dataSourceType) {
     return null;
   }
@@ -199,6 +200,7 @@ export function DatasourceModalFooter(props: DatasourceModalFooterProps) {
       <ModalButton
         buttonType="primary"
         loading={createLoading}
+        disabled={!isReadyToSubmit}
         onClick={() =>
           resolveCreate({
             datasourceId: dataSourceId,
@@ -231,6 +233,13 @@ export function useDataSourceModalSteps(params: UseDataSourceModalStepsParams) {
   const formManifest =
     datasourceType && getDataSourceFormManifest(datasourceType, datasourcePluginDef);
   const DataSourceForm = formManifest?.form;
+
+  const { setIsReadyToSubmit } = datasourceForm;
+
+  useEffect(() => {
+    setIsReadyToSubmit(true);
+  }, [datasourceType, setIsReadyToSubmit]);
+
   const steps: StepItem[] = useMemo(
     () => [
       {
@@ -274,6 +283,9 @@ export function useDataSourceModalSteps(params: UseDataSourceModalStepsParams) {
           }
           return (
             <DataSourceForm
+              onFormReadyStatusChange={(isReady) => {
+                datasourceForm.setIsReadyToSubmit(isReady);
+              }}
               dataSourceTypeInfo={dataSourceTypeInfo}
               form={datasourceForm.form}
               datasource={datasource!}

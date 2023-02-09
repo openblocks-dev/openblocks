@@ -9,11 +9,17 @@ import styled from "styled-components";
 import { JSONObject } from "../util/jsonTypes";
 
 const Preview = styled.div`
-  border-radius: 8px;
-  height: 435px;
+  border-radius: 6px;
+  height: 411px;
   min-width: 670px;
   overflow: hidden;
   position: relative;
+  .link1 .ant-btn-link {
+    padding-left: 10px;
+  }
+  > div {
+    margin-top: -12px;
+  }
 `;
 
 export default function PreviewApp(props: {

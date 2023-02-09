@@ -41,8 +41,8 @@ function InviteContent(props: { inviteInfo: InviteInfo }) {
           buttonType="primary"
           onClick={() => {
             inviteText && copyToClipboard(inviteText)
-              ? message.success(trans("memberSettings.inviteCopySuccess"))
-              : message.error(trans("memberSettings.inviteCopyError"));
+              ? message.success(trans("copySuccess"))
+              : message.error(trans("copyError"));
           }}
         >
           {trans("memberSettings.inviteCopyLink")}

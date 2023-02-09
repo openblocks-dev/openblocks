@@ -11,6 +11,7 @@ import { MultiCompBuilder } from "./multi";
 import { StringControl } from "comps/controls/codeControl";
 import { evalAndReduce } from "comps/utils";
 import { fromRecord, fromValue } from "openblocks-core";
+import { BoolControl } from "comps/controls/boolControl";
 
 const emptyViewFunc = (props: Record<string, any>) => {
   return <div></div>;
@@ -169,4 +170,42 @@ test("test code", () => {
   };
   comp = evalAndReduce(comp, exposingNode);
   expect(comp.getView()).toEqual("abc");
+});
+
+test("removeDefault", () => {
+  const Comp1 = (function () {
+    const childrenMap = {
+      v0: StringControl,
+      v1: withDefault(StringControl, "{{a.b}}"),
+      v2: BoolControl,
+      v3: BoolControl.DEFAULT_TRUE,
+    };
+    return new MultiCompBuilder(childrenMap, (props) => props)
+      .setPropertyViewFn(emptyViewFunc)
+      .build();
+  })();
+  expect(evalAndReduce(new Comp1({})).toJsonValue()).toEqual({ v1: "{{a.b}}", v3: true });
+  expect(
+    evalAndReduce(
+      new Comp1({ value: { v0: "", v1: "{{a.b}}", v2: false, v3: true } })
+    ).toJsonValue()
+  ).toEqual({ v1: "{{a.b}}", v3: true });
+  expect(
+    evalAndReduce(new Comp1({ value: { v0: "bc", v1: "", v2: true, v3: false } })).toJsonValue()
+  ).toEqual({
+    v0: "bc",
+    v1: "",
+    v2: true,
+    v3: false,
+  });
+  expect(
+    evalAndReduce(
+      new Comp1({ value: { v0: "bc", v1: "{{a.b}}", v2: true, v3: true } })
+    ).toJsonValue()
+  ).toEqual({
+    v0: "bc",
+    v1: "{{a.b}}",
+    v2: true,
+    v3: true,
+  });
 });

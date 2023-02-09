@@ -12,17 +12,20 @@ import {
   parseChildrenFromValueAndChildrenMap,
   ToConstructor,
   ToDataType,
+  ToInstanceType,
   ToNodeType,
 } from "comps/generators/multi";
-import _ from "lodash";
-import { stateComp, stateInstance, valueComp } from "./simpleGenerators";
+import { stateComp, valueComp } from "./simpleGenerators";
 import { trans } from "i18n";
 import log from "loglevel";
-import { parseCompType } from "comps/utils/remote";
-import { remoteComp } from "comps/comps/remoteComp/remoteComp";
 
 type Keys<T> = Extract<keyof T, string>;
 type CompMapBaseType = Record<string, CompConstructor>;
+
+export type CompMapOrCompGetterType<T extends CompMapBaseType, V extends any = any> =
+  | T
+  | ((type: string, value: V) => CompConstructor | undefined);
+
 export type COMP_CHILDREN_TYPE<T extends CompMapBaseType, K extends string, V extends string> = {
   [key in Keys<T>]: {
     [x in K]: Comp<key>;
@@ -30,6 +33,7 @@ export type COMP_CHILDREN_TYPE<T extends CompMapBaseType, K extends string, V ex
     [v in V]: ConstructorToComp<T[key]>;
   };
 }[Keys<T>];
+
 export type COMP_DATA_TYPE<
   T extends CompMapBaseType,
   K extends string = "compType",
@@ -64,7 +68,7 @@ export function parseChildrenFromValue<
   K extends string,
   V extends string
 >(
-  compMap: T,
+  compMapOrCompGetter: CompMapOrCompGetterType<T>,
   params: CompParams<COMP_DATA_TYPE<T, K, V>>,
   defaultCompType: Keys<T>,
   keyName: K,
@@ -80,9 +84,6 @@ export function parseChildrenFromValue<
   if (value && value[valueName] !== undefined) {
     compValue.value = value[valueName];
   }
-  if (_.isEmpty(compMap)) {
-    log.trace(compType, compMap);
-  }
   try {
     const children: any = {};
     const CompTypeComp = valueComp(compType);
@@ -90,17 +91,16 @@ export function parseChildrenFromValue<
       value: compType,
       dispatch: wrapDispatch(dispatch, keyName),
     });
-    const compInfo = parseCompType(compType);
 
     let Comp;
-    if (compInfo.isRemote) {
-      Comp = remoteComp(compInfo);
+    if (typeof compMapOrCompGetter === "function") {
+      Comp = compMapOrCompGetter(compType, value);
     } else {
-      Comp = compMap[compType];
+      Comp = compMapOrCompGetter[compType];
     }
 
     if (!Comp) {
-      log.warn(`[${compType}] is not remote comp and not found in`, compMap);
+      log.warn(`related Comp not found with compType: ${compType}`);
       Comp = valueComp(compValue.value);
     }
 
@@ -114,7 +114,6 @@ export function parseChildrenFromValue<
       // Currently display the innermost message first
       throw e;
     }
-    log.info("compType:", compType, compMap[compType], compMap);
     log.error(e);
     throw new CustomError(trans("globalErrorMessage.createCompFail", { comp: compType }));
   }
@@ -136,22 +135,22 @@ export function withTypeAndChildrenAbstract<
   K extends string = "compType",
   V extends string = "comp"
 >(
-  compMapOrGetter: T | (() => T),
+  compMapOrCompGetter: CompMapOrCompGetterType<T, ToDataType<ChildrenCompMap>>,
   defaultCompType: Keys<T>,
   childrenMap: ToConstructor<ChildrenCompMap>,
   keyName: K = "compType" as K,
   valueName: V = "comp" as V
 ) {
-  type ChildrenType = COMP_CHILDREN_TYPE<T, K, V> &
-    ChildrenCompMap & {
-      __PREV_VALUE: ReturnType<typeof stateInstance<Record<string, DataType[V]>>>;
-    };
   type DataType = COMP_DATA_TYPE<T, K, V> & ToDataType<ChildrenCompMap>;
+  const extraChildrenMap = { __PREV_VALUE: stateComp<Record<string, DataType[V]>>({}) };
+  type ChildrenType = COMP_CHILDREN_TYPE<T, K, V> &
+    ChildrenCompMap &
+    ToInstanceType<typeof extraChildrenMap>;
   type NodeType = ToNodeType<ChildrenType>;
 
   const childrenWithPrev = {
     ...childrenMap,
-    __PREV_VALUE: stateComp({}),
+    ...extraChildrenMap,
   };
 
   abstract class WITH_TYPE_AND_CHILDREN_COMP extends MultiBaseComp<
@@ -160,9 +159,8 @@ export function withTypeAndChildrenAbstract<
     NodeType
   > {
     override parseChildrenFromValue(params: CompParams<DataType>): ChildrenType {
-      const compMap = typeof compMapOrGetter === "function" ? compMapOrGetter() : compMapOrGetter;
       return {
-        ...parseChildrenFromValue(compMap, params, defaultCompType, keyName, valueName),
+        ...parseChildrenFromValue(compMapOrCompGetter, params, defaultCompType, keyName, valueName),
         ...parseChildrenFromValueAndChildrenMap(params, childrenWithPrev),
       } as ChildrenType;
     }
@@ -179,8 +177,12 @@ export function withTypeAndChildrenAbstract<
 
       const paramsValue: DataType = { ...value, __PREV_VALUE: prevValues };
       const prev = this.children?.__PREV_VALUE.getView()[value[keyName]];
-      if (prev && !value[valueName]) {
-        paramsValue[valueName] = prev;
+      if (prev) {
+        if (typeof value[valueName] === "object" && typeof prev === "object") {
+          paramsValue[valueName] = { ...prev, ...value[valueName] };
+        } else if (!value[valueName]) {
+          paramsValue[valueName] = prev;
+        }
       }
 
       this.dispatchChangeValueAction(paramsValue);
@@ -218,8 +220,12 @@ export function withTypeAndChildrenAbstract<
 export function withTypeAndChildren<
   T extends CompMapBaseType,
   ChildrenCompMap extends Record<string, Comp<unknown>>
->(compMap: T | (() => T), defaultCompType: Keys<T>, childrenMap: ToConstructor<ChildrenCompMap>) {
-  const TypeComp = withTypeAndChildrenAbstract(compMap, defaultCompType, childrenMap);
+>(
+  compMapOrCompGetter: CompMapOrCompGetterType<T, ToDataType<ChildrenCompMap>>,
+  defaultCompType: Keys<T>,
+  childrenMap: ToConstructor<ChildrenCompMap>
+) {
+  const TypeComp = withTypeAndChildrenAbstract(compMapOrCompGetter, defaultCompType, childrenMap);
 
   class TmpTypeComp extends TypeComp {
     getView() {

@@ -1,42 +1,67 @@
 /**
  * The current file cannot import "comps", will cause circular dependencies
  */
-import { Comp, ConstructorToDataType } from "openblocks-core";
+import { CompName } from "components/CompName";
 import { CompNameContext } from "comps/editorState";
 import { withIsLoading, withTypeAndChildren } from "comps/generators";
+import { ToInstanceType } from "comps/generators/multi";
+import { CompExposingContext } from "comps/generators/withContext";
+import { withErrorBoundary } from "comps/generators/withErrorBoundary";
 import {
-  uiCompRegistry,
   ExposingMultiCompConstructor,
-  UICompType,
   UICompLayoutInfo,
+  uiCompRegistry,
+  UICompType,
 } from "comps/uiCompRegistry";
 import { ExposingInfo } from "comps/utils/exposingTypes";
-import { CompName } from "components/CompName";
-import React, { Profiler } from "react";
+import { getReduceContext, ListViewContext } from "comps/utils/reduceContext";
+import { parseCompType } from "comps/utils/remote";
+import _ from "lodash";
+import { Comp, CompAction, ConstructorToDataType } from "openblocks-core";
+import React, { Profiler, useContext, useMemo } from "react";
 import { profilerCallback } from "util/cacheUtils";
+import { setFieldsNoTypeCheck } from "util/objectUtils";
+import { remoteComp } from "./remoteComp/remoteComp";
 import { SimpleNameComp } from "./simpleNameComp";
-import { withErrorBoundary } from "comps/generators/withErrorBoundary";
 
-const compMap: Record<string, ExposingMultiCompConstructor> = {};
+const ITEM_CHAR = "ijklmn";
 
-function getCompMap() {
-  if (!compMap) {
-    return compMap;
-  }
-  Object.entries(uiCompRegistry).forEach(([name, manifest]) => {
-    const comp = manifest.withoutLoading ? manifest.comp : withIsLoading(manifest.comp);
-    compMap[name as UICompType] = withErrorBoundary(comp);
-  });
-  return compMap;
+function getListExposingHints(listViewDepth: number): Record<typeof ITEM_CHAR[number], 0> {
+  return _(_.range(0, Math.min(listViewDepth, ITEM_CHAR.length)))
+    .map((i) => [ITEM_CHAR[i], 0] as const)
+    .fromPairs()
+    .value();
 }
 
 export function defaultLayout(compType: UICompType): UICompLayoutInfo {
   return uiCompRegistry[compType]?.layoutInfo ?? { w: 5, h: 5 };
 }
 
-const TmpComp = withTypeAndChildren(getCompMap, "button", {
+const childrenMap = {
   name: SimpleNameComp,
-});
+};
+
+const TmpComp = withTypeAndChildren<
+  Record<string, ExposingMultiCompConstructor>,
+  ToInstanceType<typeof childrenMap>
+>(
+  (type) => {
+    const compInfo = parseCompType(type);
+    if (compInfo.isRemote) {
+      return remoteComp(compInfo);
+    }
+    const entries = Object.entries(uiCompRegistry);
+    for (let [name, manifest] of entries) {
+      if (name !== type) {
+        continue;
+      }
+      const comp = manifest.withoutLoading ? manifest.comp : withIsLoading(manifest.comp);
+      return withErrorBoundary(comp) as ExposingMultiCompConstructor;
+    }
+  },
+  "button",
+  childrenMap
+);
 
 function CachedView(props: { comp: Comp; name: string }) {
   return React.useMemo(
@@ -51,21 +76,42 @@ function CachedView(props: { comp: Comp; name: string }) {
   );
 }
 
-function CachedPropertyView(props: { comp: Comp; name: string }) {
-  return React.useMemo(
-    () => (
+function CachedPropertyView(props: { comp: Comp; name: string; listViewContext: ListViewContext }) {
+  const prevHints = useContext(CompExposingContext);
+  const prevCurrentItems = useMemo(
+    () => (typeof prevHints?.currentItems === "object" ? prevHints?.currentItems : {}),
+    [prevHints?.currentItems]
+  );
+  const { listViewContext } = props;
+  const currentItem = useMemo(
+    () => ({ ...prevCurrentItems, ...listViewContext.currentItem }),
+    [listViewContext.currentItem, prevCurrentItems]
+  );
+  const hints = useMemo(
+    () => ({
+      ...prevHints,
+      ...getListExposingHints(listViewContext.listViewDepth),
+      ...(_.isEmpty(currentItem) ? {} : { currentItem }),
+    }),
+    [prevHints, listViewContext.listViewDepth, currentItem]
+  );
+
+  return useMemo(() => {
+    return (
       <>
         <CompName name={props.name} />
         <CompNameContext.Provider value={props.name}>
-          {props.comp.getPropertyView()}
+          <CompExposingContext.Provider value={hints}>
+            {props.comp.getPropertyView()}
+          </CompExposingContext.Provider>
         </CompNameContext.Provider>
       </>
-    ),
-    [props.comp, props.name]
-  );
+    );
+  }, [props.comp, props.name, hints]);
 }
 
 export class GridItemComp extends TmpComp {
+  private readonly listViewContext: ListViewContext = { listViewDepth: 0, currentItem: {} };
   override getView() {
     return <CachedView comp={this.children.comp} name={this.children.name.getView()} />;
   }
@@ -73,7 +119,7 @@ export class GridItemComp extends TmpComp {
   override getPropertyView() {
     const name = this.children.name.getView();
     const comp = this.children.comp;
-    return <CachedPropertyView comp={comp} name={name} />;
+    return <CachedPropertyView comp={comp} name={name} listViewContext={this.listViewContext} />;
   }
 
   autoHeight(): boolean {
@@ -83,6 +129,14 @@ export class GridItemComp extends TmpComp {
 
   exposingInfo(): ExposingInfo {
     return this.children.comp.exposingInfo();
+  }
+
+  override reduce(action: CompAction): this {
+    let comp = super.reduce(action);
+    const listViewContext = getReduceContext().listViewContext;
+    if (listViewContext !== this.listViewContext)
+      comp = setFieldsNoTypeCheck(comp, { listViewContext }, { keepCacheKeys: ["node"] });
+    return comp;
   }
 }
 

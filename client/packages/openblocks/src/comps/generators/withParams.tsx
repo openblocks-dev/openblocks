@@ -29,11 +29,11 @@ export function withParams<
   ParamNames extends readonly string[],
   TCtor extends MultiCompConstructor
 >(VariantCompCtor: TCtor, paramNames: ParamNames) {
-  type ParamDataType = Record<ParamNames[number], unknown>;
+  type ParamValues = Record<ParamNames[number], unknown>;
   const paramValues = _.mapValues(
     _.keyBy(paramNames, (x) => x),
     () => ""
-  ) as ParamDataType;
+  ) as ParamValues;
   return withParamsWithDefault(VariantCompCtor, paramValues);
 }
 
@@ -46,7 +46,7 @@ export function withParamsWithDefault<
 >(VariantCompCtor: TCtor, defaultParamValues: ParamValues) {
   type ChangeParamDataAction = {
     type: "setParamData";
-    data: ParamValues;
+    data: Partial<ParamValues>;
   };
 
   type SetCompAction = {
@@ -60,12 +60,10 @@ export function withParamsWithDefault<
   };
   type CompNode = NonNullable<ConstructorToNodeType<TCtor>>;
   type CompNodeValue = NodeToValue<CompNode>;
-  type NodeType =
-    | RecordNode<{
-        wrap: Node<WrapContextFn<CompNodeValue>>;
-        comp: WrapContextNodeV2<CompNodeValue>;
-      }>
-    | undefined;
+  type NodeType = RecordNode<{
+    wrap: Node<WrapContextFn<CompNodeValue>>;
+    comp: WrapContextNodeV2<CompNodeValue>;
+  }>;
 
   class WithParamComp
     extends MultiBaseComp<ChildrenType, JSONValue, NodeType>
@@ -77,7 +75,7 @@ export function withParamsWithDefault<
     /**
      * this action requires eval to be valid, don't use it directly with reduce
      */
-    static setParamDataAction(paramData: ParamValues) {
+    static setParamDataAction(paramData: Partial<ParamValues>) {
       return customAction({
         type: "setParamData",
         data: paramData,
@@ -185,7 +183,7 @@ export function withParamsWithDefault<
       )[0];
     }
 
-    private getParamNodes(): Record<keyof ParamValues, Node<unknown>> {
+    getParamNodes(): Record<keyof ParamValues, Node<unknown>> {
       return _.mapValues(this.params, (param, name) => {
         const paramNode = lastValueIfEqual(
           this,

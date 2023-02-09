@@ -43,6 +43,7 @@ export interface ThemeDetail {
   canvas: string; // app bg-color
   primarySurface: string; // comp bg-color
   borderRadius: string;
+  chart?: string;
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {

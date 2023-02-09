@@ -1,3 +1,5 @@
+/// <reference types="react" />
+import * as react from "react";
 import { ReactNode } from "react";
 
 declare type EvalMethods = Record<string, Record<string, Function>>;
@@ -27,6 +29,9 @@ declare type NonOptionalKeys<T> = {
 declare type RecordOptionalNodeToValue<T> = {
   [K in NonOptionalKeys<T>]: NodeToValue<T[K]>;
 };
+interface FetchInfoOptions {
+  ignoreManualDepReadyStatus?: boolean;
+}
 /**
  * the base structure for evaluate
  */
@@ -56,7 +61,7 @@ interface Node<T> {
    * FIXME: this should be a protected function.
    */
   filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, Set<string>>;
-  fetchInfo(exposingNodes: Record<string, Node<unknown>>): FetchInfo;
+  fetchInfo(exposingNodes: Record<string, Node<unknown>>, options?: FetchInfoOptions): FetchInfo;
 }
 declare abstract class AbstractNode<T> implements Node<T> {
   readonly type: string;
@@ -140,7 +145,7 @@ declare class FunctionNode<T, OutputType> extends AbstractNode<OutputType> {
   justEval(exposingNodes: Record<string, Node<unknown>>, methods?: EvalMethods): OutputType;
   getChildren(): Node<unknown>[];
   dependValues(): Record<string, unknown>;
-  fetchInfo(exposingNodes: Record<string, Node<unknown>>): FetchInfo;
+  fetchInfo(exposingNodes: Record<string, Node<unknown>>, options?: FetchInfoOptions): FetchInfo;
 }
 declare function withFunction<T, OutputType>(
   child: Node<T>,
@@ -193,7 +198,7 @@ declare class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
   ): ValueAndMsg<unknown>;
   getChildren(): Node<unknown>[];
   dependValues(): Record<string, unknown>;
-  fetchInfo(exposingNodes: Record<string, Node<unknown>>): FetchInfo;
+  fetchInfo(exposingNodes: Record<string, Node<unknown>>, options?: FetchInfoOptions): FetchInfo;
 }
 /**
  * generate node for unevaledValue
@@ -207,8 +212,9 @@ declare function fromUnevaledValue(
  */
 declare class FetchCheckNode extends AbstractNode<FetchInfo> {
   readonly child: Node<unknown>;
+  readonly options?: FetchInfoOptions | undefined;
   readonly type = "fetchCheck";
-  constructor(child: Node<unknown>);
+  constructor(child: Node<unknown>, options?: FetchInfoOptions | undefined);
   filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, Set<string>>;
   justEval(exposingNodes: Record<string, Node<unknown>>): FetchInfo;
   getChildren(): Node<unknown>[];
@@ -236,7 +242,10 @@ declare class RecordNode<T extends Record<string, Node<unknown>>> extends Abstra
   ): RecordNodeToValue<T>;
   getChildren(): Node<unknown>[];
   dependValues(): Record<string, unknown>;
-  fetchInfo(exposingNodes: Record<string, Node<unknown>>): {
+  fetchInfo(
+    exposingNodes: Record<string, Node<unknown>>,
+    options?: FetchInfoOptions
+  ): {
     isFetching: boolean;
     ready: boolean;
   };
@@ -678,6 +687,8 @@ declare abstract class MultiBaseComp<
   };
   nodeWithoutCache(): NodeType;
   changeDispatch(dispatch: DispatchType): this;
+  protected ignoreChildDefaultValue(): boolean;
+  readonly IGNORABLE_DEFAULT_VALUE: {};
   toJsonValue(): DataType;
   autoHeight(): boolean;
 }
@@ -737,7 +748,7 @@ declare type AddPrefix<T, P extends string> = {
 };
 declare const globalMessages: AddPrefix<{}, "@">;
 declare type GlobalMessageKey = NestedKey<typeof globalMessages>;
-declare type VariableValue = string | number | boolean | Date;
+declare type VariableValue = string | number | boolean | Date | React.ReactNode;
 declare class Translator<Messages extends object> {
   private readonly messages;
   readonly language: string;
@@ -746,6 +757,22 @@ declare class Translator<Messages extends object> {
     key: NestedKey<Messages> | GlobalMessageKey,
     variables?: Record<string, VariableValue>
   ): string;
+  transToNode(
+    key: NestedKey<Messages> | GlobalMessageKey,
+    variables?: Record<string, VariableValue>
+  ):
+    | string
+    | {}
+    | react.ReactElement<any, string | react.JSXElementConstructor<any>>
+    | Iterable<react.ReactNode>
+    | react.ReactPortal
+    | (
+        | string
+        | {}
+        | react.ReactElement<any, string | react.JSXElementConstructor<any>>
+        | Iterable<react.ReactNode>
+        | react.ReactPortal
+      )[];
   private getMessage;
 }
 declare function getI18nObjects<I18nObjects>(fileData: object, filterLocales?: string): I18nObjects;
@@ -781,6 +808,7 @@ export {
   ExtraNodeType,
   FetchCheckNode,
   FetchInfo,
+  FetchInfoOptions,
   FunctionNode,
   MultiBaseComp,
   MultiChangeAction,
