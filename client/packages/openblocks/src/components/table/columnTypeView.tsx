@@ -93,7 +93,9 @@ export default function ColumnTypeView(props: { children: React.ReactNode }) {
       wrapperEle.clientHeight < wrapperEle.scrollHeight ||
       wrapperEle.clientWidth < wrapperEle.scrollWidth;
     if (overflow || childIsOverflow(wrapperEle.children)) {
-      setHasOverflow(true);
+      !hasOverflow && setHasOverflow(true);
+    } else {
+      hasOverflow && setHasOverflow(false);
     }
   }, [isHover]);
 

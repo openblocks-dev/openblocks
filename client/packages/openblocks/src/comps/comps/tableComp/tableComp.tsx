@@ -4,9 +4,11 @@ import { getPageSize } from "comps/comps/tableComp/paginationControl";
 import { TableFilter, TableToolbar } from "comps/comps/tableComp/tableToolbarComp";
 import {
   columnsToAntdFormat,
-  getDisplayData,
+  filterData,
+  getDisplayDataV2,
   getTableTransData,
   onTableChange,
+  sortData,
 } from "comps/comps/tableComp/tableUtils";
 import { isTriggerAction } from "comps/controls/actionSelector/actionSelectorControl";
 import { CompNameContext, EditorContext } from "comps/editorState";
@@ -15,11 +17,13 @@ import { childrenToProps } from "comps/generators/multi";
 import { HidableView } from "comps/generators/uiCompBuilder";
 import { withDispatchHook } from "comps/generators/withDispatchHook";
 import {
+  CompDepsConfig,
   depsConfig,
   DepsConfig,
   NameConfig,
   withExposingConfigs,
 } from "comps/generators/withExposing";
+import { __SUPER_NODE_KEY } from "comps/generators/withIsLoading";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { trans } from "i18n";
 import _ from "lodash";
@@ -29,13 +33,16 @@ import {
   CompActionTypes,
   deferAction,
   executeQueryAction,
+  fromRecord,
   routeByNameAction,
+  withFunction,
   wrapChildAction,
 } from "openblocks-core";
 import { useCallback, useContext, useMemo, useState } from "react";
 import { saveDataAsFile } from "util/fileUtils";
 import { useUserViewMode } from "util/hooks";
 import { JSONObject, JSONValue } from "util/jsonTypes";
+import { lastValueIfEqual, shallowEqual } from "util/objectUtils";
 import { ResizeableTable, TableWrapper } from "./resizeableTable";
 import { compTablePropertyView } from "./tablePropertyView";
 import { RecordType, RowColorComp, tableChildrenMap, TableChildrenView } from "./tableTypes";
@@ -53,7 +60,7 @@ function TableView(props: {
   const compChildren = comp.children;
   const style = compChildren.style.getView();
   const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
-  const hasChange = useMemo(() => _.size(changeSet) !== 0, [changeSet]);
+  const hasChange = useMemo(() => !_.isEmpty(changeSet), [changeSet]);
   const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
   const columnViews = useMemo(() => columns.map((c) => c.getView()), [columns]);
   const data = useMemo(() => compChildren.data.getView(), [compChildren.data]);
@@ -123,7 +130,7 @@ function TableView(props: {
         return;
       }
       compChildren.onEvent.getView()(eventName);
-      compChildren.columns.dispatchClearChangeSet();
+      setTimeout(() => compChildren.columns.dispatchClearChangeSet(), 0);
     },
     [viewMode, compChildren.onEvent, compChildren.columns]
   );
@@ -314,18 +321,103 @@ let TableTmpComp = class extends TableTmpInitComp {
 
       if (dataChanged) {
         const doGene = comp.shouldGenerateColumn(comp, nextRowExample);
+        const actions: CompAction[] = [];
+        actions.push(
+          wrapChildAction(
+            "columns",
+            comp.children.columns.dataChangedAction({
+              rowExample: nextRowExample || {},
+              doGeneColumn: doGene,
+              dynamicColumn: comp.children.dynamicColumn.getView(),
+              data: comp.children.data.getView(),
+            })
+          )
+        );
+        doGene && actions.push(changeChildAction("dataRowExample", null));
         setTimeout(() => {
-          comp.children.columns.dispatchDataChanged({
-            rowExample: nextRowExample || {},
-            doGeneColumn: doGene,
-            dynamicColumn: comp.children.dynamicColumn.getView(),
-            data: comp.children.data.getView(),
-          });
-          doGene && comp.children.dataRowExample.dispatchChangeValueAction(null);
+          actions.forEach((action) => comp.dispatch(deferAction(action)));
         }, 0);
       }
     }
     return comp;
+  }
+
+  override extraNode() {
+    const extra = {
+      sortedData: this.sortDataNode(),
+      filterData: this.filterNode(),
+    };
+    return {
+      node: extra,
+      updateNodeFields: (value: any) => ({}),
+    };
+  }
+
+  // handle sort: data -> sortedData
+  sortDataNode() {
+    const nodes = {
+      data: this.children.data.node(),
+      sort: this.children.sort.node(),
+      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
+      sortables: this.children.columns.getColumnsNode("sortable"),
+    };
+    const sortedDataNode = withFunction(fromRecord(nodes), (input) => {
+      const { data, sort, dataIndexes, sortables } = input;
+      const realData: typeof data = (data as any)[__SUPER_NODE_KEY];
+      const columns = _(dataIndexes)
+        .mapValues((dataIndex, idx) => ({ sortable: !!sortables[idx] }))
+        .mapKeys((sortable, idx) => dataIndexes[idx])
+        .value();
+      const sortedData = sortData(realData.value, columns, sort);
+      // console.info( "sortNode. data: ", realData, " sort: ", sort, " columns: ", columns, " sortedData: ", sortedData);
+      return sortedData;
+    });
+    return lastValueIfEqual(this, "sortedDataNode", [sortedDataNode, nodes] as const, (a, b) =>
+      shallowEqual(a[1], b[1])
+    )[0];
+  }
+
+  // handle hide/search/filter: sortedData->filteredData
+  filterNode() {
+    const nodes = {
+      data: this.sortDataNode(),
+      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
+      hides: this.children.columns.getColumnsNode("hide"),
+      tempHides: this.children.columns.getColumnsNode("tempHide"),
+      searchValue: this.children.toolbar.children.searchText.node(),
+      filter: this.children.toolbar.children.filter.node(),
+      showFilter: this.children.toolbar.children.showFilter.node(),
+      columnSetting: this.children.toolbar.children.columnSetting.node(),
+    };
+    const filteredDataNode = withFunction(fromRecord(nodes), (input) => {
+      const {
+        data,
+        dataIndexes,
+        hides,
+        tempHides,
+        columnSetting,
+        searchValue,
+        filter,
+        showFilter,
+      } = input;
+      const hideInfo = _(dataIndexes)
+        .mapValues((dataIndex, idx) => ({ hide: hides[idx].value, tempHide: tempHides[idx] }))
+        .mapKeys((_1, idx) => dataIndexes[idx])
+        .value();
+      const filteredData = filterData(
+        data,
+        hideInfo,
+        searchValue.value,
+        filter,
+        showFilter.value,
+        columnSetting.value
+      );
+      // console.info("filterNode. data: ", data, " filter: ", filter, " filteredData: ", filteredData);
+      return filteredData;
+    });
+    return lastValueIfEqual(this, "filteredDataNode", [filteredDataNode, nodes] as const, (a, b) =>
+      shallowEqual(a[1], b[1])
+    )[0];
   }
 };
 
@@ -574,28 +666,33 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     },
     trans("table.pageOffsetDesc")
   ),
-  new DepsConfig(
+  new CompDepsConfig(
     "displayData",
-    (children) => {
+    (comp) => {
       return {
-        data: children.data.exposingNode(),
-        columns: children.columns.node()!,
-        pagination: children.pagination.node(),
-        sort: children.sort.node(),
-        toolbar: children.toolbar.node(),
+        data: comp.filterNode(),
+        showSizeChanger: comp.children.pagination.children.showSizeChanger.node(),
+        pageSize: comp.children.pagination.children.pageSize.node(),
+        pageSizeOptions: comp.children.pagination.children.pageSizeOptions.node(),
+        changablePageSize: comp.children.pagination.children.changeablePageSize.node(),
+        withParams: comp.children.columns.withParamsNode(),
+        dataIndexes: comp.children.columns.getColumnsNode("dataIndex"),
+        titles: comp.children.columns.getColumnsNode("title"),
       };
     },
     (input) => {
-      return getDisplayData(
-        input.data,
-        input.pagination,
-        input.columns as any,
-        input.toolbar.filter,
-        input.sort,
-        input.toolbar.searchText.value,
-        input.toolbar.showFilter.value,
-        input.toolbar.columnSetting.value
+      const columns = _.mapValues(input.dataIndexes, (dataIndex, key) => ({
+        dataIndex,
+        title: input.titles[key].value,
+        render: input.withParams[key],
+      }));
+      const pageSize = getPageSize(
+        input.showSizeChanger.value,
+        input.pageSize.value,
+        input.pageSizeOptions.value,
+        input.changablePageSize
       );
+      return getDisplayDataV2(input.data, pageSize, Object.values(columns));
     },
     trans("table.displayDataDesc")
   ),

@@ -34,6 +34,7 @@ import {
 } from "../../../constants/datasourceConstants";
 import { OLD_OPENBLOCKS_DATASOURCE } from "@openblocks-ee/constants/datasourceConstants";
 import { SUPPORT_GUI_SQL_QUERY } from "../sqlQuery/SQLQuery";
+import { isCompWithPropertyView } from "comps/utils/propertyUtils";
 
 export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> }) {
   const { comp } = props;
@@ -311,7 +312,7 @@ export const QueryGeneralPropertyView = (props: {
       </QuerySectionWrapper>
 
       <QuerySectionWrapper>
-        {"propertyView" in children.comp
+        {isCompWithPropertyView(children.comp)
           ? children.comp.propertyView({
               datasourceId: datasourceId,
             })

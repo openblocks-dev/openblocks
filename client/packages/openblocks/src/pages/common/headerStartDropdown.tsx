@@ -9,7 +9,7 @@ import {
   TextWrapper,
   ModuleIcon,
 } from "openblocks-design";
-import { trans } from "i18n";
+import { trans, transToNode } from "i18n";
 import { exportApplicationAsJSONFile } from "pages/ApplicationV2/components/AppImport";
 import { useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,6 +27,7 @@ const PackUpIconStyled = styled(PackUpIcon)`
   transform: rotate(180deg);
   margin-left: 4px;
   min-width: 18px;
+
   path {
     fill: #ffffff;
   }
@@ -52,6 +53,7 @@ const Prefix = styled.div`
   display: inline-flex;
   align-items: center;
   margin-right: 4px;
+
   &.module svg {
     visibility: visible;
   }
@@ -91,9 +93,9 @@ export function HeaderStartDropdown(props: { setEdit: () => void }) {
               } else if (e.key === "delete") {
                 CustomModal.confirm({
                   title: trans("home.moveToTrash"),
-                  content: trans("home.moveToTrashSubTitle", {
+                  content: transToNode("home.moveToTrashSubTitle", {
                     type: TypeName[application?.applicationType!],
-                    name: application?.name || '',
+                    name: <b>{application?.name || ""}</b>,
                   }),
                   onConfirm: () =>
                     dispatch(
@@ -132,18 +134,14 @@ export function HeaderStartDropdown(props: { setEdit: () => void }) {
               },
               {
                 key: "delete",
-                label: (
-                  <CommonTextLabelDelete>
-                    {trans("home.moveToTrash")}
-                  </CommonTextLabelDelete>
-                ),
+                label: <CommonTextLabelDelete>{trans("home.moveToTrash")}</CommonTextLabelDelete>,
               },
             ]}
           />
         }
       >
         <EditTextWrapper
-          style={{ width: "fit-content", maxWidth: "288px" }}
+          style={{ width: "fit-content", maxWidth: "288px", padding: "0 8px" }}
           disabled={showAppSnapshot}
         >
           {isModule && (

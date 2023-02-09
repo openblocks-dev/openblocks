@@ -3,6 +3,7 @@ import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "re
 import { shallowEqual, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 import { DATASOURCE_URL, QUERY_LIBRARY_URL } from "../constants/routesURL";
+import { AuthSearchParams } from "@openblocks-ee/constants/authConstants";
 
 export const ForceViewModeContext = React.createContext<boolean>(false);
 
@@ -48,7 +49,7 @@ export function useApplicationId() {
 export function useRedirectUrl() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  return queryParams.get("redirectUrl");
+  return queryParams.get(AuthSearchParams.redirectUrl);
 }
 
 export function useFixedDelay(callback: () => Promise<unknown>, delay: number | null) {

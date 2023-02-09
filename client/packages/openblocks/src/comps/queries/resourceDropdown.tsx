@@ -189,7 +189,7 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
           .filter((info) => {
             if (context?.placement === "queryLibrary") {
               return (
-                info.datasource.type.startsWith("plugin:") ||
+                info.datasource.pluginDefinition ||
                 databasePlugins.includes(info.datasource.type) ||
                 apiPluginsForQueryLibrary.includes(info.datasource.type)
               );

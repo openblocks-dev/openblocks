@@ -25,7 +25,8 @@ import { useMount, useUnmount } from "react-use";
 import { fetchQueryLibraryDropdown } from "../../redux/reduxActions/queryLibraryActions";
 import { clearGlobalSettings, setGlobalSettings } from "comps/utils/globalSettings";
 import { fetchFolderElements } from "redux/reduxActions/folderActions";
-import { registryDataSourcePlugin } from "@openblocks-ee/constants/queryConstants";
+import { registryDataSourcePlugin } from "constants/queryConstants";
+import { DatasourceApi } from "api/datasourceApi";
 
 export default function AppEditor() {
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
@@ -68,39 +69,27 @@ export default function AppEditor() {
 
   // fetch dataSource and plugin
   useEffect(() => {
-    dispatch(
-      fetchDataSourceTypes({
-        organizationId: "fake",
-        onSuccess: (dataSourceTypes) => {
-          dataSourceTypes.forEach((dataSourceType) => {
-            const { definition } = dataSourceType;
-            if (!definition) {
-              return;
-            }
-            registryDataSourcePlugin(definition.id, definition);
-          });
-          setIsDataSourcePluginRegistered(true);
-        },
-      })
-    );
-    if (params.viewMode === "edit") {
-      dispatch(fetchFolderElements({}));
+    if (!orgId || params.viewMode !== "edit") {
+      return;
     }
-  }, [dispatch, params.viewMode]);
+    dispatch(fetchDataSourceTypes({ organizationId: orgId }));
+    dispatch(fetchFolderElements({}));
+  }, [dispatch, orgId, params.viewMode]);
 
   useEffect(() => {
     if (applicationId && params.viewMode === "edit") {
       dispatch(fetchDataSourceByApp({ applicationId: applicationId }));
-    }
-  }, [dispatch, applicationId, params.viewMode]);
-
-  useEffect(() => {
-    if (applicationId && params.viewMode === "edit") {
       dispatch(fetchQueryLibraryDropdown());
     }
   }, [dispatch, applicationId, params.viewMode]);
 
   useEffect(() => {
+    DatasourceApi.fetchJsDatasourceByApp(applicationId).then((res) => {
+      res.data.data.forEach((i) => {
+        registryDataSourcePlugin(i.type, i.id, i.pluginDefinition);
+      });
+      setIsDataSourcePluginRegistered(true);
+    });
     dispatch(setShowAppSnapshot(false));
   }, [applicationId, dispatch]);
 
@@ -117,8 +106,13 @@ export default function AppEditor() {
         applicationId: applicationId,
         onSuccess: (info) => {
           perfMark(MarkAppDSLLoaded);
+          const runJsInHost =
+            info.orgCommonSettings?.runJavaScriptInHost ?? !!REACT_APP_DISABLE_JS_SANDBOX;
           setGlobalSettings({
-            orgCommonSettings: info.orgCommonSettings,
+            orgCommonSettings: {
+              ...info.orgCommonSettings,
+              runJavaScriptInHost: runJsInHost,
+            },
           });
           setAppInfo(info);
         },

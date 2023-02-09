@@ -4,6 +4,7 @@ import { ControlPropertyViewWrapper } from "openblocks-design";
 import { ControlParams } from "./controlParams";
 
 class SimpleStringControl extends SimpleComp<string> {
+  readonly IGNORABLE_DEFAULT_VALUE = "";
   protected getDefaultValue(): string {
     return "";
   }

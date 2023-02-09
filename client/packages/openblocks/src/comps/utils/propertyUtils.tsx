@@ -7,6 +7,14 @@ import {
   StringControl,
 } from "comps/controls/codeControl";
 import { language, trans } from "i18n";
+import { Comp } from "openblocks-core";
+import { ReactNode } from "react";
+
+export function isCompWithPropertyView<C extends Comp<any> = Comp<any>>(
+  comp: C
+): comp is C & { propertyView: (params: any) => ReactNode } {
+  return "propertyView" in comp && typeof (comp as any)["propertyView"] === "function";
+}
 
 export const hiddenPropertyView = (children: { hidden: InstanceType<typeof BoolCodeControl> }) =>
   children.hidden.propertyView({ label: trans("prop.hide") });
@@ -63,16 +71,28 @@ export const SecondStepPropertyView = (children: {
 }) => children.secondStep.propertyView({ label: trans("prop.secondStep") });
 
 export const minDatePropertyView = (children: { minDate: InstanceType<typeof StringControl> }) =>
-  children.minDate.propertyView({ label: trans("prop.minDate") });
+  children.minDate.propertyView({
+    label: trans("prop.minDate"),
+    tooltip: trans("date.formatTip"),
+  });
 
 export const maxDatePropertyView = (children: { maxDate: InstanceType<typeof StringControl> }) =>
-  children.maxDate.propertyView({ label: trans("prop.maxDate") });
+  children.maxDate.propertyView({
+    label: trans("prop.maxDate"),
+    tooltip: trans("date.formatTip"),
+  });
 
 export const minTimePropertyView = (children: { minTime: InstanceType<typeof StringControl> }) =>
-  children.minTime.propertyView({ label: trans("prop.minTime") });
+  children.minTime.propertyView({
+    label: trans("prop.minTime"),
+    tooltip: trans("time.formatTip"),
+  });
 
 export const maxTimePropertyView = (children: { maxTime: InstanceType<typeof StringControl> }) =>
-  children.maxTime.propertyView({ label: trans("prop.maxTime") });
+  children.maxTime.propertyView({
+    label: trans("prop.maxTime"),
+    tooltip: trans("time.formatTip"),
+  });
 
 export const showLabelPropertyView = (children: { showLabel: InstanceType<typeof BoolControl> }) =>
   children.showLabel.propertyView({ label: trans("prop.showLabel") });

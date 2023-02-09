@@ -21,11 +21,13 @@ import { draggingUtils } from "./draggingUtils";
 import { ResizeHandleAxis } from "./gridLayoutPropTypes";
 
 export type DragHandleName = "w" | "e" | "nw" | "ne" | "sw" | "se";
+type NamePos = "top" | "bottom" | "bottomInside";
 
 const NameDiv = styled.div<{
   isSelected: boolean;
-  showName: { top: number; bottom: number };
+  position: NamePos;
   compType: UICompType;
+  isDraggable: boolean;
 }>`
   background: ${(props) => {
     if (props.isSelected) {
@@ -33,21 +35,21 @@ const NameDiv = styled.div<{
     }
     return "#B8B9BF";
   }};
-  border-radius: ${(props) =>
-    props.showName.top > 16 || props.showName.bottom <= 16 ? "2px 2px 0 0" : "0 0 2px 2px"};
+  border-radius: ${(props) => (props.position === "top" ? "2px 2px 0 0" : "0 0 2px 2px")};
   font-weight: 500;
   color: #ffffff;
   position: absolute;
   font-size: 12px;
   line-height: 16px;
-  top: ${(props) => (props.showName.top > 16 ? "-16px" : "none")};
+  top: ${(props) => (props.position === "top" ? "-16px" : "unset")};
   bottom: ${(props) =>
-    props.showName.top > 16 ? "none" : props.showName.bottom > 16 ? "-16px" : "0px"};
+    props.position === "top" ? "unset" : props.position === "bottom" ? "-16px" : "0px"};
   height: 16px;
   right: 0;
   padding-right: 5px;
+  padding-left: ${(props) => (props.isDraggable ? 0 : "5px")};
   display: flex;
-  cursor: grab;
+  cursor: ${(props) => (props.isDraggable ? "grab" : "pointer")};
   z-index: 10;
 `;
 const NameLabel = styled.span`
@@ -105,6 +107,7 @@ const SelectableDiv = styled.div<{
   width: 100%;
   height: 100%;
   overflow: hidden;
+
   ${(props) =>
     `${getLineStyle(
       props.hover,
@@ -116,6 +119,7 @@ const SelectableDiv = styled.div<{
   & .module-wrapper {
     margin: ${-GRID_ITEM_BORDER_WIDTH}px;
   }
+
   ${(props) =>
     props.compType === "image" &&
     props.needResizeDetector &&
@@ -232,23 +236,24 @@ export const CompSelectionWrapper = (props: {
   compType: UICompType;
   className?: string;
   style?: Record<string, any>;
-  name: string | undefined;
   isSelected: boolean;
   autoHeight: boolean;
   placeholder?: boolean;
   onClick: MouseEventHandler<HTMLDivElement>;
   children: JSX.Element | React.ReactNode;
-  selectedSize?: number;
-  height: number;
   hidden: boolean;
-  // the display space in the top and bottom for the nameDiv
-  showName: { top: number; bottom: number };
+  nameConfig: {
+    show: boolean;
+    name: string | undefined;
+    pos: NamePos;
+  };
   onInnerResize: (width?: number, height?: number) => void;
   onWrapperResize: (width?: number, height?: number) => void;
   isSelectable: boolean;
   isDraggable: boolean;
   isResizable: boolean;
   resizeHandles: ResizeHandleAxis[];
+  resizeIconSize: "small" | "normal";
 }) => {
   const nameDivRef = useRef<HTMLDivElement>(null);
   const editorState = useContext(EditorContext);
@@ -288,7 +293,7 @@ export const CompSelectionWrapper = (props: {
         onMouseOver,
         onMouseOut,
         onClick: props.onClick,
-        hover: !!hover,
+        hover: hover,
         showDashLine: editorState.showGridLines() || props.hidden,
         isSelected: props.isSelected,
         isHidden: props.hidden,
@@ -315,6 +320,7 @@ export const CompSelectionWrapper = (props: {
     handleWidth: false,
   });
   // log.debug("CompSelectionWrapper. name: ", props.name, " zIndex: ", zIndex);
+  const { nameConfig, resizeIconSize } = props;
   return (
     <div id={props.id} style={{ ...props.style, zIndex }} className={props.className}>
       <SelectableDiv
@@ -323,26 +329,23 @@ export const CompSelectionWrapper = (props: {
         ref={wrapperRef}
         needResizeDetector={needResizeDetector}
       >
-        {props.isSelectable &&
-          props.isDraggable &&
-          props.name &&
-          (hover || props.isSelected || props.hidden) && (
-            <NameDiv
-              compType={props.compType}
-              isSelected={!!hover || props.isSelected}
-              showName={props.showName}
-              ref={nameDivRef}
-            >
-              <DragWhiteIcon />
-              <NameLabel>{props.name}</NameLabel>
-              {props.hidden && <HiddenIcon />}
-            </NameDiv>
-          )}
+        {props.isSelectable && nameConfig.show && (hover || props.isSelected || props.hidden) && (
+          <NameDiv
+            compType={props.compType}
+            isSelected={hover || props.isSelected}
+            position={nameConfig.pos}
+            isDraggable={props.isDraggable}
+            ref={nameDivRef}
+          >
+            {props.isDraggable && <DragWhiteIcon />}
+            <NameLabel>{nameConfig.name}</NameLabel>
+            {props.hidden && <HiddenIcon />}
+          </NameDiv>
+        )}
         {props.isResizable &&
-          props.selectedSize === 1 &&
           props.isSelected &&
           props.autoHeight &&
-          (props.height >= 4 ? (
+          (resizeIconSize === "normal" ? (
             <>
               <DragLeftIcon $compType={props.compType} $resizeHandles={props.resizeHandles} />
               <DragRightIcon $compType={props.compType} $resizeHandles={props.resizeHandles} />
@@ -353,7 +356,7 @@ export const CompSelectionWrapper = (props: {
               <DragW $compType={props.compType} $resizeHandles={props.resizeHandles} />
             </>
           ))}
-        {props.isResizable && props.selectedSize === 1 && props.isSelected && !props.autoHeight && (
+        {props.isResizable && props.isSelected && !props.autoHeight && (
           <>
             <DragNW $compType={props.compType} $resizeHandles={props.resizeHandles} />
             <DragNE $compType={props.compType} $resizeHandles={props.resizeHandles} />

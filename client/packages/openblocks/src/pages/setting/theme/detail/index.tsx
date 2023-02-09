@@ -6,6 +6,7 @@ import {
   ThemeType,
 } from "api/commonSettingApi";
 import history from "util/history";
+import { CodeEditor } from "base/codeEditor";
 import { BASE_URL, THEME_SETTING } from "constants/routesURL";
 import ColorPicker, { configChangeParams } from "../../../../components/ColorPicker";
 import React from "react";
@@ -17,18 +18,20 @@ import { ArrowIcon, CustomModal, ResetIcon } from "openblocks-design";
 import {
   DetailContainer,
   DetailContent,
-  DetailHeader,
   DetailTitle,
-  DividerStyled,
-  InlineFlexAlignCenter,
   ResetButton,
   SaveButton,
+  ChartDesc,
+  ChartInput,
+  Footer,
+  Header,
 } from "../styledComponents";
 import PreviewApp from "../../../../components/PreviewApp";
 import { trans } from "i18n";
 import { Prompt } from "react-router";
 import { HeaderBack } from "pages/setting/permission/styledComponents";
 import dsl from "./previewDsl";
+import chartDsl from "./chartPreviewDsl";
 
 type LocationProp = {
   theme: ThemeDetail;
@@ -59,6 +62,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
   readonly id: string;
   readonly type: string;
   readonly inputRef: React.RefObject<InputRef>;
+  footerRef = React.createRef<HTMLDivElement>();
 
   constructor(props: ThemeDetailPageProps) {
     super(props);
@@ -68,7 +72,15 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
       window.location.reload();
     }
 
-    this.themeDefault = theme;
+    if (theme.chart) {
+      this.themeDefault = theme;
+    } else {
+      this.themeDefault = {
+        ...theme,
+        chart: undefined,
+      };
+    }
+
     this.id = id;
     this.type = type;
     this.state = {
@@ -115,7 +127,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
     this.setState({
       theme: {
         ...this.state.theme,
-        [params.colorKey]: params.color || params.radius,
+        [params.colorKey]: params.color || params.radius || params.chart,
       },
     });
   }
@@ -161,82 +173,128 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
           }}
           when={!this.isThemeNotChange()}
         ></Prompt>
-        <DetailContainer>
-          <DetailHeader>
+        <DetailContainer
+          onScroll={(e) => {
+            if (
+              e.currentTarget.scrollTop + e.currentTarget.clientHeight >=
+              e.currentTarget.scrollHeight - 2
+            ) {
+              // scroll to the bottom
+              this.footerRef.current && this.footerRef.current.classList.remove("no-bottom");
+            } else {
+              this.footerRef.current && this.footerRef.current.classList.add("no-bottom");
+            }
+          }}
+        >
+          <Header>
             <HeaderBack>
               <span onClick={() => this.goList()}>{trans("settings.theme")}</span>
               <ArrowIcon />
               <span>{this.state.name}</span>
             </HeaderBack>
-            <InlineFlexAlignCenter>
-              <ResetButton
-                icon={<ResetIcon />}
-                disabled={this.isThemeNotChange()}
-                onClick={() => this.handleReset()}
-              >
-                {trans("reset")}
-              </ResetButton>
-              <SaveButton
-                type="primary"
-                disabled={this.isThemeNotChange() || !this.state.name}
-                onClick={() => this.handleSave()}
-              >
-                {trans("theme.saveBtn")}
-              </SaveButton>
-            </InlineFlexAlignCenter>
-          </DetailHeader>
+          </Header>
           <DetailContent>
-            <div>
-              <DetailTitle>{trans("theme.mainColor")}</DetailTitle>
-              <ColorPicker
-                colorKey="primary"
-                name={trans("themeDetail.primary")}
-                desc={trans("themeDetail.primaryDesc")}
-                color={this.state.theme.primary}
-                configChange={(params) => this.configChange(params)}
-              ></ColorPicker>
+            <div className="common">
+              <div>
+                <DetailTitle>{trans("theme.mainColor")}</DetailTitle>
+                <ColorPicker
+                  colorKey="primary"
+                  name={trans("themeDetail.primary")}
+                  desc={trans("themeDetail.primaryDesc")}
+                  color={this.state.theme.primary}
+                  configChange={(params) => this.configChange(params)}
+                />
+              </div>
               <ColorPicker
                 colorKey="canvas"
                 name={trans("themeDetail.canvas")}
                 desc={trans("themeDetail.canvasDesc")}
                 color={this.state.theme.canvas}
                 configChange={(params) => this.configChange(params)}
-              ></ColorPicker>
+              />
               <ColorPicker
                 colorKey="primarySurface"
                 name={trans("themeDetail.primarySurface")}
                 desc={trans("themeDetail.primarySurfaceDesc")}
                 color={this.state.theme.primarySurface}
                 configChange={(params) => this.configChange(params)}
-              ></ColorPicker>
-              <DividerStyled />
-              <DetailTitle>{trans("theme.text")}</DetailTitle>
-              <ColorPicker
-                colorKey="textLight"
-                name={trans("themeDetail.textLight")}
-                desc={trans("themeDetail.textLightDesc")}
-                color={this.state.theme.textLight}
-                configChange={(params) => this.configChange(params)}
-              ></ColorPicker>
+              />
+              <div>
+                <DetailTitle>{trans("theme.text")}</DetailTitle>
+                <ColorPicker
+                  colorKey="textLight"
+                  name={trans("themeDetail.textLight")}
+                  desc={trans("themeDetail.textLightDesc")}
+                  color={this.state.theme.textLight}
+                  configChange={(params) => this.configChange(params)}
+                />
+              </div>
               <ColorPicker
                 colorKey="textDark"
                 name={trans("themeDetail.textDark")}
                 desc={trans("themeDetail.textDarkDesc")}
                 color={this.state.theme.textDark}
                 configChange={(params) => this.configChange(params)}
-              ></ColorPicker>
-              <DividerStyled />
-              <DetailTitle>{trans("themeDetail.borderRadius")}</DetailTitle>
-              <ColorPicker
-                colorKey="borderRadius"
-                name={trans("themeDetail.borderRadius")}
-                desc={trans("themeDetail.borderRadiusDesc")}
-                radius={this.state.theme.borderRadius}
-                configChange={(params) => this.configChange(params)}
-              ></ColorPicker>
+              />
+              <div>
+                <DetailTitle>{trans("themeDetail.borderRadius")}</DetailTitle>
+                <ColorPicker
+                  colorKey="borderRadius"
+                  name={trans("themeDetail.borderRadius")}
+                  desc={trans("themeDetail.borderRadiusDesc")}
+                  radius={this.state.theme.borderRadius}
+                  configChange={(params) => this.configChange(params)}
+                />
+              </div>
             </div>
-            <PreviewApp theme={this.state.theme} dsl={dsl} />
+            <PreviewApp style={{marginTop: '3px'}} theme={this.state.theme} dsl={dsl} />
+            <div className="chart">
+              <DetailTitle>{trans("themeDetail.chart")}</DetailTitle>
+              <ChartDesc>
+                {trans("themeDetail.chartDesc")}
+                <a target="_blank" href="https://echarts.apache.org/en/theme-builder.html">
+                  {" "}
+                  {trans("themeDetail.echartsJson")}
+                </a>
+              </ChartDesc>
+              <ChartInput>
+              <div className="code-editor">
+                <CodeEditor
+                  value={this.state.theme.chart || ""}
+                  onChange={(value) => this.configChange({
+                    colorKey: "chart",
+                    chart: value.doc.toString() ? value.doc.toString() : undefined,
+                  })}
+                  styleName="higher"
+                  codeType="Function"
+                  showLineNum
+                  bordered
+                />
+                </div>
+              </ChartInput>
+            </div>
+            <PreviewApp
+              style={{ height: "346px", margin: "20px 0 8px 0" }}
+              theme={this.state.theme}
+              dsl={chartDsl}
+            />
           </DetailContent>
+          <Footer ref={this.footerRef} className="no-bottom">
+            <ResetButton
+              icon={<ResetIcon />}
+              disabled={this.isThemeNotChange()}
+              onClick={() => this.handleReset()}
+            >
+              {trans("reset")}
+            </ResetButton>
+            <SaveButton
+              type="primary"
+              disabled={this.isThemeNotChange() || !this.state.name}
+              onClick={() => this.handleSave()}
+            >
+              {trans("theme.saveBtn")}
+            </SaveButton>
+          </Footer>
         </DetailContainer>
       </>
     );

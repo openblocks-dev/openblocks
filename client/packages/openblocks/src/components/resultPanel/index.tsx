@@ -1,41 +1,23 @@
 import styled from "styled-components";
-import Draggable from "react-draggable";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { EditorContext } from "../comps/editorState";
-import { Table as AntdTable } from "antd";
+import { BottomResCompResult } from "../../types/bottomRes";
+import * as React from "react";
+import { useEffect, useMemo, useState } from "react";
 import { isArray, isObject, isObjectLike, isPlainObject } from "lodash";
 import ReactJson from "react-json-view";
-import { Layers } from "constants/Layers";
-import { BottomResComp, BottomResCompResult } from "types/bottomRes";
-import { CloseIcon, ErrorIcon, SuccessIcon, Switch } from "openblocks-design";
-import { DarkActiveTextColor, GreyTextColor } from "constants/style";
-import { trans } from "i18n";
+import { trans } from "../../i18n";
+import { DarkActiveTextColor, GreyTextColor } from "../../constants/style";
+import { Table as AntdTable } from "antd";
+import { Switch } from "components/Switch";
+import { CloseIcon, ErrorIcon, SuccessIcon } from "icons";
 
-const Wrapper = styled.div<{ bottom?: number }>`
-  right: calc(313px + 4px); // FIXME: don't rely on the width of the right panel
-  bottom: ${(props) => (props.bottom ? props.bottom + 4 + "px" : 285 + 4 + "px")};
-  position: fixed;
-  z-index: ${Layers.queryResultPanel};
-
-  display: flex;
-  flex-direction: column;
-  width: 592px;
-  height: fit-content;
-  max-height: 250px;
-  background: #ffffff;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  pointer-events: auto;
-  padding-bottom: 16px;
-`;
-
-const HeaderWrapper = styled.div`
+export const HeaderWrapper = styled.div`
   display: flex;
   align-items: center;
   padding: 12px 16px 20px 16px;
   cursor: move;
+  background-color: #ffffff;
+  border-radius: inherit;
 `;
-
 const IconWrapper = styled.div`
   margin-right: 8px;
   height: 16px;
@@ -45,7 +27,6 @@ const IconWrapper = styled.div`
     height: 16px;
   }
 `;
-
 const HeaderTitle = styled.div`
   display: flex;
   align-items: center;
@@ -59,7 +40,6 @@ const HeaderTitle = styled.div`
   border: none;
   word-break: break-all;
 `;
-
 const SwitchWrapper = styled.div`
   display: flex;
   flex-shrink: 0;
@@ -69,7 +49,6 @@ const SwitchWrapper = styled.div`
   line-height: 13px;
   margin-left: auto;
 `;
-
 const CloseIconWrapper = styled.div`
   margin-left: auto;
   width: 16px;
@@ -82,12 +61,12 @@ const CloseIconWrapper = styled.div`
     color: ${DarkActiveTextColor};
   }
 `;
-
 const BodyWrapper = styled.div`
   overflow-x: hidden;
   overflow-y: scroll;
   scrollbar-gutter: stable;
   padding-left: 16px;
+  background-color: #ffffff;
 
   &::-webkit-scrollbar {
     width: 16px;
@@ -105,7 +84,6 @@ const BodyWrapper = styled.div`
     background-color: rgba(139, 143, 163, 0.36);
   }
 `;
-
 const Table = styled(AntdTable)`
   .ant-table {
     font-size: 13px;
@@ -152,110 +130,17 @@ const Table = styled(AntdTable)`
     box-shadow: none;
   }
 `;
-
 const TextResult = styled.pre`
   word-break: break-word;
   white-space: pre-wrap;
 `;
-
-interface BottomResultPanelProps {
-  bottom: number;
-}
-
-export const BottomResultPanel = (props: BottomResultPanelProps) => {
-  const { bottom } = props;
-  const editorState = useContext(EditorContext);
-  const showResultComp = editorState.showResultComp();
-  const result = showResultComp?.result();
-
-  const draggableRef = useRef<HTMLDivElement>(null);
-  const [unDraggable, setUnDraggable] = useState(true);
-
-  const [bounds, setBounds] = useState({
-    left: 0,
-    top: 0,
-    bottom: 0,
-    right: 0,
-  });
-
-  const { header, body } = useResultPanel({
-    ...(result ?? { data: "", dataType: "default", success: true }),
-    onClose: () => editorState.setShowResultCompName(undefined),
-  });
-
-  if (!result) {
-    return null;
-  }
-
-  return (
-    <Draggable
-      disabled={unDraggable}
-      bounds={bounds}
-      onStart={(event, uiData) => {
-        const { clientWidth, clientHeight } = window.document.documentElement;
-        const targetRect = draggableRef.current?.getBoundingClientRect();
-        if (!targetRect) {
-          return;
-        }
-        setBounds({
-          left: -targetRect.left + uiData.x,
-          right: clientWidth - (targetRect.right - uiData.x),
-          top: -targetRect.top + uiData.y,
-          bottom: clientHeight - (targetRect.bottom - uiData.y),
-        });
-      }}
-    >
-      <Wrapper bottom={bottom} ref={draggableRef}>
-        <HeaderWrapper
-          onMouseOver={() => setUnDraggable(false)}
-          onMouseOut={() => setUnDraggable(true)}
-        >
-          {header}
-        </HeaderWrapper>
-        {body}
-      </Wrapper>
-    </Draggable>
-  );
-};
-
-const QueryLibraryResultWrapper = styled(Wrapper)`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  height: 360px;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-`;
-
-export const QueryLibraryResultPanel = (props: { comp: BottomResComp; onClose: () => void }) => {
-  const result = props.comp?.result();
-
-  const { header, body } = useResultPanel({
-    ...(result ?? { data: "", dataType: "default", success: true }),
-    onClose: props.onClose,
-  });
-
-  if (!result) {
-    return null;
-  }
-
-  return (
-    <QueryLibraryResultWrapper>
-      <HeaderWrapper style={{ cursor: "default" }}>{header}</HeaderWrapper>
-      {body}
-    </QueryLibraryResultWrapper>
-  );
-};
-
 const TimeLabel = styled.span`
   color: #b8b9bf;
   margin-left: 8px;
 `;
 const TypeLabel = TimeLabel;
 
-function useResultPanel(params: BottomResCompResult & { onClose: () => void }) {
+export function useResultPanel(params: BottomResCompResult & { onClose: () => void }) {
   const { success, errorMessage, dataType, data, title, runTime } = params;
 
   const [toJson, setToJson] = useState(false);

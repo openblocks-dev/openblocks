@@ -21,6 +21,7 @@ import { ControlParams } from "./controlParams";
  * BoolControl without CodeEditor
  */
 export class BoolPureControl extends SimpleComp<boolean> {
+  readonly IGNORABLE_DEFAULT_VALUE = false;
   protected getDefaultValue(): boolean {
     return false;
   }
@@ -77,6 +78,8 @@ class BoolControl extends AbstractComp<boolean, DataType, Node<ValueAndMsg<boole
   static DEFAULT_TRUE: typeof BoolControl;
   private readonly useCodeEditor: boolean;
   private readonly codeControl: InstanceType<typeof BoolCodeControl>;
+
+  readonly IGNORABLE_DEFAULT_VALUE = false;
 
   constructor(params: CompParams<DataType>) {
     super(params);

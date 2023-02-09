@@ -50,6 +50,7 @@ export * from "comps/utils/idGenerator";
 export * from "comps/utils/propertyUtils";
 export * from "comps/utils/globalSettings";
 export * from "comps/utils";
+export * from 'comps/utils/themeContext';
 
 // design
 export * from "openblocks-design";

@@ -29,18 +29,18 @@ import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConst
 import { styleControl } from "comps/controls/styleControl";
 import { DateTimeStyle, DateTimeStyleType } from "comps/controls/styleControlConstants";
 import styled from "styled-components";
-import { getStyle } from "./dateComp";
+import { disabledTime, getStyle } from "./dateComp";
 import { withMethodExposing } from "../generators/withMethodExposing";
 import {
-  hiddenPropertyView,
   disabledPropertyView,
-  requiredPropertyView,
-  hourStepPropertyView,
-  minuteStepPropertyView,
-  SecondStepPropertyView,
-  minTimePropertyView,
-  maxTimePropertyView,
   formatPropertyView,
+  hiddenPropertyView,
+  hourStepPropertyView,
+  maxTimePropertyView,
+  minTimePropertyView,
+  minuteStepPropertyView,
+  requiredPropertyView,
+  SecondStepPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { TIME_FORMAT, TimeParser } from "util/dateTimeUtils";
@@ -104,29 +104,9 @@ function validate(
     return { validateStatus: "error", help: props.customRule };
   }
 
-  const current = moment(props.value.value, TIME_FORMAT);
-  const maxTime = moment(props.maxTime, TIME_FORMAT);
-  const minTime = moment(props.minTime, TIME_FORMAT);
+  const current = moment(props.value.value, TimeParser);
   if (props.required && !current.isValid()) {
     return { validateStatus: "error", help: trans("prop.required") };
-  }
-  if (maxTime.isValid() && current.isAfter(maxTime)) {
-    return {
-      validateStatus: "error",
-      help: trans("validationDesc.maxTime", {
-        time: props.value.value,
-        maxTime: maxTime.format(TIME_FORMAT),
-      }),
-    };
-  }
-  if (minTime.isValid() && current.isBefore(minTime)) {
-    return {
-      validateStatus: "error",
-      help: trans("validationDesc.minTime", {
-        time: props.value.value,
-        minTime: minTime.format(TIME_FORMAT),
-      }),
-    };
   }
   return { validateStatus: "success" };
 }
@@ -159,6 +139,7 @@ export const timePickerControl = (function () {
             const time = moment(props.value.value, TimeParser);
             return time.isValid() ? time : null;
           })()}
+          disabledTime={() => disabledTime(props.minTime, props.maxTime)}
           {...timePickerComps(props)}
           onChange={(time) => {
             const mom = time ? moment(time) : null;
@@ -183,7 +164,10 @@ export const timePickerControl = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.value.propertyView({ label: trans("prop.defaultValue") })}
+          {children.value.propertyView({
+            label: trans("prop.defaultValue"),
+            tooltip: trans("time.formatTip"),
+          })}
           {commonBasicSection(children)}
         </Section>
         <FormDataPropertyView {...children} />
@@ -233,8 +217,9 @@ export const timeRangeControl = (function () {
             const end = moment(props.end.value, TimeParser);
             return [start.isValid() ? start : null, end.isValid() ? end : null];
           })()}
+          disabledTime={() => disabledTime(props.minTime, props.maxTime)}
           {...timePickerComps(props)}
-          order={false}
+          order={true}
           onChange={(time) => {
             const start = time && time[0] ? moment(time[0]) : null;
             const end = time && time[1] ? moment(time[1]) : null;
@@ -269,9 +254,11 @@ export const timeRangeControl = (function () {
         <Section name={sectionNames.basic}>
           {children.start.propertyView({
             label: trans("time.start"),
+            tooltip: trans("time.formatTip"),
           })}
           {children.end.propertyView({
             label: trans("time.end"),
+            tooltip: trans("time.formatTip"),
           })}
           {commonBasicSection(children)}
         </Section>

@@ -36,3 +36,5 @@ declare var REACT_APP_LOG_LEVEL: string;
 declare var REACT_APP_IMPORT_MAP: string;
 declare var REACT_APP_SERVER_IPS: string;
 declare var REACT_APP_BUNDLE_TYPE: "sdk" | "app";
+declare var REACT_APP_DISABLE_JS_SANDBOX: string;
+declare var REACT_APP_BUNDLE_BUILTIN_PLUGIN: string;
