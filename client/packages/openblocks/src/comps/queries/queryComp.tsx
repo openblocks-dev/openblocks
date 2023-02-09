@@ -141,15 +141,14 @@ QueryCompTmp = class extends QueryCompTmp {
     this.dispatch(executeQueryAction({}));
   }
 
-  execute() {
-    const target = this as any;
+  execute(target: any) {
     if (!target["debounceExecute"]) {
       target["debounceExecute"] = _.debounce(
         () => {
           setTimeout(() => this.dispatchExecuteAction());
         },
         750,
-        { leading: true, maxWait: 2000, trailing: true }
+        { leading: false, maxWait: 2000, trailing: true }
       );
     }
     target["debounceExecute"]();
@@ -163,7 +162,10 @@ QueryCompTmp = class extends QueryCompTmp {
   override extraNode() {
     return {
       node: {
-        queryDepFetchInfo: new FetchCheckNode(this.runningDependNodes()),
+        queryDepFetchInfo: new FetchCheckNode(this.runningDependNodes(), {
+          ignoreManualDepReadyStatus:
+            this.children.compType.getView() === "js" && getTriggerType(this) === "automatic",
+        }),
       },
       updateNodeFields: (value: any) => {
         const fetchInfo = value.queryDepFetchInfo as FetchInfo;
@@ -208,7 +210,7 @@ QueryCompTmp = class extends QueryCompTmp {
       // FIXME, this should be changed to a reference judgement, but for unknown reasons if the reference is modified once, it will change twice.
       if (dependsChanged) {
         if (dslNotChanged) {
-          this.execute();
+          this.execute(next);
         }
         return setFieldsNoTypeCheck(next, {
           [lastDependsKey]: depends,
@@ -514,6 +516,7 @@ export const QueryComp = withExposingConfigs(QueryCompTmp, [
   new NameConfig("isFetching", trans("query.isFetchingExportDesc")),
   new NameConfig("runTime", trans("query.runTimeExportDesc")),
   new NameConfig("latestEndTime", trans("query.latestEndTimeExportDesc")),
+  new NameConfig("triggerType", trans("query.triggerTypeExportDesc")),
 ]);
 
 const QueryListTmpComp = list(QueryComp);

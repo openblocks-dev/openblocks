@@ -63,16 +63,28 @@ export const SecondStepPropertyView = (children: {
 }) => children.secondStep.propertyView({ label: trans("prop.secondStep") });
 
 export const minDatePropertyView = (children: { minDate: InstanceType<typeof StringControl> }) =>
-  children.minDate.propertyView({ label: trans("prop.minDate") });
+  children.minDate.propertyView({
+    label: trans("prop.minDate"),
+    tooltip: trans("date.formatTip"),
+  });
 
 export const maxDatePropertyView = (children: { maxDate: InstanceType<typeof StringControl> }) =>
-  children.maxDate.propertyView({ label: trans("prop.maxDate") });
+  children.maxDate.propertyView({
+    label: trans("prop.maxDate"),
+    tooltip: trans("date.formatTip"),
+  });
 
 export const minTimePropertyView = (children: { minTime: InstanceType<typeof StringControl> }) =>
-  children.minTime.propertyView({ label: trans("prop.minTime") });
+  children.minTime.propertyView({
+    label: trans("prop.minTime"),
+    tooltip: trans("time.formatTip"),
+  });
 
 export const maxTimePropertyView = (children: { maxTime: InstanceType<typeof StringControl> }) =>
-  children.maxTime.propertyView({ label: trans("prop.maxTime") });
+  children.maxTime.propertyView({
+    label: trans("prop.maxTime"),
+    tooltip: trans("time.formatTip"),
+  });
 
 export const showLabelPropertyView = (children: { showLabel: InstanceType<typeof BoolControl> }) =>
   children.showLabel.propertyView({ label: trans("prop.showLabel") });

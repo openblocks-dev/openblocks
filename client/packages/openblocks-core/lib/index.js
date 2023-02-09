@@ -310,8 +310,8 @@ var FunctionNode = /** @class */ (function (_super) {
     FunctionNode.prototype.dependValues = function () {
         return this.child.dependValues();
     };
-    FunctionNode.prototype.fetchInfo = function (exposingNodes) {
-        return this.child.fetchInfo(exposingNodes);
+    FunctionNode.prototype.fetchInfo = function (exposingNodes, options) {
+        return this.child.fetchInfo(exposingNodes, options);
     };
     __decorate([
         memoized()
@@ -382,12 +382,12 @@ var RecordNode = /** @class */ (function (_super) {
         });
         return ret;
     };
-    RecordNode.prototype.fetchInfo = function (exposingNodes) {
+    RecordNode.prototype.fetchInfo = function (exposingNodes, options) {
         var isFetching = false;
         var ready = true;
         Object.entries(this.children).forEach(function (_a) {
             _a[0]; var child = _a[1];
-            var fi = child.fetchInfo(exposingNodes);
+            var fi = child.fetchInfo(exposingNodes, options);
             isFetching = fi.isFetching || isFetching;
             ready = fi.ready && ready;
         });
@@ -1544,6 +1544,7 @@ function string2Fn(unevaledValue, type, methods) {
 
 var IS_FETCHING_FIELD = "isFetching";
 var LATEST_END_TIME_FIELD = "latestEndTime";
+var TRIGGER_TYPE_FIELD = "triggerType";
 /**
  * user input node
  *
@@ -1654,7 +1655,7 @@ var CodeNode = /** @class */ (function (_super) {
         });
         return ret;
     };
-    CodeNode.prototype.fetchInfo = function (exposingNodes) {
+    CodeNode.prototype.fetchInfo = function (exposingNodes, options) {
         if (!!this.evalCache.inIsFetching) {
             return {
                 isFetching: false,
@@ -1668,6 +1669,11 @@ var CodeNode = /** @class */ (function (_super) {
             var ready_1 = true;
             topDepends.forEach(function (paths, depend) {
                 var value = depend.evaluate(exposingNodes);
+                if ((options === null || options === void 0 ? void 0 : options.ignoreManualDepReadyStatus) &&
+                    _.has(value, TRIGGER_TYPE_FIELD) &&
+                    value.triggerType === "manual") {
+                    return;
+                }
                 if (_.has(value, IS_FETCHING_FIELD)) {
                     isFetching_1 = isFetching_1 || value.isFetching === true;
                 }
@@ -1719,9 +1725,10 @@ function fixCyclic(extra, exposingNodes) {
  */
 var FetchCheckNode = /** @class */ (function (_super) {
     __extends(FetchCheckNode, _super);
-    function FetchCheckNode(child) {
+    function FetchCheckNode(child, options) {
         var _this = _super.call(this) || this;
         _this.child = child;
+        _this.options = options;
         _this.type = "fetchCheck";
         return _this;
     }
@@ -1738,7 +1745,7 @@ var FetchCheckNode = /** @class */ (function (_super) {
         return this.child.dependValues();
     };
     FetchCheckNode.prototype.fetchInfo = function (exposingNodes) {
-        return this.child.fetchInfo(exposingNodes);
+        return this.child.fetchInfo(exposingNodes, this.options);
     };
     __decorate([
         memoized()

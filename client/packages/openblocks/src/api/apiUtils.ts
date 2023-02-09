@@ -120,12 +120,10 @@ export const apiFailureResponseInterceptor = (error: any) => {
 
       // Need authorization
       if (!notAuthRequiredPath(error.config?.url)) {
-        const currentUrl = window.location.href;
         if (error.response.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {
           // Redirect to login and set a redirect url.
           StoreRegistry.getStore().dispatch(
             logoutAction({
-              redirectURL: `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(currentUrl)}`,
               noLogoutReq: true,
             })
           );

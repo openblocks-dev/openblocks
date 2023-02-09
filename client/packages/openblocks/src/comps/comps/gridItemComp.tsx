@@ -4,6 +4,7 @@
 import { CompName } from "components/CompName";
 import { CompNameContext } from "comps/editorState";
 import { withIsLoading, withTypeAndChildren } from "comps/generators";
+import { CompExposingContext } from "comps/generators/withContext";
 import { withErrorBoundary } from "comps/generators/withErrorBoundary";
 import {
   ExposingMultiCompConstructor,
@@ -12,12 +13,12 @@ import {
   UICompType,
 } from "comps/uiCompRegistry";
 import { ExposingInfo } from "comps/utils/exposingTypes";
-import { getReduceContext } from "comps/utils/reduceContext";
-import { CompExposingContext, setFieldsNoTypeCheck } from "index.sdk";
+import { getReduceContext, ListViewContext } from "comps/utils/reduceContext";
 import _ from "lodash";
 import { Comp, CompAction, ConstructorToDataType } from "openblocks-core";
 import React, { Profiler, useContext, useMemo } from "react";
 import { profilerCallback } from "util/cacheUtils";
+import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { SimpleNameComp } from "./simpleNameComp";
 
 const ITEM_CHAR = "ijklmn";
@@ -63,12 +64,22 @@ function CachedView(props: { comp: Comp; name: string }) {
   );
 }
 
-function CachedPropertyView(props: { comp: Comp; name: string; listViewDepth: number }) {
+function CachedPropertyView(props: { comp: Comp; name: string; listViewContext: ListViewContext }) {
   const prevHints = useContext(CompExposingContext);
-  const hints = useMemo(
-    () => ({ ...prevHints, ...getListExposingHints(props.listViewDepth) }),
-    [prevHints, props.listViewDepth]
+  const prevCurrentItems = useMemo(
+    () => (typeof prevHints?.currentItems === "object" ? prevHints?.currentItems : {}),
+    [prevHints?.currentItems]
   );
+  const { listViewContext } = props;
+  const hints = useMemo(
+    () => ({
+      ...prevHints,
+      ...getListExposingHints(listViewContext.listViewDepth),
+      currentItem: { ...prevCurrentItems, ...listViewContext.currentItem },
+    }),
+    [prevHints, listViewContext.listViewDepth, listViewContext.currentItem, prevCurrentItems]
+  );
+
   return useMemo(() => {
     return (
       <>
@@ -84,7 +95,7 @@ function CachedPropertyView(props: { comp: Comp; name: string; listViewDepth: nu
 }
 
 export class GridItemComp extends TmpComp {
-  private readonly listViewDepth = 0;
+  private readonly listViewContext: ListViewContext = { listViewDepth: 0, currentItem: {} };
   override getView() {
     return <CachedView comp={this.children.comp} name={this.children.name.getView()} />;
   }
@@ -92,7 +103,7 @@ export class GridItemComp extends TmpComp {
   override getPropertyView() {
     const name = this.children.name.getView();
     const comp = this.children.comp;
-    return <CachedPropertyView comp={comp} name={name} listViewDepth={this.listViewDepth} />;
+    return <CachedPropertyView comp={comp} name={name} listViewContext={this.listViewContext} />;
   }
 
   autoHeight(): boolean {
@@ -106,9 +117,9 @@ export class GridItemComp extends TmpComp {
 
   override reduce(action: CompAction): this {
     let comp = super.reduce(action);
-    const listViewDepth = getReduceContext().listViewDepth;
-    if (listViewDepth !== this.listViewDepth)
-      comp = setFieldsNoTypeCheck(comp, { listViewDepth }, { keepCacheKeys: ["node"] });
+    const listViewContext = getReduceContext().listViewContext;
+    if (listViewContext !== this.listViewContext)
+      comp = setFieldsNoTypeCheck(comp, { listViewContext }, { keepCacheKeys: ["node"] });
     return comp;
   }
 }

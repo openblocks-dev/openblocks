@@ -46,7 +46,7 @@ export function withParamsWithDefault<
 >(VariantCompCtor: TCtor, defaultParamValues: ParamValues) {
   type ChangeParamDataAction = {
     type: "setParamData";
-    data: ParamValues;
+    data: Partial<ParamValues>;
   };
 
   type SetCompAction = {
@@ -75,7 +75,7 @@ export function withParamsWithDefault<
     /**
      * this action requires eval to be valid, don't use it directly with reduce
      */
-    static setParamDataAction(paramData: ParamValues) {
+    static setParamDataAction(paramData: Partial<ParamValues>) {
       return customAction({
         type: "setParamData",
         data: paramData,

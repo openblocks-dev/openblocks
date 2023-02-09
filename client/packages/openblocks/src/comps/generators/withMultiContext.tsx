@@ -14,6 +14,7 @@ import {
   NodeToValue,
   RecordConstructorToComp,
   unwrapChildAction,
+  wrapChildAction,
   wrapDispatch,
 } from "openblocks-core";
 import { ReactNode } from "react";
@@ -46,6 +47,11 @@ export function withMultiContextWithDefault<
   TCtor extends MultiCompConstructor,
   ParamValues extends Record<string, unknown>
 >(VariantCompCtor: TCtor, paramValues: ParamValues) {
+  type SetOriginalParamsAction = {
+    type: "setOriginalParams";
+    params: Partial<ParamValues>;
+  };
+
   const WithParamCompCtor = withParamsWithDefault(VariantCompCtor, paramValues);
   type WithParamComp = ConstructorToComp<typeof WithParamCompCtor>;
   const MapCtor = map(WithParamCompCtor);
@@ -126,7 +132,10 @@ export function withMultiContextWithDefault<
         const [key, childAction] = unwrapChildAction(unwrapChildAction(action)[1]);
         const params = this.cacheParamsMap[key];
         if (params) {
-          const childComp = this.getOriginalComp().setParams(params).reduce(childAction);
+          const childComp = this.getOriginalComp()
+            .setParams(params)
+            .changeDispatch(wrapDispatch(wrapDispatch(this.dispatch, MAP_KEY), key))
+            .reduce(childAction);
           if (childComp) {
             const comps = { [key]: childComp };
             const newComp = this.setChild(
@@ -155,6 +164,10 @@ export function withMultiContextWithDefault<
 
     getOriginalComp() {
       return this.children[CHILD_KEY];
+    }
+
+    static setOriginalParamsAction(params: Partial<ParamValues>) {
+      return wrapChildAction(CHILD_KEY, WithParamCompCtor.setParamDataAction(params));
     }
   }
 

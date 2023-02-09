@@ -32,6 +32,9 @@ const HttpMethodOptions = [
   { label: "PUT", value: "PUT" },
   { label: "DELETE", value: "DELETE" },
   { label: "PATCH", value: "PATCH" },
+  { label: "HEAD", value: "HEAD" },
+  { label: "OPTIONS", value: "OPTIONS" },
+  { label: "TRACE", value: "TRACE" },
 ] as const;
 type HttpMethodValue = ValueFromOption<typeof HttpMethodOptions>;
 

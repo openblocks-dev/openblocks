@@ -1,11 +1,11 @@
 import _ from "lodash";
 import { memoized } from "util/memoize";
 import { FunctionNode, withFunction } from "./functionNode";
-import { AbstractNode, FetchInfo, Node } from "./node";
+import { AbstractNode, FetchInfo, FetchInfoOptions, Node } from "./node";
 import { fromRecord } from "./recordNode";
 import { CodeType, EvalMethods } from "./types/evalTypes";
 import { ValueAndMsg, ValueExtra } from "./types/valueAndMsg";
-import { addDepends, addDepend } from "./utils/dependMap";
+import { addDepend, addDepends } from "./utils/dependMap";
 import { filterDepends, hasCycle } from "./utils/evaluate";
 import { dependsErrorMessage, mergeNodesWithSameName, nodeIsRecord } from "./utils/nodeUtils";
 import { string2Fn } from "./utils/string2Fn";
@@ -19,6 +19,7 @@ export interface CodeNodeOptions {
 
 const IS_FETCHING_FIELD = "isFetching";
 const LATEST_END_TIME_FIELD = "latestEndTime";
+const TRIGGER_TYPE_FIELD = "triggerType";
 
 /**
  * user input node
@@ -144,7 +145,10 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
     return ret;
   }
 
-  override fetchInfo(exposingNodes: Record<string, Node<unknown>>): FetchInfo {
+  override fetchInfo(
+    exposingNodes: Record<string, Node<unknown>>,
+    options?: FetchInfoOptions
+  ): FetchInfo {
     if (!!this.evalCache.inIsFetching) {
       return {
         isFetching: false,
@@ -160,6 +164,14 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
 
       topDepends.forEach((paths, depend) => {
         const value = depend.evaluate(exposingNodes) as any;
+        if (
+          options?.ignoreManualDepReadyStatus &&
+          _.has(value, TRIGGER_TYPE_FIELD) &&
+          value.triggerType === "manual"
+        ) {
+          return;
+        }
+
         if (_.has(value, IS_FETCHING_FIELD)) {
           isFetching = isFetching || value.isFetching === true;
         }
@@ -177,7 +189,7 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
 
       return {
         isFetching,
-        ready,
+        ready: ready,
       };
     } finally {
       this.evalCache.inIsFetching = false;

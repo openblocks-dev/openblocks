@@ -434,6 +434,7 @@ export const en = {
     isFetchingExportDesc: "Is the current query in the request",
     runTimeExportDesc: "Current query execution time (ms)",
     latestEndTimeExportDesc: "Last run time",
+    triggerTypeExportDesc: "Trigger type",
     chooseResource: "Choose a resource",
     createDataSource: "Create a new data source",
     editDataSource: "Edit",
@@ -946,6 +947,7 @@ export const en = {
   },
   date: {
     format: "Format",
+    formatTip: "Support:\n" + "YYYY-MM-DD HH:mm:ss\nYYYY-MM-DD\nTimestamp",
     reference: "Please refer to",
     showTime: "Show time",
     start: "Start date",
@@ -961,6 +963,7 @@ export const en = {
   time: {
     start: "Start time",
     end: "End time",
+    formatTip: "Support:\n" + "HH:mm:ss\nTimestamp",
   },
   button: {
     prefixIcon: "Prefix icon",
@@ -1382,7 +1385,10 @@ export const en = {
     numOfRows: "Row count",
     numOfRowsTooltip:
       "Number of rows in the list - This is usually set to a variable (for example, '{{query1.data.length}}') if you need to present the results of a query.",
-    dataDesc: "Exposing data of Comps in listView",
+    itemsDesc: "Exposing data of Comps in listView",
+    dataDesc: "The raw data used in the current listView",
+    dataTooltip:
+      "If evaluated as Number, this field will be regarded as row count, and the data will be regarded as empty.",
   },
   navigation: {
     addText: "Add submenu item",
@@ -1681,7 +1687,7 @@ export const en = {
     password: "Password:",
     modifyPassword: "Modify password",
     setPassword: "Set password",
-    alreadySetPassword: "Already set pass",
+    alreadySetPassword: "Password set",
     setPassPlaceholder: "You can login with password",
     setPassAfterBind: "You can set password After Account bind",
     socialConnections: "Social Connections",

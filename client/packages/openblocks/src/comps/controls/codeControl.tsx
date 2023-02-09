@@ -1,7 +1,13 @@
 import { EditorState } from "@codemirror/basic-setup";
+import { isThemeColorKey } from "api/commonSettingApi";
 import { CodeEditor } from "base/codeEditor";
 import { Language } from "base/codeEditor/codeEditorTypes";
-import { JSONObject, JSONValue } from "util/jsonTypes";
+import { EditorContext } from "comps/editorState";
+import { withDefault } from "comps/generators/simpleGenerators";
+import { CompExposingContext } from "comps/generators/withContext";
+import { exposingDataForAutoComplete } from "comps/utils/exposingTypes";
+import { trans } from "i18n";
+import _ from "lodash";
 import {
   AbstractComp,
   changeDependName,
@@ -20,12 +26,7 @@ import {
   ValueAndMsg,
   withFunction,
 } from "openblocks-core";
-import { EditorContext } from "comps/editorState";
-import { withDefault } from "comps/generators/simpleGenerators";
-import { CompExposingContext } from "comps/generators/withContext";
-import { exposingDataForAutoComplete } from "comps/utils/exposingTypes";
 import { ControlPropertyViewWrapper, isValidColor, toHex } from "openblocks-design";
-import _ from "lodash";
 import { ReactNode } from "react";
 import {
   showTransform,
@@ -37,17 +38,17 @@ import {
   toJSONValue,
   toNumber,
   toNumberArray,
+  toNumberOrJSONObjectArray,
   toObject,
   toString,
   toStringArray,
   toStringNumberArray,
   toStringOrNumber,
 } from "util/convertUtils";
+import { JSONObject, JSONValue } from "util/jsonTypes";
 import { setFieldsNoTypeCheck, shallowEqual, toType } from "util/objectUtils";
 import { toReadableString } from "util/stringUtils";
 import { ControlLayout, ControlParams } from "./controlParams";
-import { trans } from "i18n";
-import { isThemeColorKey } from "api/commonSettingApi";
 
 interface CodeControlParams<T> extends CodeNodeOptions {
   language?: Language;
@@ -357,6 +358,10 @@ export const ArrayNumberControl = jsonBaseControl<Array<number>>("Array<number>"
 export const JSONObjectArrayControl = jsonBaseControl<Array<JSONObject>>(
   "Array<JSON>",
   toJSONObjectArray
+);
+export const NumberOrJSONObjectArrayControl = jsonBaseControl<number | Array<JSONObject>>(
+  "number | Array<JSON>",
+  toNumberOrJSONObjectArray
 );
 export const ArrayControl = jsonBaseControl<Array<JSONValue>>("Array", toJSONArray);
 export const JSONObjectControl = jsonBaseControl<JSONObject>("JSON", toJSONObject);
