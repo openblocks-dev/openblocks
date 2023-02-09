@@ -56,6 +56,7 @@ import { undoKey } from "util/keyUtils";
 import { manualTriggerResource, QueryMap } from "@openblocks-ee/constants/queryConstants";
 import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "../../constants/queryConstants";
 import DataSourceIcon from "components/DataSourceIcon";
+import { setFieldsNoTypeCheck } from "util/objectUtils";
 
 export type QueryResultExtra = Omit<
   QueryExecuteResponse,
@@ -172,24 +173,49 @@ QueryCompTmp = class extends QueryCompTmp {
   }
 
   override reduce(action: CompAction): this {
+    const isJsQuery = this.children.compType.getView() === "js";
+    const notExecuted = this.children.lastQueryStartTime.getView() === -1;
+    const isAutomatic = getTriggerType(this) === "automatic";
+
     if (
       action.type === CompActionTypes.UPDATE_NODES_V2 &&
-      getTriggerType(this) === "automatic" &&
-      (this.children.compType.getView() !== "js" ||
-        (this.children.compType.getView() === "js" &&
-          this.children.lastQueryStartTime.getView() === -1)) // query which has deps can be executed on page load(first time)
+      isAutomatic &&
+      (!isJsQuery || (isJsQuery && notExecuted)) // query which has deps can be executed on page load(first time)
     ) {
-      const dependValues = this.children.comp.node()?.dependValues();
+      const next = super.reduce(action);
+      const depends = this.children.comp.node()?.dependValues();
+      const dsl = this.children.comp.toJsonValue();
+      const lastDependsKey = "__query_comp_last_depends";
+      const lastDslKey = "__query_comp_last_node";
+
+      // isDepReady is set after finishing UPDATE_NODES_V2 action reducing.
+      if (!next.isDepReady) {
+        return setFieldsNoTypeCheck(next, {
+          [lastDependsKey]: depends,
+          [lastDslKey]: dsl,
+        });
+      }
+
       const target = this as any;
+
+      const preDepends = target[lastDependsKey];
+      const preDsl = target[lastDslKey];
+
+      const dependsChanged = !_.isEqual(preDepends, depends);
+      const dslNotChanged = _.isEqual(preDsl, dsl);
+
       // If the dsl has not changed, but the dependent node value has changed, then trigger the query execution
       // FIXME, this should be changed to a reference judgement, but for unknown reasons if the reference is modified once, it will change twice.
-      if (!_.isEqual(target["__query_comp_last_depends"], dependValues)) {
-        if (_.isEqual(target["__query_comp_last_node"], this.children.comp.toJsonValue())) {
+      if (dependsChanged) {
+        if (dslNotChanged) {
           this.execute();
         }
-        target["__query_comp_last_depends"] = dependValues;
-        target["__query_comp_last_node"] = this.children.comp.toJsonValue();
+        return setFieldsNoTypeCheck(next, {
+          [lastDependsKey]: depends,
+          [lastDslKey]: dsl,
+        });
       }
+      return next;
     }
     return super.reduce(action);
   }

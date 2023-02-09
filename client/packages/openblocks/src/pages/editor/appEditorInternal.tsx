@@ -17,8 +17,9 @@ import { RootComp } from "comps/comps/rootComp";
 import { useAppHistory } from "util/editoryHistory";
 import { useCompInstance } from "comps/utils/useCompInstance";
 import { MarkAppInitialized, perfMark } from "util/perfUtils";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, message } from "antd";
 import { getAntdLocale } from "i18n/antdLocale";
+import { useUserViewMode } from "../../util/hooks";
 
 /**
  * FIXME: optimize the logic of saving comps
@@ -107,6 +108,7 @@ interface AppEditorInternalViewProps {
 }
 
 export function AppEditorInternalView(props: AppEditorInternalViewProps) {
+  const isUserViewMode = useUserViewMode();
   const extraExternalEditorState = useSelector(getExternalEditorState);
   const dispatch = useDispatch();
   const { readOnly, appInfo, compInstance } = props;
@@ -130,6 +132,12 @@ export function AppEditorInternalView(props: AppEditorInternalViewProps) {
       ...extraExternalEditorState,
     }));
   }, [compInstance?.history, extraExternalEditorState, readOnly, appInfo.appType, appInfo.id]);
+
+  useEffect(() => {
+    message.config({
+      top: isUserViewMode ? 0 : 48,
+    });
+  }, [isUserViewMode]);
 
   const loading =
     !compInstance || !compInstance.comp || !compInstance.comp.preloaded || props.loading;

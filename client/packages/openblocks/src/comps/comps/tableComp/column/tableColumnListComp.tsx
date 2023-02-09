@@ -169,21 +169,30 @@ export class ColumnListComp extends ColumnListTmpComp {
       .toPairs()
       .fromPairs()
       .value();
-    const result = lastValueIfEqual(this, "withParamsNode", nodes, (a, b) => shallowEqual(a, b));
-    return fromRecord(result);
+    const result = lastValueIfEqual(
+      this,
+      "withParamsNode",
+      [fromRecord(nodes), nodes] as const,
+      (a, b) => shallowEqual(a[1], b[1])
+    )[0];
+    return result;
   }
 
   getColumnsNode<T extends keyof ColumnComp["children"]>(
     field: T
   ): RecordNode<Record<string, ReturnType<ColumnComp["children"][T]["node"]>>> {
-    const cacheKey = "col_nodes_" + field;
     const columns = this.getView();
     const nodes = _(columns)
       .map((col) => col.children[field].node() as ReturnType<ColumnComp["children"][T]["node"]>)
       .toPairs()
       .fromPairs()
       .value();
-    const result = lastValueIfEqual(this, cacheKey, nodes, shallowEqual);
-    return fromRecord(result);
+    const result = lastValueIfEqual(
+      this,
+      "col_nodes_" + field,
+      [fromRecord(nodes), nodes] as const,
+      (a, b) => shallowEqual(a[1], b[1])
+    )[0];
+    return result;
   }
 }

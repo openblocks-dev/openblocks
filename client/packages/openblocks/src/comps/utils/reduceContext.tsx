@@ -18,6 +18,7 @@ type ReduceContext = {
    * FIXME: After stabilization, let the table also use this method
    */
   inEventContext: boolean;
+  listViewDepth: number;
 };
 export type PartialReduceContext = Partial<ReduceContext>;
 
@@ -27,6 +28,7 @@ let context: ReduceContext = {
   moduleDSL: {},
   parentApplicationPath: [],
   inEventContext: false,
+  listViewDepth: 0,
 };
 
 export function getApplicationIdInReducer() {

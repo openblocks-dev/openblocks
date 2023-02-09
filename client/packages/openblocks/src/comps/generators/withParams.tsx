@@ -29,11 +29,11 @@ export function withParams<
   ParamNames extends readonly string[],
   TCtor extends MultiCompConstructor
 >(VariantCompCtor: TCtor, paramNames: ParamNames) {
-  type ParamDataType = Record<ParamNames[number], unknown>;
+  type ParamValues = Record<ParamNames[number], unknown>;
   const paramValues = _.mapValues(
     _.keyBy(paramNames, (x) => x),
     () => ""
-  ) as ParamDataType;
+  ) as ParamValues;
   return withParamsWithDefault(VariantCompCtor, paramValues);
 }
 
@@ -183,7 +183,7 @@ export function withParamsWithDefault<
       )[0];
     }
 
-    private getParamNodes(): Record<keyof ParamValues, Node<unknown>> {
+    getParamNodes(): Record<keyof ParamValues, Node<unknown>> {
       return _.mapValues(this.params, (param, name) => {
         const paramNode = lastValueIfEqual(
           this,

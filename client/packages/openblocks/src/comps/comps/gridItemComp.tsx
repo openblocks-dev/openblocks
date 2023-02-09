@@ -1,21 +1,33 @@
 /**
  * The current file cannot import "comps", will cause circular dependencies
  */
-import { Comp, ConstructorToDataType } from "openblocks-core";
+import { CompName } from "components/CompName";
 import { CompNameContext } from "comps/editorState";
 import { withIsLoading, withTypeAndChildren } from "comps/generators";
+import { withErrorBoundary } from "comps/generators/withErrorBoundary";
 import {
-  uiCompRegistry,
   ExposingMultiCompConstructor,
-  UICompType,
   UICompLayoutInfo,
+  uiCompRegistry,
+  UICompType,
 } from "comps/uiCompRegistry";
 import { ExposingInfo } from "comps/utils/exposingTypes";
-import { CompName } from "components/CompName";
-import React, { Profiler } from "react";
+import { getReduceContext } from "comps/utils/reduceContext";
+import { CompExposingContext, setFieldsNoTypeCheck } from "index.sdk";
+import _ from "lodash";
+import { Comp, CompAction, ConstructorToDataType } from "openblocks-core";
+import React, { Profiler, useContext, useMemo } from "react";
 import { profilerCallback } from "util/cacheUtils";
 import { SimpleNameComp } from "./simpleNameComp";
-import { withErrorBoundary } from "comps/generators/withErrorBoundary";
+
+const ITEM_CHAR = "ijklmn";
+
+function getListExposingHints(listViewDepth: number): Record<typeof ITEM_CHAR[number], 0> {
+  return _(_.range(0, Math.min(listViewDepth, ITEM_CHAR.length)))
+    .map((i) => [ITEM_CHAR[i], 0] as const)
+    .fromPairs()
+    .value();
+}
 
 const compMap: Record<string, ExposingMultiCompConstructor> = {};
 
@@ -51,21 +63,28 @@ function CachedView(props: { comp: Comp; name: string }) {
   );
 }
 
-function CachedPropertyView(props: { comp: Comp; name: string }) {
-  return React.useMemo(
-    () => (
+function CachedPropertyView(props: { comp: Comp; name: string; listViewDepth: number }) {
+  const prevHints = useContext(CompExposingContext);
+  const hints = useMemo(
+    () => ({ ...prevHints, ...getListExposingHints(props.listViewDepth) }),
+    [prevHints, props.listViewDepth]
+  );
+  return useMemo(() => {
+    return (
       <>
         <CompName name={props.name} />
         <CompNameContext.Provider value={props.name}>
-          {props.comp.getPropertyView()}
+          <CompExposingContext.Provider value={hints}>
+            {props.comp.getPropertyView()}
+          </CompExposingContext.Provider>
         </CompNameContext.Provider>
       </>
-    ),
-    [props.comp, props.name]
-  );
+    );
+  }, [props.comp, props.name, hints]);
 }
 
 export class GridItemComp extends TmpComp {
+  private readonly listViewDepth = 0;
   override getView() {
     return <CachedView comp={this.children.comp} name={this.children.name.getView()} />;
   }
@@ -73,7 +92,7 @@ export class GridItemComp extends TmpComp {
   override getPropertyView() {
     const name = this.children.name.getView();
     const comp = this.children.comp;
-    return <CachedPropertyView comp={comp} name={name} />;
+    return <CachedPropertyView comp={comp} name={name} listViewDepth={this.listViewDepth} />;
   }
 
   autoHeight(): boolean {
@@ -83,6 +102,14 @@ export class GridItemComp extends TmpComp {
 
   exposingInfo(): ExposingInfo {
     return this.children.comp.exposingInfo();
+  }
+
+  override reduce(action: CompAction): this {
+    let comp = super.reduce(action);
+    const listViewDepth = getReduceContext().listViewDepth;
+    if (listViewDepth !== this.listViewDepth)
+      comp = setFieldsNoTypeCheck(comp, { listViewDepth }, { keepCacheKeys: ["node"] });
+    return comp;
   }
 }
 

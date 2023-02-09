@@ -13,7 +13,6 @@ import {
   EventContent,
   EventDiv,
   EventTitle,
-  Icon,
   InlineEventFormWrapper,
   LinkButton,
   OptionType,
@@ -116,9 +115,7 @@ class SingleEventHandlerControl<T extends EventConfigsType> extends simpleMultiC
             <EventAction>{eventAction}</EventAction>
           </EventContent>
         </CustomPopover>
-        <EditPopover copy={props.onCopy} del={props.onDelete}>
-          <Icon tabIndex={-1} />
-        </EditPopover>
+        <EditPopover copy={props.onCopy} del={props.onDelete} />
       </EventDiv>
     );
   }

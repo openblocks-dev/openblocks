@@ -105,6 +105,12 @@ const StylePanel = styled.div`
     background-color: #f2f7fc;
     color: #4965f2;
   }
+  .ant-picker-year-panel,
+  .ant-picker-month-panel {
+    & + div .ant-picker-now {
+      display: none;
+    }
+  }
 `;
 
 const Wrapper = styled.div`

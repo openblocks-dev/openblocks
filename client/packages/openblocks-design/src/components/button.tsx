@@ -174,7 +174,14 @@ const TacoButton = forwardRef(
     const LoadingComp = !buttonType || buttonType === "link" ? LightLoading : Loading;
     return (
       <StyledAntdButton {...restProps} $buttonType={props.buttonType ?? "normal"} ref={ref}>
-        {props.loading ? <LoadingComp /> : props.children}
+        {props.loading ? (
+          <LoadingComp
+            backgroundColor={buttonType === "delete" ? "#fef4f4" : undefined}
+            color={buttonType === "delete" ? "#f73131" : undefined}
+          />
+        ) : (
+          props.children
+        )}
       </StyledAntdButton>
     );
   }
