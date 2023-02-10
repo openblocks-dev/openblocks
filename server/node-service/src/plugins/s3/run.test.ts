@@ -2,8 +2,8 @@ import getI18nTranslator from "./i18n";
 import run, { validateDataSourceConfig } from "./run";
 
 const dataSourceConfig = {
-  accessKey: "AKIA5RCJAEKOUTA5KI77",
-  secretKey: "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",
+  accessKey: "",
+  secretKey: "",
   endpointUrl: "",
   region: "us-west-2",
 };
