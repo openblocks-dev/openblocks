@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
@@ -31,10 +32,19 @@ public final class ContentTypeHelper {
                 MediaType.IMAGE_PNG.equals(contentType);
     }
 
-    public static boolean isJson(MediaType contentType) {
-        return StringUtils.equalsIgnoreCase("application", contentType.getType())
-                && (StringUtils.equalsIgnoreCase(contentType.getSubtype(), "json") ||
-                StringUtils.contains(contentType.getSubtype(), "+json"));
+    public static boolean isJson(MediaType mediaType) {
+        return StringUtils.equalsIgnoreCase("application", mediaType.getType())
+                && (StringUtils.equalsIgnoreCase(mediaType.getSubtype(), "json")
+                || StringUtils.equals(mediaType.getSubtype(), "x-ndjson")
+                || StringUtils.contains(mediaType.getSubtype(), "+json")
+                || isSpecialJson(mediaType));
+    }
+
+    /**
+     * for this type of json, its body should be parsed as JSON but write with stringify text when sending request
+     */
+    public static boolean isSpecialJson(MediaType mediaType) {
+        return StringUtils.contains(mediaType.getSubtype(), "-json");
     }
 
     public static String parseContentType(Map<String, String> allHeaders) {
@@ -47,7 +57,7 @@ public final class ContentTypeHelper {
     }
 
     public static boolean isValidContentType(String requestContentType) {
-        if (StringUtils.isEmpty(requestContentType)) {
+        if (StringUtils.isBlank(requestContentType)) {
             return true;
         }
 
@@ -60,12 +70,12 @@ public final class ContentTypeHelper {
         return true;
     }
 
-    @SuppressWarnings("deprecation")
-    public static boolean isJsonContentType(String requestContentType) {
-        return MediaType.APPLICATION_JSON_VALUE.equals(requestContentType)
-                || MediaType.APPLICATION_JSON_UTF8_VALUE.equals(requestContentType)
-                || MediaType.APPLICATION_PROBLEM_JSON_VALUE.equals(requestContentType)
-                || MediaType.APPLICATION_PROBLEM_JSON_UTF8_VALUE.equals(requestContentType);
+    public static Pair<Boolean, Boolean> isJsonContentType(String contentType) {
+        if (StringUtils.isBlank(contentType)) {
+            return Pair.of(false, false);
+        }
+        MediaType mediaType = MediaType.valueOf(contentType);
+        return Pair.of(isJson(mediaType), isSpecialJson(mediaType));
     }
 
 }
