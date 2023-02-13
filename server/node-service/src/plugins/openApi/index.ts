@@ -1,4 +1,3 @@
-import url from "url";
 import SwaggerClient from "swagger-client";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
@@ -14,6 +13,7 @@ import {
 } from "./util";
 import { badRequest } from "../../common/error";
 import { OpenAPI, OpenAPIV2 } from "openapi-types";
+import _ from "lodash";
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -85,8 +85,12 @@ export async function runOpenApi(
       securities,
       responseContentType: "application/json",
       requestInterceptor: (req: any) => {
-        req.duplex = "half";
-        return req;
+        const ret = {
+          ...req,
+          duplex: "half",
+          headers: _.omitBy(req.headers, (i) => !i),
+        };
+        return ret;
       },
     });
     return response.body;
