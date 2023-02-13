@@ -15,12 +15,13 @@ export async function runFirebasePlugin(
   dataSourceConfig: DataSourceDataType
 ) {
   const { actionName } = actionData;
-  const { privateKey, databaseUrl } = dataSourceConfig;
+  const { privateKey, databaseUrl, firestoreId } = dataSourceConfig;
   const serviceAccount = JSON.parse(privateKey);
 
   const app = initializeApp({
     credential: cert(serviceAccount),
     databaseURL: databaseUrl,
+    projectId: firestoreId,
   });
 
   const witDbRef = <T>(fn: (ref: Reference) => T): T => {

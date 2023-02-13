@@ -5,14 +5,15 @@ const dataSourceConfig = {
   params: [
     {
       key: "databaseUrl",
-      label: "Firebase Database URL",
+      label: "Database URL",
       tooltip:
-        "You can find your database URL and Firestore ID in your [Firebase project console](https://console.firebase.google.com/)",
+        "You can find your database URL and Firestore ID in your [Firebase project console](https://console.firebase.google.com/). Required for Realtime database.",
       type: "textInput",
     },
     {
       key: "firestoreId",
-      label: "Firestore Project ID",
+      label: "Project ID",
+      tooltip: "Firebase project ID, Optional when the Database URL is filled.",
       type: "textInput",
     },
     {
