@@ -31,8 +31,10 @@ const firestoreDocIdParamConfig = {
 
 const firestoreParentDocIdParamConfig = {
   key: "parentDocumentId",
-  label: "Parent Document ID",
+  label: "Parent",
   type: "textInput",
+  tooltip:
+    "The parent document id of collections you want to list. Leave empty for top-level collections.",
 } as const;
 
 const firestoreDataParamConfig = {
@@ -86,14 +88,37 @@ const queryConfig = {
         {
           label: "Query Firestore",
           actionName: "FS.QueryFireStore",
-          params: [firestoreCollectionParamConfig],
+          params: [
+            firestoreCollectionParamConfig,
+            {
+              key: "orderBy",
+              label: "Order by",
+              type: "textInput",
+            },
+            {
+              key: "orderDirection",
+              label: "Order direction",
+              type: "textInput",
+              defaultValue: "asc",
+              placeholder: "asc",
+            },
+            {
+              key: "limit",
+              label: "Limit",
+              type: "numberInput",
+              defaultValue: 10,
+            },
+          ],
         },
         {
           label: "Insert Document",
           actionName: "FS.InsertDocument",
           params: [
             firestoreCollectionParamConfig,
-            firestoreDocIdParamConfig,
+            {
+              ...firestoreDocIdParamConfig,
+              tooltip: "Leaving empty will use auto generated document id.",
+            },
             firestoreDataParamConfig,
           ],
         },
@@ -121,11 +146,6 @@ const queryConfig = {
           actionName: "FS.GetCollections",
           params: [firestoreParentDocIdParamConfig],
         },
-        {
-          label: "Get Collection Group",
-          actionName: "FS.GetDocumentGroup",
-          params: [firestoreCollectionParamConfig],
-        } as const,
       ] as const
     ).map((i) => ({ ...i, category: [FirebaseCategory.Firestore] })),
   ],
