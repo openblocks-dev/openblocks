@@ -70,7 +70,7 @@ export function extractSecurityParams(config: any, spec: OpenAPI.Document) {
     names = Object.keys(swagger2Spec.securityDefinitions || {});
   }
   const authorized = _.pick(authData, names);
-  return { authorized };
+  return { authorized, specSecurity: spec.security };
 }
 
 export function normalizeParams(
