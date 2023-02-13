@@ -5,12 +5,13 @@ import { runFirebasePlugin } from "./run";
 
 const firebasePlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
   id: "firebase",
+  icon: "firebase.svg",
   name: "Firebase",
   category: "api",
   queryConfig,
   dataSourceConfig,
   run: function (actionData, dataSourceConfig): Promise<any> {
-    return runFirebasePlugin(actionData, dataSourceConfig)
+    return runFirebasePlugin(actionData, dataSourceConfig);
   },
 };
 
