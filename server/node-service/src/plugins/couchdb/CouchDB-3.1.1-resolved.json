@@ -4389,9 +4389,7 @@
   },
   "security": [
     {
-      "BasicAuth": []
-    },
-    {
+      "BasicAuth": [],
       "JwtAuth": []
     }
   ],
