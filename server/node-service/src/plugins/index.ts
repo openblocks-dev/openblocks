@@ -7,6 +7,7 @@ import dynamoDBPlugin from "./dynamodb";
 import firebasePlugin from "./firebase";
 import couchdbPlugin from "./couchdb";
 import woocommercePlugin from "./woocommerce";
+import openAiPlugin from "./openAi";
 
 const plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   // helloWorldPlugin,
@@ -17,6 +18,7 @@ const plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   firebasePlugin,
   couchdbPlugin,
   woocommercePlugin,
+  openAiPlugin,
 ];
 
 export default plugins;

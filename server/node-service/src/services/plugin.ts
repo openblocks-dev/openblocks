@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { toString, toNumber, toBoolean, toJsonValue } from "../common/util";
+import { toString, toNumber, toBoolean, toJsonValue, toStringOrJson } from "../common/util";
 import { getDynamicStringSegments, isDynamicSegment } from "openblocks-core";
 import jsonPath from "jsonpath";
 import plugins from "../plugins";
@@ -91,7 +91,7 @@ export async function evalToValue<T extends Config>(
   }
 
   if (config.type === "file") {
-    return toString(evalCodeToValue(dsl, context));
+    return toStringOrJson(evalCodeToValue(dsl, context));
   }
 
   throw new ServiceError(`invalid plugin definition, unknown config type: ${(config as any).type}`);

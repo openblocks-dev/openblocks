@@ -52,3 +52,19 @@ export function toJsonValue(value: any): any {
     return {};
   }
 }
+
+export function toStringOrJson(value: any): any {
+  if (typeof value !== "string") {
+    return value;
+  }
+  try {
+    const json = relaxedJSONToJSON(value, true);
+    return JSON.parse(json);
+  } catch (e) {
+    if (typeof value === "string") {
+      return value;
+    }
+    console.info("invalid json input:", value);
+    return {};
+  }
+}
