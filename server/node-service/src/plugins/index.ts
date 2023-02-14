@@ -6,6 +6,7 @@ import openApiPlugin from "./openApi";
 import dynamoDBPlugin from "./dynamodb";
 import firebasePlugin from "./firebase";
 import couchdbPlugin from "./couchdb";
+import woocommercePlugin from "./woocommerce";
 
 const plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   // helloWorldPlugin,
@@ -15,6 +16,7 @@ const plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   dynamoDBPlugin,
   firebasePlugin,
   couchdbPlugin,
+  woocommercePlugin,
 ];
 
 export default plugins;
