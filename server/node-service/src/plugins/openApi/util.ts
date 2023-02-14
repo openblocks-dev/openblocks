@@ -1,5 +1,6 @@
 import _ from "lodash";
 import url from "url";
+import { File } from "formdata-node";
 import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
 import swaggerClient from "swagger-client";
 
@@ -8,6 +9,23 @@ export const MediaTypeUrlEncoded = "application/x-www-form-urlencoded";
 export const MediaTypeMultiPartFormData = "multipart/form-data";
 export const MediaTypeJson = "application/json";
 export const ConfigKeySplit = "_@_";
+
+interface FileParamValue {
+  data: string;
+  name?: string;
+  type?: string;
+}
+
+export function getFileData(value: FileParamValue | string): File | Buffer {
+  if (typeof value === "string") {
+    return Buffer.from(value, "base64");
+  }
+  if (value instanceof Buffer || value instanceof File) {
+    return value;
+  }
+  const { data = "", name = "file", type } = value || {};
+  return new File([Buffer.from(data, "base64")], name, { type });
+}
 
 export function specVersion(doc: any) {
   const defaultMain = 2;
@@ -87,7 +105,7 @@ export function normalizeParams(
       return;
     }
     const isFile = isFileData(name, operation, isOas3);
-    const value = isFile ? Buffer.from(params[key]) : params[key];
+    const value = isFile ? getFileData(params[key]) : params[key];
     if (isOas3 && position === "body") {
       bodyEntries.push([name, value]);
     } else {
@@ -111,7 +129,7 @@ export function normalizeParams(
           // process file fields
           const fileFields = findOas3FilePropertiesFromSchema(schema);
           fileFields.forEach(([name]) => {
-            requestBody[name] = Buffer.from(requestBody[name], "base64");
+            requestBody[name] = getFileData(requestBody[name]);
           });
         }
       }
@@ -124,7 +142,7 @@ export function normalizeParams(
         const [name, value] = bodyEntries[0];
         if (name === "body") {
           if (mediaType === MediaTypeOctetStream) {
-            requestBody = Buffer.from(value, "base64");
+            requestBody = getFileData(value);
           } else {
             requestBody = value;
           }
@@ -314,6 +332,9 @@ export function getSchemaExample(
   }
   if (schema.enum && schema.enum.length > 0) {
     return schema.enum[0];
+  }
+  if (schema.type === "string") {
+    return "";
   }
   if (schema.type === "array") {
     const itemExample = getSchemaExample(

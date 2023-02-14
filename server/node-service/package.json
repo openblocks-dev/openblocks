@@ -36,6 +36,7 @@
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",
     "firebase-admin": "^11.5.0",
+    "formdata-node": "4",
     "jsonpath": "^1.1.1",
     "lodash": "^4.17.21",
     "loglevel": "^1.8.1",
