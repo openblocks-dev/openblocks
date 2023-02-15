@@ -1,4 +1,6 @@
 import { relaxedJSONToJSON } from "openblocks-core";
+import yaml from "yaml";
+import fs from "fs";
 
 export function toString(value: any): string {
   if (value === undefined || value === null) {
@@ -66,5 +68,15 @@ export function toStringOrJson(value: any): any {
     }
     console.info("invalid json input:", value);
     return {};
+  }
+}
+
+export function readYaml<T = any>(path: string): T {
+  try {
+    const yamlContent = fs.readFileSync(path, "utf-8");
+    return yaml.parse(yamlContent) as T;
+  } catch (e) {
+    console.info("invalid yaml:", e);
+    return {} as T;
   }
 }
