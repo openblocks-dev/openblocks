@@ -21,7 +21,7 @@ function isReadOnlyArray(obj: any): obj is readonly any[] {
 
 type EvalContext = { key: string; value: any }[];
 
-function evalCodeToValue(dsl: any, context: EvalContext) {
+export function evalCodeToValue(dsl: string, context: EvalContext) {
   if (!dsl) {
     return undefined;
   }
@@ -38,10 +38,10 @@ function evalCodeToValue(dsl: any, context: EvalContext) {
       return segment;
     }
     const segmentRaw = segment.slice(2, -2);
-    return contextMap[segmentRaw];
+    return JSON.stringify(contextMap[segmentRaw]);
   });
 
-  return values.length === 1 ? values[0] : values.join("");
+  return values.join("");
 }
 
 export async function evalToValue<T extends Config>(

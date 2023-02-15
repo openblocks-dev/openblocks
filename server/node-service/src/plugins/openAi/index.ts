@@ -1,9 +1,12 @@
+import { readYaml } from "../../common/util";
 import _ from "lodash";
+import path from "path";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
 import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
 import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
-import spec from "./openai-spec.json";
+
+const spec = readYaml(path.join(__dirname, "./openAi.yaml"));
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -35,10 +38,14 @@ const openAiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   category: "api",
   dataSourceConfig,
   queryConfig: async () => {
-    const { actions } = await parseOpenApi(spec, parseOptions);
+    const { actions, categories } = await parseOpenApi(spec, parseOptions);
     return {
       type: "query",
       label: "Action",
+      categories: {
+        label: "Category",
+        items: categories,
+      },
       actions,
     };
   },
