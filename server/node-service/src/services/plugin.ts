@@ -74,7 +74,12 @@ export async function evalToValue<T extends Config>(
     };
   }
 
-  if (config.type === "textInput" || config.type === "select" || config.type === "password") {
+  if (
+    config.type === "textInput" ||
+    config.type === "select" ||
+    config.type === "password" ||
+    config.type === "sqlInput"
+  ) {
     return toString(evalCodeToValue(dsl, context));
   }
 

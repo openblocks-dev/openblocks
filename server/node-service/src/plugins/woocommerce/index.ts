@@ -59,7 +59,7 @@ const parseOptions: ParseOpenApiOptions = {
   },
 };
 
-const woocommercePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
+const wooCommercePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "woocommerce",
   name: "WooCommerce",
   icon: "woocommerce.png",
@@ -88,4 +88,4 @@ const woocommercePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   },
 };
 
-export default woocommercePlugin;
+export default wooCommercePlugin;
