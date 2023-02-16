@@ -277,27 +277,6 @@ export function replaceServersUrl(schema: OpenAPIV3.Document, url: string) {
   });
 }
 
-export function safeJsonParse(json: string) {
-  try {
-    return JSON.parse(json);
-  } catch (e) {
-    console.warn("can not json parse:", json);
-    return {};
-  }
-}
-
-export function safeJsonStringify(data: any) {
-  if (data === null || data === undefined) {
-    return data;
-  }
-  try {
-    return JSON.stringify(data, null, 4);
-  } catch (e) {
-    console.warn("can not json stringify:", data, e);
-    return null;
-  }
-}
-
 export function getSchemaType(
   schema?:
     | OpenAPIV2.SchemaObject

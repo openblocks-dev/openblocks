@@ -9,6 +9,7 @@ import couchdbPlugin from "./couchdb";
 import wooCommercePlugin from "./woocommerce";
 import openAiPlugin from "./openAi";
 import athenaPlugin from "./athena";
+import lambdaPlugin from "./lambda";
 
 const plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   // helloWorldPlugin,
@@ -21,6 +22,7 @@ const plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   wooCommercePlugin,
   openAiPlugin,
   athenaPlugin,
+  lambdaPlugin,
 ];
 
 export default plugins;

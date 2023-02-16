@@ -80,3 +80,24 @@ export function readYaml<T = any>(path: string): T {
     return {} as T;
   }
 }
+
+export function safeJsonParse(json: string) {
+  try {
+    return JSON.parse(json);
+  } catch (e) {
+    console.warn("can not json parse:", json);
+    return {};
+  }
+}
+
+export function safeJsonStringify(data: any) {
+  if (data === null || data === undefined) {
+    return data;
+  }
+  try {
+    return JSON.stringify(data, null, 4);
+  } catch (e) {
+    console.warn("can not json stringify:", data, e);
+    return null;
+  }
+}
