@@ -7,8 +7,8 @@ import {
   isSwagger2RefObject as isRefObject,
   MediaTypeMultiPartFormData,
   MediaTypeUrlEncoded,
-  safeJsonStringify,
 } from "../util";
+import { safeJsonStringify } from "../../../common/util";
 
 function getMediaType(operation: OpenAPIV2.OperationObject) {
   let mediaType = operation.consumes?.[0];

@@ -162,13 +162,16 @@ export function listPlugins(ctx: PluginContext, ids: string[] = []) {
     if (ids.length > 0 && !ids.includes(plugin.id)) {
       return;
     }
-    pluginMetaOps.forEach(([path, fn]) => {
-      jsonPath.apply(plugin, path, fn);
-    });
-    pluginMetaList.push({
+    const pluginMeta = {
       ...plugin,
       shouldValidateDataSourceConfig: !!plugin.validateDataSourceConfig,
-    } as DataSourcePluginMeta);
+    } as DataSourcePluginMeta;
+
+    pluginMetaOps.forEach(([path, fn]) => {
+      jsonPath.apply(pluginMeta, path, fn);
+    });
+
+    pluginMetaList.push(pluginMeta);
   });
 
   return pluginMetaList;

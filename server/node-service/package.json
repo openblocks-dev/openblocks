@@ -24,6 +24,7 @@
     "@apidevtools/swagger-parser": "^10.1.0",
     "@aws-sdk/client-athena": "^3.271.0",
     "@aws-sdk/client-dynamodb": "^3.266.1",
+    "@aws-sdk/client-lambda": "^3.272.0",
     "@aws-sdk/client-s3": "^3.238.0",
     "@aws-sdk/s3-request-presigner": "^3.241.0",
     "@types/axios": "^0.14.0",
