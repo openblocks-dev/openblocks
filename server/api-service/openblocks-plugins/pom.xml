@@ -93,5 +93,6 @@
         <module>googleSheetsPlugin</module>
         <module>oraclePlugin</module>
         <module>graphqlPlugin</module>
+        <module>sqlBasedPlugin</module>
     </modules>
 </project>

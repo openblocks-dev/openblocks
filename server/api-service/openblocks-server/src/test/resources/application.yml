@@ -18,3 +18,11 @@ demo:
       timeout: 100
       username: 123
       host: localhost
+
+common:
+  cloud: false
+  cookie-name: UT-TACO-TOKEN
+
+auth:
+  email:
+    enable: true

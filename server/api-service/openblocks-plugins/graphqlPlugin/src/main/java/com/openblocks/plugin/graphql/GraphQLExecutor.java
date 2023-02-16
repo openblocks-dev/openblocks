@@ -7,7 +7,6 @@ import static com.openblocks.sdk.exception.PluginCommonError.JSON_PARSE_ERROR;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_EXECUTION_TIMEOUT;
-import static com.openblocks.sdk.plugin.restapi.DataUtils.parseJsonBody;
 import static com.openblocks.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
 import static com.openblocks.sdk.util.JsonUtils.readTree;
 import static com.openblocks.sdk.util.JsonUtils.toJsonThrows;
@@ -379,13 +378,6 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
         return QueryExecutionResult.ofRestApiResult(statusCode, headersObjectNode, responseBodyData.getBody());
     }
 
-    private String addHttpToUrlWhenPrefixNotPresent(String url) {
-        if (url == null || url.toLowerCase().startsWith("http") || url.contains("://")) {
-            return url;
-        }
-        return "http://" + url;
-    }
-
     private JsonNode parseExecuteResultHeaders(HttpHeaders headers) {
         // Convert the headers into json tree to store in the results
         String headerInJsonString;
@@ -440,19 +432,19 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
 
     private BodyInserter<?, ? super ClientHttpRequest> buildBodyInserter(boolean isEncodeParams,
             String requestContentType,
-            String queryBody,
+            Object queryBody,
             List<Property> bodyFormData) {
-        if (StringUtils.isBlank(queryBody)) {
-            return BodyInserters.fromValue(new byte[0]);
-        }
         switch (requestContentType) {
-            case MediaType.APPLICATION_JSON_VALUE:
-                final Object bodyObject = parseJsonBody(queryBody);
-                return BodyInserters.fromValue(bodyObject);
+
             case MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE:
                 return dataUtils.buildBodyInserter(bodyFormData, requestContentType, isEncodeParams);
+
+            // include application/json
             default:
-                return BodyInserters.fromValue((queryBody).getBytes(StandardCharsets.ISO_8859_1));
+                if (queryBody == null) {
+                    return BodyInserters.fromValue(new byte[0]);
+                }
+                return BodyInserters.fromValue(queryBody);
         }
     }
 

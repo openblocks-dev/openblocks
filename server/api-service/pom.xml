@@ -17,6 +17,7 @@
     <name>openblocks-root</name>
 
     <properties>
+        <java.version>17</java.version>
         <javadoc.disabled>true</javadoc.disabled>
         <deploy.disabled>true</deploy.disabled>
         <source.disabled>true</source.disabled>
