@@ -8,10 +8,10 @@ import {
   replaceServersUrl,
   isOas3,
   normalizeParams,
-  safeJsonParse,
   parseUrl,
 } from "./util";
 import { badRequest } from "../../common/error";
+import { safeJsonParse } from "../../common/util";
 import { OpenAPI, OpenAPIV2 } from "openapi-types";
 import _ from "lodash";
 
