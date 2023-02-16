@@ -127,6 +127,6 @@ public class AuthenticationController {
      * @param register register or login
      * @param source {@link AuthSourceConstants#PHONE} or {@link AuthSourceConstants#EMAIL}
      */
-    private record FormLoginRequest(String loginId, String password, boolean register, String source) {
+    public record FormLoginRequest(String loginId, String password, boolean register, String source) {
     }
 }
