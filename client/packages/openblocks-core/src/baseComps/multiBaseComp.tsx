@@ -230,15 +230,25 @@ export abstract class MultiBaseComp<
     return super.changeDispatch(dispatch).setChildren(newChildren, { keepCacheKeys: ["node"] });
   }
 
+  protected ignoreChildDefaultValue() {
+    return false;
+  }
+
+  readonly IGNORABLE_DEFAULT_VALUE = {};
   override toJsonValue(): DataType {
     const result: Record<string, any> = {};
+    const ignore = this.ignoreChildDefaultValue();
     Object.keys(this.children).forEach((key) => {
       const comp = this.children[key];
       // FIXME: this implementation is a little tricky, better choose a encapsulated implementation
       if (comp.hasOwnProperty("NO_PERSISTENCE")) {
         return;
       }
-      result[key] = comp.toJsonValue();
+      const value = comp.toJsonValue();
+      if (ignore && _.isEqual(value, (comp as any)["IGNORABLE_DEFAULT_VALUE"])) {
+        return;
+      }
+      result[key] = value;
     });
     return result as DataType;
   }

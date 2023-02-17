@@ -96,6 +96,7 @@ export type UICompType =
   | "modal"
   | "listView"
   | "masonryView"
+  | "grid"
   | "navigation"
   | "iframe"
   | "custom"

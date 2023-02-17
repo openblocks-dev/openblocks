@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g>
+      <rect stroke="#D7D9E0" stroke-width="1.5" fill="#FFFFFF" x="0.75" y="3.75" width="46.5" height="40.5" rx="3"/>
+      <g transform="translate(5.000000, 9.000000)">
+        <rect fill="#EFEFF0" x="8" y="0" width="9" height="6" rx="1"/>
+        <rect fill="#D7D9E0" x="0" y="0" width="6" height="6" rx="1"/>
+      </g>
+      <g transform="translate(5.000000, 21.000000)">
+        <rect fill="#EFEFF0" x="8" y="0" width="9" height="6" rx="1"/>
+        <rect fill="#D7D9E0" x="0" y="0" width="6" height="6" rx="1"/>
+      </g>
+      <g transform="translate(5.000000, 33.000000)">
+        <rect fill="#EFEFF0" x="8" y="0" width="9" height="6" rx="1"/>
+        <rect fill="#D7D9E0" x="0" y="0" width="6" height="6" rx="1"/>
+      </g>
+      <g transform="translate(26.000000, 9.000000)">
+        <rect fill="#EFEFF0" x="8" y="0" width="9" height="6" rx="1"/>
+        <rect fill="#D7D9E0" x="0" y="0" width="6" height="6" rx="1"/>
+      </g>
+      <g transform="translate(26.000000, 21.000000)">
+        <rect fill="#EFEFF0" x="8" y="0" width="9" height="6" rx="1"/>
+        <rect fill="#D7D9E0" x="0" y="0" width="6" height="6" rx="1"/>
+      </g>
+      <g transform="translate(26.000000, 33.000000)">
+        <rect fill="#EFEFF0" x="8" y="0" width="9" height="6" rx="1"/>
+        <rect fill="#D7D9E0" x="0" y="0" width="6" height="6" rx="1"/>
+      </g>
+    </g>
+  </g>
+</svg>

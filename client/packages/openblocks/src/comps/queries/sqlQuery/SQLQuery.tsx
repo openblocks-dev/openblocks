@@ -6,7 +6,7 @@ import {
 } from "../../controls/paramsControl";
 import { toQueryView } from "../queryCompUtils";
 import { withTypeAndChildrenAbstract } from "../../generators/withType";
-import { changeValueAction, CompAction, DispatchType, MultiBaseComp } from "openblocks-core";
+import { CompAction } from "openblocks-core";
 import {
   Dropdown,
   QueryConfigItemWrapper,
@@ -16,20 +16,13 @@ import {
 import { BoolPureControl } from "../../controls/boolControl";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { TableNameComp } from "./tableNameComp";
-import { ChangeSetComp, ChangeSetTypeDropdown } from "./changeSetComp";
+import { ChangeSetComp } from "./changeSetComp";
 import { FilterComp } from "./FilterComp";
 import { trans } from "i18n";
 import { ResourceType } from "@openblocks-ee/constants/queryConstants";
 import { ColumnNameDropdown } from "./columnNameDropdown";
 import React, { useContext } from "react";
 import { QueryContext } from "../../../util/context/QueryContext";
-
-const changeSetParams = {
-  styleName: "medium" as const,
-  placeholder: `{{ form.data }}`,
-  label: " ",
-  placement: "bottom" as const,
-};
 
 const AllowMultiModifyComp = withPropertyViewFn(BoolPureControl, (comp) =>
   comp.propertyView({
@@ -46,6 +39,7 @@ const RecordsComp = withPropertyViewFn(ParamsJsonControl, (comp) =>
     placement: "bottom",
     placeholder: "{{ [{ a: 1, b: 1}, {...}] }}",
     styleName: "medium",
+    enableMetaCompletion: true,
   })
 );
 
@@ -56,14 +50,9 @@ const CommandMap = {
   )
     .setPropertyViewFn((children) => (
       <>
-        <ChangeSetTypeDropdown
-          label={trans("sqlQuery.insertList")}
-          value={children.changeSet.children.compType.getView()}
-          dispatch={children.changeSet.dispatch}
-        />
-        {children.changeSet.children.comp.propertyView({
+        {children.changeSet.propertyView({
+          label: trans("sqlQuery.insertList"),
           table: children.table.value,
-          ...changeSetParams,
         })}
       </>
     ))
@@ -85,14 +74,9 @@ const CommandMap = {
             {children.filterBy.propertyView({ table: children.table.value, placement: "bottom" })}
           </QueryConfigItemWrapper>
         </QueryConfigWrapper>
-        <ChangeSetTypeDropdown
-          label={trans("sqlQuery.updateList")}
-          value={children.changeSet.children.compType.getView()}
-          dispatch={children.changeSet.dispatch}
-        />
-        {children.changeSet.children.comp.propertyView({
+        {children.changeSet.propertyView({
+          label: trans("sqlQuery.updateList"),
           table: children.table.value,
-          ...changeSetParams,
         })}
         {children.allowMultiModify.getPropertyView()}
       </>
@@ -108,25 +92,15 @@ const CommandMap = {
   )
     .setPropertyViewFn((children) => (
       <>
-        <ChangeSetTypeDropdown
-          label={trans("sqlQuery.insertList")}
-          tooltip={trans("sqlQuery.insertListTooltip")}
-          value={children.insertChangeSet.children.compType.getView()}
-          dispatch={children.insertChangeSet.dispatch}
-        />
-        {children.insertChangeSet.children.comp.propertyView({
+        {children.insertChangeSet.propertyView({
+          label: trans("sqlQuery.insertList"),
+          tooltip: trans("sqlQuery.insertListTooltip"),
           table: children.table.value,
-          ...changeSetParams,
         })}
-        <ChangeSetTypeDropdown
-          label={trans("sqlQuery.updateList")}
-          tooltip={trans("sqlQuery.updateListTooltip")}
-          value={children.updateChangeSet.children.compType.getView()}
-          dispatch={children.updateChangeSet.dispatch}
-        />
-        {children.updateChangeSet.children.comp.propertyView({
+        {children.updateChangeSet.propertyView({
+          label: trans("sqlQuery.updateList"),
+          tooltip: trans("sqlQuery.updateListTooltip"),
           table: children.table.value,
-          ...changeSetParams,
         })}
       </>
     ))
@@ -194,10 +168,8 @@ const SQLTmpQuery = withTypeAndChildrenAbstract(
 
 const regexp = new RegExp("(\\s|^)(update|insert|delete|drop)(\\s|$)", "i");
 
-type ChildrenType = InstanceType<typeof SQLTmpQuery> extends MultiBaseComp<infer X> ? X : never;
-
-const SQLQueryPropertyView = (props: { children: ChildrenType; dispatch: DispatchType }) => {
-  const { children, dispatch } = props;
+const SQLQueryPropertyView = (props: { comp: InstanceType<typeof SQLQuery> }) => {
+  const { children } = props.comp;
   const context = useContext(QueryContext);
 
   return (
@@ -219,7 +191,7 @@ const SQLQueryPropertyView = (props: { children: ChildrenType; dispatch: Dispatc
             options={
               [
                 { label: trans("sqlQuery.insert"), value: "INSERT" },
-                ...(context?.resourceType === "postgres"
+                ...(context?.resourceType === "postgres" || context?.resourceType === "mssql"
                   ? []
                   : [{ label: trans("sqlQuery.upsert"), value: "UPSERT" }]),
                 { label: trans("sqlQuery.update"), value: "UPDATE" },
@@ -229,25 +201,19 @@ const SQLQueryPropertyView = (props: { children: ChildrenType; dispatch: Dispatc
               ] as const
             }
             value={children.commandType.getView()}
-            onChange={(value) => {
-              dispatch(
-                changeValueAction({
-                  mode: children.mode.toJsonValue(),
-                  command: children.command.toJsonValue(),
-                  commandType: value,
-                  sql: children.sql.toJsonValue(),
-                  disablePreparedStatement: children.disablePreparedStatement.toJsonValue(),
-                })
-              );
+            onChange={(value: any) => {
+              props.comp.dispatchChangeAndPreserveAction({
+                command: { table: children.command.children.table.getView() },
+                commandType: value,
+                mode: children.mode.toJsonValue(),
+                sql: children.sql.toJsonValue(),
+                disablePreparedStatement: children.disablePreparedStatement.toJsonValue(),
+              });
             }}
           />
           {children.command.getPropertyView()}
         </>
       )}
-
-      {/*<div style={{ width: "calc(30% - 8px)" }}>*/}
-      {/*  {childrenMap.timeout.propertyView({ label: "Timeout" })}*/}
-      {/*</div>*/}
     </>
   );
 };
@@ -275,8 +241,8 @@ export const SQLQuery = class extends SQLTmpQuery {
   }
 
   override getPropertyView() {
-    return <SQLQueryPropertyView children={this.children} dispatch={this.dispatch} />;
+    return <SQLQueryPropertyView comp={this} />;
   }
 };
 
-export const SUPPORT_GUI_SQL_QUERY: ResourceType[] = ["mysql", "postgres"];
+export const SUPPORT_GUI_SQL_QUERY: ResourceType[] = ["mysql", "postgres", "mssql"];

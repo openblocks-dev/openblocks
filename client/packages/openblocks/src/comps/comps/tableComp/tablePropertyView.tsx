@@ -1,7 +1,13 @@
 import { newCustomColumn } from "comps/comps/tableComp/column/tableColumnComp";
 import { hiddenPropertyView, loadingPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { MultiBaseComp } from "openblocks-core";
+import {
+  changeChildAction,
+  deferAction,
+  MultiBaseComp,
+  onlyEvalAction,
+  wrapChildAction,
+} from "openblocks-core";
 import {
   BluePlusIcon,
   CustomModal,
@@ -60,13 +66,19 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
         <ToolTipLabel title={trans("table.refreshButtonTooltip")}>
           <StyledRefreshIcon
             onClick={() => {
-              comp.children.columns.dispatchDataChanged({
-                rowExample,
-                doGeneColumn: true,
-                dynamicColumn: dynamicColumn,
-                data,
-              });
-              comp.children.dataRowExample.dispatchChangeValueAction(null);
+              const actions = [
+                wrapChildAction(
+                  "columns",
+                  comp.children.columns.dataChangedAction({
+                    rowExample,
+                    doGeneColumn: true,
+                    dynamicColumn: dynamicColumn,
+                    data: data,
+                  })
+                ),
+                changeChildAction("dataRowExample", null),
+              ];
+              actions.forEach((action) => comp.dispatch(deferAction(action)));
             }}
           />
         </ToolTipLabel>

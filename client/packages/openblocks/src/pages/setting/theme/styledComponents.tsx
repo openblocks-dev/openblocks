@@ -18,9 +18,8 @@ export const ThemeContent = styled.div`
 `;
 
 export const DetailContainer = styled.div`
-  padding: 32px 36px 32px 24px;
+  padding-top: 32px;
   width: 100%;
-  min-width: 1012px;
   overflow: auto;
 `;
 
@@ -79,25 +78,65 @@ export const ColumnName = styled(InlineFlexAlignCenter)`
 `;
 
 export const DetailContent = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1.7fr;
-  > div:nth-of-type(1) {
-    margin-top: -3px;
-    margin-right: 82px;
+  max-width: 672px;
+  margin-left: 24px;
+  padding-bottom: 80px;
+  .common {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-column-gap: 24px;
   }
+  .chart {
+    margin: 29px 0 0 0;
+  }
+`;
+
+export const ChartDesc = styled.div`
+  font-size: 13px;
+  color: #333333;
+  line-height: 19px;
+  margin: 6px 0 5px 0;
+  a {
+    color: #4965f2;
+    &:hover {
+      color: #315efb;
+    }
+  }
+`;
+
+export const ChartInput = styled.div`
+  .cm-editor {
+    max-height: 160px;
+    min-height: 76px;
+    .cm-content,
+    .cm-gutter {
+      min-height: 74px;
+    }
+  }
+`;
+
+export const Footer = styled.div`
+  display: flex;
+  padding: 24px;
+  position: fixed;
+  bottom: 0;
+  width: calc(100vw - 492px);
+  background-color: #fff;
+  z-index: 1;
+  margin-right: 10px;
+  &.no-bottom {
+    box-shadow: 0 -6px 10px -6px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+export const Header = styled.div`
+  margin: 0 0 37px 24px;
 `;
 
 export const DetailTitle = styled.div`
   font-size: 16px;
   font-weight: 600;
   line-height: 22px;
-`;
-
-export const DetailHeader = styled.div`
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 27px;
-  justify-content: space-between;
 `;
 
 export const BackBtn = styled.div`
@@ -150,11 +189,6 @@ export const ResetButton = styled(Button)`
       opacity: 0.3;
     }
   }
-`;
-
-export const DividerStyled = styled(Divider)`
-  margin: 24px 0 21px 0;
-  border-color: #ebebeb;
 `;
 
 export const ModalNameDiv = styled(FlexAlignCenter)`
@@ -347,6 +381,7 @@ export const SelectTitleTheme = styled(SelectTitle)`
 export const ConfigItem = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   margin: 6px 0 17px 0;
   .text-desc {
     width: 208px;
@@ -360,7 +395,6 @@ export const ConfigItem = styled.div`
       color: #8b8fa3;
       margin-top: 2px;
     }
-    margin-right: 8px;
   }
   .config-input {
     width: 100%;
@@ -372,7 +406,7 @@ export const ConfigItem = styled.div`
       box-shadow: 0 0 0 3px #3377ff19;
     }
     display: flex;
-    margin-top: 4px;
+    margin-top: 5px;
     overflow: hidden;
     > div:nth-of-type(1) {
       border: none;
@@ -395,15 +429,6 @@ export const ConfigItem = styled.div`
         border-color: #d7d9e0;
         box-shadow: none;
       }
-    }
-  }
-  @media screen and (max-width: 1902px) {
-    .text-desc,
-    .config-input {
-      width: 100%;
-    }
-    .text-desc {
-      margin-right: 0;
     }
   }
 `;

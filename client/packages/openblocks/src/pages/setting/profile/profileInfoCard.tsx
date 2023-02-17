@@ -21,13 +21,12 @@ export function ProfileInfoCard(props: ModalSettingProps) {
   const { setModalContent, setTitle, setShowBackLink } = props;
   const hasPass = user.hasPassword;
   const email = getConnectedName(user, UserConnectionSource.email);
-  const bindEmailStr = trans("profile.bindName", { name: trans("profile.email") });
   return (
     <>
       <HeadNameFiled />
       <ProfileInfoItem
         key="email"
-        titleLabel={`${bindEmailStr}`}
+        titleLabel={trans("profile.bindEmail")}
         infoLabel={trans("profile.loginAfterBind", { name: trans("profile.email") })}
         value={email}
         actionButtonConfig={{
@@ -35,7 +34,7 @@ export function ProfileInfoCard(props: ModalSettingProps) {
           disabled: !!email,
           onClick: () => {
             setModalContent(<EmailCard />);
-            setTitle(bindEmailStr);
+            setTitle(trans("profile.bindName", { name: trans("profile.email") }));
             setShowBackLink(true);
           },
         }}

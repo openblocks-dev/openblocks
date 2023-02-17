@@ -1,6 +1,6 @@
 {
   "name": "openblocks-sdk",
-  "version": "0.0.30",
+  "version": "0.0.34",
   "type": "module",
   "files": [
     "src",
@@ -49,8 +49,8 @@
     "vite-tsconfig-paths": "^3.6.0"
   },
   "peerDependencies": {
-    "react": "^17",
-    "react-dom": "^17"
+    "react": ">=17",
+    "react-dom": ">=17"
   },
   "keywords": [
     "openblocks"

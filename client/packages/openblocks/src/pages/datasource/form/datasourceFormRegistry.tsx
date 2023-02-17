@@ -17,6 +17,7 @@ export interface DatasourceFormProps {
   form: FormInstance;
   dataSourceTypeInfo?: DataSourceTypeInfo;
   datasource: Datasource;
+  onFormReadyStatusChange: (ready: boolean) => void;
   size?: FormSize;
 }
 

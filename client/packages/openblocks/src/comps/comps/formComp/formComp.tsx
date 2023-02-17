@@ -217,7 +217,7 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
   }
   traverseFormItems(consumer: (item: GridItemComp) => boolean) {
     return traverseCompTree(this.getCompTree(), (item) => {
-      return item.children.comp.children.formDataKey ? consumer(item) : true;
+      return item.children.comp.children.formDataKey ? consumer(item as GridItemComp) : true;
     });
   }
   validateFormItems() {

@@ -150,6 +150,7 @@ const ColumnDiv = styled.div<{ $color?: boolean }>`
   width: 100%;
   height: 25px;
   display: flex;
+  margin: 2px 0;
 
   &&& {
     background-color: ${(props) => (props.$color ? "#f2f7fc" : null)};
@@ -186,6 +187,7 @@ const ColumnDiv = styled.div<{ $color?: boolean }>`
     font-size: 13px;
     background-color: #fdfdfd;
     border: 1px solid #3377ff;
+    border-radius: 2px;
 
     :focus {
       border-color: #3377ff;
@@ -198,7 +200,7 @@ const Icon = styled(PointIcon)`
   flex-shrink: 0;
 
   &:hover g {
-    fill: #222222;
+    fill: #315efb;
   }
 `;
 

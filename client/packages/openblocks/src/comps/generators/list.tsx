@@ -112,6 +112,7 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
     override getPropertyView(): ReactNode {
       return <>{this.getChildrenArray().map((child) => child.getPropertyView())}</>;
     }
+    readonly IGNORABLE_DEFAULT_VALUE = [];
     override toJsonValue(): ListDataType<ChildCompCtor> {
       return this.getChildrenArray().map((comp) =>
         comp.toJsonValue()

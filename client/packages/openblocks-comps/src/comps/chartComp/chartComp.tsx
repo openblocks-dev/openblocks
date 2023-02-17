@@ -9,7 +9,7 @@ import { AxisFormatterComp, EchartsAxisType } from "./chartConfigs/cartesianAxis
 import { chartChildrenMap, ChartSize, getDataKeys } from "./chartConstants";
 import { chartPropertyView } from "./chartPropertyView";
 import _ from "lodash";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import ReactECharts from "./reactEcharts";
 import {
@@ -24,6 +24,8 @@ import {
   withDefault,
   withExposingConfigs,
   withViewFn,
+  ThemeContext,
+  chartColorPalette,
 } from "openblocks-sdk";
 import { getEchartsLocale, trans } from "i18n/comps";
 import { ItemColorComp } from "comps/chartComp/chartConfigs/lineChartConfig";
@@ -32,6 +34,7 @@ import {
   getEchartsConfig,
   getSelectedPoints,
 } from "comps/chartComp/chartUtils";
+import log from "loglevel";
 
 let ChartTmpComp = (function () {
   return new UICompBuilder(chartChildrenMap, () => null)
@@ -43,6 +46,17 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
   const echartsCompRef = useRef<ReactECharts | null>();
   const [chartSize, setChartSize] = useState<ChartSize>();
   const firstResize = useRef(true);
+  const theme = useContext(ThemeContext);
+  const defaultChartTheme = {
+    color: chartColorPalette,
+    backgroundColor: "#fff",
+  };
+  let themeConfig = defaultChartTheme;
+  try {
+    themeConfig = theme?.theme.chart ? JSON.parse(theme?.theme.chart) : defaultChartTheme;
+  } catch (error) {
+    log.error('theme chart error: ', error);
+  }
   const onEvent = comp.children.onEvent.getView();
   useEffect(() => {
     // bind events
@@ -94,6 +108,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
         lazyUpdate
         opts={{ locale: getEchartsLocale() }}
         option={option}
+        theme={themeConfig}
       />
     </ReactResizeDetector>
   );

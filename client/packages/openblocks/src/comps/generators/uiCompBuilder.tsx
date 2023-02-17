@@ -104,6 +104,10 @@ export class UICompBuilder<ChildrenCompMap extends Record<string, Comp<unknown>>
         return parseChildrenFromValueAndChildrenMap(params, newChildrenMap);
       }
 
+      protected override ignoreChildDefaultValue() {
+        return true;
+      }
+
       override getView(): ViewReturn {
         return <UIView comp={this} viewFn={builder.viewFn} />;
       }

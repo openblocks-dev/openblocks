@@ -2,7 +2,6 @@ package com.openblocks.sdk.plugin.sqlcommand.command.postgres;
 
 import static com.openblocks.sdk.util.JsonUtils.toJson;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,13 +10,17 @@ import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand.GuiSqlCommandRenderResult;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.BulkObjectChangeSet;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.KeyValuePairChangeSet;
 import com.openblocks.sdk.plugin.sqlcommand.command.UpdateOrDeleteSingleCommandResult;
 import com.openblocks.sdk.plugin.sqlcommand.filter.FilterSet;
+import com.openblocks.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
 public class PostgresCommandTest {
+
+    private final EscapeSql testEscaper = s -> "$$" + s + "$$";
 
     @Test
     public void testInsertCommand() {
@@ -25,8 +28,7 @@ public class PostgresCommandTest {
         String id = "12312";
         String name = "jack";
         String email = "jack@gmail.com";
-        Map<String, ?> infoMap = Map.of("age", 35,
-                "job", "sales");
+        Map<String, ?> infoMap = ImmutableMap.of("age", 35, "job", "sales");
 
         LinkedHashMap<String, Object> treeMap = new LinkedHashMap<>();
         treeMap.put("id", id);
@@ -35,13 +37,19 @@ public class PostgresCommandTest {
         treeMap.put("info", " {{ info }}");
         KeyValuePairChangeSet changeSet = KeyValuePairChangeSet.buildForTest(treeMap);
 
-        PostgresInsertCommand insertCommand = new PostgresInsertCommand("user", changeSet);
+        PostgresInsertCommand insertCommand = new PostgresInsertCommand("user", changeSet) {
+            @Override
+            public EscapeSql escapeStrFunc() {
+                return testEscaper;
+            }
+        };
 
         GuiSqlCommandRenderResult render = insertCommand.render(Map.of("email", email, "info", infoMap));
 
         Assert.assertEquals("""
-                insert into user ("id","name","email","info") values (?,?,?,?);""", render.sql());
-        Assertions.assertThat(render.bindParams()).isEqualTo(List.of(Integer.parseInt(id), name, email, toJson(infoMap)));
+                        insert into user ("id","name","email","info") values (12312,$$jack$$,$$jack@gmail.com$$,$${"age":35,"job":"sales"}$$);""",
+                render.sql());
+        Assertions.assertThat(render.bindParams()).isEqualTo(List.of());
 
     }
 
@@ -51,8 +59,7 @@ public class PostgresCommandTest {
         String id = "12312";
         String name = "jack";
         String email = "jack@gmail.com";
-        Map<String, ?> infoMap = Map.of("age", 35,
-                "job", "sales");
+        Map<String, ?> infoMap = ImmutableMap.of("age", 35, "job", "sales");
 
         Map<String, Object> treeMap = new LinkedHashMap<>();
         treeMap.put("id", id);
@@ -67,23 +74,21 @@ public class PostgresCommandTest {
         filterSet.addCondition("id", "IN", "[1,2, 5]");
         filterSet.addCondition("phone", "IS", "null");
 
-        var command = new PostgresUpdateCommand("user", changeSet, filterSet, false);
+        var command = new PostgresUpdateCommand("user", changeSet, filterSet, false) {
+            @Override
+            public EscapeSql escapeStrFunc() {
+                return testEscaper;
+            }
+        };
         var renderResult = command.render(Map.of("email", email, "info", infoMap));
 
         String updateSql = renderResult.sql();
         List<Object> updateBindParams = renderResult.bindParams();
         Assert.assertEquals(
                 """
-                        update user set "id"=?,"name"=?,"email"=?,"info"=? where "name" = ?  and "status" > ?  and "id" IN (1,2,5) and "phone" IS null\s""",
+                        update user set "id"=12312,"name"=$$jack$$,"email"=$$jack@gmail.com$$,"info"=$${"age":35,"job":"sales"}$$ where "name" = $$jack$$ and "status" > 1 and "id" IN (1,2,5) and "phone" IS null\s""",
                 updateSql);
-        List<Object> expectedUpdateBindParams = new ArrayList<>();
-        expectedUpdateBindParams.add(Integer.parseInt(id));
-        expectedUpdateBindParams.add(name);
-        expectedUpdateBindParams.add(email);
-        expectedUpdateBindParams.add(toJson(infoMap));
-        expectedUpdateBindParams.add(name);
-        expectedUpdateBindParams.add(1);
-        Assertions.assertThat(updateBindParams).isEqualTo(expectedUpdateBindParams);
+        Assertions.assertThat(updateBindParams).isEqualTo(List.of());
 
         Assert.assertTrue(renderResult instanceof UpdateOrDeleteSingleCommandResult);
         var pgUpdateRenderResult = (UpdateOrDeleteSingleCommandResult) renderResult;
@@ -91,11 +96,9 @@ public class PostgresCommandTest {
         List<Object> selectBindParams = pgUpdateRenderResult.getSelectBindParams();
 
         Assert.assertEquals("""
-                select count(1) as count from user where "name" = ?  and "status" > ?  and "id" IN (1,2,5) and "phone" IS null\s""", selectQuery);
-        List<Object> expectedSelectBindParams = new ArrayList<>();
-        expectedSelectBindParams.add(name);
-        expectedSelectBindParams.add(1);
-        Assertions.assertThat(selectBindParams).isEqualTo(expectedSelectBindParams);
+                        select count(1) as count from user where "name" = $$jack$$ and "status" > 1 and "id" IN (1,2,5) and "phone" IS null\s""",
+                selectQuery);
+        Assertions.assertThat(selectBindParams).isEqualTo(List.of());
 
     }
 
@@ -110,13 +113,18 @@ public class PostgresCommandTest {
         filterSet.addCondition("id", "IN", "{{list}}");
         filterSet.addCondition("phone", "IS", "null");
 
-        var command = new PostgresDeleteCommand("user", filterSet, false);
+        var command = new PostgresDeleteCommand("user", filterSet, false) {
+            @Override
+            public EscapeSql escapeStrFunc() {
+                return testEscaper;
+            }
+        };
         var renderResult = command.render(Map.of("list", List.of(1, 2, 3)));
 
         String sql = renderResult.sql();
         Assert.assertEquals(
                 """
-                        delete from user where "name" = ?  and "status" > ?  and "id" IN (1,2,3) and "phone" IS null\s""",
+                        delete from user where "name" = $$jack$$ and "status" > 1 and "id" IN (1,2,3) and "phone" IS null\s""",
                 sql);
 
         Assert.assertTrue(renderResult instanceof UpdateOrDeleteSingleCommandResult);
@@ -125,11 +133,9 @@ public class PostgresCommandTest {
         List<Object> selectBindParams = pgUpdateRenderResult.getSelectBindParams();
 
         Assert.assertEquals("""
-                select count(1) as count from user where "name" = ?  and "status" > ?  and "id" IN (1,2,3) and "phone" IS null\s""", selectQuery);
-        List<Object> expectedSelectBindParams = new ArrayList<>();
-        expectedSelectBindParams.add(name);
-        expectedSelectBindParams.add(1);
-        Assertions.assertThat(selectBindParams).isEqualTo(expectedSelectBindParams);
+                        select count(1) as count from user where "name" = $$jack$$ and "status" > 1 and "id" IN (1,2,3) and "phone" IS null\s""",
+                selectQuery);
+        Assertions.assertThat(selectBindParams).isEqualTo(List.of());
 
     }
 
@@ -139,8 +145,7 @@ public class PostgresCommandTest {
         int id = 12312;
         String name = "jack";
         String email = "jack@gmail.com";
-        Map<String, ?> infoMap = Map.of("age", 35,
-                "job", "sales");
+        Map<String, ?> infoMap = ImmutableMap.of("age", 35, "job", "sales");
 
         Map<String, Object> treeMap = new LinkedHashMap<>();
         treeMap.put("id", id);
@@ -150,25 +155,20 @@ public class PostgresCommandTest {
 
         List<Map<String, Object>> insertList = List.of(treeMap, treeMap);
         ;
-        var command = new PostgresBulkInsertCommand("user", new BulkObjectChangeSet(toJson(insertList)));
+        var command = new PostgresBulkInsertCommand("user", new BulkObjectChangeSet(toJson(insertList))) {
+            @Override
+            public EscapeSql escapeStrFunc() {
+                return testEscaper;
+            }
+        };
         var render = command.render(Map.of("email", email, "info", infoMap));
 
         Assert.assertEquals(
-                "insert into user (\"id\",\"name\",\"email\",\"info\") values (?,?,?,?),(?,?,?,?);",
+                """
+                        insert into user ("id","name","email","info") values (12312,$$jack$$,$$jack@gmail.com$$,$${"age":35,"job":"sales"}$$),(12312,$$jack$$,$$jack@gmail.com$$,$${"age":35,"job":"sales"}$$);""",
                 render.sql());
 
-        List<Object> expectedParams = new ArrayList<>();
-        // insert
-        expectedParams.add(id);
-        expectedParams.add(name);
-        expectedParams.add(email);
-        expectedParams.add(toJson(infoMap));
-        // update
-        expectedParams.add(id);
-        expectedParams.add(name);
-        expectedParams.add(email);
-        expectedParams.add(toJson(infoMap));
-        Assertions.assertThat(render.bindParams()).isEqualTo(expectedParams);
+        Assertions.assertThat(render.bindParams()).isEqualTo(List.of());
     }
 
 
@@ -181,38 +181,28 @@ public class PostgresCommandTest {
                 ),
                 Map.of("id", 2,
                         "name", "rose",
-                        "info", Map.of("age", 35, "job", "sales")
+                        "info", ImmutableMap.of("age", 35, "job", "sales")
                 )
         );
 
         var command = new PostgresBulkUpdateCommand("user",
-                new BulkObjectChangeSet(toJson(updateList)), "id");
+                new BulkObjectChangeSet(toJson(updateList)), "id") {
+            @Override
+            public EscapeSql escapeStrFunc() {
+                return testEscaper;
+            }
+        };
         var render = command.render(Map.of());
 
         Assert.assertEquals(
                 """
                         UPDATE user set
-                        "name" = CASE WHEN "id" = ? THEN ? WHEN "id" = ? THEN ? END,
-                        "email" = CASE WHEN "id" = ? THEN ? END,
-                        "info" = CASE WHEN "id" = ? THEN ? END
-                        where id in (?,?)""",
+                        "name" = CASE WHEN "id" = 1 THEN $$jack$$ WHEN "id" = 2 THEN $$rose$$ ELSE "name" END,
+                        "email" = CASE WHEN "id" = 1 THEN $$jack@jack.com$$ ELSE "email" END,
+                        "info" = CASE WHEN "id" = 2 THEN $${"age":35,"job":"sales"}$$ ELSE "info" END
+                        where id in (1,2)""",
                 render.sql());
-
-        /*
-            [1, "jack", 2, "rose", 1, "jack@jack.com", 2, "{"job":"sales","age":35}", 1, 2]
-         */
-        List<Object> expectedParams = new ArrayList<>();
-        expectedParams.add(1);
-        expectedParams.add("jack");
-        expectedParams.add(2);
-        expectedParams.add("rose");
-        expectedParams.add(1);
-        expectedParams.add("jack@jack.com");
-        expectedParams.add(2);
-        expectedParams.add(toJson(Map.of("age", 35, "job", "sales")));
-        expectedParams.add(1);
-        expectedParams.add(2);
-        Assertions.assertThat(render.bindParams()).isEqualTo(expectedParams);
+        Assertions.assertThat(render.bindParams()).isEqualTo(List.of());
     }
 
 

@@ -1,7 +1,6 @@
 import _ from "lodash";
-import { shallowEqual } from "util/objectUtils";
 import { memoized } from "../util/memoize";
-import { AbstractNode, Node, NodeToValue } from "./node";
+import { AbstractNode, FetchInfoOptions, Node, NodeToValue } from "./node";
 import { EvalMethods } from "./types/evalTypes";
 import { addDepends } from "./utils/dependMap";
 import { evalPerfUtil } from "./utils/perfUtils";
@@ -15,9 +14,11 @@ export class RecordNode<T extends Record<string, Node<unknown>>> extends Abstrac
   RecordNodeToValue<T>
 > {
   readonly type = "record";
+
   constructor(readonly children: T) {
     super();
   }
+
   @memoized()
   override filterNodes(exposingNodes: Record<string, Node<unknown>>) {
     return evalPerfUtil.perf(this, `filterNodes`, () => {
@@ -28,6 +29,7 @@ export class RecordNode<T extends Record<string, Node<unknown>>> extends Abstrac
       return result;
     });
   }
+
   override justEval(
     exposingNodes: Record<string, Node<unknown>>,
     methods?: EvalMethods
@@ -36,9 +38,11 @@ export class RecordNode<T extends Record<string, Node<unknown>>> extends Abstrac
       evalPerfUtil.perf(this, `eval-${key}`, () => v.evaluate(exposingNodes, methods))
     ) as RecordNodeToValue<T>;
   }
+
   override getChildren(): Node<unknown>[] {
     return Object.values(this.children);
   }
+
   override dependValues(): Record<string, unknown> {
     const nodes = Object.values(this.children);
     if (nodes.length === 1) {
@@ -52,11 +56,12 @@ export class RecordNode<T extends Record<string, Node<unknown>>> extends Abstrac
     });
     return ret;
   }
-  override fetchInfo(exposingNodes: Record<string, Node<unknown>>) {
+
+  override fetchInfo(exposingNodes: Record<string, Node<unknown>>, options?: FetchInfoOptions) {
     let isFetching = false;
     let ready = true;
     Object.entries(this.children).forEach(([name, child]) => {
-      const fi = child.fetchInfo(exposingNodes);
+      const fi = child.fetchInfo(exposingNodes, options);
       isFetching = fi.isFetching || isFetching;
       ready = fi.ready && ready;
     });

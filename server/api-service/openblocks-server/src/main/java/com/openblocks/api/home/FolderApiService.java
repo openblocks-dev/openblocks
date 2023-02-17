@@ -1,7 +1,7 @@
 package com.openblocks.api.home;
 
 import static com.openblocks.infra.util.MonoUtils.emptyIfNull;
-import static com.openblocks.sdk.exception.BizError.FOLDER_DELETE_NO_PERMISSION;
+import static com.openblocks.sdk.exception.BizError.FOLDER_OPERATE_NO_PERMISSION;
 import static com.openblocks.sdk.exception.BizError.FOLDER_NOT_EXIST;
 import static com.openblocks.sdk.exception.BizError.ILLEGAL_FOLDER_PERMISSION_ID;
 import static com.openblocks.sdk.util.ExceptionUtils.ofError;
@@ -341,7 +341,7 @@ public class FolderApiService {
                     }
                     return isCreator(folderId)
                             .flatMap(isCreator -> isCreator ? Mono.just(orgMember)
-                                                            : ofError(FOLDER_DELETE_NO_PERMISSION, "FOLDER_DELETE_NO_PERMISSION"));
+                                                            : ofError(FOLDER_OPERATE_NO_PERMISSION, "FOLDER_OPERATE_NO_PERMISSION"));
                 });
     }
 

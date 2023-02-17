@@ -112,7 +112,7 @@ const CardInfo = styled.div`
   }
 
   .ant-typography {
-    padding: 0 0 8px 0;
+    padding: 2px 2px 8px 2px;
   }
 `;
 

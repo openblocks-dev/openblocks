@@ -36,6 +36,7 @@ class UserApi extends Api {
   static formLoginURL = "/auth/form/login";
   static markUserStatusURL = "/users/mark-status";
   static userDetailURL = (id: string) => `/users/userDetail/${id}`;
+  static resetPasswordURL = `/users/reset-password`;
 
   static formLogin(request: FormLoginRequest): AxiosPromise<ApiResponse> {
     const { invitationId, ...reqBody } = request;
@@ -84,6 +85,10 @@ class UserApi extends Api {
 
   static getUserDetail(userId: string): AxiosPromise<ApiResponse> {
     return Api.get(UserApi.userDetailURL(userId));
+  }
+
+  static resetPassword(userId: string): AxiosPromise<ApiResponse> {
+    return Api.post(UserApi.resetPasswordURL, { userId: userId });
   }
 }
 

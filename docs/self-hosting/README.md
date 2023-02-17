@@ -1,10 +1,14 @@
----
-description: Host Openblocks on your own device using Docker or Docker-Compose.
----
-
 # Self-hosting
 
-## Prerequisites
+In this article, you will be guided through hosting Openblocks on your own server using Docker-Compose or Docker.
+
+For easy setup and deployment, we provide an [all-in-one image](https://hub.docker.com/r/openblocksdev/openblocks-ce) which bundles frontend, backend and data persistence services altogether in one single container.&#x20;
+
+Also, for developers in need of stateless containers in cluster environment, we provide [separate images](https://hub.docker.com/u/openblocksdev) of backend and frontend services with a customizable Dockerfile.
+
+## All-in-one image: all services in one container <a href="#all-in-one" id="all-in-one"></a>
+
+### Prerequisites
 
 * [Docker](https://docs.docker.com/get-docker/) (version 20.10.7 or above)
 * [Docker-Compose](https://docs.docker.com/compose/install/) (version 1.29.2 or above)
@@ -17,12 +21,12 @@ Windows users are recommended to use PowerShell for running commands below.
 
 In your working directory, run the following commands to make a directory named `openblocks` to store the data of Openblocks:
 
-```powershell
+```bash
 mkdir openblocks
 cd openblocks
 ```
 
-## Deploy
+### Deploy
 
 {% tabs %}
 {% tab title="Docker-Compose (Recommend)" %}
@@ -57,10 +61,12 @@ Follow the steps below:
 
 
 
-    When you see `frontend`, `backend`, `redis`, and `mongo` `entered the RUNNING state`, the Openblocks service has officially started:\
-
+    When you see `frontend`, `backend`, `redis`, and `mongo` `entered the RUNNING state`, the Openblocks service has officially started:&#x20;
 
     <figure><img src="../.gitbook/assets/check-logs-ce.png" alt=""><figcaption></figcaption></figure>
+4.  Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. Openblocks will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
+
+    <figure><img src="../.gitbook/assets/after-deployment.png" alt=""><figcaption></figcaption></figure>
 {% endtab %}
 
 {% tab title="Docker" %}
@@ -74,16 +80,97 @@ docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks"
 {% endtab %}
 {% endtabs %}
 
-## Customize deployment configurations
+### Update
 
-This section shows how to customize deployment configurations. If you have already started a container, you need to restart the container for the new configurations to take effect. Following are the ways to **restart** your container:
+{% tabs %}
+{% tab title="Docker-Compose" %}
+Run the following commands to update to the latest Openblocks image:
+
+```bash
+docker-compose pull
+docker-compose rm -fsv openblocks
+docker-compose up -d
+```
+{% endtab %}
+
+{% tab title="Docker" %}
+Run the following commands to update to the latest Openblocks image:
+
+{% code overflow="wrap" %}
+```bash
+docker pull openblocksdev/openblocks-ce
+docker rm -fv openblocks
+docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
+```
+{% endcode %}
+{% endtab %}
+{% endtabs %}
+
+## Separate images: services in different containers <a href="#multi" id="multi"></a>
+
+For developers who require stateless containers in a cluster environment, we offer separate images of backend and frontend service with a customizable Dockerfile. A well-functioning Openblocks deployment consists of below services:
+
+* **api-service**: Backend service.
+* **node-service**: Backend service.
+* **frontend**: Frontend service.
+* **MongoDB**: Used for persisting data of users, apps, data sources, etc.
+* **Redis**: Used for maintaining user sessions, rate limiter, etc.
+
+### Prerequisites
+
+* [Docker-Compose](https://docs.docker.com/compose/install/) (version 1.29.2 or above)
+
+### Deploy
+
+1.  In your working directory, run the following commands to make a directory named `openblocks` to store the data of Openblocks:
+
+    ```bash
+    mkdir openblocks
+    cd openblocks
+    ```
+2.  Download the configuration file by clicking [docker-compose-multi.yml](https://cdn-files.openblocks.dev/docker-compose-multi.yml) or running the curl command:
+
+    <pre class="language-bash" data-overflow="wrap"><code class="lang-bash"><strong>curl https://cdn-files.openblocks.dev/docker-compose-multi.yml -o $PWD/docker-compose-multi.yml
+    </strong></code></pre>
+3.  Modify service configurations in the downloaded Dockerfile according to your needs:
+
+    <figure><img src="../.gitbook/assets/docker-compose-multi.jpeg" alt=""><figcaption></figcaption></figure>
+
+    * **mongodb**: Start a new MongoDB instance on your host. You can delete this part  and modify the environment variable `MONGODB_URI` of **openblocks-api-service** to use your own MongoDB.
+    * **redis**: Start a new Redis instance on your host. You can delete this part and modify the environment variable `REDIS_URI` of **openblocks-api-service** to use your own Redis.
+    * **openblocks-api-service**: Required.&#x20;
+    * **openblocks-node-service**: Required.
+    * **openblocks-frontend**: Required. Can be optional if you deploy frontend on CDN.
+4.  Start Docker containers by running this command:
+
+    ```bash
+    docker-compose -f docker-compose-multi.yml up -d
+    ```
+5.  Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. Openblocks will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
+
+    <figure><img src="../.gitbook/assets/after-deployment.png" alt=""><figcaption></figcaption></figure>
+
+### Update
+
+Run the following commands to update services to the latest:
+
+```bash
+docker-compose pull
+docker-compose up -d
+```
+
+## Customize configurations
+
+This section shows how to customize deployment configurations by setting environment variables.&#x20;
+
+If you have already started Docker containers, you need to restart the containers for new configurations to take effect. For example, the way to **restart** your container running an all-in-one image is:
 
 {% tabs %}
 {% tab title="Docker-Compose (Recommend)" %}
 One single command:
 
-```
-docker-compose up
+```bash
+docker-compose up -d
 ```
 
 It picks up configuration changes by stopping containers already in service and recreating new ones.
@@ -92,13 +179,19 @@ It picks up configuration changes by stopping containers already in service and 
 {% tab title="Docker" %}
 Run the following commands to stop, remove the container already in service, and start up a new one using the newly customized deployment command.
 
-```docker
+```bash
 docker stop openblocks
 docker rm openblocks
 # run your new docker run command
 ```
 {% endtab %}
 {% endtabs %}
+
+Below are examples of configuring all-in-one image by setting environment variables in `docker-compose.yml`. If you are self-hosting with separate images, modify `openblocks-api-service` part of `docker-compose-multi.yml` instead.&#x20;
+
+{% hint style="info" %}
+For more information about configurations and environment variables, see [Configuration](https://github.com/openblocks-dev/openblocks/tree/develop/deploy/docker#all-in-one-image).
+{% endhint %}
 
 ### Use your own MongoDB and Redis
 
@@ -114,7 +207,7 @@ Add environment variables `MONGODB_URI` and `REDIS_URI` in `docker-compose.yml` 
 Add environment variables `MONGODB_URI` and `REDIS_URI` to the deployment command, as shown below:
 
 {% code overflow="wrap" %}
-```docker
+```bash
 docker run -d --name openblocks -e MONGODB_URI=YOUR_MONGODB_URI REDIS_URI=YOUR_REDIS_URI -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks openblocksdev/openblocks-ce
 ```
 {% endcode %}
@@ -135,7 +228,7 @@ Add an environment variable `LOCAL_USER_ID` in `docker-compose.yml` downloaded i
 Add an environment variable `LOCAL_USER_ID` to the deployment command, as shown below:
 
 {% code overflow="wrap" %}
-```docker
+```bash
 docker run -d --name openblocks -e LOCAL_USER_ID=10010 -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
 ```
 {% endcode %}
@@ -158,7 +251,7 @@ With an SSL certificate, you can securely visit self-hosted Openblocks with HTTP
 2. Change the `ports` in the deployment command to `3443:3443`, as shown below:
 
 {% code overflow="wrap" %}
-```docker
+```bash
 docker run -d --name openblocks -p 3443:3443 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
 ```
 {% endcode %}
@@ -170,35 +263,3 @@ In cases where you have certificates with names: `server.crt` and `server.key`, 
 `server.crt` => `fullchain.pem`\
 `server.key` => `privkey.pem`
 {% endhint %}
-
-## Update
-
-{% tabs %}
-{% tab title="Docker-Compose" %}
-Run the following commands to update to the latest Openblocks image:
-
-```docker
-docker-compose pull
-docker-compose rm -fsv openblocks
-docker-compose up -d
-```
-{% endtab %}
-
-{% tab title="Docker" %}
-Run the following commands to update to the latest Openblocks image:
-
-{% code overflow="wrap" %}
-```docker
-docker pull openblocksdev/openblocks-ce
-docker rm -fv openblocks
-docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
-```
-{% endcode %}
-{% endtab %}
-{% endtabs %}
-
-## Sign up
-
-Visit **http://localhost:3000** and click **Sign up**. Openblocks will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
-
-<figure><img src="../.gitbook/assets/after-deployment.png" alt=""><figcaption></figcaption></figure>
