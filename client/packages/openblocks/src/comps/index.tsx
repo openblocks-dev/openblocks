@@ -128,7 +128,8 @@ import { ToggleButtonComp } from "./comps/buttonComp/toggleButtonComp";
 import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
 import { RemoteCompInfo } from "types/remoteComp";
 import { ScannerComp } from "./comps/buttonComp/scannerComp";
-import { LottieIcon } from "../assets/icons";
+import { LottieIcon, MasonryIcon, TabsControlIcon } from "../assets/icons"
+
 type Registry = {
   [key in UICompType]?: UICompManifest;
 };
@@ -308,7 +309,7 @@ const uiCompMap: Registry = {
     enName: "Tabs Control",
     description: trans("uiComp.tabsControlCompDesc"),
     categories: ["dataInputSelect"],
-    icon: SegmentedCompIcon,
+    icon: TabsControlIcon,
     keywords: trans("uiComp.tabsControlCompKeywords"),
     comp: TabsControlComp,
   },
@@ -616,7 +617,7 @@ const uiCompMap: Registry = {
   masonryView: {
     name: trans("uiComp.masonryCompName"),
     enName: "Masonry View",
-    icon: ListViewIcon,
+    icon: MasonryIcon,
     description: trans("uiComp.masonryCompDesc"),
     categories: ["container", "common"],
     keywords: trans("uiComp.masonryCompKeywords"),
