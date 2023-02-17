@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { evalToValue, getPlugin, listPlugins } from "./plugin";
+import { evalCodeToValue, evalToValue, getPlugin, listPlugins } from "./plugin";
 
 const action1 = {
   actionName: "action1",
@@ -51,22 +51,82 @@ const context = [
   },
 ];
 
-test("test action run", () => {
-  const value = evalToValue(queryConfig, dsl, context);
+test("test action run", async () => {
+  const value = await evalToValue(queryConfig, dsl, context, {});
   expect(value.actionName).toBe("action1");
   expect(value.k11).toBe("2, 4");
   expect(value.k12).toBe(3);
 });
 
+test("eval code to value", async () => {
+  let a = evalCodeToValue("{{a}}", [
+    {
+      key: "a",
+      value: 0,
+    },
+  ]);
+  expect(a).toBe("0");
+
+  let b = evalCodeToValue("{{a}}", [
+    {
+      key: "a",
+      value: { name: "Tom" },
+    },
+  ]);
+  expect(b).toBe(JSON.stringify({ name: "Tom" }));
+});
+
+test("eval to value", async () => {
+  let value;
+
+  value = await evalToValue({ key: "a", type: "booleanInput" }, "1", [], {});
+  expect(value).toBe(true);
+
+  value = await evalToValue(
+    { key: "a", type: "booleanInput" },
+    "{{a}}",
+    [{ key: "a", value: 1 }],
+    {}
+  );
+  expect(value).toBe(true);
+
+  value = await evalToValue({ key: "a", type: "checkbox" }, "any-value", [], {});
+  expect(value).toBe(true);
+
+  value = await evalToValue({ key: "a", type: "file" }, "some-base64", [], {});
+  expect(value).toBe("some-base64");
+
+  value = await evalToValue({ key: "a", type: "file" }, "{name: 1.png, type: image/png}", [], {});
+  expect(value).toEqual({ name: "1.png", type: "image/png" });
+
+  value = await evalToValue(
+    { key: "a", type: "file" },
+    "{name: 1.png, type: {{type}}, data: {{data}}}",
+    [
+      { key: "type", value: "image/png" },
+      { key: "data", value: "/** some \nvalue\n" },
+    ],
+    {}
+  );
+  expect(value).toEqual({ name: "1.png", type: "image/png", data: "/** some \nvalue\n" });
+
+  value = await evalToValue({ key: "a", type: "jsonInput" }, "{hello}", [], {});
+  expect(value).toEqual({});
+
+  value = await evalToValue({ key: "a", type: "numberInput" }, "invalid number", [], {});
+  expect(value).toBe(0);
+
+  value = await evalToValue({ key: "a", type: "numberInput" }, "1", [], {});
+  expect(value).toBe(1);
+});
+
 test("list plugins", () => {
   const plugins = listPlugins({ languages: ["en"] });
   expect(plugins.length).toBeGreaterThan(0);
-  expect(plugins[0].id.startsWith("plugin:")).toBe(true);
 });
 
 test("get plugins", () => {
   const ctx = { languages: ["en"] };
-  expect(() => getPlugin("s3", ctx)).toThrow("invalid plugin name: s3");
-  expect(() => getPlugin("plugin:not-found", ctx)).toThrow("plugin not found: plugin:not-found");
-  expect(() => getPlugin("plugin:s3", ctx)).not.toThrow();
+  expect(() => getPlugin("not-found", ctx)).toThrow("plugin not found: not-found");
+  expect(() => getPlugin("s3", ctx)).not.toThrow();
 });

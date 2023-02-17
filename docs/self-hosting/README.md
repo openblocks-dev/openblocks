@@ -150,7 +150,7 @@ For developers who require stateless containers in a cluster environment, we off
 
     <figure><img src="../.gitbook/assets/after-deployment.png" alt=""><figcaption></figcaption></figure>
 
-### Update
+### Update <a href="#update-multi" id="update-multi"></a>
 
 Run the following commands to update services to the latest:
 

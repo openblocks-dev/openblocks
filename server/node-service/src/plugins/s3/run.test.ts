@@ -2,13 +2,13 @@ import getI18nTranslator from "./i18n";
 import run, { validateDataSourceConfig } from "./run";
 
 const dataSourceConfig = {
-  accessKey: "<AK>",
-  secretKey: "<SK>",
+  accessKey: "",
+  secretKey: "",
   endpointUrl: "",
-  region: "<REGION>",
-  arn: "",
+  region: "us-west-2",
 };
 
+const bucket = "openblocks-demo";
 const i18n = getI18nTranslator(["en"]);
 
 describe.skip("s3 plugin", () => {
@@ -29,7 +29,7 @@ describe.skip("s3 plugin", () => {
       run(
         {
           actionName: "readFile",
-          bucket: "openblocks-demo",
+          bucket,
           fileName: "not-found.txt",
           encoding: "utf8",
         },
@@ -65,7 +65,7 @@ describe.skip("s3 plugin", () => {
         encoding: "utf8",
         contentType: "text/plain",
         data: fileData,
-        bucket: "openblocks-demo",
+        bucket,
         returnSignedUrl: true,
       },
       dataSourceConfig,
@@ -81,7 +81,7 @@ describe.skip("s3 plugin", () => {
         encoding: "base64",
         contentType: "",
         data: binFileData,
-        bucket: "openblocks-demo",
+        bucket,
         returnSignedUrl: true,
       },
       dataSourceConfig,
@@ -93,7 +93,7 @@ describe.skip("s3 plugin", () => {
     const list = await run(
       {
         actionName: "listObjects",
-        bucket: "openblocks-demo",
+        bucket,
         prefix: txtFileName,
         delimiter: "",
         limit: 10,
@@ -102,15 +102,15 @@ describe.skip("s3 plugin", () => {
       dataSourceConfig,
       i18n
     );
-    expect((list as any).files.length).toBeGreaterThan(0);
-    expect((list as any).files?.find((i: any) => i.name === txtFileName)).not.toBeUndefined();
-    expect((list as any).files?.find((i: any) => i.name === binFileName)).not.toBeUndefined();
+    expect((list as any).length).toBeGreaterThan(0);
+    expect((list as any).find((i: any) => i.name === txtFileName)).not.toBeUndefined();
+    expect((list as any).find((i: any) => i.name === binFileName)).not.toBeUndefined();
 
     // read txt
     const readRes = await run(
       {
         actionName: "readFile",
-        bucket: "openblocks-demo",
+        bucket,
         fileName: txtFileName,
         encoding: "utf8",
       },
@@ -123,7 +123,7 @@ describe.skip("s3 plugin", () => {
     const readBinRes = await run(
       {
         actionName: "readFile",
-        bucket: "openblocks-demo",
+        bucket,
         fileName: binFileName,
         encoding: "base64",
       },
@@ -136,7 +136,7 @@ describe.skip("s3 plugin", () => {
     const delRes = await run(
       {
         actionName: "deleteFile",
-        bucket: "openblocks-demo",
+        bucket,
         fileName: txtFileName,
       },
       dataSourceConfig,
@@ -147,12 +147,25 @@ describe.skip("s3 plugin", () => {
     const delBinRes = await run(
       {
         actionName: "deleteFile",
-        bucket: "openblocks-demo",
+        bucket,
         fileName: binFileName,
       },
       dataSourceConfig,
       i18n
     );
     expect((delBinRes as any).success).toBe(true);
+
+    // delete not empty file
+    expect(
+      run(
+        {
+          actionName: "deleteFile",
+          bucket,
+          fileName: "",
+        },
+        dataSourceConfig,
+        i18n
+      )
+    ).rejects.toThrow();
   });
 });

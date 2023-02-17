@@ -31,13 +31,12 @@ import static com.openblocks.sdk.exception.PluginCommonError.JSON_PARSE_ERROR;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 import static com.openblocks.sdk.plugin.restapi.DataUtils.convertToMultiformFileValue;
-import static com.openblocks.sdk.plugin.restapi.DataUtils.parseJsonBody;
 import static com.openblocks.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
 import static com.openblocks.sdk.plugin.restapi.auth.RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN;
 import static com.openblocks.sdk.util.ExceptionUtils.propagateError;
 import static com.openblocks.sdk.util.JsonUtils.readTree;
 import static com.openblocks.sdk.util.JsonUtils.toJsonThrows;
-import static com.openblocks.sdk.util.MustacheHelper.renderMustacheJsonString;
+import static com.openblocks.sdk.util.MustacheHelper.renderMustacheJson;
 import static com.openblocks.sdk.util.MustacheHelper.renderMustacheString;
 import static com.openblocks.sdk.util.StreamUtils.collectList;
 import static org.apache.commons.collections4.MapUtils.emptyIfNull;
@@ -63,6 +62,7 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bson.internal.Base64;
 import org.pf4j.Extension;
 import org.springframework.http.HttpCookie;
@@ -85,6 +85,7 @@ import com.google.common.collect.ImmutableMap;
 import com.openblocks.plugin.restapi.constants.ResponseDataType;
 import com.openblocks.plugin.restapi.helpers.AuthHelper;
 import com.openblocks.plugin.restapi.helpers.BufferingFilter;
+import com.openblocks.plugin.restapi.model.QueryBody;
 import com.openblocks.plugin.restapi.model.RestApiQueryConfig;
 import com.openblocks.plugin.restapi.model.RestApiQueryExecutionContext;
 import com.openblocks.sdk.exception.PluginException;
@@ -100,7 +101,6 @@ import com.openblocks.sdk.plugin.restapi.auth.AuthConfig;
 import com.openblocks.sdk.plugin.restapi.auth.BasicAuthConfig;
 import com.openblocks.sdk.plugin.restapi.auth.RestApiAuthType;
 import com.openblocks.sdk.query.QueryVisitorContext;
-import com.openblocks.sdk.util.JsonUtils;
 import com.openblocks.sdk.webclient.WebClients;
 
 import lombok.Builder;
@@ -159,11 +159,15 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
 
         List<Property> updatedQueryBodyParams = renderMustacheValueForQueryBody(queryBodyParams, requestParams, contentType);
 
-        String updatedQueryBody;
-        if (isJsonContentType(contentType)) {
-            updatedQueryBody = renderMustacheJsonString(queryBody, requestParams);
+        // string | jsonNode
+        QueryBody updatedQueryBody;
+        Pair<Boolean, Boolean> jsonContentType = isJsonContentType(contentType);
+        boolean isJsonContent = jsonContentType.getLeft();
+        Boolean isSpecialJsonContent = jsonContentType.getRight();
+        if (isJsonContent) {
+            updatedQueryBody = new QueryBody(renderMustacheJson(queryBody, requestParams), true, isSpecialJsonContent);
         } else {
-            updatedQueryBody = renderMustacheString(queryBody, requestParams);
+            updatedQueryBody = new QueryBody(renderMustacheString(queryBody, requestParams), false, false);
         }
 
         Map<String, String> urlParams = buildUrlParams(datasourceUrlParams, updatedQueryParams);
@@ -171,6 +175,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
 
         URI uri = RestApiUriBuilder.buildUri(urlDomain, updatedQueryPath, requestParams, urlParams);
 
+        QueryBody mergedQueryBody = mergeBody(updatedQueryBody, datasourceBodyFormData);
         return RestApiQueryExecutionContext.builder()
                 .httpMethod(httpMethod)
                 .uri(uri)
@@ -179,7 +184,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                 .urlParams(urlParams)
                 .bodyParams(bodyParams)
                 .encodeParams(encodeParams)
-                .queryBody(mergeBody(updatedQueryBody, datasourceBodyFormData, contentType))
+                .queryBody(mergedQueryBody)
                 .forwardCookies(forwardCookies)
                 .forwardAllCookies(forwardAllCookies)
                 .requestCookies(queryVisitorContext.getCookies())
@@ -206,21 +211,19 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
     }
 
 
-    private String mergeBody(String queryBody, List<Property> datasourceBody, String contentType) {
-        if (CollectionUtils.isEmpty(datasourceBody)) {
+    private QueryBody mergeBody(QueryBody queryBody, List<Property> datasourceBody) {
+        if (!queryBody.isJsonContent() || CollectionUtils.isEmpty(datasourceBody)) {
             return queryBody;
         }
-        if (!isJsonContentType(contentType)) {
+        JsonNode jsonNode = queryBody.getJsonValue();
+        if (jsonNode instanceof ObjectNode objectNode) {
+            for (Property property : datasourceBody) {
+                objectNode.put(property.getKey(), property.getValue());
+            }
             return queryBody;
         }
-        Map<String, Object> map = JsonUtils.fromJsonMap(queryBody);
-        if (map == null) {
-            return queryBody;
-        }
-        for (Property property : datasourceBody) {
-            map.putIfAbsent(property.getKey(), property.getValue());
-        }
-        return JsonUtils.toJson(map);
+
+        return queryBody;
     }
 
     @Override
@@ -469,7 +472,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
     private BodyInserter<?, ? super ClientHttpRequest> buildBodyInserter(HttpMethod httpMethod,
             boolean isEncodeParams,
             String requestContentType,
-            String queryBody,
+            QueryBody queryBody,
             List<Property> bodyFormData) {
 
         if (HttpMethod.GET.equals(httpMethod)) {
@@ -480,15 +483,19 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
             return BodyInserters.fromValue(new byte[0]);
         }
 
-        if (isJsonContentType(requestContentType)) {
-            return BodyInserters.fromValue(parseJsonBody(queryBody));
+        if (queryBody.isSpecialJson()) {
+            return BodyInserters.fromValue(queryBody.getJsonValue().toString());
+        }
+
+        if (queryBody.isJsonContent()) {
+            return BodyInserters.fromValue(queryBody.getJsonValue());
         }
 
         if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(requestContentType)
                 || MediaType.MULTIPART_FORM_DATA_VALUE.equals(requestContentType)) {
             return dataUtils.buildBodyInserter(bodyFormData, requestContentType, isEncodeParams);
         }
-        return BodyInserters.fromValue(queryBody);
+        return BodyInserters.fromValue(queryBody.value());
     }
 
     private boolean isNoneContentType(String requestContentType) {

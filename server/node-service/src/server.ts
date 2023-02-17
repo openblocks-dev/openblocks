@@ -37,7 +37,7 @@ router.use((req, res, next) => {
   );
   // set the CORS method headers
   if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "GET PATCH DELETE POST");
+    res.header("Access-Control-Allow-Methods", "GET,PATCH,DELETE,POST");
     return res.status(200).json({});
   }
   next();
@@ -48,7 +48,7 @@ router.use(`${prefix}/api`, routes);
 
 // service err
 router.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  let message = "";
+  let message = err.message || "";
   let status = 500;
   console.error(err);
   if (err instanceof ServiceError) {

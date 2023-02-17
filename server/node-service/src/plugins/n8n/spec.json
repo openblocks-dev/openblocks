@@ -1,0 +1,757 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "n8n Public API",
+    "description": "n8n Public API",
+    "termsOfService": "https://n8n.io/legal/terms",
+    "contact": { "email": "hello@n8n.io" },
+    "license": {
+      "name": "Sustainable Use License",
+      "url": "https://github.com/n8n-io/n8n/blob/master/packages/cli/LICENSE.md"
+    },
+    "version": "1.1.0"
+  },
+  "externalDocs": { "description": "n8n API documentation", "url": "https://docs.n8n.io/api/" },
+  "servers": [{ "url": "https://docs.n8n.io/api/v1" }],
+  "tags": [
+    { "name": "Audit", "description": "Operations about security audit" },
+    { "name": "Execution", "description": "Operations about executions" },
+    { "name": "Workflow", "description": "Operations about workflows" },
+    { "name": "Credential", "description": "Operations about credentials" }
+  ],
+  "paths": {
+    "/audit": {
+      "post": {
+        "x-eov-operation-id": "generateAudit",
+        "x-eov-operation-handler": "v1/handlers/audit/audit.handler",
+        "tags": ["Audit"],
+        "summary": "Generate an audit",
+        "description": "Generate a security audit for your n8n instance.",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "additionalOptions": {
+                    "type": "object",
+                    "properties": {
+                      "daysAbandonedWorkflow": {
+                        "type": "integer",
+                        "description": "Days for a workflow to be considered abandoned if not executed"
+                      },
+                      "categories": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": ["credentials", "database", "nodes", "filesystem", "instance"]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operation successful.",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Audit" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "description": "Internal server error." }
+        }
+      }
+    },
+    "/credentials": {
+      "post": {
+        "x-eov-operation-id": "createCredential",
+        "x-eov-operation-handler": "v1/handlers/credentials/credentials.handler",
+        "tags": ["Credential"],
+        "summary": "Create a credential",
+        "description": "Creates a credential that can be used by nodes of the specified type.",
+        "requestBody": {
+          "description": "Credential to be created.",
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/Credential" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operation successful.",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Credential" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "415": { "description": "Unsupported media type." }
+        }
+      }
+    },
+    "/credentials/{id}": {
+      "delete": {
+        "x-eov-operation-id": "deleteCredential",
+        "x-eov-operation-handler": "v1/handlers/credentials/credentials.handler",
+        "tags": ["Credential"],
+        "summary": "Delete credential by ID",
+        "description": "Deletes a credential from your instance. You must be the owner of the credentials",
+        "operationId": "deleteCredential",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The credential ID that needs to be deleted",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation successful.",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Credential" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/credentials/schema/{credentialTypeName}": {
+      "get": {
+        "x-eov-operation-id": "getCredentialType",
+        "x-eov-operation-handler": "v1/handlers/credentials/credentials.handler",
+        "tags": ["Credential"],
+        "summary": "Show credential data schema",
+        "parameters": [
+          {
+            "name": "credentialTypeName",
+            "in": "path",
+            "description": "The credential type name that you want to get the schema for",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation successful.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" },
+                "examples": {
+                  "freshdeskApi": {
+                    "value": {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "properties": {
+                        "apiKey": { "type": "string" },
+                        "domain": { "type": "string" }
+                      },
+                      "required": ["apiKey", "domain"]
+                    }
+                  },
+                  "slackOAuth2Api": {
+                    "value": {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "properties": {
+                        "clientId": { "type": "string" },
+                        "clientSecret": { "type": "string" }
+                      },
+                      "required": ["clientId", "clientSecret"]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/executions": {
+      "get": {
+        "x-eov-operation-id": "getExecutions",
+        "x-eov-operation-handler": "v1/handlers/executions/executions.handler",
+        "tags": ["Execution"],
+        "summary": "Retrieve all executions",
+        "description": "Retrieve all executions from your instance.",
+        "parameters": [
+          { "$ref": "#/components/parameters/IncludeData" },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Status to filter the executions by.",
+            "required": false,
+            "schema": { "type": "string", "enum": ["error", "success", "waiting"] }
+          },
+          {
+            "name": "workflowId",
+            "in": "query",
+            "description": "Workflow to filter the executions by.",
+            "required": false,
+            "schema": { "type": "string", "example": "1000" }
+          },
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Cursor" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation successful.",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ExecutionList" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/executions/{id}": {
+      "get": {
+        "x-eov-operation-id": "getExecution",
+        "x-eov-operation-handler": "v1/handlers/executions/executions.handler",
+        "tags": ["Execution"],
+        "summary": "Retrieve an execution",
+        "description": "Retrieve an execution from you instance.",
+        "parameters": [
+          { "$ref": "#/components/parameters/ExecutionId" },
+          { "$ref": "#/components/parameters/IncludeData" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation successful.",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Execution" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "delete": {
+        "x-eov-operation-id": "deleteExecution",
+        "x-eov-operation-handler": "v1/handlers/executions/executions.handler",
+        "tags": ["Execution"],
+        "summary": "Delete an execution",
+        "description": "Deletes an execution from your instance.",
+        "parameters": [{ "$ref": "#/components/parameters/ExecutionId" }],
+        "responses": {
+          "200": {
+            "description": "Operation successful.",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Execution" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/workflows": {
+      "post": {
+        "x-eov-operation-id": "createWorkflow",
+        "x-eov-operation-handler": "v1/handlers/workflows/workflows.handler",
+        "tags": ["Workflow"],
+        "summary": "Create a workflow",
+        "description": "Create a workflow in your instance.",
+        "requestBody": {
+          "description": "Created workflow object.",
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/Workflow" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "A workflow object",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Workflow" } }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      },
+      "get": {
+        "x-eov-operation-id": "getWorkflows",
+        "x-eov-operation-handler": "v1/handlers/workflows/workflows.handler",
+        "tags": ["Workflow"],
+        "summary": "Retrieve all workflows",
+        "description": "Retrieve all workflows from your instance.",
+        "parameters": [
+          { "name": "active", "in": "query", "schema": { "type": "boolean", "example": true } },
+          {
+            "name": "tags",
+            "in": "query",
+            "required": false,
+            "explode": false,
+            "allowReserved": true,
+            "schema": { "type": "string", "example": "test,production" }
+          },
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Cursor" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation successful.",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/WorkflowList" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/workflows/{id}": {
+      "get": {
+        "x-eov-operation-id": "getWorkflow",
+        "x-eov-operation-handler": "v1/handlers/workflows/workflows.handler",
+        "tags": ["Workflow"],
+        "summary": "Retrieves a workflow",
+        "description": "Retrieves a workflow.",
+        "parameters": [{ "$ref": "#/components/parameters/WorkflowId" }],
+        "responses": {
+          "200": {
+            "description": "Operation successful.",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Workflow" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "delete": {
+        "x-eov-operation-id": "deleteWorkflow",
+        "x-eov-operation-handler": "v1/handlers/workflows/workflows.handler",
+        "tags": ["Workflow"],
+        "summary": "Delete a workflow",
+        "description": "Deletes a workflow.",
+        "parameters": [{ "$ref": "#/components/parameters/WorkflowId" }],
+        "responses": {
+          "200": {
+            "description": "Operation successful.",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Workflow" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "put": {
+        "x-eov-operation-id": "updateWorkflow",
+        "x-eov-operation-handler": "v1/handlers/workflows/workflows.handler",
+        "tags": ["Workflow"],
+        "summary": "Update a workflow",
+        "description": "Update a workflow.",
+        "parameters": [{ "$ref": "#/components/parameters/WorkflowId" }],
+        "requestBody": {
+          "description": "Updated workflow object.",
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/Workflow" } }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Workflow object",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Workflow" } }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/workflows/{id}/activate": {
+      "post": {
+        "x-eov-operation-id": "activateWorkflow",
+        "x-eov-operation-handler": "v1/handlers/workflows/workflows.handler",
+        "tags": ["Workflow"],
+        "summary": "Activate a workflow",
+        "description": "Active a workflow.",
+        "parameters": [{ "$ref": "#/components/parameters/WorkflowId" }],
+        "responses": {
+          "200": {
+            "description": "Workflow object",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Workflow" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/workflows/{id}/deactivate": {
+      "post": {
+        "x-eov-operation-id": "deactivateWorkflow",
+        "x-eov-operation-handler": "v1/handlers/workflows/workflows.handler",
+        "tags": ["Workflow"],
+        "summary": "Deactivate a workflow",
+        "description": "Deactivate a workflow.",
+        "parameters": [{ "$ref": "#/components/parameters/WorkflowId" }],
+        "responses": {
+          "200": {
+            "description": "Workflow object",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Workflow" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Error": {
+        "required": ["message"],
+        "type": "object",
+        "properties": {
+          "code": { "type": "string" },
+          "message": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      },
+      "Execution": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "1000" },
+          "data": { "type": "object" },
+          "finished": { "type": "boolean", "example": true },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "cli",
+              "error",
+              "integrated",
+              "internal",
+              "manual",
+              "retry",
+              "trigger",
+              "webhook"
+            ]
+          },
+          "retryOf": { "type": "string", "nullable": true },
+          "retrySuccessId": { "type": "string", "nullable": true, "example": "2" },
+          "startedAt": { "type": "string", "format": "date-time" },
+          "stoppedAt": { "type": "string", "format": "date-time" },
+          "workflowId": { "type": "string", "example": "1000" },
+          "waitTill": { "type": "string", "nullable": true, "format": "date-time" }
+        }
+      },
+      "Node": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "example": "0f5532f9-36ba-4bef-86c7-30d607400b15" },
+          "name": { "type": "string", "example": "Jira" },
+          "webhookId": { "type": "string" },
+          "disabled": { "type": "boolean" },
+          "notesInFlow": { "type": "boolean" },
+          "notes": { "type": "string" },
+          "type": { "type": "string", "example": "n8n-nodes-base.Jira" },
+          "typeVersion": { "type": "number", "example": 1 },
+          "executeOnce": { "type": "boolean", "example": false },
+          "alwaysOutputData": { "type": "boolean", "example": false },
+          "retryOnFail": { "type": "boolean", "example": false },
+          "maxTries": { "type": "number" },
+          "waitBetweenTries": { "type": "number" },
+          "continueOnFail": { "type": "boolean", "example": false },
+          "position": { "type": "array", "items": { "type": "number" }, "example": [-100, 80] },
+          "parameters": { "type": "object", "example": { "additionalProperties": {} } },
+          "credentials": {
+            "type": "object",
+            "example": { "jiraSoftwareCloudApi": { "id": "35", "name": "jiraApi" } }
+          },
+          "createdAt": { "type": "string", "format": "date-time", "readOnly": true },
+          "updatedAt": { "type": "string", "format": "date-time", "readOnly": true }
+        }
+      },
+      "Tag": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "12" },
+          "name": { "type": "string", "example": "Production" },
+          "createdAt": { "type": "string", "format": "date-time", "readOnly": true },
+          "updatedAt": { "type": "string", "format": "date-time", "readOnly": true }
+        }
+      },
+      "Workflow": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "nodes", "connections", "settings"],
+        "properties": {
+          "id": { "type": "string", "readOnly": true, "example": "1" },
+          "name": { "type": "string", "example": "Workflow 1" },
+          "active": { "type": "boolean", "readOnly": true },
+          "createdAt": { "type": "string", "format": "date-time", "readOnly": true },
+          "updatedAt": { "type": "string", "format": "date-time", "readOnly": true },
+          "nodes": { "type": "array", "items": { "$ref": "#/components/schemas/Node" } },
+          "connections": {
+            "type": "object",
+            "example": { "main": [{ "node": "Jira", "type": "main", "index": 0 }] }
+          },
+          "settings": { "$ref": "#/components/schemas/WorkflowSettings" },
+          "staticData": {
+            "example": { "lastId": 1 },
+            "nullable": true,
+            "anyOf": [
+              { "type": "string", "format": "jsonString", "nullable": true },
+              { "type": "object", "nullable": true }
+            ]
+          },
+          "tags": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Tag" },
+            "readOnly": true
+          }
+        }
+      },
+      "WorkflowSettings": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "saveExecutionProgress": { "type": "boolean" },
+          "saveManualExecutions": { "type": "boolean" },
+          "saveDataErrorExecution": { "type": "string", "enum": ["all", "none"] },
+          "saveDataSuccessExecution": { "type": "string", "enum": ["all", "none"] },
+          "executionTimeout": { "type": "number", "example": 3600, "maxLength": 3600 },
+          "errorWorkflow": {
+            "type": "string",
+            "example": "10",
+            "description": "The ID of the workflow that contains the error trigger node."
+          },
+          "timezone": { "type": "string", "example": "America/New_York" }
+        }
+      },
+      "ExecutionList": {
+        "type": "object",
+        "properties": {
+          "data": { "type": "array", "items": { "$ref": "#/components/schemas/Execution" } },
+          "nextCursor": {
+            "type": "string",
+            "description": "Paginate through executions by setting the cursor parameter to a nextCursor attribute returned by a previous request. Default value fetches the first \"page\" of the collection.",
+            "nullable": true,
+            "example": "MTIzZTQ1NjctZTg5Yi0xMmQzLWE0NTYtNDI2NjE0MTc0MDA"
+          }
+        }
+      },
+      "WorkflowList": {
+        "type": "object",
+        "properties": {
+          "data": { "type": "array", "items": { "$ref": "#/components/schemas/Workflow" } },
+          "nextCursor": {
+            "type": "string",
+            "description": "Paginate through workflows by setting the cursor parameter to a nextCursor attribute returned by a previous request. Default value fetches the first \"page\" of the collection.",
+            "nullable": true,
+            "example": "MTIzZTQ1NjctZTg5Yi0xMmQzLWE0NTYtNDI2NjE0MTc0MDA"
+          }
+        }
+      },
+      "Credential": {
+        "required": ["name", "type", "data"],
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "readOnly": true, "example": "42" },
+          "name": { "type": "string", "example": "Joe's Github Credentials" },
+          "type": { "type": "string", "example": "github" },
+          "data": {
+            "type": "object",
+            "writeOnly": true,
+            "example": { "token": "ada612vad6fa5df4adf5a5dsf4389adsf76da7s" }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "example": "2022-04-29T11:02:29.842Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "example": "2022-04-29T11:02:29.842Z"
+          }
+        }
+      },
+      "CredentialType": {
+        "type": "object",
+        "properties": {
+          "displayName": { "type": "string", "readOnly": true, "example": "Email" },
+          "name": { "type": "string", "readOnly": true, "example": "email" },
+          "type": { "type": "string", "readOnly": true, "example": "string" },
+          "default": { "type": "string", "readOnly": true, "example": "string" }
+        }
+      },
+      "Audit": {
+        "type": "object",
+        "properties": {
+          "Credentials Risk Report": {
+            "type": "object",
+            "example": {
+              "risk": "credentials",
+              "sections": [
+                {
+                  "title": "Credentials not used in any workflow",
+                  "description": "These credentials are not used in any workflow. Keeping unused credentials in your instance is an unneeded security risk.",
+                  "recommendation": "Consider deleting these credentials if you no longer need them.",
+                  "location": [{ "kind": "credential", "id": "1", "name": "My Test Account" }]
+                }
+              ]
+            }
+          },
+          "Database Risk Report": {
+            "type": "object",
+            "example": {
+              "risk": "database",
+              "sections": [
+                {
+                  "title": "Expressions in \"Execute Query\" fields in SQL nodes",
+                  "description": "This SQL node has an expression in the \"Query\" field of an \"Execute Query\" operation. Building a SQL query with an expression may lead to a SQL injection attack.",
+                  "recommendation": "Consider using the \"Query Parameters\" field to pass parameters to the query",
+                  "or validating the input of the expression in the \"Query\" field.": null,
+                  "location": [
+                    {
+                      "kind": "node",
+                      "workflowId": "1",
+                      "workflowName": "My Workflow",
+                      "nodeId": "51eb5852-ce0b-4806-b4ff-e41322a4041a",
+                      "nodeName": "MySQL",
+                      "nodeType": "n8n-nodes-base.mySql"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "Filesystem Risk Report": {
+            "type": "object",
+            "example": {
+              "risk": "filesystem",
+              "sections": [
+                {
+                  "title": "Nodes that interact with the filesystem",
+                  "description": "This node reads from and writes to any accessible file in the host filesystem. Sensitive file content may be manipulated through a node operation.",
+                  "recommendation": "Consider protecting any sensitive files in the host filesystem",
+                  "or refactoring the workflow so that it does not require host filesystem interaction.": null,
+                  "location": [
+                    {
+                      "kind": "node",
+                      "workflowId": "1",
+                      "workflowName": "My Workflow",
+                      "nodeId": "51eb5852-ce0b-4806-b4ff-e41322a4041a",
+                      "nodeName": "Ready Binary file",
+                      "nodeType": "n8n-nodes-base.readBinaryFile"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "Nodes Risk Report": {
+            "type": "object",
+            "example": {
+              "risk": "nodes",
+              "sections": [
+                {
+                  "title": "Community nodes",
+                  "description": "This node is sourced from the community. Community nodes are not vetted by the n8n team and have full access to the host system.",
+                  "recommendation": "Consider reviewing the source code in any community nodes installed in this n8n instance",
+                  "and uninstalling any community nodes no longer used.": null,
+                  "location": [
+                    {
+                      "kind": "community",
+                      "nodeType": "n8n-nodes-test.test",
+                      "packageUrl": "https://www.npmjs.com/package/n8n-nodes-test"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "Instance Risk Report": {
+            "type": "object",
+            "example": {
+              "risk": "execution",
+              "sections": [
+                {
+                  "title": "Unprotected webhooks in instance",
+                  "description": "These webhook nodes have the \"Authentication\" field set to \"None\" and are not directly connected to a node to validate the payload. Every unprotected webhook allows your workflow to be called by any third party who knows the webhook URL.",
+                  "recommendation": "Consider setting the \"Authentication\" field to an option other than \"None\"",
+                  "or validating the payload with one of the following nodes.": null,
+                  "location": [
+                    {
+                      "kind": "community",
+                      "nodeType": "n8n-nodes-test.test",
+                      "packageUrl": "https://www.npmjs.com/package/n8n-nodes-test"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "NotFound": { "description": "The specified resource was not found." },
+      "Unauthorized": { "description": "Unauthorized" },
+      "BadRequest": { "description": "The request is invalid or provides malformed data." }
+    },
+    "parameters": {
+      "Cursor": {
+        "name": "cursor",
+        "in": "query",
+        "description": "Paginate through users by setting the cursor parameter to a nextCursor attribute returned by a previous request's response. Default value fetches the first \"page\" of the collection. See pagination for more detail.",
+        "required": false,
+        "style": "form",
+        "schema": { "type": "string" }
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "description": "The maximum number of items to return.",
+        "required": false,
+        "schema": { "type": "number", "example": 100, "default": 100, "maximum": 250 }
+      },
+      "ExecutionId": {
+        "name": "id",
+        "in": "path",
+        "description": "The ID of the execution.",
+        "required": true,
+        "schema": { "type": "string" }
+      },
+      "WorkflowId": {
+        "name": "id",
+        "in": "path",
+        "description": "The ID of the workflow.",
+        "required": true,
+        "schema": { "type": "string" }
+      },
+      "IncludeData": {
+        "name": "includeData",
+        "in": "query",
+        "description": "Whether or not to include the execution's detailed data.",
+        "required": false,
+        "schema": { "type": "boolean" }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": { "type": "apiKey", "in": "header", "name": "X-N8N-API-KEY" }
+    }
+  },
+  "security": [{ "ApiKeyAuth": [] }]
+}
