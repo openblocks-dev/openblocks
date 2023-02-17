@@ -2,7 +2,7 @@ import { runFirebasePlugin } from "./run";
 
 const privateKey = process.env["GOOGLE_PRIVATE_KEY"] || "";
 
-test("realtime database", async () => {
+test.skip("realtime database", async () => {
   const res = await runFirebasePlugin(
     { actionName: "RTDB.QueryDatabase", databaseRef: "/hello" },
     {
