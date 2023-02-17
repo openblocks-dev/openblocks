@@ -31,6 +31,9 @@ public class Group extends HasIdAndAuditing implements Comparable<Group> {
         if (group.isDevGroup()) {
             return 2;
         }
+        if (group.isSyncGroup()) {
+            return 3;
+        }
         return group.getCreatedAt().toEpochMilli();
     });
 
@@ -48,6 +51,12 @@ public class Group extends HasIdAndAuditing implements Comparable<Group> {
 
     private String dynamicRule;
 
+    private String source; // sync group source
+
+    private String rawDepartmentId; // sync group departmentId
+
+    private boolean syncDeleted;
+
     public String getName(Locale locale) {
         return isSystemGroup() ? SystemGroups.getName(getType(), locale) : name;
     }
@@ -62,6 +71,22 @@ public class Group extends HasIdAndAuditing implements Comparable<Group> {
 
     public boolean isDevGroup() {
         return SystemGroups.DEV.equals(type);
+    }
+
+    public boolean isSyncGroup() {
+        return StringUtils.isNotBlank(source);
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public String getRawDepartmentId() {
+        return rawDepartmentId;
+    }
+
+    public boolean isSyncDeleted() {
+        return syncDeleted;
     }
 
     @Transient
@@ -92,7 +117,7 @@ public class Group extends HasIdAndAuditing implements Comparable<Group> {
 
     @Transient
     @JsonIgnore
-    public boolean isDynamic(){
+    public boolean isDynamic() {
         return StringUtils.isNotBlank(dynamicRule);
     }
 }

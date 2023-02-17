@@ -46,6 +46,7 @@ import com.openblocks.domain.user.model.UserDetail;
 import com.openblocks.domain.user.model.UserState;
 import com.openblocks.domain.user.repository.UserRepository;
 import com.openblocks.infra.mongo.MongoUpsertHelper;
+import com.openblocks.infra.mongo.MongoUpsertHelper.PartialResourceWithId;
 import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.config.dynamic.Conf;
 import com.openblocks.sdk.config.dynamic.ConfigCenter;
@@ -364,4 +365,20 @@ public class UserServiceImpl implements UserService {
                 .map(Connection::getName)
                 .orElse("");
     }
+
+    @Override
+    public Flux<User> bulkCreateUser(Collection<User> users) {
+        return repository.saveAll(users);
+    }
+
+    @Override
+    public Mono<Void> bulkUpdateUser(Collection<PartialResourceWithId<User>> partialResourceWithIds) {
+        return mongoUpsertHelper.bulkUpdate(partialResourceWithIds).then();
+    }
+
+    @Override
+    public Flux<User> findBySourceAndIds(String connectionSource, Collection<String> connectionSourceUuids) {
+        return repository.findByConnections_SourceAndConnections_RawIdIn(connectionSource, connectionSourceUuids);
+    }
+
 }

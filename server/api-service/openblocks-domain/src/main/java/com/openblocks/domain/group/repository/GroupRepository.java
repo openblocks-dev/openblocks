@@ -24,5 +24,7 @@ public interface GroupRepository extends ReactiveMongoRepository<Group, String> 
     Mono<Group> findByOrganizationIdAndAllUsersGroup(String organizationId, boolean allUsersGroup);
 
     Mono<Group> findByOrganizationIdAndType(String organizationId, String type);
+
+    Flux<Group> findBySourceAndOrganizationId(String source, String organizationId);
 }
 

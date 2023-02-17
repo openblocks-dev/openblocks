@@ -2,31 +2,20 @@ package com.openblocks.plugin.mysql;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
 
 import com.openblocks.plugin.sql.SqlBasedConnector;
-import com.openblocks.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 import com.openblocks.sdk.plugin.mysql.MysqlDatasourceConfig;
 import com.zaxxer.hikari.HikariConfig;
 
 @Extension
-public class MysqlConnector extends SqlBasedConnector {
+public class MysqlConnector extends SqlBasedConnector<MysqlDatasourceConfig> {
 
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 
     public MysqlConnector() {
         super(50);
-    }
-
-    @Nonnull
-    @Override
-    public MysqlDatasourceConfig resolveConfig(Map<String, Object> configMap) {
-        return MysqlDatasourceConfig.buildFrom(configMap);
     }
 
     @Override
@@ -35,7 +24,7 @@ public class MysqlConnector extends SqlBasedConnector {
     }
 
     @Override
-    protected void setUpConfigs(SqlBasedDatasourceConnectionConfig datasourceConfig, HikariConfig config) {
+    protected void setUpConfigs(MysqlDatasourceConfig datasourceConfig, HikariConfig config) {
         // Set authentication properties
         String username = datasourceConfig.getUsername();
         if (StringUtils.isNotEmpty(username)) {
@@ -62,5 +51,6 @@ public class MysqlConnector extends SqlBasedConnector {
             config.addDataSourceProperty("useSSL", "false");
             config.addDataSourceProperty("requireSSL", "false");
         }
+        config.setReadOnly(datasourceConfig.isReadonly());
     }
 }

@@ -4,7 +4,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 import static com.openblocks.sdk.exception.PluginCommonError.PREPARED_STATEMENT_BIND_PARAMETERS_ERROR;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
-import static com.openblocks.sdk.plugin.common.QueryExecutionUtils.getIdenticalColumns;
 import static com.openblocks.sdk.util.ExceptionUtils.wrapException;
 import static com.openblocks.sdk.util.JsonUtils.toJson;
 import static com.openblocks.sdk.util.MustacheHelper.doPrepareStatement;
@@ -16,11 +15,9 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +28,6 @@ import javax.annotation.Nonnull;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.openblocks.sdk.exception.PluginException;
-import com.openblocks.sdk.models.LocaleMessage;
 import com.openblocks.sdk.models.QueryExecutionResult;
 import com.openblocks.sdk.plugin.common.sql.ResultSetParser;
 import com.openblocks.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
@@ -42,6 +38,16 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class HikariSqlExecutor {
+
+    private final boolean supportGenerateKeys;
+
+    public HikariSqlExecutor(boolean supportGenerateKeys) {
+        this.supportGenerateKeys = supportGenerateKeys;
+    }
+
+    public HikariSqlExecutor() {
+        this(true);
+    }
 
     @Nonnull
     public QueryExecutionResult execute(Connection connection, SqlBasedQueryExecutionContext context) {
@@ -55,27 +61,25 @@ public class HikariSqlExecutor {
         SqlExecutionInput sqlExecutionInput = getSqlExecutionInput(guiSqlCommand, query, isPreparedStatement, requestParams);
         Pair<Statement, Boolean> executionResult = getStatementAndExecute(connection, sqlExecutionInput);
 
-        Statement statement = executionResult.getLeft();
         boolean isResultSet = executionResult.getRight();
-
-        try (connection; statement) {
+        try (Statement statement = executionResult.getLeft()) {
             return parseExecuteResult(statement, isResultSet);
         } catch (SQLException e) {
             throw wrapException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e);
         }
     }
 
-    private QueryExecutionResult parseExecuteResult(Statement statement, boolean isResultSet)
-            throws SQLException {
+    private QueryExecutionResult parseExecuteResult(Statement statement, boolean isResultSet) throws SQLException {
 
         List<Object> result = newArrayList();
         int updateCount = statement.getUpdateCount();
         do {
             if (isResultSet) {
-                ResultSet resultSet = statement.getResultSet();
-                List<Map<String, Object>> dataRows = ResultSetParser.parseRows(resultSet);
-                if (!containsNullGeneratedKeys(dataRows)) {
-                    result.add(dataRows);
+                try (ResultSet resultSet = statement.getResultSet()) {
+                    List<Map<String, Object>> dataRows = ResultSetParser.parseRows(resultSet);
+                    if (!isGeneratedKeysWithNullValue(dataRows)) {
+                        result.add(dataRows);
+                    }
                 }
             } else {
                 result.add(getAffectRowsAndGeneratedKeys(statement, updateCount));
@@ -104,7 +108,7 @@ public class HikariSqlExecutor {
         return result;
     }
 
-    private static boolean containsNullGeneratedKeys(List<Map<String, Object>> dataRows) {
+    private static boolean isGeneratedKeysWithNullValue(List<Map<String, Object>> dataRows) {
         if (dataRows.size() != 1) {
             return false;
         }
@@ -113,16 +117,6 @@ public class HikariSqlExecutor {
             return map.containsKey("GENERATED_KEYS");
         }
         return false;
-    }
-
-    private QueryExecutionResult parseResultSet(Statement statement) throws SQLException {
-        try (ResultSet resultSet = statement.getResultSet()) {
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            List<Map<String, Object>> dataRows = ResultSetParser.parseRows(resultSet);
-
-            List<String> columnLabels = ResultSetParser.parseColumns(metaData);
-            return QueryExecutionResult.success(dataRows, populateHintMessages(columnLabels));
-        }
     }
 
     private Pair<Statement, Boolean> getStatementAndExecute(Connection connection, SqlExecutionInput sqlExecutionInput) {
@@ -138,7 +132,12 @@ public class HikariSqlExecutor {
             }
 
             var statement = connection.createStatement();
-            var isResultSet = statement.execute(sqlExecutionInput.sql(), Statement.RETURN_GENERATED_KEYS);
+            boolean isResultSet;
+            if (supportGenerateKeys) {
+                isResultSet = statement.execute(sqlExecutionInput.sql(), Statement.RETURN_GENERATED_KEYS);
+            } else {
+                isResultSet = statement.execute(sqlExecutionInput.sql());
+            }
             return Pair.of(statement, isResultSet);
         } catch (Exception e) {
             throw wrapException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e);
@@ -188,15 +187,6 @@ public class HikariSqlExecutor {
             array.add(generatedKeys.getLong(1));
         }
         return array;
-    }
-
-    private List<LocaleMessage> populateHintMessages(List<String> columnNames) {
-        List<LocaleMessage> messages = new ArrayList<>();
-        List<String> identicalColumns = getIdenticalColumns(columnNames);
-        if (!org.springframework.util.CollectionUtils.isEmpty(identicalColumns)) {
-            messages.add(new LocaleMessage("DUPLICATE_COLUMN", String.join("/", identicalColumns)));
-        }
-        return messages;
     }
 
     private void bindParam(int bindIndex, Object value, PreparedStatement preparedStatement, String bindKeyName) throws SQLException {
