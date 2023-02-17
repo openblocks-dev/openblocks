@@ -2,6 +2,8 @@ package com.openblocks.plugin.sql;
 
 import static com.openblocks.sdk.exception.PluginCommonError.CONNECTION_ERROR;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
+import static com.openblocks.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
+import static com.openblocks.sdk.util.ExceptionUtils.wrapException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -93,8 +95,11 @@ public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBas
                 dataSource.getHikariPoolMXBean().getTotalConnections()
         );
 
-        Connection connection = getConnection(dataSource);
-        return hikariSqlExecutor.execute(connection, context);
+        try (Connection connection = getConnection(dataSource)) {
+            return hikariSqlExecutor.execute(connection, context);
+        } catch (SQLException e) {
+            throw wrapException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e);
+        }
     }
 
     private HikariDataSource getHikariDataSource(HikariPerfWrapper hikariDataSource) {
@@ -105,8 +110,11 @@ public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBas
     @Override
     public final DatasourceStructure blockingGetStructure(HikariPerfWrapper hikariPerfWrapper) {
         HikariDataSource hikariDataSource = getHikariDataSource(hikariPerfWrapper);
-        Connection connection = getConnection(hikariDataSource);
-        return getDatabaseMetadata(connection);
+        try (Connection connection = getConnection(hikariDataSource)) {
+            return getDatabaseMetadata(connection);
+        } catch (SQLException e) {
+            throw wrapException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e);
+        }
     }
 
     protected abstract DatasourceStructure getDatabaseMetadata(Connection connection);

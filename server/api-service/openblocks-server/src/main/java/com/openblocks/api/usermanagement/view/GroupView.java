@@ -20,6 +20,8 @@ public class GroupView {
     private String visitorRole;
     private long createTime;
     private String dynamicRule;
+    private boolean isSyncGroup;
+    private boolean isSyncDelete;
 
     public static Mono<GroupView> from(Group group, String memberRole) {
         return Mono.deferContextual(contextView -> {
@@ -32,6 +34,8 @@ public class GroupView {
                     .createTime(group.getCreateTime())
                     .visitorRole(memberRole)
                     .dynamicRule(group.getDynamicRule())
+                    .isSyncGroup(group.isSyncGroup())
+                    .isSyncDelete(group.isSyncDeleted())
                     .build();
             return Mono.just(groupView);
         });

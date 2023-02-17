@@ -44,7 +44,7 @@ public class MysqlQueryExecutor extends SqlBasedQueryExecutor {
     @Override
     protected DatasourceStructure getDatabaseMetadata(Connection connection) {
         Map<String, Table> tablesByName = new LinkedHashMap<>();
-        try (connection; Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             parseTableAndColumns(tablesByName, statement);
             parseTableKeys(tablesByName, statement);
         } catch (SQLException throwable) {

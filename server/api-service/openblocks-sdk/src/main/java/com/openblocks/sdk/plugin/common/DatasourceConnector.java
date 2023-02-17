@@ -3,6 +3,8 @@ package com.openblocks.sdk.plugin.common;
 import static com.openblocks.sdk.exception.PluginCommonError.DATASOURCE_TIMEOUT_ERROR;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 import static com.openblocks.sdk.util.ExceptionUtils.ofPluginException;
+import static com.openblocks.sdk.util.JsonUtils.fromJson;
+import static com.openblocks.sdk.util.JsonUtils.toJson;
 
 import java.time.Duration;
 import java.util.Map;
@@ -13,6 +15,7 @@ import javax.annotation.Nonnull;
 
 import org.pf4j.ExtensionPoint;
 
+import com.google.common.reflect.TypeToken;
 import com.openblocks.sdk.exception.PluginCommonError;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.models.DatasourceConnectionConfig;
@@ -24,8 +27,19 @@ import reactor.core.publisher.Mono;
 @SuppressWarnings("unchecked")
 public interface DatasourceConnector<Connection, ConnectionConfig extends DatasourceConnectionConfig> extends ExtensionPoint {
 
+    @SuppressWarnings("UnstableApiUsage")
     @Nonnull
-    ConnectionConfig resolveConfig(Map<String, Object> configMap);
+    default ConnectionConfig resolveConfig(Map<String, Object> configMap) {
+        TypeToken<ConnectionConfig> type = new TypeToken<>(getClass()) {
+        };
+
+        Class<? super ConnectionConfig> tClass = type.getRawType();
+        Object result = fromJson(toJson(configMap), tClass);
+        if (result == null) {
+            throw ofPluginException(PluginCommonError.DATASOURCE_ARGUMENT_ERROR, "INVALID_SQLSERVER_CONFIG");
+        }
+        return (ConnectionConfig) result;
+    }
 
     /**
      * should not override this method!

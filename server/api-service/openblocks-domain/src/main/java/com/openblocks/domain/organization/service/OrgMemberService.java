@@ -48,6 +48,10 @@ public interface OrgMemberService {
 
     Mono<List<OrgMember>> getAllOrgAdmins(String orgId);
 
+    Mono<Void> bulkAddMember(String orgId, Collection<String> userIds, MemberRole memberRole);
+
+    Mono<Boolean> bulkRemoveMember(String orgId, Collection<String> userIds);
+
     record UserOrgMemberInfo(OrgMember currentOrgMember, List<OrgMember> orgMembers) {
     }
 

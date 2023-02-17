@@ -11,7 +11,9 @@ import com.openblocks.domain.user.model.Connection;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.model.UserDetail;
 import com.openblocks.infra.annotation.NonEmptyMono;
+import com.openblocks.infra.mongo.MongoUpsertHelper.PartialResourceWithId;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface UserService {
@@ -52,5 +54,12 @@ public interface UserService {
     Mono<UserDetail> buildUserDetail(User user, boolean withoutDynamicGroups);
 
     Mono<Boolean> markUserDeletedAndInvalidConnectionsAtEnterpriseMode(String userId);
+
+    Flux<User> bulkCreateUser(Collection<User> users);
+
+    Mono<Void> bulkUpdateUser(Collection<PartialResourceWithId<User>> users);
+
+    Flux<User> findBySourceAndIds(String connectionSource, Collection<String> connectionSourceUuids);
+
 }
 

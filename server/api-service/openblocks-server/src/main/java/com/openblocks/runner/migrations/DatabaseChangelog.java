@@ -164,6 +164,13 @@ public class DatabaseChangelog {
                 makeIndex("bizType", "sourceId", "relation"));
     }
 
+    @ChangeSet(order = "016", id = "update-user-connections-index", author = "")
+    public void updateUserConnectionsIndex(MongockTemplate mongoTemplate) {
+        dropIndexIfExists(mongoTemplate, User.class, "connections.source_1_connections.rawId_1");
+        ensureIndexes(mongoTemplate, User.class, makeIndex("connections.source", "connections.rawId").unique().sparse());
+    }
+
+
     public static Index makeIndex(String... fields) {
         if (fields.length == 1) {
             return new Index(fields[0], Sort.Direction.ASC).named(fields[0]);

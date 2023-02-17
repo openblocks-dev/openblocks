@@ -18,7 +18,7 @@ import com.openblocks.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-public abstract class SqlBasedConnector extends BlockingDatasourceConnector<HikariPerfWrapper, SqlBasedDatasourceConnectionConfig> {
+public abstract class SqlBasedConnector<T extends SqlBasedDatasourceConnectionConfig> extends BlockingDatasourceConnector<HikariPerfWrapper, T> {
 
     private static final long LEAK_DETECTION_THRESHOLD_MS = TimeUnit.SECONDS.toMillis(30);
     private static final long MAX_LIFETIME_MS = TimeUnit.MINUTES.toMillis(30);
@@ -35,7 +35,7 @@ public abstract class SqlBasedConnector extends BlockingDatasourceConnector<Hika
 
     @Nonnull
     @Override
-    protected final HikariPerfWrapper blockingCreateConnection(SqlBasedDatasourceConnectionConfig connectionConfig) {
+    protected final HikariPerfWrapper blockingCreateConnection(T connectionConfig) {
         try {
             Class.forName(getJdbcDriver());
         } catch (ClassNotFoundException e) {
@@ -45,9 +45,7 @@ public abstract class SqlBasedConnector extends BlockingDatasourceConnector<Hika
         return createHikariDataSource(connectionConfig);
     }
 
-    protected abstract String getJdbcDriver();
-
-    private HikariPerfWrapper createHikariDataSource(SqlBasedDatasourceConnectionConfig datasourceConfig) {
+    private HikariPerfWrapper createHikariDataSource(T datasourceConfig) {
 
         HikariConfig config = new HikariConfig();
         config.setDriverClassName(getJdbcDriver());
@@ -63,8 +61,6 @@ public abstract class SqlBasedConnector extends BlockingDatasourceConnector<Hika
 
         setUpConfigs(datasourceConfig, config);
 
-        config.setReadOnly(datasourceConfig.isReadonly());
-
         HikariDataSource hikariDataSource = new HikariDataSource(config);
         return HikariPerfWrapper.wrap(hikariDataSource,
                 () -> hikariDataSource.getHikariPoolMXBean().getTotalConnections(),
@@ -76,7 +72,9 @@ public abstract class SqlBasedConnector extends BlockingDatasourceConnector<Hika
         );
     }
 
-    protected abstract void setUpConfigs(SqlBasedDatasourceConnectionConfig datasourceConfig, HikariConfig config);
+    protected abstract String getJdbcDriver();
+
+    protected abstract void setUpConfigs(T datasourceConfig, HikariConfig config);
 
     @Nonnull
     @Override
@@ -93,7 +91,7 @@ public abstract class SqlBasedConnector extends BlockingDatasourceConnector<Hika
     }
 
     @Override
-    public Set<String> validateConfig(SqlBasedDatasourceConnectionConfig connectionConfig) {
+    public Set<String> validateConfig(T connectionConfig) {
 
         Set<String> invalids = new HashSet<>();
 
