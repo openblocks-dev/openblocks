@@ -65,7 +65,7 @@ test("eval code to value", async () => {
       value: 0,
     },
   ]);
-  expect(a).toBe("0");
+  expect(a).toBe(0);
 
   let b = evalCodeToValue("{{a}}", [
     {
@@ -73,15 +73,23 @@ test("eval code to value", async () => {
       value: { name: "Tom" },
     },
   ]);
-  expect(b).toBe(JSON.stringify({ name: "Tom" }));
+  expect(b).toEqual({ name: "Tom" });
+
+  let c = evalCodeToValue("Hello: {{a}}", [
+    {
+      key: "a",
+      value: { name: "Tom" },
+    },
+  ]);
+  expect(c).toBe("Hello: " + String({ name: "Tom" }));
 });
 
 test("eval to value", async () => {
   let value;
 
+  // boolean input
   value = await evalToValue({ key: "a", type: "booleanInput" }, "1", [], {});
   expect(value).toBe(true);
-
   value = await evalToValue(
     { key: "a", type: "booleanInput" },
     "{{a}}",
@@ -89,16 +97,55 @@ test("eval to value", async () => {
     {}
   );
   expect(value).toBe(true);
+  value = await evalToValue(
+    { key: "a", type: "booleanInput" },
+    "{{a}}",
+    [{ key: "a", value: 0 }],
+    {}
+  );
+  expect(value).toBe(false);
+  value = await evalToValue({ key: "a", type: "booleanInput" }, "{{a}}", [], {});
+  expect(value).toBe(false);
 
+  // test input
+  value = await evalToValue(
+    { key: "a", type: "textInput" },
+    "{{hello}}: {{name}}: {{data}}",
+    [
+      { key: "hello", value: "world" },
+      { key: "name", value: "Tom" },
+      { key: "data", value: { n: 1 } },
+    ],
+    {}
+  );
+  expect(value).toBe(`world: Tom: ${String({ n: 1 })}`);
+  value = await evalToValue({ key: "a", type: "textInput" }, "{{hello}}: {{name}}", [], {});
+  expect(value).toBe(": ");
+  value = await evalToValue(
+    { key: "a", type: "textInput" },
+    "{{hello}}",
+    [{ key: "hello", value: { n: 1 } }],
+    {}
+  );
+  expect(value).toBe(JSON.stringify({ n: 1 }));
+
+  // checkbox
   value = await evalToValue({ key: "a", type: "checkbox" }, "any-value", [], {});
   expect(value).toBe(true);
+  value = await evalToValue({ key: "a", type: "checkbox" }, "", [], {});
+  expect(value).toBe(false);
+  value = await evalToValue({ key: "a", type: "checkbox" }, "{{a}}", [], {});
+  expect(value).toBe(false);
+  value = await evalToValue({ key: "a", type: "checkbox" }, "{{a}}", [{ key: "a", value: 1 }], {});
+  expect(value).toBe(true);
+  value = await evalToValue({ key: "a", type: "checkbox" }, "{{a}}", [{ key: "a", value: 0 }], {});
+  expect(value).toBe(false);
 
+  // file
   value = await evalToValue({ key: "a", type: "file" }, "some-base64", [], {});
   expect(value).toBe("some-base64");
-
   value = await evalToValue({ key: "a", type: "file" }, "{name: 1.png, type: image/png}", [], {});
   expect(value).toEqual({ name: "1.png", type: "image/png" });
-
   value = await evalToValue(
     { key: "a", type: "file" },
     "{name: 1.png, type: {{type}}, data: {{data}}}",
@@ -110,14 +157,40 @@ test("eval to value", async () => {
   );
   expect(value).toEqual({ name: "1.png", type: "image/png", data: "/** some \nvalue\n" });
 
-  value = await evalToValue({ key: "a", type: "jsonInput" }, "{hello}", [], {});
+  // json
+  value = await evalToValue({ key: "a", type: "jsonInput" }, "some-string", [], {});
+  expect(value).toEqual("some-string");
+  value = await evalToValue({ key: "a", type: "jsonInput" }, "{}", [], {});
+  expect(value).toEqual({});
+  value = await evalToValue(
+    { key: "a", type: "jsonInput" },
+    "{a: {{b}}}",
+    [{ key: "b", value: "1" }],
+    {}
+  );
+  expect(value).toEqual({ a: "1" });
+  value = await evalToValue(
+    { key: "a", type: "jsonInput" },
+    "{a: {{b}}}",
+    [{ key: "b", value: 1 }],
+    {}
+  );
+  expect(value).toEqual({ a: 1 });
+  value = await evalToValue({ key: "a", type: "jsonInput" }, "{a: {{b}}}", [], {});
   expect(value).toEqual({});
 
+  // number
   value = await evalToValue({ key: "a", type: "numberInput" }, "invalid number", [], {});
   expect(value).toBe(0);
-
   value = await evalToValue({ key: "a", type: "numberInput" }, "1", [], {});
   expect(value).toBe(1);
+  value = await evalToValue(
+    { key: "a", type: "numberInput" },
+    "{{a}}1",
+    [{ key: "a", value: 1 }],
+    {}
+  );
+  expect(value).toBe(11);
 });
 
 test("list plugins", () => {
