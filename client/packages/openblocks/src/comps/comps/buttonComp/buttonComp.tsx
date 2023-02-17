@@ -10,13 +10,26 @@ import {
   hiddenPropertyView,
   loadingPropertyView,
 } from "comps/utils/propertyUtils";
-import { CommonBlueLabel, Dropdown, Section, sectionNames } from "openblocks-design";
+import {
+  CommonBlueLabel,
+  Dropdown,
+  Section,
+  sectionNames,
+} from "openblocks-design";
 import { trans } from "i18n";
 import styled from "styled-components";
-import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
+import {
+  CommonNameConfig,
+  NameConfig,
+  withExposingConfigs,
+} from "../../generators/withExposing";
 import { IForm } from "../formComp/formDataConstants";
 import { SimpleNameComp } from "../simpleNameComp";
-import { Button100, ButtonCompWrapper, ButtonStyleControl } from "./buttonCompConstants";
+import {
+  Button100,
+  ButtonCompWrapper,
+  ButtonStyleControl,
+} from "./buttonCompConstants";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
@@ -25,6 +38,30 @@ const FormLabel = styled(CommonBlueLabel)`
 
 const IconWrapper = styled.div`
   display: flex;
+`;
+
+const MarginContainer = styled.div<{}>`
+  display: flex;
+  justify-content: space-between;
+  .hUXIwu {
+    flex: 0 0 36px;
+  }
+  .fgbLEe {
+    margin-right: 5px;
+    margin-bottom: 10px;
+  }
+`;
+
+const PaddingContainer = styled.div<{}>`
+  display: flex;
+  justify-content: space-between;
+  .hUXIwu {
+    flex: 0 0 36px;
+  }
+  .fgbLEe {
+    margin-right: 5px;
+    margin-bottom: 10px;
+  }
 `;
 
 function getFormOptions(editorState: EditorState) {
@@ -44,7 +81,10 @@ function getForm(editorState: EditorState, formName: string) {
   }
 }
 
-function getFormEventHandlerPropertyView(editorState: EditorState, formName: string) {
+function getFormEventHandlerPropertyView(
+  editorState: EditorState,
+  formName: string
+) {
   const form = getForm(editorState, formName);
   if (!form) {
     return undefined;
@@ -54,7 +94,12 @@ function getFormEventHandlerPropertyView(editorState: EditorState, formName: str
       {form.onEventPropertyView(
         <>
           <FormLabel
-            onClick={() => editorState.setSelectedCompNames(new Set([formName]), "rightPanel")}
+            onClick={() =>
+              editorState.setSelectedCompNames(
+                new Set([formName]),
+                "rightPanel"
+              )
+            }
           >
             {formName}
           </FormLabel>
@@ -119,6 +164,14 @@ const ButtonTmpComp = (function () {
     prefixIcon: IconControl,
     suffixIcon: IconControl,
     style: ButtonStyleControl,
+    marginLeft: withDefault(StringControl, ""),
+    marginRight: withDefault(StringControl, ""),
+    marginTop: withDefault(StringControl, ""),
+    marginBottom: withDefault(StringControl, ""),
+    paddingLeft: withDefault(StringControl, ""),
+    paddingRight: withDefault(StringControl, ""),
+    paddingTop: withDefault(StringControl, ""),
+    paddingBottom: withDefault(StringControl, ""),
   };
   return new UICompBuilder(childrenMap, (props) => (
     <ButtonCompWrapper disabled={props.disabled}>
@@ -129,15 +182,29 @@ const ButtonTmpComp = (function () {
             loading={props.loading}
             disabled={
               props.disabled ||
-              (!isDefault(props.type) && getForm(editorState, props.form)?.disableSubmit())
+              (!isDefault(props.type) &&
+                getForm(editorState, props.form)?.disableSubmit())
             }
             onClick={() =>
-              isDefault(props.type) ? props.onEvent("click") : submitForm(editorState, props.form)
+              isDefault(props.type)
+                ? props.onEvent("click")
+                : submitForm(editorState, props.form)
             }
+            style={{
+              marginLeft: props.marginLeft,
+              marginRight: props.marginRight,
+              marginTop: props.marginTop,
+              marginBottom: props.marginBottom,
+              paddingLeft: props.paddingLeft,
+              paddingRight: props.paddingRight,
+              paddingTop: props.paddingTop,
+              paddingBottom: props.paddingBottom,
+            }}
           >
             {props.prefixIcon && <IconWrapper>{props.prefixIcon}</IconWrapper>}
             {
-              props.text || (props.prefixIcon || props.suffixIcon ? undefined : " ") // Avoid button disappearing
+              props.text ||
+                (props.prefixIcon || props.suffixIcon ? undefined : " ") // Avoid button disappearing
             }
             {props.suffixIcon && <IconWrapper>{props.suffixIcon}</IconWrapper>}
           </Button100>
@@ -152,7 +219,10 @@ const ButtonTmpComp = (function () {
         </Section>
 
         <Section name={sectionNames.interaction}>
-          {children.type.propertyView({ label: trans("prop.type"), radioButton: true })}
+          {children.type.propertyView({
+            label: trans("prop.type"),
+            radioButton: true,
+          })}
           {isDefault(children.type.getView()) ? (
             <>
               {children.onEvent.getPropertyView()}
@@ -165,12 +235,55 @@ const ButtonTmpComp = (function () {
         </Section>
 
         <Section name={sectionNames.layout}>
-          {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+          {children.prefixIcon.propertyView({
+            label: trans("button.prefixIcon"),
+          })}
+          {children.suffixIcon.propertyView({
+            label: trans("button.suffixIcon"),
+          })}
           {hiddenPropertyView(children)}
         </Section>
 
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+            <h4>Margin</h4>
+            <div>
+              <MarginContainer>
+                {children.marginLeft.propertyView({
+                  label: trans("componentDoc.left"),
+                })}
+                {children.marginRight.propertyView({
+                  label: trans("componentDoc.right"),
+                })}
+              </MarginContainer>
+              <MarginContainer>
+                {children.marginTop.propertyView({
+                  label: trans("componentDoc.top"),
+                })}
+                {children.marginBottom.propertyView({
+                  label: trans("componentDoc.bottom"),
+                })}
+              </MarginContainer>
+            </div>
+
+            <h4>Padding</h4>
+            <PaddingContainer>
+              {children.paddingLeft.propertyView({
+                label: trans("componentDoc.left"),
+              })}
+              {children.paddingRight.propertyView({
+                label: trans("componentDoc.right"),
+              })}
+            </PaddingContainer>
+            <PaddingContainer>
+              {children.paddingTop.propertyView({
+                label: trans("componentDoc.top"),
+              })}
+              {children.paddingBottom.propertyView({
+                label: trans("componentDoc.bottom"),
+              })}
+            </PaddingContainer>
+        </Section>
       </>
     ))
     .build();

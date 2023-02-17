@@ -7,7 +7,7 @@ import { AlignCenter } from "openblocks-design";
 import { AlignLeft } from "openblocks-design";
 import { AlignRight } from "openblocks-design";
 import { HorizontalAlignmentControl } from "../controls/dropdownControl";
-import { UICompBuilder } from "../generators";
+import { UICompBuilder, withDefault } from "../generators";
 import {
   NameConfig,
   NameConfigHidden,
@@ -15,15 +15,21 @@ import {
 } from "../generators/withExposing";
 import { markdownCompCss, TacoMarkDown } from "openblocks-design";
 import { styleControl } from "comps/controls/styleControl";
-import { TextStyle, TextStyleType } from "comps/controls/styleControlConstants";
+import {
+  MarginStyle,
+  TextStyle,
+  TextStyleType,
+} from "comps/controls/styleControlConstants";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { StringControl } from "../controls/codeControl";
 
 const getStyle = (style: TextStyleType) => {
   return css`
     border-radius: 4px;
     color: ${style.text};
     background-color: ${style.background};
+
     .markdown-body a {
       color: ${style.links};
     }
@@ -75,6 +81,31 @@ const TextContainer = styled.div<{ type: string; styleConfig: TextStyleType }>`
     overflow-wrap: anywhere;
   }
 `;
+
+const MarginContainer = styled.div<{}>`
+  display: flex;
+  justify-content: space-between;
+  .hUXIwu {
+    flex: 0 0 36px;
+  }
+  .fgbLEe {
+    margin-right: 5px;
+    margin-bottom: 10px;
+  }
+`;
+
+const PaddingContainer = styled.div<{}>`
+  display: flex;
+  justify-content: space-between;
+  .hUXIwu {
+    flex: 0 0 36px;
+  }
+  .fgbLEe {
+    margin-right: 5px;
+    margin-bottom: 10px;
+  }
+`;
+
 const AlignTop = styled(AlignLeft)`
   transform: rotate(90deg);
 `;
@@ -112,6 +143,14 @@ let TextTmpComp = (function () {
     horizontalAlignment: HorizontalAlignmentControl,
     verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
     style: styleControl(TextStyle),
+    marginLeft: withDefault(StringControl, ""),
+    marginRight: withDefault(StringControl, ""),
+    marginTop: withDefault(StringControl, ""),
+    marginBottom: withDefault(StringControl, ""),
+    paddingLeft: withDefault(StringControl, ""),
+    paddingRight: withDefault(StringControl, ""),
+    paddingTop: withDefault(StringControl, ""),
+    paddingBottom: withDefault(StringControl, ""),
   };
   return new UICompBuilder(childrenMap, (props) => {
     const value = props.text.value;
@@ -123,6 +162,14 @@ let TextTmpComp = (function () {
           justifyContent: props.horizontalAlignment,
           alignItems: props.autoHeight ? "center" : props.verticalAlignment,
           textAlign: props.horizontalAlignment,
+          marginLeft: props.marginLeft,
+          marginRight: props.marginRight,
+          marginTop: props.marginTop,
+          marginBottom: props.marginBottom,
+          paddingLeft: props.paddingLeft,
+          paddingRight: props.paddingRight,
+          paddingTop: props.paddingTop,
+          paddingBottom: props.paddingBottom,
         }}
       >
         {props.type === "markdown" ? (
@@ -161,6 +208,43 @@ let TextTmpComp = (function () {
 
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
+            <h4>Margin</h4>
+            <div>
+              <MarginContainer>
+                {children.marginLeft.propertyView({
+                  label: trans("componentDoc.left"),
+                })}
+                {children.marginRight.propertyView({
+                  label: trans("componentDoc.right"),
+                })}
+              </MarginContainer>
+              <MarginContainer>
+                {children.marginTop.propertyView({
+                  label: trans("componentDoc.top"),
+                })}
+                {children.marginBottom.propertyView({
+                  label: trans("componentDoc.bottom"),
+                })}
+              </MarginContainer>
+            </div>
+
+            <h4>Padding</h4>
+            <PaddingContainer>
+              {children.paddingLeft.propertyView({
+                label: trans("componentDoc.left"),
+              })}
+              {children.paddingRight.propertyView({
+                label: trans("componentDoc.right"),
+              })}
+            </PaddingContainer>
+            <PaddingContainer>
+              {children.paddingTop.propertyView({
+                label: trans("componentDoc.top"),
+              })}
+              {children.paddingBottom.propertyView({
+                label: trans("componentDoc.bottom"),
+              })}
+            </PaddingContainer>
           </Section>
         </>
       );

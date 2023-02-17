@@ -3,8 +3,16 @@ import { CascaderStyleType } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
 import styled from "styled-components";
 import { UICompBuilder, withDefault } from "../../generators";
-import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { CascaderChildren, CascaderPropertyView, defaultDataSource } from "./cascaderContants";
+import {
+  CommonNameConfig,
+  NameConfig,
+  withExposingConfigs,
+} from "../../generators/withExposing";
+import {
+  CascaderChildren,
+  CascaderPropertyView,
+  defaultDataSource,
+} from "./cascaderContants";
 import { getStyle } from "./selectCompConstants";
 
 const CascaderStyle = styled(Cascader)<{ $style: CascaderStyleType }>`
@@ -33,6 +41,16 @@ let CascaderBasicComp = (function () {
           onChange={(value: (string | number)[]) => {
             props.value.onChange(value as string[]);
             props.onEvent("change");
+          }}
+          style={{
+            marginLeft: props.marginLeft,
+            marginRight: props.marginRight,
+            marginTop: props.marginTop,
+            marginBottom: props.marginBottom,
+            paddingLeft: props.paddingLeft,
+            paddingRight: props.paddingRight,
+            paddingTop: props.paddingTop,
+            paddingBottom: props.paddingBottom,
           }}
         />
       ),

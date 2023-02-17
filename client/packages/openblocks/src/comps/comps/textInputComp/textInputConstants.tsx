@@ -13,7 +13,10 @@ import { Section, sectionNames, ValueFromOption } from "openblocks-design";
 import _ from "lodash";
 import { css } from "styled-components";
 import { EMAIL_PATTERN, URL_PATTERN } from "util/stringUtils";
-import { RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
+import {
+  RecordConstructorToComp,
+  RecordConstructorToView,
+} from "openblocks-core";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
 import { RefControl } from "../../controls/refControl";
@@ -91,13 +94,19 @@ export const textInputValidate = (
   if (props.maxLength > 0 && value.length > props.maxLength) {
     return {
       validateStatus: "error",
-      help: trans("validationDesc.maxLength", { length: value.length, maxLength: props.maxLength }),
+      help: trans("validationDesc.maxLength", {
+        length: value.length,
+        maxLength: props.maxLength,
+      }),
     };
   }
   if (props.minLength > 0 && value.length < props.minLength) {
     return {
       validateStatus: "error",
-      help: trans("validationDesc.minLength", { length: value.length, minLength: props.minLength }),
+      help: trans("validationDesc.minLength", {
+        length: value.length,
+        minLength: props.minLength,
+      }),
     };
   }
   const optionValue = props.validationType;
@@ -108,10 +117,21 @@ export const textInputValidate = (
   return { validateStatus: "" };
 };
 
-const TextInputInvalidConfig = depsConfig<TextInputComp, ChildrenTypeToDepsKeys<TextInputComp>>({
+const TextInputInvalidConfig = depsConfig<
+  TextInputComp,
+  ChildrenTypeToDepsKeys<TextInputComp>
+>({
   name: "invalid",
   desc: trans("export.invalidDesc"),
-  depKeys: ["value", "required", "minLength", "maxLength", "validationType", "regex", "customRule"],
+  depKeys: [
+    "value",
+    "required",
+    "minLength",
+    "maxLength",
+    "validationType",
+    "regex",
+    "customRule",
+  ],
   func: (input) =>
     textInputValidate({
       ...input,
@@ -141,7 +161,9 @@ export const textInputChildren = {
   ...formDataChildren,
 };
 
-const textInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => ({
+const textInputProps = (
+  props: RecordConstructorToView<typeof textInputChildren>
+) => ({
   ref: props.viewRef,
   disabled: props.disabled,
   readOnly: props.readOnly,
@@ -152,10 +174,13 @@ const textInputProps = (props: RecordConstructorToView<typeof textInputChildren>
   onPressEnter: () => props.onEvent("submit"),
 });
 
-export const useTextInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => {
+export const useTextInputProps = (
+  props: RecordConstructorToView<typeof textInputChildren>
+) => {
   const [validateState, setValidateState] = useState({});
 
-  const propsRef = useRef<RecordConstructorToView<typeof textInputChildren>>(props);
+  const propsRef =
+    useRef<RecordConstructorToView<typeof textInputChildren>>(props);
   propsRef.current = props;
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {

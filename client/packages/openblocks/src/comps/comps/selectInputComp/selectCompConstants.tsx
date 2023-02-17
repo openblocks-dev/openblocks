@@ -24,14 +24,17 @@ import {
   SelectInputValidationChildren,
   SelectInputValidationSection,
 } from "./selectInputConstants";
-import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
+import {
+  formDataChildren,
+  FormDataPropertyView,
+} from "../formComp/formDataConstants";
 import {
   CascaderStyleType,
   MultiSelectStyleType,
   SelectStyleType,
   TreeSelectStyleType,
 } from "comps/controls/styleControlConstants";
-import { stateComp } from "../../generators";
+import { stateComp, withDefault } from "../../generators";
 import {
   allowClearPropertyView,
   disabledPropertyView,
@@ -43,7 +46,11 @@ import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
 
 export const getStyle = (
-  style: SelectStyleType | MultiSelectStyleType | CascaderStyleType | TreeSelectStyleType
+  style:
+    | SelectStyleType
+    | MultiSelectStyleType
+    | CascaderStyleType
+    | TreeSelectStyleType
 ) => {
   return css`
     &.ant-select .ant-select-selector,
@@ -76,18 +83,18 @@ export const getStyle = (
       .ant-select-clear {
         background-color: ${style.background};
         color: ${style.text === "#222222"
-          ? "#8B8FA3"
-          : isDarkColor(style.text)
-          ? lightenColor(style.text, 0.2)
-          : style.text};
+      ? "#8B8FA3"
+      : isDarkColor(style.text)
+        ? lightenColor(style.text, 0.2)
+        : style.text};
       }
 
       .ant-select-clear:hover {
         color: ${style.text === "#222222"
-          ? "#8B8FA3"
-          : isDarkColor(style.text)
-          ? lightenColor(style.text, 0.1)
-          : style.text};
+      ? "#8B8FA3"
+      : isDarkColor(style.text)
+        ? lightenColor(style.text, 0.1)
+        : style.text};
       }
 
       &.ant-select-multiple .ant-select-selection-item {
@@ -135,7 +142,33 @@ const getDropdownStyle = (style: MultiSelectStyleType) => {
   `;
 };
 
-const Select = styled(AntdSelect)<{ $style: SelectStyleType & MultiSelectStyleType }>`
+const MarginContainer = styled.div<{}>`
+  display: flex;
+  justify-content: space-between;
+  .hUXIwu {
+    flex: 0 0 36px;
+  }
+  .fgbLEe {
+    margin-right: 5px;
+    margin-bottom: 10px;
+  }
+`;
+
+const PaddingContainer = styled.div<{}>`
+  display: flex;
+  justify-content: space-between;
+  .hUXIwu {
+    flex: 0 0 36px;
+  }
+  .fgbLEe {
+    margin-right: 5px;
+    margin-bottom: 10px;
+  }
+`;
+
+const Select = styled(AntdSelect) <{
+  $style: SelectStyleType & MultiSelectStyleType;
+}>`
   width: 100%;
   ${(props) => props.$style && getStyle(props.$style)}
 `;
@@ -167,6 +200,14 @@ export const SelectChildrenMap = {
   allowClear: BoolControl,
   inputValue: stateComp<string>(""), // user's input value when search
   showSearch: BoolControl.DEFAULT_TRUE,
+  marginLeft: withDefault(StringControl, ""),
+  marginRight: withDefault(StringControl, ""),
+  marginTop: withDefault(StringControl, ""),
+  marginBottom: withDefault(StringControl, ""),
+  paddingLeft: withDefault(StringControl, ""),
+  paddingRight: withDefault(StringControl, ""),
+  paddingTop: withDefault(StringControl, ""),
+  paddingBottom: withDefault(StringControl, ""),
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -188,9 +229,13 @@ export const SelectUIView = (
     placeholder={props.placeholder}
     value={props.value}
     showSearch={props.showSearch}
-    filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase())}
+    filterOption={(input, option) =>
+      option?.label.toLowerCase().includes(input.toLowerCase())
+    }
     dropdownRender={(originNode: ReactNode) => (
-      <DropdownStyled $style={props.style as MultiSelectStyleType}>{originNode}</DropdownStyled>
+      <DropdownStyled $style={props.style as MultiSelectStyleType}>
+        {originNode}
+      </DropdownStyled>
     )}
     dropdownStyle={{
       padding: 0,
@@ -202,10 +247,20 @@ export const SelectUIView = (
     onSearch={
       props.showSearch
         ? (value) => {
-            props.dispatch(changeChildAction("inputValue", value));
-          }
+          props.dispatch(changeChildAction("inputValue", value));
+        }
         : undefined
     }
+    style={{
+      marginLeft: props.marginLeft,
+      marginRight: props.marginRight,
+      marginTop: props.marginTop,
+      marginBottom: props.marginBottom,
+      paddingLeft: props.paddingLeft,
+      paddingRight: props.paddingRight,
+      paddingTop: props.paddingTop,
+      paddingBottom: props.paddingBottom,
+    }}
   >
     {props.options
       .filter((option) => option.value !== undefined && !option.hidden)
@@ -217,8 +272,8 @@ export const SelectUIView = (
           key={option.value}
         >
           <Wrapper className="option-label">
-            {props.options.findIndex((option) => hasIcon(option.prefixIcon)) > -1 &&
-              option.prefixIcon}
+            {props.options.findIndex((option) => hasIcon(option.prefixIcon)) >
+              -1 && option.prefixIcon}
             {<span>{option.label}</span>}
           </Wrapper>
         </Select.Option>
@@ -258,6 +313,45 @@ export const SelectPropertyView = (
     <SelectInputValidationSection {...children} />
 
     <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-    <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+    <Section name={sectionNames.style}>
+      {children.style.getPropertyView()}
+      <h4>Margin</h4>
+      <div>
+        <MarginContainer>
+          {children.marginLeft.propertyView({
+            label: trans("componentDoc.left"),
+          })}
+          {children.marginRight.propertyView({
+            label: trans("componentDoc.right"),
+          })}
+        </MarginContainer>
+        <MarginContainer>
+          {children.marginTop.propertyView({
+            label: trans("componentDoc.top"),
+          })}
+          {children.marginBottom.propertyView({
+            label: trans("componentDoc.bottom"),
+          })}
+        </MarginContainer>
+      </div>
+
+      <h4>Padding</h4>
+      <PaddingContainer>
+        {children.paddingLeft.propertyView({
+          label: trans("componentDoc.left"),
+        })}
+        {children.paddingRight.propertyView({
+          label: trans("componentDoc.right"),
+        })}
+      </PaddingContainer>
+      <PaddingContainer>
+        {children.paddingTop.propertyView({
+          label: trans("componentDoc.top"),
+        })}
+        {children.paddingBottom.propertyView({
+          label: trans("componentDoc.bottom"),
+        })}
+      </PaddingContainer>
+    </Section>
   </>
 );
