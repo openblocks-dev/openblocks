@@ -8,6 +8,7 @@ router.post("/batchRunJs", jsControllers.batchRunJavascript);
 
 router.get("/plugins", pluginControllers.listPlugins);
 router.post("/runPluginQuery", pluginControllers.runPluginQuery);
+router.post("/getPluginDynamicConfig", pluginControllers.getDynamicDef);
 router.post("/validatePluginDataSourceConfig", pluginControllers.validatePluginDataSourceConfig);
 
 export default router;

@@ -7,12 +7,11 @@ Write data source plugins with TypeScript.
 ### Develop
 
 ```bash
-yarn dev
+yarn && yarn dev
 ```
 
 ### Production
 
 ```bash
-yarn build
-yarn start
+yarn && yarn build && yarn start
 ```

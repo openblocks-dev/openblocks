@@ -19,12 +19,13 @@
 package com.openblocks.sdk.plugin.restapi;
 
 import static com.openblocks.sdk.exception.PluginCommonError.DATASOURCE_ARGUMENT_ERROR;
-import static com.openblocks.sdk.exception.PluginCommonError.JSON_PARSE_ERROR;
+import static com.openblocks.sdk.util.MustacheHelper.renderMustacheJson;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,16 +44,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Streams;
-import com.google.gson.JsonSyntaxException;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.exception.ServerException;
 import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.RestBodyFormFileData;
 import com.openblocks.sdk.util.ExceptionUtils;
-import com.openblocks.sdk.util.MustacheHelper;
 
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 import reactor.core.publisher.Mono;
 
 public class DataUtils {
@@ -97,19 +94,13 @@ public class DataUtils {
     }
 
     public static Object parseJsonBody(Object body) {
-        try {
-            if (body instanceof String str) {
-                if ("" == body) {
-                    return new byte[0];
-                }
-                Object objectFromJson = parseJsonObject(str);
-                if (objectFromJson != null) {
-                    body = objectFromJson;
-                }
+        if (body instanceof String str) {
+            if ("" == body) {
+                return new byte[0];
             }
-        } catch (JsonSyntaxException | ParseException e) {
-            throw new PluginException(JSON_PARSE_ERROR, "JSON_PARSE_ERROR", body, "Malformed JSON: " + e.getMessage());
+            return renderMustacheJson(str, Collections.emptyMap());
         }
+
         return body;
     }
 
@@ -190,7 +181,7 @@ public class DataUtils {
 
     public static List<MultipartFormData> convertToMultiformFileValue(String fileValue, Map<String, Object> paramMap) {
         try {
-            JsonNode jsonValue = MustacheHelper.renderMustacheJson(fileValue, paramMap);
+            JsonNode jsonValue = renderMustacheJson(fileValue, paramMap);
             if (jsonValue.isObject()) {
                 return List.of(parseMultipartFormData(jsonValue));
             }
@@ -223,18 +214,5 @@ public class DataUtils {
         }
         result.setName(name.asText());
         return result;
-    }
-
-    private static Object parseJsonObject(String jsonString) throws ParseException {
-        String trimmed = jsonString.trim();
-
-        if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) {
-            return null;
-        }
-
-        // JSONParser is not thread safe!!
-        JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-        return jsonParser.parse(jsonString);
-
     }
 }

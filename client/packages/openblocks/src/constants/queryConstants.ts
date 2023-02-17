@@ -31,7 +31,7 @@ export type DatasourceType =
 
 export type ResourceType = DatasourceType | "js" | "libraryQuery" | "view";
 
-export const QueryMap: Record<ResourceType, MultiCompConstructor> = {
+export const QueryMap = {
   js: JSQuery,
   mysql: SQLQuery,
   restApi: HttpQuery,
