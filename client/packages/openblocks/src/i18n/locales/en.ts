@@ -1251,6 +1251,7 @@ export const en = {
     backgroundColor: "Background color",
     animationStart: "Animation Start",
     valueDesc: "Current json Data",
+    loop: "Loop"
   },
   audio: {
     src: "Audio URL",
