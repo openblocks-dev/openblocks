@@ -31,6 +31,17 @@ const animationStartOptions = [
   },
 ] as const;
 
+const loopOptions = [
+  {
+    label: "Single play",
+    value: "single",
+  },
+  {
+    label: "Endless loop",
+    value: "endless",
+  },
+] as const;
+
 const speedOptions = [
   {
     label: "1x",
@@ -69,6 +80,7 @@ let JsonLottieTmpComp = (function () {
     height: withDefault(NumberControl, 100),
     backgroundColor: styleControl(LottieStyle),
     animationStart: dropdownControl(animationStartOptions, "auto"),
+    loop: dropdownControl(loopOptions, "single"),
   };
 
   return new UICompBuilder(childrenMap, (props) => {
@@ -81,10 +93,12 @@ let JsonLottieTmpComp = (function () {
         }}
       >
         <Player
-          key={[props.speed, props.animationStart] as any}
+          key={
+            [props.speed, props.animationStart, props.loop, props.value] as any
+          }
           autoplay={props.animationStart === "auto" && true}
           hover={props.animationStart === "on hover" && true}
-          loop
+          loop={props.loop === "single" ? false : true}
           speed={Number(props.speed)}
           src={props.value}
           style={{ height: "100%", width: "100%" }}
@@ -101,6 +115,9 @@ let JsonLottieTmpComp = (function () {
             })}
             {children.speed.propertyView({
               label: trans("jsonLottie.speed"),
+            })}
+            {children.loop.propertyView({
+              label: trans("jsonLottie.loop"),
             })}
             {children.animationStart.propertyView({
               label: trans("jsonLottie.animationStart"),
