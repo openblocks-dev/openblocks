@@ -1,6 +1,6 @@
 import _ from "lodash";
-import { toString, toNumber, toBoolean, toJsonValue, toStringOrJson } from "../common/util";
-import { getDynamicStringSegments, isDynamicSegment } from "openblocks-core";
+import { toString, toNumber, toBoolean } from "../common/util";
+import { getDynamicStringSegments, isDynamicSegment, RelaxedJsonParser } from "openblocks-core";
 import jsonPath from "jsonpath";
 import plugins from "../plugins";
 import {
@@ -21,7 +21,21 @@ function isReadOnlyArray(obj: any): obj is readonly any[] {
 
 type EvalContext = { key: string; value: any }[];
 
-export function evalCodeToValue(dsl: string, context: EvalContext) {
+function evalDynamicSegment(segment: string, context: Record<string, any>) {
+  if (!isDynamicSegment(segment)) {
+    return segment;
+  }
+  const segmentRaw = segment.slice(2, -2);
+  return context[segmentRaw];
+}
+
+class CodeValueParser extends RelaxedJsonParser {
+  evalDynamicSegment(segment: string): any {
+    return evalDynamicSegment(segment, this.context);
+  }
+}
+
+export function evalCodeToValue(dsl: string, context: EvalContext, isJson: boolean = false) {
   if (!dsl) {
     return undefined;
   }
@@ -31,17 +45,17 @@ export function evalCodeToValue(dsl: string, context: EvalContext) {
   }
 
   const contextMap = Object.fromEntries(context.map((i) => [i.key, i.value]));
+  if (isJson) {
+    const parser = new CodeValueParser(dsl, contextMap);
+    const value = parser.parse().value;
+    return value;
+  }
 
-  // copy from string2Fn Parser
   const values = getDynamicStringSegments(dsl).map((segment) => {
-    if (!isDynamicSegment(segment)) {
-      return segment;
-    }
-    const segmentRaw = segment.slice(2, -2);
-    return JSON.stringify(contextMap[segmentRaw]);
+    return evalDynamicSegment(segment, contextMap);
   });
 
-  return values.join("");
+  return values.length === 1 ? values[0] : values.join("");
 }
 
 export async function evalToValue<T extends Config>(
@@ -91,12 +105,8 @@ export async function evalToValue<T extends Config>(
     return toBoolean(evalCodeToValue(dsl, context));
   }
 
-  if (config.type === "jsonInput") {
-    return toJsonValue(evalCodeToValue(dsl, context));
-  }
-
-  if (config.type === "file") {
-    return toStringOrJson(evalCodeToValue(dsl, context));
+  if (config.type === "jsonInput" || config.type === "file") {
+    return evalCodeToValue(dsl, context, true);
   }
 
   throw new ServiceError(`invalid plugin definition, unknown config type: ${(config as any).type}`);
@@ -126,7 +136,9 @@ export function getPluginContext(req: Request): PluginContext {
 
 async function getQueryConfig(plugin: DataSourcePlugin, dataSourceConfig: any = {}) {
   if (typeof plugin.queryConfig === "function") {
-    return plugin.queryConfig(dataSourceConfig);
+    const ret = await plugin.queryConfig(dataSourceConfig);
+    console.info(ret);
+    return ret;
   }
   return plugin.queryConfig;
 }

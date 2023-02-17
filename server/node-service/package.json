@@ -10,7 +10,7 @@
     "dev": "nodemon --files src/server.ts",
     "start": "node ./build/src/server.js",
     "test": "jest",
-    "build": "rm -rf build/ && tsc && cp -r src/static build/src/static"
+    "build": "rm -rf build/ && yarn test && tsc && cp -r src/static build/src/static"
   },
   "devDependencies": {
     "@types/jest": "^29.2.4",
@@ -44,7 +44,7 @@
     "loglevel": "^1.8.1",
     "morgan": "^1.10.0",
     "openapi-types": "^12.1.0",
-    "openblocks-core": "^0.0.5",
+    "openblocks-core": "^0.0.7",
     "openblocks-sdk": "^0.0.35",
     "stylis": "^4.1.3",
     "swagger-client": "^3.18.5",

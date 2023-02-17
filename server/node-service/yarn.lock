@@ -8373,16 +8373,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openblocks-core@npm:^0.0.5":
-  version: 0.0.5
-  resolution: "openblocks-core@npm:0.0.5::__archiveUrl=https%3A%2F%2Fregistry.npmjs.org%2Fopenblocks-core%2F-%2Fopenblocks-core-0.0.5.tgz"
+"openblocks-core@npm:^0.0.7":
+  version: 0.0.7
+  resolution: "openblocks-core@npm:0.0.7"
   dependencies:
     "@rollup/plugin-commonjs": ^23.0.0
     "@rollup/plugin-node-resolve": ^15.0.0
     intl-messageformat: ^10.2.1
     lodash: ^4.17.21
     lru-cache: ^7.14.1
-  checksum: 1ef27a4e46f582b4941cf1f9c1e3eaff3d2505e3bf3c7d202119c6fd6f24e75584dede92378d1c89fa41bf22d73c21c8819971521e1a8f00498b038aecb88a19
+  checksum: 9469e04204faadb805a23666a4b5faa36c9d8a8a13cb19c4b7b69abd0d1a1d746f69a99ec1f53affd9c0532c2b65f4c9b8e91c8baaeb4195f99ff1b6fcbc60e7
   languageName: node
   linkType: hard
 
@@ -9294,7 +9294,7 @@ __metadata:
     nock: ^13.3.0
     nodemon: ^2.0.20
     openapi-types: ^12.1.0
-    openblocks-core: ^0.0.5
+    openblocks-core: ^0.0.7
     openblocks-sdk: ^0.0.35
     stylis: ^4.1.3
     swagger-client: ^3.18.5

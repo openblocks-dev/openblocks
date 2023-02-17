@@ -1,4 +1,3 @@
-import { relaxedJSONToJSON } from "openblocks-core";
 import yaml from "yaml";
 import fs from "fs";
 
@@ -40,35 +39,6 @@ export function toBoolean(value: any): boolean {
     return false;
   }
   return !!value;
-}
-
-export function toJsonValue(value: any): any {
-  if (typeof value !== "string") {
-    return value;
-  }
-  try {
-    const json = relaxedJSONToJSON(value, true);
-    return JSON.parse(json);
-  } catch (e) {
-    console.info("invalid json input:", value);
-    return {};
-  }
-}
-
-export function toStringOrJson(value: any): any {
-  if (typeof value !== "string") {
-    return value;
-  }
-  try {
-    const json = relaxedJSONToJSON(value, true);
-    return JSON.parse(json);
-  } catch (e) {
-    if (typeof value === "string") {
-      return value;
-    }
-    console.info("invalid json input:", value);
-    return {};
-  }
 }
 
 export function readYaml<T = any>(path: string): T {
