@@ -1,0 +1,21 @@
+{{- $nameSpace := include "openblocks.namespace" . -}}
+{{- $name := include "openblocks.fullname" . -}}
+{{- $openblocksDatabase := first .Values.mongodb.auth.databases -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openblocks.fullname" . }}-node-service
+  labels:
+    {{- include "openblocks.labels" . | nindent 4 }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  PUID: {{ .Values.nodeService.config.userId | default "9001" | quote }}
+  PGID: {{ .Values.nodeService.config.groupId | default "9001" | quote }}
+  {{- if .Values.nodeService.apiServiceUrl }}
+  OPENBLOCKS_API_SERVICE_URL: {{ .Values.nodeService.apiServiceUrl | quote }}
+  {{- else }}
+  OPENBLOCKS_API_SERVICE_URL: "http://{{ $name }}-api-service:{{ .Values.apiService.service.port }}"
+  {{- end }}

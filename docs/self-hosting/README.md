@@ -28,19 +28,36 @@ cd openblocks
 {% tab title="Docker-Compose (Recommend)" %}
 Follow the steps below:
 
-1. Download the configuration file by clicking [docker-compose.yml](https://cdn-files.openblocks.dev/docker-compose.yml) or running the curl command: `curl https://cdn-files.openblocks.dev/docker-compose.yml -o $PWD/docker-compose.yml`\
+1.  Download the configuration file by clicking [docker-compose.yml](https://cdn-files.openblocks.dev/docker-compose.yml) or running the curl command:&#x20;
 
-2.  Start the Docker container by running this command: `docker-compose up -d`\
-    ``\
-    ``The docker image, about 400 MB, is downloaded during the initial start-up.
+    {% code overflow="wrap" %}
+    ```bash
+    curl https://cdn-files.openblocks.dev/docker-compose.yml -o $PWD/docker-compose.yml
+    ```
+    {% endcode %}
+2.  Start the Docker container by running this command:
+
+    ```bash
+    docker-compose up -d
+    ```
+
+    \
+    The docker image, about 400 MB, is downloaded during the initial start-up.\
+
 
     <figure><img src="../.gitbook/assets/download-ce.png" alt=""><figcaption></figcaption></figure>
 
     After downloading, it usually takes less than 30 seconds to start the service.\
 
-3.  Check the logs by running this command: `docker logs -f openblocks`\
-    ``\
-    ``When you see `frontend`, `backend`, `redis`, and `mongo` `entered the RUNNING state`, the Openblocks service has officially started:\
+3.  Check the logs by running this command:
+
+    ```bash
+    docker logs -f openblocks
+    ```
+
+
+
+    When you see `frontend`, `backend`, `redis`, and `mongo` `entered the RUNNING state`, the Openblocks service has officially started:\
 
 
     <figure><img src="../.gitbook/assets/check-logs-ce.png" alt=""><figcaption></figcaption></figure>

@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "openblocks.fullname" . }}-node-service
+  labels:
+    {{- include "openblocks.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.nodeService.autoscaling.enabled }}
+  replicas: {{ .Values.nodeService.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "openblocks.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "openblocks.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "openblocks.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.nodeService.image.repository }}:{{ .Values.nodeService.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.nodeService.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "openblocks.fullname" . }}-node-service
+          ports:
+            - name: openblocks-node
+              containerPort: 6060
+              protocol: TCP
+# Uncomment when /status endpoint is implemented
+#          livenessProbe:
+#            initialDelaySeconds: 15
+#            httpGet:
+#              path: /plugins
+#              port: openblocks-node
+#          readinessProbe:
+#            initialDelaySeconds: 15
+#            httpGet:
+#              path: /plugins
+#              port: openblocks-node
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

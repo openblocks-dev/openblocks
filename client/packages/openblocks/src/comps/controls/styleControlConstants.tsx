@@ -1,5 +1,10 @@
 import { ThemeDetail } from "api/commonSettingApi";
-import { darkenColor, isDarkColor, lightenColor, toHex } from "openblocks-design";
+import {
+  darkenColor,
+  isDarkColor,
+  lightenColor,
+  toHex,
+} from "openblocks-design";
 import { trans } from "i18n";
 import _ from "lodash";
 import { StyleConfigType } from "./styleControl";
@@ -20,7 +25,10 @@ export type DepColorConfig = CommonColorConfig & {
   readonly depType?: DEP_TYPE;
   transformer: (color: string, ...rest: string[]) => string;
 };
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig;
+export type SingleColorConfig =
+  | SimpleColorConfig
+  | DepColorConfig
+  | RadiusConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -41,7 +49,11 @@ export enum DEP_TYPE {
   SELF = "toSelf",
 }
 
-export function contrastText(color: string, textDark: string, textLight: string) {
+export function contrastText(
+  color: string,
+  textDark: string,
+  textLight: string
+) {
   return isDarkColor(color) ? textLight : textDark;
 }
 
@@ -93,7 +105,10 @@ export function handleToHoverRow(color: string) {
 }
 
 // return table select row background color
-export function handleToSelectedRow(color: string, primary: string = defaultTheme.primary) {
+export function handleToSelectedRow(
+  color: string,
+  primary: string = defaultTheme.primary
+) {
   if (toHex(color) === SURFACE_COLOR) {
     return `${toHex(primary)?.substring(0, 7)}16`;
   } else if (isDarkColor(color)) {
@@ -215,7 +230,11 @@ const HEADER_BACKGROUND = {
   transformer: toSelf,
 } as const;
 
-const BG_STATIC_BORDER_RADIUS = [getBackground(), getStaticBorder(), RADIUS] as const;
+const BG_STATIC_BORDER_RADIUS = [
+  getBackground(),
+  getStaticBorder(),
+  RADIUS,
+] as const;
 
 const FILL = {
   name: "fill",
@@ -241,7 +260,9 @@ function getStaticBgBorderRadiusByBg(background: string) {
   return [getStaticBackground(background), BORDER, RADIUS] as const;
 }
 
-function getBgBorderRadiusByBg(background: keyof ThemeDetail = "primarySurface") {
+function getBgBorderRadiusByBg(
+  background: keyof ThemeDetail = "primarySurface"
+) {
   return [getBackground(background), BORDER, RADIUS] as const;
 }
 
@@ -568,7 +589,11 @@ export const TableStyle = [
   },
 ] as const;
 
-export const FileStyle = [...getStaticBgBorderRadiusByBg(SURFACE_COLOR), TEXT, ACCENT] as const;
+export const FileStyle = [
+  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
+  TEXT,
+  ACCENT,
+] as const;
 
 export const FileViewerStyle = [
   getStaticBackground("#FFFFFF"),
@@ -576,7 +601,11 @@ export const FileViewerStyle = [
   RADIUS,
 ] as const;
 
-export const IframeStyle = [getBackground(), getStaticBorder("#00000000"), RADIUS] as const;
+export const IframeStyle = [
+  getBackground(),
+  getStaticBorder("#00000000"),
+  RADIUS,
+] as const;
 
 export const DateTimeStyle = [
   LABEL,
@@ -622,6 +651,16 @@ export const ProgressStyle = [
   SUCCESS,
 ] as const;
 
+export const LottieStyle = [
+  {
+    name: "background",
+    label: trans("style.background"),
+    depTheme: "canvas",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+] as const;
+
 export const NavigationStyle = [
   {
     name: "text",
@@ -665,7 +704,10 @@ export const TreeStyle = [
   VALIDATE,
 ] as const;
 
-export const TreeSelectStyle = [...multiSelectCommon, ...ACCENT_VALIDATE] as const;
+export const TreeSelectStyle = [
+  ...multiSelectCommon,
+  ...ACCENT_VALIDATE,
+] as const;
 
 export const DrawerStyle = [getBackground()] as const;
 
@@ -699,7 +741,9 @@ export type NavigationStyleType = StyleConfigType<typeof NavigationStyle>;
 export type ImageStyleType = StyleConfigType<typeof ImageStyle>;
 export type ListViewStyleType = StyleConfigType<typeof ListViewStyle>;
 export type MasonryStyleType = StyleConfigType<typeof MasonryStyle>;
-export type JsonSchemaFormStyleType = StyleConfigType<typeof JsonSchemaFormStyle>;
+export type JsonSchemaFormStyleType = StyleConfigType<
+  typeof JsonSchemaFormStyle
+>;
 export type TreeSelectStyleType = StyleConfigType<typeof TreeSelectStyle>;
 export type DrawerStyleType = StyleConfigType<typeof DrawerStyle>;
 export type JsonEditorStyleType = StyleConfigType<typeof JsonEditorStyle>;

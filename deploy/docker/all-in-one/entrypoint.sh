@@ -36,6 +36,9 @@ chown -R ${USER_ID}:${GROUP_ID} /openblocks-stacks/ /openblocks/etc
 SUPERVISOR_AVAILABLE="/openblocks/etc/supervisord/conf-available"
 SUPERVISOR_ENABLED="/openblocks/etc/supervisord/conf-enabled"
 
+# Create folder for supervisor conf-enabled
+mkdir -p ${SUPERVISOR_ENABLED}
+
 # Recreate links to enabled services
 rm -f ${SUPERVISOR_ENABLED}/*.conf
 

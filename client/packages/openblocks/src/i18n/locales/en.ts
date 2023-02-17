@@ -45,6 +45,7 @@ export const en = {
   search: "Search",
   back: "Back",
   accessControl: " Access Control",
+  lottieJson: "Lottie JSON",
   api: {
     publishSuccess: "Published",
     recoverFailed: "Recover failed",
@@ -1192,14 +1193,8 @@ export const en = {
     width: "Width",
     height: "Height",
     backgroundColor: "Background color",
-    theme: "Theme",
+    animationStart: "Animation Start",
     valueDesc: "Current json Data",
-    default: "Default",
-    defaultDark: "Default dark",
-    neutralLight: "Neutral light",
-    neutralDark: "Neutral dark",
-    azure: "Azure",
-    darkBlue: "Dark blue",
   },
   audio: {
     src: "Audio URL",

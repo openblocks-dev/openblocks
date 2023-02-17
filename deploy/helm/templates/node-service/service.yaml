@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "openblocks.fullname" . }}-node-service
+  labels:
+    {{- include "openblocks.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.nodeService.service.type }}
+  ports:
+    - port: {{ .Values.nodeService.service.port }}
+      targetPort: openblocks-node
+      protocol: TCP
+      name: openblocks-node
+    {{- if .Values.nodeService.service.nodePort }}
+      {{- if or (eq .Values.nodeService.service.type "NodePort") (eq .Values.nodeService.service.type "LoadBalancer") }}
+      nodePort: {{ .Values.nodeService.service.nodePort }}
+      {{- end }}
+    {{- end }}
+  selector:
+    {{- include "openblocks.selectorLabels" . | nindent 4 }}
