@@ -1,6 +1,6 @@
 import { DatePicker } from "antd";
-import _ from "lodash";
-import moment from "moment";
+import _, { noop, range } from "lodash";
+import moment, { Moment } from "moment";
 import { isDarkColor, lightenColor, Section, sectionNames } from "openblocks-design";
 import { RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
 import {
@@ -44,7 +44,7 @@ import {
   DATE_TIME_FORMAT,
   DateParser,
   PickerMode,
-  TIME_FORMAT,
+  TimeParser,
 } from "util/dateTimeUtils";
 import { checkIsMobile } from "util/commonUtils";
 import { useContext } from "react";
@@ -73,7 +73,7 @@ const commonChildren = {
   minuteStep: RangeControl.closed(1, 60, 1),
   secondStep: RangeControl.closed(1, 60, 1),
   style: styleControl(DateTimeStyle),
-  suffixIcon: withDefault(IconControl, '/icon:regular/calendar'),
+  suffixIcon: withDefault(IconControl, "/icon:regular/calendar"),
   ...validationChildren,
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
@@ -118,7 +118,7 @@ const dateValidationFields = (children: CommonChildrenType, dateType: PickerMode
 };
 
 const timeValidationFields = (children: CommonChildrenType, dateType: PickerMode = "date") => {
-  if (dateType === "date" && children.showTime) {
+  if (dateType === "date" && children.showTime.getView()) {
     return (
       <>
         {minTimePropertyView(children)}
@@ -141,56 +141,66 @@ function validate(
   }
 
   const currentDateTime = moment(props.value.value, DATE_TIME_FORMAT);
-  const currentTime = moment(props.value.value, TIME_FORMAT);
-  const currentDate = moment(props.value.value, DATE_FORMAT);
-
-  const maxTime = moment(props.maxTime, TIME_FORMAT);
-  const minTime = moment(props.minTime, TIME_FORMAT);
-
-  const maxDate = moment(props.maxDate, DATE_FORMAT);
-  const minDate = moment(props.minDate, DATE_FORMAT);
 
   if (props.required && !currentDateTime.isValid()) {
     return { validateStatus: "error", help: trans("prop.required") };
   }
-  if (maxTime.isValid() && currentTime.isAfter(maxTime)) {
-    return {
-      validateStatus: "error",
-      help: trans("validationDesc.maxTime", {
-        time: props.value.value,
-        maxTime: maxTime.format(TIME_FORMAT),
-      }),
-    };
-  }
-  if (minTime.isValid() && currentTime.isBefore(minTime)) {
-    return {
-      validateStatus: "error",
-      help: trans("validationDesc.minTime", {
-        time: props.value.value,
-        minTime: minTime.format(TIME_FORMAT),
-      }),
-    };
-  }
-  if (maxDate.isValid() && currentDate.isAfter(maxDate)) {
-    return {
-      validateStatus: "error",
-      help: trans("validationDesc.maxDate", {
-        date: props.value.value,
-        maxDate: maxDate.format(DATE_FORMAT),
-      }),
-    };
-  }
-  if (minDate.isValid() && currentDate.isBefore(minDate)) {
-    return {
-      validateStatus: "error",
-      help: trans("validationDesc.minDate", {
-        date: props.value.value,
-        minDate: minDate.format(DATE_FORMAT),
-      }),
-    };
-  }
+
   return { validateStatus: "success" };
 }
+
+const disabledDate = (current: Moment, min: string, max: string) => {
+  const maxDate = moment(max, DateParser);
+  const minDate = moment(min, DateParser);
+  return (
+    current &&
+    current.isValid() &&
+    (current.isAfter(maxDate, "date") || current.isBefore(minDate, "date"))
+  );
+};
+
+export const disabledTime = (min: string, max: string) => {
+  const maxTime = moment(max, TimeParser);
+  const minTime = moment(min, TimeParser);
+  return {
+    disabledHours: () => {
+      let disabledHours: number[] = [];
+      if (minTime.isValid()) {
+        disabledHours = [...disabledHours, ...range(0, minTime.hours())];
+      }
+      if (maxTime.isValid()) {
+        disabledHours = [...disabledHours, ...range(maxTime.hours() + 1, 24)];
+      }
+      return disabledHours;
+    },
+    disabledMinutes: (hour: number) => {
+      if (minTime.isValid() && minTime.hour() === hour) {
+        return range(0, minTime.minutes());
+      }
+      if (maxTime.isValid() && maxTime.hour() === hour) {
+        return range(maxTime.minutes() + 1, 60);
+      }
+      return [];
+    },
+    disabledSeconds: (hour: number, minute: number) => {
+      if (minTime.isValid() && minTime.hour() === hour && minTime.minute() === minute) {
+        return range(0, minTime.seconds());
+      }
+      if (maxTime.isValid() && maxTime.hours() === hour && maxTime.minute() === minute) {
+        return range(maxTime.seconds() + 1, 60);
+      }
+      return [];
+    },
+  };
+};
+
+const handleChange = (
+  time: string,
+  onChange: (value: string) => Promise<unknown>,
+  onEvent: (event: string) => void
+) => {
+  onChange(time).then(() => onEvent("change"));
+};
 
 export const getStyle = (style: DateTimeStyleType) => {
   return css`
@@ -268,9 +278,12 @@ export const datePickerControl = (function () {
 
   return new UICompBuilder(childrenMap, (props) => {
     const editorState = useContext(EditorContext);
+
     const children = (
       <>
         <DatePickerStyled
+          disabledDate={(current) => disabledDate(current, props.minDate, props.maxDate)}
+          disabledTime={() => disabledTime(props.minTime, props.maxTime)}
           $style={props.style}
           disabled={props.disabled}
           {...datePickerProps(props)}
@@ -280,12 +293,16 @@ export const datePickerControl = (function () {
           })()}
           picker={"date"}
           onChange={(time) => {
-            props.value.onChange(
+            handleChange(
               time && time.isValid()
                 ? time.format(props.showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
-                : ""
+                : "",
+              props.value.onChange,
+              props.onEvent
             );
-            props.onEvent("change");
+          }}
+          onPanelChange={() => {
+            handleChange("", props.value.onChange, noop);
           }}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
@@ -308,6 +325,7 @@ export const datePickerControl = (function () {
           {children.value.propertyView({
             label: trans("prop.defaultValue"),
             placeholder: "2022-04-07 21:39:59",
+            tooltip: trans("date.formatTip"),
           })}
           {formatPropertyView({ children })}
           {/*{children.dateType.propertyView({ label: "date type" })}*/}
@@ -365,6 +383,8 @@ export const dateRangeControl = (function () {
             const end = moment(props.end.value, DateParser);
             return [start.isValid() ? start : null, end.isValid() ? end : null];
           })()}
+          disabledDate={(current) => disabledDate(current, props.minDate, props.maxDate)}
+          disabledTime={() => disabledTime(props.minTime, props.maxTime)}
           onChange={(time) => {
             const start = time && time[0] ? moment(time[0]) : null;
             const end = time && time[1] ? moment(time[1]) : null;
@@ -379,6 +399,10 @@ export const dateRangeControl = (function () {
                 : ""
             );
             props.onEvent("change");
+          }}
+          onPanelChange={(_, mode) => {
+            mode[0] !== "date" && handleChange("", props.start.onChange, noop);
+            mode[1] !== "date" && handleChange("", props.end.onChange, noop);
           }}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
@@ -408,10 +432,12 @@ export const dateRangeControl = (function () {
           {children.start.propertyView({
             label: trans("date.start"),
             placeholder: "2022-04-07 21:39:59",
+            tooltip: trans("date.formatTip"),
           })}
           {children.end.propertyView({
             label: trans("date.end"),
             placeholder: "2022-04-07 21:39:59",
+            tooltip: trans("date.formatTip"),
           })}
           {formatPropertyView({ children })}
           {timeFields(children)}

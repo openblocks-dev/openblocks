@@ -7,6 +7,7 @@ type CompItemType = GridItemComp | HookComp;
 export type CompTree = {
   items: Record<string, CompItemType>;
   children: Record<string, CompTree>;
+  itemOrder?: Array<string>;
 };
 
 export function getCompTree(compMap: Record<string, CompItemType>): CompTree {

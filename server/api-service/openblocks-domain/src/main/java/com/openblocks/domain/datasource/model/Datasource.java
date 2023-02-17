@@ -17,6 +17,7 @@ import org.springframework.data.annotation.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.openblocks.domain.plugin.DatasourceMetaInfoConstants;
+import com.openblocks.domain.plugin.client.dto.DatasourcePluginDefinition;
 import com.openblocks.sdk.models.DatasourceConnectionConfig;
 import com.openblocks.sdk.models.HasIdAndAuditing;
 import com.openblocks.sdk.models.JsDatasourceConnectionConfig;
@@ -75,7 +76,7 @@ public class Datasource extends HasIdAndAuditing {
     // for js data source plugin
     @Nullable
     @Transient
-    private Object pluginDefinition;
+    private DatasourcePluginDefinition pluginDefinition;
 
     @JsonProperty(value = "datasourceConfig")
     private DatasourceConnectionConfig detailConfig;

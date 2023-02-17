@@ -8,6 +8,9 @@ import ReactDOM from "react-dom";
 import { StyleSheetManager } from "styled-components";
 import { ModuleDSL, ModuleDSLIoInput } from "types/dsl";
 import { AppView } from "./AppView";
+import { API_STATUS_CODES } from "constants/apiConstants";
+import { AUTH_LOGIN_URL } from "constants/routesURL";
+import { AuthSearchParams } from "@openblocks-ee/constants/authConstants";
 
 export type OutputChangeHandler<O> = (output: O) => void;
 export type EventTriggerHandler = (eventName: string) => void;
@@ -22,6 +25,7 @@ export interface AppViewInstanceOptions<I = any> {
   appDsl?: any;
   moduleDslMap?: any;
   baseUrl?: string;
+  webUrl?: string;
   moduleInputs?: I;
 }
 
@@ -32,11 +36,11 @@ export class AppViewInstance<I = any, O = any> {
   private dataPromise: Promise<{ appDsl: any; moduleDslMap: any }>;
   private options: AppViewInstanceOptions = {
     baseUrl: "https://api.openblocks.dev",
+    webUrl: "https://cloud.openblocks.dev",
   };
 
   constructor(private appId: string, private node: Element, options: AppViewInstanceOptions = {}) {
     Object.assign(this.options, options);
-
     if (this.options.baseUrl) {
       sdkConfig.baseURL = this.options.baseUrl;
     }
@@ -50,7 +54,7 @@ export class AppViewInstance<I = any, O = any> {
   }
 
   private async loadData() {
-    const { baseUrl, appDsl, moduleDslMap } = this.options;
+    const { baseUrl, appDsl, moduleDslMap, webUrl } = this.options;
 
     let finalAppDsl = appDsl;
     let finalModuleDslMap = moduleDslMap;
@@ -61,10 +65,17 @@ export class AppViewInstance<I = any, O = any> {
     });
 
     if (!appDsl) {
-      const http = axios.create({ baseURL: baseUrl });
+      const http = axios.create({ baseURL: baseUrl, withCredentials: true });
       const data: ApplicationResp = await http
         .get(`/api/v1/applications/${this.appId}/view`)
-        .then((i) => i.data);
+        .then((i) => i.data)
+        .catch((e) => {
+          if (e.response?.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {
+            window.location.href = `${webUrl}${AUTH_LOGIN_URL}?${
+              AuthSearchParams.redirectUrl
+            }=${encodeURIComponent(window.location.href)}`;
+          }
+        });
 
       setGlobalSettings({
         orgCommonSettings: data.data.orgCommonSettings,

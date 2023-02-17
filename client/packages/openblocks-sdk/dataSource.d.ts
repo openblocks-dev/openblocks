@@ -1,19 +1,23 @@
+type Modify<T, R> = Omit<T, keyof R> & R;
 type KeysNotMatching<T, V> = { [K in keyof T]-?: T[K] extends V ? never : K }[keyof T];
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void
   ? I
   : never;
 
 type CommonParamType = "textInput" | "numberInput" | "select";
-type DataSourceParamType = CommonParamType | "password" | "checkbox";
-type ActionParamType = CommonParamType | "booleanInput" | "switch";
+type DataSourceParamType = CommonParamType | "password" | "checkbox" | "groupTitle";
+type ActionParamType = CommonParamType | "booleanInput" | "switch" | "file" | "jsonInput";
 
 type ParamTypeToValueType<T extends DataSourceParamType | ActionParamType> = T extends
   | "textInput"
   | "select"
   | "password"
+  | "file"
   ? string
   : T extends "numberInput"
   ? number
+  : T extends "jsonInput"
+  ? any
   : T extends "checkbox" | "booleanInput" | "switch"
   ? boolean
   : never;
@@ -29,6 +33,7 @@ interface CommonParamConfig<T extends DataSourceParamType | ActionParamType> {
 // ---- Data Source Param Config ----
 
 interface DataSourceCommonParamConfig<T extends DataSourceParamType> extends CommonParamConfig<T> {
+  updatable?: boolean;
   rules?: readonly ParamRule[];
 }
 
@@ -36,6 +41,7 @@ interface DataSourceTextInputParamConfig extends DataSourceCommonParamConfig<"te
 interface DataSourcePasswordInputParamConfig extends DataSourceCommonParamConfig<"password"> {}
 interface DataSourceNumberInputParamConfig extends DataSourceCommonParamConfig<"numberInput"> {}
 interface DataSourceCheckboxParamConfig extends DataSourceCommonParamConfig<"checkbox"> {}
+interface DataSourceGroupTitleParamConfig extends DataSourceCommonParamConfig<"groupTitle"> {}
 interface DataSourceSelectParamConfig extends DataSourceCommonParamConfig<"select"> {
   options: readonly ParamOption[];
 }
@@ -49,6 +55,8 @@ interface ActionTextInputParamConfig extends ActionCommonParamConfig<"textInput"
 interface ActionNumberInputParamConfig extends ActionCommonParamConfig<"numberInput"> {}
 interface ActionBooleanInputParamConfig extends ActionCommonParamConfig<"booleanInput"> {}
 interface ActionSwitchParamConfig extends ActionCommonParamConfig<"switch"> {}
+interface ActionFileParamConfig extends ActionCommonParamConfig<"file"> {}
+interface ActionJSONParamConfig extends ActionCommonParamConfig<"jsonInput"> {}
 interface ActionSelectParamConfig extends ActionCommonParamConfig<"select"> {
   options: readonly ParamOption[];
 }
@@ -68,12 +76,21 @@ type ActionConfigToDataType<X extends ActionConfig> = X extends ActionConfig<inf
     }
   : never;
 
+export type ActionCategoryValue = string | string[];
+export interface ActionCategory {
+  label: string;
+  value: ActionCategoryValue;
+  children?: ActionCategory[];
+}
+
 export type ActionConfig<
   C extends Config = readonly ActionParamConfig[],
   K extends string = string
 > = {
   actionName: K;
   label: string;
+  description?: string;
+  category?: ActionCategoryValue;
   params: C;
 };
 
@@ -81,12 +98,28 @@ export interface QueryConfig {
   type: "query";
   label?: string;
   tooltip?: string;
+  categories?: {
+    label?: string;
+    items?: ActionCategory[];
+  };
   actions: readonly ActionConfig[];
 }
 
-export interface DataSourceConfig {
+export type DataSourceConfig<DSC = any> = DataSourceConfigBasicInfo &
+  DataSourceConfigFunctions<DSC>;
+
+interface DataSourceConfigBasicInfo {
   type: "dataSource";
   params: readonly DataSourceParamConfig[];
+}
+
+interface DataSourceExtraConfig {
+  data?: any;
+  extraParams?: DataSourceParamConfig[];
+}
+
+interface DataSourceConfigFunctions<DSC = any> {
+  extra?: (data: DSC) => Promise<DataSourceExtraConfig>;
 }
 
 // ---
@@ -96,7 +129,8 @@ type StringParamConfig =
   | DataSourceSelectParamConfig
   | DataSourcePasswordInputParamConfig
   | ActionTextInputParamConfig
-  | ActionSelectParamConfig;
+  | ActionSelectParamConfig
+  | ActionFileParamConfig;
 
 type NumberParamConfig = DataSourceNumberInputParamConfig | ActionNumberInputParamConfig;
 
@@ -105,7 +139,16 @@ type BooleanParamConfig =
   | ActionBooleanInputParamConfig
   | ActionSwitchParamConfig;
 
-type SimpleParamConfig = StringParamConfig | NumberParamConfig | BooleanParamConfig;
+type JsonParamConfig = ActionJSONParamConfig;
+
+type SimpleParamConfig =
+  | StringParamConfig
+  | NumberParamConfig
+  | BooleanParamConfig
+  | JsonParamConfig
+  | NonValueParamConfig;
+
+type NonValueParamConfig = DataSourceGroupTitleParamConfig;
 
 type KeyedParamConfig<C extends Config = SimpleParamConfig, K extends string = string> = C & {
   key: K;
@@ -122,6 +165,7 @@ export type DataSourceParamConfig = KeyedParamConfig<
   | DataSourcePasswordInputParamConfig
   | DataSourceTextInputParamConfig
   | DataSourceSelectParamConfig
+  | DataSourceGroupTitleParamConfig
 >;
 
 export type ActionParamConfig = KeyedParamConfig<
@@ -130,6 +174,8 @@ export type ActionParamConfig = KeyedParamConfig<
   | ActionBooleanInputParamConfig
   | ActionSelectParamConfig
   | ActionSwitchParamConfig
+  | ActionFileParamConfig
+  | ActionJSONParamConfig
 >;
 
 export type ArrayParamConfig = readonly KeyedParamConfig<
@@ -140,23 +186,37 @@ export type ActionArrayParamConfig = readonly KeyedParamConfig<ActionParamConfig
 
 export type Config = KeyedParamConfig | ArrayParamConfig | QueryConfig | DataSourceConfig;
 
+export type DynamicConfig = (data: any) => Promise<Config>;
+
+export type MixedConfig = Config | DynamicConfig;
+
 export type ConfigToType<T extends Config> = T extends StringParamConfig
   ? string
   : T extends NumberParamConfig
   ? number
   : T extends BooleanParamConfig
   ? boolean
+  : T extends JsonParamConfig
+  ? any
+  : T extends BooleanParamConfig
+  ? boolean
+  : T extends NonValueParamConfig
+  ? never
   : T extends ArrayParamConfig
   ? UnionToIntersection<KeyedConfigToDataType<T[number]>>
   : T extends QueryConfig
   ? ActionConfigToDataType<T["actions"][number]>
   : T extends DataSourceConfig
-  ? ConfigToType<T["params"]>
+  ? {
+      extra?: any;
+      dynamicParamsConfig?: any;
+    } & ConfigToType<T["params"]>
   : never;
 
 export interface ParamOption {
   value: string;
   label: string;
+  description?: string;
 }
 
 export type FieldRuleType =
@@ -196,32 +256,47 @@ export interface PluginContext {
   languages: string[];
 }
 
-export interface DataSourcePlugin<ActionDataType = any, DataSourceConfigType = any> {
+export type RunFunc<AC = any, DSC = any> = (
+  actionData: AC,
+  dataSourceConfig: DSC,
+  context: PluginContext
+) => Promise<any>;
+
+export type ValidateDataSourceConfigFunc<DSC = any> = (
+  dataSourceConfig: DataSourceConfigType,
+  context: PluginContext
+) => Promise<ValidateDataSourceConfigResult>;
+
+export interface DataSourcePluginBasicInfo {
   id: string;
   name: string;
   description?: string;
   icon?: string;
   category: string;
-  dataSourceConfig: DataSourceConfig;
-  queryConfig: QueryConfig;
+}
 
-  validateDataSourceConfig?: (
-    dataSourceConfig: DataSourceConfigType,
-    context: PluginContext
-  ) => Promise<ValidateDataSourceConfigResult>;
-
-  run: (
-    actionData: ActionDataType,
-    dataSourceConfig: DataSourceConfigType,
-    context: PluginContext
-  ) => Promise<any>;
+export interface DataSourcePlugin<AC = any, DSC = any> extends DataSourcePluginBasicInfo {
+  dataSourceConfig: DataSourceConfig<DSC>;
+  queryConfig: QueryConfig | ((dataSourceData: DSC) => Promise<QueryConfig>);
+  validateDataSourceConfig?: ValidateDataSourceConfigFunc<DSC>;
+  run: RunFunc<AC, DSC>;
 }
 
 export type DataSourcePluginFactory<ActionDataType = any, DataSourceConfigType = any> = (
   context: PluginContext
 ) => DataSourcePlugin<ActionDataType, DataSourceConfigType>;
 
-export interface DataSourcePluginMeta
-  extends Omit<DataSourcePlugin, "run" | "validateDataSourceConfig"> {
+export interface DataSourcePluginMeta extends DataSourcePluginBasicInfo {
+  dataSourceConfig: Modify<
+    DataSourceConfig,
+    {
+      extra?: DynamicConfigObject;
+    }
+  >;
+  queryConfig: DynamicConfigObject | QueryConfig;
   shouldValidateDataSourceConfig: boolean;
+}
+
+export interface DynamicConfigObject {
+  type: "dynamic";
 }

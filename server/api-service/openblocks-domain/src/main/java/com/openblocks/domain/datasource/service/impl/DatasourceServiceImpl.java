@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -26,6 +25,7 @@ import com.openblocks.domain.application.repository.ApplicationRepository;
 import com.openblocks.domain.datasource.model.Datasource;
 import com.openblocks.domain.datasource.repository.DatasourceRepository;
 import com.openblocks.domain.datasource.service.DatasourceService;
+import com.openblocks.domain.datasource.service.JsDatasourceHelper;
 import com.openblocks.domain.permission.model.ResourceRole;
 import com.openblocks.domain.permission.service.ResourcePermissionService;
 import com.openblocks.domain.plugin.client.DatasourcePluginClient;
@@ -59,6 +59,8 @@ public class DatasourceServiceImpl implements DatasourceService {
     private DatasourceRepository repository;
     @Autowired
     private DatasourcePluginClient datasourcePluginClient;
+    @Autowired
+    private JsDatasourceHelper jsDatasourceHelper;
 
     @Override
     public Mono<Datasource> create(Datasource datasource, String creatorId) {
@@ -81,7 +83,7 @@ public class DatasourceServiceImpl implements DatasourceService {
         }
 
         return repository.findById(datasourceId)
-                .delayUntil(this::processJsDatasourcePlugin)
+                .delayUntil(jsDatasourceHelper::fillPluginDefinition)
                 .map(currentDatasource -> currentDatasource.mergeWith(updatedDatasource))
                 .flatMap(this::validateDatasource)
                 .flatMap(this::trySaveDatasource);
@@ -160,7 +162,7 @@ public class DatasourceServiceImpl implements DatasourceService {
         if (testDatasource.getId() != null) {
             datasourceMono = getById(testDatasource.getId())
                     .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
-                    .delayUntil(this::processJsDatasourcePlugin)
+                    .delayUntil(jsDatasourceHelper::fillPluginDefinition)
                     .map(datasource -> datasource.mergeWith(testDatasource));
         }
 
@@ -185,31 +187,9 @@ public class DatasourceServiceImpl implements DatasourceService {
         return datasourcePluginClient.test(datasource.getType(), datasource.getDetailConfig());
     }
 
-    /**
-     * before merge, encrypt, decrypt, and removePasswords
-     */
-    @Override
-    public Mono<Void> processJsDatasourcePlugin(Datasource datasource) {
-        return Mono.defer(() -> {
-            if (datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType())
-                    && datasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConfig
-                    && ObjectUtils.anyNull(datasource.getPluginDefinition(), jsDatasourceConfig.getDefinition(), jsDatasourceConfig.getType())) {
-
-                return datasourcePluginClient.getDatasourcePlugin(datasource.getType())
-                        .doOnNext(datasourcePluginDTO -> {
-                            datasource.setPluginDefinition(datasourcePluginDTO);
-                            jsDatasourceConfig.setDefinition(datasourcePluginDTO);
-                            jsDatasourceConfig.setType(datasource.getType());
-                        })
-                        .then();
-            }
-            return Mono.empty();
-        });
-    }
-
     @Override
     public Mono<Void> removePasswordTypeKeysFromJsDatasourcePluginConfig(Datasource datasource) {
-        return processJsDatasourcePlugin(datasource)
+        return jsDatasourceHelper.fillPluginDefinition(datasource)
                 .doFinally(__ -> {
                     if (datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType())
                             && datasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConnectionConfig) {

@@ -4,7 +4,7 @@ import styled from "styled-components";
 import * as React from "react";
 import { useMemo, useState } from "react";
 import { getPanelStyle, savePanelStyle } from "util/localStorageUtil";
-import { BottomResultPanel } from "../../../components/ResultPanel";
+import { BottomResultPanel } from "../../../components/resultPanel/BottomResultPanel";
 import { AppState } from "../../../redux/reducers";
 import { getUser } from "../../../redux/selectors/usersSelectors";
 import { connect } from "react-redux";

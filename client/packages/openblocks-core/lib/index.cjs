@@ -318,8 +318,8 @@ var FunctionNode = /** @class */ (function (_super) {
     FunctionNode.prototype.dependValues = function () {
         return this.child.dependValues();
     };
-    FunctionNode.prototype.fetchInfo = function (exposingNodes) {
-        return this.child.fetchInfo(exposingNodes);
+    FunctionNode.prototype.fetchInfo = function (exposingNodes, options) {
+        return this.child.fetchInfo(exposingNodes, options);
     };
     __decorate([
         memoized()
@@ -390,12 +390,12 @@ var RecordNode = /** @class */ (function (_super) {
         });
         return ret;
     };
-    RecordNode.prototype.fetchInfo = function (exposingNodes) {
+    RecordNode.prototype.fetchInfo = function (exposingNodes, options) {
         var isFetching = false;
         var ready = true;
         Object.entries(this.children).forEach(function (_a) {
             _a[0]; var child = _a[1];
-            var fi = child.fetchInfo(exposingNodes);
+            var fi = child.fetchInfo(exposingNodes, options);
             isFetching = fi.isFetching || isFetching;
             ready = fi.ready && ready;
         });
@@ -1507,7 +1507,7 @@ function evalFunction(unevaledValue, context, methods, isAsync) {
             if (runInHost === void 0) { runInHost = false; }
             return evalFunc(unevaledValue.startsWith("return")
                 ? unevaledValue + "\n"
-                : "return function(){'use strict'; " + unevaledValue + "\n}()", args ? __assign(__assign({}, context), args) : context, methods, { disableLimit: runInHost }, isAsync);
+                : "return ".concat(isAsync ? "async " : "", "function(){'use strict'; ").concat(unevaledValue, "\n}()"), args ? __assign(__assign({}, context), args) : context, methods, { disableLimit: runInHost }, isAsync);
         });
     }
     catch (err) {
@@ -1552,6 +1552,7 @@ function string2Fn(unevaledValue, type, methods) {
 
 var IS_FETCHING_FIELD = "isFetching";
 var LATEST_END_TIME_FIELD = "latestEndTime";
+var TRIGGER_TYPE_FIELD = "triggerType";
 /**
  * user input node
  *
@@ -1662,7 +1663,7 @@ var CodeNode = /** @class */ (function (_super) {
         });
         return ret;
     };
-    CodeNode.prototype.fetchInfo = function (exposingNodes) {
+    CodeNode.prototype.fetchInfo = function (exposingNodes, options) {
         if (!!this.evalCache.inIsFetching) {
             return {
                 isFetching: false,
@@ -1676,6 +1677,11 @@ var CodeNode = /** @class */ (function (_super) {
             var ready_1 = true;
             topDepends.forEach(function (paths, depend) {
                 var value = depend.evaluate(exposingNodes);
+                if ((options === null || options === void 0 ? void 0 : options.ignoreManualDepReadyStatus) &&
+                    ___default["default"].has(value, TRIGGER_TYPE_FIELD) &&
+                    value.triggerType === "manual") {
+                    return;
+                }
                 if (___default["default"].has(value, IS_FETCHING_FIELD)) {
                     isFetching_1 = isFetching_1 || value.isFetching === true;
                 }
@@ -1685,7 +1691,7 @@ var CodeNode = /** @class */ (function (_super) {
             });
             var dependingNodeMap = this.filterNodes(exposingNodes);
             dependingNodeMap.forEach(function (paths, depend) {
-                var fi = depend.fetchInfo(exposingNodes);
+                var fi = depend.fetchInfo(exposingNodes, options);
                 isFetching_1 = isFetching_1 || fi.isFetching;
                 ready_1 = ready_1 && fi.ready;
             });
@@ -1727,9 +1733,10 @@ function fixCyclic(extra, exposingNodes) {
  */
 var FetchCheckNode = /** @class */ (function (_super) {
     __extends(FetchCheckNode, _super);
-    function FetchCheckNode(child) {
+    function FetchCheckNode(child, options) {
         var _this = _super.call(this) || this;
         _this.child = child;
+        _this.options = options;
         _this.type = "fetchCheck";
         return _this;
     }
@@ -1746,7 +1753,7 @@ var FetchCheckNode = /** @class */ (function (_super) {
         return this.child.dependValues();
     };
     FetchCheckNode.prototype.fetchInfo = function (exposingNodes) {
-        return this.child.fetchInfo(exposingNodes);
+        return this.child.fetchInfo(exposingNodes, this.options);
     };
     __decorate([
         memoized()
@@ -3322,6 +3329,7 @@ var MultiBaseComp = /** @class */ (function (_super) {
     __extends(MultiBaseComp, _super);
     function MultiBaseComp(params) {
         var _this = _super.call(this, params) || this;
+        _this.IGNORABLE_DEFAULT_VALUE = {};
         _this.children = _this.parseChildrenFromValue(params);
         return _this;
     }
@@ -3465,16 +3473,24 @@ var MultiBaseComp = /** @class */ (function (_super) {
         });
         return _super.prototype.changeDispatch.call(this, dispatch).setChildren(newChildren, { keepCacheKeys: ["node"] });
     };
+    MultiBaseComp.prototype.ignoreChildDefaultValue = function () {
+        return false;
+    };
     MultiBaseComp.prototype.toJsonValue = function () {
         var _this = this;
         var result = {};
+        var ignore = this.ignoreChildDefaultValue();
         Object.keys(this.children).forEach(function (key) {
             var comp = _this.children[key];
             // FIXME: this implementation is a little tricky, better choose a encapsulated implementation
             if (comp.hasOwnProperty("NO_PERSISTENCE")) {
                 return;
             }
-            result[key] = comp.toJsonValue();
+            var value = comp.toJsonValue();
+            if (ignore && ___default["default"].isEqual(value, comp["IGNORABLE_DEFAULT_VALUE"])) {
+                return;
+            }
+            result[key] = value;
         });
         return result;
     };
@@ -7484,10 +7500,14 @@ var Translator = /** @class */ (function () {
         this.messages = Object.assign({}, data, globalMessages);
         this.language = language;
         this.trans = this.trans.bind(this);
+        this.transToNode = this.transToNode.bind(this);
     }
     Translator.prototype.trans = function (key, variables) {
+        return this.transToNode(key, variables).toString();
+    };
+    Translator.prototype.transToNode = function (key, variables) {
         var message = this.getMessage(key);
-        return new IntlMessageFormat(message, i18n.locale).format(variables).toString();
+        return new IntlMessageFormat(message, i18n.locale).format(variables);
     };
     Translator.prototype.getMessage = function (key) {
         var value = this.messages[key];

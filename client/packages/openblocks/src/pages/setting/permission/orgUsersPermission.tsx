@@ -4,10 +4,14 @@ import {
   ArrowIcon,
   CustomModal,
   CustomSelect,
+  EditPopover,
+  EditPopoverItemType,
   MembersIcon,
+  ModalFooterWrapper,
   SuperUserIcon,
+  TacoButton,
 } from "openblocks-design";
-import { trans } from "i18n";
+import { trans, transToNode } from "i18n";
 import InviteDialog from "pages/common/inviteDialog";
 import ProfileImage from "pages/common/profileImage";
 import React, { useEffect, useMemo } from "react";
@@ -39,6 +43,11 @@ import history from "util/history";
 import { PERMISSION_SETTING } from "constants/routesURL";
 import { isSaasMode } from "util/envUtils";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
+import UserApi from "api/userApi";
+import { validateResponse } from "api/apiUtils";
+import { message } from "antd";
+import copyToClipboard from "copy-to-clipboard";
+import { BackgroundColor } from "constants/style";
 
 const StyledMembersIcon = styled(MembersIcon)`
   g g {
@@ -74,6 +83,48 @@ function OrgUsersPermission(props: UsersPermissionProp) {
   useEffect(() => {
     dispatch(fetchOrgUsersAction(orgId));
   }, [dispatch, orgId]);
+
+  const onResetPass = (userId: string) => {
+    return UserApi.resetPassword(userId)
+      .then((resp) => {
+        validateResponse(resp);
+        const newPassword = resp.data.data;
+        CustomModal.confirm({
+          title: trans("userAuth.resetSuccess"),
+          type: "success",
+          content: transToNode("userAuth.resetSuccessDesc", {
+            password: (
+              <span
+                style={{
+                  backgroundColor: BackgroundColor,
+                  padding: "0 4px",
+                  borderRadius: "4px",
+                  fontWeight: "bold",
+                }}
+              >
+                {newPassword}
+              </span>
+            ),
+          }),
+          footer: (
+            <ModalFooterWrapper>
+              <TacoButton
+                buttonType="primary"
+                onClick={() => {
+                  copyToClipboard(newPassword);
+                  message.success(trans("copySuccess"));
+                }}
+              >
+                {trans("userAuth.copyPassword")}
+              </TacoButton>
+            </ModalFooterWrapper>
+          ),
+        });
+      })
+      .catch((e) => {
+        message.error(e.message);
+      });
+  };
 
   return (
     <>
@@ -156,6 +207,30 @@ function OrgUsersPermission(props: UsersPermissionProp) {
           title={trans("memberSettings.actionColumn")}
           key="action"
           render={(value, record: OrgUser) => {
+            const operationItems: Array<EditPopoverItemType> = [];
+            // reset password
+            if (
+              currentOrgAdmin(currentUser) &&
+              sysConfig?.email.enableLogin &&
+              !isSaasMode(sysConfig)
+            ) {
+              const resetText = trans("userAuth.resetPassword");
+              operationItems.push({
+                text: resetText,
+                type: "delete",
+                onClick: () => {
+                  CustomModal.confirm({
+                    title: resetText,
+                    type: "warn",
+                    content: transToNode("userAuth.resetPasswordDesc", {
+                      name: <b>{record.name}</b>,
+                    }),
+                    onConfirm: () => onResetPass(record.userId),
+                    confirmBtnType: "delete",
+                  });
+                },
+              });
+            }
             return (
               <div className="operation-cell-div-wrapper">
                 {currentOrgAdmin(currentUser) && (
@@ -167,7 +242,16 @@ function OrgUsersPermission(props: UsersPermissionProp) {
                   ) : (
                     <span
                       onClick={() => {
-                        dispatch(quitOrgAction(orgId));
+                        CustomModal.confirm({
+                          title: trans("memberSettings.exitOrg"),
+                          type: "warn",
+                          content: trans("memberSettings.exitOrgDesc"),
+                          onConfirm: () => {
+                            dispatch(quitOrgAction(orgId));
+                          },
+                          confirmBtnType: "delete",
+                          okText: trans("memberSettings.exitOrg"),
+                        });
                       }}
                     >
                       {trans("memberSettings.exitOrg")}
@@ -179,11 +263,12 @@ function OrgUsersPermission(props: UsersPermissionProp) {
                       onClick={() => {
                         CustomModal.confirm({
                           title: trans("memberSettings.moveOutOrg"),
-                          content: trans(
+                          type: "warn",
+                          content: transToNode(
                             isSaasMode(sysConfig)
                               ? "memberSettings.moveOutOrgDescSaasMode"
                               : "memberSettings.moveOutOrgDesc",
-                            { name: record.name }
+                            { name: <b>{record.name}</b> }
                           ),
                           onConfirm: () => {
                             dispatch(
@@ -202,6 +287,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
                     </span>
                   )
                 )}
+                {operationItems.length > 0 && <EditPopover items={operationItems} />}
               </div>
             );
           }}

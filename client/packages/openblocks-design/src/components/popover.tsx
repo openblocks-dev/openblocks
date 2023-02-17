@@ -2,8 +2,9 @@ import { SuspensionBox } from "./SuspensionBox";
 import { Popover, PopoverProps } from "antd";
 import { Children, cloneElement, MouseEvent, ReactNode, useState } from "react";
 import styled from "styled-components";
-import { ActiveTextColor } from "constants/style";
+import { ActiveTextColor, GreyTextColor } from "constants/style";
 import { trans } from "i18n/design";
+import { PointIcon } from "icons";
 
 const Wedge = styled.div`
   height: 8px;
@@ -32,6 +33,15 @@ const Handle = styled.div`
     background-color: #f2f7fc;
     border-radius: 4px;
     cursor: pointer;
+  }
+`;
+
+const StyledPointIcon = styled(PointIcon)`
+  cursor: pointer;
+  color: ${GreyTextColor};
+
+  &:hover {
+    color: ${ActiveTextColor};
   }
 `;
 
@@ -106,7 +116,7 @@ const CustomPopover = (props: {
 export type EditPopoverItemType = { text: ReactNode; onClick: () => void; type?: "delete" };
 
 export interface EditPopoverProps extends PopoverProps {
-  children: React.ReactElement;
+  children?: React.ReactElement;
   items?: EditPopoverItemType[]; // FIXME: refactor props below into this structure
   addText?: string;
   add?: () => void;
@@ -117,7 +127,16 @@ export interface EditPopoverProps extends PopoverProps {
 
 // paste deleted popover
 const EditPopover = (props: EditPopoverProps) => {
-  const { children, items, addText, add, rename, copy, del, ...popoverProps } = props;
+  const {
+    children = <StyledPointIcon tabIndex={-1} />,
+    items,
+    addText,
+    add,
+    rename,
+    copy,
+    del,
+    ...popoverProps
+  } = props;
   const [visible, setVisible] = useState(false);
   const hide = () => {
     setVisible(false);

@@ -10,7 +10,7 @@ import { codeControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import styled from "styled-components";
 import _ from "lodash";
-import { ReactNode, useContext } from "react";
+import { ReactNode, useContext, useState } from "react";
 import { toJson } from "really-relaxed-json";
 import { hashToNum } from "util/stringUtils";
 import { CustomSelect, PackUpIcon } from "openblocks-design";
@@ -111,11 +111,22 @@ export const Wrapper = styled.div`
         min-height: 18px;
       }
     }
-    &.ant-select-open .ant-select-arrow {
-      border-right: none;
-      border-left: 1px solid #d7d9e0;
-      svg g path {
-        fill: #315EFB;
+    .ant-select-selector .ant-select-selection-search {
+      left: 7px;
+      input {
+        height: 100%;
+      }
+    }
+    &.ant-select-open {
+      .ant-select-arrow {
+        border-right: none;
+        border-left: 1px solid #d7d9e0;
+        svg g path {
+          fill: #315efb;
+        }
+      }
+      .ant-select-selection-item {
+        opacity: 0.4;
       }
     }
   }
@@ -141,7 +152,8 @@ export const DropdownStyled = styled.div`
 `;
 
 const TagEdit = (props: TagEditPropsType) => {
-  let tags = useContext(TagsContext);
+  const defaultTags = useContext(TagsContext);
+  const [tags, setTags] = useState(defaultTags);
   return (
     <Wrapper>
       <CustomSelect
@@ -150,9 +162,17 @@ const TagEdit = (props: TagEditPropsType) => {
         bordered={false}
         optionLabelProp="children"
         showArrow
+        showSearch
         defaultValue={props.value}
         style={{ width: "100%" }}
         suffixIcon={<PackUpIcon />}
+        onSearch={(value) => {
+          if (defaultTags.findIndex((item) => item.includes(value)) < 0) {
+            setTags([...defaultTags, value]);
+          } else {
+            setTags(defaultTags);
+          }
+        }}
         onChange={(value) => {
           props.onChange(value);
         }}
@@ -205,11 +225,7 @@ export const ColumnTagsComp = (function () {
     getBaseValue
   )
     .setEditViewFn((props) => (
-      <TagEdit
-        value={props.value}
-        onChange={props.onChange}
-        onChangeEnd={props.onChangeEnd}
-      />
+      <TagEdit value={props.value} onChange={props.onChange} onChangeEnd={props.onChangeEnd} />
     ))
     .setPropertyViewFn((children) => (
       <>

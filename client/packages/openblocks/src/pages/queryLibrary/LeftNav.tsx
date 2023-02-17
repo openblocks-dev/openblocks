@@ -97,7 +97,7 @@ const SelectItem = styled.div<{ selected: boolean; readOnly?: boolean }>`
   cursor: pointer;
 
   :hover {
-    background-color: #f2f7fc80;
+    background-color: ${(props) => !props.selected && "#f2f7fc80"};
   }
 `;
 
@@ -118,6 +118,7 @@ const ContentTop = styled.div`
 `;
 const QueryType = styled.div`
   display: flex;
+  align-items: center;
   color: #8b8fa3;
   font-size: 13px;
 `;
@@ -209,6 +210,7 @@ export const LeftNav = (props: {
                             <DataSourceIcon
                               dataSourceType={q.libraryQueryDSL?.query?.compType}
                               size="large"
+                              httpMethod={q.libraryQueryDSL?.query?.comp?.httpMethod}
                             />
                             {
                               datasourceTypes[q.libraryQueryDSL?.query?.compType as DatasourceType]

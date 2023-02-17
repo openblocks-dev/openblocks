@@ -1,16 +1,18 @@
 import { EllipsisOutlined } from "@ant-design/icons";
-import { Dropdown, Menu, Space } from "antd";
+import { Dropdown, Menu } from "antd";
 import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
 import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { manualOptionsControl } from "comps/controls/optionsControl";
 import { MultiCompBuilder } from "comps/generators";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import styled from "styled-components";
+import { ColumnLink } from "comps/comps/tableComp/column/columnTypeComps/columnLinkComp";
 
 const LinksWrapper = styled.div`
   white-space: nowrap;
+
   > a {
     margin-right: 8px;
   }
@@ -25,6 +27,7 @@ const OptionItem = new MultiCompBuilder(
     label: StringControl,
     onClick: ActionSelectorControlInContext,
     hidden: BoolCodeControl,
+    disabled: BoolCodeControl,
   },
   (props) => {
     return props;
@@ -39,6 +42,7 @@ const OptionItem = new MultiCompBuilder(
           placement: "table",
         })}
         {hiddenPropertyView(children)}
+        {disabledPropertyView(children)}
       </>
     );
   })
@@ -60,9 +64,11 @@ export const ColumnLinksComp = (function () {
             .slice(3)
             .map((option, index) => (
               <Menu.Item key={index}>
-                <a onClick={option.onClick} style={{ color: "#3377FF" }}>
-                  {option.label}
-                </a>
+                <ColumnLink
+                  disabled={option.disabled}
+                  label={option.label}
+                  onClick={option.onClick}
+                />
               </Menu.Item>
             ))}
         </Menu>
@@ -74,9 +80,12 @@ export const ColumnLinksComp = (function () {
             .filter((o) => !o.hidden)
             .slice(0, 3)
             .map((option, i) => (
-              <a onClick={option.onClick} key={i}>
-                {option.label}
-              </a>
+              <ColumnLink
+                key={i}
+                disabled={option.disabled}
+                label={option.label}
+                onClick={option.onClick}
+              />
             ))}
           {menu && (
             <Dropdown overlay={menu} trigger={["hover"]}>

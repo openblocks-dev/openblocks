@@ -9,13 +9,7 @@ import {
   MultiBaseComp,
   withFunction,
 } from "openblocks-core";
-import {
-  ArrayControl,
-  BoolCodeControl,
-  codeControl,
-  CodeControlType,
-  StringControl,
-} from "comps/controls/codeControl";
+import { ArrayControl, BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl, LeftRightControl } from "comps/controls/dropdownControl";
 import { MultiCompBuilder, valueComp, withContext, withDefault } from "comps/generators";
 import { list } from "comps/generators/list";
@@ -284,7 +278,9 @@ export function mapOptionsControl<T extends OptionsControlType>(
           mapData: this.children.mapData.node(),
         }),
         (params) =>
-          params.data.map((d: any, i) => mapValues((params.mapData as any)(d), (v) => v.value))
+          params.data.map((d: any, i) =>
+            mapValues((params.mapData as any)({ item: d }), (v) => v.value)
+          )
       );
       return lastValueIfEqual(
         this,

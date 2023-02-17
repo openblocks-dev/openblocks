@@ -22,6 +22,7 @@ import { Org } from "constants/orgConstants";
 import { SERVER_ERROR_CODES } from "constants/apiConstants";
 import { defaultUser } from "constants/userConstants";
 import { message } from "antd";
+import { AuthSearchParams } from "@openblocks-ee/constants/authConstants";
 
 function validResponseData(response: AxiosResponse<ApiResponse>) {
   return response && response.data && response.data.data;
@@ -129,16 +130,26 @@ export function* updateUserSaga(action: ReduxAction<UpdateUserPayload>) {
 
 export function* logoutSaga(action: LogoutActionType) {
   try {
-    const redirectURL = action.payload.redirectURL;
+    let redirectURL = AUTH_LOGIN_URL;
+    if (action.payload.notAuthorised) {
+      const currentUrl = window.location.href;
+      redirectURL = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(currentUrl)}`;
+      const urlObj = new URL(currentUrl);
+      // Add loginType param for auto login jump
+      const loginType = urlObj.searchParams.get(AuthSearchParams.loginType);
+      if (loginType) {
+        redirectURL = redirectURL + `&${AuthSearchParams.loginType}=${loginType}`;
+      }
+    }
     let isValidResponse = true;
-    if (!action.payload.noLogoutReq) {
+    if (!action.payload.notAuthorised) {
       const response: AxiosResponse<ApiResponse> = yield call(UserApi.userLogout);
       isValidResponse = validateResponse(response);
     }
     if (isValidResponse) {
       yield put(logoutSuccess());
       localStorage.clear();
-      history.push(redirectURL || AUTH_LOGIN_URL);
+      history.push(redirectURL);
     }
   } catch (error) {
     log.error(error);

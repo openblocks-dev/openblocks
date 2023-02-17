@@ -3,9 +3,10 @@ import { Comp } from "openblocks-core";
 import { NameGenerator } from "comps/utils";
 import { SimpleContainerComp } from "./simpleContainerComp";
 import { CompTree } from "./utils";
+import { SimpleFlowContainerComp } from "./simpleFlowContainerComp";
 
 export interface IContainer extends Comp {
-  realSimpleContainer(key?: string): SimpleContainerComp | undefined;
+  realSimpleContainer(key?: string): SimpleContainerComp | SimpleFlowContainerComp | undefined;
   getCompTree(): CompTree;
   findContainer(key: string): IContainer | undefined;
   // When copying and pasting, regenerate a set of unique components
@@ -14,4 +15,8 @@ export interface IContainer extends Comp {
 
 export function isContainer(comp: Comp | undefined): comp is IContainer {
   return !!comp && !!(comp as any).getCompTree;
+}
+
+export function isSimpleFlowContainer(comp: Comp | undefined): comp is SimpleFlowContainerComp {
+  return !!comp && (comp as any)["IsSimpleFlowContainer"];
 }

@@ -107,7 +107,7 @@ export const GraphqlDatasourceForm = (props: DatasourceFormProps) => {
           name={"url"}
           label="URL"
           required={true}
-          placeholder={"https://xxx.com"}
+          placeholder={"https://example.com"}
           initialValue={datasourceConfig?.url}
           rules={[...UrlRules, hostRule]}
           labelWidth={142}

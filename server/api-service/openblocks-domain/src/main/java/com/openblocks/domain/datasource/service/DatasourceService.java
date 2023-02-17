@@ -20,11 +20,6 @@ public interface DatasourceService {
 
     Mono<DatasourceTestResult> testDatasource(Datasource datasource);
 
-    /**
-     * before merge, encrypt, decrypt, and removePasswords
-     */
-    Mono<Void> processJsDatasourcePlugin(Datasource datasource);
-
     Mono<Void> removePasswordTypeKeysFromJsDatasourcePluginConfig(Datasource datasource);
 
     Flux<Datasource> getByOrgId(String orgId);

@@ -44,7 +44,7 @@ In the welcome page, click **Sign up** to get started. Openblocks will automatic
 
 You can connect to your instance to update the image or customize deployment configurations.
 
-&#x20;Click **Connect** on the **Instances** page. AWS provides four connection options.
+Click **Connect** on the **Instances** page. AWS provides four connection options.
 
 <figure><img src="../.gitbook/assets/aws-ami-9.png" alt=""><figcaption></figcaption></figure>
 
@@ -66,11 +66,11 @@ ssh -i "your_private_key.pem" ubuntu@your_public_IPv4_DNS
 
 For information about how to update the Openblocks image to the latest version, see [Update](./#update).
 
-### Customize deployment configurations
+### Customize configurations
 
 | Location                                                     | Usage                                               |
 | ------------------------------------------------------------ | --------------------------------------------------- |
 | <p><code>~/openblocks/docker-compose.yml</code><br></p>      | Setting up Docker ports, volumes, environments etc. |
 | `~/openblocks/stacks/configuration/application-selfhost.yml` | Setting up Openblocks server configurations         |
 
-For information about how to customize deployment configurations, see [Customize deployment configurations](./#customize-deployment-configurations).
+For information about how to customize deployment configurations, see [Customize configurations](./#customize-configurations).

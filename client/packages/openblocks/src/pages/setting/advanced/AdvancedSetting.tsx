@@ -30,7 +30,7 @@ const AdvancedSettingContent = styled.div`
     margin-bottom: 8px;
   }
   .section-content {
-    margin-bottom: 32px;
+    margin-bottom: 28px;
   }
   .section-option {
     color: ${GreyTextColor};
@@ -214,7 +214,7 @@ export function AdvancedSetting() {
           <InputList
             addBtnText={trans("advanced.preloadLibsAddBtn")}
             value={settings.preloadLibs || []}
-            placeholder="https://cdn.xxx.com/example.min.js"
+            placeholder="https://cdn.example.com/example.min.js"
             onChange={(value) => setSettings((v) => ({ ...v, preloadLibs: value }))}
           />
           <SaveButton

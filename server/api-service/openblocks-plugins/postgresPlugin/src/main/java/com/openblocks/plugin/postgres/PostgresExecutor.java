@@ -10,6 +10,7 @@ import static com.openblocks.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERR
 import static com.openblocks.sdk.plugin.common.QueryExecutionUtils.getIdenticalColumns;
 import static com.openblocks.sdk.util.JsonUtils.fromJsonList;
 import static com.openblocks.sdk.util.JsonUtils.toJson;
+import static com.openblocks.sdk.util.MustacheHelper.doPrepareStatement;
 import static com.openblocks.sdk.util.MustacheHelper.renderMustacheString;
 
 import java.io.IOException;
@@ -147,7 +148,7 @@ public class PostgresExecutor extends BlockingQueryExecutor<PostgresDatasourceCo
                     bindPreparedStatementForGuiMode(preparedQuery, renderResult.bindParams());
                 } else {
                     List<String> mustacheValuesInOrder = MustacheHelper.extractMustacheKeysInOrder(rawQuery);
-                    String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(rawQuery, mustacheValuesInOrder);
+                    var updatedQuery = doPrepareStatement(rawQuery, mustacheValuesInOrder, requestParams);
                     List<DataType> explicitCastDataTypes = PostgresDataTypeUtils.extractExplicitCasting(updatedQuery);
 
                     preparedQuery = connection.prepareStatement(updatedQuery);
@@ -297,7 +298,8 @@ public class PostgresExecutor extends BlockingQueryExecutor<PostgresDatasourceCo
             return;
         }
         throw new PluginException(PREPARED_STATEMENT_BIND_PARAMETERS_ERROR, "PS_BIND_ERROR",
-                bindKeyName, value.getClass().getSimpleName());
+                StringUtils.isBlank(bindKeyName) ? String.valueOf(value) : bindKeyName,
+                value.getClass().getSimpleName());
     }
 
     private void releaseResources(Connection connectionFromPool, Statement statement,
@@ -339,7 +341,7 @@ public class PostgresExecutor extends BlockingQueryExecutor<PostgresDatasourceCo
     private List<LocaleMessage> populateHintMessages(List<String> columnNames) {
         List<LocaleMessage> messages = new ArrayList<>();
         List<String> identicalColumns = getIdenticalColumns(columnNames);
-        if (!org.springframework.util.CollectionUtils.isEmpty(identicalColumns)) {
+        if (!CollectionUtils.isEmpty(identicalColumns)) {
             messages.add(new LocaleMessage("DUPLICATE_COLUMN", String.join("/", identicalColumns)));
         }
         return messages;

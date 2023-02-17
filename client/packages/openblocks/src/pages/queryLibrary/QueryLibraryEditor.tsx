@@ -43,7 +43,7 @@ import {
   Datasource,
 } from "@openblocks-ee/constants/datasourceConstants";
 import { importQueryLibrary } from "./importQueryLibrary";
-import { registryDataSourcePlugin } from "@openblocks-ee/constants/queryConstants";
+import { registryDataSourcePlugin } from "constants/queryConstants";
 
 const Wrapper = styled.div`
   display: flex;
@@ -71,6 +71,7 @@ export const QueryLibraryEditor = () => {
   const [selectedQuery, setSelectedQuery] = useState<string>(forwardQueryId ?? "");
   const [publishModalVisible, setPublishModalVisible] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [isDataSourceReady, setIsDataSourceReady] = useState(false);
 
   const selectedRecords = queryLibraryRecords[selectedQuery] ?? {};
   const libraryQuery = queryLibrary[selectedQuery];
@@ -79,16 +80,18 @@ export const QueryLibraryEditor = () => {
   const params = useMemo(
     () => ({
       Comp: QueryLibraryComp,
-      initialValue: {
-        ...dsl,
-        query: {
-          ...dsl?.query,
-          id: libraryQuery?.id,
-          name: libraryQuery?.name,
-        },
-      },
+      initialValue: isDataSourceReady
+        ? {
+            ...dsl,
+            query: {
+              ...dsl?.query,
+              id: libraryQuery?.id,
+              name: libraryQuery?.name,
+            },
+          }
+        : null,
     }),
-    [selectedQuery, libraryQuery]
+    [isDataSourceReady, libraryQuery?.id, libraryQuery?.name]
   );
   const [comp, container] = useCompInstance(params);
   useSaveQueryLibrary(libraryQuery, comp);
@@ -96,19 +99,25 @@ export const QueryLibraryEditor = () => {
   useEffect(() => {
     if (orgId) {
       dispatch(fetchQueryLibrary());
+      dispatch(fetchDataSourceTypes({ organizationId: orgId }));
       dispatch(
-        fetchDataSourceTypes({
+        fetchDatasource({
           organizationId: orgId,
-          onSuccess: (types) => {
-            types.forEach((type) => {
-              if (type.definition) {
-                registryDataSourcePlugin(type.id, type.definition);
+          onSuccess: (dataSources) => {
+            dataSources.forEach((di) => {
+              const dataSource = di.datasource;
+              if (dataSource.pluginDefinition) {
+                registryDataSourcePlugin(
+                  dataSource.type,
+                  dataSource.id,
+                  dataSource.pluginDefinition
+                );
               }
             });
+            setIsDataSourceReady(true);
           },
         })
       );
-      dispatch(fetchDatasource({ organizationId: orgId }));
     }
   }, [dispatch, orgId]);
 
