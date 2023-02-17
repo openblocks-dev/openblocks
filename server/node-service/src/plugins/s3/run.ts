@@ -36,11 +36,9 @@ function getFileUrl(dataSourceConfig: DataSourceDataType, bucket: string, fileKe
     return "";
   }
   if (dataSourceConfig.endpointUrl) {
-    return `${dataSourceConfig.endpointUrl}/${bucket}/${encodeURIComponent(fileKey)}`;
+    return `${dataSourceConfig.endpointUrl}/${bucket}/${fileKey}`;
   }
-  return `https://s3.${dataSourceConfig.region}.amazonaws.com/${bucket}/${encodeURIComponent(
-    fileKey
-  )}`;
+  return `https://s3.${dataSourceConfig.region}.amazonaws.com/${bucket}/${fileKey}`;
 }
 
 async function getFileSignedUrl(bucket: string, fileName: string, client: S3Client) {
@@ -105,7 +103,7 @@ export default async function run(
         signedUrl = await getFileSignedUrl(bucket, i.Key, client);
       }
       files.push({
-        name: decodeURIComponent(i.Key || ""),
+        name: i.Key || "",
         size: i.Size,
         lastModified: i.LastModified,
         signedUrl,
@@ -120,7 +118,7 @@ export default async function run(
     const res = await client.send(
       new GetObjectCommand({
         Bucket: bucket,
-        Key: encodeURIComponent(action.fileName),
+        Key: action.fileName,
       })
     );
     const data = (await res.Body?.transformToString(action.encoding || "base64")) || "";
@@ -138,7 +136,7 @@ export default async function run(
       new PutObjectCommand({
         Body: Buffer.from(action.data, (action.encoding || "base64") as BufferEncoding),
         Bucket: bucket,
-        Key: encodeURIComponent(action.fileName),
+        Key: action.fileName,
         ContentType: action.contentType,
       })
     );
@@ -158,7 +156,7 @@ export default async function run(
     await client.send(
       new DeleteObjectCommand({
         Bucket: bucket,
-        Key: encodeURIComponent(action.fileName),
+        Key: action.fileName,
       })
     );
     return {
