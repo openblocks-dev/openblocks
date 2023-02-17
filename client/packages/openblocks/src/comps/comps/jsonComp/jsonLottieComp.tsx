@@ -1,4 +1,5 @@
 import { Player } from "@lottiefiles/react-lottie-player";
+import { hiddenPropertyView } from "@openblocks-ee/index.sdk";
 import {
   ArrayOrJSONObjectControl,
   NumberControl,
@@ -8,6 +9,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { LottieStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
 import { Section, sectionNames } from "openblocks-design";
+import { useEffect, useState } from "react";
 import { UICompBuilder, withDefault } from "../../generators";
 import {
   NameConfig,
@@ -42,24 +44,27 @@ let JsonLottieTmpComp = (function () {
     animationStart: dropdownControl(animationStartOptions, "auto"),
   };
 
-  return new UICompBuilder(childrenMap, (props) => (
-    <div
-      style={{
-        height: "100%",
-        overflowY: "scroll",
-        backgroundColor: `${props.backgroundColor.background}`,
-      }}
-    >
-      <Player
-        autoplay={props.animationStart === "auto" && true}
-        hover={props.animationStart === "on hover" && true}
-        loop
-        speed={props.speed}
-        src={props.value}
-        style={{ height: "100%", width: "100%" }}
-      />
-    </div>
-  ))
+  return new UICompBuilder(childrenMap, (props) => {
+    return (
+      <div
+        style={{
+          height: "100%",
+          overflowY: "scroll",
+          backgroundColor: `${props.backgroundColor.background}`,
+        }}
+      >
+        <Player
+          key={[props.speed, props.animationStart] as any}
+          autoplay={props.animationStart === "auto" && true}
+          hover={props.animationStart === "on hover" && true}
+          loop
+          speed={props.speed}
+          src={props.value}
+          style={{ height: "100%", width: "100%" }}
+        />
+      </div>
+    );
+  })
     .setPropertyViewFn((children) => {
       return (
         <>
@@ -76,6 +81,9 @@ let JsonLottieTmpComp = (function () {
           </Section>
           <Section name={sectionNames.style}>
             {children.backgroundColor.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.layout}>
+            {hiddenPropertyView(children)}
           </Section>
         </>
       );
