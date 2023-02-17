@@ -31,13 +31,40 @@ const animationStartOptions = [
   },
 ] as const;
 
+const speedOptions = [
+  {
+    label: "1x",
+    value: "1",
+  },
+  {
+    label: "1.5x",
+    value: "1.5",
+  },
+  {
+    label: "2x",
+    value: "2",
+  },
+  {
+    label: "2.5x",
+    value: "2.5",
+  },
+  {
+    label: "5x",
+    value: "5",
+  },
+  {
+    label: "10x",
+    value: "10",
+  },
+] as const;
+
 let JsonLottieTmpComp = (function () {
   const childrenMap = {
     value: withDefault(
       ArrayOrJSONObjectControl,
       JSON.stringify(defaultLottie, null, 2)
     ),
-    speed: withDefault(NumberControl, 1),
+    speed: dropdownControl(speedOptions, "1"),
     width: withDefault(NumberControl, 100),
     height: withDefault(NumberControl, 100),
     backgroundColor: styleControl(LottieStyle),
@@ -58,7 +85,7 @@ let JsonLottieTmpComp = (function () {
           autoplay={props.animationStart === "auto" && true}
           hover={props.animationStart === "on hover" && true}
           loop
-          speed={props.speed}
+          speed={Number(props.speed)}
           src={props.value}
           style={{ height: "100%", width: "100%" }}
         />
