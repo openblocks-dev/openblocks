@@ -4026,6 +4026,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@google-cloud/storage@npm:^6.9.3":
+  version: 6.9.3
+  resolution: "@google-cloud/storage@npm:6.9.3"
+  dependencies:
+    "@google-cloud/paginator": ^3.0.7
+    "@google-cloud/projectify": ^3.0.0
+    "@google-cloud/promisify": ^3.0.0
+    abort-controller: ^3.0.0
+    async-retry: ^1.3.3
+    compressible: ^2.0.12
+    duplexify: ^4.0.0
+    ent: ^2.2.0
+    extend: ^3.0.2
+    gaxios: ^5.0.0
+    google-auth-library: ^8.0.1
+    mime: ^3.0.0
+    mime-types: ^2.0.8
+    p-limit: ^3.0.1
+    retry-request: ^5.0.0
+    teeny-request: ^8.0.0
+    uuid: ^8.0.0
+  checksum: 32bd3b49509b823504f0007d1d5cb1ec854bbc84e6be1ef397879b99c0f198c6251b85ddec81226428e046a06c0346356d82d26485e9d1f9e7ef943e091db06f
+  languageName: node
+  linkType: hard
+
 "@grpc/grpc-js@npm:~1.8.0":
   version: 1.8.8
   resolution: "@grpc/grpc-js@npm:1.8.8::__archiveUrl=https%3A%2F%2Fregistry.npmjs.org%2F%40grpc%2Fgrpc-js%2F-%2Fgrpc-js-1.8.8.tgz"
@@ -9273,6 +9298,7 @@ __metadata:
     "@aws-sdk/client-lambda": ^3.272.0
     "@aws-sdk/client-s3": ^3.238.0
     "@aws-sdk/s3-request-presigner": ^3.241.0
+    "@google-cloud/storage": ^6.9.3
     "@types/axios": ^0.14.0
     "@types/express": ^4.17.14
     "@types/jest": ^29.2.4

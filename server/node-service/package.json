@@ -27,6 +27,7 @@
     "@aws-sdk/client-lambda": "^3.272.0",
     "@aws-sdk/client-s3": "^3.238.0",
     "@aws-sdk/s3-request-presigner": "^3.241.0",
+    "@google-cloud/storage": "^6.9.3",
     "@types/axios": "^0.14.0",
     "@types/express": "^4.17.14",
     "@types/jsonpath": "^0.2.0",
