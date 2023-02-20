@@ -11,7 +11,6 @@ export async function listPlugins(req: Request, res: Response) {
   }
   const ctx = pluginServices.getPluginContext(req);
   const result = pluginServices.listPlugins(ctx, ids as string[]);
-  console.info("plugins: ", result);
   return res.status(200).json(result);
 }
 
