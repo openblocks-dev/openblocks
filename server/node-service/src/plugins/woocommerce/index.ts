@@ -62,7 +62,7 @@ const parseOptions: ParseOpenApiOptions = {
 const wooCommercePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "woocommerce",
   name: "WooCommerce",
-  icon: "woocommerce.png",
+  icon: "woocommerce.svg",
   category: "api",
   dataSourceConfig,
   queryConfig: async () => {
