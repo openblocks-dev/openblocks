@@ -10,6 +10,7 @@ import wooCommercePlugin from "./woocommerce";
 import openAiPlugin from "./openAi";
 import athenaPlugin from "./athena";
 import lambdaPlugin from "./lambda";
+import googleCloudStorage from "./googleCloudStorage";
 
 const plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   // helloWorldPlugin,
@@ -23,6 +24,7 @@ const plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   openAiPlugin,
   athenaPlugin,
   lambdaPlugin,
+  googleCloudStorage,
 ];
 
 export default plugins;
