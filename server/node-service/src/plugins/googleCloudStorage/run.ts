@@ -68,8 +68,8 @@ export default async function run(action: ActionDataType, dataSourceConfig: Data
       }
       files.push({
         name: i.name,
-        size: i.metadata,
-        lastModified: "",
+        size: i.metadata.size,
+        lastModified: i.metadata.updated,
         signedUrl,
         url: i.publicUrl(),
       });
@@ -80,10 +80,12 @@ export default async function run(action: ActionDataType, dataSourceConfig: Data
   // read
   if (action.actionName === "readFile") {
     const encoding = (action.encoding || "base64") as BufferEncoding;
-    const [buffer] = await client.bucket(bucket).file(action.fileName).download();
+    const [file] = await client.bucket(bucket).file(action.fileName).get();
+    const [buffer] = await file.download();
     const data = buffer.toString(encoding);
     return {
       data,
+      contentType: file.metadata.contentType,
     };
   }
 
