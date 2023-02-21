@@ -119,7 +119,8 @@ public class OraclePlugin extends Plugin {
         }
 
         @Override
-        public Mono<DatasourceStructure> getStructure(HikariDataSource hikariDataSource) {
+        public Mono<DatasourceStructure> getStructure(HikariDataSource hikariDataSource,
+                OracleDatasourceConfig connectionConfig) {
             return Mono.fromSupplier(() -> getStructure0(hikariDataSource))
                     .subscribeOn(querySharedScheduler());
         }

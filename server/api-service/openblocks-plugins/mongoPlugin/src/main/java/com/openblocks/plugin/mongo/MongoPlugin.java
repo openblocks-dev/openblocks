@@ -471,7 +471,8 @@ public class MongoPlugin extends Plugin {
         }
 
         @Override
-        public Mono<DatasourceStructure> getStructure(MongoConnection mongoClient) {
+        public Mono<DatasourceStructure> getStructure(MongoConnection mongoClient,
+                MongoDatasourceConfig connectionConfig) {
             final DatasourceStructure structure = new DatasourceStructure();
             List<DatasourceStructure.Table> tables = new ArrayList<>();
             structure.setTables(tables);

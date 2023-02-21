@@ -30,4 +30,12 @@ public class SqlBasedQueryExecutionContext extends QueryExecutionContext {
     public Map<String, Object> getRequestParams() {
         return emptyIfNull(requestParams);
     }
+
+    public SqlBasedQueryExecutionContextBuilder toBuilder() {
+        return SqlBasedQueryExecutionContext.builder()
+                .query(query)
+                .requestParams(requestParams)
+                .disablePreparedStatement(disablePreparedStatement)
+                .guiSqlCommand(guiSqlCommand);
+    }
 }

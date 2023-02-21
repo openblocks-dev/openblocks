@@ -22,6 +22,7 @@ import com.openblocks.plugin.sql.SqlBasedQueryExecutor;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.models.DatasourceStructure;
 import com.openblocks.sdk.models.DatasourceStructure.Table;
+import com.openblocks.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand;
 import com.openblocks.sdk.plugin.sqlcommand.command.mysql.MysqlBulkInsertCommand;
 import com.openblocks.sdk.plugin.sqlcommand.command.mysql.MysqlBulkUpdateCommand;
@@ -42,7 +43,8 @@ public class MysqlQueryExecutor extends SqlBasedQueryExecutor {
 
     @Nonnull
     @Override
-    protected DatasourceStructure getDatabaseMetadata(Connection connection) {
+    protected DatasourceStructure getDatabaseMetadata(Connection connection,
+            SqlBasedDatasourceConnectionConfig connectionConfig) {
         Map<String, Table> tablesByName = new LinkedHashMap<>();
         try (Statement statement = connection.createStatement()) {
             parseTableAndColumns(tablesByName, statement);

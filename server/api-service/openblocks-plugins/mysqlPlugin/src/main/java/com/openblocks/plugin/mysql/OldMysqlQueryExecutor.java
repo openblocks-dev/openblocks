@@ -202,7 +202,8 @@ public class OldMysqlQueryExecutor extends BlockingQueryExecutor<MysqlDatasource
 
     @Nonnull
     @Override
-    public DatasourceStructure blockingGetStructure(HikariPerfWrapper hikariPerfWrapper) {
+    public DatasourceStructure blockingGetStructure(HikariPerfWrapper hikariPerfWrapper,
+            MysqlDatasourceConfig connectionConfig) {
 
         Map<String, Table> tablesByName = new LinkedHashMap<>();
         try (Connection connection = getConnection(getHikariDataSource(hikariPerfWrapper));
