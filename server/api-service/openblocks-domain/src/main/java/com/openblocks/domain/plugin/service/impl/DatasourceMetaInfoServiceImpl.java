@@ -117,6 +117,15 @@ public class DatasourceMetaInfoServiceImpl implements DatasourceMetaInfoService 
             .connectionPool(ClientBasedConnectionPool.class)
             .build();
 
+
+    private static final DatasourceMetaInfo SNOWFLAKE = DatasourceMetaInfo.builder()
+            .type("snowflake")
+            .displayName("Snowflake")
+            .pluginExecutorKey("snowflake-plugin")
+            .hasStructureInfo(true)
+            .connectionPool(ClientBasedConnectionPool.class)
+            .build();
+
     private static final DatasourceMetaInfo GOOGLE_SHEETS = DatasourceMetaInfo.builder()
             .type("googleSheets")
             .displayName("Google Sheets")

@@ -62,7 +62,7 @@ IDEA 2021.3.2 (Community Edition):
     </tr>
     <tr>
         <td>VM options </td>
-        <td>-Dpf4j.mode=development -Dpf4j.pluginsDir=openblocks-plugins -Dspring.profiles.active=openblocks -XX:+AllowRedefinitionToAddDeleteMethods </td>
+        <td>-Dpf4j.mode=development -Dpf4j.pluginsDir=openblocks-plugins -Dspring.profiles.active=openblocks -XX:+AllowRedefinitionToAddDeleteMethods --add-opens java.base/java.nio=ALL-UNNAMED</td>
     </tr>
     <tr>
         <td>Main class </td>

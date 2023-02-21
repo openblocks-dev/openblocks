@@ -349,7 +349,8 @@ public class PostgresExecutor extends BlockingQueryExecutor<PostgresDatasourceCo
 
     @Nonnull
     @Override
-    public DatasourceStructure blockingGetStructure(HikariDataSource hikariDataSource) {
+    public DatasourceStructure blockingGetStructure(HikariDataSource hikariDataSource,
+            PostgresDatasourceConfig connectionConfig) {
 
         DatasourceStructure structure = new DatasourceStructure();
         Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();

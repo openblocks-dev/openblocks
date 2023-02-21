@@ -42,11 +42,6 @@ public abstract class SqlBasedConnector<T extends SqlBasedDatasourceConnectionCo
             throw new PluginException(QUERY_EXECUTION_ERROR, "LOAD_SQL_JDBC_ERROR");
         }
 
-        return createHikariDataSource(connectionConfig);
-    }
-
-    private HikariPerfWrapper createHikariDataSource(T datasourceConfig) {
-
         HikariConfig config = new HikariConfig();
         config.setDriverClassName(getJdbcDriver());
         config.setMinimumIdle(1);
@@ -59,7 +54,7 @@ public abstract class SqlBasedConnector<T extends SqlBasedDatasourceConnectionCo
         config.setValidationTimeout(VALIDATION_TIMEOUT_MS);
         config.setInitializationFailTimeout(INITIALIZATION_FAIL_TIMEOUT);
 
-        setUpConfigs(datasourceConfig, config);
+        setUpConfigs(connectionConfig, config);
 
         HikariDataSource hikariDataSource = new HikariDataSource(config);
         return HikariPerfWrapper.wrap(hikariDataSource,

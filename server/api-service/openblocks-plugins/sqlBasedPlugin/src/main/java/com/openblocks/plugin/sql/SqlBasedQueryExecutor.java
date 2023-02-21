@@ -108,16 +108,17 @@ public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBas
 
     @Nonnull
     @Override
-    public final DatasourceStructure blockingGetStructure(HikariPerfWrapper hikariPerfWrapper) {
+    public final DatasourceStructure blockingGetStructure(HikariPerfWrapper hikariPerfWrapper, SqlBasedDatasourceConnectionConfig connectionConfig) {
         HikariDataSource hikariDataSource = getHikariDataSource(hikariPerfWrapper);
         try (Connection connection = getConnection(hikariDataSource)) {
-            return getDatabaseMetadata(connection);
+            return getDatabaseMetadata(connection, connectionConfig);
         } catch (SQLException e) {
             throw wrapException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e);
         }
     }
 
-    protected abstract DatasourceStructure getDatabaseMetadata(Connection connection);
+    protected abstract DatasourceStructure getDatabaseMetadata(Connection connection,
+            SqlBasedDatasourceConnectionConfig connectionConfig);
 
     @Override
     public Map<String, Object> sanitizeQueryConfig(Map<String, Object> configMap) {
