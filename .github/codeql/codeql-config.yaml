@@ -1,7 +1,7 @@
 name: 'CodeQL Config File'
 
 paths:
-  - server/node-service
+  - server/api-service
   - client
 
 paths-ignore:
