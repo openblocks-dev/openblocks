@@ -99,7 +99,7 @@ public class DatasourceStructureServiceImpl implements DatasourceStructureServic
             QueryExecutor<? extends DatasourceConnectionConfig, Object, ? extends QueryExecutionContext> queryExecutor) {
 
         return connectionContextService.getOrCreateConnection(datasource)
-                .flatMap(connectionContext -> queryExecutor.doGetStructure(connectionContext.connection())
+                .flatMap(connectionContext -> queryExecutor.doGetStructure(connectionContext.connection(), datasource.getDetailConfig())
                         .timeout(Duration.ofMillis(GET_STRUCTURE_DEFAULT_TIMEOUT_MILLIS))
                         .doOnError(connectionContext::onQueryError)
                         .onErrorMap(TimeoutException.class, e -> new BizException(BizError.PLUGIN_EXECUTION_TIMEOUT, "PLUGIN_EXECUTION_TIMEOUT",

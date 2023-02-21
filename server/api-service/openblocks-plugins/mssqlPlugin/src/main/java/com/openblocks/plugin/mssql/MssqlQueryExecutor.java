@@ -119,7 +119,8 @@ public class MssqlQueryExecutor implements QueryExecutor<MssqlDatasourceConfig, 
     }
 
     @Override
-    public Mono<DatasourceStructure> getStructure(HikariDataSource hikariDataSource) {
+    public Mono<DatasourceStructure> getStructure(HikariDataSource hikariDataSource,
+            MssqlDatasourceConfig connectionConfig) {
         return Mono.fromCallable(() -> {
                     Connection connection = getConnection(hikariDataSource);
 

@@ -22,8 +22,8 @@ public abstract class BlockingQueryExecutor<ConnectionConfig extends DatasourceC
     }
 
     @Override
-    public final Mono<DatasourceStructure> getStructure(Connection connection) {
-        return Mono.fromCallable(() -> blockingGetStructure(connection))
+    public final Mono<DatasourceStructure> getStructure(Connection connection, ConnectionConfig connectionConfig) {
+        return Mono.fromCallable(() -> blockingGetStructure(connection, connectionConfig))
                 .subscribeOn(querySharedScheduler());
     }
 
@@ -32,7 +32,8 @@ public abstract class BlockingQueryExecutor<ConnectionConfig extends DatasourceC
 
     @SuppressWarnings("unused")
     @Nonnull
-    protected DatasourceStructure blockingGetStructure(Connection connection) {
+    protected DatasourceStructure blockingGetStructure(Connection connection,
+            ConnectionConfig connectionConfig) {
         return new DatasourceStructure(); // dummy result
     }
 

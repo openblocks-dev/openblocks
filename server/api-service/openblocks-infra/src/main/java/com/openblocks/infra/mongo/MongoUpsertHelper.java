@@ -1,8 +1,13 @@
 package com.openblocks.infra.mongo;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -13,6 +18,10 @@ import org.springframework.stereotype.Component;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.model.DeleteOneModel;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.UpdateOptions;
 import com.openblocks.sdk.constants.FieldName;
 import com.openblocks.sdk.constants.GlobalContext;
 import com.openblocks.sdk.models.HasIdAndAuditing;
@@ -133,6 +142,34 @@ public class MongoUpsertHelper {
         Map<String, Object> updateMap = ((DBObject) basicDBObject).toMap();
         updateMap.forEach(updateObj::set);
         return updateObj;
+    }
+
+    public <T extends HasIdAndAuditing> Mono<Boolean> bulkUpdate(Collection<PartialResourceWithId<T>> partialResourceWithIds) {
+        if (CollectionUtils.isEmpty(partialResourceWithIds)) {
+            return Mono.empty();
+        }
+        var operations = partialResourceWithIds.stream().map(partialResourceWithId -> {
+            BasicDBObject doc = new BasicDBObject();
+            mongoConverter.write(partialResourceWithId.partialResource, doc);
+            var filter = new Document("_id", new ObjectId(partialResourceWithId.id));
+            return new UpdateOneModel<Document>(filter, new Document("$set", doc), new UpdateOptions().upsert(false));
+        }).toList();
+        return reactiveMongoTemplate.getCollection(reactiveMongoTemplate.getCollectionName(partialResourceWithIds.iterator().next().partialResource.getClass()))
+                .flatMap(collection -> Mono.from(collection.bulkWrite(operations)))
+                .map(bulkWriteResult -> bulkWriteResult.getModifiedCount() > 0);
+    }
+
+    public <T extends HasIdAndAuditing> Mono<Boolean> bulkRemove(Collection<Document> filters, Class<T> tClass) {
+        if (CollectionUtils.isEmpty(filters)) {
+            return Mono.empty();
+        }
+        var operations = filters.stream().map(filter -> new DeleteOneModel<Document>(filter)).toList();
+        return reactiveMongoTemplate.getCollection(reactiveMongoTemplate.getCollectionName(tClass))
+                .flatMap(collection -> Mono.from(collection.bulkWrite(operations)))
+                .map(bulkWriteResult -> bulkWriteResult.getDeletedCount() > 0);
+    }
+
+    public record PartialResourceWithId<T>(T partialResource, String id) {
     }
 
 }
