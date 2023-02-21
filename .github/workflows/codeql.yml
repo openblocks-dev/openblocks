@@ -61,7 +61,7 @@ jobs:
     - if: matrix.language == 'java'
       name: Build Java
       run: |
-         mvn clean compile -DskipTests
+         mvn clean compile -DskipTests -f ./server/api-service/pom.xml
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
