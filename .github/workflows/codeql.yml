@@ -61,8 +61,7 @@ jobs:
     - if: matrix.language == 'java'
       name: Build Java
       run: |
-        make bootstrap
-        make release
+        make all
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
