@@ -10,10 +10,12 @@
     "dev": "nodemon --files src/server.ts",
     "start": "node ./build/src/server.js",
     "test": "jest",
-    "build": "rm -rf build/ && yarn test && tsc && cp -r src/static build/src/static"
+    "build": "rm -rf build/ && tsc && yarn run copy",
+    "copy": "copyfiles -u 1 src/**/*.!(ts|test.ts) build/src"
   },
   "devDependencies": {
     "@types/jest": "^29.2.4",
+    "copyfiles": "^2.4.1",
     "jest": "^29.3.1",
     "nock": "^13.3.0",
     "nodemon": "^2.0.20",
