@@ -1,10 +1,10 @@
 package com.openblocks.sdk.util;
 
+import static com.openblocks.sdk.util.IDUtils.generate;
 import static com.openblocks.sdk.util.UriUtils.getRefererURI;
 import static java.util.Optional.ofNullable;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpCookie;
@@ -56,7 +56,7 @@ public class CookieHelper {
 
 
     public static String generateCookieToken() {
-        return UUID.randomUUID().toString();
+        return generate();
     }
 
     public String getCookieName() {

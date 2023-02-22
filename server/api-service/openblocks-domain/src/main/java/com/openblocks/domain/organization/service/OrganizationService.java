@@ -40,7 +40,7 @@ public interface OrganizationService {
     Mono<Organization> getBySourceAndTpCompanyId(String source, String companyId);
 
     @PossibleEmptyMono
-    Mono<Organization> getByDomain(String domain);
+    Mono<Organization> getByDomain();
 
     Mono<Boolean> updateCommonSettings(String orgId, String key, Object value);
 }

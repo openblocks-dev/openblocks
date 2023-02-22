@@ -9,6 +9,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
+import java.util.Objects;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,17 +18,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseCookie;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.MultiValueMap;
 
 import com.google.common.collect.Iterables;
 import com.openblocks.api.authentication.AuthenticationController.FormLoginRequest;
 import com.openblocks.api.framework.view.ResponseView;
+import com.openblocks.domain.authentication.AuthenticationService;
+import com.openblocks.domain.authentication.FindAuthConfig;
 import com.openblocks.domain.encryption.EncryptionService;
 import com.openblocks.domain.user.model.Connection;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.model.UserState;
 import com.openblocks.domain.user.repository.UserRepository;
+import com.openblocks.sdk.auth.AbstractAuthConfig;
 import com.openblocks.sdk.constants.AuthSourceConstants;
 import com.openblocks.sdk.exception.BizException;
 
@@ -36,6 +41,7 @@ import reactor.test.StepVerifier;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
+@ActiveProfiles("AuthenticationControllerTest")
 public class AuthenticationControllerTest {
 
     @Autowired
@@ -44,6 +50,8 @@ public class AuthenticationControllerTest {
     private UserRepository userRepository;
     @Autowired
     private EncryptionService encryptionService;
+    @Autowired
+    private AuthenticationService authenticationService;
 
     @Test
     public void testFormRegisterSuccess() {
@@ -51,7 +59,8 @@ public class AuthenticationControllerTest {
         String password = "openblocks";
         String source = AuthSourceConstants.EMAIL;
 
-        FormLoginRequest formLoginRequest = new FormLoginRequest(email, password, true, source);
+        String authId = getEmailAuthConfigId();
+        FormLoginRequest formLoginRequest = new FormLoginRequest(email, password, true, source, authId);
         MockServerHttpRequest request = MockServerHttpRequest.post("").build();
         MockServerWebExchange exchange = MockServerWebExchange.builder(request).build();
 
@@ -74,17 +83,19 @@ public class AuthenticationControllerTest {
                     assertEquals(1, user.getConnections().size());
                     Connection connection = Iterables.getFirst(user.getConnections(), null);
                     assertNotNull(connection);
+                    assertEquals(authId, connection.getAuthId());
                     assertEquals(source, connection.getSource());
                     assertEquals(email, connection.getRawId());
                     assertEquals(email, connection.getName());
                     assertNull(connection.getAvatar());
-                    assertEquals(0, connection.getOrgIds().size());
+                    assertEquals(1, connection.getOrgIds().size());
                     assertNull(connection.getAuthConnectionAuthToken());
                     assertEquals(Map.of("email", email), connection.getRawUserInfo());
                     //exchange
                     MultiValueMap<String, ResponseCookie> cookies = exchange.getResponse().getCookies();
                     assertEquals(1, cookies.size());
                     assertTrue(cookies.containsKey("UT-TACO-TOKEN"));
+                    assertTrue(connection.getTokens().contains(Objects.requireNonNull(cookies.getFirst("UT-TACO-TOKEN")).getValue()));
                 })
                 .verifyComplete();
     }
@@ -95,11 +106,13 @@ public class AuthenticationControllerTest {
         String password = "openblocks";
         String source = AuthSourceConstants.EMAIL;
 
-        FormLoginRequest formRegisterRequest = new FormLoginRequest(email, password, true, source);
+        String authId = getEmailAuthConfigId();
+
+        FormLoginRequest formRegisterRequest = new FormLoginRequest(email, password, true, source, authId);
         MockServerHttpRequest registerRequest = MockServerHttpRequest.post("").build();
         MockServerWebExchange registerExchange = MockServerWebExchange.builder(registerRequest).build();
 
-        FormLoginRequest formLoginRequest = new FormLoginRequest(email, password, false, source);
+        FormLoginRequest formLoginRequest = new FormLoginRequest(email, password, false, source, authId);
         MockServerHttpRequest loginRequest = MockServerHttpRequest.post("").build();
         MockServerWebExchange loginExchange = MockServerWebExchange.builder(loginRequest).build();
 
@@ -123,17 +136,19 @@ public class AuthenticationControllerTest {
                     assertEquals(1, user.getConnections().size());
                     Connection connection = Iterables.getFirst(user.getConnections(), null);
                     assertNotNull(connection);
+                    assertEquals(authId, connection.getAuthId());
                     assertEquals(source, connection.getSource());
                     assertEquals(email, connection.getRawId());
                     assertEquals(email, connection.getName());
                     assertNull(connection.getAvatar());
-                    assertEquals(0, connection.getOrgIds().size());
+                    assertEquals(1, connection.getOrgIds().size());
                     assertNull(connection.getAuthConnectionAuthToken());
                     assertEquals(Map.of("email", email), connection.getRawUserInfo());
                     //exchange
                     MultiValueMap<String, ResponseCookie> cookies = loginExchange.getResponse().getCookies();
                     assertEquals(1, cookies.size());
                     assertTrue(cookies.containsKey("UT-TACO-TOKEN"));
+                    assertTrue(connection.getTokens().contains(Objects.requireNonNull(cookies.getFirst("UT-TACO-TOKEN")).getValue()));
                 })
                 .verifyComplete();
     }
@@ -145,7 +160,7 @@ public class AuthenticationControllerTest {
         String password = "openblocks";
         String source = AuthSourceConstants.EMAIL;
 
-        FormLoginRequest formLoginRequest = new FormLoginRequest(email, password, true, source);
+        FormLoginRequest formLoginRequest = new FormLoginRequest(email, password, true, source, getEmailAuthConfigId());
         MockServerHttpRequest request = MockServerHttpRequest.post("").build();
         MockServerWebExchange exchange = MockServerWebExchange.builder(request).build();
 
@@ -166,7 +181,7 @@ public class AuthenticationControllerTest {
         String password = "openblocks";
         String source = AuthSourceConstants.EMAIL;
 
-        FormLoginRequest formLoginRequest = new FormLoginRequest(email, password, false, source);
+        FormLoginRequest formLoginRequest = new FormLoginRequest(email, password, false, source, getEmailAuthConfigId());
         MockServerHttpRequest request = MockServerHttpRequest.post("").build();
         MockServerWebExchange exchange = MockServerWebExchange.builder(request).build();
 
@@ -178,6 +193,13 @@ public class AuthenticationControllerTest {
                     assertEquals("INVALID_EMAIL_OR_PASSWORD", bizException.getMessageKey());
                     return true;
                 });
+    }
+
+    private String getEmailAuthConfigId() {
+        return authenticationService.findAuthConfigBySource(AuthSourceConstants.EMAIL)
+                .map(FindAuthConfig::authConfig)
+                .map(AbstractAuthConfig::getId)
+                .block();
     }
 
     @Test

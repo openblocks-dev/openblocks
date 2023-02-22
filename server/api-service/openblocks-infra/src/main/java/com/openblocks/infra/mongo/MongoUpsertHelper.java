@@ -9,6 +9,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -24,6 +25,7 @@ import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.UpdateOptions;
 import com.openblocks.sdk.constants.FieldName;
 import com.openblocks.sdk.constants.GlobalContext;
+import com.openblocks.sdk.event.BeforeSaveEvent;
 import com.openblocks.sdk.models.HasIdAndAuditing;
 
 import reactor.core.publisher.Mono;
@@ -36,6 +38,9 @@ public class MongoUpsertHelper {
 
     @Autowired
     private MongoConverter mongoConverter;
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     public <T extends HasIdAndAuditing> Mono<Boolean> updateById(T partialResource, String id) {
         return update(partialResource, FieldName.ID, id);
@@ -60,6 +65,7 @@ public class MongoUpsertHelper {
         return Mono.deferContextual(ctx -> {
                     partialResource.setUpdatedAt(Instant.now());
                     partialResource.setModifiedBy(ctx.getOrDefault(GlobalContext.VISITOR_ID, GlobalContext.SYSTEM_USER_ID));
+                    applicationEventPublisher.publishEvent(new BeforeSaveEvent<>(partialResource));
                     return Mono.just(convertToUpdate(partialResource));
                 })
                 .flatMap(updateData -> reactiveMongoTemplate.updateFirst(query, updateData, partialResource.getClass()))

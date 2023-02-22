@@ -42,6 +42,7 @@ import com.openblocks.sdk.constants.FieldName;
 import com.openblocks.sdk.constants.WorkspaceMode;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
+import com.openblocks.sdk.util.UriUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -255,8 +256,9 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public Mono<Organization> getByDomain(String domain) {
-        return repository.findByOrganizationDomain_DomainAndState(domain, ACTIVE);
+    public Mono<Organization> getByDomain() {
+        return UriUtils.getRefererDomainFromContext()
+                .flatMap(domain -> repository.findByOrganizationDomain_DomainAndState(domain, ACTIVE));
     }
 
     @Override
