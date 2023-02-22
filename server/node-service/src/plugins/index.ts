@@ -1,5 +1,4 @@
 import { DataSourcePlugin, DataSourcePluginFactory } from "openblocks-sdk/dataSource";
-import helloWorldPlugin from "./hello-world";
 import s3Plugin from "./s3";
 import n8nPlugin from "./n8n";
 import openApiPlugin from "./openApi";
@@ -12,8 +11,7 @@ import athenaPlugin from "./athena";
 import lambdaPlugin from "./lambda";
 import googleCloudStorage from "./googleCloudStorage";
 
-const plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
-  // helloWorldPlugin,
+let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   s3Plugin,
   openApiPlugin,
   n8nPlugin,
@@ -26,5 +24,10 @@ const plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   lambdaPlugin,
   googleCloudStorage,
 ];
+
+try {
+  plugins = require("../ee/plugins").default;
+  console.info("using ee plugins");
+} catch {}
 
 export default plugins;
