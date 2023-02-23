@@ -220,9 +220,9 @@ export const timeRangeControl = (function () {
           disabledTime={() => disabledTime(props.minTime, props.maxTime)}
           {...timePickerComps(props)}
           order={true}
-          onChange={(time) => {
-            const start = time && time[0] ? moment(time[0]) : null;
-            const end = time && time[1] ? moment(time[1]) : null;
+          onCalendarChange={(time) => {
+            const start = time?.[0];
+            const end = time?.[1];
             props.start.onChange(start && start.isValid() ? start.format(TIME_FORMAT) : "");
             props.end.onChange(end && end.isValid() ? end.format(TIME_FORMAT) : "");
             props.onEvent("change");

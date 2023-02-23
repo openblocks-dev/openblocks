@@ -43,6 +43,7 @@ import {
   toString,
   toStringArray,
   toStringNumberArray,
+  toStringOrJSONObject,
   toStringOrNumber,
 } from "util/convertUtils";
 import { JSONObject, JSONValue } from "util/jsonTypes";
@@ -365,6 +366,10 @@ export const JSONObjectArrayControl = jsonBaseControl<Array<JSONObject>>(
 export const NumberOrJSONObjectArrayControl = jsonBaseControl<number | Array<JSONObject>>(
   "number | Array<JSON>",
   toNumberOrJSONObjectArray
+);
+export const StringOrJSONObjectControl = jsonBaseControl<string | JSONObject>(
+  "string | JSON",
+  toStringOrJSONObject
 );
 export const ArrayControl = jsonBaseControl<Array<JSONValue>>("Array", toJSONArray);
 export const JSONObjectControl = jsonBaseControl<JSONObject>("JSON", toJSONObject);

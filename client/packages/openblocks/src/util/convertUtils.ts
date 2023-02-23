@@ -149,6 +149,13 @@ export function toNumberOrJSONObjectArray(value: any) {
   return toArray(value, toJSONObject);
 }
 
+export function toStringOrJSONObject(value: any) {
+  if (typeof value === "string") {
+    return value;
+  }
+  return toJSONObject(value);
+}
+
 export function toArrayJSONObject(value: any) {
   if (Array.isArray(value)) {
     return toJSONArray(value);

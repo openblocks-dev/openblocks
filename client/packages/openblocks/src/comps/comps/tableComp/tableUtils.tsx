@@ -315,10 +315,12 @@ function getUniqueStatus(column: RawColumnType) {
     column.editable && compType === "badgeStatus"
       ? _.uniqBy(
           Object.values(column.render).map((comp) => {
-            const value = comp.getView().value.split(" ");
+            const value = comp.getView().value;
+            const status = value.slice(0, value.indexOf(' '));
+            const text = value.slice(value.indexOf(' ') + 1);
             return {
-              status: value[0],
-              text: value[1],
+              status,
+              text,
             };
           }),
           "text"

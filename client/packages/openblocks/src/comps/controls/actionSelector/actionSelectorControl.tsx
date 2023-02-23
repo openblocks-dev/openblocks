@@ -265,7 +265,6 @@ function actionSelectorControl(needContext: boolean) {
           action,
           realNeedContext ? action.value.func() : this.children.comp.getView()()
         );
-        console.info(action, ACTION_TRIGGERED_TYPE_STRING);
         return this;
       }
       if (

@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
+import { ReactMarkdownOptions } from "react-markdown/lib/react-markdown";
 
 export const markdownCompCss = css`
   .markdown-body {
@@ -30,10 +31,27 @@ export const markdownCompCss = css`
   }
 `;
 
-export const TacoMarkDown = (props: { children: string }) => {
+interface TacoMarkDownProps extends ReactMarkdownOptions {
+  children: string;
+}
+
+const components = {
+  a: (props: any) => {
+    const { node, children, ...otherProps } = props;
+    return (
+      <a {...otherProps} target="_blank">
+        {children}
+      </a>
+    );
+  },
+};
+
+export const TacoMarkDown = (props: TacoMarkDownProps) => {
+  const { children, ...otherProps } = props;
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
+      components={components}
       rehypePlugins={[
         [rehypeRaw],
         [
@@ -51,8 +69,9 @@ export const TacoMarkDown = (props: { children: string }) => {
         ],
       ]}
       className="markdown-body"
+      {...otherProps}
     >
-      {props.children}
+      {children}
     </ReactMarkdown>
   );
 };

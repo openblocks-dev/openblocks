@@ -302,7 +302,7 @@ export default function Header(props: HeaderProps) {
                 message.warn(trans("header.nameCheckMessage"));
                 return;
               }
-              dispatch(updateAppMetaAction(applicationId, value));
+              dispatch(updateAppMetaAction({ applicationId: applicationId, name: value }));
               setEditName(false);
             }}
           />
