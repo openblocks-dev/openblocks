@@ -153,6 +153,7 @@ const StyledAntdButton = styled(Button)<{ $buttonType: TacoButtonType }>`
       display: none;
     }
   }
+
   & > svg {
     width: 12px;
     height: 12px;
@@ -175,10 +176,11 @@ const TacoButton = forwardRef(
     return (
       <StyledAntdButton {...restProps} $buttonType={props.buttonType ?? "normal"} ref={ref}>
         {props.loading ? (
-          <LoadingComp
-            backgroundColor={buttonType === "delete" ? "#fef4f4" : undefined}
-            color={buttonType === "delete" ? "#f73131" : undefined}
-          />
+          buttonType === "delete" ? (
+            <LoadingComp backgroundColor={"#fef4f4"} color={"#f73131"} />
+          ) : (
+            <LoadingComp />
+          )
         ) : (
           props.children
         )}

@@ -1,15 +1,16 @@
-import { JSONValue } from "util/jsonTypes";
 import { ControlParams } from "comps/controls/controlParams";
-import { ControlPropertyViewWrapper } from "openblocks-design";
-import { ReactNode } from "react";
-import { CompAction } from "openblocks-core";
+import { getReduceContext } from "comps/utils/reduceContext";
 import {
   Comp,
+  CompAction,
   CompConstructor,
   CompParams,
   ConstructorToDataType,
   SimpleComp,
 } from "openblocks-core";
+import { ControlPropertyViewWrapper } from "openblocks-design";
+import { ReactNode } from "react";
+import { JSONValue } from "util/jsonTypes";
 
 export function propertyOnlyComp<ViewReturn extends JSONValue>(
   propertyViewFn: (value: JSONValue, dispatch: (action: CompAction) => void) => ReactNode,
@@ -53,6 +54,13 @@ export function stateComp<ViewReturn extends JSONValue>(defaultValue: ViewReturn
     readonly NO_PERSISTENCE = true;
     override toJsonValue() {
       return defaultValue;
+    }
+    override reduce(action: CompAction): this {
+      const reduceContext = getReduceContext();
+      if (reduceContext.disableUpdateState) {
+        return this;
+      }
+      return super.reduce(action);
     }
   }
   return StateComp;

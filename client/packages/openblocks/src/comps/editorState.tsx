@@ -375,6 +375,8 @@ export class EditorState {
         return this.getTempStatesComp();
       case BottomResTypeEnum.Transformer:
         return this.getTransformersComp();
+      case BottomResTypeEnum.DateResponder:
+        return this.getDataRespondersComp();
     }
   }
 
@@ -397,6 +399,10 @@ export class EditorState {
 
   getTransformersComp() {
     return this.rootComp.children.transformers;
+  }
+
+  getDataRespondersComp() {
+    return this.rootComp.children.dataResponders;
   }
 
   getHooksComp() {

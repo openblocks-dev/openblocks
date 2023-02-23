@@ -83,21 +83,11 @@ function transformData(
 
 export function filterData(
   data: Array<JSONObject>,
-  hideInfo: Record<string, { hide: boolean; tempHide: boolean }>,
   searchValue: string,
   filter: TableFilter,
-  showFilter: boolean,
-  enableColumnSetting: boolean
+  showFilter: boolean
 ) {
   let resultData = data;
-  if (!_.isEmpty(hideInfo)) {
-    resultData = resultData.map((row) =>
-      _.omitBy(
-        row,
-        (cell, key) => hideInfo[key] && columnHide({ ...hideInfo[key], enableColumnSetting })
-      )
-    );
-  }
   if (searchValue) {
     resultData = resultData.filter((d) => {
       let searchLower = searchValue?.toLowerCase();
@@ -171,7 +161,7 @@ export function hideData(
   );
 }
 
-function columnHide({
+export function columnHide({
   hide,
   tempHide,
   enableColumnSetting,
@@ -315,10 +305,12 @@ function getUniqueStatus(column: RawColumnType) {
     column.editable && compType === "badgeStatus"
       ? _.uniqBy(
           Object.values(column.render).map((comp) => {
-            const value = comp.getView().value.split(" ");
+            const value = comp.getView().value;
+            const status = value.slice(0, value.indexOf(" "));
+            const text = value.slice(value.indexOf(" ") + 1);
             return {
-              status: value[0],
-              text: value[1],
+              status,
+              text,
             };
           }),
           "text"
@@ -384,7 +376,7 @@ export function columnsToAntdFormat(
       onWidthResize: column.onWidthResize,
       render: (value: any, record: RecordType, index: number) => {
         return column.render[record.index]
-          .setParams({ currentIndex: index })
+          .setPartialParams({ currentIndex: index })
           .getView()
           .view({ editable: column.editable, size, candidateTags: tags, candidateStatus: status });
       },

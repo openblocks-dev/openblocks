@@ -1,13 +1,7 @@
 import { BoolControl } from "comps/controls/boolControl";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl, HorizontalAlignmentControl } from "comps/controls/dropdownControl";
-import {
-  MultiCompBuilder,
-  stateComp,
-  valueComp,
-  withDefault,
-  withParamsForMap,
-} from "comps/generators";
+import { MultiCompBuilder, stateComp, valueComp, withParamsForMap } from "comps/generators";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { trans } from "i18n";
 import _ from "lodash";
@@ -31,7 +25,7 @@ export const RenderComp = withParamsForMap(ColumnTypeComp, [
   "currentRow",
   "currentIndex",
   "currentOriginalIndex",
-] as const);
+]);
 
 const columnWidthOptions = [
   {

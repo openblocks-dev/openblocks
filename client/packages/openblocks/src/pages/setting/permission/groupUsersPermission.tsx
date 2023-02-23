@@ -80,7 +80,7 @@ function GroupUsersPermission(props: GroupPermissionProp) {
             <GroupNameView name={group.groupName} toolTip={group.devGroup && DevGroupTip} />
           )}
         </HeaderBack>
-        {isGroupAdmin(currentUserGroupRole) && (
+        {isGroupAdmin(currentUserGroupRole) && !group.syncGroup && (
           <AddGroupUserDialog
             groupUsers={groupUsers}
             orgId={orgId}
@@ -132,7 +132,11 @@ function GroupUsersPermission(props: GroupPermissionProp) {
               dropdownStyle={{ width: "149px" }}
               defaultValue={record.role}
               key={record.role}
-              disabled={!isGroupAdmin(currentUserGroupRole) || currentUser.id === record.userId}
+              disabled={
+                !isGroupAdmin(currentUserGroupRole) ||
+                currentUser.id === record.userId ||
+                group.syncGroup
+              }
               optionLabelProp="label"
               suffixIcon={<PackUpIcon />}
               onChange={(val) => {
@@ -159,41 +163,43 @@ function GroupUsersPermission(props: GroupPermissionProp) {
           key="action"
           render={(value, record: GroupUser) => {
             return (
-              <div className="operation-cell-div-wrapper">
-                {currentOrgAdmin(currentUser) && (
-                  <UserDetailPopup userId={record.userId} title={record.userName} />
-                )}
-                {record.userId === currentUser.id ? (
-                  isGroupAdmin(record.role) && adminCount === 1 ? (
-                    <QuestionTooltip title={LAST_ADMIN_QUIT} />
+              !group.syncGroup && (
+                <div className="operation-cell-div-wrapper">
+                  {currentOrgAdmin(currentUser) && (
+                    <UserDetailPopup userId={record.userId} title={record.userName} />
+                  )}
+                  {record.userId === currentUser.id ? (
+                    isGroupAdmin(record.role) && adminCount === 1 ? (
+                      <QuestionTooltip title={LAST_ADMIN_QUIT} />
+                    ) : (
+                      <span
+                        onClick={() => {
+                          dispatch(
+                            quitGroupAction({ groupId: group.groupId, userId: currentUser.id })
+                          );
+                        }}
+                      >
+                        {trans("memberSettings.exitGroup")}
+                      </span>
+                    )
                   ) : (
-                    <span
-                      onClick={() => {
-                        dispatch(
-                          quitGroupAction({ groupId: group.groupId, userId: currentUser.id })
-                        );
-                      }}
-                    >
-                      {trans("memberSettings.exitGroup")}
-                    </span>
-                  )
-                ) : (
-                  isGroupAdmin(currentUserGroupRole) && (
-                    <span
-                      onClick={() => {
-                        dispatch(
-                          deleteGroupUserAction({
-                            userId: record.userId,
-                            groupId: group.groupId,
-                          })
-                        );
-                      }}
-                    >
-                      {trans("memberSettings.moveOutGroup")}
-                    </span>
-                  )
-                )}
-              </div>
+                    isGroupAdmin(currentUserGroupRole) && (
+                      <span
+                        onClick={() => {
+                          dispatch(
+                            deleteGroupUserAction({
+                              userId: record.userId,
+                              groupId: group.groupId,
+                            })
+                          );
+                        }}
+                      >
+                        {trans("memberSettings.moveOutGroup")}
+                      </span>
+                    )
+                  )}
+                </div>
+              )
             );
           }}
         />

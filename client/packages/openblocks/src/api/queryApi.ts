@@ -1,8 +1,8 @@
 import Api, { HttpMethod } from "./api";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/apiConstants";
 import { Property } from "types/entities/common";
-import { AxiosPromise } from "axios";
-import { JSONValue } from "../util/jsonTypes";
+import axios, { AxiosPromise, CancelTokenSource } from "axios";
+import { JSONValue } from "util/jsonTypes";
 
 export type PaginationField = "PREV" | "NEXT";
 
@@ -19,6 +19,7 @@ export interface QueryExecuteRequest extends APIRequest {
   params?: Property[];
   paginationField?: PaginationField;
   viewMode: boolean;
+  cancelPrevious?: boolean; // default true
 
   // for query library
   libraryQueryId?: string;
@@ -47,12 +48,30 @@ export type QueryExecuteResponse = {
 export class QueryApi extends Api {
   static url = "v1/query";
 
+  static queryExecuteCancelTokenSource: Record<string, CancelTokenSource> = {};
+
   static executeQuery(
     request: QueryExecuteRequest,
     timeout?: number
   ): AxiosPromise<QueryExecuteResponse> {
+    const queryId = (request.queryId ?? request.libraryQueryId)!;
+    const { cancelPrevious = true } = request;
+
+    if (cancelPrevious) {
+      if (QueryApi.queryExecuteCancelTokenSource[queryId]) {
+        QueryApi.queryExecuteCancelTokenSource[queryId].cancel("cancel");
+      }
+      QueryApi.queryExecuteCancelTokenSource[queryId] = axios.CancelToken.source();
+    } else {
+      if (!QueryApi.queryExecuteCancelTokenSource[queryId]) {
+        // associate with same token if query can not cancel previous one
+        QueryApi.queryExecuteCancelTokenSource[queryId] = axios.CancelToken.source();
+      }
+    }
+
     return Api.post(QueryApi.url + "/execute", request, undefined, {
       timeout: timeout ? timeout + QUERY_TIMEOUT_BUFFER_MS : DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
+      cancelToken: QueryApi.queryExecuteCancelTokenSource[queryId].token,
     });
   }
 }

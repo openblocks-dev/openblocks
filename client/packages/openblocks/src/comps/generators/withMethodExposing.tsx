@@ -7,7 +7,6 @@ import {
 } from "comps/controls/actionSelector/executeCompTypes";
 import { handlePromiseAfterResult } from "util/promiseUtils";
 import { RefControl } from "../controls/refControl";
-import { trans } from "i18n";
 
 export type ExposeMethodCompConstructor<T> = new (...args: any[]) => T;
 
@@ -41,10 +40,14 @@ export function withMethodExposingBase<T extends ExposeMethodCompConstructor<Abs
       if (!method) {
         return false;
       }
-      handlePromiseAfterResult(
-        action,
-        method.execute(this as ConstructorToComp<T>, action.value.params)
-      );
+      let result;
+      try {
+        result = method.execute(this as ConstructorToComp<T>, action.value.params);
+      } catch (e) {
+        console.log(e);
+        result = Promise.reject(e);
+      }
+      handlePromiseAfterResult(action, result);
       return true;
     }
   };
@@ -84,15 +87,26 @@ export function isExposingMethodComp(comp: Comp | ExposingMethodComp): comp is E
   return comp && (comp as any)["IS_ExposingMethodComp"];
 }
 
-export const MethodConfigFocus = [
-  {
+type MethodKeys<T> = {
+  [K in keyof T]: T[K] extends Function ? (K extends string ? K : never) : never;
+}[keyof T];
+
+type RefType<V> = V extends ExposeMethodCompConstructor<
+  MultiBaseComp<{ viewRef: RefControl<infer X> }>
+>
+  ? X
+  : never;
+
+export function refMethods<
+  T extends ExposeMethodCompConstructor<MultiBaseComp<{ viewRef: RefControl<any> }>>
+>(methods: MethodKeys<RefType<T>>[]): MethodConfigInfo<T>[] {
+  return methods.map((method) => ({
     method: {
-      name: "focus",
-      description: trans("focus"),
+      name: method,
+      description: method,
       params: [],
     },
-    execute: (comp: { children: { viewRef: RefControl } }) => {
-      comp.children.viewRef.viewRef?.focus();
-    },
-  },
-];
+    execute: (comp: ConstructorToComp<T>, params: EvalParamType[]) =>
+      comp.children.viewRef.viewRef?.[method]?.(...params),
+  }));
+}

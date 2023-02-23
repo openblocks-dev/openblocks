@@ -303,6 +303,9 @@ export const en = {
     tableHeaderText: "Header text",
     toolbarBackground: "Toolbar background",
     toolbarText: "Toolbar text",
+    pen: "Pen",
+    footerIcon: "Footer icon",
+    tips: "Tips",
   },
   export: {
     hiddenDesc: "If true, the component is hidden",
@@ -383,6 +386,7 @@ export const en = {
     confirmationMessage: "Are you sure you want to run this query?",
     newQuery: "New query",
     recentlyUsed: "Recently used",
+    dataResponder: "Data responder",
     tempState: "Temporary state",
     transformer: "Transformer",
     quickRestAPI: "REST Query",
@@ -419,6 +423,9 @@ export const en = {
       "Minimum value: 100ms, periodical execution will be disabled for values below that.\n" +
       "\n" +
       "E.g. 300 (i.e. 300ms), 800ms, 5s.",
+    cancelPrevious: "Cancel previous unfinished query",
+    cancelPreviousTooltip:
+      "The previous query will be canceled if the execution was not finished and the latest result will be preserved.",
     dataSourceStatusError:
       "The query data source is invalid or does not exist. Update the current query data source.",
     success: "Success",
@@ -428,7 +435,7 @@ export const en = {
     fixedDelayError: "Query not run",
     execSuccess: "run success",
     execFail: "run failed",
-    deleteSuccessMessage: "Delete query success. You can use {undoKey} to undo.",
+    deleteSuccessMessage: "Successfully deleted. You can use {undoKey} to undo.",
     dataExportDesc: "Data obtained by the current query",
     codeExportDesc: "Current query status code",
     successExportDesc: "Whether the current query was executed successfully",
@@ -539,6 +546,7 @@ export const en = {
     readData: "Read Data",
     appendData: "Append Row",
     updateData: "Update Row",
+    deleteData: "Delete Row",
     clearData: "Clear Row",
     serviceAccountRequireMessage: "Please enter your Service Account",
     ASC: "ASC",
@@ -573,6 +581,10 @@ export const en = {
     publishSuccess: "Published",
     version: "Version",
     desc: "Description",
+  },
+  snowflake: {
+    accountIdentifierTooltip: "See ",
+    extParamsTooltip: "Configure more connection parameters",
   },
   openBlocksQuery: {
     queryOrgUsers: "Query workspace users",
@@ -779,6 +791,9 @@ export const en = {
     imageEditorCompName: "Image Editor",
     imageEditorCompDesc: "Image Editor component",
     imageEditorCompKeywords: "",
+    signatureCompName: "Signature",
+    signatureCompDesc: "Signature component",
+    signatureCompKeywords: "",
   },
   comp: {
     menuViewDocs: "View documentation",
@@ -1273,6 +1288,7 @@ export const en = {
     advanced: "Advanced",
     lab: "Lab",
     branding: "Branding",
+    idSource: "ID Providers",
   },
   memberSettings: {
     admin: "Admin",
@@ -1312,6 +1328,8 @@ export const en = {
     createTime: "Create time",
     manageBtn: "Manage",
     userDetail: "Detail",
+    syncDeleteTip: "This group has been deleted from the address book source",
+    syncGroupTip: "This group is an address book synchronization group and cannot be edited",
   },
   orgSettings: {
     newOrg: "New workspace",
@@ -1395,6 +1413,10 @@ export const en = {
     noOfRowsTooltip:
       "Number of rows in the list - This is usually set to a variable (for example, '{{query1.data.length}}') if you need to present the results of a query.",
     noOfColumns: "Column count",
+    itemIndexName: "Item index name",
+    itemIndexNameDesc: "the variable name refer to the item's index, default as {default}",
+    itemDataName: "Item data name",
+    itemDataNameDesc: "the variable name refer to the item's data object, default as {default}",
     itemsDesc: "Exposing data of Comps in list",
     dataDesc: "The raw data used in the current list",
     dataTooltip:
@@ -1428,6 +1450,12 @@ export const en = {
     closeDesc: "Triggered when the switch is turned off",
     valueDesc: "Current switch status",
   },
+  signature: {
+    tips: "Tips",
+    signHere: "Sign here",
+    showUndo: "Show undo",
+    showClear: "Show clear",
+  },
   localStorageComp: {
     valueDesc: "All data items currently stored",
     setItemDesc: "Add an item",
@@ -1446,6 +1474,9 @@ export const en = {
     warn: "Send a warning notification",
     error: "Send a error notification",
   },
+  themeComp: {
+    switchTo: "Switch theme",
+  },
   transformer: {
     preview: "Preview",
     docLink: "About transformer",
@@ -1461,6 +1492,14 @@ export const en = {
     unStructuredError: "Unstructured data {prev} can't be updated by {path}",
     valueDesc: "Temporary state value",
     deleteMessage: "The temporary state is deleted successfully. You can use {undoKey} to undo.",
+  },
+  dataResponder: {
+    data: "Data",
+    dataDesc: "Data of current data responder",
+    dataTooltip:
+      "The dependent data that it's change will trigger the actions of current responder",
+    docLink: "About the Data responder",
+    deleteMessage: "The data responder is deleted successfully. You can use {undoKey} to undo.",
   },
   theme: {
     title: "Themes",
@@ -1492,7 +1531,7 @@ export const en = {
     leaveTipContent: "You haven't saved yet, confirm leaving?",
     leaveTipOkText: "Leave",
     goList: "Back to the list",
-    saveBtn: "Save the settings",
+    saveBtn: "Save",
     mainColor: "Main colors",
     text: "Text colors",
     defaultTheme: "Default",

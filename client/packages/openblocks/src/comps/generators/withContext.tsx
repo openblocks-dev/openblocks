@@ -24,7 +24,9 @@ export const CompExposingContext = React.createContext<Record<string, unknown> |
 
 /**
  * Convert a Comp<T> to Comp<Func<T>>, the required context is passed in from the function parameter.
- * implemented as proxy mode
+ * implemented as proxy mode.
+ *
+ * @param VariantComp must use getPropertyView(), otherwise the exposing context not works.
  *
  * FIXME: error handling
  */

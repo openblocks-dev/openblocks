@@ -1,3 +1,4 @@
+import { getReduceContext, reduceInContext } from "comps/utils/reduceContext";
 import _ from "lodash";
 import {
   Comp,
@@ -19,6 +20,7 @@ import {
   WrapContextFn,
   WrapContextNodeV2,
   wrapDispatch,
+  wrapChildAction,
 } from "openblocks-core";
 import { ReactNode } from "react";
 import { JSONValue } from "util/jsonTypes";
@@ -44,9 +46,14 @@ export function withParamsWithDefault<
   ParamValues extends Record<string, unknown>,
   TCtor extends MultiCompConstructor
 >(VariantCompCtor: TCtor, defaultParamValues: ParamValues) {
-  type ChangeParamDataAction = {
-    type: "setParamData";
+  type SetPartialParamDataAction = {
+    type: "setPartialParamData";
     data: Partial<ParamValues>;
+  };
+
+  type SetParamDataAction = {
+    type: "setParamData";
+    data: ParamValues;
   };
 
   type SetCompAction = {
@@ -69,13 +76,20 @@ export function withParamsWithDefault<
     extends MultiBaseComp<ChildrenType, JSONValue, NodeType>
     implements Comp<ViewReturn>
   {
-    private readonly wrapValue?: WrapContextFn<CompNodeValue>;
+    private readonly wrapFn?: WrapContextFn<CompNodeValue>;
     private readonly params: ParamValues;
 
     /**
      * this action requires eval to be valid, don't use it directly with reduce
      */
-    static setParamDataAction(paramData: Partial<ParamValues>) {
+    static setPartialParamDataAction(paramData: Partial<ParamValues>) {
+      return customAction({
+        type: "setPartialParamData",
+        data: paramData,
+      });
+    }
+
+    static setParamDataAction(paramData: ParamValues) {
       return customAction({
         type: "setParamData",
         data: paramData,
@@ -123,7 +137,11 @@ export function withParamsWithDefault<
     }
 
     override reduce(action: CompAction): this {
-      if (isMyCustomAction<ChangeParamDataAction>(action, "setParamData")) {
+      if (isMyCustomAction<SetPartialParamDataAction>(action, "setPartialParamData")) {
+        const data = action.value.data;
+        return this.setPartialParams(data);
+      }
+      if (isMyCustomAction<SetParamDataAction>(action, "setParamData")) {
         const data = action.value.data;
         return this.setParams(data);
       }
@@ -134,22 +152,36 @@ export function withParamsWithDefault<
         }
         return this.setChild("comp", child);
       }
-      const comp = super.reduce(action);
+
+      const withParamsContext = getReduceContext().withParamsContext;
+      let comp = reduceInContext(
+        {
+          withParamsContext: {
+            params: {
+              ...withParamsContext.params,
+              ...this.getParams(),
+            },
+          },
+        },
+        () => super.reduce(action)
+      );
       return comp;
     }
 
-    setParams(params: Partial<ParamValues>): this {
+    setPartialParams(params: Partial<ParamValues>): this {
       const newParams = { ...this.params, ...params };
-      if (this.params && shallowEqual(this.params, newParams)) {
+      return this.setParams(newParams);
+    }
+
+    setParams(params: ParamValues): this {
+      if (this.params && shallowEqual(this.params, params)) {
         return this;
       }
-      let comp = this;
-      const wrapValue = this.getWrapValue(newParams);
+      let comp = setFieldsNoTypeCheck(this, { params });
+      const wrapValue = this.getWrapValue(params);
       if (wrapValue) {
-        const child = this.getComp().reduce(updateNodesV2Action(wrapValue));
-        comp = comp.setChild("comp", child);
+        comp = comp.reduce(wrapChildAction("comp", updateNodesV2Action(wrapValue)));
       }
-      comp = setFieldsNoTypeCheck(comp, { params: newParams });
       return comp;
     }
 
@@ -172,7 +204,7 @@ export function withParamsWithDefault<
       const result = {
         node: { wrap: wrapNode },
         updateNodeFields: (value: any) => {
-          return { wrapValue: value.wrap };
+          return { wrapFn: value.wrap };
         },
       };
       return lastValueIfEqual(
@@ -196,7 +228,7 @@ export function withParamsWithDefault<
     }
 
     private getWrapValue(params: ParamValues) {
-      return this.wrapValue?.(params);
+      return this.wrapFn?.(params);
     }
   }
 

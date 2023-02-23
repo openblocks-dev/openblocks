@@ -12,6 +12,7 @@ import { sqlDatasourceForm } from "./sqlDatasourceForm";
 import { GraphqlDatasourceForm } from "./graphqlDatasourceForm";
 import { OracleDatasourceForm } from "./oracleDatasourceForm";
 import { DataSourceTypeInfo } from "api/datasourceApi";
+import { SnowflakeDatasourceForm } from "pages/datasource/form/snowflakeDatasourceForm";
 
 export interface DatasourceFormProps {
   form: FormInstance;
@@ -49,4 +50,5 @@ export const DatasourceFormRegistry: Partial<Record<DatasourceType, DatasourceFo
   },
   googleSheets: { enableTest: false, form: GoogleSheetsDatasourceForm },
   graphql: { enableTest: false, form: GraphqlDatasourceForm },
+  snowflake: { form: SnowflakeDatasourceForm, whitelist: true },
 };

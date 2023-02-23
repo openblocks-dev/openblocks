@@ -1,4 +1,4 @@
-import { Form, Input, InputProps, Radio, Select, InputNumber, InputNumberProps } from "antd";
+import { Form, Input, InputNumber, InputNumberProps, InputProps, Radio, Select } from "antd";
 import { ReactNode } from "react";
 import { CheckBox } from "./checkBox";
 import { CustomSelect } from "./customSelect";
@@ -72,6 +72,7 @@ const FormCheckbox = styled(CheckBox)`
 
 const StartIcon = styled(Star)`
   margin-right: 4px;
+  flex-shrink: 0;
 `;
 const LabelDiv = styled.div<{ width?: number }>`
   display: flex;
@@ -129,7 +130,7 @@ export const FormSection = styled.div<{ size?: FormSize }>`
 
 export interface FormItemProps extends AntdFormItemProps {
   disabled?: boolean;
-  label?: string;
+  label?: ReactNode;
   required?: boolean;
   placeholder?: string;
   help?: ReactNode;

@@ -20,6 +20,7 @@ const CommandOptions = [
   { label: trans("googleSheets.readData"), value: "readData" },
   { label: trans("googleSheets.appendData"), value: "appendData" },
   { label: trans("googleSheets.updateData"), value: "updateData" },
+  { label: trans("googleSheets.deleteData"), value: "deleteData" },
   { label: trans("googleSheets.clearData"), value: "clearData" },
 ] as const;
 const valueInfoMap = _.fromPairs(CommandOptions.map((option) => [option.value, option]));
@@ -45,11 +46,9 @@ const RowIndex = withPropertyViewFn(ParamsStringControl, (comp) =>
   comp.propertyView({ label: trans("googleSheets.rowIndex"), placement: "bottom" })
 );
 
-const changeSetParams = {
-  styleName: "medium" as const,
-  placeholder: `{{ form.data }}`,
-  label: " ",
-  placement: "bottom" as const,
+const RowIndexChildren = {
+  ...IdChildren,
+  rowIndexString: RowIndex,
 };
 
 const CommandMap = {
@@ -67,10 +66,8 @@ const CommandMap = {
       <>{comp.propertyView({ label: trans("googleSheets.updateData") })}</>
     )),
   }),
-  clearData: buildQueryCommand({
-    ...IdChildren,
-    rowIndexString: RowIndex,
-  }),
+  deleteData: buildQueryCommand(RowIndexChildren),
+  clearData: buildQueryCommand(RowIndexChildren),
   // raw: HttpQuery,
 };
 
@@ -86,7 +83,7 @@ export const GoogleSheetsQuery = class extends GoogleSheetsTmpQuery {
   isWrite(action: CompAction) {
     return (
       "value" in action &&
-      includes(["appendData", "updateData", "deleteData"], action.value["commandType"])
+      includes(["appendData", "updateData", "deleteData", "clearData"], action.value["commandType"])
     );
   }
 

@@ -177,7 +177,7 @@ function ModalFooter(props: {
             if (result && !!result.then) {
               return result.then(model && model.destroy).finally(() => setConfirmLoading(false));
             }
-            setConfirmLoading(false)
+            setConfirmLoading(false);
             model && model.destroy();
           }}
           autoFocus={autoFocusButton === "ok"}
@@ -225,7 +225,7 @@ function CustomModalRender(props: CustomModalProps & ModalFuncProps) {
 
         <div style={{ padding: "0 16px", ...props.bodyStyle }}>{props.children}</div>
 
-        {props.footer ? (
+        {props.footer === null || props.footer ? (
           props.footer
         ) : (
           <ModalFooterWrapper>

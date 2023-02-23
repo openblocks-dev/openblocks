@@ -32,7 +32,8 @@ export const Level1SettingPageTitle = styled.div`
 
 export const Level1SettingPageTitleWithBtn = styled(Level1SettingPageTitle)`
   justify-content: space-between;
-  margin: 0 12px 6px 12px;
+  margin: 0 12px 15px 12px;
+  height: 32px;
 `;
 export const SettingContent = styled.div`
   max-width: 840px;

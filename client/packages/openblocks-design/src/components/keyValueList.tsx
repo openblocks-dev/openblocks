@@ -65,6 +65,11 @@ const AddBtn = styled(TacoButton)`
   &:hover ${AddIcon} g {
     stroke: #315efb;
   }
+
+  > svg {
+    height: 8px;
+    width: 8px;
+  }
 `;
 
 export const KeyValueList = (props: {

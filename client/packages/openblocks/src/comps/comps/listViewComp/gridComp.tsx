@@ -47,7 +47,10 @@ export function defaultGridData(compName: string, nameGenerator: NameGenerator) 
                 name: "click",
                 handler: {
                   compType: "goToURL",
-                  comp: { url: "{{currentItem.url}}" },
+                  comp: {
+                    url: "{{currentItem.url}}",
+                    inNewTab: true,
+                  },
                   condition: "",
                   slowdown: "debounce",
                   delay: "",

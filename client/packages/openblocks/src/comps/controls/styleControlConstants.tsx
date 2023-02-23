@@ -1,12 +1,14 @@
 import { ThemeDetail } from "api/commonSettingApi";
 import { darkenColor, isDarkColor, lightenColor, toHex } from "openblocks-design";
 import { trans } from "i18n";
-import _ from "lodash";
 import { StyleConfigType } from "./styleControl";
+
+type SupportPlatform = "pc" | "mobile";
 
 type CommonColorConfig = {
   readonly name: string;
   readonly label: string;
+  readonly platform?: SupportPlatform; // support all if undefined
 };
 export type SimpleColorConfig = CommonColorConfig & {
   readonly color: string;
@@ -51,6 +53,15 @@ export function contrastBackground(color: string, amount: number = 0.05) {
     return lightenColor(color, amount);
   } else {
     return darkenColor(color, amount);
+  }
+}
+
+// return contrast color
+export function contrastColor(color: string) {
+  if (isDarkColor(color)) {
+    return lightenColor(color, 0.2);
+  } else {
+    return darkenColor(color, 0.1);
   }
 }
 
@@ -150,6 +161,7 @@ const ACCENT = {
   depTheme: "primary",
   depType: DEP_TYPE.SELF,
   transformer: toSelf,
+  platform: "pc",
 } as const;
 
 const VALIDATE = {
@@ -210,8 +222,12 @@ const SUCCESS = {
   color: SUCCESS_COLOR,
 } as const;
 
-function getStaticBgBorderRadiusByBg(background: string) {
-  return [getStaticBackground(background), BORDER, RADIUS] as const;
+function getStaticBgBorderRadiusByBg(background: string, platform?: SupportPlatform) {
+  return [
+    getStaticBackground(background),
+    platform ? { ...BORDER, platform } : BORDER,
+    platform ? { ...RADIUS, platform } : RADIUS,
+  ] as const;
 }
 
 function getBgBorderRadiusByBg(background: keyof ThemeDetail = "primarySurface") {
@@ -344,19 +360,20 @@ export const SwitchStyle = [
 
 export const SelectStyle = [
   LABEL,
-  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
+  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
   ...ACCENT_VALIDATE,
 ] as const;
 
 const multiSelectCommon = [
   LABEL,
-  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
+  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
   {
     name: "tags",
     label: trans("style.tags"),
     color: "#F5F5F6",
+    platform: "pc",
   },
   {
     name: "tagsText",
@@ -364,6 +381,7 @@ const multiSelectCommon = [
     depName: "tags",
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
+    platform: "pc",
   },
 ] as const;
 
@@ -375,6 +393,7 @@ export const MultiSelectStyle = [
     depTheme: "primary",
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
+    platform: "pc",
   },
   ...ACCENT_VALIDATE,
 ] as const;
@@ -402,7 +421,7 @@ export const ModalStyle = getBgBorderRadiusByBg();
 
 export const CascaderStyle = [
   LABEL,
-  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
+  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
   ACCENT,
 ] as const;
@@ -553,7 +572,7 @@ export const IframeStyle = [getBackground(), getStaticBorder("#00000000"), RADIU
 
 export const DateTimeStyle = [
   LABEL,
-  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
+  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
   ...ACCENT_VALIDATE,
 ] as const;
@@ -636,6 +655,26 @@ export const DrawerStyle = [getBackground()] as const;
 
 export const JsonEditorStyle = [LABEL] as const;
 
+export const SignatureStyle = [
+  LABEL,
+  ...getBgBorderRadiusByBg(),
+  {
+    name: "pen",
+    label: trans("style.pen"),
+    color: "#000000",
+  },
+  {
+    name: "tips",
+    label: trans("style.tips"),
+    color: "#B8B9BF",
+  },
+  {
+    name: "footerIcon",
+    label: trans("style.footerIcon"),
+    color: "#222222",
+  },
+] as const;
+
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
@@ -667,3 +706,4 @@ export type JsonSchemaFormStyleType = StyleConfigType<typeof JsonSchemaFormStyle
 export type TreeSelectStyleType = StyleConfigType<typeof TreeSelectStyle>;
 export type DrawerStyleType = StyleConfigType<typeof DrawerStyle>;
 export type JsonEditorStyleType = StyleConfigType<typeof JsonEditorStyle>;
+export type SignatureStyleType = StyleConfigType<typeof SignatureStyle>;

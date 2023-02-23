@@ -10,6 +10,8 @@ import { UserConnectionSource } from "@openblocks-ee/constants/userConstants";
 import { trans } from "i18n";
 import { authRespValidate } from "pages/userAuth/authUtils";
 import { requiresUnAuth } from "pages/userAuth/authHOC";
+import { useSelector } from "react-redux";
+import { selectSystemConfig } from "redux/selectors/configSelectors";
 
 const AccountLoginWrapper = styled(FormWrapperMobile)`
   display: flex;
@@ -21,7 +23,8 @@ const onSubmit = (
   account: string,
   password: string,
   redirectUrl: string | null,
-  invitationId?: string
+  invitationId?: string,
+  authId?: string,
 ) => {
   UserApi.formLogin({
     register: false,
@@ -29,6 +32,7 @@ const onSubmit = (
     password: password,
     invitationId: invitationId,
     source: UserConnectionSource.email,
+    authId,
   })
     .then((resp) => {
       authRespValidate(resp, false, redirectUrl);
@@ -42,6 +46,8 @@ function AccountPassLogin(props: { invitationId?: string }) {
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const redirectUrl = useRedirectUrl();
+  const config = useSelector(selectSystemConfig);
+  const authId = config?.email.id;
   return (
     <>
       <LoginCardTitle>{trans("userAuth.login")}</LoginCardTitle>
@@ -63,7 +69,7 @@ function AccountPassLogin(props: { invitationId?: string }) {
         />
         <ConfirmButton
           disabled={!account || !password}
-          onClick={() => onSubmit(account, password, redirectUrl, props.invitationId)}
+          onClick={() => onSubmit(account, password, redirectUrl, props.invitationId, authId)}
         >
           {trans("userAuth.login")}
         </ConfirmButton>

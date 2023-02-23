@@ -28,7 +28,7 @@ export function getJsCompNameRanges(js: string, exposingData?: Record<string, un
   }
   const ranges: [number, number][] = [];
   let position = 0;
-  js.replace(/[a-zA-Z_$][a-zA-Z_$0-9]*/g, (s) => {
+  js.replace(/[a-zA-Z_$][\w$]*/g, (s) => {
     const start = js.indexOf(s, position);
     if (start >= 0) {
       if (exposingData.hasOwnProperty(s) && (start === 0 || js[start - 1] !== ".")) {

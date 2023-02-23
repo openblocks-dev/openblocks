@@ -1,5 +1,5 @@
 import { Org, RoleIdType } from "./orgConstants";
-import { JSONObject, JSONValue } from "util/jsonTypes";
+import { JSONObject } from "util/jsonTypes";
 
 export const ANONYMOUS_USERNAME = "anonymous";
 
@@ -79,14 +79,3 @@ export const defaultCurrentUser: CurrentUser = {
 };
 
 export type UserStatusType = keyof BaseUserInfo["userStatus"];
-
-export const getUserConnectionInfo = (user: User) => {
-  const connectionInfo: JSONObject = {};
-  user.connections?.forEach((c) => {
-    // filter email
-    if (c.source !== UserConnectionSource.email) {
-      connectionInfo[c.source] = c.rawUserInfo ? c.rawUserInfo : {};
-    }
-  });
-  return connectionInfo;
-};

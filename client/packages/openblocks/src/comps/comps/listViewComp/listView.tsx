@@ -13,7 +13,7 @@ import {
   InnerGrid,
 } from "../containerComp/containerView";
 import { ListViewImplComp } from "./listViewComp";
-import { getCurrentItemParams, getData } from "./listViewUtils";
+import { getData } from "./listViewUtils";
 
 const Wrapper = styled.div`
   overflow: auto;
@@ -50,16 +50,13 @@ export function ListView(props: Props) {
   const editorState = useContext(EditorContext);
   const isDragging = editorState.isDragging;
   const [listHeight, setListHeight] = useDelayState(0, isDragging);
-  const { data, itemCount } = useMemo(
-    () => getData(children.noOfRows.getView()),
-    [children.noOfRows]
-  );
   const dynamicHeight = useMemo(() => children.dynamicHeight.getView(), [children.dynamicHeight]);
   const heightUnitOfRow = useMemo(
     () => children.heightUnitOfRow.getView(),
     [children.heightUnitOfRow]
   );
-  const containerViewFn = useMemo(() => children.container.getView(), [children.container]);
+  const containerComps = useMemo(() => children.container.getView(), [children.container]);
+  const itemCount = useMemo(() => _.size(containerComps), [containerComps]);
   const autoHeight = useMemo(() => children.autoHeight.getView(), [children.autoHeight]);
   const noOfColumns = useMemo(
     () => Math.max(1, children.noOfColumns.getView()),
@@ -68,7 +65,6 @@ export function ListView(props: Props) {
   const style = children.style.getView();
 
   const commonLayout = children.container.getOriginalComp().getComp().children.layout.getView();
-  const commonLayoutDispatch = children.container.getOriginalComp().getComp().dispatch;
   const isOneItem = itemCount > 0 && (_.isEmpty(commonLayout) || editorState.isDragging);
   const noOfRows = isOneItem ? 1 : Math.floor((itemCount + noOfColumns - 1) / noOfColumns);
   const rowHeight = isOneItem ? "100%" : dynamicHeight ? "auto" : heightUnitOfRow * 44 + "px";
@@ -88,28 +84,25 @@ export function ListView(props: Props) {
       >
         <FlexWrapper>
           {_.range(0, noOfColumns).map((colIdx) => {
-            const i = rowIdx * noOfColumns + colIdx;
-            if (i >= itemCount || (isOneItem && i > 0)) {
-              return <div key={i} style={{ flex: "auto" }}></div>;
+            const itemIdx = rowIdx * noOfColumns + colIdx;
+            if (itemIdx >= itemCount || (isOneItem && itemIdx > 0)) {
+              return <div key={itemIdx} style={{ flex: "auto" }}></div>;
             }
-            const containerProps = containerViewFn(
-              { i, currentItem: getCurrentItemParams(data, i) },
-              String(i)
-            );
+            const containerProps = containerComps[itemIdx].getView();
             return (
               <ContainerInListView
-                key={i}
+                key={itemIdx}
                 layout={containerProps.layout}
                 items={gridItemCompToGridItems(containerProps.items)}
                 positionParams={containerProps.positionParams}
                 // all layout changes should only reflect on the commonContainer
-                dispatch={i === 0 ? commonLayoutDispatch : _.noop}
+                dispatch={itemIdx === 0 ? containerProps.dispatch : _.noop}
                 style={{ height: "100%", backgroundColor: "transparent", flex: "auto" }}
                 autoHeight={isDragging || dynamicHeight}
-                isDroppable={i === 0}
-                isDraggable={i === 0}
-                isResizable={i === 0}
-                isSelectable={i === 0}
+                isDroppable={itemIdx === 0}
+                isDraggable={itemIdx === 0}
+                isResizable={itemIdx === 0}
+                isSelectable={itemIdx === 0}
                 scrollContainerRef={ref}
                 overflow={"hidden"}
                 minHeight={minHeight}

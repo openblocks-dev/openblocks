@@ -7,7 +7,7 @@ import {
   NameConfigPlaceHolder,
   NameConfigRequired,
 } from "comps/generators/withExposing";
-import { MethodConfigFocus } from "comps/generators/withMethodExposing";
+import { refMethods } from "comps/generators/withMethodExposing";
 import styled from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
@@ -28,6 +28,8 @@ import {
 import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
+import { InputRef } from "antd";
+import { RefControl } from "comps/controls/refControl";
 
 /**
  * Input Comp
@@ -39,6 +41,7 @@ const InputStyle = styled(Input)<{ $style: InputLikeStyleType }>`
 
 const childrenMap = {
   ...textInputChildren,
+  viewRef: RefControl<InputRef>,
   showCount: BoolControl,
   allowClear: BoolControl,
   style: styleControl(InputLikeStyle),
@@ -53,6 +56,7 @@ export const InputComp = new UICompBuilder(childrenMap, (props) => {
     children: (
       <InputStyle
         {...inputProps}
+        ref={props.viewRef}
         showCount={props.showCount}
         allowClear={props.allowClear}
         $style={props.style}
@@ -89,7 +93,7 @@ export const InputComp = new UICompBuilder(childrenMap, (props) => {
       </>
     );
   })
-  .setExposeMethodConfigs(MethodConfigFocus)
+  .setExposeMethodConfigs(refMethods(["focus", "blur", "select", "setSelectionRange"]))
   .setExposeStateConfigs([
     new NameConfig("value", trans("export.inputValueDesc")),
     NameConfigPlaceHolder,

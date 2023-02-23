@@ -51,6 +51,7 @@ const EventContent = styled.div`
 
 const EventTitle = styled.div`
   ${labelCss};
+  line-height: normal;
   flex: 0 0 30%;
   margin-right: 8px;
   overflow: hidden;

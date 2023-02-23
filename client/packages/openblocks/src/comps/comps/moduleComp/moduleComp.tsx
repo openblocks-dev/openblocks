@@ -256,6 +256,7 @@ class ModuleTmpComp extends ModuleCompBase {
 
     // init
     if (isMyCustomAction<InitAction>(action, "init")) {
+      if (getReduceContext().disableUpdateState) return this;
       if (this.loadedAppId === appId) {
         return this;
       }
@@ -287,6 +288,7 @@ class ModuleTmpComp extends ModuleCompBase {
 
     // update dsl to init module root
     if (isMyCustomAction<UpdateDslAction>(action, "updateDsl")) {
+      if (getReduceContext().disableUpdateState) return this;
       const { dsl, moduleDsl } = action.value;
       const moduleRootComp = new RootComp({
         dispatch: this.getModuleDispatchFn(),
@@ -302,6 +304,7 @@ class ModuleTmpComp extends ModuleCompBase {
 
     // module ready
     if (isMyCustomAction<ModuleReadyAction>(action, "moduleReady")) {
+      if (getReduceContext().disableUpdateState) return this;
       const moduleRootComp = action.value.comp;
       if (!moduleRootComp) {
         return this;

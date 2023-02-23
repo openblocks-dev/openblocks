@@ -7,7 +7,7 @@ import {
   ERROR_500,
   SERVER_API_TIMEOUT_ERROR,
 } from "constants/messages";
-import { AUTH_BIND_URL, AUTH_LOGIN_URL, OAUTH_REDIRECT } from "constants/routesURL";
+import { AUTH_BIND_URL, OAUTH_REDIRECT } from "constants/routesURL";
 import log from "loglevel";
 import history from "util/history";
 import { message } from "antd";
@@ -93,7 +93,7 @@ export const apiFailureResponseInterceptor = (error: any) => {
   }
 
   if (axios.isCancel(error)) {
-    return;
+    return Promise.reject(error);
   }
 
   if (

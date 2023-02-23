@@ -1,3 +1,10 @@
+import { codeControl } from "comps/controls/codeControl";
+import { EditorContext } from "comps/editorState";
+import { withTypeAndChildren } from "comps/generators";
+import { MultiCompBuilder } from "comps/generators/multi";
+import { getReduceContext } from "comps/utils/reduceContext";
+import { trans } from "i18n";
+import { omit } from "lodash";
 import {
   ActionContextType,
   CompAction,
@@ -10,14 +17,12 @@ import {
   isMyCustomAction,
   UpdateActionContextAction,
 } from "openblocks-core";
-import { codeControl } from "comps/controls/codeControl";
-import { withTypeAndChildren } from "comps/generators";
-import { MultiCompBuilder } from "comps/generators/multi";
 import { Dropdown, HighContainer, Treediv } from "openblocks-design";
-import { omit } from "lodash";
+import { useContext } from "react";
 import { limitExecutor, setFieldsNoTypeCheck } from "util/objectUtils";
 import { getPromiseAfterExecuteDispatch, handlePromiseAfterResult } from "util/promiseUtils";
 import { dropdownControl } from "../dropdownControl";
+import { millisecondsControl } from "../millisecondControl";
 import { CopyToClipboardAction } from "./copyToClipboardAction";
 import { DownloadAction } from "./downloadAction";
 import { ExecuteCompAction } from "./executeCompAction";
@@ -25,14 +30,9 @@ import { ExecuteQueryAction } from "./executeQueryAction";
 import { GoToURLAction } from "./goToURLAction";
 import { MessageAction } from "./messageAction";
 import { OpenAppPageAction } from "./openAppAction";
-import { millisecondsControl } from "../millisecondControl";
-import { SetTempStateAction } from "./setTempStateValueAction";
-import { getReduceContext } from "comps/utils/reduceContext";
-import { TriggerModuleEventActionComp } from "./triggerModuleEventAction";
-import { EditorContext } from "comps/editorState";
-import { useContext } from "react";
-import { trans } from "i18n";
 import { RunScriptAction } from "./runScript";
+import { SetTempStateAction } from "./setTempStateValueAction";
+import { TriggerModuleEventActionComp } from "./triggerModuleEventAction";
 
 const SlowdownOptions = [
   { label: trans("eventHandler.debounce"), value: "debounce" },
@@ -259,6 +259,7 @@ function actionSelectorControl(needContext: boolean) {
 
     override reduce(action: CompAction): this {
       if (isMyCustomAction<ActionTriggered>(action, ACTION_TRIGGERED_TYPE_STRING)) {
+        if (getReduceContext().disableUpdateState) return this;
         const realNeedContext = needContext || getReduceContext().inEventContext;
         handlePromiseAfterResult(
           action,

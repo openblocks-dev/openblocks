@@ -35,6 +35,7 @@ import {
   LeftTime,
   LeftTree,
   LeftVideo,
+  LeftSignature
 } from "openblocks-design";
 
 export const CompStateIcon: {
@@ -97,4 +98,5 @@ export const CompStateIcon: {
   imageEditor: <LeftImage />,
   collapsibleContainer: <LeftContainer />,
   npmPlugin: <LeftCommon />,
+  signature: <LeftSignature />,
 };

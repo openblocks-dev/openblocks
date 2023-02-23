@@ -15,6 +15,8 @@ import React, { Suspense, useEffect, useRef, useState } from "react";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
+import { RefControl } from "comps/controls/refControl";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 const Error = styled.div`
   color: #f5222d;
@@ -26,19 +28,29 @@ const Error = styled.div`
 `;
 
 const Wrapper = styled.div`
-  video {
-    height: 250px;
+  video,
+  .ant-skeleton {
+    height: 400px;
+    max-height: 70vh;
     position: relative;
     object-fit: cover;
     background-color: #000;
   }
+  .ant-skeleton {
+    h3,
+    li {
+      background-color: transparent;
+    }
+  }
 `;
 
 const CustomModalStyled = styled(CustomModal)`
+  top: 10vh;
   .react-draggable {
     max-width: 100%;
+    width: 500px;
   }
-`
+`;
 
 const BarcodeScannerComponent = React.lazy(() => import("react-qr-barcode-scanner"));
 
@@ -52,6 +64,7 @@ const ScannerTmpComp = (function () {
     onEvent: ScannerEventHandlerControl,
     disabled: BoolCodeControl,
     style: styleControl(ButtonStyle),
+    viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [showModal, setShowModal] = useState(false);
@@ -61,13 +74,13 @@ const ScannerTmpComp = (function () {
     });
     const [modeList, setModeList] = useState<ItemType[]>([]);
     const [dropdownShow, setDropdownShow] = useState(false);
-    const [success, setSuccess] = useState(false)
+    const [success, setSuccess] = useState(false);
 
-    useEffect(() =>{
+    useEffect(() => {
       if (!showModal && success) {
         props.onEvent("success");
       }
-    }, [success, showModal])
+    }, [success, showModal]);
 
     const continuousValue = useRef<string[]>([]);
 
@@ -75,7 +88,9 @@ const ScannerTmpComp = (function () {
       if (!!result) {
         if (props.continuous) {
           continuousValue.current = [...continuousValue.current, result.text];
-          const val = props.uniqueData ? [...new Set(continuousValue.current)] : continuousValue.current;
+          const val = props.uniqueData
+            ? [...new Set(continuousValue.current)]
+            : continuousValue.current;
           props.data.onChange(val);
           props.onEvent("success");
         } else {
@@ -110,6 +125,7 @@ const ScannerTmpComp = (function () {
     return (
       <ButtonCompWrapper disabled={props.disabled}>
         <Button100
+          ref={props.viewRef}
           $buttonStyle={props.style}
           disabled={props.disabled}
           onClick={() => {
@@ -134,51 +150,52 @@ const ScannerTmpComp = (function () {
         >
           {!!errMessage ? (
             <Error>{errMessage}</Error>
-          ) : (showModal && (
-            <Wrapper>
-              <Suspense fallback={<Skeleton />}>
-                <BarcodeScannerComponent
-                  key={JSON.stringify(videoConstraints)}
-                  height={250}
-                  delay={1000}
-                  onUpdate={handleUpdate}
-                  onError={handleErr}
-                  videoConstraints={videoConstraints}
-                />
-              </Suspense>
-              <div
-                style={{ height: "42px" }}
-                onClick={() => {
-                  setDropdownShow(false);
-                }}
-              >
-                <Dropdown
-                  placement="bottomRight"
-                  trigger={["click"]}
-                  visible={dropdownShow}
-                  onVisibleChange={(value) => setDropdownShow(value)}
-                  overlay={
-                    <Menu
-                      items={modeList}
-                      onClick={(value) =>
-                        setVideoConstraints({ ...videoConstraints, deviceId: value.key })
-                      }
-                    />
-                  }
+          ) : (
+            showModal && (
+              <Wrapper>
+                <Suspense fallback={<Skeleton />}>
+                  <BarcodeScannerComponent
+                    key={JSON.stringify(videoConstraints)}
+                    delay={1000}
+                    onUpdate={handleUpdate}
+                    onError={handleErr}
+                    videoConstraints={videoConstraints}
+                  />
+                </Suspense>
+                <div
+                  style={{ height: "42px" }}
+                  onClick={() => {
+                    setDropdownShow(false);
+                  }}
                 >
-                  <Button
-                    style={{ float: "right", marginTop: "10px" }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      getModeList();
-                    }}
+                  <Dropdown
+                    placement="bottomRight"
+                    trigger={["click"]}
+                    visible={dropdownShow}
+                    onVisibleChange={(value) => setDropdownShow(value)}
+                    overlay={
+                      <Menu
+                        items={modeList}
+                        onClick={(value) =>
+                          setVideoConstraints({ ...videoConstraints, deviceId: value.key })
+                        }
+                      />
+                    }
                   >
-                    {trans("scanner.changeCamera")}
-                  </Button>
-                </Dropdown>
-              </div>
-            </Wrapper>
-          ))}
+                    <Button
+                      style={{ float: "right", marginTop: "10px" }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        getModeList();
+                      }}
+                    >
+                      {trans("scanner.changeCamera")}
+                    </Button>
+                  </Dropdown>
+                </div>
+              </Wrapper>
+            )
+          )}
         </CustomModalStyled>
       </ButtonCompWrapper>
     );
@@ -205,6 +222,7 @@ const ScannerTmpComp = (function () {
         </>
       );
     })
+    .setExposeMethodConfigs(refMethods(["focus", "blur", "click"]))
     .build();
 })();
 
