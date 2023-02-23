@@ -6,8 +6,14 @@ test("evalFunc", () => {
   expect(() =>
     evalFunc("setTimeout(() => {});", {}, undefined, { disableLimit: true })
   ).not.toThrow();
-  expect(evalFunc("return window.setTimeout", {}, {})).not.toBe(window.setTimeout);
-  expect(evalFunc("return window.setTimeout", {}, {}, { disableLimit: true })).toBe(
+  expect(evalFunc("console.info(window.fetch);return window.fetch;", {}, {})).not.toBe(
+    window.fetch
+  );
+  expect(evalFunc("return window.fetch", {}, {}, { disableLimit: true })).toBe(window.fetch);
+  expect(evalFunc("return window.seTimeout", {}, {}, { scope: "expression" })).not.toBe(
+    window.setTimeout
+  );
+  expect(evalFunc("return window.setTimeout", {}, {}, { scope: "function" })).toBe(
     window.setTimeout
   );
 });
@@ -112,10 +118,6 @@ describe("evalScript", () => {
   });
 
   it("setPrototypeOf", () => {
-    // expect(() => evalScript("Object.setPrototypeOf(this, {})", {})).toThrow();
-    // expect(() => evalScript("Object.setPrototypeOf(window, {})", {})).toThrow();
-    expect(() => evalScript("Object.setPrototypeOf(setTimeout, {})", {})).toThrow();
-
     let context = { input1: { value: { test: 7 } } };
     expect(() => evalScript("Object.setPrototypeOf(input1, {})", context)).toThrow();
     expect(() => evalScript("Object.setPrototypeOf(input1.value, {})", context)).toThrow();
@@ -127,6 +129,9 @@ describe("evalScript", () => {
     expect(evalScript("window.crypto", {})).not.toBeUndefined();
     expect(evalScript("this.crypto", {})).not.toBeUndefined();
     expect(evalScript("crypto", {})).not.toBeUndefined();
+
+    evalFunc("window.a = 1;", {});
+    expect(evalScript("window.a", {})).toBe(1);
   });
 
   it("black hole is everything", () => {

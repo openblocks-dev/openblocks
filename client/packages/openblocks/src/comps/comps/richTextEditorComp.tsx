@@ -43,6 +43,18 @@ const localizeStyle = css`
       .ql-picker-item[data-value="3"]::before {
         content: "${trans("richTextEditor.title")} 3";
       }
+
+      .ql-picker-item[data-value="1"]::before {
+        font-size: 26px;
+      }
+
+      .ql-picker-item[data-value="3"]::before {
+        font-size: 19px;
+      }
+
+      .ql-picker-item[data-value="3"]::before {
+        font-size: 15px;
+      }
     }
     & .ql-tooltip.ql-editing a.ql-action::after {
       content: "${trans("richTextEditor.save")}";
@@ -211,7 +223,7 @@ function RichTextEditor(props: IProps) {
 
   useEffect(() => {
     let finalValue = props.value;
-    if (!props.value.startsWith("<p")) {
+    if (!/^<\w+>.+<\/\w+>$/.test(props.value)) {
       finalValue = `<p class="">${props.value}</p>`;
     }
     setContent(finalValue);

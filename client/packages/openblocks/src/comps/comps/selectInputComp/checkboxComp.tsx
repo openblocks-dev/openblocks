@@ -20,6 +20,8 @@ import { dropdownControl } from "../../controls/dropdownControl";
 import { ValueFromOption } from "openblocks-design";
 import { EllipsisTextCss } from "openblocks-design";
 import { trans } from "i18n";
+import { RefControl } from "comps/controls/refControl";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 const getStyle = (style: CheckboxStyleType) => {
   return css`
@@ -106,6 +108,7 @@ const CheckboxBasicComp = (function () {
     options: SelectInputOptionControl,
     style: styleControl(CheckboxStyle),
     layout: dropdownControl(RadioLayoutOptions, "horizontal"),
+    viewRef: RefControl<HTMLDivElement>,
 
     ...SelectInputValidationChildren,
     ...formDataChildren,
@@ -117,6 +120,7 @@ const CheckboxBasicComp = (function () {
       style: props.style,
       children: (
         <CheckboxGroup
+          ref={props.viewRef}
           disabled={props.disabled}
           value={props.value.value}
           $style={props.style}
@@ -139,6 +143,7 @@ const CheckboxBasicComp = (function () {
     });
   })
     .setPropertyViewFn((children) => <RadioPropertyView {...children} />)
+    .setExposeMethodConfigs(refMethods(["focus", "blur"]))
     .build();
 })();
 

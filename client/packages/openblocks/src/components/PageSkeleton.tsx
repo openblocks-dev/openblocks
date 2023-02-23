@@ -6,10 +6,7 @@ import { Logo, LogoWithName } from "@openblocks-ee/assets/images";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { getBrandingConfig, getSystemConfigFetching } from "../redux/selectors/configSelectors";
-import { getUser, isFetchUserFinished } from "../redux/selectors/usersSelectors";
-import { matchPath } from "react-router";
-import { AppPathParams } from "../constants/applicationConstants";
-import { APP_EDITOR_URL } from "../constants/routesURL";
+import { isFetchUserFinished } from "../redux/selectors/usersSelectors";
 import { CSSProperties } from "react";
 
 interface IProps {

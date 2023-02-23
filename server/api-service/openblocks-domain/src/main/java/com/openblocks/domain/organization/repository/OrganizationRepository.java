@@ -22,4 +22,6 @@ public interface OrganizationRepository extends ReactiveMongoRepository<Organiza
     Mono<Organization> findBySourceAndThirdPartyCompanyIdAndState(String source, String tpCompanyId, OrganizationState state);
 
     Mono<Organization> findByOrganizationDomain_DomainAndState(String domain, OrganizationState state);
+
+    Flux<Organization> findByOrganizationDomainIsNotNull();
 }

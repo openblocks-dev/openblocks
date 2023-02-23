@@ -19,6 +19,7 @@ import {
   NumberControl,
   StringControl,
   BoolCodeControl,
+  StringOrJSONObjectControl,
 } from "./codeControl";
 import { ControlParams, ControlType } from "./controlParams";
 import _ from "lodash";
@@ -144,5 +145,6 @@ export const ParamsPositiveNumberControl = codeControlToParamsControl(
 );
 
 export const ParamsJsonControl = codeControlToParamsControl(JSONValueControl);
+export const ParamsStringJsonControl = codeControlToParamsControl(StringOrJSONObjectControl);
 export const paramsMillisecondsControl = (props: MillisecondsControlProps) =>
   codeControlToParamsControl(millisecondsControl(props));

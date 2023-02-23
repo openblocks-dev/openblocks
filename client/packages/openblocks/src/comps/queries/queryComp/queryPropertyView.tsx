@@ -1,8 +1,8 @@
-import { useContext, useMemo } from "react";
-import { EditorContext } from "../../editorState";
-import { BottomTabs } from "pages/editor/bottom/BottomTabs";
-import { useSelector } from "react-redux";
-import { getDataSource, getDataSourceTypes } from "redux/selectors/datasourceSelectors";
+import { OLD_OPENBLOCKS_DATASOURCE } from "@openblocks-ee/constants/datasourceConstants";
+import { manualTriggerResource, ResourceType } from "@openblocks-ee/constants/queryConstants";
+import { isCompWithPropertyView } from "comps/utils/propertyUtils";
+import { trans } from "i18n";
+import { includes, mapValues } from "lodash";
 import {
   changeValueAction,
   deferAction,
@@ -19,22 +19,22 @@ import {
   QuerySectionWrapper,
   TriggerTypeStyled,
 } from "openblocks-design";
-import { ResourceDropdown } from "../resourceDropdown";
-import { QueryComp } from "../queryComp";
-import { includes, mapValues } from "lodash";
-import { PreparedStatementConfig } from "../../../api/datasourceApi";
+import { BottomTabs } from "pages/editor/bottom/BottomTabs";
+import { useContext, useMemo } from "react";
+import { useSelector } from "react-redux";
+import { getDataSource, getDataSourceTypes } from "redux/selectors/datasourceSelectors";
 import { BottomResTypeEnum } from "types/bottomRes";
-import { PageType } from "../../../constants/pageConstants";
-import { trans } from "i18n";
-import { manualTriggerResource, ResourceType } from "@openblocks-ee/constants/queryConstants";
+import { PreparedStatementConfig } from "api/datasourceApi";
 import {
   OPENBLOCKS_API_ID,
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
-} from "../../../constants/datasourceConstants";
-import { OLD_OPENBLOCKS_DATASOURCE } from "@openblocks-ee/constants/datasourceConstants";
+} from "constants/datasourceConstants";
+import { PageType } from "constants/pageConstants";
+import { EditorContext } from "../../editorState";
+import { QueryComp } from "../queryComp";
+import { ResourceDropdown } from "../resourceDropdown";
 import { SUPPORT_GUI_SQL_QUERY } from "../sqlQuery/SQLQuery";
-import { isCompWithPropertyView } from "comps/utils/propertyUtils";
 
 export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> }) {
   const { comp } = props;
@@ -119,6 +119,17 @@ export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> 
                         })}
                     </>
                   )}
+                </QuerySectionWrapper>
+
+                <QuerySectionWrapper>
+                  <>
+                    {children.cancelPrevious.propertyView({
+                      label: trans("query.cancelPrevious"),
+                      type: "checkbox",
+                      placement: "bottom",
+                      tooltip: trans("query.cancelPreviousTooltip"),
+                    })}
+                  </>
                 </QuerySectionWrapper>
               </QueryPropertyViewWrapper>
             ),
@@ -218,13 +229,15 @@ export const QueryGeneralPropertyView = (props: {
                           ? children.comp.toJsonValue() // The data source type remains unchanged, and the query information is retained
                           : {},
                     }),
-                    [
-                      {
-                        type: "modify",
-                        compName: children.name.getView(),
-                        compType: newDatasourceType,
-                      },
-                    ]
+                    {
+                      compInfos: [
+                        {
+                          type: "modify",
+                          compName: children.name.getView(),
+                          compType: newDatasourceType,
+                        },
+                      ],
+                    }
                   )
                 );
 
@@ -259,13 +272,15 @@ export const QueryGeneralPropertyView = (props: {
                                   datasourceId: newDatasourceId,
                                   compType: newDatasourceType,
                                 }),
-                                [
-                                  {
-                                    type: "modify",
-                                    compName: q.children.name.getView(),
-                                    compType: newDatasourceType,
-                                  },
-                                ]
+                                {
+                                  compInfos: [
+                                    {
+                                      type: "modify",
+                                      compName: q.children.name.getView(),
+                                      compType: newDatasourceType,
+                                    },
+                                  ],
+                                }
                               )
                             )
                           );

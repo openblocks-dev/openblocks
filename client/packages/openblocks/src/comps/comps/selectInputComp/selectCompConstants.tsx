@@ -41,6 +41,8 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
+import { RefControl } from "comps/controls/refControl";
+import { BaseSelectRef } from "rc-select";
 
 export const getStyle = (
   style: SelectStyleType | MultiSelectStyleType | CascaderStyleType | TreeSelectStyleType
@@ -167,6 +169,7 @@ export const SelectChildrenMap = {
   allowClear: BoolControl,
   inputValue: stateComp<string>(""), // user's input value when search
   showSearch: BoolControl.DEFAULT_TRUE,
+  viewRef: RefControl<BaseSelectRef>,
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -181,6 +184,7 @@ export const SelectUIView = (
   }
 ) => (
   <Select
+    ref={props.viewRef}
     mode={props.mode}
     $style={props.style as SelectStyleType & MultiSelectStyleType}
     disabled={props.disabled}

@@ -29,16 +29,17 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 
-import com.google.common.collect.ImmutableSet;
 import com.openblocks.domain.asset.model.Asset;
 import com.openblocks.domain.asset.service.AssetService;
+import com.openblocks.domain.authentication.AuthenticationService;
+import com.openblocks.domain.authentication.context.FormAuthRequestContext;
 import com.openblocks.domain.encryption.EncryptionService;
 import com.openblocks.domain.group.model.Group;
 import com.openblocks.domain.group.service.GroupMemberService;
 import com.openblocks.domain.group.service.GroupService;
 import com.openblocks.domain.organization.model.OrgMember;
 import com.openblocks.domain.organization.service.OrgMemberService;
-import com.openblocks.domain.user.model.AuthorizedUser;
+import com.openblocks.domain.user.model.AuthenticationUser;
 import com.openblocks.domain.user.model.Connection;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.model.User.TransformedUserInfo;
@@ -83,6 +84,8 @@ public class UserServiceImpl implements UserService {
     private GroupService groupService;
     @Autowired
     private CommonConfig commonConfig;
+    @Autowired
+    private AuthenticationService authenticationService;
 
     private Conf<Integer> avatarMaxSizeInKb;
 
@@ -152,17 +155,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<User> findByAuthUser(AuthorizedUser authorizedUser) {
-        return findBySourceAndId(authorizedUser.getSource(), authorizedUser.getUid());
+    public Mono<User> findByAuthUser(AuthenticationUser authenticationUser) {
+        return findBySourceAndId(authenticationUser.getSource(), authenticationUser.getUid());
     }
 
     @Override
-    public Mono<User> createNewUserByAuthUser(AuthorizedUser authUser) {
+    public Mono<User> createNewUserByAuthUser(AuthenticationUser authUser) {
         User newUser = new User();
         newUser.setName(authUser.getUsername());
         newUser.setState(UserState.ACTIVATED);
         newUser.setIsEnabled(true);
         newUser.setTpAvatarLink(authUser.getAvatar());
+        if (AuthSourceConstants.EMAIL.equals(authUser.getSource())
+                && authUser.getAuthContext() instanceof FormAuthRequestContext formAuthRequestContext) {
+            newUser.setPassword(encryptionService.encryptPassword(formAuthRequestContext.getPassword()));
+        }
         Set<Connection> connections = newHashSet();
         Connection connection = authUser.toAuthConnection();
         connections.add(connection);
@@ -203,29 +210,6 @@ public class UserServiceImpl implements UserService {
         visitor.setAvatar(null);
         return repository.save(visitor).thenReturn(userAvatar)
                 .flatMap(assetService::remove);
-    }
-
-    @Override
-    public Mono<User> register(String loginId, String password, String source) {
-        return findBySourceAndId(source, loginId)
-                .flatMap(user -> ofError(BizError.USER_LOGIN_ID_EXIST, "USER_LOGIN_ID_EXIST"))
-                .then(createNewUser(loginId, password, source));
-    }
-
-    private Mono<User> createNewUser(String loginId, String password, String source) {
-        User newUser = new User();
-        newUser.setName(loginId);
-        newUser.setState(UserState.ACTIVATED);
-        newUser.setIsEnabled(true);
-        newUser.setPassword(encryptionService.encryptPassword(password));
-        Connection connection = Connection.builder()
-                .source(source)
-                .name(loginId)
-                .rawId(loginId)
-                .build();
-        newUser.setConnections(ImmutableSet.of(connection));
-        newUser.setIsNewUser(true);
-        return repository.save(newUser);
     }
 
     @Override

@@ -18,6 +18,7 @@ import { RadioStyle } from "comps/controls/styleControlConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { RefControl } from "comps/controls/refControl";
 
 export const RadioLayoutOptions = [
   { label: trans("radio.horizontal"), value: "horizontal" },
@@ -33,6 +34,7 @@ export const RadioChildrenMap = {
   options: SelectInputOptionControl,
   style: styleControl(RadioStyle),
   layout: dropdownControl(RadioLayoutOptions, "horizontal"),
+  viewRef: RefControl<HTMLDivElement>,
 
   ...SelectInputValidationChildren,
   ...formDataChildren,

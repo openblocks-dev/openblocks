@@ -21,7 +21,7 @@ public interface SessionUserService {
 
     Mono<Boolean> isAnonymousUser();
 
-    Mono<Void> saveUserSession(String sessionId, User user);
+    Mono<Void> saveUserSession(String sessionId, User user, String source);
 
     Mono<Void> extendValidity(String sessionId);
 
@@ -29,5 +29,5 @@ public interface SessionUserService {
 
     Mono<User> resolveSessionUserFromCookie(String token);
 
-
+    Mono<Boolean> tokenExist(String token);
 }

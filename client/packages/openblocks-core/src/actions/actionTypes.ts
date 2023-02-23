@@ -52,7 +52,7 @@ export type ExtraActionType =
   | "recover"
   | "upgrade";
 export type ActionExtraInfo = {
-  compInfos: {
+  compInfos?: {
     compName: string;
     compType: string;
     type: ExtraActionType;

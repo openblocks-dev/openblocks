@@ -1,4 +1,4 @@
-import { trans } from "i18n";
+import { trans, transToNode } from "i18n";
 import { Section, sectionNames } from "openblocks-design";
 import { ListViewImplComp } from "./listViewComp";
 import { ListCompType } from "./listViewUtils";
@@ -22,6 +22,26 @@ export function listPropertyView(compType: ListCompType) {
             children.noOfColumns.propertyView({
               label: trans("listView.noOfColumns"),
             })}
+          {children.itemIndexName.propertyView({
+            label: trans("listView.itemIndexName"),
+            tooltip: transToNode("listView.itemIndexNameDesc", {
+              default: (
+                <b>
+                  <i>i</i>
+                </b>
+              ),
+            }),
+          })}
+          {children.itemDataName.propertyView({
+            label: trans("listView.itemDataName"),
+            tooltip: transToNode("listView.itemDataNameDesc", {
+              default: (
+                <b>
+                  <i>currentItem</i>
+                </b>
+              ),
+            }),
+          })}
         </Section>
         <Section name={sectionNames.layout}>{children.autoHeight.getPropertyView()}</Section>
         {/* <Section name={sectionNames.style}>{children.showBorder.propertyView({ label: "" })}</Section> */}

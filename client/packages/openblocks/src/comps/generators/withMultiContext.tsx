@@ -21,7 +21,7 @@ import {
 } from "openblocks-core";
 import { ReactNode } from "react";
 import { JSONValue } from "util/jsonTypes";
-import { shallowEqual } from "util/objectUtils";
+import { setFieldsNoTypeCheck, shallowEqual } from "util/objectUtils";
 import { map } from "./map";
 import { withParamsWithDefault } from "./withParams";
 
@@ -89,7 +89,10 @@ export function withMultiContextWithDefault<
     override getView(): ViewReturn {
       // don't provide _key_ parameter if no storage no interaction needed
       return (params: ParamValues, key?: string) => {
-        if (_.isNil(key)) return this.getOriginalComp().setParams(params).getView();
+        if (_.isNil(key)) {
+          this.cacheParamsMap[CHILD_KEY] = params;
+          return this.getOriginalComp().setParams(params).getView();
+        }
         this.cacheParamsMap[key] = params;
         const cachedComp = this.getCachedComp(key);
         // FIXME: delete the item in the map if cachedComp don't match
@@ -104,8 +107,13 @@ export function withMultiContextWithDefault<
     }
 
     /** interactive comps may be cached */
-    getCachedComp(key?: string) {
-      if (_.isNil(key)) return undefined;
+    getCachedComp(key?: string): WithParamComp | undefined {
+      if (_.isNil(key)) {
+        const params = this.cacheParamsMap[CHILD_KEY];
+        if (!_.isNil(params) && shallowEqual(params, this.getOriginalComp().getParams()))
+          return this.getOriginalComp();
+        return undefined;
+      }
       const params = this.cacheParamsMap[key];
       const mapComps = this.children[MAP_KEY].getView();
       if (mapComps.hasOwnProperty(key) && shallowEqual(params, mapComps[key].getParams()))
@@ -117,89 +125,79 @@ export function withMultiContextWithDefault<
       return this.getOriginalComp().getPropertyView();
     }
 
-    propertyView(key: string): ReactNode {
-      const params = this.cacheParamsMap[key];
-      if (_.isNil(params)) return this.getOriginalComp().getPropertyView();
-      return this.getOriginalComp().setParams(params).getPropertyView();
-    }
-
     override reduce(action: CompAction): this {
-      if (isMyCustomAction<MirrorToOrigin>(action, "mirrorToOrigin")) {
-        const key = action.value.key;
-        const mapComps = this.children[MAP_KEY].getView();
-        if (mapComps.hasOwnProperty(key)) {
-          const newMapComps = _.mapValues(this.cacheParamsMap, (params, key) => {
-            if (mapComps.hasOwnProperty(key)) return mapComps[key];
-            return this.getOriginalComp()
-              .setParams(params)
-              .changeDispatch(wrapDispatch(this.children[MAP_KEY].dispatch, key));
-          });
-          const newMap = this.children[MAP_KEY].reduce(MapCtor.clearAction()).reduce(
-            MapCtor.batchSetCompAction(newMapComps)
-          );
-          const newOriginalComp = mapComps[key].changeDispatch(this.getOriginalComp().dispatch);
-          return this.setChildren({ [CHILD_KEY]: newOriginalComp, [MAP_KEY]: newMap });
-        } else if (this.cacheParamsMap.hasOwnProperty(key)) {
-          const params = this.cacheParamsMap[key];
-          return this.setChild(CHILD_KEY, this.getOriginalComp().setParams(params));
-        }
-        return this;
+      let comp = this;
+      if (isMyCustomAction<ClearAction>(action, "clear")) {
+        comp = comp.setChild(MAP_KEY, comp.children[MAP_KEY].reduce(MapCtor.clearAction()));
+        comp = setFieldsNoTypeCheck(comp, { cacheParamsMap: {} });
+        return comp;
       }
-      // a virtual path is activated, should generate a new comp in __map__
-      if (isChildAction(action) && action.path[0] === VIRTUAL_NAME) {
-        const [key, childAction] = unwrapChildAction(unwrapChildAction(action)[1]);
-        const params = this.cacheParamsMap[key];
-        if (params) {
-          const childComp = this.getOriginalComp()
-            .setParams(params)
-            .changeDispatch(wrapDispatch(wrapDispatch(this.dispatch, MAP_KEY), key))
-            .reduce(childAction);
-          if (childComp) {
-            const comps = { [key]: childComp };
-            const newComp = this.setChild(
-              MAP_KEY,
-              this.children[MAP_KEY].reduce(MapCtor.batchSetCompAction(comps))
-            );
-            return newComp;
-          }
-        }
-        return this;
-      }
-      let newComp = super.reduce(action);
-      newComp.getOriginalComp().node(); // for cache
 
+      const mapComps = this.children[MAP_KEY].getView();
       if (
         isChildAction(action) &&
+        (action.path[0] === VIRTUAL_NAME ||
+          (action.path[0] === MAP_KEY &&
+            !_.isNil(action.path[1]) &&
+            !mapComps.hasOwnProperty(action.path[1])))
+      ) {
+        /**
+         * a virtual path is activated, should generate a new comp in __map__
+         * a mapped path with a non-existed key can also be regarded as virtual path
+         */
+        const [key, childAction] = unwrapChildAction(unwrapChildAction(action)[1]);
+        const params = comp.cacheParamsMap[key];
+        if (params) {
+          const childComp = comp
+            .getOriginalComp()
+            .setParams(params)
+            .changeDispatch(wrapDispatch(wrapDispatch(this.dispatch, MAP_KEY), key));
+          const newChildComp = childComp.reduce(childAction);
+          if (childComp !== newChildComp) {
+            const comps = { [key]: newChildComp };
+            comp = comp.setChild(
+              MAP_KEY,
+              comp.children[MAP_KEY].reduce(MapCtor.batchSetCompAction(comps))
+            );
+          }
+        }
+      } else {
+        comp = super.reduce(action);
+      }
+      comp.getOriginalComp().node(); // for cache
+
+      if (
+        action.type !== CompActionTypes.UPDATE_NODES_V2 &&
+        isChildAction(action) &&
         action.path[0] === CHILD_KEY &&
-        action.type !== CompActionTypes.UPDATE_NODES_V2
+        this.getOriginalComp() !== comp.getOriginalComp()
       ) {
         // when the original comp changes, all comps in __map__ should be cleared.
-        newComp = newComp.setChild(MAP_KEY, this.children[MAP_KEY].reduce(MapCtor.clearAction()));
+        comp = comp.setChild(MAP_KEY, this.children[MAP_KEY].reduce(MapCtor.clearAction()));
       }
 
-      return newComp;
+      // console.info("withMultiContext reduce. action: ", action, "\nthis:", this, "\ncomp:", comp);
+      return comp;
     }
 
     getOriginalComp() {
       return this.children[CHILD_KEY];
     }
 
-    static setOriginalParamsAction(params: Partial<ParamValues>) {
+    static setOriginalParamsAction(params: ParamValues) {
       return wrapChildAction(CHILD_KEY, WithParamCompCtor.setParamDataAction(params));
     }
 
-    static mirrorToOriginAction(key: string) {
-      return customAction<MirrorToOrigin>({
-        type: "mirrorToOrigin",
-        key,
+    static clearAction() {
+      return customAction<ClearAction>({
+        type: "clear",
       });
     }
   }
 
   return WithMultiContextComp;
 
-  type MirrorToOrigin = {
-    type: "mirrorToOrigin";
-    key: string;
+  type ClearAction = {
+    type: "clear";
   };
 }

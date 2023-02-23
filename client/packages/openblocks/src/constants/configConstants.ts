@@ -1,5 +1,7 @@
 interface FeatureFlag {
   enableCustomBranding: boolean;
+  enableEnterpriseLogin: boolean;
+  enableAuditLog: boolean;
 }
 
 export interface BrandingConfig {
@@ -24,6 +26,7 @@ export type ConfigResponseData = {
     enableLogin?: boolean;
     source: string;
     sourceName: string;
+    id?: string;
   }[];
 } & ConfigBaseInfo;
 
@@ -31,6 +34,7 @@ export type SystemConfig = {
   email: {
     enableRegister: boolean;
     enableLogin: boolean;
+    id?: string;
   };
 } & ConfigBaseInfo;
 
@@ -41,6 +45,7 @@ export const transToSystemConfig = (responseData: ConfigResponseData): SystemCon
     email: {
       enableRegister: !!emailConfig?.enableRegister,
       enableLogin: !!emailConfig?.enableLogin,
+      id: emailConfig?.id,
     },
   };
 };

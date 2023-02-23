@@ -17,6 +17,8 @@ import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generat
 import { IForm } from "../formComp/formDataConstants";
 import { SimpleNameComp } from "../simpleNameComp";
 import { Button100, ButtonCompWrapper, ButtonStyleControl } from "./buttonCompConstants";
+import { RefControl } from "comps/controls/refControl";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
@@ -119,12 +121,14 @@ const ButtonTmpComp = (function () {
     prefixIcon: IconControl,
     suffixIcon: IconControl,
     style: ButtonStyleControl,
+    viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => (
     <ButtonCompWrapper disabled={props.disabled}>
       <EditorContext.Consumer>
         {(editorState) => (
           <Button100
+            ref={props.viewRef}
             $buttonStyle={props.style}
             loading={props.loading}
             disabled={
@@ -173,6 +177,7 @@ const ButtonTmpComp = (function () {
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>
     ))
+    .setExposeMethodConfigs(refMethods(["focus", "blur", "click"]))
     .build();
 })();
 

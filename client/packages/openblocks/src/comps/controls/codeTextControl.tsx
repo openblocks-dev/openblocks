@@ -39,6 +39,7 @@ function CodeTextEditor(props: CodeTextEditorProps) {
       disableCard
       value={codeText}
       exposingData={expsoingData}
+      boostExposingData={compExposingData}
       onChange={(state) => onChange(state.doc.toString())}
       enableClickCompName={editorState.forceShowGrid}
     />

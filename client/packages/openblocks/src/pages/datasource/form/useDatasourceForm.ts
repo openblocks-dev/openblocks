@@ -9,6 +9,7 @@ import { trans } from "i18n";
 import { registryDataSourcePlugin } from "constants/queryConstants";
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import { getSnowflakeFormParams } from "pages/datasource/form/snowflakeDatasourceForm";
 
 export function useDatasourceForm() {
   const [testLoading, setTestLoading] = useState(false);
@@ -71,6 +72,9 @@ export function useDatasourceForm() {
             config["sid"] = config["serviceName"];
             delete config["serviceName"];
           }
+          break;
+        case "snowflake":
+          config = getSnowflakeFormParams(form);
       }
 
       return {

@@ -106,7 +106,8 @@ export type UICompType =
   | "toggleButton"
   | "imageEditor"
   | "npmPlugin"
-  | "collapsibleContainer";
+  | "collapsibleContainer"
+  | "signature";
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;
 

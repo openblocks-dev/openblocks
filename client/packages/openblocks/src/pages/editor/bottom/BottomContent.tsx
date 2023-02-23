@@ -180,11 +180,13 @@ function BottomLeft(props: BottomLeftProps) {
   const queryItems = editorState.getQueriesComp().getView();
   const tempStateItems = editorState.getTempStatesComp().getView();
   const transformerItems = editorState.getTransformersComp().getView();
+  const dataChangeResponders = editorState.getDataRespondersComp().getView();
 
   const bottomResItems = [
     ...queryItems,
     ...tempStateItems,
     ...transformerItems,
+    ...dataChangeResponders,
   ] as unknown as BottomResComp[];
 
   bottomResItems.sort((a, b) => a.order() - b.order());

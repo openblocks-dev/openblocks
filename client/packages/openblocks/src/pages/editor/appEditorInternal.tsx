@@ -20,6 +20,7 @@ import { MarkAppInitialized, perfMark } from "util/perfUtils";
 import { ConfigProvider, message } from "antd";
 import { getAntdLocale } from "i18n/antdLocale";
 import { useUserViewMode } from "../../util/hooks";
+import { QueryApi } from "api/queryApi";
 
 /**
  * FIXME: optimize the logic of saving comps
@@ -91,6 +92,10 @@ export function useRootCompInstance(appInfo: AppSummaryInfo, readOnly: boolean, 
 
   useUnmount(() => {
     comp?.clearPreload();
+
+    Object.values(QueryApi.queryExecuteCancelTokenSource).forEach((s) => {
+      s.cancel();
+    });
   });
 
   return useMemo(() => {

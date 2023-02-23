@@ -40,7 +40,6 @@ import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.QueryExecutionResult;
 import com.openblocks.sdk.query.QueryVisitorContext;
 import com.openblocks.sdk.util.ExceptionUtils;
-import com.openblocks.sdk.util.UriUtils;
 
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Timed;
@@ -108,7 +107,7 @@ public class ApplicationQueryApiService {
 
                     MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
                     QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, app.getOrganizationId(), port, cookies,
-                            getAuthParamsAndHeadersInheritFromLogin(userId, app.getOrganizationId(), UriUtils.getRefererDomain(exchange)));
+                            getAuthParamsAndHeadersInheritFromLogin(userId, app.getOrganizationId()));
                     return queryExecutionService.executeQuery(datasource, baseQuery.getQueryConfig(), queryExecutionRequest.paramMap(),
                                     appQuery.getTimeoutStr(), queryVisitorContext
                             )
@@ -174,7 +173,7 @@ public class ApplicationQueryApiService {
                 .map(LibraryQueryRecord::getQuery);
     }
 
-    protected Mono<List<Property>> getAuthParamsAndHeadersInheritFromLogin(String userId, String orgId, String domain) {
+    protected Mono<List<Property>> getAuthParamsAndHeadersInheritFromLogin(String userId, String orgId) {
         return Mono.empty();
     }
 

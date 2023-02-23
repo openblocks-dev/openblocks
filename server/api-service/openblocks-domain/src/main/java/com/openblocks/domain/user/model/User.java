@@ -4,6 +4,7 @@ import static com.google.common.base.Suppliers.memoize;
 import static com.openblocks.infra.util.AssetUtils.toAssetPath;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -16,7 +17,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.openblocks.sdk.constants.AuthSourceConstants;
 import com.openblocks.sdk.models.HasIdAndAuditing;
 
 import lombok.Getter;
@@ -71,14 +71,16 @@ public class User extends HasIdAndAuditing {
         return Boolean.TRUE.equals(isAnonymous);
     }
 
-    @JsonIgnore
-    public String getAvatarUrl() {
-        return avatarUrl.get();
+    public Set<Connection> getConnections() {
+        if (this.connections == null) {
+            this.connections = new HashSet<>();
+        }
+        return this.connections;
     }
 
     @JsonIgnore
-    public boolean hasBoundPhone() {
-        return connections.stream().anyMatch(con -> AuthSourceConstants.PHONE.equals(con.getSource()));
+    public String getAvatarUrl() {
+        return avatarUrl.get();
     }
 
     public OrgTransformedUserInfo getOrgTransformedUserInfo() {

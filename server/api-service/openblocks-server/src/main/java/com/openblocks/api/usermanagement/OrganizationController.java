@@ -31,7 +31,6 @@ import com.openblocks.domain.plugin.DatasourceMetaInfo;
 import com.openblocks.domain.plugin.service.DatasourceMetaInfoService;
 import com.openblocks.infra.constant.NewUrl;
 import com.openblocks.infra.constant.Url;
-import com.openblocks.sdk.util.UriUtils;
 
 import reactor.core.publisher.Mono;
 
@@ -89,11 +88,10 @@ public class OrganizationController {
 
     @PutMapping("/switchOrganization/{orgId}")
     public Mono<ResponseView<?>> setCurrentOrganization(@PathVariable String orgId, ServerWebExchange serverWebExchange) {
-        String domain = UriUtils.getRefererDomain(serverWebExchange);
         return businessEventPublisher.publishUserLogoutEvent()
                 .then(orgApiService.switchCurrentOrganizationTo(orgId))
                 .delayUntil(result -> businessEventPublisher.publishUserLoginEvent(null))
-                .flatMap(result -> orgApiService.checkOrganizationDomain(domain)
+                .flatMap(result -> orgApiService.checkOrganizationDomain()
                         .flatMap(OrganizationDomainCheckResult::buildOrganizationDomainCheckView)
                         .defaultIfEmpty(ResponseView.success(result)));
     }

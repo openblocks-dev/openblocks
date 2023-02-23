@@ -1,21 +1,10 @@
-import {
-  CompAction,
-  ActionExtraInfo,
-  changeChildAction,
-  changeValueAction,
-  deferAction,
-  deleteCompAction,
-  multiChangeAction,
-  wrapActionExtraInfo,
-  wrapChildAction,
-} from "openblocks-core";
-import { Comp, DispatchType, RecordConstructorToView, wrapDispatch } from "openblocks-core";
 import { EditorContext, EditorState } from "comps/editorState";
 import { sameTypeMap, stateComp, valueComp } from "comps/generators";
 import { addMapChildAction, addMapCompChildAction } from "comps/generators/sameTypeMap";
 import { hookCompCategory, HookCompType } from "comps/hooks/hookCompTypes";
 import { UICompLayoutInfo, uiCompRegistry, UICompType } from "comps/uiCompRegistry";
 import { genRandomKey } from "comps/utils/idGenerator";
+import { parseCompType } from "comps/utils/remote";
 import {
   DEFAULT_POSITION_PARAMS,
   draggingUtils,
@@ -35,10 +24,26 @@ import {
   DEFAULT_ROW_HEIGHT,
 } from "layout/calculateUtils";
 import _ from "lodash";
+import {
+  ActionExtraInfo,
+  changeChildAction,
+  changeValueAction,
+  Comp,
+  CompAction,
+  deferAction,
+  deleteCompAction,
+  DispatchType,
+  multiChangeAction,
+  RecordConstructorToView,
+  wrapActionExtraInfo,
+  wrapChildAction,
+  wrapDispatch,
+} from "openblocks-core";
 import React, {
   DragEvent,
   HTMLAttributes,
   MouseEvent,
+  ReactElement,
   ReactNode,
   RefObject,
   useCallback,
@@ -48,14 +53,12 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { ReactElement } from "react";
 import { useResizeDetector } from "react-resize-detector";
 import styled from "styled-components";
+import { checkIsMobile } from "util/commonUtils";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { selectCompModifierKeyPressed } from "util/keyUtils";
 import { defaultLayout, GridItemComp, GridItemDataType } from "../gridItemComp";
-import { checkIsMobile } from "util/commonUtils";
-import { parseCompType } from "comps/utils/remote";
 
 const childrenMap = {
   layout: valueComp<Layout>({}),
@@ -161,7 +164,7 @@ const onLayoutChange = (
   onLayoutChange?.(newLayout);
   // Purely changing the layout does not need to eval
   // log.debug("layout: onLayoutChange. currentLayout: ", currentLayout, " newLayout: ", newLayout);
-  dispatch(wrapActionExtraInfo(changeChildAction("layout", newLayout), compInfos));
+  dispatch(wrapActionExtraInfo(changeChildAction("layout", newLayout), { compInfos }));
 };
 
 const onFlyDrop = (layout: Layout, items: Layout, dispatch: DispatchType) => {
@@ -182,10 +185,7 @@ const onFlyDrop = (layout: Layout, items: Layout, dispatch: DispatchType) => {
     // 2. Add a new Comp
     for (const [key, item] of Object.entries(items)) {
       if (item.comp) {
-        const newItem = item.comp.changeDispatch(
-          wrapDispatch(wrapDispatch(dispatch, "items"), key)
-        );
-        dispatch(deferAction(wrapChildAction("items", addMapCompChildAction(key, newItem))));
+        dispatch(deferAction(wrapChildAction("items", addMapCompChildAction(key, item.comp))));
       }
     }
     dispatch(deferAction(changeChildAction("layout", layout)));
@@ -211,7 +211,7 @@ const onDrop = (
           editorState
             .getHooksComp()
             .pushAction({ name: compName, compType: compType as HookCompType }),
-          [{ compName: compName, compType: compType, type: "add" }]
+          { compInfos: [{ compName: compName, compType: compType, type: "add" }] }
         )
       );
     editorState.setSelectedCompNames(new Set([compName]), "addComp");
@@ -239,7 +239,7 @@ const onDrop = (
           }),
           items: addMapChildAction(key, widgetValue),
         }),
-        [{ compName: compName, compType: compType, type: "add" }]
+        { compInfos: [{ compName: compName, compType: compType, type: "add" }] }
       )
     );
     editorState.setSelectedCompNames(new Set([compName]), "addComp");

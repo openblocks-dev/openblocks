@@ -1,5 +1,4 @@
 import { arrayMove, ToType } from "comps/utils";
-import { genRandomKey } from "comps/utils/idGenerator";
 import _ from "lodash";
 import {
   CompAction,
@@ -82,10 +81,12 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
     /**
      * Used to store the order of children, not persistent
      */
-    private childrenOrder: Array<string>;
+    private childrenOrder: Array<number>;
+    private __nextKey: number;
     constructor(params: CompParams<ListDataType<ChildCompCtor>>) {
       super(params);
-      this.childrenOrder = _.range(params.value ? params.value.length : 0).map((x) => x + "");
+      this.childrenOrder = _.range(params.value ? params.value.length : 0);
+      this.__nextKey = _.size(this.childrenOrder);
     }
     override parseChildrenFromValue(params: CompParams<ListDataType<ChildCompCtor>>) {
       const value = params.value;
@@ -99,6 +100,12 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
           [childName]: newChild(this.dispatch, childName, item),
         };
       }, {});
+    }
+    private genKey() {
+      // assert that nextKey is always greater than all current keys
+      while (this.__nextKey > 0 && !this.children.hasOwnProperty(this.__nextKey - 1))
+        --this.__nextKey;
+      return this.__nextKey++;
     }
     /**
      * The reason for not using getView directly is that getView may be overridden by subclasses
@@ -133,20 +140,20 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
     private reduceCustom(action: ListAction<ChildCompCtor>): this {
       switch (action.type) {
         case "push":
-          const key = genRandomKey();
+          const key = this.genKey();
           const newChildren = {
             ...this.children,
-            [key]: newChild(this.dispatch, key, action.value),
+            [key]: newChild(this.dispatch, String(key), action.value),
           };
           return setFieldsNoTypeCheck(this, {
             children: newChildren,
             childrenOrder: [...this.childrenOrder, key],
           });
         case "pushComp": {
-          const key = genRandomKey();
+          const key = this.genKey();
           const newChildren = {
             ...this.children,
-            [key]: action.value.changeDispatch(wrapDispatch(this.dispatch, key)),
+            [key]: action.value.changeDispatch(wrapDispatch(this.dispatch, String(key))),
           };
           return setFieldsNoTypeCheck(this, {
             children: newChildren,
@@ -154,10 +161,10 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
           });
         }
         case "insert":
-          const insertKey = genRandomKey();
+          const insertKey = this.genKey();
           const newChildrenAfterInsert = {
             ...this.children,
-            [insertKey]: newChild(this.dispatch, insertKey, action.value),
+            [insertKey]: newChild(this.dispatch, String(insertKey), action.value),
           };
 
           const childrenOrderToInsert = [...this.childrenOrder];

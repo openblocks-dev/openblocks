@@ -29,7 +29,7 @@ describe("withParams", () => {
     expect(output.v1).toEqual("v1: 1");
     expect(output.v2).toEqual(2);
 
-    comp = comp.reduce(Comp.setParamDataAction({ a: "10" }));
+    comp = comp.reduce(Comp.setPartialParamDataAction({ a: "10" }));
     comp = evalAndReduce(comp);
     output = comp.getView();
     expect(output.v1).toEqual("v1: 101");
@@ -44,7 +44,7 @@ describe("withParams", () => {
     expect(output.v1).toEqual("v1: 11");
     expect(output.v2).toEqual(12);
 
-    comp = comp.reduce(Comp.setParamDataAction({ a: "10" } as any));
+    comp = comp.reduce(Comp.setPartialParamDataAction({ a: "10" } as any));
     comp = evalAndReduce(comp);
     output = comp.getView();
     expect(output.v1).toEqual("v1: 101");

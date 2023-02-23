@@ -1,10 +1,6 @@
 package com.openblocks.plugin.googlesheets.queryhandler;
 
 
-import static com.openblocks.plugin.googlesheets.GoogleSheetError.GOOGLESHEETS_EXECUTION_ERROR;
-import static com.openblocks.sdk.models.QueryExecutionResult.error;
-
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -14,13 +10,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import com.google.auth.http.HttpCredentialsAdapter;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.openblocks.plugin.googlesheets.constants.FieldName;
 import com.openblocks.plugin.googlesheets.model.GoogleSheetsQueryExecutionContext;
 import com.openblocks.plugin.googlesheets.model.GoogleSheetsReadDataRequest;
@@ -41,24 +34,17 @@ public class GoogleSheetsReadDataHandler extends GoogleSheetsActionHandler {
 
     @Override
     public Mono<QueryExecutionResult> execute(Object o, GoogleSheetsQueryExecutionContext context) {
-        GoogleSheetsReadDataRequest googleSheetsActionRequest = (GoogleSheetsReadDataRequest) context.getGoogleSheetsActionRequest();
-        final GoogleCredentials googleCredentials = context.getServiceAccountCredentials();
-        HttpRequestInitializer requestInitializer = new HttpCredentialsAdapter(googleCredentials);
-        Sheets service = GoogleSheetsGetPreParameters.GetSheetsService(context);
-        ValueRange valueRange;
-        try {
-            valueRange = service.spreadsheets()
-                    .values()
-                    .get(googleSheetsActionRequest.getSpreadsheetId(), googleSheetsActionRequest.getSheetName())
-                    .execute();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        List<Map<String, String>> result = transformToFinalValues(valueRange);
         return Mono.fromCallable(() -> {
+                    GoogleSheetsReadDataRequest googleSheetsActionRequest = (GoogleSheetsReadDataRequest) context.getGoogleSheetsActionRequest();
+                    Sheets service = GoogleSheetsGetPreParameters.GetSheetsService(context);
+                    ValueRange valueRange;
+                    valueRange = service.spreadsheets()
+                            .values()
+                            .get(googleSheetsActionRequest.getSpreadsheetId(), googleSheetsActionRequest.getSheetName())
+                            .execute();
+                    List<Map<String, String>> result = transformToFinalValues(valueRange);
                     return QueryExecutionResult.success(result);
                 })
-                .onErrorResume(e -> Mono.just(error(GOOGLESHEETS_EXECUTION_ERROR, "GOOGLESHEETS_EXECUTION_ERROR", e.getMessage())))
                 .subscribeOn(QueryExecutionUtils.querySharedScheduler());
     }
 

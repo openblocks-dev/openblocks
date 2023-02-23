@@ -82,12 +82,13 @@ public class OrgMemberServiceImpl implements OrgMemberService {
                 .flatMap(orgIds -> {
                     Workspace workspace = commonConfig.getWorkspace();
                     if (workspace.getMode() == WorkspaceMode.ENTERPRISE) {
-                        if (StringUtils.isNotBlank(workspace.getEnterpriseOrgId())) {
-                            if (orgIds.contains(workspace.getEnterpriseOrgId())) {
-                                return Mono.just(List.of(workspace.getEnterpriseOrgId()));
+                        String enterpriseOrgId = workspace.getEnterpriseOrgId();
+                        if (StringUtils.isNotBlank(enterpriseOrgId)) {
+                            if (orgIds.contains(enterpriseOrgId)) {
+                                return Mono.just(List.of(enterpriseOrgId));
                             }
-                            return addMember(workspace.getEnterpriseOrgId(), userId, MemberRole.MEMBER)
-                                    .thenReturn(List.of(workspace.getEnterpriseOrgId()));
+                            return addMember(enterpriseOrgId, userId, MemberRole.MEMBER)
+                                    .thenReturn(List.of(enterpriseOrgId));
                         }
                         if (orgIds.size() > 1) {
                             return Mono.just(orgIds.subList(0, 1));

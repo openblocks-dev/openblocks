@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotEmpty;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -28,6 +29,8 @@ import lombok.Setter;
 public class Connection {
 
     private static final long serialVersionUID = -9218373922209100577L;
+
+    private String authId;
 
     @NotEmpty
     private String source;
@@ -48,9 +51,12 @@ public class Connection {
 
     private Map<String, Object> rawUserInfo;
 
+    private Set<String> tokens;
+
     @JsonCreator
-    private Connection(String source, String rawId, String name, String avatar, Set<String> orgIds, @Nullable
-    ConnectionAuthToken authConnectionAuthToken, Map<String, Object> rawUserInfo) {
+    private Connection(String authId, String source, String rawId, String name, String avatar, Set<String> orgIds, @Nullable
+    ConnectionAuthToken authConnectionAuthToken, Map<String, Object> rawUserInfo, Set<String> tokens) {
+        this.authId = authId;
         this.source = source;
         this.rawId = rawId;
         this.name = name;
@@ -58,6 +64,37 @@ public class Connection {
         this.orgIds = CollectionUtils.isEmpty(orgIds) ? new HashSet<>() : orgIds;
         this.authConnectionAuthToken = authConnectionAuthToken;
         this.rawUserInfo = rawUserInfo;
+        this.tokens = tokens;
+    }
+
+    public static Connection.ConnectionBuilder builder() {
+        return new ConnectionBuilder();
+    }
+
+    public Set<String> getTokens() {
+        return SetUtils.emptyIfNull(this.tokens);
+    }
+
+    public void addToken(String token) {
+        if (this.tokens == null) {
+            this.tokens = new HashSet<>();
+        }
+        this.tokens.add(token);
+    }
+
+    public void removeToken(String token) {
+        if (this.tokens == null) {
+            this.tokens = new HashSet<>();
+        }
+        this.tokens.remove(token);
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     @JsonIgnore

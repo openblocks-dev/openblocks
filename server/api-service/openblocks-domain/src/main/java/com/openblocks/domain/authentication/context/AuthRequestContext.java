@@ -1,4 +1,4 @@
-package com.openblocks.api.authentication.request;
+package com.openblocks.domain.authentication.context;
 
 import javax.annotation.Nullable;
 

@@ -98,6 +98,8 @@ const ChildrenWrapper = styled.div<{ layout: ControlLayout }>`
 
 const LastNode = styled.div`
   margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
 
   .ant-select-selection-item {
     width: 40px;

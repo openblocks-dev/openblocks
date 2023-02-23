@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.openblocks.api.authentication.request.AuthRequest;
-import com.openblocks.api.authentication.request.AuthRequestContext;
+import com.openblocks.domain.authentication.context.AuthRequestContext;
 import com.openblocks.api.authentication.request.AuthRequestFactory;
-import com.openblocks.sdk.auth.AuthTypeConstants;
+import com.openblocks.sdk.auth.constants.AuthTypeConstants;
 
 import reactor.core.publisher.Mono;
 

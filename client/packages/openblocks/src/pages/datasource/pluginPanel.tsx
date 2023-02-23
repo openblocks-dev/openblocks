@@ -86,7 +86,7 @@ export const PluginPanel = (props: { onSelect: (t: DataSourceTypeInfo) => void }
         </SectionBody>
       </SectionWrapper>
       <SectionWrapper>
-        <SectionLabel>APIS</SectionLabel>
+        <SectionLabel>APIs</SectionLabel>
         <SectionBody>
           {datasourceTypes
             .filter((t) => apiList.includes(t.id) || t.definition?.category === "api")

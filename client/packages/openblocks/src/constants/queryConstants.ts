@@ -27,7 +27,8 @@ export type DatasourceType =
   | "oracle"
   | "clickHouse"
   | "googleSheets"
-  | "graphql";
+  | "graphql"
+  | "snowflake";
 
 export type ResourceType = DatasourceType | "js" | "libraryQuery" | "view";
 
@@ -48,6 +49,7 @@ export const QueryMap = {
   view: ViewQuery,
   googleSheets: GoogleSheetsQuery,
   graphql: GraphqlQuery,
+  snowflake: SQLQuery,
 };
 
 export const JsPluginQueryMap: Record<string, MultiCompConstructor> = {};

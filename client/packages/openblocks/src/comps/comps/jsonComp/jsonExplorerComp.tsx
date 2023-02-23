@@ -5,7 +5,6 @@ import ReactJson, { ThemeKeys } from "react-json-view";
 import { defaultData } from "./jsonConstants";
 import styled from "styled-components";
 import { BoolControl } from "comps/controls/boolControl";
-import { jsonObjectExposingStateControl } from "comps/controls/codeStateControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ArrayOrJSONObjectControl, NumberControl } from "comps/controls/codeControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";

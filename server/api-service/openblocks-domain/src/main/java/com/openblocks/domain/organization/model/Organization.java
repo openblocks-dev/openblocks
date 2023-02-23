@@ -4,7 +4,10 @@ import static com.openblocks.infra.util.AssetUtils.toAssetPath;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -15,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.openblocks.domain.encryption.DecryptRequired;
 import com.openblocks.domain.encryption.EncryptRequired;
 import com.openblocks.domain.encryption.EncryptionService;
+import com.openblocks.sdk.auth.AbstractAuthConfig;
 import com.openblocks.sdk.models.HasIdAndAuditing;
 
 import lombok.Getter;
@@ -91,5 +95,11 @@ public class Organization extends HasIdAndAuditing implements EncryptRequired, D
 
     public long getCreateTime() {
         return createdAt != null ? createdAt.toEpochMilli() : 0;
+    }
+
+    public List<AbstractAuthConfig> getAuthConfigs() {
+        return Optional.ofNullable(organizationDomain)
+                .map(OrganizationDomain::getAuthConfigs)
+                .orElse(Collections.emptyList());
     }
 }

@@ -15,6 +15,8 @@ import {
   showSearchPropertyView,
 } from "comps/utils/propertyUtils";
 import { i18nObjs, trans } from "i18n";
+import { RefControl } from "comps/controls/refControl";
+import { CascaderRef } from "antd/lib/cascader";
 
 export const defaultDataSource = JSON.stringify(i18nObjs.cascader, null, " ");
 
@@ -28,6 +30,7 @@ export const CascaderChildren = {
   options: JSONObjectArrayControl,
   style: styleControl(CascaderStyle),
   showSearch: BoolControl.DEFAULT_TRUE,
+  viewRef: RefControl<CascaderRef>,
 };
 
 export const CascaderPropertyView = (

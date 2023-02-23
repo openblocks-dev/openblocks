@@ -6,6 +6,7 @@ export enum BottomResTypeEnum {
   Query = "query",
   TempState = "tempState",
   Transformer = "transformer",
+  DateResponder = "dataResponder",
 }
 
 export interface BottomResListComp {

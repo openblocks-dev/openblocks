@@ -13,10 +13,10 @@ import { GreyTextColor } from "constants/style";
 import { Divider } from "antd";
 import { THEME_SETTING } from "constants/routesURL";
 import { CustomShortcutsComp } from "./customShortcutsComp";
+import { DEFAULT_THEMEID } from "comps/utils/themeUtil";
 
 const TITLE = trans("appSetting.title");
 const USER_DEFINE = "__USER_DEFINE";
-const DEFAULT_THEMEID = "default";
 
 const ItemSpan = styled.span`
   display: inline-flex;

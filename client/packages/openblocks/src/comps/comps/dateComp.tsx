@@ -24,7 +24,7 @@ import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConst
 import { styleControl } from "comps/controls/styleControl";
 import { DateTimeStyle, DateTimeStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
-import { withMethodExposing } from "../generators/withMethodExposing";
+import { refMethods, withMethodExposing } from "../generators/withMethodExposing";
 import {
   disabledPropertyView,
   formatPropertyView,
@@ -51,6 +51,8 @@ import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
+import { RefControl } from "comps/controls/refControl";
+import { CommonPickerMethods } from "antd/lib/date-picker/generatePicker/interface";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -260,7 +262,7 @@ const RangePickerStyled = styled(DatePicker.RangePicker)<{ $style: DateTimeStyle
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
-export const datePickerControl = (function () {
+const datePickerControl = (function () {
   const dateTypeOptions = [
     { label: trans("date.date"), value: "date" },
     { label: trans("date.week"), value: "week" },
@@ -274,6 +276,7 @@ export const datePickerControl = (function () {
     // dateType: dropdownControl(dateTypeOptions, "date"), todo: temp remove
     ...commonChildren,
     ...formDataChildren,
+    viewRef: RefControl<CommonPickerMethods>,
   };
 
   return new UICompBuilder(childrenMap, (props) => {
@@ -282,6 +285,7 @@ export const datePickerControl = (function () {
     const children = (
       <>
         <DatePickerStyled
+          ref={props.viewRef as any}
           disabledDate={(current) => disabledDate(current, props.minDate, props.maxDate)}
           disabledTime={() => disabledTime(props.minTime, props.maxTime)}
           $style={props.style}
@@ -360,14 +364,16 @@ export const datePickerControl = (function () {
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>
     ))
+    .setExposeMethodConfigs(refMethods(["focus", "blur"]))
     .build();
 })();
 
-export const dateRangeControl = (function () {
+const dateRangeControl = (function () {
   const childrenMap = {
     start: stringExposingStateControl("start"),
     end: stringExposingStateControl("end"),
     ...commonChildren,
+    viewRef: RefControl<CommonPickerMethods>,
   };
 
   return new UICompBuilder(childrenMap, (props) => {
@@ -375,6 +381,7 @@ export const dateRangeControl = (function () {
     const children = (
       <>
         <RangePickerStyled
+          ref={props.viewRef as any}
           $style={props.style}
           disabled={props.disabled}
           {...datePickerProps(props)}
@@ -385,9 +392,9 @@ export const dateRangeControl = (function () {
           })()}
           disabledDate={(current) => disabledDate(current, props.minDate, props.maxDate)}
           disabledTime={() => disabledTime(props.minTime, props.maxTime)}
-          onChange={(time) => {
-            const start = time && time[0] ? moment(time[0]) : null;
-            const end = time && time[1] ? moment(time[1]) : null;
+          onCalendarChange={(time) => {
+            const start = time?.[0];
+            const end = time?.[1];
             props.start.onChange(
               start && start.isValid()
                 ? start.format(props.showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
@@ -599,6 +606,7 @@ export let DateRangeComp = withExposingConfigs(dateRangeControl, [
 ]);
 
 DateRangeComp = withMethodExposing(DateRangeComp, [
+  ...refMethods<typeof DateRangeComp>(["focus", "blur"]),
   {
     method: {
       name: "clearAll",

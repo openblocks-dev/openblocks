@@ -6,8 +6,7 @@ import _ from "lodash";
 import { UploadRequestOption } from "rc-upload/lib/interface";
 import { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
-import { JSONObject, JSONValue } from "../../util/jsonTypes";
-import { darkenColor, Section, sectionNames } from "openblocks-design";
+import { JSONObject, JSONValue } from "../../../util/jsonTypes";
 import {
   changeValueAction,
   CompAction,
@@ -21,13 +20,13 @@ import {
   codeControl,
   NumberControl,
   StringControl,
-} from "../controls/codeControl";
-import { BoolControl, BoolPureControl } from "../controls/boolControl";
-import { dropdownControl } from "../controls/dropdownControl";
-import { changeEvent, eventHandlerControl } from "../controls/eventHandlerControl";
-import { stateComp, UICompBuilder, withDefault } from "../generators";
-import { CommonNameConfig, NameConfig, withExposingConfigs } from "../generators/withExposing";
-import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
+} from "../../controls/codeControl";
+import { BoolControl, BoolPureControl } from "../../controls/boolControl";
+import { dropdownControl } from "../../controls/dropdownControl";
+import { changeEvent, eventHandlerControl } from "../../controls/eventHandlerControl";
+import { stateComp, UICompBuilder, withDefault } from "../../generators";
+import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
+import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import { FileStyle, FileStyleType } from "comps/controls/styleControlConstants";
@@ -37,6 +36,8 @@ import { getComponentDocUrl } from "comps/utils/compDocUtil";
 import mime from "mime";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
+import { darkenColor } from "components/colorSelect/colorUtils";
+import { Section, sectionNames } from "components/Section";
 
 const FileSizeControl = codeControl((value) => {
   if (typeof value === "number") {

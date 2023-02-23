@@ -149,7 +149,7 @@ export function* logoutSaga(action: LogoutActionType) {
     if (isValidResponse) {
       yield put(logoutSuccess());
       localStorage.clear();
-      history.push(redirectURL);
+      window.location.replace(redirectURL);
     }
   } catch (error) {
     log.error(error);
