@@ -198,14 +198,15 @@ export const DataSourceStructureTree = (props: {
           placeholder={trans("bottomPanel.metaSearchPlaceholder")}
           value={searchValue}
           onChange={(e) => {
-            const value = e.target.value;
+            const value = e.target.value.toLowerCase();
             if (value.length > 0) {
               const newStructure = structure
                 .map((item) => {
                   const children = item.children?.filter(
-                    (child) => child.key.toString().indexOf(value) !== -1
+                    (child) => child.key.toString().toLowerCase().indexOf(value) !== -1
                   );
-                  return item.key.toString().indexOf(value) !== -1 || !_.isEmpty(children)
+                  return item.key.toString().toLowerCase().indexOf(value) !== -1 ||
+                    !_.isEmpty(children)
                     ? {
                         ...item,
                         children: children,

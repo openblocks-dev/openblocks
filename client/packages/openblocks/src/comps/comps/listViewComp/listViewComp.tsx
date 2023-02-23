@@ -1,10 +1,20 @@
-import { UICompBuilder, withPropertyViewFn, withViewFn } from "comps/generators";
+import { AutoHeightControl } from "comps/controls/autoHeightControl";
+import { BoolControl } from "comps/controls/boolControl";
+import {
+  NumberControl,
+  NumberOrJSONObjectArrayControl,
+  StringControl,
+} from "comps/controls/codeControl";
+import { styleControl } from "comps/controls/styleControl";
+import { ListViewStyle } from "comps/controls/styleControlConstants";
+import { UICompBuilder, withDefault, withPropertyViewFn, withViewFn } from "comps/generators";
 import {
   CompDepsConfig,
   depsConfig,
   NameConfigHidden,
   withExposingConfigs,
 } from "comps/generators/withExposing";
+import { withIsLoadingMethod } from "comps/generators/withIsLoading";
 import { NameGenerator } from "comps/utils";
 import { reduceInContext } from "comps/utils/reduceContext";
 import { trans } from "i18n";
@@ -13,7 +23,6 @@ import {
   CompAction,
   CompActionTypes,
   fromRecord,
-  fromValue,
   Node,
   withFunction,
   WrapContextNodeV2,
@@ -22,15 +31,23 @@ import { JSONValue } from "util/jsonTypes";
 import { depthEqual, lastValueIfEqual, shallowEqual } from "util/objectUtils";
 import { CompTree, getAllCompItems, IContainer } from "../containerBase";
 import { SimpleContainerComp, toSimpleContainerData } from "../containerBase/simpleContainerComp";
+import { ContextContainerComp } from "./contextContainerComp";
 import { ListView } from "./listView";
 import { listPropertyView } from "./listViewPropertyView";
-import {
-  childrenMap,
-  ContextContainerComp,
-  genKey,
-  getCurrentItemParams,
-  getData,
-} from "./listViewUtils";
+import { getData } from "./listViewUtils";
+
+const childrenMap = {
+  noOfRows: withIsLoadingMethod(NumberOrJSONObjectArrayControl), // FIXME: migrate "noOfRows" to "data"
+  noOfColumns: withDefault(NumberControl, 1),
+  itemIndexName: withDefault(StringControl, "i"),
+  itemDataName: withDefault(StringControl, "currentItem"),
+  dynamicHeight: AutoHeightControl,
+  heightUnitOfRow: withDefault(NumberControl, 1),
+  container: ContextContainerComp,
+  autoHeight: AutoHeightControl,
+  showBorder: BoolControl,
+  style: styleControl(ListViewStyle),
+};
 
 const ListViewTmpComp = new UICompBuilder(childrenMap, () => <></>)
   .setPropertyViewFn(() => <></>)
@@ -38,7 +55,10 @@ const ListViewTmpComp = new UICompBuilder(childrenMap, () => <></>)
 
 export class ListViewImplComp extends ListViewTmpComp implements IContainer {
   private getOriginalContainer() {
-    return this.children.container.getOriginalComp().getComp();
+    const containers = this.children.container.getView();
+    return containers[0]
+      ? containers[0].getComp()
+      : this.children.container.getOriginalComp().getComp();
   }
   realSimpleContainer(key?: string): SimpleContainerComp | undefined {
     return this.getOriginalContainer().realSimpleContainer(key);
@@ -59,37 +79,28 @@ export class ListViewImplComp extends ListViewTmpComp implements IContainer {
     // console.info("listView reduce. action: ", action);
     let comp = reduceInContext({ inEventContext: true }, () => super.reduce(action));
 
-    if (
-      action.type !== CompActionTypes.UPDATE_NODES_V2 &&
-      this.children.noOfRows !== comp.children.noOfRows
-    ) {
-      comp = comp.setChild(
-        "container",
-        comp.children.container.reduce(ContextContainerComp.clearAction())
-      );
-    }
-
     if (action.type === CompActionTypes.UPDATE_NODES_V2) {
-      const { data: thisData } = getData(this.children.noOfRows.getView());
-      const { data: compData } = getData(comp.children.noOfRows.getView());
-      const paramsChanged = !_.isEqual(
-        getCurrentItemParams(thisData),
-        getCurrentItemParams(compData)
+      const dataChanged = !_.isEqual(
+        this.children.noOfRows.getView(),
+        comp.children.noOfRows.getView()
       );
       const nameChanged =
         !_.isEqual(this.children.itemIndexName.getView(), comp.children.itemIndexName.getView()) ||
         !_.isEqual(this.children.itemDataName.getView(), comp.children.itemDataName.getView());
-      if (paramsChanged || nameChanged) {
-        // keep original comp's params same as the 0-th comp
-        comp = comp.setChild(
-          "container",
-          comp.children.container.reduce(
-            ContextContainerComp.setOriginalParamsAction({
-              [comp.children.itemIndexName.getView()]: 0,
-              [comp.children.itemDataName.getView()]: getCurrentItemParams(compData),
-            })
-          )
+      if (dataChanged || nameChanged) {
+        const { data: compData, itemCount: compItemCount } = getData(
+          comp.children.noOfRows.getView()
         );
+        setTimeout(() => {
+          comp.children.container.dispatch(
+            ContextContainerComp.resetContextAction({
+              itemIndexName: comp.children.itemIndexName.getView(),
+              itemDataName: comp.children.itemDataName.getView(),
+              itemCount: compItemCount,
+              data: compData,
+            })
+          );
+        });
       }
     }
     // console.info("listView reduce. action: ", action, "\nthis: ", this, "\ncomp: ", comp);
@@ -97,39 +108,26 @@ export class ListViewImplComp extends ListViewTmpComp implements IContainer {
   }
   /** expose the data from inner comps */
   itemsNode(): Node<Record<string, unknown>[]> {
-    const { itemCount } = getData(this.children.noOfRows.getView());
-    const itemIndexName = this.children.itemIndexName.getView();
-    const itemDataName = this.children.itemDataName.getView();
+    const containers = this.children.container.getView();
+    const size = _.size(containers);
     // for each container expose each comps with params
-    const exposingRecord = _(_.range(0, itemCount))
+    const exposingRecord = _(_.range(0, size))
       .toPairs()
       .fromPairs()
       .mapValues((itemIdx) => {
-        let hitCache = true;
-        let container = this.children.container.getCachedComp(genKey(itemIdx));
-        if (!container) {
-          hitCache = false;
-          container = this.children.container.getOriginalComp();
-        }
+        let container = containers[itemIdx];
         // FIXME: replace allComps as non-list-view comps
         const allComps = getAllCompItems(container.getComp().getCompTree());
         const nodeRecord = _(allComps)
           .mapKeys((gridItemComp) => gridItemComp.children.name.getView())
           .mapValues((gridItemComp) => gridItemComp.children.comp.exposingNode())
           .value();
-        const resNode = new WrapContextNodeV2(fromRecord(nodeRecord), {
-          [itemIndexName]: fromValue(itemIdx),
-          [itemDataName]: withFunction(this.children.noOfRows.exposingNode(), (value) =>
-            typeof value === "number" ? {} : value[itemIdx]
-          ),
-        });
-        // const resNode = hitCache
-        //   ? new WrapContextNodeV2(fromRecord(nodeRecord), container.getParamNodes())
-        //   : withFunction(wrapContext(fromRecord(nodeRecord)), (fn) => fn({ i }));
+        const paramsNodes = container.getParamNodes();
+        const resNode = new WrapContextNodeV2(fromRecord(nodeRecord), paramsNodes);
         const res = lastValueIfEqual(
           this,
           "exposing_row_" + itemIdx,
-          [resNode, nodeRecord, this.children.itemIndexName, this.children.itemDataName] as const,
+          [resNode, nodeRecord, paramsNodes] as const,
           (a, b) => depthEqual(a.slice(1), b.slice(1), 3)
         )[0];
         // console.info("listView exposingRecord. i: ", i, " res id: ", getObjectId(res), " container id: ", getObjectId(container), " hitCache: ", hitCache);
@@ -138,7 +136,7 @@ export class ListViewImplComp extends ListViewTmpComp implements IContainer {
       .value();
     // transform record to array
     const exposings = withFunction(fromRecord(exposingRecord), (record) => {
-      return _.range(0, itemCount).map((i) => record[i]);
+      return _.range(0, size).map((i) => record[i]);
     });
 
     return lastValueIfEqual(this, "exposing_data", [exposings, exposingRecord] as const, (a, b) =>

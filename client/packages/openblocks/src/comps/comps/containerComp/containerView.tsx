@@ -185,10 +185,7 @@ const onFlyDrop = (layout: Layout, items: Layout, dispatch: DispatchType) => {
     // 2. Add a new Comp
     for (const [key, item] of Object.entries(items)) {
       if (item.comp) {
-        const newItem = item.comp.changeDispatch(
-          wrapDispatch(wrapDispatch(dispatch, "items"), key)
-        );
-        dispatch(deferAction(wrapChildAction("items", addMapCompChildAction(key, newItem))));
+        dispatch(deferAction(wrapChildAction("items", addMapCompChildAction(key, item.comp))));
       }
     }
     dispatch(deferAction(changeChildAction("layout", layout)));

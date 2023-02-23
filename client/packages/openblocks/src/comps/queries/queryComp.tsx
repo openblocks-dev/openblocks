@@ -298,6 +298,7 @@ QueryCompTmp = withViewFn(QueryCompTmp, (comp) => {
 QueryCompTmp = class extends QueryCompTmp {
   override reduce(action: CompAction): this {
     if (action.type === CompActionTypes.EXECUTE_QUERY) {
+      if (getReduceContext().disableUpdateState) return this;
       return this.executeQuery(action);
     } else if (action.type === CompActionTypes.CHANGE_VALUE) {
       const value: any = (action as ChangeValueAction).value;

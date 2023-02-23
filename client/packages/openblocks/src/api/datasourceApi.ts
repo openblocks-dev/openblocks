@@ -1,11 +1,11 @@
 import { AxiosPromise } from "axios";
 import Api from "./api";
 import { GenericApiResponse } from "./apiResponses";
-import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "../constants/apiConstants";
+import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "constants/apiConstants";
 import { Datasource as CEDatasource } from "../constants/datasourceConstants";
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
-import { JSONArray } from "../util/jsonTypes";
-import { AuthType, HttpOAuthGrantType } from "../pages/datasource/form/httpDatasourceForm";
+import { JSONArray } from "util/jsonTypes";
+import { AuthType, HttpOAuthGrantType } from "pages/datasource/form/httpDatasourceForm";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 import { DataSourcePluginMeta } from "openblocks-sdk/dataSource";
 
@@ -31,6 +31,11 @@ export interface OracleConfig extends SQLConfig {
   serviceName: string;
   sid: string;
   usingSid: boolean;
+}
+
+export interface SnowflakeConfig extends Omit<SQLConfig, "port"> {
+  schema: string;
+  extParams: Record<string, any>;
 }
 
 export interface EsConfig {
@@ -113,7 +118,8 @@ export type DatasourceConfigType =
   | OAuthBasicConfig
   | EsConfig
   | OracleConfig
-  | GoogleSheetsConfig;
+  | GoogleSheetsConfig
+  | SnowflakeConfig;
 
 export interface DatasourceInfo {
   datasource: Datasource;

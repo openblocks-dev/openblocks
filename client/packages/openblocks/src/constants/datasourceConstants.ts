@@ -1,7 +1,7 @@
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
-import { DatasourceConfigType } from "../api/datasourceApi";
+import { DatasourceConfigType } from "api/datasourceApi";
 import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
-import { trans } from "../i18n";
+import { trans } from "i18n";
 import { DataSourcePluginMeta } from "openblocks-sdk/dataSource";
 
 export const databasePlugins: Partial<DatasourceType>[] = [
@@ -13,6 +13,7 @@ export const databasePlugins: Partial<DatasourceType>[] = [
   "mssql",
   "oracle",
   "clickHouse",
+  "snowflake",
 ];
 
 export const apiPluginsForQueryLibrary: Partial<DatasourceType>[] = [

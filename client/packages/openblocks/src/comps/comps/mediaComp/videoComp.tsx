@@ -15,6 +15,8 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { Video } from "openblocks-design";
 import ReactPlayer from "react-player";
+import { RefControl } from "comps/controls/refControl";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 const EventOptions = [
   { label: trans("video.play"), value: "play", description: trans("video.playDesc") },
@@ -24,7 +26,7 @@ const EventOptions = [
 ] as const;
 
 const ContainerVideo = (props: RecordConstructorToView<typeof childrenMap>) => {
-  const videoRef = useRef<ReactPlayer>(null);
+  const videoRef = useRef<ReactPlayer | null>(null);
   const conRef = useRef<HTMLDivElement>(null);
   let [posterClicked, setPosterClicked] = useState(false);
   return (
@@ -36,7 +38,10 @@ const ContainerVideo = (props: RecordConstructorToView<typeof childrenMap>) => {
           },
         }}
         light={props.autoPlay ? "" : props.poster.value}
-        ref={videoRef}
+        ref={(t: ReactPlayer | null) => {
+          props.viewRef(t);
+          videoRef.current = t;
+        }}
         url={props.src.value}
         onPlay={() => props.onEvent("play")}
         onReady={() => {
@@ -79,6 +84,7 @@ const childrenMap = {
   playbackRate: RangeControl.closed(1, 2, 1),
   currentTimeStamp: numberExposingStateControl("currentTimeStamp", 0),
   duration: numberExposingStateControl("duration"),
+  viewRef: RefControl<ReactPlayer>,
 };
 
 let VideoBasicComp = (function () {
@@ -123,6 +129,7 @@ let VideoBasicComp = (function () {
         </>
       );
     })
+    .setExposeMethodConfigs(refMethods(["seekTo", "showPreview"]))
     .build();
 })();
 

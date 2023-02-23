@@ -6,6 +6,7 @@ import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { CascaderChildren, CascaderPropertyView, defaultDataSource } from "./cascaderContants";
 import { getStyle } from "./selectCompConstants";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 const CascaderStyle = styled(Cascader)<{ $style: CascaderStyleType }>`
   width: 100%;
@@ -20,6 +21,7 @@ let CascaderBasicComp = (function () {
       style: props.style,
       children: (
         <CascaderStyle
+          ref={props.viewRef}
           value={props.value.value}
           disabled={props.disabled}
           defaultValue={props.value.value}
@@ -43,6 +45,7 @@ let CascaderBasicComp = (function () {
         <CascaderPropertyView {...children} />
       </>
     ))
+    .setExposeMethodConfigs(refMethods(["focus", "blur"]))
     .build();
 })();
 

@@ -1,5 +1,5 @@
 import { CSSProperties } from "react";
-import { RefObject } from "react";
+import { Ref } from "react";
 import ReactPlayer from "react-player";
 import styled from "styled-components";
 
@@ -14,7 +14,7 @@ export function TacoAudio(props: {
   onEnded?: () => void;
   className?: string;
   style?: CSSProperties;
-  audioRef?: RefObject<any>;
+  audioRef?: Ref<ReactPlayer>;
   autoPlay?: boolean;
   loop?: boolean;
 }) {

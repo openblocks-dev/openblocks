@@ -5,9 +5,9 @@ import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { RadioChildrenMap, RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
 import { SelectInputInvalidConfig, useSelectInputValidate } from "./selectInputConstants";
-import { ValueFromOption } from "openblocks-design";
-import { EllipsisTextCss } from "openblocks-design";
+import { EllipsisTextCss, ValueFromOption } from "openblocks-design";
 import { trans } from "i18n";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 const getStyle = (style: RadioStyleType) => {
   return css`
@@ -78,7 +78,7 @@ const Radio = styled(AntdRadio.Group)<{
   }}
 `;
 
-export const RadioBasicComp = (function () {
+const RadioBasicComp = (function () {
   return new UICompBuilder(RadioChildrenMap, (props) => {
     const [validateState, handleValidate] = useSelectInputValidate(props);
     return props.label({
@@ -86,6 +86,7 @@ export const RadioBasicComp = (function () {
       style: props.style,
       children: (
         <Radio
+          ref={props.viewRef}
           disabled={props.disabled}
           value={props.value.value}
           $style={props.style}
@@ -108,6 +109,7 @@ export const RadioBasicComp = (function () {
     });
   })
     .setPropertyViewFn((children) => <RadioPropertyView {...children} />)
+    .setExposeMethodConfigs(refMethods(["focus", "blur"]))
     .build();
 })();
 

@@ -386,6 +386,7 @@ export const en = {
     confirmationMessage: "Are you sure you want to run this query?",
     newQuery: "New query",
     recentlyUsed: "Recently used",
+    dataResponder: "Data responder",
     tempState: "Temporary state",
     transformer: "Transformer",
     quickRestAPI: "REST Query",
@@ -434,7 +435,7 @@ export const en = {
     fixedDelayError: "Query not run",
     execSuccess: "run success",
     execFail: "run failed",
-    deleteSuccessMessage: "Delete query success. You can use {undoKey} to undo.",
+    deleteSuccessMessage: "Successfully deleted. You can use {undoKey} to undo.",
     dataExportDesc: "Data obtained by the current query",
     codeExportDesc: "Current query status code",
     successExportDesc: "Whether the current query was executed successfully",
@@ -580,6 +581,10 @@ export const en = {
     publishSuccess: "Published",
     version: "Version",
     desc: "Description",
+  },
+  snowflake: {
+    accountIdentifierTooltip: "See ",
+    extParamsTooltip: "Configure more connection parameters",
   },
   openBlocksQuery: {
     queryOrgUsers: "Query workspace users",
@@ -1283,7 +1288,7 @@ export const en = {
     advanced: "Advanced",
     lab: "Lab",
     branding: "Branding",
-    idSource: "ID source",
+    idSource: "ID Providers",
   },
   memberSettings: {
     admin: "Admin",
@@ -1487,6 +1492,14 @@ export const en = {
     unStructuredError: "Unstructured data {prev} can't be updated by {path}",
     valueDesc: "Temporary state value",
     deleteMessage: "The temporary state is deleted successfully. You can use {undoKey} to undo.",
+  },
+  dataResponder: {
+    data: "Data",
+    dataDesc: "Data of current data responder",
+    dataTooltip:
+      "The dependent data that it's change will trigger the actions of current responder",
+    docLink: "About the Data responder",
+    deleteMessage: "The data responder is deleted successfully. You can use {undoKey} to undo.",
   },
   theme: {
     title: "Themes",

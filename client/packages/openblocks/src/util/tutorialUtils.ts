@@ -20,6 +20,7 @@ export const QueryTutorials = {
   js: trans("queryTutorial.js"),
   transformer: trans("queryTutorial.transformer"),
   tempState: trans("queryTutorial.tempState"),
+  dataResponder: "",
   es: "https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html",
   redis: "https://redis.io/commands/",
   googleSheets: {

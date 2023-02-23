@@ -13,7 +13,7 @@ import {
   InnerGrid,
 } from "../containerComp/containerView";
 import { ListViewImplComp } from "./listViewComp";
-import { genKey, getCurrentItemParams, getData } from "./listViewUtils";
+import { getData } from "./listViewUtils";
 
 const Wrapper = styled.div`
   overflow: auto;
@@ -50,23 +50,18 @@ export function ListView(props: Props) {
   const editorState = useContext(EditorContext);
   const isDragging = editorState.isDragging;
   const [listHeight, setListHeight] = useDelayState(0, isDragging);
-  const { data, itemCount } = useMemo(
-    () => getData(children.noOfRows.getView()),
-    [children.noOfRows]
-  );
   const dynamicHeight = useMemo(() => children.dynamicHeight.getView(), [children.dynamicHeight]);
   const heightUnitOfRow = useMemo(
     () => children.heightUnitOfRow.getView(),
     [children.heightUnitOfRow]
   );
-  const containerViewFn = useMemo(() => children.container.getView(), [children.container]);
+  const containerComps = useMemo(() => children.container.getView(), [children.container]);
+  const itemCount = useMemo(() => _.size(containerComps), [containerComps]);
   const autoHeight = useMemo(() => children.autoHeight.getView(), [children.autoHeight]);
   const noOfColumns = useMemo(
     () => Math.max(1, children.noOfColumns.getView()),
     [children.noOfColumns]
   );
-  const itemIndexName = useMemo(() => children.itemIndexName.getView(), [children.itemIndexName]);
-  const itemDataName = useMemo(() => children.itemDataName.getView(), [children.itemDataName]);
   const style = children.style.getView();
 
   const commonLayout = children.container.getOriginalComp().getComp().children.layout.getView();
@@ -93,10 +88,7 @@ export function ListView(props: Props) {
             if (itemIdx >= itemCount || (isOneItem && itemIdx > 0)) {
               return <div key={itemIdx} style={{ flex: "auto" }}></div>;
             }
-            const containerProps = containerViewFn(
-              { [itemIndexName]: itemIdx, [itemDataName]: getCurrentItemParams(data, itemIdx) },
-              genKey(itemIdx)
-            );
+            const containerProps = containerComps[itemIdx].getView();
             return (
               <ContainerInListView
                 key={itemIdx}

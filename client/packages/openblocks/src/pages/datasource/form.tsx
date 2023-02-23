@@ -10,7 +10,7 @@ import { trans } from "i18n";
 import { toNumber } from "lodash";
 import { useHostCheck } from "./form/useHostCheck";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { HttpConfig, SSLCertVerificationEnum } from "../../api/datasourceApi";
 
 export const GeneralSettingFormSectionLabel = () => {
@@ -68,15 +68,19 @@ export const DatasourceNameFormInputItem = (props: DatasourceNameProps) => {
 
 interface HostProps {
   initialValue: string | undefined;
+  label?: ReactNode;
+  placeholder?: string;
+  help?: ReactNode;
 }
 
 export const HostFormInputItem = (props: HostProps) => {
   const hostRule = useHostCheck();
   return (
     <FormInputItem
+      help={props.help}
       name={"host"}
-      label={trans("query.host")}
-      placeholder={"myhost.io"}
+      label={props.label ?? trans("query.host")}
+      placeholder={props.placeholder ?? "myhost.io"}
       required={true}
       initialValue={props.initialValue}
       rules={[{ required: true, message: trans("query.hostRequiredMessage") }, hostRule]}
@@ -118,14 +122,16 @@ export const PasswordFormInputItem = (props: PasswordProps) => {
 
 interface DatabaseProps {
   database: string | undefined;
+  label?: string;
+  placeholder?: string;
 }
 
 export const DatabaseFormInputItem = (props: DatabaseProps) => {
   return (
     <FormInputItem
       name={"database"}
-      label={trans("query.databaseName")}
-      placeholder={"test_db"}
+      label={props.label ?? trans("query.databaseName")}
+      placeholder={props.placeholder ?? "test_db"}
       required={true}
       initialValue={props.database}
       rules={[{ required: true, message: trans("query.databaseNameRequiredMessage") }]}

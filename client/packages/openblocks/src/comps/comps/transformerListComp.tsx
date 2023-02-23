@@ -1,23 +1,15 @@
 import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
-import { message } from "antd";
 import { codeControl, TransformerCodeControl } from "comps/controls/codeControl";
-import { EditorContext, EditorState } from "comps/editorState";
+import { EditorContext } from "comps/editorState";
 import { MultiCompBuilder, valueComp } from "comps/generators";
-import { list } from "comps/generators/list";
+import { bottomResListComp } from "comps/generators/bottomResList";
 import { withExposingRaw } from "comps/generators/withExposing";
-import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { trans } from "i18n";
-import { fromRecord, wrapActionExtraInfo } from "openblocks-core";
+import { fromRecord } from "openblocks-core";
 import { DocLink } from "openblocks-design";
 import { BottomTabs } from "pages/editor/bottom/BottomTabs";
 import { ReactNode } from "react";
-import {
-  BottomResComp,
-  BottomResCompResult,
-  BottomResListComp,
-  BottomResTypeEnum,
-} from "types/bottomRes";
-import { undoKey } from "util/keyUtils";
+import { BottomResComp, BottomResCompResult, BottomResTypeEnum } from "types/bottomRes";
 import { QueryTutorials } from "util/tutorialUtils";
 import { SimpleNameComp } from "./simpleNameComp";
 
@@ -116,91 +108,6 @@ const TransformerItemComp = withExposingRaw(
   }
 );
 
-const TransformerListCompBase = list(TransformerItemComp);
-
-export class TransformerListComp extends TransformerListCompBase implements BottomResListComp {
-  nameAndExposingInfo(): NameAndExposingInfo {
-    const result: NameAndExposingInfo = {};
-    Object.values(this.children).forEach((comp) => {
-      result[comp.children.name.getView()] = comp.exposingInfo();
-    });
-    return result;
-  }
-
-  items() {
-    return this.getView() as unknown as BottomResComp[];
-  }
-
-  add(editorState: EditorState) {
-    const name = editorState.getNameGenerator().genItemName("transformer");
-    this.dispatch(
-      wrapActionExtraInfo(
-        this.pushAction({
-          name,
-          script: "return currentUser.name",
-          order: Date.now(),
-        }),
-        {
-          compInfos: [
-            {
-              type: "add",
-              compName: name,
-              compType: "transformer",
-            },
-          ],
-        }
-      )
-    );
-    editorState.setSelectedBottomRes(name, BottomResTypeEnum.Transformer);
-  }
-
-  copy(editorState: EditorState, name: string) {
-    const comps = this.getView();
-    const index = comps.findIndex((i) => i.children.name.getView() === name);
-    const origin = comps[index];
-    if (!origin) {
-      return;
-    }
-    const newCompName = editorState.getNameGenerator().genItemName("transformer");
-    this.dispatch(
-      wrapActionExtraInfo(
-        this.pushAction({
-          ...origin.toJsonValue(),
-          name: newCompName,
-          order: Date.now(),
-        }),
-        {
-          compInfos: [
-            {
-              type: "add",
-              compName: name,
-              compType: "transformer",
-            },
-          ],
-        }
-      )
-    );
-    editorState.setSelectedBottomRes(newCompName, BottomResTypeEnum.Transformer);
-  }
-
-  delete(name: string) {
-    const comps = this.getView();
-    const index = comps.findIndex((i) => i.children.name.getView() === name);
-    const toDelComp = comps[index];
-    if (!toDelComp) {
-      return;
-    }
-    this.dispatch(
-      wrapActionExtraInfo(this.deleteAction(index), {
-        compInfos: [
-          {
-            type: "delete",
-            compName: toDelComp.children.name.getView(),
-            compType: "transformer",
-          },
-        ],
-      })
-    );
-    message.success(trans("transformer.deleteMessage", { undoKey }));
-  }
-}
+export const TransformerListComp = bottomResListComp(TransformerItemComp, "transformer", {
+  script: "return currentUser.name",
+});

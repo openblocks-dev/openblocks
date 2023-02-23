@@ -15,6 +15,8 @@ import React, { Suspense, useEffect, useRef, useState } from "react";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
+import { RefControl } from "comps/controls/refControl";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 const Error = styled.div`
   color: #f5222d;
@@ -62,6 +64,7 @@ const ScannerTmpComp = (function () {
     onEvent: ScannerEventHandlerControl,
     disabled: BoolCodeControl,
     style: styleControl(ButtonStyle),
+    viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [showModal, setShowModal] = useState(false);
@@ -122,6 +125,7 @@ const ScannerTmpComp = (function () {
     return (
       <ButtonCompWrapper disabled={props.disabled}>
         <Button100
+          ref={props.viewRef}
           $buttonStyle={props.style}
           disabled={props.disabled}
           onClick={() => {
@@ -218,6 +222,7 @@ const ScannerTmpComp = (function () {
         </>
       );
     })
+    .setExposeMethodConfigs(refMethods(["focus", "blur", "click"]))
     .build();
 })();
 

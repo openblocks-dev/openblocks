@@ -13,6 +13,9 @@ import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "../../generators/simpleGenerators";
 import { trans } from "i18n";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { RefControl } from "comps/controls/refControl";
+import { refMethods } from "comps/generators/withMethodExposing";
+import ReactPlayer from "react-player";
 
 const Container = styled.div`
   height: 100%;
@@ -39,13 +42,12 @@ const EventOptions = [
 ] as const;
 
 const ContainerAudio = (props: RecordConstructorToView<typeof childrenMap>) => {
-  const audioRef = useRef<HTMLAudioElement>(null);
   const conRef = useRef<HTMLDivElement>(null);
 
   return (
     <Container ref={conRef}>
       <TacoAudio
-        audioRef={audioRef}
+        audioRef={props.viewRef}
         url={props.src.value}
         onPlay={() => props.onEvent("play")}
         onPause={() => props.onEvent("pause")}
@@ -63,6 +65,7 @@ const childrenMap = {
   style: styleControl(ImageStyle),
   autoPlay: BoolControl,
   loop: BoolControl,
+  viewRef: RefControl<ReactPlayer>,
 };
 
 let AudioBasicComp = (function () {
@@ -90,6 +93,7 @@ let AudioBasicComp = (function () {
         </>
       );
     })
+    .setExposeMethodConfigs(refMethods(["seekTo", "showPreview"]))
     .build();
 })();
 

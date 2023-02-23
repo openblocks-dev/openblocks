@@ -12,6 +12,7 @@
   "scripts": {
     "start": "yarn workspace openblocks start",
     "start:ee": "REACT_APP_EDITION=enterprise yarn workspace openblocks start",
+    "start:ee-global": "REACT_APP_EDITION=enterprise-global yarn workspace openblocks start",
     "build": "yarn node ./scripts/build.js",
     "test": "jest",
     "prepare": "yarn workspace openblocks prepare",

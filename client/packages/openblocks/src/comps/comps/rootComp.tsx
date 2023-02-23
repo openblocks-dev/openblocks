@@ -20,6 +20,7 @@ import { defaultTheme as localDefaultTheme } from "comps/controls/styleControlCo
 import { ModuleLoading } from "components/ModuleLoading";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { getCurrentTheme } from "comps/utils/themeUtil";
+import { DataChangeResponderListComp } from "./dataChangeResponderComp";
 
 interface RootViewProps extends HTMLAttributes<HTMLDivElement> {
   comp: InstanceType<typeof RootComp>;
@@ -31,6 +32,7 @@ const childrenMap = {
   queries: QueryListComp,
   tempStates: TemporaryStateListComp,
   transformers: TransformerListComp,
+  dataResponders: DataChangeResponderListComp,
   hooks: HookListComp,
   settings: AppSettingsComp,
   preload: PreloadComp,
@@ -218,6 +220,7 @@ export class RootComp extends RootCompBase {
       ...this.children.hooks.nameAndExposingInfo(),
       ...this.children.tempStates.nameAndExposingInfo(),
       ...this.children.transformers.nameAndExposingInfo(),
+      ...this.children.dataResponders.nameAndExposingInfo(),
     };
   }
 }

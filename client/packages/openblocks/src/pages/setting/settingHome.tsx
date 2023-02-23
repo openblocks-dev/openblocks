@@ -15,8 +15,8 @@ import history from "util/history";
 import { useParams } from "react-router-dom";
 import { BrandingSetting } from "@openblocks-ee/pages/setting/branding/BrandingSetting";
 import { IdSourceHome } from "@openblocks-ee/pages/setting/idSource";
-import { selectSystemConfig } from "../../redux/selectors/configSelectors";
-import { enableCustomBrand } from "../../util/featureFlagUtils";
+import { selectSystemConfig } from "redux/selectors/configSelectors";
+import { enableCustomBrand } from "util/featureFlagUtils";
 
 enum SettingPageEnum {
   Member = "permission",
@@ -70,9 +70,7 @@ export function SettingHome() {
       key: SettingPageEnum.Advanced,
       label: trans("settings.advanced"),
     },
-    ...(isEE() &&
-      currentOrgAdmin(user) &&
-      (isSelfDomain(config) || isEnterpriseMode(config))
+    ...(isEE() && currentOrgAdmin(user) && (isSelfDomain(config) || isEnterpriseMode(config))
       ? [
           {
             key: SettingPageEnum.IdSource,

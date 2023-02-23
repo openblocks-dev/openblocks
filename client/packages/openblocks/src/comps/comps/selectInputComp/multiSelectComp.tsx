@@ -6,8 +6,9 @@ import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { SelectChildrenMap, SelectPropertyView, SelectUIView } from "./selectCompConstants";
 import { SelectInputInvalidConfig, useSelectInputValidate } from "./selectInputConstants";
+import { refMethods } from "comps/generators/withMethodExposing";
 
-export const MultiSelectBasicComp = (function () {
+const MultiSelectBasicComp = (function () {
   const childrenMap = {
     ...SelectChildrenMap,
     value: arrayStringExposingStateControl("value", ["1", "2"]),
@@ -36,6 +37,7 @@ export const MultiSelectBasicComp = (function () {
     });
   })
     .setPropertyViewFn((children) => <SelectPropertyView {...children} />)
+    .setExposeMethodConfigs(refMethods(["focus", "blur", "scrollTo"]))
     .build();
 })();
 

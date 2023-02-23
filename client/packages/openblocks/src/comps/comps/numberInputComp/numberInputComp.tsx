@@ -27,7 +27,7 @@ import { RecordConstructorToView } from "openblocks-core";
 import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
 import { UICompBuilder, withDefault } from "../../generators";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
-import { MethodConfigFocus, withMethodExposing } from "../../generators/withMethodExposing";
+import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { RefControl } from "../../controls/refControl";
 import { styleControl } from "comps/controls/styleControl";
 import { InputLikeStyle, InputLikeStyleType } from "comps/controls/styleControlConstants";
@@ -225,7 +225,7 @@ const childrenMap = {
   thousandsSeparator: BoolControl.DEFAULT_TRUE, // Whether to display the thousand separator
   allowNull: BoolControl,
   onEvent: InputEventHandlerControl,
-  viewRef: RefControl,
+  viewRef: RefControl<HTMLInputElement>,
   style: styleControl(InputLikeStyle),
   prefixIcon: IconControl,
 
@@ -381,7 +381,10 @@ const NumberInputTmpComp = (function () {
     .build();
 })();
 
-const NumberInputTmp2Comp = withMethodExposing(NumberInputTmpComp, MethodConfigFocus);
+const NumberInputTmp2Comp = withMethodExposing(
+  NumberInputTmpComp,
+  refMethods(["focus", "blur", "click", "select", "setSelectionRange", "setRangeText"])
+);
 
 export const NumberInputComp = withExposingConfigs(NumberInputTmp2Comp, [
   depsConfig({

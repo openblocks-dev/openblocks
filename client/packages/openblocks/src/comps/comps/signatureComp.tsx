@@ -161,12 +161,20 @@ let SignatureTmpComp = (function () {
                           data?.pop();
                           canvas?.fromData(data);
                           updateValue();
+                          props.onEvent("change");
                         }
                       }}
                     />
                   </span>
                 )}
-                {props.showClear && <DeleteOutlined onClick={() => updateValue(true)} />}
+                {props.showClear && (
+                  <DeleteOutlined
+                    onClick={() => {
+                      updateValue(true);
+                      props.onEvent("change");
+                    }}
+                  />
+                )}
               </div>
             )}
             {!(isBegin || props.value) && <div className="empty">{props.tips}</div>}
