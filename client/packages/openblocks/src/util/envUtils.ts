@@ -30,7 +30,7 @@ export function isSelfDomain(config?: SystemConfig) {
 }
 
 export function showAuditLog(config?: SystemConfig) {
-  return config?.featureFlag.enableAuditLog;
+  return config?.featureFlag?.enableAuditLog;
 }
 
 export function useCloudHosting() {

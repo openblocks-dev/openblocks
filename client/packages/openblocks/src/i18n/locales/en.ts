@@ -1496,8 +1496,7 @@ export const en = {
   dataResponder: {
     data: "Data",
     dataDesc: "Data of current data responder",
-    dataTooltip:
-      "The dependent data that it's change will trigger the actions of current responder",
+    dataTooltip: "When this data is changed, it will trigger subsequent actions.",
     docLink: "About the Data responder",
     deleteMessage: "The data responder is deleted successfully. You can use {undoKey} to undo.",
   },

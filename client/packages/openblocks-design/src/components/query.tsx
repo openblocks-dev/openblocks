@@ -110,6 +110,9 @@ export const QueryConfigItemWrapper = styled.div<{ direction?: "row" | "column" 
 type TutorialStyle = "dropdownRight" | "begin";
 
 const TutorialButtonWrapper = styled.div<{ styleName: TutorialStyle }>`
+  height: 100%;
+  display: flex;
+  align-items: center;
   ${(props) => {
     if (props.styleName === "dropdownRight") {
       return css`

@@ -42,6 +42,14 @@ export function SettingHome() {
       key: SettingPageEnum.Organization,
       label: trans("settings.organization"),
     },
+    ...(isEE() && currentOrgAdmin(user) && (isSelfDomain(config) || isEnterpriseMode(config))
+      ? [
+          {
+            key: SettingPageEnum.IdSource,
+            label: trans("settings.idSource"),
+          },
+        ]
+      : []),
     ...(showAuditLog(config) && currentOrgAdmin(user)
       ? [
           {
@@ -70,14 +78,6 @@ export function SettingHome() {
       key: SettingPageEnum.Advanced,
       label: trans("settings.advanced"),
     },
-    ...(isEE() && currentOrgAdmin(user) && (isSelfDomain(config) || isEnterpriseMode(config))
-      ? [
-          {
-            key: SettingPageEnum.IdSource,
-            label: trans("settings.idSource"),
-          },
-        ]
-      : []),
   ];
 
   return (
