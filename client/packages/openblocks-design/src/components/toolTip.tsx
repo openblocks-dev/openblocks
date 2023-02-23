@@ -147,14 +147,11 @@ const TooltipTitleWrapper = styled.span`
 `;
 
 export const UnderlineCss = css`
-  span {
-    background-image: linear-gradient(to right, #8b8fa3 50%, #fff 0%);
-    background-size: 4px 1px;
-    background-position: 5px bottom;
-    background-repeat: repeat-x;
-    padding-bottom: 2.5px !important;
-    line-height: 18px;
-  }
+  background-image: linear-gradient(to right, #8b8fa3 50%, #fff 0%);
+  background-size: 4px 1px;
+  background-position: 5px bottom;
+  background-repeat: repeat-x;
+  padding-bottom: 2.5px !important;
 `;
 
 function Tooltip(props: TooltipProps) {
@@ -162,14 +159,14 @@ function Tooltip(props: TooltipProps) {
 }
 
 const Label = styled.div<{ border?: boolean }>`
-  ${(props) => {
-    if (props.border) {
-      return UnderlineCss;
-    }
-  }};
+  span {
+    ${(props) => props.border && UnderlineCss}
+    line-height: ${(props) => props.border && "18px"};
+  }
   ${labelCss};
   margin: 0;
   width: fit-content;
+  line-height: 1;
 `;
 
 function ToolTipLabel(

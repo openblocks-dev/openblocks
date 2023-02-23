@@ -26,6 +26,7 @@ export function toQueryView(params: FunctionProperty[]) {
     applicationPath: string[];
     args?: Record<string, unknown>;
     timeout: InstanceType<ParamsControlType>;
+    cancelPrevious: boolean;
   }): Promise<QueryResult> => {
     const { applicationId, isViewMode } = getGlobalSettings();
 
@@ -39,6 +40,7 @@ export function toQueryView(params: FunctionProperty[]) {
         })),
       ],
       viewMode: !!isViewMode,
+      cancelPrevious: props.cancelPrevious,
     };
     if (!applicationId) {
       request = { ...request, libraryQueryId: props.queryId, libraryQueryRecordId: "latest" };

@@ -17,7 +17,7 @@ export { relaxedJSONToJSON } from "./utils/relaxedJson";
 export { getDynamicStringSegments, isDynamicSegment } from "./utils/segmentUtils";
 export { clearMockWindow, evalFunc, evalScript } from "./utils/evalScript";
 export { clearStyleEval, evalStyle } from "./utils/evalStyle";
-export { evalFunctionResult } from "./utils/string2Fn";
+export { evalFunctionResult, RelaxedJsonParser } from "./utils/string2Fn";
 export { nodeIsRecord } from "./utils/nodeUtils";
 export { changeDependName } from "./utils/evaluate";
 export { FetchCheckNode } from "./fetchCheckNode";

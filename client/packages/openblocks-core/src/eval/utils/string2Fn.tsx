@@ -70,7 +70,8 @@ export function evalJson(unevaledValue: string, context: Record<string, unknown>
   return new RelaxedJsonParser(unevaledValue, context).parse();
 }
 
-class RelaxedJsonParser extends DefaultParser {
+// this will also be used in node-service
+export class RelaxedJsonParser extends DefaultParser {
   constructor(unevaledValue: string, context: Record<string, unknown>) {
     super(unevaledValue, context);
     this.evalIndexedObject = this.evalIndexedObject.bind(this);

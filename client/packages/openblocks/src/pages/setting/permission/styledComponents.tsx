@@ -34,7 +34,7 @@ export const StyledTable = styled(AntdTable)`
 
   .ant-table-thead > tr > th {
     padding: 8px 0;
-    height: 30px;
+    height: 36px;
 
     font-size: 14px;
     color: #8b8fa3;
@@ -133,7 +133,8 @@ export const UserTableCellWrapper = styled.div`
 
 export const PermissionHeaderWrapper = styled.div`
   display: flex;
-  margin: 0 12px 6px 12px;
+  margin: 0 12px 15px 12px;
+  height: 32px;
 
   .ant-typography {
     display: flex;

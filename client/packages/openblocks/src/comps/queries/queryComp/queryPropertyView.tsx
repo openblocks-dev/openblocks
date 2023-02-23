@@ -24,13 +24,13 @@ import { useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { getDataSource, getDataSourceTypes } from "redux/selectors/datasourceSelectors";
 import { BottomResTypeEnum } from "types/bottomRes";
-import { PreparedStatementConfig } from "../../../api/datasourceApi";
+import { PreparedStatementConfig } from "api/datasourceApi";
 import {
   OPENBLOCKS_API_ID,
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
-} from "../../../constants/datasourceConstants";
-import { PageType } from "../../../constants/pageConstants";
+} from "constants/datasourceConstants";
+import { PageType } from "constants/pageConstants";
 import { EditorContext } from "../../editorState";
 import { QueryComp } from "../queryComp";
 import { ResourceDropdown } from "../resourceDropdown";
@@ -119,6 +119,17 @@ export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> 
                         })}
                     </>
                   )}
+                </QuerySectionWrapper>
+
+                <QuerySectionWrapper>
+                  <>
+                    {children.cancelPrevious.propertyView({
+                      label: trans("query.cancelPrevious"),
+                      type: "checkbox",
+                      placement: "bottom",
+                      tooltip: trans("query.cancelPreviousTooltip"),
+                    })}
+                  </>
                 </QuerySectionWrapper>
               </QueryPropertyViewWrapper>
             ),

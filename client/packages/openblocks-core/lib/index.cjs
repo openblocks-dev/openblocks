@@ -106,49 +106,40 @@ function __spreadArray(to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 }
 
-function getCache(obj, fnName) {
-    var _a;
-    return (_a = obj === null || obj === void 0 ? void 0 : obj.__cache) === null || _a === void 0 ? void 0 : _a[fnName];
-}
-function createCache(obj, fnName, args) {
-    if (!obj.__cache) {
-        obj.__cache = {};
-    }
-    obj.__cache[fnName] = {
-        id: Symbol("id"),
-        args: args,
-        isInProgress: true,
-        time: Date.now(),
-    };
-    return getCache(obj, fnName);
-}
-function genCache(fn, args, thisObj, fnName) {
-    var cache = createCache(thisObj, fnName, args);
-    var value = fn.apply(thisObj, args);
-    cache.isInProgress = false;
-    cache.value = value;
-}
-function read(thisObj, fnName) {
-    var cache = getCache(thisObj, fnName);
-    return cache && cache.value;
-}
-function hitCache(args, thisObj, fnName, equals) {
-    var cache = getCache(thisObj, fnName);
-    if (!cache || !cache.args)
+function isEqualArgs(args, cacheArgs, equals) {
+    if (!cacheArgs) {
         return false;
-    if (args.length === 0 && cache.args.length === 0)
+    }
+    if (args.length === 0 && cacheArgs.length === 0) {
         return true;
-    return cache.args.every(function (arg, index) { var _a, _b; return (_b = (_a = equals === null || equals === void 0 ? void 0 : equals[index]) === null || _a === void 0 ? void 0 : _a.call(equals, arg, args[index])) !== null && _b !== void 0 ? _b : arg === args[index]; });
+    }
+    return (args.length === cacheArgs.length &&
+        cacheArgs.every(function (arg, index) { var _a, _b; return (_b = (_a = equals === null || equals === void 0 ? void 0 : equals[index]) === null || _a === void 0 ? void 0 : _a.call(equals, arg, args[index])) !== null && _b !== void 0 ? _b : arg === args[index]; }));
 }
-function isCyclic(thisObj, fnName) {
-    var cache = getCache(thisObj, fnName);
-    return cache && cache.isInProgress;
+function getCacheResult(thisObj, fnName, args, equals) {
+    var _a;
+    var cache = (_a = thisObj === null || thisObj === void 0 ? void 0 : thisObj.__cache) === null || _a === void 0 ? void 0 : _a[fnName];
+    if (cache && isEqualArgs(args, cache.args, equals)) {
+        return cache.result;
+    }
 }
 function cache(fn, args, thisObj, fnName, equals) {
-    if (!hitCache(args, thisObj, fnName, equals) && !isCyclic(thisObj, fnName)) {
-        genCache(fn, args, thisObj, fnName);
+    var result = getCacheResult(thisObj, fnName, args, equals);
+    if (result) {
+        return result.value;
     }
-    return read(thisObj, fnName);
+    var cache = {
+        id: Symbol("id"),
+        args: args,
+        time: Date.now(),
+    };
+    if (!thisObj.__cache) {
+        thisObj.__cache = {};
+    }
+    thisObj.__cache[fnName] = cache;
+    var value = fn.apply(thisObj, args);
+    cache.result = { value: value };
+    return value;
 }
 function memoized(equals) {
     return function (target, fnName, descriptor) {
@@ -1436,6 +1427,7 @@ var DefaultParser = /** @class */ (function () {
 function evalJson(unevaledValue, context) {
     return new RelaxedJsonParser(unevaledValue, context).parse();
 }
+// this will also be used in node-service
 var RelaxedJsonParser = /** @class */ (function (_super) {
     __extends(RelaxedJsonParser, _super);
     function RelaxedJsonParser(unevaledValue, context) {
@@ -7547,6 +7539,7 @@ exports.FetchCheckNode = FetchCheckNode;
 exports.FunctionNode = FunctionNode;
 exports.MultiBaseComp = MultiBaseComp;
 exports.RecordNode = RecordNode;
+exports.RelaxedJsonParser = RelaxedJsonParser;
 exports.SimpleAbstractComp = SimpleAbstractComp;
 exports.SimpleComp = SimpleComp;
 exports.SimpleNode = SimpleNode;

@@ -422,6 +422,9 @@ export const en = {
       "Minimum value: 100ms, periodical execution will be disabled for values below that.\n" +
       "\n" +
       "E.g. 300 (i.e. 300ms), 800ms, 5s.",
+    cancelPrevious: "Cancel previous unfinished query",
+    cancelPreviousTooltip:
+      "The previous query will be canceled if the execution was not finished and the latest result will be preserved.",
     dataSourceStatusError:
       "The query data source is invalid or does not exist. Update the current query data source.",
     success: "Success",
@@ -542,6 +545,7 @@ export const en = {
     readData: "Read Data",
     appendData: "Append Row",
     updateData: "Update Row",
+    deleteData: "Delete Row",
     clearData: "Clear Row",
     serviceAccountRequireMessage: "Please enter your Service Account",
     ASC: "ASC",
@@ -1279,7 +1283,7 @@ export const en = {
     advanced: "Advanced",
     lab: "Lab",
     branding: "Branding",
-    idSource: "Id source",
+    idSource: "ID source",
   },
   memberSettings: {
     admin: "Admin",

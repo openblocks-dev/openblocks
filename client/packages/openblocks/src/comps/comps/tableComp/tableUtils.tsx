@@ -83,21 +83,11 @@ function transformData(
 
 export function filterData(
   data: Array<JSONObject>,
-  hideInfo: Record<string, { hide: boolean; tempHide: boolean }>,
   searchValue: string,
   filter: TableFilter,
-  showFilter: boolean,
-  enableColumnSetting: boolean
+  showFilter: boolean
 ) {
   let resultData = data;
-  if (!_.isEmpty(hideInfo)) {
-    resultData = resultData.map((row) =>
-      _.omitBy(
-        row,
-        (cell, key) => hideInfo[key] && columnHide({ ...hideInfo[key], enableColumnSetting })
-      )
-    );
-  }
   if (searchValue) {
     resultData = resultData.filter((d) => {
       let searchLower = searchValue?.toLowerCase();
@@ -171,7 +161,7 @@ export function hideData(
   );
 }
 
-function columnHide({
+export function columnHide({
   hide,
   tempHide,
   enableColumnSetting,

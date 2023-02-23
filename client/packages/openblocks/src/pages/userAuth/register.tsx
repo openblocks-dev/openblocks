@@ -52,6 +52,8 @@ function UserRegister(props: { invitationId?: string }) {
   const redirectUrl = useRedirectUrl();
   const systemConfig = useSelector(selectSystemConfig);
   const location = useLocation();
+  const config = useSelector(selectSystemConfig);
+  const authId = config?.email.id;
   if (!systemConfig || !systemConfig.email.enableRegister) {
     return null;
   }
@@ -62,6 +64,7 @@ function UserRegister(props: { invitationId?: string }) {
       password: password,
       invitationId: props.invitationId,
       source: UserConnectionSource.email,
+      authId
     })
       .then((resp) => {
         authRespValidate(resp, false, redirectUrl);

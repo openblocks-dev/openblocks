@@ -499,10 +499,11 @@ export const TableStyled = styled(Table)`
     thead tr th {
       background-color: #ffffff;
       color: #8b8fa3;
+      font-size: 14px;
       font-weight: 400;
       border-color: #e1e3eb;
-      padding: 8px 0;
-      height: 56px;
+      padding: 3px 0;
+      height: 36px;
       display: flex;
       align-items: center;
       &::before {

@@ -9,7 +9,13 @@ import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { StringControl } from "comps/controls/codeControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { EditorState } from "comps/editorState";
-import { stateComp, valueComp, withTypeAndChildren, withViewFn } from "comps/generators";
+import {
+  stateComp,
+  valueComp,
+  withDefault,
+  withTypeAndChildren,
+  withViewFn,
+} from "comps/generators";
 import { list } from "comps/generators/list";
 import { ToInstanceType } from "comps/generators/multi";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
@@ -67,6 +73,7 @@ import { QueryConfirmationModal } from "./queryComp/queryConfirmationModal";
 import { QueryNotificationControl } from "./queryComp/queryNotificationControl";
 import { QueryPropertyView } from "./queryComp/queryPropertyView";
 import { getTriggerType, onlyManualTrigger } from "./queryCompUtils";
+import axios from "axios";
 
 export type QueryResultExtra = Omit<
   QueryExecuteResponse,
@@ -135,6 +142,7 @@ const childrenMap = {
       return unit === "s" ? value * 1000 : value;
     },
   }),
+  cancelPrevious: withDefault(BoolPureControl, true),
 };
 
 let QueryCompTmp = withTypeAndChildren<typeof QueryMap, ToInstanceType<typeof childrenMap>>(
@@ -383,6 +391,7 @@ QueryCompTmp = class extends QueryCompTmp {
           applicationPath: parentApplicationPath,
           args: action.args,
           timeout: this.children.timeout,
+          cancelPrevious: this.children.cancelPrevious.getView(),
         });
       }, getTriggerType(this) === "manual")
       .then(
@@ -395,6 +404,10 @@ QueryCompTmp = class extends QueryCompTmp {
           }
         },
         (error) => {
+          if (axios.isCancel(error)) {
+            return;
+          }
+
           this.processResult(
             {
               code: QUERY_EXECUTION_ERROR,

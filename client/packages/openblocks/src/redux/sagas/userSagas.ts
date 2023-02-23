@@ -150,6 +150,7 @@ export function* logoutSaga(action: LogoutActionType) {
       yield put(logoutSuccess());
       localStorage.clear();
       history.push(redirectURL);
+      window.location.reload();
     }
   } catch (error) {
     log.error(error);

@@ -84,7 +84,6 @@ const Label = styled.span<{ border: boolean }>`
   text-overflow: ellipsis;
   overflow: hidden;
   display: inline-block;
-  line-height: normal;
 `;
 
 const ChildrenWrapper = styled.div`
