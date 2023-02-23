@@ -168,7 +168,6 @@ const Label = styled.div<{ border?: boolean }>`
     }
   }};
   ${labelCss};
-  line-height: normal;
   margin: 0;
   width: fit-content;
 `;

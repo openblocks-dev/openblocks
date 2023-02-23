@@ -19,6 +19,7 @@ import { ModuleLayoutCompName } from "constants/compConstants";
 import { defaultTheme as localDefaultTheme } from "comps/controls/styleControlConstants";
 import { ModuleLoading } from "components/ModuleLoading";
 import { getGlobalSettings } from "comps/utils/globalSettings";
+import { getCurrentTheme } from "comps/utils/themeUtil";
 
 interface RootViewProps extends HTMLAttributes<HTMLDivElement> {
   comp: InstanceType<typeof RootComp>;
@@ -39,18 +40,14 @@ function RootView(props: RootViewProps) {
   const previewTheme = useContext(ThemeContext);
   const { comp, isModuleRoot, ...divProps } = props;
   const [editorState, setEditorState] = useState<EditorState>();
-  const themeId = comp.children.settings.getView().themeId;
+  const appThemeId = comp.children.settings.getView().themeId;
   const { orgCommonSettings } = getGlobalSettings();
   const themeList = orgCommonSettings?.themeList || [];
-  const defaultTheme = orgCommonSettings?.defaultTheme || [];
 
-  let theme = localDefaultTheme;
-  if (themeId === "default") {
-    theme = themeList.find((theme) => theme.id === defaultTheme)?.theme || localDefaultTheme;
-  } else if (themeId) {
-    theme = themeList.find((theme) => theme.id === themeId)?.theme || localDefaultTheme;
-  }
-  theme = previewTheme?.previewTheme || theme;
+  const theme =
+    previewTheme?.previewTheme ||
+    getCurrentTheme(themeList, appThemeId)?.theme ||
+    localDefaultTheme;
 
   useEffect(() => {
     const newEditorState = new EditorState(comp, (changeEditorStateFn) => {

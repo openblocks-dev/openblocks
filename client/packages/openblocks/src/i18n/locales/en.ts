@@ -303,6 +303,9 @@ export const en = {
     tableHeaderText: "Header text",
     toolbarBackground: "Toolbar background",
     toolbarText: "Toolbar text",
+    pen: "Pen",
+    footerIcon: "Footer icon",
+    tips: "Tips",
   },
   export: {
     hiddenDesc: "If true, the component is hidden",
@@ -779,6 +782,9 @@ export const en = {
     imageEditorCompName: "Image Editor",
     imageEditorCompDesc: "Image Editor component",
     imageEditorCompKeywords: "",
+    signatureCompName: "Signature",
+    signatureCompDesc: "Signature component",
+    signatureCompKeywords: "",
   },
   comp: {
     menuViewDocs: "View documentation",
@@ -1428,6 +1434,12 @@ export const en = {
     closeDesc: "Triggered when the switch is turned off",
     valueDesc: "Current switch status",
   },
+  signature: {
+    tips: "Tips",
+    signHere: "Sign here",
+    showUndo: "Show undo",
+    showClear: "Show clear",
+  },
   localStorageComp: {
     valueDesc: "All data items currently stored",
     setItemDesc: "Add an item",
@@ -1445,6 +1457,9 @@ export const en = {
     success: "Send a success notification",
     warn: "Send a warning notification",
     error: "Send a error notification",
+  },
+  themeComp: {
+    switchTo: "Switch theme",
   },
   transformer: {
     preview: "Preview",
@@ -1492,7 +1507,7 @@ export const en = {
     leaveTipContent: "You haven't saved yet, confirm leaving?",
     leaveTipOkText: "Leave",
     goList: "Back to the list",
-    saveBtn: "Save the settings",
+    saveBtn: "Save",
     mainColor: "Main colors",
     text: "Text colors",
     defaultTheme: "Default",

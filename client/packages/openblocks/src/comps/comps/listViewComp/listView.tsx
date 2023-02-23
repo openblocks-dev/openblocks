@@ -13,7 +13,7 @@ import {
   InnerGrid,
 } from "../containerComp/containerView";
 import { ListViewImplComp } from "./listViewComp";
-import { getCurrentItemParams, getData } from "./listViewUtils";
+import { genKey, getCurrentItemParams, getData } from "./listViewUtils";
 
 const Wrapper = styled.div`
   overflow: auto;
@@ -68,7 +68,6 @@ export function ListView(props: Props) {
   const style = children.style.getView();
 
   const commonLayout = children.container.getOriginalComp().getComp().children.layout.getView();
-  const commonLayoutDispatch = children.container.getOriginalComp().getComp().dispatch;
   const isOneItem = itemCount > 0 && (_.isEmpty(commonLayout) || editorState.isDragging);
   const noOfRows = isOneItem ? 1 : Math.floor((itemCount + noOfColumns - 1) / noOfColumns);
   const rowHeight = isOneItem ? "100%" : dynamicHeight ? "auto" : heightUnitOfRow * 44 + "px";
@@ -94,7 +93,7 @@ export function ListView(props: Props) {
             }
             const containerProps = containerViewFn(
               { i, currentItem: getCurrentItemParams(data, i) },
-              String(i)
+              genKey(i)
             );
             return (
               <ContainerInListView
@@ -103,7 +102,7 @@ export function ListView(props: Props) {
                 items={gridItemCompToGridItems(containerProps.items)}
                 positionParams={containerProps.positionParams}
                 // all layout changes should only reflect on the commonContainer
-                dispatch={i === 0 ? commonLayoutDispatch : _.noop}
+                dispatch={i === 0 ? containerProps.dispatch : _.noop}
                 style={{ height: "100%", backgroundColor: "transparent", flex: "auto" }}
                 autoHeight={isDragging || dynamicHeight}
                 isDroppable={i === 0}

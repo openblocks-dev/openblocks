@@ -5,7 +5,6 @@ import {
   NameConfigHidden,
   withExposingConfigs,
 } from "comps/generators/withExposing";
-import { MAP_KEY } from "comps/generators/withMultiContext";
 import { NameGenerator } from "comps/utils";
 import { getReduceContext, reduceInContext } from "comps/utils/reduceContext";
 import { trans } from "i18n";
@@ -15,7 +14,6 @@ import {
   CompActionTypes,
   fromRecord,
   fromValue,
-  isCustomAction,
   Node,
   withFunction,
   WrapContextNodeV2,
@@ -26,7 +24,13 @@ import { CompTree, getAllCompItems, IContainer } from "../containerBase";
 import { SimpleContainerComp, toSimpleContainerData } from "../containerBase/simpleContainerComp";
 import { ListView } from "./listView";
 import { listPropertyView } from "./listViewPropertyView";
-import { childrenMap, ContextContainerComp, getCurrentItemParams, getData } from "./listViewUtils";
+import {
+  childrenMap,
+  ContextContainerComp,
+  genKey,
+  getCurrentItemParams,
+  getData,
+} from "./listViewUtils";
 
 const ListViewTmpComp = new UICompBuilder(childrenMap, () => <></>)
   .setPropertyViewFn(() => <></>)
@@ -66,17 +70,14 @@ export class ListViewImplComp extends ListViewTmpComp implements IContainer {
       () => super.reduce(action)
     );
 
-    if (isCustomAction(action, "moduleReady")) {
-      // mirror the 0-th item to the origin
-      const thisMapComps = this.children.container.children[MAP_KEY].getView();
-      const compMapComps = comp.children.container.children[MAP_KEY].getView();
-      const topItemChanged = thisMapComps[0] !== compMapComps[0];
-      if (topItemChanged) {
-        comp = comp.setChild(
-          "container",
-          comp.children.container.reduce(ContextContainerComp.mirrorToOriginAction("0"))
-        );
-      }
+    if (
+      action.type !== CompActionTypes.UPDATE_NODES_V2 &&
+      this.children.noOfRows !== comp.children.noOfRows
+    ) {
+      comp = comp.setChild(
+        "container",
+        comp.children.container.reduce(ContextContainerComp.clearAction())
+      );
     }
 
     if (action.type === CompActionTypes.UPDATE_NODES_V2) {
@@ -109,7 +110,7 @@ export class ListViewImplComp extends ListViewTmpComp implements IContainer {
       .fromPairs()
       .mapValues((i) => {
         let hitCache = true;
-        let container = this.children.container.getCachedComp(String(i));
+        let container = this.children.container.getCachedComp(genKey(i));
         if (!container) {
           hitCache = false;
           container = this.children.container.getOriginalComp();

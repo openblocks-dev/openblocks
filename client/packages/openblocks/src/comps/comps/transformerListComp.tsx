@@ -1,12 +1,14 @@
+import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { message } from "antd";
-import { DocLink } from "openblocks-design";
-import { fromRecord, wrapActionExtraInfo } from "openblocks-core";
 import { codeControl, TransformerCodeControl } from "comps/controls/codeControl";
 import { EditorContext, EditorState } from "comps/editorState";
 import { MultiCompBuilder, valueComp } from "comps/generators";
 import { list } from "comps/generators/list";
 import { withExposingRaw } from "comps/generators/withExposing";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
+import { trans } from "i18n";
+import { fromRecord, wrapActionExtraInfo } from "openblocks-core";
+import { DocLink } from "openblocks-design";
 import { BottomTabs } from "pages/editor/bottom/BottomTabs";
 import { ReactNode } from "react";
 import {
@@ -15,11 +17,9 @@ import {
   BottomResListComp,
   BottomResTypeEnum,
 } from "types/bottomRes";
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
+import { undoKey } from "util/keyUtils";
 import { QueryTutorials } from "util/tutorialUtils";
 import { SimpleNameComp } from "./simpleNameComp";
-import { trans } from "i18n";
-import { undoKey } from "util/keyUtils";
 
 const TransformerItemCompBase = new MultiCompBuilder(
   {
@@ -140,13 +140,15 @@ export class TransformerListComp extends TransformerListCompBase implements Bott
           script: "return currentUser.name",
           order: Date.now(),
         }),
-        [
-          {
-            type: "add",
-            compName: name,
-            compType: "transformer",
-          },
-        ]
+        {
+          compInfos: [
+            {
+              type: "add",
+              compName: name,
+              compType: "transformer",
+            },
+          ],
+        }
       )
     );
     editorState.setSelectedBottomRes(name, BottomResTypeEnum.Transformer);
@@ -167,13 +169,15 @@ export class TransformerListComp extends TransformerListCompBase implements Bott
           name: newCompName,
           order: Date.now(),
         }),
-        [
-          {
-            type: "add",
-            compName: name,
-            compType: "transformer",
-          },
-        ]
+        {
+          compInfos: [
+            {
+              type: "add",
+              compName: name,
+              compType: "transformer",
+            },
+          ],
+        }
       )
     );
     editorState.setSelectedBottomRes(newCompName, BottomResTypeEnum.Transformer);
@@ -187,13 +191,15 @@ export class TransformerListComp extends TransformerListCompBase implements Bott
       return;
     }
     this.dispatch(
-      wrapActionExtraInfo(this.deleteAction(index), [
-        {
-          type: "delete",
-          compName: toDelComp.children.name.getView(),
-          compType: "transformer",
-        },
-      ])
+      wrapActionExtraInfo(this.deleteAction(index), {
+        compInfos: [
+          {
+            type: "delete",
+            compName: toDelComp.children.name.getView(),
+            compType: "transformer",
+          },
+        ],
+      })
     );
     message.success(trans("transformer.deleteMessage", { undoKey }));
   }

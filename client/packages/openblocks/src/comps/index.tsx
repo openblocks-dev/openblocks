@@ -76,6 +76,7 @@ import {
   ScannerIcon,
   SegmentedCompIcon,
   SelectCompIcon,
+  SignatureIcon,
   SliderCompIcon,
   SwitchCompIcon,
   TabbedContainerCompIcon,
@@ -113,6 +114,7 @@ import { ToggleButtonComp } from "./comps/buttonComp/toggleButtonComp";
 import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
 import { RemoteCompInfo } from "types/remoteComp";
 import { ScannerComp } from "./comps/buttonComp/scannerComp";
+import { SignatureComp } from "./comps/signatureComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -567,7 +569,7 @@ const uiCompMap: Registry = {
     comp: ListViewComp,
     layoutInfo: {
       h: 92,
-      w: 6,
+      w: 10,
       delayCollision: true,
     },
     defaultDataFn: defaultListViewData,
@@ -792,6 +794,19 @@ const uiCompMap: Registry = {
     icon: ScannerIcon,
     keywords: trans("uiComp.scannerCompKeywords"),
     comp: ScannerComp,
+  },
+  signature: {
+    name: trans("uiComp.signatureCompName"),
+    enName: "Signature",
+    description: trans("uiComp.signatureCompDesc"),
+    categories: ["dataInputSelect"],
+    icon: SignatureIcon,
+    keywords: trans("uiComp.signatureCompKeywords"),
+    comp: SignatureComp,
+    layoutInfo: {
+      w: 9,
+      h: 35,
+    },
   },
 };
 

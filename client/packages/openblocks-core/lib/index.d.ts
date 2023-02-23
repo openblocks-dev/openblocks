@@ -504,7 +504,7 @@ declare type ExtraActionType =
   | "recover"
   | "upgrade";
 declare type ActionExtraInfo = {
-  compInfos: {
+  compInfos?: {
     compName: string;
     compType: string;
     type: ExtraActionType;
@@ -631,7 +631,7 @@ declare function changeChildAction(childName: string, value: JSONValue): CompAct
 declare function updateNodesV2Action(value: any): UpdateNodesV2Action;
 declare function wrapActionExtraInfo<T extends CompAction>(
   action: T,
-  extraCompInfos: ActionExtraInfo["compInfos"]
+  extraInfos: ActionExtraInfo
 ): T;
 declare function deferAction<T extends CompAction>(action: T): T;
 

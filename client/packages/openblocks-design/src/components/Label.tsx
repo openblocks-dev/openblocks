@@ -6,6 +6,7 @@ export const labelCss: any = css`
 
   font-size: 13px;
   color: #222222;
+  line-height: 1;
 
   :hover {
     cursor: default;

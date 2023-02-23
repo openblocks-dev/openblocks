@@ -3209,8 +3209,8 @@ function updateNodesV2Action(value) {
         value: value,
     };
 }
-function wrapActionExtraInfo(action, extraCompInfos) {
-    return __assign(__assign({}, action), { extraInfo: { compInfos: extraCompInfos } });
+function wrapActionExtraInfo(action, extraInfos) {
+    return __assign(__assign({}, action), { extraInfo: __assign(__assign({}, action.extraInfo), extraInfos) });
 }
 function deferAction(action) {
     return __assign(__assign({}, action), { priority: "defer" });

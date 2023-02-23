@@ -4918,6 +4918,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-signature-canvas@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@types/react-signature-canvas@npm:1.0.2"
+  dependencies:
+    "@types/react": "*"
+    "@types/signature_pad": "*"
+  checksum: cf7dff40046b47da962f5fe255e3b842c2cec0f17cf07521cffd7b8610a4745f62d79e9099a0ff3a94da43a3afa6e5bf8a00548cd5b15d099809a54db0c5f30c
+  languageName: node
+  linkType: hard
+
 "@types/react-test-renderer@npm:^18.0.0":
   version: 18.0.0
   resolution: "@types/react-test-renderer@npm:18.0.0"
@@ -4999,6 +5009,13 @@ __metadata:
     "@types/glob": "*"
     "@types/node": "*"
   checksum: 559b81efba72f2b231485b26510aad68cccfe98dc74087d67dafd5511462997884db0ef18e0e56bf61a3a5789aa65a54dc04845a488bb0528d4a699e6151b99c
+  languageName: node
+  linkType: hard
+
+"@types/signature_pad@npm:*":
+  version: 2.3.2
+  resolution: "@types/signature_pad@npm:2.3.2"
+  checksum: dab6dd7409b9745b7d4382be314b253d38f386ec66c06e49e52d2b821744cb24752ba9e1e28a9003bec2c6b6ef05c5857a0d0efe4248e3b151915a3e870e6f7e
   languageName: node
   linkType: hard
 
@@ -13694,6 +13711,7 @@ __metadata:
     "@types/papaparse": ^5.3.5
     "@types/react": ^17.0.20
     "@types/react-dom": ^17.0.9
+    "@types/react-signature-canvas": ^1.0.2
     "@types/react-test-renderer": ^18.0.0
     "@types/react-virtualized": ^9.21.21
     "@types/regenerator-runtime": ^0.13.1
@@ -13746,6 +13764,7 @@ __metadata:
     react-resize-detector: ^7.0.0
     react-router: ^5.2.1
     react-router-dom: ^5.3.0
+    react-signature-canvas: ^1.0.6
     react-test-renderer: ^18.1.0
     react-use: ^17.3.2
     really-relaxed-json: ^0.3.1
@@ -15604,6 +15623,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-signature-canvas@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "react-signature-canvas@npm:1.0.6"
+  dependencies:
+    signature_pad: ^2.3.2
+    trim-canvas: ^0.1.0
+  peerDependencies:
+    prop-types: ^15.5.8
+    react: 0.14 - 18
+    react-dom: 0.14 - 18
+  checksum: 4fe5f0c41162f7c26dd5e8dc8305583016f75eb95a3f6c1207b6234d20b7e3348033e20d26f9f8d0d59c57a63a1679e27e4e5d285f2537ea25f8cc73f3626c71
+  languageName: node
+  linkType: hard
+
 "react-sortable-hoc@npm:^2.0.0":
   version: 2.0.0
   resolution: "react-sortable-hoc@npm:2.0.0"
@@ -16764,6 +16797,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"signature_pad@npm:^2.3.2":
+  version: 2.3.2
+  resolution: "signature_pad@npm:2.3.2"
+  checksum: f64fdc0a2743bf7ad7d35ba5017241dc840092d52912a01a76000eece03ba998535d30140e4b69476746711538e9f56507c390ca9def60ee86deb42cea335cd7
+  languageName: node
+  linkType: hard
+
 "simplebar-react@npm:^2.3.6":
   version: 2.3.6
   resolution: "simplebar-react@npm:2.3.6"
@@ -17754,6 +17794,13 @@ __metadata:
     "@gilbarbara/deep-equal": ^0.1.0
     is-lite: ^0.8.1
   checksum: a2597605339b082f76adfcc59c7496389de0cc44a123c7479831c4234faab18eed8b329eab1715cf037d63a3880f625a76705febc7e87a5511edea3db34b583e
+  languageName: node
+  linkType: hard
+
+"trim-canvas@npm:^0.1.0":
+  version: 0.1.2
+  resolution: "trim-canvas@npm:0.1.2"
+  checksum: 0068b721fccfc1e9d268d7569e11c1b8de508267087bb6206bb77ade06f257872d0beb9e34dd362c3a58a8d99d302cf4773e418cf9b6374f2b0e10d55f55ecc2
   languageName: node
   linkType: hard
 

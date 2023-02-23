@@ -226,7 +226,7 @@ export function getCompContainer<T extends CompConstructor>(params: GetContainer
         actionHandler({ action, reduceFn: (act) => nestDispatchHandler(act, reduceFn) })
       );
 
-      // console.info("~~ actions: ", actions);
+      // if (!_.isEmpty(actions)) console.info("~~ actions: ", actions);
       this.setComp(tmpComp, actions);
 
       if (size > 0) {

@@ -9,6 +9,7 @@ const PRIORITY_FUNCTIONS = ["setValue", "setData"];
 
 export class ExposingCompletionSource extends CompletionSource {
   data?: Record<string, unknown>;
+  boostExposingData?: Record<string, unknown>;
   completionSource(
     context: CompletionContext
   ): CompletionResult | Promise<CompletionResult | null> | null {
@@ -34,11 +35,18 @@ export class ExposingCompletionSource extends CompletionSource {
     const keys = Object.keys(currentData).filter((key) => key.startsWith(prefix));
     const options = keys.map((key) => {
       const dataType = getDataType(currentData[key]);
+      const isBoost = offset === 0 && this.boostExposingData?.hasOwnProperty(key);
       const result: Completion = {
         type: _.lowerCase(dataType),
         label: key,
         detail: _.capitalize(dataType),
-        boost: PRIORITY_PROPS.includes(key) ? 3 : PRIORITY_FUNCTIONS.includes(key) ? 2 : 1,
+        boost: isBoost
+          ? 20
+          : PRIORITY_PROPS.includes(key)
+          ? 3
+          : PRIORITY_FUNCTIONS.includes(key)
+          ? 2
+          : 1,
       };
       return result;
     });

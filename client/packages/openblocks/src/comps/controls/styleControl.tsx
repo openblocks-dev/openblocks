@@ -115,6 +115,7 @@ const TitleDiv = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 13px;
+  line-height: 1;
   span:nth-of-type(2) {
     cursor: pointer;
     color: #8b8fa3;

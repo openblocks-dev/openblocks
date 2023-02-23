@@ -20,7 +20,7 @@ import _ from "lodash";
 import { Comp, CompAction, ConstructorToDataType } from "openblocks-core";
 import React, { Profiler, useContext, useMemo } from "react";
 import { profilerCallback } from "util/cacheUtils";
-import { setFieldsNoTypeCheck } from "util/objectUtils";
+import { setFieldsNoTypeCheck, shallowEqual } from "util/objectUtils";
 import { remoteComp } from "./remoteComp/remoteComp";
 import { SimpleNameComp } from "./simpleNameComp";
 
@@ -134,8 +134,12 @@ export class GridItemComp extends TmpComp {
   override reduce(action: CompAction): this {
     let comp = super.reduce(action);
     const listViewContext = getReduceContext().listViewContext;
-    if (listViewContext !== this.listViewContext)
+    if (
+      listViewContext.listViewDepth !== this.listViewContext.listViewDepth ||
+      !shallowEqual(listViewContext.currentItem, this.listViewContext.currentItem)
+    ) {
       comp = setFieldsNoTypeCheck(comp, { listViewContext }, { keepCacheKeys: ["node"] });
+    }
     return comp;
   }
 }

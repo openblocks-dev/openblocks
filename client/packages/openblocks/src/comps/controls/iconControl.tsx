@@ -62,6 +62,12 @@ const StyledImage = styled.img`
   color: currentColor;
 `;
 
+const Wrapper = styled.div`
+  > div:nth-of-type(1) {
+    margin-bottom: 4px;
+  }
+`
+
 const IconPicker = (props: {
   value: string;
   onChange: (value: string) => void;
@@ -239,10 +245,10 @@ export class IconControl extends AbstractComp<ReactNode, string, Node<ValueAndMs
     );
     if (this.useCodeEditor) {
       return (
-        <>
+        <Wrapper>
           <SwitchWrapper label={params.label} tooltip={params.tooltip} lastNode={jsContent} />
           {this.useCodeEditor && <IconCodeEditor codeControl={this.codeControl} params={params} />}
-        </>
+        </Wrapper>
       );
     }
     return (

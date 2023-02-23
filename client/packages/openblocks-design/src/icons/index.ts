@@ -259,3 +259,6 @@ export { ReactComponent as LeftOpen } from "./icon-left-comp-open.svg";
 export { ReactComponent as LeftClose } from "./icon-left-comp-close.svg";
 export { ReactComponent as ScannerIcon } from "./icon-scanner.svg";
 export { ReactComponent as MaterialUploadIcon } from "./icon-material-upload.svg";
+export { ReactComponent as LeftSignature } from "./icon-left-signature.svg";
+export { ReactComponent as UndoIcon } from "./icon-undo.svg";
+export { ReactComponent as SignatureIcon } from "./icon-signature.svg";

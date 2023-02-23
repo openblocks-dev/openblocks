@@ -5,17 +5,33 @@ import { styleControl } from "comps/controls/styleControl";
 import { ListViewStyle } from "comps/controls/styleControlConstants";
 import { withDefault } from "comps/generators";
 import { withIsLoadingMethod } from "comps/generators/withIsLoading";
-import { withMultiContextWithDefault } from "comps/generators/withMultiContext";
+import { CHILD_KEY, withMultiContextWithDefault } from "comps/generators/withMultiContext";
+import { reduceInContext } from "comps/utils/reduceContext";
+import { CompAction } from "openblocks-core";
 import { JSONObject } from "util/jsonTypes";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 
 export const EMPTY_OBJECT = {};
 export type ListCompType = "listView" | "grid";
 
-export const ContextContainerComp = withMultiContextWithDefault(SimpleContainerComp, {
+const ContextContainerTmpComp = withMultiContextWithDefault(SimpleContainerComp, {
   i: 0,
   currentItem: {} as JSONObject,
 });
+
+export class ContextContainerComp extends ContextContainerTmpComp {
+  override reduce(action: CompAction): this {
+    let comp = super.reduce(action);
+    if (action.path[1] === "0") {
+      const mirrorAction = {
+        ...action,
+        path: [CHILD_KEY, ...action.path.slice(2)],
+      };
+      comp = reduceInContext({ disableUpdateState: true }, () => comp.reduce(mirrorAction));
+    }
+    return comp;
+  }
+}
 
 export const childrenMap = {
   noOfRows: withIsLoadingMethod(NumberOrJSONObjectArrayControl), // FIXME: migrate "noOfRows" to "data"
@@ -38,4 +54,8 @@ export function getData(data: number | Array<JSONObject>): {
 
 export function getCurrentItemParams(data: Array<JSONObject>, idx?: number) {
   return data[idx ?? 0] ?? EMPTY_OBJECT;
+}
+
+export function genKey(i: number) {
+  return String(i);
 }

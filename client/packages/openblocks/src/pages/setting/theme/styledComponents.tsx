@@ -27,6 +27,7 @@ export const CreateButton = styled(Button)`
   background-color: #4965f2;
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 4px 8px;
   font-size: 13px;
   border: 1px solid #4965f2;
@@ -50,7 +51,8 @@ export const CreateButton = styled(Button)`
 `;
 
 export const SaveButton = styled(CreateButton)`
-  padding: 4px 15px;
+  min-width: 84px;
+  height: 32px;
 `;
 
 export const FlexAlignCenter = styled.div`

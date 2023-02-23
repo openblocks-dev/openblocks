@@ -201,6 +201,7 @@ export function codeControl<
                       ),
                       ...exposingData,
                     }}
+                    boostExposingData={exposingData}
                     enableClickCompName={editorState?.forceShowGrid}
                   />
                 </>

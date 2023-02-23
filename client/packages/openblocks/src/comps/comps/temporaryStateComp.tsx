@@ -1,7 +1,5 @@
+import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { message } from "antd";
-import { JSONObject } from "util/jsonTypes";
-import { DocLink } from "openblocks-design";
-import { wrapActionExtraInfo } from "openblocks-core";
 import { jsonValueStateControl } from "comps/controls/codeStateControl";
 import { EditorState } from "comps/editorState";
 import { MultiCompBuilder, valueComp } from "comps/generators";
@@ -9,7 +7,10 @@ import { list } from "comps/generators/list";
 import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
+import { trans } from "i18n";
 import _ from "lodash";
+import { wrapActionExtraInfo } from "openblocks-core";
+import { DocLink } from "openblocks-design";
 import { BottomTabs } from "pages/editor/bottom/BottomTabs";
 import { ReactNode } from "react";
 import {
@@ -18,11 +19,10 @@ import {
   BottomResListComp,
   BottomResTypeEnum,
 } from "types/bottomRes";
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
-import { SimpleNameComp } from "./simpleNameComp";
-import { trans } from "i18n";
+import { JSONObject } from "util/jsonTypes";
 import { undoKey } from "util/keyUtils";
 import { QueryTutorials } from "util/tutorialUtils";
+import { SimpleNameComp } from "./simpleNameComp";
 
 const TemporaryStateItemCompBase = new MultiCompBuilder(
   {
@@ -162,13 +162,15 @@ export class TemporaryStateListComp
           name,
           order: Date.now(),
         }),
-        [
-          {
-            type: "add",
-            compName: name,
-            compType: "tempState",
-          },
-        ]
+        {
+          compInfos: [
+            {
+              type: "add",
+              compName: name,
+              compType: "tempState",
+            },
+          ],
+        }
       )
     );
     editorState.setSelectedBottomRes(name, BottomResTypeEnum.TempState);
@@ -189,13 +191,15 @@ export class TemporaryStateListComp
           name: newStateName,
           order: Date.now(),
         }),
-        [
-          {
-            type: "add",
-            compName: name,
-            compType: "tempState",
-          },
-        ]
+        {
+          compInfos: [
+            {
+              type: "add",
+              compName: name,
+              compType: "tempState",
+            },
+          ],
+        }
       )
     );
     editorState.setSelectedBottomRes(newStateName, BottomResTypeEnum.TempState);
@@ -209,13 +213,15 @@ export class TemporaryStateListComp
       return;
     }
     this.dispatch(
-      wrapActionExtraInfo(this.deleteAction(index), [
-        {
-          type: "delete",
-          compName: toDelState.children.name.getView(),
-          compType: "tempState",
-        },
-      ])
+      wrapActionExtraInfo(this.deleteAction(index), {
+        compInfos: [
+          {
+            type: "delete",
+            compName: toDelState.children.name.getView(),
+            compType: "tempState",
+          },
+        ],
+      })
     );
     message.success(trans("temporaryState.deleteMessage", { undoKey }));
   }

@@ -46,7 +46,10 @@ export const SizeWrapper = styled.div<{ $size?: string }>`
     props.$size &&
     `padding: ${
       props.$size === "small" ? "8.5px 8px" : props.$size === "large" ? "16.5px 16px" : "12.5px 8px"
-    }`}
+    };
+    line-height: 21px;
+    `
+    }
 `;
 
 const BorderDiv = styled.div`

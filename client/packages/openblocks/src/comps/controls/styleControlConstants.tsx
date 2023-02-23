@@ -54,6 +54,15 @@ export function contrastBackground(color: string, amount: number = 0.05) {
   }
 }
 
+// return contrast color
+export function contrastColor(color: string) {
+  if (isDarkColor(color)) {
+    return lightenColor(color, 0.2);
+  } else {
+    return darkenColor(color, 0.1);
+  }
+}
+
 // return dependent color
 function toSelf(color: string) {
   return color;
@@ -636,6 +645,26 @@ export const DrawerStyle = [getBackground()] as const;
 
 export const JsonEditorStyle = [LABEL] as const;
 
+export const SignatureStyle = [
+  LABEL,
+  ...getBgBorderRadiusByBg(),
+  {
+    name: "pen",
+    label: trans("style.pen"),
+    color: "#000000",
+  },
+  {
+    name: "tips",
+    label: trans("style.tips"),
+    color: "#B8B9BF",
+  },
+  {
+    name: "footerIcon",
+    label: trans("style.footerIcon"),
+    color: "#222222",
+  },
+] as const;
+
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
@@ -667,3 +696,4 @@ export type JsonSchemaFormStyleType = StyleConfigType<typeof JsonSchemaFormStyle
 export type TreeSelectStyleType = StyleConfigType<typeof TreeSelectStyle>;
 export type DrawerStyleType = StyleConfigType<typeof DrawerStyle>;
 export type JsonEditorStyleType = StyleConfigType<typeof JsonEditorStyle>;
+export type SignatureStyleType = StyleConfigType<typeof SignatureStyle>;

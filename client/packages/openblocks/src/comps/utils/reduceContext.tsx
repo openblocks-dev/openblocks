@@ -21,6 +21,7 @@ type ReduceContext = {
    */
   inEventContext: boolean;
   listViewContext: { currentItem: JSONObject; listViewDepth: number };
+  disableUpdateState: boolean;
 };
 export type PartialReduceContext = Partial<ReduceContext>;
 export type ListViewContext = ReduceContext["listViewContext"];
@@ -32,6 +33,7 @@ let context: ReduceContext = {
   parentApplicationPath: [],
   inEventContext: false,
   listViewContext: { currentItem: {}, listViewDepth: 0 },
+  disableUpdateState: false,
 };
 
 export function getApplicationIdInReducer() {

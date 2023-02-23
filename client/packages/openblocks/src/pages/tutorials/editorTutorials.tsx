@@ -139,7 +139,7 @@ function addTable(editorState: EditorState) {
         }),
         items: addMapChildAction(key, widgetValue),
       }),
-      [{ compName: tableCompName, compType: compType, type: "add" }]
+      { compInfos: [{ compName: tableCompName, compType: compType, type: "add" }] }
     )
   );
 }
