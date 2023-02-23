@@ -15,7 +15,7 @@ export type { EvalMethods, CodeType, CodeFunction } from "./types/evalTypes";
 export { ValueAndMsg } from "./types/valueAndMsg";
 export { relaxedJSONToJSON } from "./utils/relaxedJson";
 export { getDynamicStringSegments, isDynamicSegment } from "./utils/segmentUtils";
-export { clearMockWindow, evalFunc } from "./utils/evalScript";
+export { clearMockWindow, evalFunc, evalScript } from "./utils/evalScript";
 export { clearStyleEval, evalStyle } from "./utils/evalStyle";
 export { evalFunctionResult } from "./utils/string2Fn";
 export { nodeIsRecord } from "./utils/nodeUtils";

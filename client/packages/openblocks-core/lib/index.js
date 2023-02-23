@@ -1041,23 +1041,24 @@ var loglevel = {exports: {}};
 
 var log = loglevel.exports;
 
-// global variables black list, forbidden to use
-var blacklist = new Set([
+// global variables black list, forbidden to use in for jsQuery/jsAction
+var functionBlacklist = new Set([
     "top",
     "parent",
     "document",
     "location",
     "chrome",
-    "setTimeout",
     "fetch",
-    "setInterval",
-    "clearInterval",
-    "setImmediate",
     "XMLHttpRequest",
     "importScripts",
     "Navigator",
     "MutationObserver",
 ]);
+var expressionBlacklist = new Set(__spreadArray(__spreadArray([], Array.from(functionBlacklist.values()), true), [
+    "setTimeout",
+    "setInterval",
+    "setImmediate",
+], false));
 var globalVarNames = new Set(["window", "globalThis", "self", "global"]);
 function createBlackHole() {
     return new Proxy(function () {
@@ -1079,12 +1080,14 @@ function createBlackHole() {
         },
     });
 }
-function createMockWindow() {
-    var win = new Proxy({}, {
+function createMockWindow(base, blacklist) {
+    if (blacklist === void 0) { blacklist = expressionBlacklist; }
+    var win = new Proxy(Object.assign({}, base), {
         has: function () {
             return true;
         },
         set: function (target, p, newValue) {
+            console.info("set:", p, newValue);
             return Reflect.set(target, p, newValue);
         },
         get: function (target, p) {
@@ -1094,19 +1097,11 @@ function createMockWindow() {
             if (globalVarNames.has(p)) {
                 return win;
             }
-            if (typeof p === "string" && blacklist.has(p)) {
+            if (typeof p === "string" && (blacklist === null || blacklist === void 0 ? void 0 : blacklist.has(p))) {
                 log.log("[Sandbox] access ".concat(String(p), " on mock window, return mock object"));
                 return createBlackHole();
             }
-            var ret = Reflect.get(window, p);
-            if (typeof ret === "function" && !ret.prototype) {
-                return ret.bind(window);
-            }
-            // get DOM element by id, serializing may cause error
-            if (isDomElement(ret)) {
-                return undefined;
-            }
-            return ret;
+            return getPropertyFromNativeWindow(p);
         },
     });
     return win;
@@ -1118,12 +1113,26 @@ function clearMockWindow() {
 function isDomElement(obj) {
     return obj instanceof Element || obj instanceof HTMLCollection;
 }
+function getPropertyFromNativeWindow(prop) {
+    var ret = Reflect.get(window, prop);
+    if (typeof ret === "function" && !ret.prototype) {
+        return ret.bind(window);
+    }
+    // get DOM element by id, serializing may cause error
+    if (isDomElement(ret)) {
+        return undefined;
+    }
+    return ret;
+}
 function proxySandbox(context, methods, options) {
-    var _a = (options || {}).disableLimit, disableLimit = _a === void 0 ? false : _a;
+    var _a = options || {}, _b = _a.disableLimit, disableLimit = _b === void 0 ? false : _b, _c = _a.scope, scope = _c === void 0 ? "expression" : _c;
     var isProtectedVar = function (key) {
         return key in context || key in (methods || {}) || globalVarNames.has(key);
     };
     var cache = {};
+    if (scope === "function") {
+        mockWindow = createMockWindow(mockWindow, functionBlacklist);
+    }
     return new Proxy(mockWindow, {
         has: function (target, p) {
             // proxy all variables
@@ -1155,7 +1164,7 @@ function proxySandbox(context, methods, options) {
                 return value;
             }
             if (disableLimit) {
-                return Reflect.get(window, p);
+                return getPropertyFromNativeWindow(p);
             }
             return Reflect.get(target, p, receiver);
         },
@@ -1495,11 +1504,12 @@ var RelaxedJsonParser = /** @class */ (function (_super) {
 }(DefaultParser));
 function evalFunction(unevaledValue, context, methods, isAsync) {
     try {
-        return new ValueAndMsg(function (args, runInHost) {
+        return new ValueAndMsg(function (args, runInHost, scope) {
             if (runInHost === void 0) { runInHost = false; }
+            if (scope === void 0) { scope = "function"; }
             return evalFunc(unevaledValue.startsWith("return")
                 ? unevaledValue + "\n"
-                : "return ".concat(isAsync ? "async " : "", "function(){'use strict'; ").concat(unevaledValue, "\n}()"), args ? __assign(__assign({}, context), args) : context, methods, { disableLimit: runInHost }, isAsync);
+                : "return ".concat(isAsync ? "async " : "", "function(){'use strict'; ").concat(unevaledValue, "\n}()"), args ? __assign(__assign({}, context), args) : context, methods, { disableLimit: runInHost, scope: scope }, isAsync);
         });
     }
     catch (err) {
@@ -7521,4 +7531,4 @@ function getI18nObjects(fileData, filterLocales) {
     return getDataByLocale(fileData, "Obj", filterLocales).data;
 }
 
-export { AbstractComp, AbstractNode, CachedNode, CodeNode, CompActionTypes, FetchCheckNode, FunctionNode, MultiBaseComp, RecordNode, SimpleAbstractComp, SimpleComp, SimpleNode, Translator, ValueAndMsg, WrapContextNodeV2, WrapNode, addChildAction, changeChildAction, changeDependName, changeValueAction, clearMockWindow, clearStyleEval, customAction, deferAction, deleteCompAction, dependingNodeMapEquals, evalFunc, evalFunctionResult, evalNodeOrMinor, evalPerfUtil, evalStyle, executeQueryAction, fromRecord, fromUnevaledValue, fromValue, fromValueWithCache, getDynamicStringSegments, getI18nObjects, getValueByLocale, i18n, isBroadcastAction, isChildAction, isCustomAction, isDynamicSegment, isFetching, isMyCustomAction, mergeExtra, multiChangeAction, nodeIsRecord, onlyEvalAction, relaxedJSONToJSON, renameAction, replaceCompAction, routeByNameAction, transformWrapper, triggerModuleEventAction, unwrapChildAction, updateActionContextAction, updateNodesV2Action, withFunction, wrapActionExtraInfo, wrapChildAction, wrapContext, wrapDispatch };
+export { AbstractComp, AbstractNode, CachedNode, CodeNode, CompActionTypes, FetchCheckNode, FunctionNode, MultiBaseComp, RecordNode, SimpleAbstractComp, SimpleComp, SimpleNode, Translator, ValueAndMsg, WrapContextNodeV2, WrapNode, addChildAction, changeChildAction, changeDependName, changeValueAction, clearMockWindow, clearStyleEval, customAction, deferAction, deleteCompAction, dependingNodeMapEquals, evalFunc, evalFunctionResult, evalNodeOrMinor, evalPerfUtil, evalScript, evalStyle, executeQueryAction, fromRecord, fromUnevaledValue, fromValue, fromValueWithCache, getDynamicStringSegments, getI18nObjects, getValueByLocale, i18n, isBroadcastAction, isChildAction, isCustomAction, isDynamicSegment, isFetching, isMyCustomAction, mergeExtra, multiChangeAction, nodeIsRecord, onlyEvalAction, relaxedJSONToJSON, renameAction, replaceCompAction, routeByNameAction, transformWrapper, triggerModuleEventAction, unwrapChildAction, updateActionContextAction, updateNodesV2Action, withFunction, wrapActionExtraInfo, wrapChildAction, wrapContext, wrapDispatch };

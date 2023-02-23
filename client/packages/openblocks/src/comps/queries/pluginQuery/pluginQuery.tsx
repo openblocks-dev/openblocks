@@ -39,7 +39,9 @@ function wrapConfig(
     getPropertyView(): ReactNode {
       return (
         <QueryConfigWrapper key={config.key}>
-          <QueryConfigLabel tooltip={<MarkdownTooltip>{config.tooltip || ""}</MarkdownTooltip>}>
+          <QueryConfigLabel
+            tooltip={config.tooltip && <MarkdownTooltip>{config.tooltip}</MarkdownTooltip>}
+          >
             {config.label}
           </QueryConfigLabel>
           <QueryConfigItemWrapper>
@@ -266,6 +268,10 @@ export function configToComp(
 
   if (config.type === "jsonInput") {
     Comp = wrapConfig(ParamsJsonControl, config, { styleName: "medium" });
+  }
+
+  if (config.type === "sqlInput") {
+    Comp = wrapConfig(ParamsJsonControl, config, { styleName: "medium", language: "sql" });
   }
 
   if (!Comp) {

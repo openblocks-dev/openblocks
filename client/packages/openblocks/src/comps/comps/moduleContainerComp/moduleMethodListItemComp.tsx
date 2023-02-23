@@ -33,7 +33,7 @@ export class ModuleMethodListItemComp extends ModuleMethodListItemBase {
 
     await getPromiseAfterDispatch(
       this.children.action.dispatch,
-      WithParamsActionControl.setParamDataAction(paramsMap),
+      WithParamsActionControl.setPartialParamDataAction(paramsMap),
       { autoHandleAfterReduce: true }
     );
     return getPromiseAfterDispatch(

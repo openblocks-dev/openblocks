@@ -65,6 +65,8 @@ export function ListView(props: Props) {
     () => Math.max(1, children.noOfColumns.getView()),
     [children.noOfColumns]
   );
+  const itemIndexName = useMemo(() => children.itemIndexName.getView(), [children.itemIndexName]);
+  const itemDataName = useMemo(() => children.itemDataName.getView(), [children.itemDataName]);
   const style = children.style.getView();
 
   const commonLayout = children.container.getOriginalComp().getComp().children.layout.getView();
@@ -87,28 +89,28 @@ export function ListView(props: Props) {
       >
         <FlexWrapper>
           {_.range(0, noOfColumns).map((colIdx) => {
-            const i = rowIdx * noOfColumns + colIdx;
-            if (i >= itemCount || (isOneItem && i > 0)) {
-              return <div key={i} style={{ flex: "auto" }}></div>;
+            const itemIdx = rowIdx * noOfColumns + colIdx;
+            if (itemIdx >= itemCount || (isOneItem && itemIdx > 0)) {
+              return <div key={itemIdx} style={{ flex: "auto" }}></div>;
             }
             const containerProps = containerViewFn(
-              { i, currentItem: getCurrentItemParams(data, i) },
-              genKey(i)
+              { [itemIndexName]: itemIdx, [itemDataName]: getCurrentItemParams(data, itemIdx) },
+              genKey(itemIdx)
             );
             return (
               <ContainerInListView
-                key={i}
+                key={itemIdx}
                 layout={containerProps.layout}
                 items={gridItemCompToGridItems(containerProps.items)}
                 positionParams={containerProps.positionParams}
                 // all layout changes should only reflect on the commonContainer
-                dispatch={i === 0 ? containerProps.dispatch : _.noop}
+                dispatch={itemIdx === 0 ? containerProps.dispatch : _.noop}
                 style={{ height: "100%", backgroundColor: "transparent", flex: "auto" }}
                 autoHeight={isDragging || dynamicHeight}
-                isDroppable={i === 0}
-                isDraggable={i === 0}
-                isResizable={i === 0}
-                isSelectable={i === 0}
+                isDroppable={itemIdx === 0}
+                isDraggable={itemIdx === 0}
+                isResizable={itemIdx === 0}
+                isSelectable={itemIdx === 0}
                 scrollContainerRef={ref}
                 overflow={"hidden"}
                 minHeight={minHeight}

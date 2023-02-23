@@ -1,6 +1,10 @@
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
-import { NumberControl, NumberOrJSONObjectArrayControl } from "comps/controls/codeControl";
+import {
+  NumberControl,
+  NumberOrJSONObjectArrayControl,
+  StringControl,
+} from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
 import { ListViewStyle } from "comps/controls/styleControlConstants";
 import { withDefault } from "comps/generators";
@@ -14,10 +18,7 @@ import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 export const EMPTY_OBJECT = {};
 export type ListCompType = "listView" | "grid";
 
-const ContextContainerTmpComp = withMultiContextWithDefault(SimpleContainerComp, {
-  i: 0,
-  currentItem: {} as JSONObject,
-});
+const ContextContainerTmpComp = withMultiContextWithDefault(SimpleContainerComp, {});
 
 export class ContextContainerComp extends ContextContainerTmpComp {
   override reduce(action: CompAction): this {
@@ -36,6 +37,8 @@ export class ContextContainerComp extends ContextContainerTmpComp {
 export const childrenMap = {
   noOfRows: withIsLoadingMethod(NumberOrJSONObjectArrayControl), // FIXME: migrate "noOfRows" to "data"
   noOfColumns: withDefault(NumberControl, 1),
+  itemIndexName: withDefault(StringControl, "i"),
+  itemDataName: withDefault(StringControl, "currentItem"),
   dynamicHeight: AutoHeightControl,
   heightUnitOfRow: withDefault(NumberControl, 1),
   container: ContextContainerComp,

@@ -1,7 +1,7 @@
 import { ValueAndMsg } from "../types/valueAndMsg";
 import _ from "lodash";
 import { getErrorMessage } from "./nodeUtils";
-import { evalFunc, evalScript } from "./evalScript";
+import { evalFunc, evalScript, SandboxScope } from "./evalScript";
 import { getDynamicStringSegments, isDynamicSegment } from "./segmentUtils";
 import { CodeFunction, CodeType, EvalMethods } from "../types/evalTypes";
 import { relaxedJSONToJSON } from "./relaxedJson";
@@ -161,16 +161,21 @@ export function evalFunction(
   isAsync?: boolean
 ): ValueAndMsg<CodeFunction> {
   try {
-    return new ValueAndMsg((args?: Record<string, unknown>, runInHost: boolean = false) =>
-      evalFunc(
-        unevaledValue.startsWith("return")
-          ? unevaledValue + "\n"
-          : `return ${isAsync ? "async " : ""}function(){'use strict'; ${unevaledValue}\n}()`,
-        args ? { ...context, ...args } : context,
-        methods,
-        { disableLimit: runInHost },
-        isAsync
-      )
+    return new ValueAndMsg(
+      (
+        args?: Record<string, unknown>,
+        runInHost: boolean = false,
+        scope: SandboxScope = "function"
+      ) =>
+        evalFunc(
+          unevaledValue.startsWith("return")
+            ? unevaledValue + "\n"
+            : `return ${isAsync ? "async " : ""}function(){'use strict'; ${unevaledValue}\n}()`,
+          args ? { ...context, ...args } : context,
+          methods,
+          { disableLimit: runInHost, scope },
+          isAsync
+        )
     );
   } catch (err) {
     return new ValueAndMsg(() => {}, getErrorMessage(err));

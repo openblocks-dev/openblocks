@@ -100,11 +100,11 @@ function getFile(path: string) {
 
 test("test resolveParsedValue", async () => {
   const files = await Promise.all([
-    getFile("packages/openblocks/src/comps/comps/fileComp.test.csv"),
-    getFile("packages/openblocks/src/comps/comps/fileComp.test.json"),
-    getFile("packages/openblocks/src/comps/comps/fileComp.test.png"),
-    getFile("packages/openblocks/src/comps/comps/fileComp.test.txt"),
-    getFile("packages/openblocks/src/comps/comps/fileComp.test.xlsx"),
+    getFile("packages/openblocks/src/comps/comps/fileComp/fileComp.test.csv"),
+    getFile("packages/openblocks/src/comps/comps/fileComp/fileComp.test.json"),
+    getFile("packages/openblocks/src/comps/comps/fileComp/fileComp.test.png"),
+    getFile("packages/openblocks/src/comps/comps/fileComp/fileComp.test.txt"),
+    getFile("packages/openblocks/src/comps/comps/fileComp/fileComp.test.xlsx"),
   ]);
   const parsedValue = await resolveParsedValue(files as any);
   expect(parsedValue[0]).toMatchObject(expectParseValue);

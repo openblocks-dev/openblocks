@@ -1,4 +1,3 @@
-import { getReduceContext, reduceInContext } from "comps/utils/reduceContext";
 import _ from "lodash";
 import {
   Comp,
@@ -135,7 +134,6 @@ export function withMultiContextWithDefault<
       }
 
       const mapComps = this.children[MAP_KEY].getView();
-      const originalParams = comp.cacheParamsMap[CHILD_KEY];
       if (
         isChildAction(action) &&
         (action.path[0] === VIRTUAL_NAME ||
@@ -153,10 +151,10 @@ export function withMultiContextWithDefault<
           const childComp = comp
             .getOriginalComp()
             .setParams(params)
-            .changeDispatch(wrapDispatch(wrapDispatch(this.dispatch, MAP_KEY), key))
-            .reduce(childAction);
-          if (childComp) {
-            const comps = { [key]: childComp };
+            .changeDispatch(wrapDispatch(wrapDispatch(this.dispatch, MAP_KEY), key));
+          const newChildComp = childComp.reduce(childAction);
+          if (childComp !== newChildComp) {
+            const comps = { [key]: newChildComp };
             comp = comp.setChild(
               MAP_KEY,
               comp.children[MAP_KEY].reduce(MapCtor.batchSetCompAction(comps))
@@ -176,14 +174,9 @@ export function withMultiContextWithDefault<
       ) {
         // when the original comp changes, all comps in __map__ should be cleared.
         comp = comp.setChild(MAP_KEY, this.children[MAP_KEY].reduce(MapCtor.clearAction()));
-        // _.forEach(this.cacheParamsMap, (params, key) => {
-        //   if (key !== CHILD_KEY) {
-        //     const childAction = { ...action, path: [MAP_KEY, key, ...action.path.slice(1)] };
-        //     comp = reduceInContext({ disableUpdateState: true }, () => comp.reduce(childAction));
-        //   }
-        // });
       }
 
+      // console.info("withMultiContext reduce. action: ", action, "\nthis:", this, "\ncomp:", comp);
       return comp;
     }
 
@@ -191,7 +184,7 @@ export function withMultiContextWithDefault<
       return this.children[CHILD_KEY];
     }
 
-    static setOriginalParamsAction(params: Partial<ParamValues>) {
+    static setOriginalParamsAction(params: ParamValues) {
       return wrapChildAction(CHILD_KEY, WithParamCompCtor.setParamDataAction(params));
     }
 

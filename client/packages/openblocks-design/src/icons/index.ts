@@ -262,3 +262,6 @@ export { ReactComponent as MaterialUploadIcon } from "./icon-material-upload.svg
 export { ReactComponent as LeftSignature } from "./icon-left-signature.svg";
 export { ReactComponent as UndoIcon } from "./icon-undo.svg";
 export { ReactComponent as SignatureIcon } from "./icon-signature.svg";
+export { ReactComponent as ManualIcon } from "./icon-manual.svg";
+export { ReactComponent as WarnIcon } from "./icon-warn.svg";
+export { ReactComponent as SyncManualIcon } from "./icon-sync-manual.svg";

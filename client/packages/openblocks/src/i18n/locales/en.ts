@@ -1279,6 +1279,7 @@ export const en = {
     advanced: "Advanced",
     lab: "Lab",
     branding: "Branding",
+    idSource: "Id source",
   },
   memberSettings: {
     admin: "Admin",
@@ -1318,6 +1319,8 @@ export const en = {
     createTime: "Create time",
     manageBtn: "Manage",
     userDetail: "Detail",
+    syncDeleteTip: "This group has been deleted from the address book source",
+    syncGroupTip: "This group is an address book synchronization group and cannot be edited",
   },
   orgSettings: {
     newOrg: "New workspace",
@@ -1401,6 +1404,10 @@ export const en = {
     noOfRowsTooltip:
       "Number of rows in the list - This is usually set to a variable (for example, '{{query1.data.length}}') if you need to present the results of a query.",
     noOfColumns: "Column count",
+    itemIndexName: "Item index name",
+    itemIndexNameDesc: "the variable name refer to the item's index, default as {default}",
+    itemDataName: "Item data name",
+    itemDataNameDesc: "the variable name refer to the item's data object, default as {default}",
     itemsDesc: "Exposing data of Comps in list",
     dataDesc: "The raw data used in the current list",
     dataTooltip:

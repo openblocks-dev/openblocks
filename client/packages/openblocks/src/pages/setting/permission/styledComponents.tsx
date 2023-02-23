@@ -2,11 +2,13 @@ import { Popover, Table as AntdTable } from "antd";
 import {
   CustomModal,
   LockIcon,
+  ManualIcon,
   PointIcon,
   QuestionIcon,
   SuspensionBox,
   TacoButton,
   Tooltip,
+  WarnIcon,
   WhiteLoading,
 } from "openblocks-design";
 import styled from "styled-components";
@@ -214,6 +216,8 @@ export function GroupNameView(props: {
   lock?: boolean;
   toolTip?: string | false;
   suffix?: React.ReactNode;
+  warn?: boolean;
+  syncGroup?: boolean;
 }) {
   return (
     <GroupNameWrapper>
@@ -221,6 +225,16 @@ export function GroupNameView(props: {
       {props.lock && <LockIcon />}
       {props.toolTip && <QuestionTooltip title={props.toolTip} />}
       {props.suffix}
+      {props.warn && (
+        <Tooltip title={trans("memberSettings.syncDeleteTip")}>
+          <WarnIcon />
+        </Tooltip>
+      )}
+      {props.syncGroup && !props.warn && (
+        <Tooltip title={trans("memberSettings.syncGroupTip")}>
+          <ManualIcon />
+        </Tooltip>
+      )}
     </GroupNameWrapper>
   );
 }
@@ -230,7 +244,7 @@ export const LAST_ADMIN_QUIT = trans("memberSettings.lastAdminQuit");
 export const QuestionTooltip = (props: { title: string }) => {
   return (
     <Tooltip title={props.title}>
-      <QuestionIcon />
+      <QuestionIcon style={{ marginLeft: "2px" }} />
     </Tooltip>
   );
 };
@@ -253,7 +267,7 @@ export const HeaderBack = styled.div`
     font-size: 20px;
   }
 
-  svg {
+  > svg {
     margin: 0 8px;
   }
 `;

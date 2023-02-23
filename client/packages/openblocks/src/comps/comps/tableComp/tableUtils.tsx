@@ -316,8 +316,8 @@ function getUniqueStatus(column: RawColumnType) {
       ? _.uniqBy(
           Object.values(column.render).map((comp) => {
             const value = comp.getView().value;
-            const status = value.slice(0, value.indexOf(' '));
-            const text = value.slice(value.indexOf(' ') + 1);
+            const status = value.slice(0, value.indexOf(" "));
+            const text = value.slice(value.indexOf(" ") + 1);
             return {
               status,
               text,
@@ -386,7 +386,7 @@ export function columnsToAntdFormat(
       onWidthResize: column.onWidthResize,
       render: (value: any, record: RecordType, index: number) => {
         return column.render[record.index]
-          .setParams({ currentIndex: index })
+          .setPartialParams({ currentIndex: index })
           .getView()
           .view({ editable: column.editable, size, candidateTags: tags, candidateStatus: status });
       },

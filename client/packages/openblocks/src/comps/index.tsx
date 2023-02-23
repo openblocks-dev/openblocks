@@ -7,7 +7,7 @@ import { ContainerComp, defaultContainerData } from "./comps/containerComp/conta
 import { CustomComp } from "./comps/customComp/customComp";
 import { DatePickerComp, DateRangeComp } from "./comps/dateComp";
 import { DividerComp } from "./comps/dividerComp";
-import { FileComp } from "./comps/fileComp";
+import { FileComp } from "./comps/fileComp/fileComp";
 import { FileViewerComp } from "./comps/fileViewerComp";
 import { ImageComp } from "./comps/imageComp";
 import { JsonSchemaFormComp } from "./comps/jsonSchemaFormComp/jsonSchemaFormComp";
@@ -568,7 +568,7 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.listViewCompKeywords"),
     comp: ListViewComp,
     layoutInfo: {
-      h: 92,
+      h: 47,
       w: 10,
       delayCollision: true,
     },

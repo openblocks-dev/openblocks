@@ -347,12 +347,18 @@ declare function isDynamicSegment(segment: string): boolean;
 declare function getDynamicStringSegments(input: string): string[];
 
 declare function clearMockWindow(): void;
+declare type SandboxScope = "function" | "expression";
 interface SandBoxOption {
   /**
    * disable all limit, like running in host
    */
   disableLimit?: boolean;
+  /**
+   * the scope this sandbox works in, which will use different blacklist
+   */
+  scope?: SandboxScope;
 }
+declare function evalScript(script: string, context: any, methods?: EvalMethods): any;
 declare function evalFunc(
   functionBody: string,
   context: any,
@@ -851,6 +857,7 @@ export {
   evalFunctionResult,
   evalNodeOrMinor,
   evalPerfUtil,
+  evalScript,
   evalStyle,
   executeQueryAction,
   fromRecord,

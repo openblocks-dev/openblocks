@@ -1,7 +1,8 @@
 import { AutocompleteDataType } from "base/codeEditor/completion/ternServer";
 import _ from "lodash";
+import { evalScript } from "openblocks-core";
 import { checkCursorInBinding } from "../codeEditorUtils";
-import { Completion, CompletionContext, CompletionResult } from "../codeMirror";
+import { Completion, CompletionContext, CompletionResult, EditorView } from "../codeMirror";
 import { CompletionSource } from "./completion";
 
 const PRIORITY_PROPS = ["value", "selectedRow", "data", "text"];
@@ -17,7 +18,9 @@ export class ExposingCompletionSource extends CompletionSource {
     if (this.data === undefined || !checkCursorInBinding(context, this.isFunction)) {
       return null;
     }
-    const matchPath = context.matchBefore(/(\w+(\[\s*\d+\s*\])*\.)*\w*/);
+    const matchPath = context.matchBefore(
+      /(?:[A-Za-z_$][\w$]*(?:\[\s*(?:\d+|(["'])(?:[^\1\\]|\\.)*?\1)\s*\])*\.)*(?:[A-Za-z_$][\w$]*)?/
+    );
     if (!matchPath) {
       return null;
     }
@@ -47,6 +50,20 @@ export class ExposingCompletionSource extends CompletionSource {
           : PRIORITY_FUNCTIONS.includes(key)
           ? 2
           : 1,
+        apply:
+          offset === 0
+            ? undefined
+            : (view: EditorView, c: Completion, from: number, to: number) => {
+                view.dispatch({
+                  changes: {
+                    from: from - 1,
+                    to: to,
+                    insert: key.match(/^[A-Za-z_$][\w$]*$/)
+                      ? `.${key}`
+                      : `['${key.replace(/[\\']/g, (c) => "\\" + c)}']`,
+                  },
+                });
+              },
       };
       return result;
     });
@@ -63,30 +80,18 @@ export class ExposingCompletionSource extends CompletionSource {
 }
 
 export function getDataInfo(data: Record<string, unknown>, path: string) {
-  let currentData: any = data;
-  let offset: number = 0;
-  for (let i = 0; i < path.length; ++i) {
-    switch (path[i]) {
-      case ".":
-      case "[":
-      case "]":
-        if (offset < i) {
-          currentData = currentData[path.slice(offset, i).trim()];
-          if (!currentData || typeof currentData !== "object") {
-            return;
-          }
-        }
-        offset = i + 1;
-        if (path[i] === "." && Array.isArray(currentData)) {
-          return;
-        }
-        if (path[i] === "[" && !Array.isArray(currentData)) {
-          return;
-        }
-        break;
-    }
+  const pos = path.lastIndexOf(".");
+  if (pos < 0) {
+    return [data, 0, path];
   }
-  return [currentData, offset, path.slice(offset)];
+  try {
+    const value = evalScript(path.slice(0, pos), data);
+    if (typeof value === "object" && value && !Array.isArray(value)) {
+      return [value, pos + 1, path.slice(pos + 1)];
+    }
+  } catch (e) {
+    return;
+  }
 }
 
 function getDataType(data: unknown): string {

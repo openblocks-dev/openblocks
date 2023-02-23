@@ -1,22 +1,25 @@
 import { EvalMethods } from "../types/evalTypes";
 import log from "loglevel";
 
-// global variables black list, forbidden to use
-const blacklist = new Set<PropertyKey>([
+// global variables black list, forbidden to use in for jsQuery/jsAction
+const functionBlacklist = new Set<PropertyKey>([
   "top",
   "parent",
   "document",
   "location",
   "chrome",
-  "setTimeout",
   "fetch",
-  "setInterval",
-  "clearInterval",
-  "setImmediate",
   "XMLHttpRequest",
   "importScripts",
   "Navigator",
   "MutationObserver",
+]);
+
+const expressionBlacklist = new Set<PropertyKey>([
+  ...Array.from(functionBlacklist.values()),
+  "setTimeout",
+  "setInterval",
+  "setImmediate",
 ]);
 
 const globalVarNames = new Set<PropertyKey>(["window", "globalThis", "self", "global"]);
@@ -45,39 +48,29 @@ export function createBlackHole(): any {
   );
 }
 
-function createMockWindow() {
-  const win: any = new Proxy(
-    {},
-    {
-      has() {
-        return true;
-      },
-      set(target, p, newValue) {
-        return Reflect.set(target, p, newValue);
-      },
-      get(target, p) {
-        if (p in target) {
-          return Reflect.get(target, p);
-        }
-        if (globalVarNames.has(p)) {
-          return win;
-        }
-        if (typeof p === "string" && blacklist.has(p)) {
-          log.log(`[Sandbox] access ${String(p)} on mock window, return mock object`);
-          return createBlackHole();
-        }
-        const ret = Reflect.get(window, p);
-        if (typeof ret === "function" && !ret.prototype) {
-          return ret.bind(window);
-        }
-        // get DOM element by id, serializing may cause error
-        if (isDomElement(ret)) {
-          return undefined;
-        }
-        return ret;
-      },
-    }
-  );
+function createMockWindow(base?: object, blacklist: Set<PropertyKey> = expressionBlacklist) {
+  const win: any = new Proxy(Object.assign({}, base), {
+    has() {
+      return true;
+    },
+    set(target, p, newValue) {
+      console.info("set:", p, newValue);
+      return Reflect.set(target, p, newValue);
+    },
+    get(target, p) {
+      if (p in target) {
+        return Reflect.get(target, p);
+      }
+      if (globalVarNames.has(p)) {
+        return win;
+      }
+      if (typeof p === "string" && blacklist?.has(p)) {
+        log.log(`[Sandbox] access ${String(p)} on mock window, return mock object`);
+        return createBlackHole();
+      }
+      return getPropertyFromNativeWindow(p);
+    },
+  });
   return win;
 }
 
@@ -87,23 +80,45 @@ export function clearMockWindow() {
   mockWindow = createMockWindow();
 }
 
+export type SandboxScope = "function" | "expression";
+
 interface SandBoxOption {
   /**
    * disable all limit, like running in host
    */
   disableLimit?: boolean;
+
+  /**
+   * the scope this sandbox works in, which will use different blacklist
+   */
+  scope?: SandboxScope;
 }
 
 function isDomElement(obj: any): boolean {
   return obj instanceof Element || obj instanceof HTMLCollection;
 }
 
+function getPropertyFromNativeWindow(prop: PropertyKey) {
+  const ret = Reflect.get(window, prop);
+  if (typeof ret === "function" && !ret.prototype) {
+    return ret.bind(window);
+  }
+  // get DOM element by id, serializing may cause error
+  if (isDomElement(ret)) {
+    return undefined;
+  }
+  return ret;
+}
+
 function proxySandbox(context: any, methods?: EvalMethods, options?: SandBoxOption) {
-  const { disableLimit = false } = options || {};
+  const { disableLimit = false, scope = "expression" } = options || {};
   const isProtectedVar = (key: PropertyKey) => {
     return key in context || key in (methods || {}) || globalVarNames.has(key);
   };
   const cache = {};
+  if (scope === "function") {
+    mockWindow = createMockWindow(mockWindow, functionBlacklist);
+  }
   return new Proxy(mockWindow, {
     has(target, p) {
       // proxy all variables
@@ -139,7 +154,7 @@ function proxySandbox(context: any, methods?: EvalMethods, options?: SandBoxOpti
       }
 
       if (disableLimit) {
-        return Reflect.get(window, p);
+        return getPropertyFromNativeWindow(p);
       }
 
       return Reflect.get(target, p, receiver);
