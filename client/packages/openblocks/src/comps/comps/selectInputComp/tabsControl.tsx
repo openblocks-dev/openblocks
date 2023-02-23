@@ -34,6 +34,7 @@ import {
   disabledPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { useEffect } from "react";
 const getStyle = (style: SegmentStyleType, orientation: string) => {
   return css`
     &.ant-segmented:not(.ant-segmented-disabled) {
@@ -94,7 +95,22 @@ export const SegmentChildrenMap = {
 export const SegmentedControlBasicComp = (function () {
   return new UICompBuilder(SegmentChildrenMap, (props) => {
     const [validateState, handleValidate] = useSelectInputValidate(props);
-    console.log(props);
+    useEffect(() => {
+      const elements = document.getElementsByClassName(
+        "ant-segmented-thumb-motion-appear"
+      );
+
+      setTimeout(() => {
+        // Modify the style of the element to remove the specific style you want to remove
+        for (let i = 0; i < elements.length; i++) {
+          const element = elements[i] as HTMLElement;
+          if (props.orientation === "vertical") {
+            element.style.removeProperty("transform");
+            element.style.removeProperty("width");
+          }
+        }
+      }, 300);
+    }, [props.value.onChange]);
     return props.label({
       required: props.required,
       style: props.style,
