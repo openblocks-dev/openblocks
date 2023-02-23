@@ -5,6 +5,8 @@ import { trans } from "i18n";
 import styled from "styled-components";
 import { arrayStringExposingStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder, withDefault } from "../../generators";
+import { PaddingControl } from "../../controls/paddingControl";
+import { MarginControl } from "../../controls/marginControl";
 import {
   CommonNameConfig,
   NameConfig,
@@ -20,43 +22,13 @@ import {
   useSelectInputValidate,
 } from "./selectInputConstants";
 
-const MarginContainer = styled.div<{}>`
-  display: flex;
-  justify-content: space-between;
-  .hUXIwu {
-    flex: 0 0 36px;
-  }
-  .fgbLEe {
-    margin-right: 5px;
-    margin-bottom: 10px;
-  }
-`;
-
-const PaddingContainer = styled.div<{}>`
-  display: flex;
-  justify-content: space-between;
-  .hUXIwu {
-    flex: 0 0 36px;
-  }
-  .fgbLEe {
-    margin-right: 5px;
-    margin-bottom: 10px;
-  }
-`;
-
 export const MultiSelectBasicComp = (function () {
   const childrenMap = {
     ...SelectChildrenMap,
     value: arrayStringExposingStateControl("value", ["1", "2"]),
     style: styleControl(MultiSelectStyle),
-    marginLeft: withDefault(StringControl, ""),
-    marginRight: withDefault(StringControl, ""),
-    marginTop: withDefault(StringControl, ""),
-    marginBottom: withDefault(StringControl, ""),
-    paddingLeft: withDefault(StringControl, ""),
-    paddingRight: withDefault(StringControl, ""),
-    paddingTop: withDefault(StringControl, ""),
-    paddingBottom: withDefault(StringControl, ""),
+    margin: MarginControl,
+    padding: PaddingControl,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const valueSet = new Set<any>(props.options.map((o) => o.value)); // Filter illegal default values entered by the user

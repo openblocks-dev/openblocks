@@ -2,6 +2,8 @@ import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { IconControl } from "comps/controls/iconControl";
+import { PaddingControl } from "../../controls/paddingControl";
+import { MarginControl } from "../../controls/marginControl";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
@@ -38,30 +40,6 @@ const FormLabel = styled(CommonBlueLabel)`
 
 const IconWrapper = styled.div`
   display: flex;
-`;
-
-const MarginContainer = styled.div<{}>`
-  display: flex;
-  justify-content: space-between;
-  .hUXIwu {
-    flex: 0 0 36px;
-  }
-  .fgbLEe {
-    margin-right: 5px;
-    margin-bottom: 10px;
-  }
-`;
-
-const PaddingContainer = styled.div<{}>`
-  display: flex;
-  justify-content: space-between;
-  .hUXIwu {
-    flex: 0 0 36px;
-  }
-  .fgbLEe {
-    margin-right: 5px;
-    margin-bottom: 10px;
-  }
 `;
 
 function getFormOptions(editorState: EditorState) {
@@ -164,14 +142,8 @@ const ButtonTmpComp = (function () {
     prefixIcon: IconControl,
     suffixIcon: IconControl,
     style: ButtonStyleControl,
-    marginLeft: withDefault(StringControl, ""),
-    marginRight: withDefault(StringControl, ""),
-    marginTop: withDefault(StringControl, ""),
-    marginBottom: withDefault(StringControl, ""),
-    paddingLeft: withDefault(StringControl, ""),
-    paddingRight: withDefault(StringControl, ""),
-    paddingTop: withDefault(StringControl, ""),
-    paddingBottom: withDefault(StringControl, ""),
+    margin: MarginControl,
+    padding: PaddingControl,
   };
   return new UICompBuilder(childrenMap, (props) => (
     <ButtonCompWrapper disabled={props.disabled}>
@@ -191,14 +163,8 @@ const ButtonTmpComp = (function () {
                 : submitForm(editorState, props.form)
             }
             style={{
-              marginLeft: props.marginLeft,
-              marginRight: props.marginRight,
-              marginTop: props.marginTop,
-              marginBottom: props.marginBottom,
-              paddingLeft: props.paddingLeft,
-              paddingRight: props.paddingRight,
-              paddingTop: props.paddingTop,
-              paddingBottom: props.paddingBottom,
+              margin: `${props.margin.top} ${props.margin.right} ${props.margin.bottom} ${props.margin.left}`,
+              padding: `${props.padding.top} ${props.padding.right} ${props.padding.bottom} ${props.padding.left}`,
             }}
           >
             {props.prefixIcon && <IconWrapper>{props.prefixIcon}</IconWrapper>}
@@ -246,43 +212,12 @@ const ButtonTmpComp = (function () {
 
         <Section name={sectionNames.style}>
           {children.style.getPropertyView()}
-            <h4>Margin</h4>
-            <div>
-              <MarginContainer>
-                {children.marginLeft.propertyView({
-                  label: trans("componentDoc.left"),
-                })}
-                {children.marginRight.propertyView({
-                  label: trans("componentDoc.right"),
-                })}
-              </MarginContainer>
-              <MarginContainer>
-                {children.marginTop.propertyView({
-                  label: trans("componentDoc.top"),
-                })}
-                {children.marginBottom.propertyView({
-                  label: trans("componentDoc.bottom"),
-                })}
-              </MarginContainer>
-            </div>
-
-            <h4>Padding</h4>
-            <PaddingContainer>
-              {children.paddingLeft.propertyView({
-                label: trans("componentDoc.left"),
-              })}
-              {children.paddingRight.propertyView({
-                label: trans("componentDoc.right"),
-              })}
-            </PaddingContainer>
-            <PaddingContainer>
-              {children.paddingTop.propertyView({
-                label: trans("componentDoc.top"),
-              })}
-              {children.paddingBottom.propertyView({
-                label: trans("componentDoc.bottom"),
-              })}
-            </PaddingContainer>
+        </Section>
+        <Section name={trans("style.margin")}>
+          {children.margin.getPropertyView()}
+        </Section>
+        <Section name={trans("style.padding")}>
+          {children.padding.getPropertyView()}
         </Section>
       </>
     ))

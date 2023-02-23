@@ -1,0 +1,48 @@
+import { StringControl } from "comps/controls/codeControl";
+import { withDefault } from "comps/generators";
+import { MultiCompBuilder } from "comps/generators/multi";
+import { trans } from "i18n";
+import { Section } from "openblocks-design";
+import styled from "styled-components";
+
+const PaddingContainer = styled.div<{}>`
+  display: flex;
+  justify-content: space-between;
+  .hUXIwu {
+    flex: 0 0 36px;
+  }
+  .fgbLEe {
+    margin-right: 5px;
+    margin-bottom: 10px;
+  }
+`;
+export const PaddingControl = (function () {
+  const childrenMap = {
+    left: withDefault(StringControl, ""),
+    right: withDefault(StringControl, ""),
+    top: withDefault(StringControl, ""),
+    bottom: withDefault(StringControl, ""),
+  };
+  return new MultiCompBuilder(childrenMap, (props) => props)
+    .setPropertyViewFn((children) => (
+      <>
+        <PaddingContainer>
+          {children.left.propertyView({
+            label: trans("componentDoc.left"),
+          })}
+          {children.right.propertyView({
+            label: trans("componentDoc.right"),
+          })}
+        </PaddingContainer>
+        <PaddingContainer>
+          {children.top.propertyView({
+            label: trans("componentDoc.top"),
+          })}
+          {children.bottom.propertyView({
+            label: trans("componentDoc.bottom"),
+          })}
+        </PaddingContainer>
+      </>
+    ))
+    .build();
+})();

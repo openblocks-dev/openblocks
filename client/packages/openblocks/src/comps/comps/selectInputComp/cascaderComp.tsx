@@ -43,14 +43,8 @@ let CascaderBasicComp = (function () {
             props.onEvent("change");
           }}
           style={{
-            marginLeft: props.marginLeft,
-            marginRight: props.marginRight,
-            marginTop: props.marginTop,
-            marginBottom: props.marginBottom,
-            paddingLeft: props.paddingLeft,
-            paddingRight: props.paddingRight,
-            paddingTop: props.paddingTop,
-            paddingBottom: props.paddingBottom,
+            margin: `${props.margin.top} ${props.margin.right} ${props.margin.bottom} ${props.margin.left}`,
+            padding: `${props.padding.top} ${props.padding.right} ${props.padding.bottom} ${props.padding.left}`,
           }}
         />
       ),

@@ -7,6 +7,8 @@ import {
 import { BoolControl } from "../../controls/boolControl";
 import { LabelControl } from "../../controls/labelControl";
 import { BoolCodeControl, StringControl } from "../../controls/codeControl";
+import { PaddingControl } from "../../controls/paddingControl";
+import { MarginControl } from "../../controls/marginControl";
 import {
   isDarkColor,
   lightenColor,
@@ -142,29 +144,6 @@ const getDropdownStyle = (style: MultiSelectStyleType) => {
   `;
 };
 
-const MarginContainer = styled.div<{}>`
-  display: flex;
-  justify-content: space-between;
-  .hUXIwu {
-    flex: 0 0 36px;
-  }
-  .fgbLEe {
-    margin-right: 5px;
-    margin-bottom: 10px;
-  }
-`;
-
-const PaddingContainer = styled.div<{}>`
-  display: flex;
-  justify-content: space-between;
-  .hUXIwu {
-    flex: 0 0 36px;
-  }
-  .fgbLEe {
-    margin-right: 5px;
-    margin-bottom: 10px;
-  }
-`;
 
 const Select = styled(AntdSelect) <{
   $style: SelectStyleType & MultiSelectStyleType;
@@ -200,14 +179,8 @@ export const SelectChildrenMap = {
   allowClear: BoolControl,
   inputValue: stateComp<string>(""), // user's input value when search
   showSearch: BoolControl.DEFAULT_TRUE,
-  marginLeft: withDefault(StringControl, ""),
-  marginRight: withDefault(StringControl, ""),
-  marginTop: withDefault(StringControl, ""),
-  marginBottom: withDefault(StringControl, ""),
-  paddingLeft: withDefault(StringControl, ""),
-  paddingRight: withDefault(StringControl, ""),
-  paddingTop: withDefault(StringControl, ""),
-  paddingBottom: withDefault(StringControl, ""),
+  margin: MarginControl,
+  padding: PaddingControl,
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -252,14 +225,8 @@ export const SelectUIView = (
         : undefined
     }
     style={{
-      marginLeft: props.marginLeft,
-      marginRight: props.marginRight,
-      marginTop: props.marginTop,
-      marginBottom: props.marginBottom,
-      paddingLeft: props.paddingLeft,
-      paddingRight: props.paddingRight,
-      paddingTop: props.paddingTop,
-      paddingBottom: props.paddingBottom,
+      margin: `${props.margin.top} ${props.margin.right} ${props.margin.bottom} ${props.margin.left}`,
+      padding: `${props.padding.top} ${props.padding.right} ${props.padding.bottom} ${props.padding.left}`,
     }}
   >
     {props.options
@@ -315,43 +282,12 @@ export const SelectPropertyView = (
     <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     <Section name={sectionNames.style}>
       {children.style.getPropertyView()}
-      <h4>Margin</h4>
-      <div>
-        <MarginContainer>
-          {children.marginLeft.propertyView({
-            label: trans("componentDoc.left"),
-          })}
-          {children.marginRight.propertyView({
-            label: trans("componentDoc.right"),
-          })}
-        </MarginContainer>
-        <MarginContainer>
-          {children.marginTop.propertyView({
-            label: trans("componentDoc.top"),
-          })}
-          {children.marginBottom.propertyView({
-            label: trans("componentDoc.bottom"),
-          })}
-        </MarginContainer>
-      </div>
-
-      <h4>Padding</h4>
-      <PaddingContainer>
-        {children.paddingLeft.propertyView({
-          label: trans("componentDoc.left"),
-        })}
-        {children.paddingRight.propertyView({
-          label: trans("componentDoc.right"),
-        })}
-      </PaddingContainer>
-      <PaddingContainer>
-        {children.paddingTop.propertyView({
-          label: trans("componentDoc.top"),
-        })}
-        {children.paddingBottom.propertyView({
-          label: trans("componentDoc.bottom"),
-        })}
-      </PaddingContainer>
+    </Section>
+    <Section name={trans("style.margin")}>
+      {children.margin.getPropertyView()}
+    </Section>
+    <Section name={trans("style.padding")}>
+      {children.padding.getPropertyView()}
     </Section>
   </>
 );

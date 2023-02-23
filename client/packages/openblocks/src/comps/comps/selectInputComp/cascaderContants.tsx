@@ -9,6 +9,8 @@ import {
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { LabelControl } from "comps/controls/labelControl";
+import { PaddingControl } from "../../controls/paddingControl";
+import { MarginControl } from "../../controls/marginControl";
 import { styleControl } from "comps/controls/styleControl";
 import { CascaderStyle } from "comps/controls/styleControlConstants";
 import {
@@ -24,30 +26,6 @@ import { withDefault } from "@openblocks-ee/comps/generators";
 
 export const defaultDataSource = JSON.stringify(i18nObjs.cascader, null, " ");
 
-const MarginContainer = styled.div<{}>`
-  display: flex;
-  justify-content: space-between;
-  .hUXIwu {
-    flex: 0 0 36px;
-  }
-  .fgbLEe {
-    margin-right: 5px;
-    margin-bottom: 10px;
-  }
-`;
-
-const PaddingContainer = styled.div<{}>`
-  display: flex;
-  justify-content: space-between;
-  .hUXIwu {
-    flex: 0 0 36px;
-  }
-  .fgbLEe {
-    margin-right: 5px;
-    margin-bottom: 10px;
-  }
-`;
-
 export const CascaderChildren = {
   value: arrayStringExposingStateControl("value", i18nObjs.cascaderDefult),
   label: LabelControl,
@@ -58,14 +36,8 @@ export const CascaderChildren = {
   options: JSONObjectArrayControl,
   style: styleControl(CascaderStyle),
   showSearch: BoolControl.DEFAULT_TRUE,
-  marginLeft: withDefault(StringControl, ""),
-  marginRight: withDefault(StringControl, ""),
-  marginTop: withDefault(StringControl, ""),
-  marginBottom: withDefault(StringControl, ""),
-  paddingLeft: withDefault(StringControl, ""),
-  paddingRight: withDefault(StringControl, ""),
-  paddingTop: withDefault(StringControl, ""),
-  paddingBottom: withDefault(StringControl, ""),
+  margin: MarginControl,
+  padding: PaddingControl,
 };
 
 export const CascaderPropertyView = (
@@ -96,42 +68,12 @@ export const CascaderPropertyView = (
 
     <Section name={sectionNames.style}>
       {children.style.getPropertyView()}
-      <h4>Margin</h4>
-      <div>
-        <MarginContainer>
-          {children.marginLeft.propertyView({
-            label: trans("componentDoc.left"),
-          })}
-          {children.marginRight.propertyView({
-            label: trans("componentDoc.right"),
-          })}
-        </MarginContainer>
-        <MarginContainer>
-          {children.marginTop.propertyView({
-            label: trans("componentDoc.top"),
-          })}
-          {children.marginBottom.propertyView({
-            label: trans("componentDoc.bottom"),
-          })}
-        </MarginContainer>
-      </div>
-      <h4>Padding</h4>
-      <PaddingContainer>
-        {children.paddingLeft.propertyView({
-          label: trans("componentDoc.left"),
-        })}
-        {children.paddingRight.propertyView({
-          label: trans("componentDoc.right"),
-        })}
-      </PaddingContainer>
-      <PaddingContainer>
-        {children.paddingTop.propertyView({
-          label: trans("componentDoc.top"),
-        })}
-        {children.paddingBottom.propertyView({
-          label: trans("componentDoc.bottom"),
-        })}
-      </PaddingContainer>
+    </Section>
+    <Section name={trans("style.margin")}>
+      {children.margin.getPropertyView()}
+    </Section>
+    <Section name={trans("style.padding")}>
+      {children.padding.getPropertyView()}
     </Section>
   </>
 );

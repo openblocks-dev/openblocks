@@ -306,6 +306,7 @@ export const en = {
     toolbarBackground: "Toolbar background",
     toolbarText: "Toolbar text",
     margin: "Margin",
+    padding: "Padding",
     marginLeft: "Margin Left",
     marginRight: "Margin Right",
     marginTop: "Margin Top",
