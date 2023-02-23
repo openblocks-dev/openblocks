@@ -27,7 +27,7 @@ import org.springframework.web.server.ServerWebExchange;
 import com.openblocks.api.authentication.dto.AuthConfigRequest;
 import com.openblocks.api.authentication.request.AuthRequestFactory;
 import com.openblocks.api.authentication.request.oauth2.OAuth2RequestContext;
-import com.openblocks.api.authentication.service.admin.AuthConfigFactory;
+import com.openblocks.api.authentication.service.factory.AuthConfigFactory;
 import com.openblocks.api.authentication.util.AuthenticationUtils;
 import com.openblocks.api.home.SessionUserService;
 import com.openblocks.api.usermanagement.InvitationApiService;

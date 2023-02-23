@@ -26,8 +26,8 @@ import lombok.Setter;
 public class AuthProperties {
 
     private Email email = new Email();
-    private Google google = new Google();
-    private Github github = new Github();
+    private Oauth2Simple google = new Oauth2Simple();
+    private Oauth2Simple github = new Oauth2Simple();
 
     @Getter
     @Setter
@@ -49,14 +49,7 @@ public class AuthProperties {
 
     @Setter
     @Getter
-    public static class Google extends AuthWay {
-        private String clientId;
-        private String clientSecret;
-    }
-
-    @Setter
-    @Getter
-    public static class Github extends AuthWay {
+    public static class Oauth2Simple extends AuthWay {
         private String clientId;
         private String clientSecret;
     }
