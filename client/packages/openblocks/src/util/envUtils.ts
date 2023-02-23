@@ -29,6 +29,10 @@ export function isSelfDomain(config?: SystemConfig) {
   return config?.selfDomain;
 }
 
+export function showAuditLog(config?: SystemConfig) {
+  return config?.featureFlag.enableAuditLog;
+}
+
 export function useCloudHosting() {
   const systemConfig = useSelector(selectSystemConfig);
   return systemConfig?.cloudHosting ?? true;

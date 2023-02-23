@@ -1,6 +1,7 @@
 interface FeatureFlag {
   enableCustomBranding: boolean;
   enableEnterpriseLogin: boolean;
+  enableAuditLog: boolean;
 }
 
 export interface BrandingConfig {
