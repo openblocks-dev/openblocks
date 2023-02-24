@@ -12,7 +12,7 @@ import {
 } from "comps/generators/multi";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { AppTypeEnum } from "constants/applicationConstants";
-import { BranchDiv, Dropdown } from "openblocks-design";
+import { BranchDiv, Dropdown, Treediv } from "openblocks-design";
 import _ from "lodash";
 import { ReactNode, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -130,7 +130,7 @@ export class LayoutMenuItemComp extends MultiBaseComp<ChildrenType> {
             label: trans("aggregation.hideWhenNoPermission"),
           })}
         {isLeaf && (
-          <>
+          <Treediv>
             <BranchDiv>
               {this.children.queryParam.propertyView({
                 label: trans("aggregation.queryParam"),
@@ -143,7 +143,7 @@ export class LayoutMenuItemComp extends MultiBaseComp<ChildrenType> {
                 layout: "vertical",
               })}
             </BranchDiv>
-          </>
+          </Treediv>
         )}
       </>
     );

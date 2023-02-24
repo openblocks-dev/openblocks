@@ -1239,6 +1239,11 @@ export const en = {
     currentTimeStamp: "The current playback position of the video in seconds",
     duration: "The total duration of the video in seconds",
   },
+  media: {
+    playDesc: "Begins playback of the media.",
+    pauseDesc: "Pauses the media playback.",
+    loadDesc: "Resets the media to the beginning and restart selecting the media resource.",
+  },
   rangeSlider: {
     start: "Start value",
     end: "End value",
