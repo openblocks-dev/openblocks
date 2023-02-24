@@ -58,7 +58,7 @@ const HookListTmp2Comp = class extends HookListTmpComp {
       children: {},
     } as CompTree;
     for (const key in items) {
-      if (hookCompCategory(items[key].children.compType.getView()) === 'ui') {
+      if (hookCompCategory(items[key].children.compType.getView()) === "ui") {
         tree.items[key] = items[key];
       }
     }
@@ -81,5 +81,6 @@ const HookListTmp3Comp = withDefault(HookListTmp2Comp, [
   { compType: "message", name: "message" },
   { compType: "localStorage", name: "localStorage" },
   { compType: "currentUser", name: "currentUser" },
+  { compType: "theme", name: "theme" },
 ]);
 export const HookListComp = HookListTmp3Comp;

@@ -6,7 +6,13 @@ type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
 
 type CommonParamType = "textInput" | "numberInput" | "select";
 type DataSourceParamType = CommonParamType | "password" | "checkbox" | "groupTitle";
-type ActionParamType = CommonParamType | "booleanInput" | "switch" | "file" | "jsonInput";
+type ActionParamType =
+  | CommonParamType
+  | "booleanInput"
+  | "switch"
+  | "file"
+  | "jsonInput"
+  | "sqlInput";
 
 type ParamTypeToValueType<T extends DataSourceParamType | ActionParamType> = T extends
   | "textInput"
@@ -57,6 +63,7 @@ interface ActionBooleanInputParamConfig extends ActionCommonParamConfig<"boolean
 interface ActionSwitchParamConfig extends ActionCommonParamConfig<"switch"> {}
 interface ActionFileParamConfig extends ActionCommonParamConfig<"file"> {}
 interface ActionJSONParamConfig extends ActionCommonParamConfig<"jsonInput"> {}
+interface ActionSQLParamConfig extends ActionCommonParamConfig<"sqlInput"> {}
 interface ActionSelectParamConfig extends ActionCommonParamConfig<"select"> {
   options: readonly ParamOption[];
 }
@@ -130,6 +137,7 @@ type StringParamConfig =
   | DataSourcePasswordInputParamConfig
   | ActionTextInputParamConfig
   | ActionSelectParamConfig
+  | ActionSQLParamConfig
   | ActionFileParamConfig;
 
 type NumberParamConfig = DataSourceNumberInputParamConfig | ActionNumberInputParamConfig;
@@ -176,6 +184,7 @@ export type ActionParamConfig = KeyedParamConfig<
   | ActionSwitchParamConfig
   | ActionFileParamConfig
   | ActionJSONParamConfig
+  | ActionSQLParamConfig
 >;
 
 export type ArrayParamConfig = readonly KeyedParamConfig<

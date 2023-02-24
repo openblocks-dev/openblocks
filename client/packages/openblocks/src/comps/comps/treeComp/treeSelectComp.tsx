@@ -32,6 +32,9 @@ import {
   placeholderPropertyView,
   showSearchPropertyView,
 } from "comps/utils/propertyUtils";
+import { BaseSelectRef } from "rc-select";
+import { RefControl } from "comps/controls/refControl";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 const StyledTreeSelect = styled(TreeSelect)<{ $style: TreeSelectStyleType }>`
   width: 100%;
@@ -62,6 +65,7 @@ const childrenMap = {
   showSearch: BoolControl.DEFAULT_TRUE,
   inputValue: stateComp<string>(""), // search value
   style: styleControl(TreeSelectStyle),
+  viewRef: RefControl<BaseSelectRef>,
 };
 
 function getCheckedStrategy(v: ValueFromOption<typeof checkedStrategyOptions>) {
@@ -93,6 +97,7 @@ const TreeCompView = (
     style: style,
     children: (
       <StyledTreeSelect
+        ref={props.viewRef}
         key={selectType}
         $style={style}
         dropdownMatchSelectWidth={false}
@@ -160,6 +165,7 @@ let TreeBasicComp = (function () {
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>
     ))
+    .setExposeMethodConfigs(refMethods(["focus", "blur", "scrollTo"]))
     .build();
 })();
 

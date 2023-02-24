@@ -18,6 +18,8 @@ import {
 import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
+import { RefControl } from "comps/controls/refControl";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 const Link = styled(Button)<{ $style: LinkStyleType }>`
   ${(props) => `color: ${props.$style.text};`}
@@ -59,6 +61,7 @@ const LinkTmpComp = (function () {
     style: migrateOldData(styleControl(LinkStyle), fixOldData),
     prefixIcon: IconControl,
     suffixIcon: IconControl,
+    viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => {
     // chrome86 bug: button children should not contain only empty span
@@ -66,6 +69,7 @@ const LinkTmpComp = (function () {
     return (
       <ButtonCompWrapper disabled={props.disabled}>
         <Link
+          ref={props.viewRef}
           $style={props.style}
           loading={props.loading}
           disabled={props.disabled}
@@ -106,6 +110,7 @@ const LinkTmpComp = (function () {
         </>
       );
     })
+    .setExposeMethodConfigs(refMethods(["focus", "blur", "click"]))
     .build();
 })();
 

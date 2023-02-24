@@ -1,8 +1,5 @@
 package com.openblocks.plugin.googlesheets.queryhandler;
 
-import static com.openblocks.plugin.googlesheets.GoogleSheetError.GOOGLESHEETS_EXECUTION_ERROR;
-import static com.openblocks.sdk.models.QueryExecutionResult.error;
-
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ClearValuesRequest;
 import com.google.api.services.sheets.v4.model.ClearValuesResponse;
@@ -33,7 +30,6 @@ public class GoogleSheetsClearDataHandler extends GoogleSheetsActionHandler {
                     ClearValuesResponse response = request.execute();
                     return QueryExecutionResult.success(response.values());
                 })
-                .onErrorResume(e -> Mono.just(error(GOOGLESHEETS_EXECUTION_ERROR, "GOOGLESHEETS_EXECUTION_ERROR", e.getMessage())))
                 .subscribeOn(QueryExecutionUtils.querySharedScheduler());
     }
 }

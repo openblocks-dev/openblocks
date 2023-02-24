@@ -30,7 +30,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { DateTimeStyle, DateTimeStyleType } from "comps/controls/styleControlConstants";
 import styled from "styled-components";
 import { disabledTime, getStyle } from "./dateComp";
-import { withMethodExposing } from "../generators/withMethodExposing";
+import { refMethods, withMethodExposing } from "../generators/withMethodExposing";
 import {
   disabledPropertyView,
   formatPropertyView,
@@ -49,6 +49,8 @@ import { EditorContext } from "comps/editorState";
 import { checkIsMobile } from "util/commonUtils";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
+import { RefControl } from "comps/controls/refControl";
+import { CommonPickerMethods } from "antd/lib/date-picker/generatePicker/interface";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -126,6 +128,7 @@ export const timePickerControl = (function () {
     value: stringExposingStateControl("value"),
     ...commonChildren,
     ...formDataChildren,
+    viewRef: RefControl<CommonPickerMethods>,
   };
 
   return new UICompBuilder(childrenMap, (props, dispatch) => {
@@ -133,6 +136,7 @@ export const timePickerControl = (function () {
     const children = (
       <>
         <TimePickerStyled
+          ref={props.viewRef}
           $style={props.style}
           disabled={props.disabled}
           value={(() => {
@@ -195,6 +199,7 @@ export const timePickerControl = (function () {
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>
     ))
+    .setExposeMethodConfigs(refMethods(["focus", "blur"]))
     .build();
 })();
 
@@ -203,6 +208,7 @@ export const timeRangeControl = (function () {
     start: stringExposingStateControl("start"),
     end: stringExposingStateControl("end"),
     ...commonChildren,
+    viewRef: RefControl<CommonPickerMethods>,
   };
 
   return new UICompBuilder(childrenMap, (props, dispatch) => {
@@ -210,6 +216,7 @@ export const timeRangeControl = (function () {
     const children = (
       <>
         <RangePickerStyled
+          ref={props.viewRef}
           $style={props.style}
           disabled={props.disabled}
           value={(() => {
@@ -220,9 +227,9 @@ export const timeRangeControl = (function () {
           disabledTime={() => disabledTime(props.minTime, props.maxTime)}
           {...timePickerComps(props)}
           order={true}
-          onChange={(time) => {
-            const start = time && time[0] ? moment(time[0]) : null;
-            const end = time && time[1] ? moment(time[1]) : null;
+          onCalendarChange={(time) => {
+            const start = time?.[0];
+            const end = time?.[1];
             props.start.onChange(start && start.isValid() ? start.format(TIME_FORMAT) : "");
             props.end.onChange(end && end.isValid() ? end.format(TIME_FORMAT) : "");
             props.onEvent("change");
@@ -368,6 +375,7 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
 ]);
 
 TimeRangeComp = withMethodExposing(TimeRangeComp, [
+  ...refMethods<typeof TimeRangeComp>(["focus", "blur"]),
   {
     method: {
       name: "clearAll",

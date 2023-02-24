@@ -12,6 +12,7 @@
   "scripts": {
     "start": "yarn workspace openblocks start",
     "start:ee": "REACT_APP_EDITION=enterprise yarn workspace openblocks start",
+    "start:ee-global": "REACT_APP_EDITION=enterprise-global yarn workspace openblocks start",
     "build": "yarn node ./scripts/build.js",
     "test": "jest",
     "prepare": "yarn workspace openblocks prepare",
@@ -71,6 +72,7 @@
     "react-virtualized@^9.22.3": "patch:react-virtualized@npm%3A9.22.3#./.yarn/patches/react-virtualized-npm-9.22.3-0fff3cbf64.patch"
   },
   "dependencies": {
+    "antd-mobile": "^5.28.0",
     "chalk": "4",
     "number-precision": "^1.6.0",
     "react-player": "^2.11.0",

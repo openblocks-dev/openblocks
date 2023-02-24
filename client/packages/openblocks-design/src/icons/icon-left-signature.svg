@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="c-icon-signature" stroke="#8B8FA3" stroke-width="1.5">
+            <g id="pan" transform="translate(7.905719, 8.269680) rotate(45.000000) translate(-7.905719, -8.269680) translate(6.039052, 1.269680)">
+                <path d="M0.933333333,1.07178849e-13 L2.8,1.07178849e-13 C3.31546577,1.07195182e-13 3.73333333,0.417867567 3.73333333,0.933333333 L3.73333333,11.7886133 C3.73333333,12.0404705 3.63154679,12.2816378 3.45109457,12.4573337 L1.86666667,14 L1.86666667,14 L0.282238759,12.4573337 C0.101786548,12.2816378 4.98111622e-14,12.0404705 5.05574747e-14,11.7886133 L5.05574747e-14,0.933333333 C5.04943484e-14,0.417867567 0.417867567,1.07051494e-13 0.933333333,1.07178849e-13 Z" stroke-linejoin="round"></path>
+                <line x1="0.466666667" y1="3.04472656" x2="3.26666667" y2="3.04472656" id="line" stroke-linecap="square"></line>
+            </g>
+        </g>
+    </g>
+</svg>

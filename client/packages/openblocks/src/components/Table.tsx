@@ -23,6 +23,10 @@ export const Table = styled(AntdTable)`
     padding-bottom: 9px;
     border: none;
     //border-bottom: 1px solid #8b8fa3; // divider line for the table header
+    padding: 3px 12px;
+    height: 36px;
+    font-size: 14px;
+    font-weight: 400;
   }
 
   .ant-table-thead > tr > th::before {
@@ -105,7 +109,7 @@ export const Table = styled(AntdTable)`
   .ant-table-ping-right:not(.ant-table-has-fix-right) .ant-table-container::after {
     box-shadow: none;
   }
-  .ant-table-thead > tr > th, .ant-table-tbody > tr > td {
+  .ant-table-tbody > tr > td {
     padding: 16px 12px;
   }
 `;

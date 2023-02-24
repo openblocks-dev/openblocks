@@ -102,6 +102,7 @@ const ResButton = (props: {
     | Partial<ResourceType>
     | BottomResTypeEnum.TempState
     | BottomResTypeEnum.Transformer
+    | BottomResTypeEnum.DateResponder
     | Datasource;
 }) => {
   let label = "";
@@ -117,6 +118,9 @@ const ResButton = (props: {
   if (props.identifier === BottomResTypeEnum.TempState) {
     label = trans("query.tempState");
     handleClick = () => props.onSelect(BottomResTypeEnum.TempState);
+  } else if (props.identifier === BottomResTypeEnum.DateResponder) {
+    label = trans("query.dataResponder");
+    handleClick = () => props.onSelect(BottomResTypeEnum.DateResponder);
   } else if (props.identifier === BottomResTypeEnum.Transformer) {
     label = trans("query.transformer");
     handleClick = () => props.onSelect(BottomResTypeEnum.Transformer);
@@ -246,6 +250,11 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                     <ResButton
                       size={buttonSize}
                       identifier={BottomResTypeEnum.Transformer}
+                      onSelect={onSelect}
+                    />
+                    <ResButton
+                      size={buttonSize}
+                      identifier={BottomResTypeEnum.DateResponder}
                       onSelect={onSelect}
                     />
                     <ResButton size={buttonSize} identifier={"js"} onSelect={onSelect} />

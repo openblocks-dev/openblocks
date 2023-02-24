@@ -3,6 +3,7 @@ import { tableDataRowExample } from "comps/comps/tableComp/column/tableColumnLis
 import { getPageSize } from "comps/comps/tableComp/paginationControl";
 import { TableFilter, TableToolbar } from "comps/comps/tableComp/tableToolbarComp";
 import {
+  columnHide,
   columnsToAntdFormat,
   filterData,
   getDisplayDataV2,
@@ -381,37 +382,13 @@ let TableTmpComp = class extends TableTmpInitComp {
   filterNode() {
     const nodes = {
       data: this.sortDataNode(),
-      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
-      hides: this.children.columns.getColumnsNode("hide"),
-      tempHides: this.children.columns.getColumnsNode("tempHide"),
       searchValue: this.children.toolbar.children.searchText.node(),
       filter: this.children.toolbar.children.filter.node(),
       showFilter: this.children.toolbar.children.showFilter.node(),
-      columnSetting: this.children.toolbar.children.columnSetting.node(),
     };
     const filteredDataNode = withFunction(fromRecord(nodes), (input) => {
-      const {
-        data,
-        dataIndexes,
-        hides,
-        tempHides,
-        columnSetting,
-        searchValue,
-        filter,
-        showFilter,
-      } = input;
-      const hideInfo = _(dataIndexes)
-        .mapValues((dataIndex, idx) => ({ hide: hides[idx].value, tempHide: tempHides[idx] }))
-        .mapKeys((_1, idx) => dataIndexes[idx])
-        .value();
-      const filteredData = filterData(
-        data,
-        hideInfo,
-        searchValue.value,
-        filter,
-        showFilter.value,
-        columnSetting.value
-      );
+      const { data, searchValue, filter, showFilter } = input;
+      const filteredData = filterData(data, searchValue.value, filter, showFilter.value);
       // console.info("filterNode. data: ", data, " filter: ", filter, " filteredData: ", filteredData);
       return filteredData;
     });
@@ -513,7 +490,7 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
     },
   },
   {
-    method:{
+    method: {
       name: "resetSelections",
       description: "",
       params: [],
@@ -671,21 +648,38 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     (comp) => {
       return {
         data: comp.filterNode(),
+        // --> pageSize
         showSizeChanger: comp.children.pagination.children.showSizeChanger.node(),
         pageSize: comp.children.pagination.children.pageSize.node(),
         pageSizeOptions: comp.children.pagination.children.pageSizeOptions.node(),
         changablePageSize: comp.children.pagination.children.changeablePageSize.node(),
+        // <-- pageSize
         withParams: comp.children.columns.withParamsNode(),
         dataIndexes: comp.children.columns.getColumnsNode("dataIndex"),
         titles: comp.children.columns.getColumnsNode("title"),
+        // --> hide
+        hides: comp.children.columns.getColumnsNode("hide"),
+        tempHides: comp.children.columns.getColumnsNode("tempHide"),
+        columnSetting: comp.children.toolbar.children.columnSetting.node(),
+        // <-- hide
       };
     },
     (input) => {
-      const columns = _.mapValues(input.dataIndexes, (dataIndex, key) => ({
-        dataIndex,
-        title: input.titles[key].value,
-        render: input.withParams[key],
-      }));
+      const columns = _(input.dataIndexes)
+        .pickBy(
+          (_1, idx) =>
+            !columnHide({
+              hide: input.hides[idx].value,
+              tempHide: input.tempHides[idx],
+              enableColumnSetting: input.columnSetting.value,
+            })
+        )
+        .mapValues((dataIndex, idx) => ({
+          dataIndex,
+          title: input.titles[idx].value,
+          render: input.withParams[idx],
+        }))
+        .value();
       const pageSize = getPageSize(
         input.showSizeChanger.value,
         input.pageSize.value,

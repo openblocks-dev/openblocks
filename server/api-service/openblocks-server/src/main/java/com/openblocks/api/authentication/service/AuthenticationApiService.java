@@ -1,19 +1,21 @@
 package com.openblocks.api.authentication.service;
 
-import com.openblocks.api.authentication.request.AuthRequestContext;
-import com.openblocks.domain.user.model.AuthorizedUser;
-import com.openblocks.domain.user.model.User;
-import com.openblocks.sdk.auth.AbstractAuthConfig;
+import org.springframework.web.server.ServerWebExchange;
+
+import com.openblocks.api.authentication.dto.AuthConfigRequest;
+import com.openblocks.domain.user.model.AuthenticationUser;
 
 import reactor.core.publisher.Mono;
 
 public interface AuthenticationApiService {
 
-    Mono<AuthorizedUser> getFormAuthUser(String loginId, String password, String domain, String source);
+    Mono<AuthenticationUser> authenticateByForm(String loginId, String password, String source, boolean register, String authId);
 
-    Mono<Void> onUserLogin(String orgId, User user, String source);
+    Mono<AuthenticationUser> authenticateByOauth2(String authId, String source, String code, String redirectUrl);
 
-    Mono<Void> onUserRegister(User user);
+    Mono<Void> loginOrRegister(AuthenticationUser authUser, ServerWebExchange exchange, String invitationId);
 
-    Mono<AbstractAuthConfig> findAuthConfig(String source, AuthRequestContext context, String domain);
+    Mono<Boolean> enableAuthConfig(AuthConfigRequest authConfigRequest);
+
+    Mono<Boolean> disableAuthConfig(String authId);
 }

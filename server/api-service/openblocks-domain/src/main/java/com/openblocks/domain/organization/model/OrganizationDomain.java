@@ -1,9 +1,8 @@
 package com.openblocks.domain.organization.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-
-import org.apache.commons.collections4.ListUtils;
 
 import com.openblocks.sdk.auth.AbstractAuthConfig;
 
@@ -19,7 +18,10 @@ public class OrganizationDomain implements EnterpriseConnectionConfig {
 
     @Override
     public List<AbstractAuthConfig> getAuthConfigs() {
-        return ListUtils.emptyIfNull(this.authConfigs);
+        if (authConfigs == null) {
+            authConfigs = new ArrayList<>();
+        }
+        return authConfigs;
     }
 
     OrganizationDomain doEncrypt(Function<String, String> encryptFunc) {

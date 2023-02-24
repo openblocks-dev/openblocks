@@ -57,7 +57,7 @@ const OperationWrapper = styled.div`
   width: 100%;
   height: 32px;
   padding: 0 36px;
-  margin: 8px 0 0;
+  margin: 8px 0 20px 0;
   @media screen and (max-width: 500px) {
     padding: 0 24px;
   }
@@ -192,7 +192,7 @@ const EmptyView = styled.div`
 const LayoutSwitcher = styled.div`
   position: absolute;
   right: 36px;
-  top: 20px;
+  top: 6px;
   cursor: pointer;
   width: 24px;
   height: 24px;

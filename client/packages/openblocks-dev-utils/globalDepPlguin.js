@@ -1,6 +1,6 @@
 import { libsImportCode } from "./external.js";
 
-export function globalDepPlugin() {
+export function globalDepPlugin(exclude = []) {
   const virtualModuleId = "virtual:globals";
   return {
     name: "openblocks-global-plugin",
@@ -11,7 +11,7 @@ export function globalDepPlugin() {
     },
     load(id) {
       if (id === virtualModuleId) {
-        return libsImportCode();
+        return libsImportCode(exclude);
       }
     },
   };

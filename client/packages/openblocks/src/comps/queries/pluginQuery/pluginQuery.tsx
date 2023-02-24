@@ -12,6 +12,7 @@ import {
   ParamsControlType,
   ParamsBooleanControl,
   ParamsJsonControl,
+  ParamsStringJsonControl,
 } from "comps/controls/paramsControl";
 import { MultiCompBuilder, valueComp, withDefault } from "comps/generators";
 import { withTypeAndChildrenAbstract } from "comps/generators/withType";
@@ -27,6 +28,7 @@ import { FunctionProperty, toQueryView } from "../queryCompUtils";
 import { CompConstructor } from "openblocks-core";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ControlParams, ControlType } from "comps/controls/controlParams";
+import MarkdownTooltip from "openblocks-design/src/components/MarkdownTooltip";
 
 function wrapConfig(
   paramsControl: ControlType,
@@ -37,7 +39,11 @@ function wrapConfig(
     getPropertyView(): ReactNode {
       return (
         <QueryConfigWrapper key={config.key}>
-          <QueryConfigLabel tooltip={config.tooltip}>{config.label}</QueryConfigLabel>
+          <QueryConfigLabel
+            tooltip={config.tooltip && <MarkdownTooltip>{config.tooltip}</MarkdownTooltip>}
+          >
+            {config.label}
+          </QueryConfigLabel>
           <QueryConfigItemWrapper>
             {this.propertyView({ placeholder: config.placeholder, ...controlParams })}
           </QueryConfigItemWrapper>
@@ -257,11 +263,15 @@ export function configToComp(
   }
 
   if (config.type === "file") {
-    Comp = wrapConfig(ParamsStringControl, config);
+    Comp = wrapConfig(ParamsStringJsonControl, config);
   }
 
   if (config.type === "jsonInput") {
     Comp = wrapConfig(ParamsJsonControl, config, { styleName: "medium" });
+  }
+
+  if (config.type === "sqlInput") {
+    Comp = wrapConfig(ParamsJsonControl, config, { styleName: "medium", language: "sql" });
   }
 
   if (!Comp) {

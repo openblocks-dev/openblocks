@@ -102,8 +102,8 @@ export default function PermissionSetting() {
       label: group.groupName,
       createTime: group.createTime,
       lock: group.devGroup || false,
-      del: currentOrgAdmin(user) && !group.devGroup,
-      rename: isGroupAdmin(group.visitorRole) && !group.devGroup,
+      del: currentOrgAdmin(user) && !group.devGroup && !!(!group.syncGroup || group.syncDelete),
+      rename: isGroupAdmin(group.visitorRole) && !group.devGroup && !group.syncGroup,
       group: group,
     });
   });
@@ -163,6 +163,8 @@ export default function PermissionSetting() {
                         name={record.groupName}
                         lock={record.lock}
                         suffix={nameSuffixFunc(record.group)}
+                        warn={record.group?.syncDelete}
+                        syncGroup={record.group?.syncGroup}
                       />
                     )}
                   </Typography.Text>
@@ -187,14 +189,18 @@ export default function PermissionSetting() {
             group: item.group,
             operation: (
               <OperationWrapper>
-                <EditBtn
-                  className={"home-datasource-edit-button"}
-                  buttonType={"primary"}
-                  onClick={() => history.push(buildGroupId(item.key))}
-                >
-                  {trans("memberSettings.manageBtn")}
-                </EditBtn>
-                {(item.del || item.rename || (item.group && menuItemsFunc)) && (
+                {!item.group?.syncGroup && (
+                  <EditBtn
+                    className={"home-datasource-edit-button"}
+                    buttonType={"primary"}
+                    onClick={() => history.push(buildGroupId(item.key))}
+                  >
+                    {trans("memberSettings.manageBtn")}
+                  </EditBtn>
+                )}
+                {(item.del ||
+                  item.rename ||
+                  (item.group && menuItemsFunc && !item.group.syncGroup)) && (
                   <EditPopover
                     del={
                       item.del
@@ -210,7 +216,7 @@ export default function PermissionSetting() {
                         : undefined
                     }
                     rename={item.rename ? () => setNeedRenameId(item.key) : undefined}
-                    items={menuItemsFunc?.(item.group)}
+                    items={!item.group?.syncGroup ? menuItemsFunc?.(item.group) : []}
                   >
                     <PopoverIcon tabIndex={-1} />
                   </EditPopover>

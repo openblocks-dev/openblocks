@@ -5,6 +5,7 @@ import static com.openblocks.plugin.googlesheets.GoogleSheetError.GOOGLESHEETS_E
 import static com.openblocks.plugin.googlesheets.GoogleSheetError.GOOGLESHEETS_REQUEST_ERROR;
 import static com.openblocks.plugin.googlesheets.queryhandler.GoogleSheetsActionHandler.APPEND_DATA;
 import static com.openblocks.plugin.googlesheets.queryhandler.GoogleSheetsActionHandler.CLEAR_DATA;
+import static com.openblocks.plugin.googlesheets.queryhandler.GoogleSheetsActionHandler.DELETE_DATA;
 import static com.openblocks.plugin.googlesheets.queryhandler.GoogleSheetsActionHandler.READ_DATA;
 import static com.openblocks.plugin.googlesheets.queryhandler.GoogleSheetsActionHandler.UPDATE_DATA;
 import static com.openblocks.sdk.util.JsonUtils.fromJson;
@@ -29,6 +30,7 @@ import com.openblocks.plugin.googlesheets.model.GoogleSheetsActionRequest;
 import com.openblocks.plugin.googlesheets.model.GoogleSheetsAppendDataRequest;
 import com.openblocks.plugin.googlesheets.model.GoogleSheetsClearDataRequst;
 import com.openblocks.plugin.googlesheets.model.GoogleSheetsDatasourceConfig;
+import com.openblocks.plugin.googlesheets.model.GoogleSheetsDeleteDataRequest;
 import com.openblocks.plugin.googlesheets.model.GoogleSheetsQueryExecutionContext;
 import com.openblocks.plugin.googlesheets.model.GoogleSheetsReadDataRequest;
 import com.openblocks.plugin.googlesheets.model.GoogleSheetsUpdateDataRequest;
@@ -99,6 +101,7 @@ public class GoogleSheetsPlugin extends Plugin {
                 case READ_DATA -> GoogleSheetsReadDataRequest.class;
                 case UPDATE_DATA -> GoogleSheetsUpdateDataRequest.class;
                 case CLEAR_DATA -> GoogleSheetsClearDataRequst.class;
+                case DELETE_DATA -> GoogleSheetsDeleteDataRequest.class;
                 default -> throw new PluginException(GOOGLESHEETS_EMPTY_QUERY_PARAM, "GOOGLESHEETS_QUERY_PARAM_EMPTY");
             };
             GoogleSheetsActionRequest result = fromJson(toJson(comp), requestClass);
@@ -146,9 +149,11 @@ public class GoogleSheetsPlugin extends Plugin {
             String actionType = context.getActionType();
             GoogleSheetsActionHandler googleSheetsActionHandler = GoogleSheetsActionHandlerFactory.getGoogleSheetsActionHandler(actionType);
             return googleSheetsActionHandler.execute(o, context)
-                    .onErrorResume(
-                            e -> Mono.just(QueryExecutionResult.error(GOOGLESHEETS_REQUEST_ERROR, "GOOGLESHEETS_REQUEST_ERROR", e.getMessage())))
-                    .subscribeOn(scheduler);
+                    .onErrorResume(e -> {
+                        log.error("google sheet execute error", e);
+                        return Mono.just(QueryExecutionResult.error(GOOGLESHEETS_REQUEST_ERROR, "GOOGLESHEETS_REQUEST_ERROR",
+                                e.getMessage()));
+                    });
         }
 
     }

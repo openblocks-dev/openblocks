@@ -17,7 +17,8 @@ public class GoogleSheetsActionHandlerFactory {
         HANDLER_MAP = Lists.newArrayList(new GoogleSheetsReadDataHandler(),
                         new GoogleSheetsAppendDataHandler(),
                         new GoogleSheetsUpdateDataHandler(),
-                        new GoogleSheetsClearDataHandler())
+                        new GoogleSheetsClearDataHandler(),
+                        new GoogleSheetsDeleteDataHandler())
                 .stream()
                 .collect(Collectors.toMap(GoogleSheetsActionHandler::getActionType, Function.identity()));
     }

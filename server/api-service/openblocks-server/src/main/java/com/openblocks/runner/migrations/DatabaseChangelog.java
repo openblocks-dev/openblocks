@@ -1,9 +1,8 @@
 package com.openblocks.runner.migrations;
 
 import static com.openblocks.domain.util.QueryDslUtils.fieldName;
+import static com.openblocks.sdk.util.IDUtils.generate;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
-
-import java.util.UUID;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
@@ -30,6 +29,7 @@ import com.openblocks.infra.birelation.BiRelation;
 import com.openblocks.infra.config.model.ServerConfig;
 import com.openblocks.infra.eventlog.EventLog;
 import com.openblocks.infra.serverlog.ServerLog;
+import com.openblocks.runner.migrations.job.MigrateAuthConfigJob;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -114,7 +114,7 @@ public class DatabaseChangelog {
     public void generateInstanceId(MongockTemplate mongoTemplate) {
         mongoTemplate.insert(ServerConfig.builder()
                 .key("deployment.id")
-                .value(UUID.randomUUID().toString())
+                .value(generate())
                 .build());
     }
 
@@ -170,6 +170,10 @@ public class DatabaseChangelog {
         ensureIndexes(mongoTemplate, User.class, makeIndex("connections.source", "connections.rawId").unique().sparse());
     }
 
+    @ChangeSet(order = "017", id = "migrate-auth-configs", author = "")
+    public void migrateAuthConfigs(MigrateAuthConfigJob migrateAuthConfigJob) {
+        migrateAuthConfigJob.migrateAuthConfig();
+    }
 
     public static Index makeIndex(String... fields) {
         if (fields.length == 1) {

@@ -20,6 +20,8 @@ import { Section, sectionNames } from "openblocks-design";
 import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
+import { RefControl } from "comps/controls/refControl";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 const getStyle = (style: SegmentStyleType) => {
   return css`
@@ -54,19 +56,20 @@ const Segmented = styled(AntdSegmented)<{ $style: SegmentStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
-export const SegmentChildrenMap = {
+const SegmentChildrenMap = {
   value: stringExposingStateControl("value"),
   label: LabelControl,
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
   options: SelectOptionControl,
   style: styleControl(SegmentStyle),
+  viewRef: RefControl<HTMLDivElement>,
 
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
 
-export const SegmentedControlBasicComp = (function () {
+const SegmentedControlBasicComp = (function () {
   return new UICompBuilder(SegmentChildrenMap, (props) => {
     const [validateState, handleValidate] = useSelectInputValidate(props);
     return props.label({
@@ -74,6 +77,7 @@ export const SegmentedControlBasicComp = (function () {
       style: props.style,
       children: (
         <Segmented
+          ref={props.viewRef}
           block
           disabled={props.disabled}
           value={props.value.value}
@@ -116,6 +120,7 @@ export const SegmentedControlBasicComp = (function () {
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>
     ))
+    .setExposeMethodConfigs(refMethods(["focus", "blur"]))
     .build();
 })();
 

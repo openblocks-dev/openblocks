@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import com.openblocks.domain.authentication.context.AuthRequestContext;
 import com.openblocks.sdk.exception.BizException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,7 @@ public class AuthRequestFactoryFacade implements AuthRequestFactory<AuthRequestC
                 authRequestFactoryMap.put(authType, authRequestFactory);
             }
         }
+        log.info("find auth types:{}", authRequestFactoryMap.keySet());
     }
 
     @Override

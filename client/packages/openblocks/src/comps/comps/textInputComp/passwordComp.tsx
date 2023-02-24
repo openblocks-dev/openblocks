@@ -1,4 +1,4 @@
-import { Input } from "antd";
+import { Input, InputRef } from "antd";
 import {
   NameConfig,
   NameConfigPlaceHolder,
@@ -20,7 +20,7 @@ import {
   TextInputValidationOptions,
   useTextInputProps,
 } from "./textInputConstants";
-import { MethodConfigFocus, withMethodExposing } from "../../generators/withMethodExposing";
+import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
 import { InputLikeStyle, InputLikeStyleType } from "comps/controls/styleControlConstants";
@@ -35,6 +35,7 @@ import {
 import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
+import { RefControl } from "comps/controls/refControl";
 
 const PasswordStyle = styled(Input.Password)<{
   $style: InputLikeStyleType;
@@ -45,6 +46,7 @@ const PasswordStyle = styled(Input.Password)<{
 const PasswordTmpComp = (function () {
   const childrenMap = {
     ...textInputChildren,
+    viewRef: RefControl<InputRef>,
     label: withDefault(LabelControl, { text: trans("password.label") }),
     validationType: dropdownControl(TextInputValidationOptions, "Regex"),
     visibilityToggle: BoolControl.DEFAULT_TRUE,
@@ -59,6 +61,7 @@ const PasswordTmpComp = (function () {
         <PasswordStyle
           prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
           {...inputProps}
+          ref={props.viewRef}
           visibilityToggle={props.visibilityToggle}
           $style={props.style}
         />
@@ -92,9 +95,7 @@ const PasswordTmpComp = (function () {
             {children.customRule.propertyView({})}
           </Section>
 
-          <Section name={sectionNames.layout}>
-            {hiddenPropertyView(children)}
-          </Section>
+          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
 
           <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
         </>
@@ -103,7 +104,10 @@ const PasswordTmpComp = (function () {
     .build();
 })();
 
-const PasswordTmp2Comp = withMethodExposing(PasswordTmpComp, MethodConfigFocus);
+const PasswordTmp2Comp = withMethodExposing(
+  PasswordTmpComp,
+  refMethods(["focus", "blur", "select", "setSelectionRange"])
+);
 
 export const PasswordComp = withExposingConfigs(PasswordTmp2Comp, [
   new NameConfig("value", trans("export.inputValueDesc")),

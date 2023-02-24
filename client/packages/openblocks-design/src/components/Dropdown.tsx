@@ -6,6 +6,7 @@ import { ReactNode } from "react";
 import styled from "styled-components";
 import { CustomSelect } from "./customSelect";
 import { EllipsisTextCss } from "./Label";
+import { TacoMarkDown } from "./markdown";
 import { Tooltip, ToolTipLabel } from "./toolTip";
 
 type ControlPlacement = "bottom" | "right" | "modal";
@@ -252,12 +253,30 @@ interface DropdownOptionLabelWithDescProps {
   description: string;
 }
 
+const DropdownOptionDesc = styled.div`
+  font-size: 12px;
+  max-width: 600px;
+  white-space: normal;
+  .markdown-body {
+    font-size: 12px;
+    background-color: transparent;
+    p {
+      margin-bottom: 4px;
+      color: ${GreyTextColor};
+    }
+  }
+`;
+
 export function DropdownOptionLabelWithDesc(props: DropdownOptionLabelWithDescProps) {
   const { label, description } = props;
   return (
     <div style={{ padding: 0 }}>
       <div style={{ fontWeight: 700, marginBottom: 4 }}>{label}</div>
-      {description && <div style={{ fontSize: 12, color: GreyTextColor }}>{description}</div>}
+      {description && (
+        <DropdownOptionDesc>
+          <TacoMarkDown>{description}</TacoMarkDown>
+        </DropdownOptionDesc>
+      )}
     </div>
   );
 }

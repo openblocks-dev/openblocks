@@ -30,6 +30,7 @@ exec gosu ${USER_ID}:${GROUP_ID} ${JAVA_HOME}/bin/java \
   -Dhttps.protocols=TLSv1.1,TLSv1.2 \
   -Dlog4j2.formatMsgNoLookups=true \
   -Dspring.config.location="file:///openblocks/api-service/config/application.yml,file:///openblocks/api-service/config/application-selfhost.yml" \
+  --add-opens java.base/java.nio=ALL-UNNAMED \
   ${JAVA_OPTS} \
   -jar "${APP_JAR}" --spring.webflux.base-path=${CONTEXT_PATH} ${CUSTOM_APP_PROPERTIES}
 

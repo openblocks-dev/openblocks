@@ -49,7 +49,6 @@ import com.openblocks.sdk.exception.PluginCommonError;
 import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.QueryExecutionResult;
 import com.openblocks.sdk.query.QueryVisitorContext;
-import com.openblocks.sdk.util.UriUtils;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -251,8 +250,7 @@ public class LibraryQueryApiService {
                     BaseQuery baseQuery = tuple.getT2();
                     Datasource datasource = tuple.getT3();
                     Mono<List<Property>> paramsAndHeadersInheritFromLogin = orgMember.isInvalid()
-                                                                            ? Mono.empty() : getParamsAndHeadersInheritFromLogin(userId, orgId,
-                            UriUtils.getRefererDomain(exchange));
+                                                                            ? Mono.empty() : getParamsAndHeadersInheritFromLogin(userId, orgId);
 
                     QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port,
                             exchange.getRequest().getCookies(),
@@ -293,7 +291,7 @@ public class LibraryQueryApiService {
                     BaseQuery baseQuery = tuple.getT2();
                     Datasource datasource = tuple.getT3();
                     Mono<List<Property>> paramsAndHeadersInheritFromLogin =
-                            getParamsAndHeadersInheritFromLogin(userId, orgId, UriUtils.getRefererDomain(exchange));
+                            getParamsAndHeadersInheritFromLogin(userId, orgId);
                     QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port, cookies, paramsAndHeadersInheritFromLogin);
                     Map<String, Object> queryConfig = baseQuery.getQueryConfig();
                     String timeoutStr = baseQuery.getTimeoutStr();
@@ -320,7 +318,7 @@ public class LibraryQueryApiService {
                 .map(LibraryQueryRecord::getQuery);
     }
 
-    protected Mono<List<Property>> getParamsAndHeadersInheritFromLogin(String userId, String orgId, String domain) {
+    protected Mono<List<Property>> getParamsAndHeadersInheritFromLogin(String userId, String orgId) {
         return Mono.empty();
     }
 

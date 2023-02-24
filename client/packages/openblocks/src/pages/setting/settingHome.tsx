@@ -5,7 +5,7 @@ import { AdvancedSetting } from "./advanced/AdvancedSetting";
 import { currentOrgAdmin } from "util/permissionUtils";
 import { trans } from "i18n";
 import AuditSetting from "@openblocks-ee/pages/setting/audit";
-import { developEnv, isEE, isEnterpriseMode, isSelfDomain } from "util/envUtils";
+import { developEnv, isEE, isEnterpriseMode, isSelfDomain, showAuditLog } from "util/envUtils";
 import { TwoColumnSettingPageContent } from "./styled";
 import SubSideBar from "components/layout/SubSideBar";
 import { Menu } from "openblocks-design";
@@ -14,8 +14,9 @@ import { getUser } from "redux/selectors/usersSelectors";
 import history from "util/history";
 import { useParams } from "react-router-dom";
 import { BrandingSetting } from "@openblocks-ee/pages/setting/branding/BrandingSetting";
-import { selectSystemConfig } from "../../redux/selectors/configSelectors";
-import { enableCustomBrand } from "../../util/featureFlagUtils";
+import { IdSourceHome } from "@openblocks-ee/pages/setting/idSource";
+import { selectSystemConfig } from "redux/selectors/configSelectors";
+import { enableCustomBrand } from "util/featureFlagUtils";
 
 enum SettingPageEnum {
   Member = "permission",
@@ -24,6 +25,7 @@ enum SettingPageEnum {
   Theme = "theme",
   Branding = "branding",
   Advanced = "advanced",
+  IdSource = "idsource",
 }
 
 export function SettingHome() {
@@ -40,7 +42,7 @@ export function SettingHome() {
       key: SettingPageEnum.Organization,
       label: trans("settings.organization"),
     },
-    ...(isEE() && currentOrgAdmin(user)
+    ...(showAuditLog(config) && currentOrgAdmin(user)
       ? [
           {
             key: SettingPageEnum.Audit,
@@ -68,6 +70,14 @@ export function SettingHome() {
       key: SettingPageEnum.Advanced,
       label: trans("settings.advanced"),
     },
+    ...(isEE() && currentOrgAdmin(user) && (isSelfDomain(config) || isEnterpriseMode(config))
+      ? [
+          {
+            key: SettingPageEnum.IdSource,
+            label: trans("settings.idSource"),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -88,6 +98,7 @@ export function SettingHome() {
       {selectKey === SettingPageEnum.Theme && <ThemeHome />}
       {selectKey === SettingPageEnum.Branding && <BrandingSetting />}
       {selectKey === SettingPageEnum.Advanced && <AdvancedSetting />}
+      {selectKey === SettingPageEnum.IdSource && <IdSourceHome />}
     </TwoColumnSettingPageContent>
   );
 }

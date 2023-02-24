@@ -13,7 +13,8 @@ interface FormLoginRequest extends CommonLoginParam {
   loginId: string;
   password: string;
   register: boolean;
-  source: string;
+  source?: string;
+  authId?: string;
 }
 
 export interface GetUserResponse extends ApiResponse {
@@ -44,7 +45,7 @@ class UserApi extends Api {
     return Api.post(UserApi.formLoginURL, reqBody, queryParam);
   }
 
-  static bindEmail(request: { email: string }): AxiosPromise<ApiResponse> {
+  static bindEmail(request: { email: string, authId?: string }): AxiosPromise<ApiResponse> {
     return Api.post(UserApi.emailBindURL, undefined, request);
   }
 

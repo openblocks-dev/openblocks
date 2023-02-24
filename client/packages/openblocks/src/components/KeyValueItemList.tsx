@@ -25,6 +25,7 @@ const ListWrapper = styled.div`
   .list-header {
     display: flex;
     font-size: 13px;
+    line-height: 1;
     margin-bottom: 8px;
     align-items: center;
     justify-content: space-between;

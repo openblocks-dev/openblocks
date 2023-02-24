@@ -16,7 +16,6 @@ import { EMAIL_PATTERN, URL_PATTERN } from "util/stringUtils";
 import { RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
-import { RefControl } from "../../controls/refControl";
 import {
   ChildrenTypeToDepsKeys,
   CommonNameConfig,
@@ -127,7 +126,6 @@ export const textInputChildren = {
   label: LabelControl,
   placeholder: StringControl,
   onEvent: InputEventHandlerControl,
-  viewRef: RefControl,
   readOnly: BoolControl,
 
   // validation
@@ -142,7 +140,6 @@ export const textInputChildren = {
 };
 
 const textInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => ({
-  ref: props.viewRef,
   disabled: props.disabled,
   readOnly: props.readOnly,
   placeholder: props.placeholder,

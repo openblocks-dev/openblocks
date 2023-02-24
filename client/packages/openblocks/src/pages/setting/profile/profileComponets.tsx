@@ -225,6 +225,12 @@ export function ProfileInfoItem(props: {
   );
 }
 
+export type ProfileModalCardProps = {
+  setModalContent: (element: JSX.Element) => void;
+  setTitle: (title: string) => void;
+  setShowBackLink: (show: boolean) => void;
+};
+
 export function getConnectedName(user: User, source: string) {
   const connectionIfo = user.connections?.find((u) => u.source === source);
   return connectionIfo?.name ? replaceMiddleWithStar(connectionIfo.name) : "";

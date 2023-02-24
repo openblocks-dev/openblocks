@@ -318,7 +318,7 @@ export function useChangeExtension(
 }
 
 export function useCompletionSources(props: CodeEditorProps) {
-  const { language, codeType, exposingData, enableMetaCompletion } = props;
+  const { language, codeType, exposingData, boostExposingData, enableMetaCompletion } = props;
   const context = useContext(QueryContext); // FIXME: temporarily handle, expect to delete after the backend supports eval
   // auto-completion for comp exposing
   const exposingSource = useMemo(() => new ExposingCompletionSource(), []);
@@ -332,7 +332,8 @@ export function useCompletionSources(props: CodeEditorProps) {
 
   useEffect(() => {
     exposingSource.data = exposingData;
-  }, [exposingSource, exposingData]);
+    exposingSource.boostExposingData = boostExposingData;
+  }, [exposingSource, exposingData, boostExposingData]);
 
   const sqlMetaData = useContext(MetaDataContext);
   useEffect(() => {

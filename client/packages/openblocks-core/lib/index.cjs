@@ -106,49 +106,40 @@ function __spreadArray(to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 }
 
-function getCache(obj, fnName) {
-    var _a;
-    return (_a = obj === null || obj === void 0 ? void 0 : obj.__cache) === null || _a === void 0 ? void 0 : _a[fnName];
-}
-function createCache(obj, fnName, args) {
-    if (!obj.__cache) {
-        obj.__cache = {};
-    }
-    obj.__cache[fnName] = {
-        id: Symbol("id"),
-        args: args,
-        isInProgress: true,
-        time: Date.now(),
-    };
-    return getCache(obj, fnName);
-}
-function genCache(fn, args, thisObj, fnName) {
-    var cache = createCache(thisObj, fnName, args);
-    var value = fn.apply(thisObj, args);
-    cache.isInProgress = false;
-    cache.value = value;
-}
-function read(thisObj, fnName) {
-    var cache = getCache(thisObj, fnName);
-    return cache && cache.value;
-}
-function hitCache(args, thisObj, fnName, equals) {
-    var cache = getCache(thisObj, fnName);
-    if (!cache || !cache.args)
+function isEqualArgs(args, cacheArgs, equals) {
+    if (!cacheArgs) {
         return false;
-    if (args.length === 0 && cache.args.length === 0)
+    }
+    if (args.length === 0 && cacheArgs.length === 0) {
         return true;
-    return cache.args.every(function (arg, index) { var _a, _b; return (_b = (_a = equals === null || equals === void 0 ? void 0 : equals[index]) === null || _a === void 0 ? void 0 : _a.call(equals, arg, args[index])) !== null && _b !== void 0 ? _b : arg === args[index]; });
+    }
+    return (args.length === cacheArgs.length &&
+        cacheArgs.every(function (arg, index) { var _a, _b; return (_b = (_a = equals === null || equals === void 0 ? void 0 : equals[index]) === null || _a === void 0 ? void 0 : _a.call(equals, arg, args[index])) !== null && _b !== void 0 ? _b : arg === args[index]; }));
 }
-function isCyclic(thisObj, fnName) {
-    var cache = getCache(thisObj, fnName);
-    return cache && cache.isInProgress;
+function getCacheResult(thisObj, fnName, args, equals) {
+    var _a;
+    var cache = (_a = thisObj === null || thisObj === void 0 ? void 0 : thisObj.__cache) === null || _a === void 0 ? void 0 : _a[fnName];
+    if (cache && isEqualArgs(args, cache.args, equals)) {
+        return cache.result;
+    }
 }
 function cache(fn, args, thisObj, fnName, equals) {
-    if (!hitCache(args, thisObj, fnName, equals) && !isCyclic(thisObj, fnName)) {
-        genCache(fn, args, thisObj, fnName);
+    var result = getCacheResult(thisObj, fnName, args, equals);
+    if (result) {
+        return result.value;
     }
-    return read(thisObj, fnName);
+    var cache = {
+        id: Symbol("id"),
+        args: args,
+        time: Date.now(),
+    };
+    if (!thisObj.__cache) {
+        thisObj.__cache = {};
+    }
+    thisObj.__cache[fnName] = cache;
+    var value = fn.apply(thisObj, args);
+    cache.result = { value: value };
+    return value;
 }
 function memoized(equals) {
     return function (target, fnName, descriptor) {
@@ -1049,23 +1040,24 @@ var loglevel = {exports: {}};
 
 var log = loglevel.exports;
 
-// global variables black list, forbidden to use
-var blacklist = new Set([
+// global variables black list, forbidden to use in for jsQuery/jsAction
+var functionBlacklist = new Set([
     "top",
     "parent",
     "document",
     "location",
     "chrome",
-    "setTimeout",
     "fetch",
-    "setInterval",
-    "clearInterval",
-    "setImmediate",
     "XMLHttpRequest",
     "importScripts",
     "Navigator",
     "MutationObserver",
 ]);
+var expressionBlacklist = new Set(__spreadArray(__spreadArray([], Array.from(functionBlacklist.values()), true), [
+    "setTimeout",
+    "setInterval",
+    "setImmediate",
+], false));
 var globalVarNames = new Set(["window", "globalThis", "self", "global"]);
 function createBlackHole() {
     return new Proxy(function () {
@@ -1087,12 +1079,14 @@ function createBlackHole() {
         },
     });
 }
-function createMockWindow() {
-    var win = new Proxy({}, {
+function createMockWindow(base, blacklist) {
+    if (blacklist === void 0) { blacklist = expressionBlacklist; }
+    var win = new Proxy(Object.assign({}, base), {
         has: function () {
             return true;
         },
         set: function (target, p, newValue) {
+            console.info("set:", p, newValue);
             return Reflect.set(target, p, newValue);
         },
         get: function (target, p) {
@@ -1102,19 +1096,11 @@ function createMockWindow() {
             if (globalVarNames.has(p)) {
                 return win;
             }
-            if (typeof p === "string" && blacklist.has(p)) {
+            if (typeof p === "string" && (blacklist === null || blacklist === void 0 ? void 0 : blacklist.has(p))) {
                 log.log("[Sandbox] access ".concat(String(p), " on mock window, return mock object"));
                 return createBlackHole();
             }
-            var ret = Reflect.get(window, p);
-            if (typeof ret === "function" && !ret.prototype) {
-                return ret.bind(window);
-            }
-            // get DOM element by id, serializing may cause error
-            if (isDomElement(ret)) {
-                return undefined;
-            }
-            return ret;
+            return getPropertyFromNativeWindow(p);
         },
     });
     return win;
@@ -1126,12 +1112,26 @@ function clearMockWindow() {
 function isDomElement(obj) {
     return obj instanceof Element || obj instanceof HTMLCollection;
 }
+function getPropertyFromNativeWindow(prop) {
+    var ret = Reflect.get(window, prop);
+    if (typeof ret === "function" && !ret.prototype) {
+        return ret.bind(window);
+    }
+    // get DOM element by id, serializing may cause error
+    if (isDomElement(ret)) {
+        return undefined;
+    }
+    return ret;
+}
 function proxySandbox(context, methods, options) {
-    var _a = (options || {}).disableLimit, disableLimit = _a === void 0 ? false : _a;
+    var _a = options || {}, _b = _a.disableLimit, disableLimit = _b === void 0 ? false : _b, _c = _a.scope, scope = _c === void 0 ? "expression" : _c;
     var isProtectedVar = function (key) {
         return key in context || key in (methods || {}) || globalVarNames.has(key);
     };
     var cache = {};
+    if (scope === "function") {
+        mockWindow = createMockWindow(mockWindow, functionBlacklist);
+    }
     return new Proxy(mockWindow, {
         has: function (target, p) {
             // proxy all variables
@@ -1163,7 +1163,7 @@ function proxySandbox(context, methods, options) {
                 return value;
             }
             if (disableLimit) {
-                return Reflect.get(window, p);
+                return getPropertyFromNativeWindow(p);
             }
             return Reflect.get(target, p, receiver);
         },
@@ -1427,6 +1427,7 @@ var DefaultParser = /** @class */ (function () {
 function evalJson(unevaledValue, context) {
     return new RelaxedJsonParser(unevaledValue, context).parse();
 }
+// this will also be used in node-service
 var RelaxedJsonParser = /** @class */ (function (_super) {
     __extends(RelaxedJsonParser, _super);
     function RelaxedJsonParser(unevaledValue, context) {
@@ -1503,11 +1504,12 @@ var RelaxedJsonParser = /** @class */ (function (_super) {
 }(DefaultParser));
 function evalFunction(unevaledValue, context, methods, isAsync) {
     try {
-        return new ValueAndMsg(function (args, runInHost) {
+        return new ValueAndMsg(function (args, runInHost, scope) {
             if (runInHost === void 0) { runInHost = false; }
+            if (scope === void 0) { scope = "function"; }
             return evalFunc(unevaledValue.startsWith("return")
                 ? unevaledValue + "\n"
-                : "return ".concat(isAsync ? "async " : "", "function(){'use strict'; ").concat(unevaledValue, "\n}()"), args ? __assign(__assign({}, context), args) : context, methods, { disableLimit: runInHost }, isAsync);
+                : "return ".concat(isAsync ? "async " : "", "function(){'use strict'; ").concat(unevaledValue, "\n}()"), args ? __assign(__assign({}, context), args) : context, methods, { disableLimit: runInHost, scope: scope }, isAsync);
         });
     }
     catch (err) {
@@ -3209,8 +3211,8 @@ function updateNodesV2Action(value) {
         value: value,
     };
 }
-function wrapActionExtraInfo(action, extraCompInfos) {
-    return __assign(__assign({}, action), { extraInfo: { compInfos: extraCompInfos } });
+function wrapActionExtraInfo(action, extraInfos) {
+    return __assign(__assign({}, action), { extraInfo: __assign(__assign({}, action.extraInfo), extraInfos) });
 }
 function deferAction(action) {
     return __assign(__assign({}, action), { priority: "defer" });
@@ -7537,6 +7539,7 @@ exports.FetchCheckNode = FetchCheckNode;
 exports.FunctionNode = FunctionNode;
 exports.MultiBaseComp = MultiBaseComp;
 exports.RecordNode = RecordNode;
+exports.RelaxedJsonParser = RelaxedJsonParser;
 exports.SimpleAbstractComp = SimpleAbstractComp;
 exports.SimpleComp = SimpleComp;
 exports.SimpleNode = SimpleNode;
@@ -7558,6 +7561,7 @@ exports.evalFunc = evalFunc;
 exports.evalFunctionResult = evalFunctionResult;
 exports.evalNodeOrMinor = evalNodeOrMinor;
 exports.evalPerfUtil = evalPerfUtil;
+exports.evalScript = evalScript;
 exports.evalStyle = evalStyle;
 exports.executeQueryAction = executeQueryAction;
 exports.fromRecord = fromRecord;
