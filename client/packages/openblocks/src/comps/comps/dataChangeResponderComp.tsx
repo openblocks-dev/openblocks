@@ -53,6 +53,7 @@ const DataResponderItemCompBase = new MultiCompBuilder(
                     label: trans("dataResponder.data"),
                     tooltip: trans("dataResponder.dataTooltip"),
                     placement: "bottom",
+                    placeholder: "{{anyDependencies}}",
                     extraChildren: QueryTutorials.dataResponder && (
                       <DocLink style={{ marginTop: 8 }} href={QueryTutorials.dataResponder}>
                         {trans("dataResponder.docLink")}
@@ -133,6 +134,6 @@ export const DataChangeResponderListComp = bottomResListComp(
   DataChangeResponderItemComp,
   DataResponderCompType,
   {
-    data: JSON.stringify({}),
+    data: "",
   }
 );
