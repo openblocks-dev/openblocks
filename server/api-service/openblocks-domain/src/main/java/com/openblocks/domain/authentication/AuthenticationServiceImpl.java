@@ -59,7 +59,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         return findAuthConfig.authConfig().isEnable();
                     }
                     return true;
-                });
+                })
+                .defaultIfEmpty(new FindAuthConfig(DEFAULT_AUTH_CONFIG, null));
     }
 
     private Flux<FindAuthConfig> findAllAuthConfigsByDomain() {
