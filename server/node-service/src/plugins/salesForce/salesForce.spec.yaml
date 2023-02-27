@@ -1,0 +1,2629 @@
+swagger: "2.0"
+info: { title: Salesforce Connect API, description: "", version: 44.0-2018.10.30.10.7 }
+schemes: [https]
+produces: [application/json]
+basePath: /services/data/v44.0
+paths:
+  /iot/activities:
+    get:
+      description: Get a list of all activities correlating to matching filter parameters. This endpoint will return a list of all the activities matching the filter designations. Optional source record IDs can be an array.
+      parameters:
+        - description: Type of Activity.
+          enum:
+            [
+              ContextActivate,
+              ContextDelete,
+              ContextSave,
+              DatasetError,
+              DatasetLoad,
+              DatasetRefresh,
+              EventAllocationsExceeded,
+              EventLimitNotification,
+              InstanceAllocationsExceeded,
+              LoggingStopped,
+              LostEventNotification,
+              OrchestrationActivate,
+              OrchestrationDeactivate,
+              OrchestrationDelete,
+              OrchestrationInstanceLimitNotification,
+              OrchestrationSave,
+              OutputError,
+              TransitionToErrorState,
+              UnexpectedError,
+            ]
+          in: query
+          name: activityType
+          type: string
+        - { description: Activity log end time filter., in: query, name: endTime, type: string }
+        - { description: Event instance key., in: query, name: instanceKey, type: string }
+        - description: Activity log level.
+          enum: [Error, Info]
+          in: query
+          name: level
+          type: string
+        - { description: For internal use only., in: query, name: page, type: string }
+        - {
+            description: Number of items returned in the response.,
+            in: query,
+            name: pageSize,
+            type: integer,
+          }
+        - {
+            description: Simplistic single-word term search.,
+            in: query,
+            name: search,
+            type: string,
+          }
+        - description: IDs of source objects to be retrieved.
+          in: query
+          items: { type: string, collectionFormat: csv }
+          name: sourceIds
+          type: array
+        - { description: Activity log start time filter., in: query, name: startTime, type: string }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/ActivityLogCollectionRepresentation" }
+  /iot/activities/{id}:
+    get:
+      description: Single activity record matching ID. This endpoint will return ancillary activity information associated with the activity for the parameterized ID.
+      parameters:
+        - {
+            description: Unique identifier for log entry.,
+            in: path,
+            name: id,
+            required: true,
+            type: string,
+          }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/ActivityInfoRepresentation" }
+  /iot/contexts:
+    get:
+      description: List all contexts that have been defined in your org.
+      parameters:
+        - { description: For internal use only., in: query, name: page, type: string }
+        - { description: "The number of contexts returned per page. When one page is
+              returned, it contains the URL in the nextPageUrl property that you use to
+              get the next page of results.", in: query, name: pageSize, type: integer }
+        - description: The Salesforce IoT runtime used.
+          enum: [HighVolume, Standard]
+          in: query
+          name: runtime
+          type: string
+        - description: Sorting direction, either ascending or descending.
+          enum: [ContextLabel, Label, LastModified, Status]
+          in: query
+          name: sort
+          type: string
+        - description: Field name to be sorted.
+          enum: [Ascending, Descending]
+          in: query
+          name: sortDirection
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/ContextCollectionRepresentation" }
+    post:
+      description: Creates a context.
+      parameters:
+        - description: Context definition
+          in: body
+          name: contextInput
+          schema: { $ref: "#/definitions/ContextInputRepresentation" }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/ContextDetailRepresentation" }
+  /iot/contexts/{contextId}:
+    delete:
+      description: Delete the specified context.
+      parameters:
+        - {
+            description: ID of the context to update.,
+            in: path,
+            name: contextId,
+            required: true,
+            type: string,
+          }
+      responses:
+        "200": { description: Success }
+    get:
+      description: Get the specified context.
+      parameters:
+        - {
+            description: ID of the context to update.,
+            in: path,
+            name: contextId,
+            required: true,
+            type: string,
+          }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/ContextDetailRepresentation" }
+    put:
+      description: Update the designated context using the full context definition specified.
+      parameters:
+        - {
+            description: ID of the context to update.,
+            in: path,
+            name: contextId,
+            required: true,
+            type: string,
+          }
+        - description: Full context definition to replace previous context.
+          in: body
+          name: contextInput
+          schema: { $ref: "#/definitions/ContextInputRepresentation" }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/ContextDetailRepresentation" }
+  /iot/contexts/{contextId}/activations:
+    get:
+      description: List the history of context activations.
+      parameters:
+        - { description: Context ID, in: path, name: contextId, required: true, type: string }
+        - { description: Page token, in: query, name: page, type: string }
+        - { description: Size of response list, in: query, name: pageSize, type: integer }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/ContextActivationCollectionRepresentation" }
+    post:
+      description: Activates the context definition for the current context, optionally using activation options.
+      parameters:
+        - { description: Context ID, in: path, name: contextId, required: true, type: string }
+        - description: Optional activation options. Otherwise, an empty body ({}).
+          in: body
+          name: activationInput
+          schema: { $ref: "#/definitions/ContextActivationInputRepresentation" }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/ContextActivationDetailRepresentation" }
+  /iot/contexts/{contextId}/activations/active:
+    get:
+      description: Get the active context activation for the context ID.
+      parameters:
+        - { description: Context ID., in: path, name: contextId, required: true, type: string }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/ContextActivationDetailRepresentation" }
+  /iot/contexts/{contextId}/activations/last:
+    get:
+      description: Get the context activation most recently created for the context ID.
+      parameters:
+        - { description: Context ID., in: path, name: contextId, required: true, type: string }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/ContextActivationDetailRepresentation" }
+  /iot/contexts/{contextId}/activations/{activationId}:
+    get:
+      description: Get the context activation for the specified IDs.
+      parameters:
+        - {
+            description: Activation ID.,
+            in: path,
+            name: activationId,
+            required: true,
+            type: string,
+          }
+        - { description: Context ID., in: path, name: contextId, required: true, type: string }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/ContextActivationDetailRepresentation" }
+  /iot/contexts/{contextId}/events:
+    get:
+      description: Get a list of orchestration context events.
+      parameters:
+        - { description: Context ID., in: path, name: contextId, required: true, type: string }
+        - { description: Event type., in: query, name: eventType, type: string }
+        - { description: Instance key., in: query, name: instanceKey, type: string }
+        - { description: For internal use only., in: query, name: page, type: string }
+        - { description: Page size., in: query, name: pageSize, type: integer }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationContextRuntimeEventCollectionRepresentation" }
+  /iot/events/{eventApiName}/{runtime}:
+    post:
+      description: Publish a platform event message to the provided runtime.
+      parameters:
+        - {
+            description: Platform event API name.,
+            in: path,
+            name: eventApiName,
+            required: true,
+            type: string,
+          }
+        - description: Runtime to which the event will be sent.
+          enum: [HighVolume, Standard]
+          in: path
+          name: runtime
+          required: true
+          type: string
+        - description: Platform events list.
+          in: body
+          name: eventsInput
+          schema: { $ref: "#/definitions/PlatformEventCollectionRepresentation" }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/PlatformEventResponseRepresentation" }
+  /iot/orchestrations:
+    get:
+      description: Get a list of Salesforce IoT orchestrations.
+      parameters:
+        - { description: ID of the context to retrieve., in: query, name: contextId, type: string }
+        - { description: For internal use only., in: query, name: page, type: string }
+        - { description: "The number of contexts returned per page. When one page is
+              returned, it contains the URL in the nextPageUrl property that you use to
+              get the next page of contexts.", in: query, name: pageSize, type: integer }
+        - description: The Salesforce IoT runtime used.
+          enum: [HighVolume, Standard]
+          in: query
+          name: runtime
+          type: string
+        - description: Sorting direction, either ascending or descending.
+          enum: [ContextLabel, Label, LastModified, Status]
+          in: query
+          name: sort
+          type: string
+        - description: Field name to be sorted.
+          enum: [Ascending, Descending]
+          in: query
+          name: sortDirection
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationCollectionRepresentation" }
+    post:
+      description: Create an IoT orchestration.
+      parameters:
+        - description: Orchestration definition.
+          in: body
+          name: OrchestrationInput
+          schema: { $ref: "#/definitions/OrchestrationInputRepresentation" }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationDetailRepresentation" }
+  /iot/orchestrations/{orchestrationId}:
+    delete:
+      description: Delete the orchestration with the specified ID.
+      parameters:
+        - {
+            description: ID of the orchestration to retrieve.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+      responses:
+        "200": { description: Success }
+    get:
+      description: Get the orchestration for the designated ID.
+      parameters:
+        - {
+            description: ID of the orchestration to retrieve.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationDetailRepresentation" }
+    put:
+      description: Update the specified orchestration using the full orchestration definition.
+      parameters:
+        - {
+            description: ID of the orchestration to retrieve.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+        - description: The full orchestration definition with which to replace the current orchestration.
+          in: body
+          name: orchestrationInput
+          schema: { $ref: "#/definitions/OrchestrationInputRepresentation" }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationDetailRepresentation" }
+  /iot/orchestrations/{orchestrationId}/activations:
+    get:
+      description: Get the activation history for the specified orchestration. The activations are sorted by creation date in descending order.
+      parameters:
+        - {
+            description: ID of the orchestration for which to get the activation history.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+        - { description: For internal use only., in: query, name: page, type: string }
+        - { description: "The number of activations returned per page. When a page of
+              the response is returned, it contains the nextPageUrl property which is
+              the URL that you use to get the next page of results.", in: query, name: pageSize, type: integer }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationActivationCollectionRepresentation" }
+    post:
+      description: Activate the specified orchestration, optionally using activation options.
+      parameters:
+        - {
+            description: ID of the orchestration for which to get the activation history.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+        - description: Optional activation options. Otherwise, an empty body ({}).
+          in: body
+          name: activationInput
+          schema: { $ref: "#/definitions/OrchestrationActivationInputRepresentation" }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationActivationDetailRepresentation" }
+  /iot/orchestrations/{orchestrationId}/activations/last:
+    get:
+      description: Get the orchestration activation that was most recently created for this orchestration ID.
+      parameters:
+        - {
+            description: ID of the orchestration to deactivate.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationActivationDetailRepresentation" }
+    patch:
+      description: Deactivate the specified orchestration. Use only to deactivate an active orchestration.
+      parameters:
+        - {
+            description: ID of the orchestration to deactivate.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+        - description: The body must include the status property with a value of Inactive. Optionally, you can specify whether to delete running orchestration instances by including the resetInstancesOnActivation option.
+          in: body
+          name: activationInput
+          schema: { $ref: "#/definitions/OrchestrationActivationInputRepresentation" }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationActivationDetailRepresentation" }
+  /iot/orchestrations/{orchestrationId}/activations/{activationId}:
+    get:
+      description: Get activation information for the specified orchestration and activation.
+      parameters:
+        - {
+            description: ID of the activation for which to get details.,
+            in: path,
+            name: activationId,
+            required: true,
+            type: string,
+          }
+        - {
+            description: ID of the orchestration for which to get activation information.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationActivationDetailRepresentation" }
+    patch:
+      description: Deactivate the specified orchestration activation. No other updates are supported.
+      parameters:
+        - {
+            description: ID of the activation for which to get details.,
+            in: path,
+            name: activationId,
+            required: true,
+            type: string,
+          }
+        - {
+            description: ID of the orchestration for which to get activation information.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+        - description: The body must include the status property with a value of Inactive. Optionally, you can specify whether to delete running orchestration instances by including the resetInstancesOnActivation option.
+          in: body
+          name: activationInput
+          schema: { $ref: "#/definitions/OrchestrationActivationInputRepresentation" }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationActivationDetailRepresentation" }
+  /iot/orchestrations/{orchestrationId}/instances:
+    get:
+      description: Get the orchestration instances, which can be filtered by state.
+      parameters:
+        - {
+            description: Orchestration ID.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+        - { description: Page token., in: query, name: page, type: string }
+        - { description: "The number of contexts returned per page. When one page is
+              returned, it contains the URL in the nextPageUrl property that you use to
+              get the next page of results.", in: query, name: pageSize, type: integer }
+        - { description: State ID., in: query, name: stateId, type: integer }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationInstanceCollectionRepresentation" }
+  /iot/orchestrations/{orchestrationId}/instances/{instanceKey}:
+    delete:
+      description: Delete the orchestration instance corresponding to the specified orchestration and instance key.
+      parameters:
+        - {
+            description: The orchestration instance key. The instanceKey is the value of the event key field.,
+            in: path,
+            name: instanceKey,
+            required: true,
+            type: string,
+          }
+        - {
+            description: The orchestration instance ID.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+      responses:
+        "200": { description: Success }
+    get:
+      description: Get the orchestration instance corresponding to the specified orchestration and instance key.
+      parameters:
+        - {
+            description: The orchestration instance key. The instanceKey is the value of the event key field.,
+            in: path,
+            name: instanceKey,
+            required: true,
+            type: string,
+          }
+        - {
+            description: The orchestration instance ID.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationInstanceDetailRepresentation" }
+  /iot/orchestrations/{orchestrationId}/instances/{instanceKey}/log:
+    get:
+      description: Get a list of orchestration log events.
+      parameters:
+        - {
+            description: Orchestration instance key.,
+            in: path,
+            name: instanceKey,
+            required: true,
+            type: string,
+          }
+        - {
+            description: Orchestration ID.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+        - {
+            description: "Collect log events, which timestamp is higher than fromDate.",
+            in: query,
+            name: fromDate,
+            type: string,
+          }
+        - { description: Page token., in: query, name: page, type: string }
+        - { description: "The number of contexts returned per page. When one page is
+              returned, it contains the URL in the nextPageUrl property that you use to
+              get the next page of results.", in: query, name: pageSize, type: integer }
+        - description: Field name to be sorted.
+          enum: [Ascending, Descending]
+          in: query
+          name: sortDirection
+          type: string
+        - {
+            description: "Collect log events, which timestamp is lower than toDate.",
+            in: query,
+            name: toDate,
+            type: string,
+          }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationLogEventCollectionRepresentation" }
+  /iot/orchestrations/{orchestrationId}/metrics/transitions:
+    get:
+      description: Get state transition counts for the specified orchestration.
+      parameters:
+        - {
+            description: ID of the orchestration to get transition counts for.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationTransitionCountCollectionRepresentation" }
+  /iot/orchestrations/{orchestrationId}/states:
+    get:
+      description: Get the orchestration states for the specified orchestration ID.
+      parameters:
+        - {
+            description: Orchestration ID.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationStateCollectionRepresentation" }
+  /iot/orchestrations/{orchestrationId}/trackers:
+    get:
+      description: Get a list of trackers that have been set up for this orchestration.
+      parameters:
+        - {
+            description: Orchestration ID.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+        - { description: Page Token, in: query, name: page, type: string }
+        - { description: "The number of contexts returned per page. When one page is
+              returned, it contains the URL in the nextPageUrl property that you use to
+              get the next page of results.", in: query, name: pageSize, type: integer }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationTrackerCollectionRepresentation" }
+    post:
+      description: Create a new orchestration tracker.
+      parameters:
+        - {
+            description: Orchestration ID.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+        - description: Tracker
+          in: body
+          name: trackerInput
+          schema: { $ref: "#/definitions/OrchestrationTrackerPostInputRepresentation" }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationTrackerRepresentation" }
+  /iot/orchestrations/{orchestrationId}/trackers/{trackerId}:
+    delete:
+      description: Delete the orchestration tracker.
+      parameters:
+        - {
+            description: ID of the tracker's orchestration.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+        - { description: Tracker ID., in: path, name: trackerId, required: true, type: string }
+      responses:
+        "200": { description: Success }
+    get:
+      description: Get a list of trackers set up for this orchestration.
+      parameters:
+        - {
+            description: ID of the tracker's orchestration.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+        - { description: Tracker ID., in: path, name: trackerId, required: true, type: string }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationTrackerRepresentation" }
+    patch:
+      description: Update the orchestration tracker.
+      parameters:
+        - {
+            description: ID of the tracker's orchestration.,
+            in: path,
+            name: orchestrationId,
+            required: true,
+            type: string,
+          }
+        - { description: Tracker ID., in: path, name: trackerId, required: true, type: string }
+        - description: ""
+          in: body
+          name: trackerInput
+          schema: { $ref: "#/definitions/OrchestrationTrackerPatchInputRepresentation" }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationTrackerRepresentation" }
+  /iot/reference-data:
+    get:
+      description: Get all available reference data.
+      parameters: []
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationReferenceDataCollectionRepresentation" }
+  /iot/reference-data/sobjects:
+    get:
+      description: List of all Salesforce objects that can be referenced in your org.
+      parameters:
+        - { description: "For internal use only. ", in: query, name: page, type: string }
+        - { description: "The number of Salesforce objects returned per page. When one
+              page is returned, it contains the URL in the nextPageUrl property that you
+              use to get the next page of results.", in: query, name: pageSize, type: integer }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationSobjectReferenceCollectionRepresentation" }
+  /iot/reference-data/sobjects/{name}:
+    get:
+      description: Get a reference object metadata with specified name.
+      parameters:
+        - {
+            description: Unique name of the referenced object to retrieve.,
+            in: path,
+            name: name,
+            required: true,
+            type: string,
+          }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationSobjectReferenceRepresentation" }
+  /iot/sobjects/{sObjectName}/{id}/instances:
+    get:
+      description: Get the orchestration instance corresponding to the specified orchestration and instance key.
+      parameters:
+        - { description: SObject ID, in: path, name: id, required: true, type: string }
+        - { description: SObject Name, in: path, name: sObjectName, required: true, type: string }
+        - { description: Page Token, in: query, name: page, type: string }
+        - {
+            description: Number of orchestration instances to return.,
+            in: query,
+            name: pageSize,
+            type: integer,
+          }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationInstanceDetailCollectionRepresentation" }
+  /iot/sobjects/{sObjectName}/{id}/orchestrations/{orchestrationIdOrName}/instance:
+    get:
+      description: Get the orchestration instance corresponding to the specified orchestration and instance key.
+      parameters:
+        - { description: SObject ID., in: path, name: id, required: true, type: string }
+        - {
+            description: Orchestration ID or API name.,
+            in: path,
+            name: orchestrationIdOrName,
+            required: true,
+            type: string,
+          }
+        - { description: SObject name., in: path, name: sObjectName, required: true, type: string }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationInstanceDetailRepresentation" }
+  /iot/usage:
+    get:
+      description: Get the current org-level usage and allocations.
+      parameters: []
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/UsageDetailRepresentation" }
+  /iot/usage/orchestration-usage:
+    get:
+      description: Get usage data for each orchestration in the org, including the number of instances, and the number of processed events per orchestration.
+      parameters:
+        - { description: For internal use only., in: query, name: page, type: string }
+        - { description: "The number of items returned per page. When one page is returned,
+              it contains the URL in the nextPageUrl property that you use to get the
+              next page of results.", in: query, name: pageSize, type: integer }
+      responses:
+        "200":
+          description: Success
+          schema: { $ref: "#/definitions/OrchestrationUsageCollectionRepresentation" }
+definitions:
+  AbstractBaseResourceRepresentation:
+    type: object
+    description: A representation for an IoT Resource. Eg. OrchestrationInstance
+    properties:
+      createdDate: { description: The date on which the resource was created., type: string }
+      description: { description: The resource description., type: string }
+      id: { description: The 18-character ID of the resource., type: string }
+      label: { description: The resource label., type: string }
+      lastModifiedDate:
+        { description: The date on which this resource was last edited., type: string }
+      name: { description: The resource name., type: string }
+      namespace: { description: The namespace that this resource belongs to., type: string }
+      url: { description: The URL of this resource., type: string }
+  AbstractCollectionRepresentation:
+    type: object
+    description: Information about the items in the list.
+    properties:
+      nextPageUrl: { description: URL to get the next page of contents in the list., type: string }
+      totalSize: { description: "The total number of items in the list., irrespective
+            of the page.", type: integer }
+      url: { description: URL for the list., type: string }
+  AbstractContextActivationRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractResourceRepresentation" }
+      - type: object
+        description: A list of context activation resources.
+        properties: {}
+  AbstractContextRepresentation:
+    type: object
+    description: A list of the properties for this context.
+    properties:
+      activationStatus:
+        description: The activation status of the context.
+        type: string
+        enum: [Activating, Active, Error, Inactive, Invalid, Validating]
+      createdBy:
+        {
+          description: The user who created this context.,
+          $ref: "#/definitions/IoTReferenceRepresentation",
+        }
+      createdDate: { description: The date on which the context was created., type: string }
+      description: { description: The context description., type: string }
+      id: { description: The 18-character ID of this context., type: string }
+      imageFile:
+        {
+          description: The branding asset information for this context.,
+          $ref: "#/definitions/FileAssetRepresentation",
+        }
+      imageScale:
+        { description: The scale percentage of the context branding image., type: integer }
+      label: { description: Context label., type: string }
+      lastModifiedBy:
+        {
+          description: The user who last edited this context.,
+          $ref: "#/definitions/IoTReferenceRepresentation",
+        }
+      lastModifiedDate:
+        { description: The date on which this context was last edited., type: string }
+      manageableState:
+        description: "The manageableState of this context: released, deleted, deprecated,
+          installed, beta, unmanaged."
+        type: string
+        enum:
+          [
+            ManagedBeta,
+            ManagedDeletable,
+            ManagedDeleted,
+            ManagedDeprecated,
+            ManagedInstalled,
+            ManagedReleased,
+            Unmanaged,
+          ]
+      name: { description: The context name., type: string }
+      namespace: { description: The namespace that this context belongs to., type: string }
+      runtime:
+        description: The runtime type of this context.
+        type: string
+        enum: [HighVolume, Standard]
+      url: { description: The URL of this context., type: string }
+  AbstractOrchestrationActivationRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractResourceRepresentation" }
+      - type: object
+        description: A list of orchestration activation resources.
+        properties: {}
+  AbstractOrchestrationDatasetRepresentation:
+    type: object
+    description: Information about the Salesforce IoT orchestration dataset, including name, label and URL.
+    properties:
+      label: { description: The dataset label., type: string }
+      name: { description: The dataset name., type: string }
+      url: { description: The URL of this dataset., type: string }
+  AbstractOrchestrationInstanceRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractBaseResourceRepresentation" }
+      - type: object
+        description: A list of orchestration instance resources.
+        properties: {}
+  AbstractOrchestrationRepresentation:
+    type: object
+    description: A list of orchestration resources.
+    properties:
+      createdBy:
+        {
+          description: The user who created this resource.,
+          $ref: "#/definitions/IoTReferenceRepresentation",
+        }
+      createdDate: { description: The date on which the resource was created., type: string }
+      id: { description: The 18-character ID of this resource., type: string }
+      label: { description: The label for this resource., type: string }
+      lastModifiedBy:
+        {
+          description: The user who last edited this resource.,
+          $ref: "#/definitions/IoTReferenceRepresentation",
+        }
+      lastModifiedDate:
+        { description: The date on which this resource was last edited., type: string }
+      manageableState:
+        description: "The manageableState of this orchestration: released, deleted,
+          deprecated, installed, beta, unmanaged"
+        type: string
+        enum:
+          [
+            ManagedBeta,
+            ManagedDeletable,
+            ManagedDeleted,
+            ManagedDeprecated,
+            ManagedInstalled,
+            ManagedReleased,
+            Unmanaged,
+          ]
+      name: { description: The name of this resource., type: string }
+      namespace: { description: The namespace that this resource belongs to., type: string }
+      orchestrationContext:
+        {
+          description: The context of this resource.,
+          $ref: "#/definitions/ContextReferenceRepresentation",
+        }
+      status:
+        description: The activation status of this orchestration.
+        type: string
+        enum: [Activating, Active, Deactivating, Error, Inactive, Unknown]
+      url: { description: The URL of this resource., type: string }
+  AbstractOrchestrationStateRepresentation:
+    type: object
+    description: A reference to an orchestration state.
+    properties:
+      id: { description: The numeric value that identifies the state., type: integer }
+      name: { description: The name of the state., type: string }
+  AbstractResourceRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractBaseResourceRepresentation" }
+      - type: object
+        description: A representation for a Salesforce IoT resource, such as OrchestrationInstance.
+        properties:
+          createdBy:
+            {
+              description: The user who created this resource.,
+              $ref: "#/definitions/IoTReferenceRepresentation",
+            }
+          lastModifiedBy:
+            {
+              description: The user who last edited this resource.,
+              $ref: "#/definitions/IoTReferenceRepresentation",
+            }
+  ActivityInfoRepresentation:
+    type: object
+    description: Activity info marker
+    properties:
+      activity:
+        { description: Activity log details, $ref: "#/definitions/ActivityLogRepresentation" }
+  ActivityLogCollectionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractCollectionRepresentation" }
+      - type: object
+        description: A list of activity logs.
+        properties:
+          activities:
+            description: A list of activity logs.
+            type: array
+            items: { $ref: "#/definitions/ActivityLogRepresentation" }
+  ActivityLogRepresentation:
+    type: object
+    description: Activity log details.
+    properties:
+      activityInfo: { description: URL to activity info., type: string }
+      createdBy:
+        {
+          description: The user who created this resource.,
+          $ref: "#/definitions/IoTReferenceRepresentation",
+        }
+      createdDate: { description: The date on which the resource was created., type: string }
+      id: { description: The unique identifier associated with the log entry., type: string }
+      level:
+        description: Activity log level category.
+        type: string
+        enum: [Error, Info]
+      source:
+        { description: Activity source., $ref: "#/definitions/ActivityLogSourceRepresentation" }
+      summary: { description: Short summary describing activity., type: string }
+      type:
+        description: Activity type.
+        type: string
+        enum:
+          [
+            ContextActivate,
+            ContextDelete,
+            ContextSave,
+            DatasetError,
+            DatasetLoad,
+            DatasetRefresh,
+            EventAllocationsExceeded,
+            EventLimitNotification,
+            InstanceAllocationsExceeded,
+            LoggingStopped,
+            LostEventNotification,
+            OrchestrationActivate,
+            OrchestrationDeactivate,
+            OrchestrationDelete,
+            OrchestrationInstanceLimitNotification,
+            OrchestrationSave,
+            OutputError,
+            TransitionToErrorState,
+            UnexpectedError,
+          ]
+  ActivityLogSourceRepresentation:
+    type: object
+    description: Activity log source details.
+    properties:
+      category:
+        description: Category associated with the requested object ID.
+        type: string
+        enum: [Context, Orchestration, Org]
+      id: { description: 18-character identifier associated with activity object., type: string }
+      name: { description: Activity object name., type: string }
+      runtime:
+        description: Runtime type associated with the activity.
+        type: string
+        enum: [HighVolume, Standard]
+      url:
+        {
+          description: URL link to the definiton associated with the requested object.,
+          type: string,
+        }
+  AllocationCountRepresentation:
+    type: object
+    description: An org-level allocation count.
+    properties:
+      count: { description: Value of the allocation count., type: integer, format: int64 }
+      description: { description: Allocation description., type: string }
+  AllocationsRepresentation:
+    type: object
+    description: Org-level allocations for the number of events that can be processed.
+    properties:
+      eventAllocation:
+        {
+          description: Allocation for maximum number of events that can be processed by orchestrations in an org.,
+          $ref: "#/definitions/AllocationCountRepresentation",
+        }
+      instanceAllocation:
+        {
+          description: Allocation for maximum number of instances per orchestration.,
+          $ref: "#/definitions/AllocationCountRepresentation",
+        }
+  ContextActivationCollectionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractCollectionRepresentation" }
+      - type: object
+        description: A list of Salesforce IoT context activations.
+        properties:
+          activations:
+            description: Context activation information.
+            type: array
+            items: { $ref: "#/definitions/ContextActivationSummaryRepresentation" }
+  ContextActivationDetailRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractContextActivationRepresentation" }
+      - type: object
+        description: Context activation information.
+        properties:
+          contextUrl: { description: The URL of the parent context resource., type: string }
+          definition:
+            {
+              description: The parent context definition.,
+              $ref: "#/definitions/ContextDefinitionRepresentation",
+            }
+          result:
+            {
+              description: A set of results for the activation of a context.,
+              $ref: "#/definitions/ContextActivationResultRepresentation",
+            }
+          runtime:
+            description: The parent context runtime.
+            type: string
+            enum: [HighVolume, Standard]
+          status:
+            description: The status of the context activation resource.
+            type: string
+            enum: [Activating, Active, Error, Inactive, Invalid, Validating]
+  ContextActivationInputRepresentation:
+    type: object
+    description: An input representation of a context activation.
+    properties:
+      options: { description: The options for this context activation., type: object }
+  ContextActivationOptionsInputRepresentation:
+    type: object
+    description: The options for this context activation.
+    properties:
+      activateOrchestrationsOnActivation:
+        {
+          description: Option to reactivate currently active orchestrations with the activated context.,
+          type: boolean,
+        }
+  ContextActivationOrchestrationResultRepresentation:
+    type: object
+    description: Details about a context activation orchestration result.
+    properties:
+      activationStatus:
+        description: Orchestration activation status.
+        type: string
+        enum: [Activating, Active, Deactivating, Error, Inactive, Unknown]
+      activationUrl: { description: The URL of the orchestration activation., type: string }
+      id: { description: The 18-character ID of the orchestration., type: string }
+      label: { description: Orchestration label., type: string }
+      messages:
+        description: A list of messages generated during orchestration activation.
+        type: array
+        items: { $ref: "#/definitions/OrchestrationValidationMessageRepresentation" }
+      name: { description: Orchestration name., type: string }
+      namespace: { description: The namespace that the orchestration belongs to., type: string }
+      url: { description: The URL of the orchestration., type: string }
+  ContextActivationResultRepresentation:
+    type: object
+    description: Information about the context activation result.
+    properties:
+      messages:
+        description: A list of error messages generated while activating a context.
+        type: array
+        items: { $ref: "#/definitions/ErrorRepresentation" }
+      orchestrations:
+        description: A list of validation and deployment messages for the orchestration generated during context activation.
+        type: array
+        items: { $ref: "#/definitions/ContextActivationOrchestrationResultRepresentation" }
+  ContextActivationSummaryRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractContextActivationRepresentation" }
+      - type: object
+        description: Information about the context activation, including activation status.
+        properties:
+          status:
+            description: Context activation status.
+            type: string
+            enum: [Activating, Active, Error, Inactive, Invalid, Validating]
+  ContextCollectionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractCollectionRepresentation" }
+      - type: object
+        description: A list of Salesforce IoT contexts.
+        properties:
+          contexts:
+            description: A list of Salesforce IoT contexts.
+            type: array
+            items: { $ref: "#/definitions/ContextSummaryRepresentation" }
+  ContextDefinitionRepresentation:
+    type: object
+    description: The context definition.
+    properties:
+      events:
+        description: The events for the context.
+        type: array
+        items: { $ref: "#/definitions/OrchestrationEventTypeRepresentation" }
+      referenceData:
+        description: The reference data for the context.
+        type: array
+        items: { $ref: "#/definitions/OrchestrationContextDatasetRepresentation" }
+  ContextDetailRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractContextRepresentation" }
+      - type: object
+        description: Information about the orchestration context.
+        properties:
+          activationsUrl: { description: The URL of activations of this context., type: string }
+          events:
+            description: The events for this orchestration context.
+            type: array
+            items: { $ref: "#/definitions/OrchestrationEventTypeRepresentation" }
+          orchestrationsUrl:
+            { description: The URL of orchestrations using this context., type: string }
+          referenceData:
+            description: The reference data for this orchestration context.
+            type: array
+            items: { $ref: "#/definitions/OrchestrationContextDatasetRepresentation" }
+          validationMessages:
+            {
+              description: A list of messages generated during context validation.,
+              $ref: "#/definitions/ContextValidationMessagesRepresentation",
+            }
+  ContextInputRepresentation:
+    type: object
+    description: An input representation of a context.
+    properties:
+      description: { description: The description of this context., type: string }
+      events:
+        description: The events used by this context.
+        type: array
+        items: { type: object }
+      imageName: { description: The fileforce image ID for this context., type: string }
+      imageScale: { description: The fileforce image scale for this context., type: integer }
+      label: { description: Context label., type: string }
+      name: { description: Context name., type: string }
+      referenceData:
+        description: The datasets that are referenced by this context.
+        type: array
+        items: { type: object }
+      runtime:
+        description: The runtime for this context.
+        type: string
+        enum: [HighVolume, Standard]
+  ContextReferenceInputRepresentation:
+    type: object
+    description: Specification for a context reference.
+    properties:
+      name: { description: Context name., type: string }
+      namespace: { description: The namespace of the context., type: string }
+  ContextReferenceRepresentation:
+    type: object
+    description: The context referenced by this orchestration.
+    properties:
+      id: { description: Context API name., type: string }
+      label: { description: Context label., type: string }
+      name: { description: Context name., type: string }
+      namespace: { description: The namespace that the context resides in., type: string }
+      runtime:
+        description: The runtime type of the context.
+        type: string
+        enum: [HighVolume, Standard]
+      url: { description: The URL of the context resource., type: string }
+  ContextSummaryRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractContextRepresentation" }
+      - type: object
+        description: Summarized information about an orchestration context.
+        properties: {}
+  ContextValidationMessageRepresentation:
+    type: object
+    description: A message generated when validating the context definition.
+    properties:
+      location: { description: The location of the error., type: string }
+      severity:
+        description: The severity of the issue.
+        type: string
+        enum: [Error, Warning]
+      text: { description: The text of the message., type: string }
+  ContextValidationMessagesRepresentation:
+    type: object
+    description: A list of messages generated while validating the context definition.
+    properties:
+      messages:
+        description: A list of messages generated while validating the context definition.
+        type: array
+        items: { $ref: "#/definitions/ContextValidationMessageRepresentation" }
+  DatasetReferenceInputRepresentation:
+    type: object
+    description: Specification for a dataset reference.
+    properties:
+      name: { description: Dataset name., type: string }
+      namespace: { description: The namespace of the dataset., type: string }
+      type:
+        description: Dataset type.
+        type: string
+        enum: [SalesforceObjectReference, Wave]
+  DatasetReferenceRepresentation:
+    type: object
+    description: A dataset that is referenced from an orchestration context.
+    properties:
+      id: { description: Dataset API name., type: string }
+      label: { description: Dataset label., type: string }
+      name: { description: Dataset name., type: string }
+      namespace: { description: The namespace that the dataset resides in., type: string }
+      type:
+        description: Dataset reference type.
+        type: string
+        enum: [SalesforceObjectReference, Wave]
+  DependenciesRepresentation:
+    type: object
+    description: The object dependencies.
+    properties:
+      orchestrationsUrl:
+        { description: The URL of the orchestrations with the specified context ID., type: string }
+  ErrorRepresentation:
+    type: object
+    description: A generic representation for an error with a message and severity.
+    properties:
+      severity:
+        description: The severity of the issue.
+        type: string
+        enum: [Error, Warning]
+      text: { description: The message text., type: string }
+  EventTypeReferenceInputRepresentation:
+    type: object
+    description: Information about the event.
+    properties:
+      name: { description: Event name., type: string }
+      namespace: { description: The namespace of the event., type: string }
+      type:
+        description: Event type.
+        type: string
+        enum: [OrchestrationEvent, PlatformEvent]
+  EventTypeReferenceRepresentation:
+    type: object
+    description: Information about the event, such as the ID, event name, and label.
+    properties:
+      id: { description: Event ID., type: string }
+      label: { description: Event label., type: string }
+      name: { description: Event name., type: string }
+      namespace: { description: The namespace that the event resides in., type: string }
+      properties:
+        description: Event properties.
+        type: object
+        additionalProperties: { type: string }
+      type:
+        description: Event type.
+        type: string
+        enum: [OrchestrationEvent, PlatformEvent]
+  EventUsageRepresentation:
+    type: object
+    description: Current org-level event usage.
+    properties:
+      processedEventCount:
+        {
+          description: Number of events processed in the last 24 hours.,
+          type: integer,
+          format: int64,
+        }
+      rejectedEventCount:
+        {
+          description: Number of events rejected in the last 24 hours.,
+          type: integer,
+          format: int64,
+        }
+  FileAssetRepresentation:
+    type: object
+    description: URL information for a file asset.
+    properties:
+      baseAssetUrl: { description: Base download URL of the asset., type: string }
+      baseUnauthenticatedAssetUrl:
+        { description: Base unauthenticated download URL of the asset., type: string }
+      id: { description: Asset ID., type: string }
+      isVisibleByExternalUsers: { description: Flag for public access to asset., type: boolean }
+      masterLabel: { description: The master label of the asset., type: string }
+      name: { description: The unique name of the asset., type: string }
+      namespacePrefix:
+        { description: The namespacePrefix of the package containing the asset., type: string }
+      type: { description: Asset type., type: string }
+  IoTReferenceRepresentation:
+    type: object
+    description: Information about an object, such as name, ID and resource URL.
+    properties:
+      id: { description: The 18-character ID of this object., type: string }
+      label: { description: Object label., type: string }
+      name: { description: Object name., type: string }
+      namespace: { description: The namespace that the object belongs to., type: string }
+      url: { description: The URL of the resource representing this object., type: string }
+  MetadataActivityInfoRepresentation:
+    allOf:
+      - { $ref: "#/definitions/ActivityInfoRepresentation" }
+      - type: object
+        description: URL information for the context or orchestration.
+        properties:
+          currentDefinitionUrl: { description: "URL for the current context, orchestration
+                or deployment.", type: string }
+          originalDefinitionUrl:
+            {
+              description: URL for the pre-change context or orchestration deployment.,
+              type: string,
+            }
+  NotificationActivityInfoRepresentation:
+    allOf:
+      - { $ref: "#/definitions/ActivityInfoRepresentation" }
+      - type: object
+        description: Email notification information.
+        properties:
+          reason: { description: Textual description of the notification., type: string }
+          recipient: { description: Email address notified., type: string }
+  OrchestrationActionInputRepresentation:
+    type: object
+    description: A list of actions to execute, such as assigning a variable value or creating a Salesforce record, when a condition is met.
+    properties:
+      type:
+        description: Action type.
+        type: string
+        enum: [AssignVariable, ChangeState, ResetVariable, SalesforceOutputAction, Terminate]
+  OrchestrationActionRepresentation:
+    type: object
+    description: The action types executed when the conditions of a rule are met.
+    properties:
+      type:
+        description: Action type.
+        type: string
+        enum: [AssignVariable, ChangeState, ResetVariable, SalesforceOutputAction, Terminate]
+  OrchestrationActivationCollectionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractCollectionRepresentation" }
+      - type: object
+        description: A list of Salesforce IoT orchestration activations.
+        properties:
+          activations:
+            description: A list of Salesforce IoT orchestration activations.
+            type: array
+            items: { $ref: "#/definitions/OrchestrationActivationSummaryRepresentation" }
+  OrchestrationActivationDetailRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractOrchestrationActivationRepresentation" }
+      - type: object
+        description: Orchestration activation information, including activation status and URLs of related orchestration resources.
+        properties:
+          definition:
+            {
+              description: The orchestration activation definition.,
+              $ref: "#/definitions/OrchestrationDefinitionRepresentation",
+            }
+          options:
+            {
+              description: The orchestration activation options.,
+              $ref: "#/definitions/OrchestrationActivationOptionsRepresentation",
+            }
+          orchestrationUrl:
+            { description: The URL of the related orchestration resource., type: string }
+          status:
+            description: The status of the orchestration activation resource.
+            type: string
+            enum: [Activating, Active, Deactivating, Error, Inactive, Unknown]
+  OrchestrationActivationInputRepresentation:
+    type: object
+    description: An orchestration activation request.
+    properties:
+      options: { description: The orchestration activation options., type: object }
+      status:
+        description: The orchestration activation status.
+        type: string
+        enum: [Activating, Active, Deactivating, Error, Inactive, Unknown]
+  OrchestrationActivationOptionsInputRepresentation:
+    type: object
+    description: Orchestration activation status information.
+    properties:
+      resetInstancesOnActivation:
+        {
+          description: Option to delete all existing instances in the current orchestration during activation.,
+          type: boolean,
+        }
+  OrchestrationActivationOptionsRepresentation:
+    type: object
+    description: The orchestration activation options.
+    properties:
+      resetInstancesOnActivation:
+        {
+          description: Option to delete all existing instances in the current orchestration during activation.,
+          type: boolean,
+        }
+  OrchestrationActivationSummaryRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractOrchestrationActivationRepresentation" }
+      - type: object
+        description: Summary of information about orchestration activation.
+        properties:
+          status:
+            description: Current orchestration activation status.
+            type: string
+            enum: [Activating, Active, Deactivating, Error, Inactive, Unknown]
+  OrchestrationAssignVariableActionInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationActionInputRepresentation" }
+      - type: object
+        description: An orchestration action that assigns a value to a variable.
+        properties:
+          value:
+            {
+              description: The Salesforce expression that is used to assign the value to the variable.,
+              type: string,
+            }
+          variableId: { description: The variable ID., type: integer }
+  OrchestrationAssignVariableActionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationActionRepresentation" }
+      - type: object
+        description: An orchestration action that assigns a value to a variable.
+        properties:
+          value:
+            {
+              description: The Salesforce expression that assigns the value to the variable.,
+              type: string,
+            }
+          variableId: { description: The variable ID., type: integer }
+  OrchestrationAvgAggregationVariableValueInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationTemporalAggregationVariableValueInputRepresentation" }
+      - type: object
+        description: An orchestration variable value performing an average aggregation over time.
+        properties: {}
+  OrchestrationChangeStateActionInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationActionInputRepresentation" }
+      - type: object
+        description: An action that changes the state of an orchestration.
+        properties:
+          stateId: { description: The ID of the state to change the instance to., type: integer }
+  OrchestrationChangeStateActionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationActionRepresentation" }
+      - type: object
+        description: An action that changes the state of an orchestration.
+        properties:
+          stateId: { description: The ID of the state to change the instance to., type: integer }
+  OrchestrationCollectionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractCollectionRepresentation" }
+      - type: object
+        description: A list containing summary information of all orchestrations.
+        properties:
+          orchestrations:
+            description: A list of all Salesforce IoT orchestrations.
+            type: array
+            items: { $ref: "#/definitions/OrchestrationSummaryRepresentation" }
+  OrchestrationContextDatasetInputRepresentation:
+    type: object
+    description: The context dataset associated with the orchestration.
+    properties:
+      keyFields:
+        description: The key fields used with the dataset.
+        type: array
+        items: { type: string }
+      metadata: { description: The dataset metadata., type: object }
+  OrchestrationContextDatasetRepresentation:
+    type: object
+    description: A reference and the associated key fields that relate an orchestration context to a dataset.
+    properties:
+      keyFields:
+        description: The key fields that are used with the dataset reference.
+        type: array
+        items: { type: string }
+      metadata:
+        { description: The dataset metadata., $ref: "#/definitions/DatasetReferenceRepresentation" }
+  OrchestrationContextRuntimeEventCollectionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractCollectionRepresentation" }
+      - type: object
+        description: A list of Salesforce IoT orchestration context runtime events.
+        properties:
+          isThrottled:
+            {
+              description: Identifies if event consumption is throttled by rate limits.,
+              type: boolean,
+            }
+          orchestrationContextEvents:
+            description: A list of orchestration context runtime events.
+            type: array
+            items: { $ref: "#/definitions/OrchestrationContextRuntimeEventRepresentation" }
+  OrchestrationContextRuntimeEventRepresentation:
+    type: object
+    description: Information about an orchestration context event.
+    properties:
+      createdDate: { description: The date on which the resource was created., type: string }
+      eventType: { description: Event type., type: string }
+      instanceKey: { description: Instance key., type: string }
+      message: { description: Event data., type: string }
+      offset: { description: Offset of the event in the stream., type: string }
+  OrchestrationCountAggregationVariableValueInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationVariableValueInputRepresentation" }
+      - type: object
+        description: An action that terminates the orchestration.
+        properties:
+          temporalWindow: { description: The temporal window for the aggregation., type: string }
+  OrchestrationCountAggregationVariableValueRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationVariableValueRepresentation" }
+      - type: object
+        description: An orchestration variable value using the count function.
+        properties:
+          temporalWindow: { description: The temporal window for the aggregation., type: string }
+  OrchestrationCustomVariableValueInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationVariableValueInputRepresentation" }
+      - type: object
+        description: A custom Salesforce expression that is used to set a variable value.
+        properties:
+          formula: { description: "The variable value, as a Salesforce expression.", type: string }
+  OrchestrationCustomVariableValueRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationVariableValueRepresentation" }
+      - type: object
+        description: A custom Salesforce expression that is used to set a variable value.
+        properties:
+          formula: { description: "The variable value, as a Salesforce expression.", type: string }
+  OrchestrationDefinitionInputRepresentation:
+    type: object
+    description: The orchestration definition.
+    properties:
+      global: { description: "The hyper state for the orchestration, containing global
+            rule definitions.", type: object }
+      properties: { description: The orchestration properties., type: object }
+      states:
+        description: The orchestration states.
+        type: array
+        items: { type: object }
+      variables:
+        description: The orchestration variables.
+        type: array
+        items: { type: object }
+  OrchestrationDefinitionRepresentation:
+    type: object
+    description: The orchestration definition.
+    properties:
+      global: { description: "The hyper state for the orchestration, containing global
+            rule definitions.", $ref: "#/definitions/OrchestrationStateRepresentation" }
+      properties:
+        {
+          description: The orchestration properties.,
+          $ref: "#/definitions/OrchestrationPropertiesRepresentation",
+        }
+      states:
+        description: The orchestration states.
+        type: array
+        items: { $ref: "#/definitions/OrchestrationStateRepresentation" }
+      variables:
+        description: The orchestration variables.
+        type: array
+        items: { $ref: "#/definitions/OrchestrationVariableRepresentation" }
+  OrchestrationDetailRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractOrchestrationRepresentation" }
+      - type: object
+        description: Detailed information about an orchestration.
+        properties:
+          activationsUrl:
+            { description: The URL of activations of this orchestration., type: string }
+          definition:
+            {
+              description: The orchestration definition.,
+              $ref: "#/definitions/OrchestrationDefinitionRepresentation",
+            }
+          deletedStates:
+            description: A list of deleted states that are still referenced by active orchestration instances.
+            type: array
+            items: { $ref: "#/definitions/OrchestrationStateReferenceRepresentation" }
+          extendedMetadata:
+            {
+              description: A list of response events with objects that have been defined in the orchestration.,
+              $ref: "#/definitions/OrchestrationExtendedMetadataRepresentation",
+            }
+          trackersUrl: { description: The URL of trackers for this orchestration., type: string }
+          transitionMetricsUrl:
+            { description: The URL of transitions metrics for this context., type: string }
+          validationMessages:
+            {
+              description: A list of messages generated while validating the orchestration definition.,
+              $ref: "#/definitions/OrchestrationValidationMessagesRepresentation",
+            }
+  OrchestrationEventFieldVariableValueInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationVariableValueInputRepresentation" }
+      - type: object
+        description: A variable value that specifies an event field.
+        properties:
+          eventField: { description: The event field for the variable., type: string }
+  OrchestrationEventFieldVariableValueRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationVariableValueRepresentation" }
+      - type: object
+        description: A variable value that specifies an event field.
+        properties:
+          eventField: { description: The event field for the variable., type: string }
+  OrchestrationEventTypeInputRepresentation:
+    type: object
+    description: Orchestration event specification.
+    properties:
+      keyFields:
+        description: The key fields used with the event.
+        type: array
+        items: { type: string }
+      metadata: { description: The event metadata., type: object }
+  OrchestrationEventTypeRepresentation:
+    type: object
+    description: A reference and the associated key fields that relate an orchestration context to an event.
+    properties:
+      keyFields:
+        description: The key fields that are used with the event reference.
+        type: array
+        items: { type: string }
+      metadata:
+        { description: The event metadata., $ref: "#/definitions/EventTypeReferenceRepresentation" }
+  OrchestrationExtendedMetadataRepresentation:
+    type: object
+    description: Metadata about objects that are used by the orchestration definition.
+    properties:
+      referencedObjects:
+        description: A list of referenced objects.
+        type: array
+        items: { $ref: "#/definitions/OrchestrationReferenceObjectMetadataRepresentation" }
+      responseEvents:
+        description: A list of response events.
+        type: array
+        items: { $ref: "#/definitions/OrchestrationResponseEventRepresentation" }
+  OrchestrationInputRepresentation:
+    type: object
+    description: Input representation of an orchestration.
+    properties:
+      definition: { description: The orchestration definition., type: object }
+      description: { description: The orchestration description., type: string }
+      label: { description: The orchestration label., type: string }
+      name: { description: The orchestration name., type: string }
+      orchestrationContext:
+        { description: The context that is referenced by this orchestration., type: object }
+  OrchestrationInstanceCollectionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractCollectionRepresentation" }
+      - type: object
+        description: A list of Salesforce IoT orchestration instances.
+        properties:
+          instances:
+            description: A list of Salesforce IoT orchestration instances.
+            type: array
+            items: { $ref: "#/definitions/OrchestrationInstanceSummaryRepresentation" }
+  OrchestrationInstanceDetailCollectionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractCollectionRepresentation" }
+      - type: object
+        description: A list of orchestration instances.
+        properties:
+          instances:
+            description: A list of orchestration instances.
+            type: array
+            items: { $ref: "#/definitions/OrchestrationInstanceDetailRepresentation" }
+  OrchestrationInstanceDetailRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractOrchestrationInstanceRepresentation" }
+      - type: object
+        description: Orchestration instance information.
+        properties:
+          instanceKey:
+            { description: Instance key of the orchestration instance resource., type: string }
+          orchestrationId: { description: ID of the orchestration instance resource., type: string }
+          orchestrationLabel: { description: Orchestration label., type: string }
+          orchestrationState:
+            {
+              description: Orchestration state the orchestration instance is currently in.,
+              $ref: "#/definitions/OrchestrationInstanceStateRepresentation",
+            }
+          variables:
+            description: List of variables that are part of the orchestration instance resource.
+            type: array
+            items: { $ref: "#/definitions/VariableRepresentation" }
+  OrchestrationInstanceStateRepresentation:
+    type: object
+    description: A reference to a state of an orchestration instance.
+    properties:
+      color: { description: The color override for this state., type: string }
+      id: { description: The 18-character ID of this object., type: string }
+      label: { description: The object label., type: string }
+  OrchestrationInstanceSummaryRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractOrchestrationInstanceRepresentation" }
+      - type: object
+        description: Orchestration instance summary information.
+        properties:
+          instanceKey: { description: The orchestration Instance resource key., type: string }
+  OrchestrationLogBeginEventRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationLogEventRepresentation" }
+      - type: object
+        description: Orchestration log begin event.
+        properties:
+          inputEventKind:
+            description: A kind of an input event.
+            type: string
+            enum: [PlatformEvent, ResponseEvent, TimerEvent]
+          lifecycle:
+            description: Stage at which the orchestration instance is at in its life cycle.
+            type: string
+            enum: [Current, Deprecated, Erred, NotStarted, Restarted, Started, Terminated]
+  OrchestrationLogEndEventRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationLogEventRepresentation" }
+      - type: object
+        description: Orchestration log end event.
+        properties:
+          inputEventProcessingResult:
+            description: Indicates if the input event was processed.
+            type: string
+            enum: [IgnoredDeprecated, IgnoredTerminated, Processed]
+          lifecycle:
+            description: Stage at which the orchestration instance is at in its life cycle.
+            type: string
+            enum: [Current, Deprecated, Erred, NotStarted, Restarted, Started, Terminated]
+  OrchestrationLogErrorEventRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationLogEventRepresentation" }
+      - type: object
+        description: Orchestration log error event.
+        properties:
+          message: { description: Error message., type: string }
+  OrchestrationLogEventCollectionRepresentation:
+    type: object
+    description: A list of orchestration log events.
+    properties:
+      log:
+        description: Orchestration log events.
+        type: array
+        items: { $ref: "#/definitions/OrchestrationLogEventRepresentation" }
+      nextPageUrl: { description: URL for the next page of orchestration log events., type: string }
+      prevPageUrl: { description: URL for the previous page of contents in the list., type: string }
+      url: { description: URL for the list of events., type: string }
+  OrchestrationLogEventRepresentation:
+    type: object
+    description: Orchestration log event.
+    properties:
+      activationId:
+        {
+          description: Activation identifier of the orchestration log event resource.,
+          type: string,
+        }
+      instanceKey: { description: Orchestration instance key., type: string }
+      location:
+        { description: JSON path to the orchestration definition instruction., type: string }
+      name: { description: Orchestration log event name., type: string }
+      orchestrationId:
+        { description: Orchestration ID of the orchestration log event resource., type: string }
+      timestamp: { description: Orchestration log event timestamp., type: integer, format: int64 }
+  OrchestrationLogFullStateEventRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationLogEventRepresentation" }
+      - type: object
+        description: Orchestration log full state event.
+        properties:
+          state:
+            {
+              description: Full state of an orchestration instance.,
+              $ref: "#/definitions/OrchestrationInstanceDetailRepresentation",
+            }
+  OrchestrationLogInfoEventRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationLogEventRepresentation" }
+      - type: object
+        description: Orchestration log info event.
+        properties:
+          message: { description: User-specified info message., type: string }
+  OrchestrationLogInputEventRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationLogEventRepresentation" }
+      - type: object
+        description: Orchestration log input event.
+        properties:
+          input: { description: Input event payload., type: object }
+          inputEventKind:
+            description: A kind of an input event.
+            type: string
+            enum: [PlatformEvent, ResponseEvent, TimerEvent]
+          inputEventName: { description: The input event name., type: string }
+  OrchestrationLogOutputEventRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationLogEventRepresentation" }
+      - type: object
+        description: Orchestration log output event.
+        properties:
+          output: { description: Output event payload., type: object }
+  OrchestrationLogRuleConditionEventRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationLogEventRepresentation" }
+      - type: object
+        description: Orchestration log rule condition event.
+        properties:
+          conditionValue: { description: Result of the condition evaluation., type: object }
+          match: { description: "True, if the rule's when and condition evaluated to
+                True. False otherwise.", type: boolean }
+          whenValue: { description: Result of the when evaluation., type: object }
+  OrchestrationLogTerminateEventRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationLogEventRepresentation" }
+      - type: object
+        description: Orchestration log terminate event.
+        properties:
+          terminationKind:
+            {
+              description: Specifies whether the instance was terminated by the terminate action or if there was an error.,
+              type: string,
+            }
+          terminationReason: { description: User-specified termination reason., type: string }
+  OrchestrationLogThrottleEventRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationLogEventRepresentation" }
+      - type: object
+        description: Orchestration log throttle event.
+        properties:
+          throttle: { description: Throttle state., type: object }
+  OrchestrationLogTimerArmEventRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationLogEventRepresentation" }
+      - type: object
+        description: Orchestration log timer arm event.
+        properties:
+          armedTime:
+            {
+              description: Time at which a timer was going to fire next.,
+              type: integer,
+              format: int64,
+            }
+  OrchestrationLogTimerUnarmEventRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationLogEventRepresentation" }
+      - type: object
+        description: Orchestration log timer unarm event.
+        properties:
+          armedTime:
+            {
+              description: Time at which a timer was going to fire next.,
+              type: integer,
+              format: int64,
+            }
+  OrchestrationLogTransitionEventRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationLogEventRepresentation" }
+      - type: object
+        description: Orchestration log transition event.
+        properties:
+          fromState: { description: Transition from state ID., type: integer }
+          toState: { description: Transition to state ID., type: integer }
+  OrchestrationLogVariableChangeEventRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationLogEventRepresentation" }
+      - type: object
+        description: Orchestration log variable change.
+        properties:
+          newValue: { description: New value., $ref: "#/definitions/VariableRepresentation" }
+          oldValue: { description: Old value., $ref: "#/definitions/VariableRepresentation" }
+  OrchestrationMaxAggregationVariableValueInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationTemporalAggregationVariableValueInputRepresentation" }
+      - type: object
+        description: An orchestration variable value performing a maximum aggregation over time.
+        properties: {}
+  OrchestrationMinAggregationVariableValueInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationTemporalAggregationVariableValueInputRepresentation" }
+      - type: object
+        description: An orchestration variable value performing a minimum aggregation over time.
+        properties: {}
+  OrchestrationObjectPropertyFieldRepresentation:
+    type: object
+    description: Field representation of an object property that  can be referenced by the orchestration.
+    properties:
+      type:
+        {
+          description: The type of property in the referenced object of the orchestration.,
+          type: string,
+        }
+  OrchestrationOutputActionInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationActionInputRepresentation" }
+      - type: object
+        description: An orchestration output action definition.
+        properties:
+          id: { description: Action ID., type: integer }
+          isResponseIngested:
+            { description: Indicates whether or not a response event is produced., type: boolean }
+          label: { description: Action label., type: string }
+          responseEventName: { description: Response event name., type: string }
+  OrchestrationOutputActionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationActionRepresentation" }
+      - type: object
+        description: An orchestration output action definition.
+        properties:
+          id: { description: Action ID., type: integer }
+          isResponseIngested:
+            { description: Indicates whether or not a response event is produced., type: boolean }
+          label: { description: Action label., type: string }
+          responseEventName: { description: Response event name., type: string }
+  OrchestrationPropertiesInputRepresentation:
+    type: object
+    description: The properties of an orchestration.
+    properties:
+      restartOnError:
+        {
+          description: Creates a new orchestration instance for an incoming event with a matching instance key after an error occurs.,
+          type: boolean,
+        }
+      runOnce: { description: "Ignores incoming events for exited or terminated orchestrations,
+            to prevent additional instances from being created.", type: boolean }
+  OrchestrationPropertiesRepresentation:
+    type: object
+    description: The properties of an orchestration.
+    properties:
+      restartOnError:
+        {
+          description: Creates a new orchestration instance for an incoming event with a matching instance key after an error occurs.,
+          type: boolean,
+        }
+      runOnce: { description: "Ignores incoming events for exited or terminated orchestrations,
+            to prevent additional instances from being created.", type: boolean }
+  OrchestrationReferenceDataCollectionRepresentation:
+    type: object
+    description: List of all available reference data.
+    properties:
+      sobject: { description: URL for Salesforce object definitions., type: string }
+  OrchestrationReferenceDataRepresentation:
+    type: object
+    description: Summary information about orchestration reference data.
+    properties:
+      apiName: { description: API name of a referenced object., type: string }
+      eventType: { description: Type of a received event., type: string }
+      iconUrl: { description: Icon URL of a referenced object., type: string }
+      isCustom:
+        { description: Indicates if the referenced object is a custom object., type: boolean }
+      label: { description: Label of a referenced object., type: string }
+  OrchestrationReferenceObjectMetadataRepresentation:
+    type: object
+    description: Metadata for the object referenced in the orchestration definition.
+    properties:
+      fields:
+        description: The fields that a reference object contains.
+        type: object
+        additionalProperties:
+          { $ref: "#/definitions/OrchestrationObjectPropertyFieldRepresentation" }
+      name: { description: The name of the reference object., type: string }
+  OrchestrationResetVariableActionInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationActionInputRepresentation" }
+      - type: object
+        description: An action that resets the value of an orchestration variable.
+        properties:
+          variableId: { description: Variable ID., type: integer }
+  OrchestrationResetVariableActionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationActionRepresentation" }
+      - type: object
+        description: An action that resets the value of an orchestration variable.
+        properties:
+          variableId: { description: Variable ID., type: integer }
+  OrchestrationResponseEventRepresentation:
+    type: object
+    description: A response events schema in the orchestration definition.
+    properties:
+      location: { description: Response event location., type: string }
+      schema:
+        {
+          description: Response event schema.,
+          $ref: "#/definitions/OrchestrationResponseEventSchemaRepresentation",
+        }
+  OrchestrationResponseEventSchemaRepresentation:
+    type: object
+    description: Response event metadata in the orchestration definition.
+    properties:
+      name: { description: Response event name., type: string }
+      properties:
+        description: Response event properties.
+        type: object
+        additionalProperties:
+          { $ref: "#/definitions/OrchestrationObjectPropertyFieldRepresentation" }
+      referencedObject: { description: The object references in the response event., type: string }
+      type: { description: Response event type., type: string }
+  OrchestrationRuleCustomWhenRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationRuleWhenRepresentation" }
+      - type: object
+        description: A rule that is triggered at a specified time.
+        properties:
+          value:
+            { description: The expression that indicates when to trigger the rule., type: string }
+  OrchestrationRuleInputRepresentation:
+    type: object
+    description: An orchestration rule.
+    properties:
+      actions:
+        description: The actions taken when a rule is triggered.
+        type: array
+        items: { type: object }
+      condition: { description: "A condition evaluated when a rule is triggered, written
+            as a Salesforce expression. The rule's actions are executed if the condition
+            evaluates to true.", type: string }
+      description: { description: Rule description., type: string }
+      id: { description: The integer value that uniquely identifies the rule., type: integer }
+      throttle: { description: The throttling behavior applied to a rule., type: object }
+      when: { description: A trigger that specifies when the rule executes., type: object }
+  OrchestrationRuleRepresentation:
+    type: object
+    description: The rules defined for the orchestration.
+    properties:
+      actions:
+        description: The actions taken when the rule is triggered.
+        type: array
+        items: { $ref: "#/definitions/OrchestrationActionRepresentation" }
+      condition: { description: "A condition that is evaluated when the rule is triggered,
+            written as a Salesforce expression. The rule's actions are executed if
+            the condition evaluates to true.", type: string }
+      description: { description: Rule description., type: string }
+      id: { description: A unique identifier for the rule., type: integer }
+      throttle:
+        {
+          description: The throttling behavior applied to the rule.,
+          $ref: "#/definitions/OrchestrationRuleThrottleRepresentation",
+        }
+      when:
+        {
+          description: The trigger for the rule that describes when it executes.,
+          $ref: "#/definitions/OrchestrationRuleWhenRepresentation",
+        }
+  OrchestrationRuleSimpleWhenRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationRuleWhenRepresentation" }
+      - type: object
+        description: A when rule that has no parameters.
+        properties: {}
+  OrchestrationRuleTemporalWhenRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationRuleWhenRepresentation" }
+      - type: object
+        description: A rule that is triggered at a specified time.
+        properties:
+          value: { description: The when condition value., type: string }
+  OrchestrationRuleThrottleInputRepresentation:
+    type: object
+    description: A description of the throttling behavior applied to a rule.
+    properties:
+      period: { description: The period over which throttling occurs., type: integer }
+      times:
+        {
+          description: The maximum number of times per period that the rule can be triggered.,
+          type: integer,
+        }
+      unit:
+        description: The value associated with the time period.
+        type: string
+        enum: [Days, Hours, Minutes, Months, Seconds, Weeks, Years]
+  OrchestrationRuleThrottleRepresentation:
+    type: object
+    description: A description of the throttling behavior applied to a rule.
+    properties:
+      period: { description: The period over which throttling occurs., type: integer }
+      times:
+        {
+          description: The maximum number of times per period that the rule can be triggered.,
+          type: integer,
+        }
+      unit:
+        description: The time unit associated with the period.
+        type: string
+        enum: [Days, Hours, Minutes, Months, Seconds, Weeks, Years]
+  OrchestrationRuleWhenAlwaysInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationRuleWhenInputRepresentation" }
+      - type: object
+        description: An always when rule.
+        properties: {}
+  OrchestrationRuleWhenCustomInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationRuleWhenInputRepresentation" }
+      - type: object
+        description: A rule that is triggered at a specified time.
+        properties:
+          value: { description: The custom timer expression., type: string }
+  OrchestrationRuleWhenDayInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationRuleWhenTemporalInputRepresentation" }
+      - type: object
+        description: A rule that is triggered at a specified time.
+        properties: {}
+  OrchestrationRuleWhenEventInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationRuleWhenInputRepresentation" }
+      - type: object
+        description: A rule that is triggered by an event.
+        properties:
+          eventSource: { description: The name of the event that triggers the rule., type: string }
+  OrchestrationRuleWhenEventRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationRuleWhenRepresentation" }
+      - type: object
+        description: A rule that is triggered by an event.
+        properties:
+          eventSource: { description: The name of the event that triggers the rule., type: string }
+  OrchestrationRuleWhenHourInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationRuleWhenTemporalInputRepresentation" }
+      - type: object
+        description: A rule that is triggered at a specified time.
+        properties: {}
+  OrchestrationRuleWhenImmediatelyInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationRuleWhenInputRepresentation" }
+      - type: object
+        description: A rule that is triggered immediately when the specified event occurs.
+        properties: {}
+  OrchestrationRuleWhenInputRepresentation:
+    type: object
+    description: A description of when a rule is triggered.
+    properties:
+      type:
+        description: The specified type of trigger for the rule.
+        type: string
+        enum: [Always, Custom, Day, Event, Hour, Immediately, Minute, Second]
+  OrchestrationRuleWhenMinuteInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationRuleWhenTemporalInputRepresentation" }
+      - type: object
+        description: A rule that is triggered at a specified time.
+        properties: {}
+  OrchestrationRuleWhenRepresentation:
+    type: object
+    description: A description of when a rule is triggered.
+    properties:
+      type:
+        description: The type of rule trigger described.
+        type: string
+        enum: [Always, Custom, Day, Event, Hour, Immediately, Minute, Second]
+  OrchestrationRuleWhenSecondInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationRuleWhenTemporalInputRepresentation" }
+      - type: object
+        description: A rule that is triggered at a specified time.
+        properties: {}
+  OrchestrationRuleWhenTemporalInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationRuleWhenInputRepresentation" }
+      - type: object
+        description: A rule that is triggered at a specified time.
+        properties:
+          value: { description: The value associated with the time period., type: string }
+  OrchestrationRuntimeActivityInfoRepresentation:
+    allOf:
+      - { $ref: "#/definitions/ActivityInfoRepresentation" }
+      - type: object
+        description: Detailed instance information.
+        properties:
+          errorCode: { description: Internal runtime code associated with the error., type: string }
+          errorMessage: { description: Textual description of the error., type: string }
+          event: { description: Event payload details associated with the error., type: string }
+          eventSender: { description: Event sender associated with the event., type: string }
+          fromStateId:
+            { description: ID of the state from which the error state originated., type: string }
+          instanceKey: { description: Event instance key for the error., type: string }
+  OrchestrationSalesforceOutputActionFieldInputRepresentation:
+    type: object
+    description: A field descriptor that may act as a filter or value assignment for the Salesforce output action.
+    properties:
+      field: { description: The API name of the field., type: string }
+      value: { description: The field value., type: string }
+  OrchestrationSalesforceOutputActionFieldRepresentation:
+    type: object
+    description: A field descriptor that may act as a filter or value assignment for the Salesforce output action.
+    properties:
+      field: { description: The API name of the field., type: string }
+      value: { description: The field value., type: string }
+  OrchestrationSalesforceOutputActionInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationOutputActionInputRepresentation" }
+      - type: object
+        description: The definition of an orchestration action on a Salesforce object.
+        properties:
+          fieldAssignments:
+            description: The details of the assignment field values for create and edit actions.
+            type: array
+            items: { type: object }
+          name:
+            description: The action type name.
+            type: string
+            enum: [Create, Delete, Edit, Read]
+          recordFilters:
+            description: The filters that identify the record that the action operates on.
+            type: array
+            items: { type: object }
+          salesforceObjectApiName:
+            {
+              description: The filters that identify the record that the action operates on.,
+              type: string,
+            }
+  OrchestrationSalesforceOutputActionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationOutputActionRepresentation" }
+      - type: object
+        description: The definition of an orchestration action on a Salesforce object.
+        properties:
+          fieldAssignments:
+            description: The details of the assignment field values for create and edit actions.
+            type: array
+            items: { $ref: "#/definitions/OrchestrationSalesforceOutputActionFieldRepresentation" }
+          name:
+            description: The action type name.
+            type: string
+            enum: [Create, Delete, Edit, Read]
+          recordFilters:
+            description: The filters that identify the record that the action operates on.
+            type: array
+            items: { $ref: "#/definitions/OrchestrationSalesforceOutputActionFieldRepresentation" }
+          salesforceObjectApiName:
+            {
+              description: The API name of the Salesforce object that this action operates on.,
+              type: string,
+            }
+  OrchestrationSobjectReferenceCollectionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractCollectionRepresentation" }
+      - type: object
+        description: A list of sobjects that can be referenced by the orchestration.
+        properties:
+          sobjects:
+            description: The sobjects in this list.
+            type: array
+            items: { $ref: "#/definitions/OrchestrationSobjectReferenceRepresentation" }
+  OrchestrationSobjectReferenceRepresentation:
+    type: object
+    description: A Salesforce IoT orchestration reference object.
+    properties:
+      iconUrl: { description: The icon URL of the reference object., type: string }
+      isCustom: { description: Identifies if the reference object is custom., type: boolean }
+      label: { description: The reference object label., type: string }
+      name: { description: The reference object name., type: string }
+      url: { description: The URL of a specific reference object., type: string }
+  OrchestrationStateCollectionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractCollectionRepresentation" }
+      - type: object
+        description: A list of Salesforce IoT orchestration states.
+        properties:
+          states:
+            description: The orchestration states in this list.
+            type: array
+            items: { $ref: "#/definitions/OrchestrationStateSummaryRepresentation" }
+  OrchestrationStateInputRepresentation:
+    type: object
+    description: An orchestration state description.
+    properties:
+      color: { description: The color override for the state., type: string }
+      id: { description: The unique identifier for the state., type: integer }
+      initial: { description: "True, if this is the initial state.", type: boolean }
+      name: { description: The state name., type: string }
+      rules:
+        description: The rules that are associated with this state.
+        type: array
+        items: { type: object }
+  OrchestrationStateReferenceRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractOrchestrationStateRepresentation" }
+      - type: object
+        description: A reference to an orchestration state.
+        properties: {}
+  OrchestrationStateRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractOrchestrationStateRepresentation" }
+      - type: object
+        description: A description of an orchestration state.
+        properties:
+          color: { description: Color override for the state., type: string }
+          initial: { description: "True, if this is the initial state.", type: boolean }
+          rules:
+            description: The rules that are associated with this state.
+            type: array
+            items: { $ref: "#/definitions/OrchestrationRuleRepresentation" }
+  OrchestrationStateSummaryRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractResourceRepresentation" }
+      - type: object
+        description: Summary information about an orchestration state.
+        properties:
+          instancesUrl:
+            {
+              description: URL for the filtered list of Salesforce IoT orchestration instance resources in this state.,
+              type: string,
+            }
+          stateId:
+            {
+              description: The ID for the Salesforce IoT orchestration state resource.,
+              type: integer,
+            }
+  OrchestrationSumAggregationVariableValueInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationTemporalAggregationVariableValueInputRepresentation" }
+      - type: object
+        description: An orchestration variable value performing a sum aggregation over time.
+        properties: {}
+  OrchestrationSummaryRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractOrchestrationRepresentation" }
+      - type: object
+        description: Summary information about an orchestration.
+        properties: {}
+  OrchestrationTemporalAggregationVariableValueInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationVariableValueInputRepresentation" }
+      - type: object
+        description: An orchestration variable value performing an aggregation over time.
+        properties:
+          eventField: { description: The event field for the aggregation., type: string }
+          temporalWindow: { description: The temporal window for the aggregation., type: string }
+  OrchestrationTemporalAggregationVariableValueRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationVariableValueRepresentation" }
+      - type: object
+        description: An orchestration variable value performing an aggregation over time.
+        properties:
+          eventField: { description: The event field for the aggregation., type: string }
+          temporalWindow: { description: The temporal window for the aggregation., type: string }
+  OrchestrationTerminateActionInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationActionInputRepresentation" }
+      - type: object
+        description: An action that terminates an orchestration.
+        properties:
+          exitCode:
+            description: The orchestration termination type.
+            type: string
+            enum: [Expired, Failure, NotApplicable, Success]
+  OrchestrationTerminateActionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationActionRepresentation" }
+      - type: object
+        description: An action that terminates an orchestration.
+        properties:
+          exitCode:
+            description: The orchestration termination type.
+            type: string
+            enum: [Expired, Failure, NotApplicable, Success]
+  OrchestrationTrackerCollectionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractCollectionRepresentation" }
+      - type: object
+        description: A list of orchestration trackers.
+        properties:
+          trackers:
+            description: Orchestration trackers.
+            type: array
+            items: { $ref: "#/definitions/OrchestrationTrackerRepresentation" }
+  OrchestrationTrackerInputRepresentation:
+    type: object
+    description: Representation of the tracker that you want to create.
+    properties:
+      expirationDate: { description: Expiration date., type: string }
+      startDate: { description: Start date., type: string }
+  OrchestrationTrackerPatchInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationTrackerInputRepresentation" }
+      - type: object
+        description: Input representation of the tracker for PATCH requests.
+        properties:
+          terminated: { description: Terminated flag., type: boolean }
+  OrchestrationTrackerPostInputRepresentation:
+    allOf:
+      - { $ref: "#/definitions/OrchestrationTrackerInputRepresentation" }
+      - type: object
+        description: Input representation of the tracker for POST requests
+        properties:
+          instanceKey: { description: Instance key., type: string }
+  OrchestrationTrackerRepresentation:
+    type: object
+    description: Orchestration tracker information.
+    properties:
+      createdBy:
+        {
+          description: The user who created this resource.,
+          $ref: "#/definitions/IoTReferenceRepresentation",
+        }
+      createdDate: { description: The date on which the resource was created., type: string }
+      expirationDate: { description: Expiration date., type: string }
+      id: { description: The 18-character ID of this tracker., type: string }
+      instanceKey: { description: Instance key., type: string }
+      lastModifiedBy:
+        {
+          description: The user who modified this tracker.,
+          $ref: "#/definitions/IoTReferenceRepresentation",
+        }
+      lastModifiedDate: { description: The date on which the tracker was modified., type: string }
+      orchestrationUrl: { description: Orchestration URL., type: string }
+      startDate: { description: Tracker start date., type: string }
+      terminated: { description: Tracker termination status., type: boolean }
+      terminatedDate: { description: Terminated date., type: string }
+      terminationReason:
+        description: Termination code.
+        type: string
+        enum: [Expired, NotApplicable, Throttled]
+      url: { description: The URL of this resource., type: string }
+  OrchestrationTransitionCountCollectionRepresentation:
+    type: object
+    description: A list of orchestration transition counts.
+    properties:
+      metrics:
+        description: A list of orchestration transition counts.
+        type: array
+        items: { $ref: "#/definitions/OrchestrationTransitionCountRepresentation" }
+  OrchestrationTransitionCountRepresentation:
+    type: object
+    description: Orchestration transition count.
+    properties:
+      action: { description: Transition action., type: string }
+      count: { description: Count., type: integer, format: int64 }
+      fromStateId: { description: From state ID., type: integer }
+      toStateId: { description: To state ID., type: integer }
+  OrchestrationUsageCollectionRepresentation:
+    allOf:
+      - { $ref: "#/definitions/AbstractCollectionRepresentation" }
+      - type: object
+        description: A log of orchestration-level usage.
+        properties:
+          orchestrationUsages:
+            description: Orchestration usage information.
+            type: array
+            items: { $ref: "#/definitions/OrchestrationUsageRepresentation" }
+  OrchestrationUsageRepresentation:
+    type: object
+    description: Current orchestration-level usage.
+    properties:
+      activationStatus: { description: Orchestration activation status., type: string }
+      instanceCount: { description: Current instance count for the orchestration., type: integer }
+      label: { description: Orchestration name., type: string }
+      orchestrationId: { description: Orchestration ID., type: string }
+      orchestrationUrl: { description: Orchestration URL., type: string }
+      processedEventCount:
+        {
+          description: Number of events processed by the orchestration in the last 24 hours.,
+          type: integer,
+          format: int64,
+        }
+      rejectedEventCount:
+        {
+          description: Number of events rejected by the orchestration.,
+          type: integer,
+          format: int64,
+        }
+  OrchestrationValidationMessageRepresentation:
+    type: object
+    description: A message generated while validating the orchestration definition.
+    properties:
+      location: { description: The location of the error., type: string }
+      severity:
+        description: The severity of the issue.
+        type: string
+        enum: [Error, Warning]
+      text: { description: The message text., type: string }
+  OrchestrationValidationMessagesRepresentation:
+    type: object
+    description: A list of messages generated while validating the orchestration.
+    properties:
+      messages:
+        description: A list of messages generated while validating the orchestration.
+        type: array
+        items: { $ref: "#/definitions/OrchestrationValidationMessageRepresentation" }
+  OrchestrationVariableInputRepresentation:
+    type: object
+    description: The orchestration variable definition.
+    properties:
+      condition:
+        {
+          description: The Salesforce expression that is evaluated to determine if the variable should be updated.,
+          type: string,
+        }
+      dataType:
+        description: The data type of the variable.
+        type: string
+        enum: [Boolean, Date, DateTime, Number, String]
+      description: { description: The description of the variable., type: string }
+      eventSource: { description: The event source of the variable., type: string }
+      exposed: { description: True if this variable is exposed to the App Builder., type: boolean }
+      id: { description: Variable ID., type: integer }
+      initialValue:
+        {
+          description: The Salesforce expression that defines the initial value of this variable.,
+          type: string,
+        }
+      label: { description: Variable label., type: string }
+      name: { description: Variable name., type: string }
+      unit: { description: Unit of measurement for this variable., type: string }
+      value: { description: The method used to calculate a value for this variable., type: object }
+  OrchestrationVariableRepresentation:
+    type: object
+    description: The orchestration variable description.
+    properties:
+      condition:
+        {
+          description: The Salesforce expression evaluated to determine if the variable should be updated.,
+          type: string,
+        }
+      dataType:
+        description: The data type of the variable.
+        type: string
+        enum: [Boolean, Date, DateTime, Number, String]
+      description: { description: The orchestration variable description., type: string }
+      eventSource: { description: The event source for the variable., type: string }
+      exposed: { description: True if this variable is exposed to the App Builder., type: boolean }
+      id: { description: The variable ID., type: integer }
+      initialValue:
+        {
+          description: The Salesforce expression that defines the initial value of this variable.,
+          type: string,
+        }
+      label: { description: Variable label., type: string }
+      name: { description: Variable name., type: string }
+      unit: { description: Unit of measurement for the variable., type: string }
+      value:
+        {
+          description: The method used to calculate a value for the variable.,
+          $ref: "#/definitions/OrchestrationVariableValueRepresentation",
+        }
+  OrchestrationVariableValueInputRepresentation:
+    type: object
+    description: The orchestration variable value.
+    properties:
+      type:
+        description: The type of function used to calculate the variable value.
+        type: string
+        enum: [Avg, ConsecutiveDuration, Count, Custom, Max, Min, Sum]
+  OrchestrationVariableValueRepresentation:
+    type: object
+    description: The orchestration variable value.
+    properties:
+      type:
+        description: The variable value type.
+        type: string
+        enum: [Avg, ConsecutiveDuration, Count, Custom, Max, Min, Sum]
+  PlatformEventCollectionRepresentation:
+    type: object
+    description: Specification for a Platform Event payload.
+    properties:
+      connectedAppName: { description: For internal use only., type: string }
+      events:
+        description: The batch of events for sender.
+        type: array
+        items:
+          type: object
+          additionalProperties: { type: object }
+  PlatformEventResponseRepresentation:
+    type: object
+    description: Response on sending platform event.
+    properties:
+      isSuccess: { description: Flag indicating event sending success., type: boolean }
+  UsageDetailRepresentation:
+    type: object
+    description: Current org-level usage information.
+    properties:
+      allocations:
+        {
+          description: Current org-level allocations.,
+          $ref: "#/definitions/AllocationsRepresentation",
+        }
+      eventUsage:
+        {
+          description: Current org-level event usage.,
+          $ref: "#/definitions/EventUsageRepresentation",
+        }
+      orchestrationUsageUrl: { description: URL for current orchestration usage., type: string }
+  VariableRepresentation:
+    type: object
+    description: Representation of a variable with name, value and type.
+    properties:
+      dataType:
+        description: The datatype of the variable.
+        type: string
+        enum: [Boolean, Date, DateTime, Number, String]
+      label: { description: The variable label., type: string }
+      lastModifiedDate: { description: The last modified date of the variable., type: string }
+      name: { description: The variable name., type: string }
+      unit: { description: The unit of the variable., type: string }
+      value: { description: The variable value., type: object }

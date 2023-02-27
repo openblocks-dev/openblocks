@@ -43,6 +43,11 @@ paths:
         - "application/json"
         - "application/xml"
       parameters:
+        - name: "what"
+          in: "path"
+          description: "i do not know what this is"
+          required: true
+          example: "Tom"
         - name: "petId"
           in: "path"
           description: "ID of pet to return"

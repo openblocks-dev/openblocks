@@ -10,11 +10,13 @@
     "dev": "nodemon --files src/server.ts",
     "start": "node ./build/src/server.js",
     "test": "jest",
-    "build": "rm -rf build/ && tsc && yarn run copy",
-    "copy": "copyfiles -u 1 src/**/*.!(ts|test.ts) build/src"
+    "copy": "copyfiles -u 1 src/**/*.!(ts|test.ts) build/src",
+    "genOpenApiPlugin": "npx ts-node --files ./scripts/openApiDataSourceGen.ts",
+    "build": "rm -rf build/ && yarn test && tsc && cp -r src/static build/src/static"
   },
   "devDependencies": {
     "@types/jest": "^29.2.4",
+    "commander": "^10.0.0",
     "copyfiles": "^2.4.1",
     "jest": "^29.3.1",
     "nock": "^13.3.0",
