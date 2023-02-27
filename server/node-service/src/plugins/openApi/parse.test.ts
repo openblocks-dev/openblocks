@@ -11,5 +11,6 @@ describe("swagger parse", () => {
     const doc = await SwaggerParser.bundle(demoSwaggerYaml);
     const { actions } = await parseOpenApi(doc);
     expect(actions.length).toBeGreaterThan(0);
+    console.info(actions[0].params);
   });
 });

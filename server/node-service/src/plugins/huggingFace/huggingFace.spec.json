@@ -1,0 +1,1295 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "api",
+    "description": "",
+    "contact": {
+      "name": "",
+      "email": ""
+    },
+    "license": {
+      "name": ""
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/endpoint": {
+      "get": {
+        "tags": [
+          "endpoint"
+        ],
+        "summary": "List endpoints",
+        "description": "List endpoints",
+        "operationId": "list_endpoint",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "description": "Either your user name or one of your organization name",
+            "required": true,
+            "example": "johnDoe"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Endpoints listed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointWithStatusList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid user or organization token, sent as a Bearer, is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "token": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "endpoint"
+        ],
+        "summary": "Create a new endpoint",
+        "description": "Create a new endpoint",
+        "operationId": "create_endpoint",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "description": "Either your user name or one of your organization name",
+            "required": true,
+            "example": "johnDoe"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Endpoint"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Endpoint creation in progress",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointWithStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Incorrect input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid user or organization token, sent as a Bearer, is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "An endpoint with the same name already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "token": []
+          }
+        ]
+      }
+    },
+    "/endpoint/{name}": {
+      "get": {
+        "tags": [
+          "endpoint"
+        ],
+        "summary": "Get endpoint information",
+        "description": "Get endpoint information",
+        "operationId": "get_endpoint",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "description": "Either your user name or one of your organization name",
+            "required": true,
+            "example": "johnDoe"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Endpoint name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "my-endpoint"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Endpoint returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointWithStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid user or organization token, sent as a Bearer, is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "token": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "endpoint"
+        ],
+        "summary": "Update an endpoint",
+        "description": "Update an endpoint",
+        "operationId": "update_endpoint",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "description": "Either your user name or one of your organization name",
+            "required": true,
+            "example": "johnDoe"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Endpoint name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "my-endpoint"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Endpoint updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointWithStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Incorrect input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid user or organization token, sent as a Bearer, is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "token": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "endpoint"
+        ],
+        "summary": "Delete an endpoint",
+        "description": "Delete an endpoint",
+        "operationId": "delete_endpoint",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "description": "Either your user name or one of your organization name",
+            "required": true,
+            "example": "johnDoe"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Endpoint name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "my-endpoint"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Endpoint deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid user or organization token, sent as a Bearer, is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "token": []
+          }
+        ]
+      }
+    },
+    "/endpoint/{name}/logs": {
+      "get": {
+        "tags": [
+          "endpoint"
+        ],
+        "summary": "Endpoint replicas logs",
+        "description": "Endpoint replicas logs",
+        "operationId": "get_endpoint_logs",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "description": "Either your user name or one of your organization name",
+            "required": true,
+            "example": "johnDoe"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Endpoint name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "my-endpoint"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Endpoint replicas logs returned successfully",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid user or organization token, sent as a Bearer, is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "token": []
+          }
+        ]
+      }
+    },
+    "/endpoint/{name}/metrics": {
+      "get": {
+        "tags": [
+          "endpoint"
+        ],
+        "summary": "Endpoint aggregated metrics",
+        "description": "Endpoint aggregated metrics\n\nQuery params are the same as for the `query_range` endpoint, cf <a href='https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries'>Range Queries</a>",
+        "operationId": "get_endpoint_metrics",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "description": "Either your user name or one of your organization name",
+            "required": true,
+            "example": "johnDoe"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Endpoint name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "my-endpoint"
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "description": "`query=<string>`: Prometheus expression query string",
+            "required": true,
+            "example": "up{}"
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "description": "`start=<rfc3339 | unix_timestamp>`: Start timestamp, inclusive.",
+            "required": true,
+            "example": "1657519792"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "description": "`end=<rfc3339 | unix_timestamp>`: End timestamp, inclusive.",
+            "required": true,
+            "example": "1657619792"
+          },
+          {
+            "name": "step",
+            "in": "query",
+            "description": "`step=<duration | float>`: Query resolution step width in duration format or float number of seconds.",
+            "required": true,
+            "example": "15s"
+          },
+          {
+            "name": "timeout",
+            "in": "query",
+            "description": "`timeout=<duration>`: Evaluation timeout. Optional. Defaults to and is capped by the value of the `-query.timeout` flag.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "5s"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Endpoint aggregated metrics returned successfully"
+          },
+          "401": {
+            "description": "A valid user or organization token, sent as a Bearer, is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "token": []
+          }
+        ]
+      }
+    },
+    "/provider": {
+      "get": {
+        "tags": [
+          "provider"
+        ],
+        "summary": "List vendors",
+        "description": "List vendors",
+        "operationId": "list_vendors",
+        "responses": {
+          "200": {
+            "description": "Providers listed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendorList"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/provider/{vendor}/region": {
+      "get": {
+        "tags": [
+          "provider"
+        ],
+        "summary": "List vendor regions",
+        "description": "List vendor regions",
+        "operationId": "list_regions",
+        "parameters": [
+          {
+            "name": "vendor",
+            "in": "path",
+            "description": "Provider vendor",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "aws"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Regions listed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegionList"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vendor not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/provider/{vendor}/region/{region}/compute": {
+      "get": {
+        "tags": [
+          "provider"
+        ],
+        "summary": "List compute resources available for this provider region",
+        "description": "List compute resources available for this provider region",
+        "operationId": "list_computes",
+        "parameters": [
+          {
+            "name": "vendor",
+            "in": "path",
+            "description": "Provider vendor",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "aws"
+          },
+          {
+            "name": "region",
+            "in": "path",
+            "description": "Vendor region",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "us-east-1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Compute resources listed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComputeList"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vendor or region not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseError"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Accelerator": {
+        "type": "string",
+        "description": "Compute accelerator",
+        "enum": [
+          "cpu",
+          "gpu"
+        ]
+      },
+      "ApiResponseError": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "Compute": {
+        "type": "object",
+        "description": "Vendor region compute resources",
+        "required": [
+          "accelerator",
+          "numAccelerators",
+          "memoryGb",
+          "instanceType",
+          "instanceSize",
+          "architecture",
+          "status",
+          "pricePerHour"
+        ],
+        "properties": {
+          "accelerator": {
+            "$ref": "#/components/schemas/Accelerator"
+          },
+          "architecture": {
+            "type": "string",
+            "description": "Compute accelerator architecture",
+            "example": "Nvidia Tesla T4"
+          },
+          "instanceSize": {
+            "type": "string",
+            "description": "Compute accelerator instance size",
+            "example": "medium"
+          },
+          "instanceType": {
+            "type": "string",
+            "description": "Compute accelerator instance type",
+            "example": "g4dn.xlarge"
+          },
+          "memoryGb": {
+            "type": "string",
+            "description": "Amount of RAM which can be requested per endpoint replica",
+            "example": "14Gi"
+          },
+          "numAccelerators": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of accelerator units which can be requested per endpoint replica",
+            "example": "1"
+          },
+          "numCpus": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of CPUs which can be requested per endpoint replica",
+            "example": "3"
+          },
+          "pricePerHour": {
+            "type": "number",
+            "format": "float",
+            "description": "Price per hour in dollar of an endpoint replica",
+            "example": "0.6"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          }
+        }
+      },
+      "ComputeList": {
+        "type": "object",
+        "description": "List of vendor region compute resources",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Compute"
+            }
+          }
+        }
+      },
+      "Empty": {
+        "type": "object"
+      },
+      "Endpoint": {
+        "type": "object",
+        "description": "Endpoint",
+        "required": [
+          "name",
+          "type",
+          "provider",
+          "compute",
+          "model"
+        ],
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "description": "Account ID used to link a VPC to a private endpoint",
+            "example": null
+          },
+          "compute": {
+            "$ref": "#/components/schemas/EndpointCompute"
+          },
+          "model": {
+            "$ref": "#/components/schemas/EndpointModel"
+          },
+          "name": {
+            "type": "string",
+            "description": "Endpoint name. Must only contains lowercase alphanumeric characters or '-' and have a length of 32 characters maximum",
+            "example": "my-endpoint"
+          },
+          "provider": {
+            "$ref": "#/components/schemas/EndpointProvider"
+          },
+          "type": {
+            "$ref": "#/components/schemas/EndpointType"
+          }
+        }
+      },
+      "EndpointAccelerator": {
+        "type": "string",
+        "description": "Endpoint accelerator",
+        "enum": [
+          "cpu",
+          "gpu"
+        ]
+      },
+      "EndpointAccount": {
+        "type": "object",
+        "description": "Account",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Account id"
+          },
+          "name": {
+            "type": "string",
+            "description": "Account name"
+          }
+        }
+      },
+      "EndpointCompute": {
+        "type": "object",
+        "description": "Endpoint compute",
+        "required": [
+          "accelerator",
+          "instanceType",
+          "instanceSize",
+          "scaling"
+        ],
+        "properties": {
+          "accelerator": {
+            "$ref": "#/components/schemas/EndpointAccelerator"
+          },
+          "instanceSize": {
+            "type": "string",
+            "example": "large"
+          },
+          "instanceType": {
+            "type": "string",
+            "description": "Compute instance type",
+            "example": "c6i"
+          },
+          "scaling": {
+            "$ref": "#/components/schemas/EndpointScaling"
+          }
+        }
+      },
+      "EndpointComputeUpdate": {
+        "type": "object",
+        "description": "Update endpoint compute",
+        "properties": {
+          "instanceSize": {
+            "type": "string",
+            "example": "large"
+          },
+          "instanceType": {
+            "type": "string",
+            "description": "Compute instance type",
+            "example": "c6i"
+          },
+          "scaling": {
+            "$ref": "#/components/schemas/EndpointScalingUpdate"
+          }
+        }
+      },
+      "EndpointFramework": {
+        "type": "string",
+        "enum": [
+          "custom",
+          "pytorch",
+          "tensorflow"
+        ]
+      },
+      "EndpointImageCredentials": {
+        "type": "object",
+        "description": "Model served by the endpoint",
+        "required": [
+          "username",
+          "password"
+        ],
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "Registry password"
+          },
+          "username": {
+            "type": "string",
+            "description": "Registry username"
+          }
+        }
+      },
+      "EndpointModel": {
+        "type": "object",
+        "description": "Model served by the endpoint",
+        "required": [
+          "repository",
+          "framework",
+          "image"
+        ],
+        "properties": {
+          "framework": {
+            "$ref": "#/components/schemas/EndpointFramework"
+          },
+          "image": {
+            "$ref": "#/components/schemas/EndpointModelImage"
+          },
+          "repository": {
+            "type": "string",
+            "description": "HuggingFace repository",
+            "example": "gpt2"
+          },
+          "revision": {
+            "type": "string",
+            "description": "Model commit hash, if not set the latest commit will be used",
+            "example": "6c0e6080953db56375760c0471a8c5f2929baf11"
+          },
+          "task": {
+            "$ref": "#/components/schemas/EndpointTask"
+          }
+        }
+      },
+      "EndpointModelImage": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "huggingface"
+            ],
+            "properties": {
+              "huggingface": {
+                "type": "object",
+                "description": "Model served by an Hugging Face container"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "custom"
+            ],
+            "properties": {
+              "custom": {
+                "type": "object",
+                "description": "Model served by a custom container",
+                "required": [
+                  "url"
+                ],
+                "properties": {
+                  "credentials": {
+                    "$ref": "#/components/schemas/EndpointImageCredentials"
+                  },
+                  "env": {
+                    "type": "object",
+                    "description": "Container environment variables",
+                    "additionalProperties": {
+                      "type": "string",
+                      "description": "Container environment variables"
+                    }
+                  },
+                  "health_route": {
+                    "type": "string",
+                    "description": "Container health route",
+                    "example": "/health"
+                  },
+                  "port": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Endpoint API port",
+                    "default": 80,
+                    "example": 8000
+                  },
+                  "url": {
+                    "type": "string",
+                    "description": "URL fo the container",
+                    "example": "https://host/image:tag"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "EndpointProvider": {
+        "type": "object",
+        "description": "Endpoint provider",
+        "required": [
+          "vendor",
+          "region"
+        ],
+        "properties": {
+          "region": {
+            "type": "string",
+            "description": "Provider region",
+            "example": "us-east-1"
+          },
+          "vendor": {
+            "type": "string",
+            "description": "Provider vendor",
+            "example": "aws"
+          }
+        }
+      },
+      "EndpointScaling": {
+        "type": "object",
+        "description": "Endpoint scaling",
+        "required": [
+          "minReplica",
+          "maxReplica"
+        ],
+        "properties": {
+          "maxReplica": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum number of endpoint replica",
+            "example": 8
+          },
+          "minReplica": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Minimum number of endpoint replica",
+            "example": 2
+          }
+        }
+      },
+      "EndpointScalingUpdate": {
+        "type": "object",
+        "description": "Update endpoint scaling",
+        "properties": {
+          "maxReplica": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum number of endpoint replica",
+            "example": 8
+          },
+          "minReplica": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Minimum number of endpoint replica",
+            "example": 2
+          }
+        }
+      },
+      "EndpointState": {
+        "type": "string",
+        "description": "State of the endpoint",
+        "enum": [
+          "building",
+          "initializing",
+          "updating",
+          "running",
+          "paused",
+          "failed"
+        ]
+      },
+      "EndpointStatus": {
+        "type": "object",
+        "description": "Status of the endpoint",
+        "required": [
+          "createdAt",
+          "state",
+          "message",
+          "readyReplica",
+          "targetReplica"
+        ],
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date of creation"
+          },
+          "createdBy": {
+            "$ref": "#/components/schemas/EndpointAccount"
+          },
+          "message": {
+            "type": "string",
+            "description": "Information about the state of the endpoint",
+            "example": "Endpoint is ready"
+          },
+          "private": {
+            "$ref": "#/components/schemas/EndpointStatusPrivate"
+          },
+          "readyReplica": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of replica ready to handle requests",
+            "example": 2
+          },
+          "state": {
+            "$ref": "#/components/schemas/EndpointState"
+          },
+          "targetReplica": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Target number of replica to handle requests",
+            "example": 4
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date of last update"
+          },
+          "updatedBy": {
+            "$ref": "#/components/schemas/EndpointAccount"
+          },
+          "url": {
+            "type": "string",
+            "description": "Number of replica ready to handle requests",
+            "example": "https://endpoint-id.region.vendor.endpoints.huggingface.cloud"
+          }
+        }
+      },
+      "EndpointStatusPrivate": {
+        "type": "object",
+        "description": "Status of a private endpoint",
+        "properties": {
+          "serviceName": {
+            "type": "string",
+            "description": "VPC service name used to add the private link"
+          }
+        }
+      },
+      "EndpointTask": {
+        "type": "string",
+        "enum": [
+          "text-classification",
+          "zero-shot-classification",
+          "token-classification",
+          "question-answering",
+          "fill-mask",
+          "summarization",
+          "translation",
+          "text2text-generation",
+          "text-generation",
+          "feature-extraction",
+          "image-classification",
+          "automatic-speech-recognition",
+          "audio-classification",
+          "object-detection",
+          "image-segmentation",
+          "table-question-answering",
+          "conversational",
+          "sentence-similarity",
+          "sentence-embeddings",
+          "sentence-ranking",
+          "text-to-image",
+          "custom"
+        ]
+      },
+      "EndpointType": {
+        "type": "string",
+        "description": "Endpoint type. Public mean , private mean accessible only via a VPC",
+        "enum": [
+          "public",
+          "protected",
+          "private"
+        ]
+      },
+      "EndpointUpdate": {
+        "type": "object",
+        "description": "Update an endpoint",
+        "properties": {
+          "compute": {
+            "$ref": "#/components/schemas/EndpointComputeUpdate"
+          }
+        }
+      },
+      "EndpointWithStatus": {
+        "type": "object",
+        "description": "Endpoint with its status",
+        "required": [
+          "name",
+          "type",
+          "provider",
+          "compute",
+          "model",
+          "status"
+        ],
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "description": "Account ID used to link a VPC to a private endpoint"
+          },
+          "compute": {
+            "$ref": "#/components/schemas/EndpointCompute"
+          },
+          "model": {
+            "$ref": "#/components/schemas/EndpointModel"
+          },
+          "name": {
+            "type": "string",
+            "description": "Endpoint name. Must only contains lowercase alphanumeric characters or '-' and have a length of 32 characters maximum",
+            "example": "my-endpoint"
+          },
+          "provider": {
+            "$ref": "#/components/schemas/EndpointProvider"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EndpointStatus"
+          },
+          "type": {
+            "$ref": "#/components/schemas/EndpointType"
+          }
+        }
+      },
+      "EndpointWithStatusList": {
+        "type": "object",
+        "description": "List of endpoints with their statuses",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EndpointWithStatus"
+            }
+          }
+        }
+      },
+      "Region": {
+        "type": "object",
+        "description": "Provider vendor region",
+        "required": [
+          "region",
+          "label",
+          "status"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "example": "N. Virginia"
+          },
+          "region": {
+            "type": "string",
+            "description": "Region name",
+            "example": "us-east-1"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          }
+        }
+      },
+      "RegionList": {
+        "type": "object",
+        "description": "List of vendor regions",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Region"
+            }
+          }
+        }
+      },
+      "Status": {
+        "type": "string",
+        "description": "Resource status",
+        "enum": [
+          "available",
+          "notAvailable"
+        ]
+      },
+      "Vendor": {
+        "type": "object",
+        "description": "Provider vendor",
+        "required": [
+          "vendor",
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "vendor": {
+            "type": "string",
+            "example": "aws"
+          }
+        }
+      },
+      "VendorList": {
+        "type": "object",
+        "description": "List of provider vendors",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Vendor"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "token": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "HF Endpoints",
+      "description": "Hugging Face models deployed on multiple cloud providers and regions"
+    }
+  ]
+}
