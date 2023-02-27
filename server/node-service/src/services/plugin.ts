@@ -137,7 +137,6 @@ export function getPluginContext(req: Request): PluginContext {
 async function getQueryConfig(plugin: DataSourcePlugin, dataSourceConfig: any = {}) {
   if (typeof plugin.queryConfig === "function") {
     const ret = await plugin.queryConfig(dataSourceConfig);
-    console.info(ret);
     return ret;
   }
   return plugin.queryConfig;

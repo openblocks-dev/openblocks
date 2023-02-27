@@ -1,0 +1,695 @@
+openapi: 3.0.0
+info:
+  title: Upload API
+  description: >-
+    The [Upload
+    API](https://cloudinary.com/documentation/image_upload_api_reference) is a
+    **rate-unlimited** API that enables you to upload your media assets
+    (resources) and provides a wide range of functionality, including basic and
+    advanced asset management, metadata management, and asset generation.
+  version: 1.0.0
+servers:
+  - url: https://api.cloudinary.com
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+security:
+  - basicAuth: []
+tags:
+  - name: Context
+  - name: Create Collage
+  - name: Destroy
+  - name: Download Backup
+  - name: Explicit
+  - name: Explode
+  - name: Generate Animated Image
+  - name: Generate Archive
+  - name: Generate Slideshow
+  - name: Generate Sprite
+  - name: Generate Video
+  - name: Rename
+  - name: Tags
+  - name: Text
+  - name: Upload
+paths:
+  /v1_1/{cloud_name}/{resource_type}/context:
+    post:
+      tags:
+        - Context
+      summary: Remove Context
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                signature:
+                  type: string
+                  example: '{{signature}}'
+                api_key:
+                  type: string
+                  example: '{{api_key}}'
+                timestamp:
+                  type: string
+                  example: '{{$timestamp}}'
+                command:
+                  type: string
+                  example: remove_all
+                public_ids[]:
+                  type: string
+                  example: emb-3
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/image/create_collage:
+    post:
+      tags:
+        - Create Collage
+      summary: Create Collage Custom Template - Query
+      requestBody:
+        content: {}
+      parameters:
+        - name: public_id
+          in: query
+          schema:
+            type: string
+          example: collage_template_square
+        - name: resource_type
+          in: query
+          schema:
+            type: string
+          example: image
+        - name: upload_preset
+          in: query
+          schema:
+            type: string
+          example: unsigned_for_image_collage
+        - name: manifest_json
+          in: query
+          schema:
+            type: string
+          example: >-
+            {"template": [[1,2,3],[4,5,6],[7,8,9]],"width": 500,"height":
+            500,"columns": 3, "rows": 3,"spacing": 1,"color":
+            "blue","assetDefaults": { "kind": "upload", "crop": "fill",
+            "gravity": "center"},"assets": [{ "media": "docs/sample" },{
+            "media": "docs/sample1" },{ "media": "docs/sample2"},{ "media":
+            "docs/sample3" },{ "media": "docs/sample4" },{ "media":
+            "docs/sample5" },{ "media": "docs/sample6"},{ "media":
+            "docs/sample8" },{ "media": "docs/sample8"}] }
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/{resource_type}/destroy:
+    post:
+      tags:
+        - Destroy
+      summary: Delete File
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                public_id:
+                  type: string
+                  example: <yourPublicId>
+                signature:
+                  type: string
+                  example: '{{signature}}'
+                api_key:
+                  type: string
+                  example: '{{api_key}}'
+                timestamp:
+                  type: string
+                  example: '{{$timestamp}}'
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/download_backup:
+    get:
+      tags:
+        - Download Backup
+      summary: Download Backup
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/image/explicit:
+    post:
+      tags:
+        - Explicit
+      summary: Update Tags
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                public_id:
+                  type: string
+                  example: <myPublicId>
+                type:
+                  type: string
+                  example: upload
+                signature:
+                  type: string
+                  example: '{{signature}}'
+                api_key:
+                  type: string
+                  example: '{{api_key}}'
+                timestamp:
+                  type: string
+                  example: '{{$timestamp}}'
+                tags:
+                  type: string
+                  example: <myTags>
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/{resource_type}/explode:
+    post:
+      tags:
+        - Explode
+      summary: Explode PDF
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                signature:
+                  type: string
+                  example: '{{signature}}'
+                api_key:
+                  type: string
+                  example: '{{api_key}}'
+                timestamp:
+                  type: string
+                  example: '{{$timestamp}}'
+                public_id:
+                  type: string
+                  example: <yourPublicId>
+                transformation:
+                  type: string
+                  example: pg_all
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/{resource_type}/multi:
+    post:
+      tags:
+        - Generate Animated Image
+      summary: Generate Animated Image By URLs
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                signature:
+                  type: string
+                  example: '{{signature}}'
+                api_key:
+                  type: string
+                  example: '{{api_key}}'
+                timestamp:
+                  type: string
+                  example: '{{$timestamp}}'
+                urls[]:
+                  type: string
+                  example: <yourImageURL2>
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/{resource_type}/generate_archive:
+    post:
+      tags:
+        - Generate Archive
+      summary: Generate Archive From Folder
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                signature:
+                  type: string
+                  example: '{{signature}}'
+                api_key:
+                  type: string
+                  example: '{{api_key}}'
+                timestamp:
+                  type: string
+                  example: '{{$timestamp}}'
+                prefixes:
+                  type: string
+                  example: <yourFolder>
+                target_public_id:
+                  type: string
+                  example: <yourTargetPublicId>
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/video/create_slideshow:
+    post:
+      tags:
+        - Generate Slideshow
+      summary: Create Slideshow -  Query
+      requestBody:
+        content: {}
+      parameters:
+        - name: public_id
+          in: query
+          schema:
+            type: string
+          example: test_slideshow12
+        - name: resource_type
+          in: query
+          schema:
+            type: string
+          example: video
+        - name: upload_preset
+          in: query
+          schema:
+            type: string
+          example: Default
+        - name: manifest_json
+          in: query
+          schema:
+            type: string
+          example: >-
+            {"w":500,"h":500,"du":8,"vars":{"sdur":3000,"tdur":1500,"slides":[{"media":"i:sample"},{"media":"i:sample"}]}}
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/{resource_type}/sprite:
+    post:
+      tags:
+        - Generate Sprite
+      summary: Generate Sprite By URLs
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                signature:
+                  type: string
+                  example: '{{signature}}'
+                api_key:
+                  type: string
+                  example: '{{api_key}}'
+                timestamp:
+                  type: string
+                  example: '{{$timestamp}}'
+                urls[]:
+                  type: string
+                  example: <yourImageURL2>
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/video/create_video:
+    post:
+      tags:
+        - Generate Video
+      summary: Create Video -  Query
+      requestBody:
+        content: {}
+      parameters:
+        - name: public_id
+          in: query
+          schema:
+            type: string
+          example: docs/video_generation/test_video5
+        - name: resource_type
+          in: query
+          schema:
+            type: string
+          example: video
+        - name: upload_preset
+          in: query
+          schema:
+            type: string
+          example: unsigned_for_video_generation
+        - name: manifest_json
+          in: query
+          schema:
+            type: string
+          example: >-
+            {"type":"video","width":1280,"height":720,"duration":10,"fps":30,"vars":{"bgColor":"#8e998a","imageUrl":"https://images.pexels.com/photos/133459/pexels-photo-133459.jpeg","sponsoredText":"ElderCare&NursingHome","titleText":"Themorewecare,themorebeautifullifebecomes.","ctaText":"Readmore"},"tracks":[{"clips":[{"color":"{{bgColor}}","type":"color"}]},{"width":920,"height":720,"x":0,"y":0,"clipDefaults":{"clipDuration":10000,"clipEffect":{"name":"KenBurns","easing":"easeinout","zoom":1.2,"center":[0.5,0.5],"direction":"backward"}},"clips":[{"media":["{{imageUrl}}","image","fetch"],"type":"image","transformation":"c_fill"}]},{"keyframes":{"0":{"y":430,"opacity":0},"2000":{"y":430,"opacity":0},"3000":{"y":470,"opacity":1}},"x":950,"width":300,"height":30,"radius":"15%","clips":[{"border":3,"borderColor":"white","type":"color"}]},{"keyframes":{"0":{"y":435,"opacity":0},"2000":{"y":435,"opacity":0},"3000":{"y":475,"opacity":1}},"x":950,"width":300,"clipDefaults":{"fontSize":20,"fontColor":"white","textMaxWidth":300,"textAlign":"center"},"clips":[{"text":"{{ctaText}}","type":"text"}]},{"x":950,"keyframes":{"0":{"y":290,"opacity":0},"1000":{"y":290,"opacity":0},"2000":{"y":280,"opacity":1}},"clipDefaults":{"fontSize":14,"fontColor":"white"},"clips":[{"text":"{{sponsoredText}}","type":"text"}]},{"x":950,"width":300,"height":300,"keyframes":{"0":{"y":290},"1000":{"y":300}},"clipDefaults":{"textAlign":"left","fontSize":32,"fontType":"Merriweather","fontColor":"white"},"clips":[{"text":"{{titleText}}","type":"textArea"}]}]}
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/{resource_type}/rename:
+    post:
+      tags:
+        - Rename
+      summary: Rename Asset
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                from_public_id:
+                  type: string
+                  example: <yourOriginalPublicId>
+                to_public_id:
+                  type: string
+                  example: <yourNewPublicId>
+                signature:
+                  type: string
+                  example: '{{signature}}'
+                api_key:
+                  type: string
+                  example: '{{api_key}}'
+                timestamp:
+                  type: string
+                  example: '{{$timestamp}}'
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/{resource_type}/tags:
+    post:
+      tags:
+        - Tags
+      summary: Replace All Tags
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                signature:
+                  type: string
+                  example: '{{signature}}'
+                api_key:
+                  type: string
+                  example: '{{api_key}}'
+                timestamp:
+                  type: string
+                  example: '{{$timestamp}}'
+                tag:
+                  type: string
+                  example: <yourTag>
+                command:
+                  type: string
+                  example: replace
+                public_ids[]:
+                  type: string
+                  example: <publicId2>
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/{resource_type}/text:
+    post:
+      tags:
+        - Text
+      summary: Generate Text Image With Custom Styling
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                signature:
+                  type: string
+                  example: '{{signature}}'
+                api_key:
+                  type: string
+                  example: '{{api_key}}'
+                timestamp:
+                  type: string
+                  example: '{{$timestamp}}'
+                text:
+                  type: string
+                  example: <yourText>
+                public_id:
+                  type: string
+                  example: <yourTargetPublicId>
+                font_family:
+                  type: string
+                  example: Roboto
+                font_size:
+                  type: integer
+                  example: '42'
+                font_color:
+                  type: string
+                  example: red
+                font_weight:
+                  type: string
+                  example: bold
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/{resource_type}/upload:
+    post:
+      tags:
+        - Upload
+      summary: Upload File - Unsigned
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                upload_preset:
+                  type: string
+                  example: <yourUploadPreset>
+                public_id:
+                  type: string
+                  example: <yourPublicId>
+                api_key:
+                  type: string
+                  example: '{{api_key}}'
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/image/upload:
+    post:
+      tags:
+        - Upload
+      summary: Upload File With Eager Transformations - Signed
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                public_id:
+                  type: string
+                  example: <yourPublicId>
+                eager:
+                  type: string
+                  example: <eagerTransformations>
+                signature:
+                  type: string
+                  example: '{{signature}}'
+                api_key:
+                  type: string
+                  example: '{{api_key}}'
+                timestamp:
+                  type: string
+                  example: '{{$timestamp}}'
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
