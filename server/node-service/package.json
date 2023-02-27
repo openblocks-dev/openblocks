@@ -7,7 +7,8 @@
   },
   "main": "src/server.ts",
   "scripts": {
-    "dev": "nodemon --files src/server.ts",
+    "dev": "nodemon src/server.ts",
+    "debug": "nodemon --inspect src/server.ts",
     "start": "node ./build/src/server.js",
     "test": "jest",
     "copy": "copyfiles -u 1 src/**/*.!(ts|test.ts) build/src",

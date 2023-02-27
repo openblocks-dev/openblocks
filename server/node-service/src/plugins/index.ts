@@ -24,6 +24,7 @@ import shopifyPlugin from "./shopify";
 import slackPlugin from "./slack";
 import supabaseStoragePlugin from "./supabaseStorage";
 import cloudinaryPlugin from "./cloudinary";
+import notionPlugin from "./notion";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   s3Plugin,
@@ -52,6 +53,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   stripePlugin,
   supabaseStoragePlugin,
   cloudinaryPlugin,
+  notionPlugin,
 ];
 
 try {

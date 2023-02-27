@@ -3,16 +3,34 @@ import fs from "fs";
 import _ from "lodash";
 import path from "path";
 import { authParamsConfig, retrieveSpec } from "../src/plugins/openApi/parse";
+import postManToOpenApi from "postman-to-openapi";
 import { program } from "commander";
 
-async function gen(name: string, specUrl: string, pluginId?: string) {
+interface Options {
+  name: string;
+  url: string;
+  postMan: boolean;
+  postManCollectionFile: string;
+  id?: string;
+}
+
+async function gen(options: Options) {
+  const { postMan, postManCollectionFile, name, url: specUrl, id: pluginId } = options;
   const id = pluginId ?? _.camelCase(name);
   const pluginDir = path.join(path.dirname(__dirname), "src/plugins", id);
   const pluginEntryFile = path.join(pluginDir, "index.ts");
   const pluginSpecYamlFile = path.join(pluginDir, `${id}.spec.yaml`);
   const pluginSpecJsonFile = path.join(pluginDir, `${id}.spec.json`);
+  const pluginDefaultCollectionFile = path.join(pluginDir, `${id}.collection.json`);
 
+  console.info();
   console.info("start generate plugin, id:", id, "name:", name);
+
+  if (postMan) {
+    console.info("is PostMan Collection start transforming...");
+    const collection = postManCollectionFile ?? pluginDefaultCollectionFile;
+    await postManToOpenApi(collection, pluginSpecYamlFile, { defaultTag: "General" });
+  }
 
   if (!fs.existsSync(pluginDir)) {
     fs.mkdirSync(pluginDir, { recursive: true });
@@ -72,6 +90,7 @@ async function gen(name: string, specUrl: string, pluginId?: string) {
   const code = compiledTemplate(data);
   fs.writeFileSync(pluginEntryFile, code);
   console.info("success generate plugin:", pluginDir);
+  console.info();
 }
 
 const plugins = [
@@ -81,14 +100,15 @@ const plugins = [
 
 program
   .option("--post-man")
+  .option("-f, --collection-file [postman collection file path]")
   .option("-n, --name <char>")
   .option("-i, --id [plugin id]")
   .option("--url [spec-download-url]");
 
 program.parse();
 
-const { name, url, postMan, pluginId } = program.opts();
+const options = program.opts<Options>();
 
-console.info();
-gen(name, url, pluginId);
-console.info();
+console.info(options);
+
+gen(options);
