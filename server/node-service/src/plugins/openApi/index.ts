@@ -12,7 +12,7 @@ import {
 } from "./util";
 import { badRequest } from "../../common/error";
 import { safeJsonParse } from "../../common/util";
-import { OpenAPI, OpenAPIV2 } from "openapi-types";
+import { OpenAPI, OpenAPIV2, OpenAPIV3 } from "openapi-types";
 import _ from "lodash";
 
 const dataSourceConfig = {
@@ -50,16 +50,31 @@ interface ActionDataType {
 export async function runOpenApi(
   actionData: ActionDataType,
   dataSourceConfig: DataSourceDataType,
-  spec: OpenAPI.Document
+  spec: OpenAPI.Document | OpenAPI.Document[]
 ) {
-  const definition = await SwaggerParser.dereference(spec);
+  const specList = Array.isArray(spec) ? spec : [spec];
+  const definitions = await Promise.all(specList.map((i) => SwaggerParser.dereference(i)));
   const { actionName, ...otherActionData } = actionData;
   const { serverURL } = dataSourceConfig;
-  const isOas3Spec = isOas3(definition);
 
+  let definition: OpenAPI.Document | undefined;
+  let operation;
+
+  for (const def of definitions) {
+    operation = findOperation(actionName, def);
+    if (operation) {
+      definition = def;
+    }
+  }
+
+  if (!operation || !definition) {
+    throw badRequest(`unknown operation: ${actionName}`);
+  }
+
+  const isOas3Spec = isOas3(definition);
   if (serverURL) {
     if (isOas3Spec) {
-      replaceServersUrl(definition, serverURL);
+      replaceServersUrl(definition as OpenAPIV3.Document, serverURL);
     } else {
       const swaggerDoc = definition as OpenAPIV2.Document;
       const { host, pathname, schema } = parseUrl(serverURL);
@@ -67,11 +82,6 @@ export async function runOpenApi(
       swaggerDoc.basePath = pathname || swaggerDoc.basePath;
       swaggerDoc.schemes = [schema];
     }
-  }
-
-  const operation = findOperation(actionName, definition);
-  if (!operation) {
-    throw badRequest(`unknown operation: ${actionName}`);
   }
 
   try {
@@ -90,6 +100,7 @@ export async function runOpenApi(
           duplex: "half",
           headers: _.omitBy(req.headers, (i) => !i),
         };
+        console.info(ret);
         return ret;
       },
     });
