@@ -100,6 +100,7 @@ export async function runOpenApi(
           duplex: "half",
           headers: _.omitBy(req.headers, (i) => !i),
         };
+        console.info(ret);
         return ret;
       },
     });
