@@ -3,6 +3,7 @@ import url from "url";
 import { File } from "formdata-node";
 import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
 import swaggerClient from "swagger-client";
+import { ActionCategory } from "openblocks-sdk/dataSource";
 
 export const MediaTypeOctetStream = "application/octet-stream";
 export const MediaTypeUrlEncoded = "application/x-www-form-urlencoded";
@@ -343,4 +344,15 @@ export function parseUrl(target: string) {
     host,
     schema: protocol?.replace(/\W/g, "") || "https",
   };
+}
+
+export function mergeCategories(a: ActionCategory[], b: ActionCategory[]) {
+  const ret = [...a];
+  b.forEach((i) => {
+    if (ret.find((j) => i.value === j.value)) {
+      return;
+    }
+    ret.push(i);
+  });
+  return ret;
 }

@@ -23,6 +23,7 @@ import sendGridPlugin from "./sendGrid";
 import shopifyPlugin from "./shopify";
 import slackPlugin from "./slack";
 import supabaseStoragePlugin from "./supabaseStorage";
+import cloudinaryPlugin from "./cloudinary";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   s3Plugin,
@@ -50,6 +51,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   slackPlugin,
   stripePlugin,
   supabaseStoragePlugin,
+  cloudinaryPlugin,
 ];
 
 try {

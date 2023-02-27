@@ -1,0 +1,1174 @@
+openapi: 3.0.0
+info:
+  title: Admin API
+  description: >-
+    The [Admin API](https://cloudinary.com/documentation/admin_api) is a
+    rate-limited API that provides full control of all uploaded media assets
+    (resources), fetched social profile pictures, generated transformations and
+    more.
+  version: 1.0.0
+servers:
+  - url: https://api.cloudinary.com
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+security:
+  - basicAuth: []
+tags:
+  - name: Folders
+  - name: Metadata
+  - name: Ping
+  - name: Resources
+  - name: Streaming Profiles
+  - name: Tags
+  - name: Transformations
+  - name: Upload Mappings
+  - name: Upload Presets
+  - name: Usage
+paths:
+  /v1_1/{cloud_name}/folders:
+    get:
+      tags:
+        - Folders
+      summary: Get Folders
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/folders/{folder}:
+    post:
+      tags:
+        - Folders
+      summary: Create Folder
+      requestBody:
+        content: {}
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: folder
+          in: path
+          schema:
+            type: string
+          required: true
+          example: new_test_folder
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - Folders
+      summary: Get Folder
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: folder
+          in: path
+          schema:
+            type: string
+          required: true
+          example: new_test_folder
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - Folders
+      summary: Delete Folder
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: folder
+          in: path
+          schema:
+            type: string
+          required: true
+          example: new_test_folder
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/metadata_fields:
+    get:
+      tags:
+        - Metadata
+      summary: Get Metadata Fields
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - Metadata
+      summary: Create Metadata Field
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                external_id: my_metadata
+                label: My Metadata
+                type: set
+                mandatory: "true"
+                default_value:
+                  - value1
+                  - value2
+                datasource:
+                  values:
+                    - external_id: value1
+                      value: value1
+                    - external_id: value2
+                      value: value2
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/metadata_fields/{external_id}:
+    get:
+      tags:
+        - Metadata
+      summary: Get Metadata Field
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: external_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: my_metadata
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - Metadata
+      summary: Update Metadata Field
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                external_id: my_metadata
+                label: My Metadata Updated
+                type: set
+                mandatory: "false"
+                default_value:
+                  - value1
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: external_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: my_metadata
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - Metadata
+      summary: Delete Metadata Field
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: external_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: my_metadata
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/metadata_fields/{external_id}/datasource:
+    put:
+      tags:
+        - Metadata
+      summary: Update Metadata Field Datasource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                values:
+                  - external_id: value1
+                    value: new_value1
+                  - external_id: value2
+                    value: new_value2
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: external_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: my_metadata
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - Metadata
+      summary: Delete Entries in Metadata Field Datasource
+      parameters:
+        - name: external_ids[]
+          in: query
+          schema:
+            type: string
+          example: value2
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: external_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: my_metadata
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/metadata_fields/{external_id}/datasource_restore:
+    post:
+      tags:
+        - Metadata
+      summary: Restore Entries in Metadata Field Datasource
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+      parameters:
+        - name: external_ids[]
+          in: query
+          schema:
+            type: string
+          example: value2
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: external_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: my_metadata
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/ping:
+    get:
+      tags:
+        - Ping
+      summary: Ping Servers
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/resources/{resource_type}:
+    get:
+      tags:
+        - Resources
+      summary: Get Resources
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/resources/{resource_type}/tags/{tag}:
+    get:
+      tags:
+        - Resources
+      summary: Get Resources By Tag
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+        - name: tag
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <yourTag>
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/resources/{resource_type}/upload/{publicId}:
+    get:
+      tags:
+        - Resources
+      summary: Get Resources By PublicId
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+        - name: publicId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <yourPublicId>
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - Resources
+      summary: Update Resource
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                tags:
+                  type: string
+                  example: <yourTags>
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+        - name: publicId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <yourPublicId>
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/resources/{resource_type}/context:
+    get:
+      tags:
+        - Resources
+      summary: Get Resources By Context
+      parameters:
+        - name: key
+          in: query
+          schema:
+            type: string
+          example: my_context_key
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/resources/{resource_type}/moderations/{moderation_kind}/{status}:
+    get:
+      tags:
+        - Resources
+      summary: Get Resource in Moderation Queue
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+        - name: moderation_kind
+          in: path
+          schema:
+            type: string
+          required: true
+          example: manual
+        - name: status
+          in: path
+          schema:
+            type: string
+          required: true
+          example: approved
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/resources/{resource_type}/{type}/{public_id}:
+    get:
+      tags:
+        - Resources
+      summary: Get Details of a Single Resource
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+        - name: type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: upload
+        - name: public_id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/resources/{resource_type}/upload/update_access_mode:
+    post:
+      tags:
+        - Resources
+      summary: Update Access Mode
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                access_mode:
+                  type: string
+                  example: public
+                public_ids[]:
+                  type: string
+                  example: <yourPublicId2>
+                "":
+                  type: string
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/resources/{resource_type}/upload/restore:
+    post:
+      tags:
+        - Resources
+      summary: Restore Resources
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                public_ids[]:
+                  type: string
+                  example: <yourPublicId2>
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/resources/{resource_type}/upload/:
+    delete:
+      tags:
+        - Resources
+      summary: Delete Derived Resources
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/streaming_profiles:
+    get:
+      tags:
+        - Streaming Profiles
+      summary: Get Profiles
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/streaming_profiles/:
+    post:
+      tags:
+        - Streaming Profiles
+      summary: Create Profile
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: my_profile
+                display_name:
+                  type: string
+                  example: My Profile
+                representations:
+                  type: string
+                  example: >-
+                    [{"transformation":
+                    "c_limit,w_900,h_900,br_3500k"},{"transformation":
+                    "c_limit,w_600,h_600,br_1500k"}]
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/streaming_profiles/{name}:
+    get:
+      tags:
+        - Streaming Profiles
+      summary: Get Profile
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: name
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 4k
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - Streaming Profiles
+      summary: Update Profile
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                display_name:
+                  type: string
+                  example: My Profile Updated
+                representations:
+                  type: string
+                  example: >-
+                    [{"transformation":
+                    "c_limit,w_1200,h_1200,br_3500k"},{"transformation":
+                    "c_limit,w_600,h_600,br_1500k"}]
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: name
+          in: path
+          schema:
+            type: string
+          required: true
+          example: my_profile
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - Streaming Profiles
+      summary: Delete or Revert Profile
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: name
+          in: path
+          schema:
+            type: string
+          required: true
+          example: my_profile
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/tags/{resource_type}:
+    get:
+      tags:
+        - Tags
+      summary: Get Tags by Prefix
+      parameters:
+        - name: prefix
+          in: query
+          schema:
+            type: string
+          example: a
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: resource_type
+          in: path
+          schema:
+            type: string
+          required: true
+          example: image
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/transformations:
+    get:
+      tags:
+        - Transformations
+      summary: Get Named Transformations
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/transformations/{name}:
+    post:
+      tags:
+        - Transformations
+      summary: Create Transformation
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                transformation:
+                  type: string
+                  example: c_scale,w_500/e_sepia
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: name
+          in: path
+          schema:
+            type: string
+          required: true
+          example: sample_transformation
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/transformations/{transformation}:
+    get:
+      tags:
+        - Transformations
+      summary: Get Transformation
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: transformation
+          in: path
+          schema:
+            type: string
+          required: true
+          example: sample_transformation
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - Transformations
+      summary: Update Transformation
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                unsafe_update:
+                  type: string
+                  example: w_700
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: transformation
+          in: path
+          schema:
+            type: string
+          required: true
+          example: sample_transformation
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - Transformations
+      summary: Delete Transformation
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: transformation
+          in: path
+          schema:
+            type: string
+          required: true
+          example: sample_transformation
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/upload_mappings:
+    get:
+      tags:
+        - Upload Mappings
+      summary: Get Upload Mappings
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/upload_mappings/:
+    post:
+      tags:
+        - Upload Mappings
+      summary: Create Upload Mapping
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                folder:
+                  type: string
+                  example: my_map
+                template:
+                  type: string
+                  example: https://www.example.com/images/
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - Upload Mappings
+      summary: Get Upload Mapping
+      parameters:
+        - name: folder
+          in: query
+          schema:
+            type: string
+          example: my_map
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - Upload Mappings
+      summary: Update Upload Mapping
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                folder:
+                  type: string
+                  example: my_map
+                template:
+                  type: string
+                  example: https://www.example.com/videos/
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - Upload Mappings
+      summary: Delete Upload Mapping
+      parameters:
+        - name: folder
+          in: query
+          schema:
+            type: string
+          example: my_map
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/upload_presets:
+    get:
+      tags:
+        - Upload Presets
+      summary: Get Upload Presets
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/upload_presets/:
+    post:
+      tags:
+        - Upload Presets
+      summary: Create Upload Preset
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: my_preset
+                unsigned:
+                  type: boolean
+                  example: "true"
+                tags:
+                  type: string
+                  example: remote
+                allowed_formats:
+                  type: string
+                  example: jpg,png
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/upload_presets/{preset}:
+    get:
+      tags:
+        - Upload Presets
+      summary: Get Upload Preset
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: preset
+          in: path
+          schema:
+            type: string
+          required: true
+          example: my_preset
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - Upload Presets
+      summary: Update Upload Preset
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                unsigned:
+                  type: boolean
+                  example: "true"
+                tags:
+                  type: string
+                  example: remote
+                allowed_formats:
+                  type: string
+                  example: jpg,png,webp
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: preset
+          in: path
+          schema:
+            type: string
+          required: true
+          example: my_preset
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - Upload Presets
+      summary: Delete Upload Preset
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: preset
+          in: path
+          schema:
+            type: string
+          required: true
+          example: my_preset
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /v1_1/{cloud_name}/usage:
+    get:
+      tags:
+        - Usage
+      summary: Get Usage
+      parameters:
+        - name: cloud_name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
