@@ -115,12 +115,13 @@ export async function authParamsConfig(spec: OpenAPI.Document): Promise<DataSour
         configs.push(title, ...apiKeyAuthConfig(authName, schema));
       }
       if (schema.type === "http") {
-        const title = { ...groupTitle, label: "HTTP Basic Auth" };
         if (/^basic$/i.test(schema.scheme)) {
-          configs.push(...basicAuthConfig(authName, schema));
+          const title = { ...groupTitle, label: "HTTP Basic Auth" };
+          configs.push(title, ...basicAuthConfig(authName, schema));
         }
         if (/^bearer$/i.test(schema.scheme)) {
-          configs.push(...bearerBasicAuthConfig(authName, schema));
+          const title = { ...groupTitle, label: "Api Token Auth" };
+          configs.push(title, ...bearerBasicAuthConfig(authName, schema));
         }
       }
       if (schema.type === "oauth2") {

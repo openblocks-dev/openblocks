@@ -33,7 +33,7 @@ type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
 
 const openAiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "OpenAI",
-  name: "OpenAI",
+  name: "Open AI",
   icon: "openAI.svg",
   category: "api",
   dataSourceConfig,

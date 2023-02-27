@@ -107,7 +107,7 @@ export async function runOpenApi(
 
 const openApiPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
   id: "openApi",
-  name: "OpenApi",
+  name: "Open API",
   icon: "swagger.svg",
   category: "api",
   dataSourceConfig: {

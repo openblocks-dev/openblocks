@@ -1,0 +1,842 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Twilio SendGrid v3 API",
+        "description": "The Twilio SendGrid v3 API provides a simple, intuitive RESTful-like interface for sending email at scale, monitoring email engagement data programmatically, managing account settings, and more. This OpenAPI representation of the Twilio SendGrid v3 API allows you to generate helper libraries (in addition to the libraries officially released by Twilio SendGrid) and build mock servers for testing.",
+        "termsOfService": "https://www.twilio.com/legal/tos",
+        "contact": {
+            "name": "Twilio SendGrid Support",
+            "url": "https://support.sendgrid.com/hc/en-us"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://github.com/sendgrid/sendgrid-oai/blob/main/LICENSE"
+        },
+        "version": "1.8.1"
+    },
+    "servers": [
+        {
+            "url": "https://api.sendgrid.com",
+            "description": "The Twilio SendGrid Production API."
+        }
+    ],
+    "paths": {
+        "/v3/mail/send": {
+            "$ref": "./spec/paths/mail_send/mail_send.json#/mail_send"
+        },
+        "/v3/api_keys": {
+            "$ref": "./spec/paths/security/api_keys.json#/api_keys"
+        },
+        "/v3/api_keys/{api_key_id}": {
+            "$ref": "./spec/paths/security/api_keys.json#/api_keys_{api_key_id}"
+        },
+        "/v3/scopes": {
+            "$ref": "./spec/paths/security/api_keys.json#/scopes"
+        },
+        "/v3/user/settings/enforced_tls": {
+            "$ref": "./spec/paths/security/settings.json#/user_settings_enforced_tls"
+        },
+        "/v3/access_settings/whitelist": {
+            "$ref": "./spec/paths/security/ip_access_management.json#/access_settings_whitelist"
+        },
+        "/v3/access_settings/activity": {
+            "$ref": "./spec/paths/security/ip_access_management.json#/access_settings_activity"
+        },
+        "/v3/access_settings/whitelist/{rule_id}": {
+            "$ref": "./spec/paths/security/ip_access_management.json#/access_settings_whitelist_{rule_id}"
+        },
+        "/v3/sso/certificates": {
+            "$ref": "./spec/paths/single_sign_on/certificates.json#/sso_certificates"
+        },
+        "/v3/sso/integrations/{integration_id}/certificates": {
+            "$ref": "./spec/paths/single_sign_on/certificates.json#/sso_integrations_{integration_id}_certificates"
+        },
+        "/v3/sso/certificates/{cert_id}": {
+            "$ref": "./spec/paths/single_sign_on/certificates.json#/sso_certificates_{cert_id}"
+        },
+        "/v3/sso/integrations": {
+            "$ref": "./spec/paths/single_sign_on/settings.json#/sso_integrations"
+        },
+        "/v3/sso/integrations/{id}": {
+            "$ref": "./spec/paths/single_sign_on/settings.json#/sso_integrations_{id}"
+        },
+        "/v3/sso/teammates": {
+            "$ref": "./spec/paths/single_sign_on/teammates.json#/sso_teammates"
+        },
+        "/v3/sso/teammates/{username}": {
+            "$ref": "./spec/paths/single_sign_on/teammates.json#/sso_teammates_{username}"
+        },
+        "/v3/whitelabel/links": {
+            "$ref": "./spec/paths/deliverability/link_branding.json#/whitelabel_links"
+        },
+        "/v3/whitelabel/links/{id}/validate": {
+            "$ref": "./spec/paths/deliverability/link_branding.json#/whitelabel_links_{id}_validate"
+        },
+        "/v3/whitelabel/links/{link_id}/subuser": {
+            "$ref": "./spec/paths/deliverability/link_branding.json#/whitelabel_links_{link_id}_subuser"
+        },
+        "/v3/whitelabel/links/{id}": {
+            "$ref": "./spec/paths/deliverability/link_branding.json#/whitelabel_links_{id}"
+        },
+        "/v3/whitelabel/links/default": {
+            "$ref": "./spec/paths/deliverability/link_branding.json#/whitelabel_links_default"
+        },
+        "/v3/whitelabel/links/subuser": {
+            "$ref": "./spec/paths/deliverability/link_branding.json#/whitelabel_links_subuser"
+        },
+        "/v3/ips/warmup": {
+            "$ref": "./spec/paths/deliverability/ip_warmup.json#/ips_warmup"
+        },
+        "/v3/ips/warmup/{ip_address}": {
+            "$ref": "./spec/paths/deliverability/ip_warmup.json#/ips_warmup_{ip_address}"
+        },
+        "/v3/whitelabel/ips": {
+            "$ref": "./spec/paths/deliverability/reverse_dns.json#/whitelabel_ips"
+        },
+        "/v3/whitelabel/ips/{id}/validate": {
+            "$ref": "./spec/paths/deliverability/reverse_dns.json#/whitelabel_ips_{id}_validate"
+        },
+        "/v3/whitelabel/ips/{id}": {
+            "$ref": "./spec/paths/deliverability/reverse_dns.json#/whitelabel_ips_{id}"
+        },
+        "/v3/validations/email": {
+            "$ref": "./spec/paths/deliverability/email_address_validation.json#/validations_email"
+        },
+        "/v3/whitelabel/dns/email": {
+            "$ref": "./spec/paths/deliverability/email_cname_records.json#/whitelabel_dns_email"
+        },
+        "/v3/ips/pools": {
+            "$ref": "./spec/paths/deliverability/ip_pools.json#/ips_pools"
+        },
+        "/v3/ips/pools/{pool_name}/ips": {
+            "$ref": "./spec/paths/deliverability/ip_pools.json#/ips_pools_{pool_name}_ips"
+        },
+        "/v3/ips/pools/{pool_name}": {
+            "$ref": "./spec/paths/deliverability/ip_pools.json#/ips_pools_{pool_name}"
+        },
+        "/v3/ips/pools/{pool_name}/ips/{ip}": {
+            "$ref": "./spec/paths/deliverability/ip_pools.json#/ips_pools_{pool_name}_ips_{ip}"
+        },
+        "/v3/ips": {
+            "$ref": "./spec/paths/deliverability/ip_address.json#/ips"
+        },
+        "/v3/ips/remaining": {
+            "$ref": "./spec/paths/deliverability/ip_address.json#/ips_remaining"
+        },
+        "/v3/ips/assigned": {
+            "$ref": "./spec/paths/deliverability/ip_address.json#/ips_assigned"
+        },
+        "/v3/ips/{ip_address}": {
+            "$ref": "./spec/paths/deliverability/ip_address.json#/ips_{ip_address}"
+        },
+        "/v3/mail_settings": {
+            "$ref": "./spec/paths/settings/mail.json#/mail_settings"
+        },
+        "/v3/mail_settings/address_whitelist": {
+            "$ref": "./spec/paths/settings/mail.json#/mail_settings_address_whitelist"
+        },
+        "/v3/mail_settings/footer": {
+            "$ref": "./spec/paths/settings/mail.json#/mail_settings_footer"
+        },
+        "/v3/mail_settings/forward_spam": {
+            "$ref": "./spec/paths/settings/mail.json#/mail_settings_forward_spam"
+        },
+        "/v3/mail_settings/template": {
+            "$ref": "./spec/paths/settings/mail.json#/mail_settings_template"
+        },
+        "/v3/mail_settings/bounce_purge": {
+            "$ref": "./spec/paths/settings/mail.json#/mail_settings_bounce_purge"
+        },
+        "/v3/mail_settings/forward_bounce": {
+            "$ref": "./spec/paths/settings/mail.json#/mail_settings_forward_bounce"
+        },
+        "/v3/partner_settings/new_relic": {
+            "$ref": "./spec/paths/settings/partner.json#/partner_settings_new_relic"
+        },
+        "/v3/partner_settings": {
+            "$ref": "./spec/paths/settings/partner.json#/partner_settings"
+        },
+        "/v3/teammates": {
+            "$ref": "./spec/paths/settings/teammate.json#/teammates"
+        },
+        "/v3/teammates/pending/{token}/resend": {
+            "$ref": "./spec/paths/settings/teammate.json#/teammates_pending_{token}_resend"
+        },
+        "/v3/scopes/requests": {
+            "$ref": "./spec/paths/settings/teammate.json#/scopes_requests"
+        },
+        "/v3/teammates/pending": {
+            "$ref": "./spec/paths/settings/teammate.json#/teammates_pending"
+        },
+        "/v3/teammates/{username}": {
+            "$ref": "./spec/paths/settings/teammate.json#/teammates_{username}"
+        },
+        "/v3/scopes/requests/{request_id}/approve": {
+            "$ref": "./spec/paths/settings/teammate.json#/scopes_requests_{request_id}_approve"
+        },
+        "/v3/scopes/requests/{request_id}": {
+            "$ref": "./spec/paths/settings/teammate.json#/scopes_requests_{request_id}"
+        },
+        "/v3/teammates/pending/{token}": {
+            "$ref": "./spec/paths/settings/teammate.json#/teammates_pending_{token}"
+        },
+        "/v3/alerts": {
+            "$ref": "./spec/paths/settings/alerts.json#/alerts"
+        },
+        "/v3/alerts/{alert_id}": {
+            "$ref": "./spec/paths/settings/alerts.json#/alerts_{alert_id}"
+        },
+        "/v3/user/profile": {
+            "$ref": "./spec/paths/settings/alerts.json#/user_profile"
+        },
+        "/v3/user/account": {
+            "$ref": "./spec/paths/settings/alerts.json#/user_account"
+        },
+        "/v3/user/email": {
+            "$ref": "./spec/paths/settings/alerts.json#/user_email"
+        },
+        "/v3/user/username": {
+            "$ref": "./spec/paths/settings/alerts.json#/user_username"
+        },
+        "/v3/user/credits": {
+            "$ref": "./spec/paths/settings/alerts.json#/user_credits"
+        },
+        "/v3/user/password": {
+            "$ref": "./spec/paths/settings/alerts.json#/user_password"
+        },
+        "/v3/subusers": {
+            "$ref": "./spec/paths/settings/subusers_api.json#/subusers"
+        },
+        "/v3/subusers/{subuser_name}": {
+            "$ref": "./spec/paths/settings/subusers_api.json#/subusers_{subuser_name}"
+        },
+        "/v3/subusers/reputations": {
+            "$ref": "./spec/paths/settings/subusers_api.json#/subusers_reputations"
+        },
+        "/v3/subusers/{subuser_name}/ips": {
+            "$ref": "./spec/paths/settings/subusers_api.json#/subusers_{subuser_name}_ips"
+        },
+        "/v3/subusers/{subuser_name}/monitor": {
+            "$ref": "./spec/paths/settings/subuser_monitor_settings.json#/subusers_{subuser_name}_monitor"
+        },
+        "/v3/subusers/{subuser_name}/stats/monthly": {
+            "$ref": "./spec/paths/settings/subuser_statistics.json#/subusers_{subuser_name}_stats_monthly"
+        },
+        "/v3/subusers/stats/monthly": {
+            "$ref": "./spec/paths/settings/subuser_statistics.json#/subusers_stats_monthly"
+        },
+        "/v3/subusers/stats/sums": {
+            "$ref": "./spec/paths/settings/subuser_statistics.json#/subusers_stats_sums"
+        },
+        "/v3/subusers/stats": {
+            "$ref": "./spec/paths/settings/subuser_statistics.json#/subusers_stats"
+        },
+        "/v3/whitelabel/domains": {
+            "$ref": "./spec/paths/sender_verification/domain_authentication.json#/whitelabel_domains"
+        },
+        "/v3/whitelabel/domains/{domain_id}": {
+            "$ref": "./spec/paths/sender_verification/domain_authentication.json#/whitelabel_domains_{domain_id}"
+        },
+        "/v3/whitelabel/domains/default": {
+            "$ref": "./spec/paths/sender_verification/domain_authentication.json#/whitelabel_domains_default"
+        },
+        "/v3/whitelabel/domains/{id}/ips": {
+            "$ref": "./spec/paths/sender_verification/domain_authentication.json#/whitelabel_domains_{id}_ips"
+        },
+        "/v3/whitelabel/domains/{id}/ips/{ip}": {
+            "$ref": "./spec/paths/sender_verification/domain_authentication.json#/whitelabel_domains_{id}_ips_{ip}"
+        },
+        "/v3/whitelabel/domains/{id}/validate": {
+            "$ref": "./spec/paths/sender_verification/domain_authentication.json#/whitelabel_domains_{id}_validate"
+        },
+        "/v3/whitelabel/domains/subuser": {
+            "$ref": "./spec/paths/sender_verification/domain_authentication.json#/whitelabel_domains_subuser"
+        },
+        "/v3/whitelabel/domains/{domain_id}/subuser": {
+            "$ref": "./spec/paths/sender_verification/domain_authentication.json#/whitelabel_domains_{domain_id}_subuser"
+        },
+        "/v3/verified_senders/domains": {
+            "$ref": "./spec/paths/sender_verification/sender_verification.json#/verified_senders_domains"
+        },
+        "/v3/verified_senders/steps_completed": {
+            "$ref": "./spec/paths/sender_verification/sender_verification.json#/verified_senders_steps_completed"
+        },
+        "/v3/verified_senders/verify/{token}": {
+            "$ref": "./spec/paths/sender_verification/sender_verification.json#/verified_senders_verify_{token}"
+        },
+        "/v3/verified_senders/{id}": {
+            "$ref": "./spec/paths/sender_verification/sender_verification.json#/verified_senders_{id}"
+        },
+        "/v3/verified_senders": {
+            "$ref": "./spec/paths/sender_verification/sender_verification.json#/verified_senders"
+        },
+        "/v3/verified_senders/resend/{id}": {
+            "$ref": "./spec/paths/sender_verification/sender_verification.json#/verified_senders_resend_{id}"
+        },
+        "/v3/designs": {
+            "$ref": "./spec/paths/design_library/designs_api.json#/designs"
+        },
+        "/v3/designs/{id}": {
+            "$ref": "./spec/paths/design_library/designs_api.json#/designs_{id}"
+        },
+        "/v3/designs/pre-builts": {
+            "$ref": "./spec/paths/design_library/designs_api.json#/designs_pre-builts"
+        },
+        "/v3/designs/pre-builts/{id}": {
+            "$ref": "./spec/paths/design_library/designs_api.json#/designs_pre-builts_{id}"
+        },
+        "/v3/marketing/contacts": {
+            "$ref": "./spec/paths/new_marketing_campaigns/contacts.json#/marketing_contacts"
+        },
+        "/v3/marketing/contacts/count": {
+            "$ref": "./spec/paths/new_marketing_campaigns/contacts.json#/marketing_contacts_count"
+        },
+        "/v3/marketing/contacts/{id}": {
+            "$ref": "./spec/paths/new_marketing_campaigns/contacts.json#/marketing_contacts_{id}"
+        },
+        "/v3/marketing/contacts/search": {
+            "$ref": "./spec/paths/new_marketing_campaigns/contacts.json#/marketing_contacts_search"
+        },
+        "/v3/marketing/contacts/imports": {
+            "$ref": "./spec/paths/new_marketing_campaigns/contacts.json#/marketing_contacts_imports"
+        },
+        "/v3/marketing/contacts/imports/{id}": {
+            "$ref": "./spec/paths/new_marketing_campaigns/contacts.json#/marketing_contacts_imports_{id}"
+        },
+        "/v3/marketing/contacts/exports": {
+            "$ref": "./spec/paths/new_marketing_campaigns/contacts.json#/marketing_contacts_exports"
+        },
+        "/v3/marketing/contacts/exports/{id}": {
+            "$ref": "./spec/paths/new_marketing_campaigns/contacts.json#/marketing_contacts_exports_{id}"
+        },
+        "/v3/marketing/contacts/batch": {
+            "$ref": "./spec/paths/new_marketing_campaigns/contacts.json#/marketing_contacts_batch"
+        },
+        "/v3/marketing/contacts/search/emails": {
+            "$ref": "./spec/paths/new_marketing_campaigns/contacts.json#/marketing_contacts_search_emails"
+        },
+        "/v3/marketing/segments/2.0": {
+            "$ref": "./spec/paths/new_marketing_campaigns/segmenting_contacts_v2.json#/marketing_segments_2.0"
+        },
+        "/v3/marketing/segments/2.0/{segment_id}": {
+            "$ref": "./spec/paths/new_marketing_campaigns/segmenting_contacts_v2.json#/marketing_segments_2.0_{segment_id}"
+        },
+        "/v3/marketing/senders": {
+            "$ref": "./spec/paths/new_marketing_campaigns/senders.json#/marketing_senders"
+        },
+        "/v3/marketing/lists": {
+            "$ref": "./spec/paths/new_marketing_campaigns/lists.json#/marketing_lists"
+        },
+        "/v3/marketing/lists/{id}/contacts/count": {
+            "$ref": "./spec/paths/new_marketing_campaigns/lists.json#/marketing_lists_{id}_contacts_count"
+        },
+        "/v3/marketing/lists/{id}": {
+            "$ref": "./spec/paths/new_marketing_campaigns/lists.json#/marketing_lists_{id}"
+        },
+        "/v3/marketing/lists/{id}/contacts": {
+            "$ref": "./spec/paths/new_marketing_campaigns/lists.json#/marketing_lists_{id}_contacts"
+        },
+        "/v3/marketing/field_definitions": {
+            "$ref": "./spec/paths/new_marketing_campaigns/custom_fields.json#/marketing_field_definitions"
+        },
+        "/v3/marketing/field_definitions/{custom_field_id}": {
+            "$ref": "./spec/paths/new_marketing_campaigns/custom_fields.json#/marketing_field_definitions_{custom_field_id}"
+        },
+        "/v3/marketing/segments": {
+            "$ref": "./spec/paths/new_marketing_campaigns/segmenting_contacts.json#/marketing_segments"
+        },
+        "/v3/marketing/segments/{segment_id}": {
+            "$ref": "./spec/paths/new_marketing_campaigns/segmenting_contacts.json#/marketing_segments_{segment_id}"
+        },
+        "/v3/marketing/singlesends": {
+            "$ref": "./spec/paths/new_marketing_campaigns/single_sends.json#/marketing_singlesends"
+        },
+        "/v3/marketing/singlesends/{id}": {
+            "$ref": "./spec/paths/new_marketing_campaigns/single_sends.json#/marketing_singlesends_{id}"
+        },
+        "/v3/marketing/singlesends/search": {
+            "$ref": "./spec/paths/new_marketing_campaigns/single_sends.json#/marketing_singlesends_search"
+        },
+        "/v3/marketing/singlesends/{id}/schedule": {
+            "$ref": "./spec/paths/new_marketing_campaigns/single_sends.json#/marketing_singlesends_{id}_schedule"
+        },
+        "/v3/marketing/singlesends/categories": {
+            "$ref": "./spec/paths/new_marketing_campaigns/single_sends.json#/marketing_singlesends_categories"
+        },
+        "/v3/marketing/test/send_email": {
+            "$ref": "./spec/paths/new_marketing_campaigns/send_test_email.json#/marketing_test_send_email"
+        },
+        "/v3/marketing/stats/automations": {
+            "$ref": "./spec/paths/new_marketing_campaigns/marketing_campaigns_stats.json#/marketing_stats_automations"
+        },
+        "/v3/marketing/stats/automations/{id}": {
+            "$ref": "./spec/paths/new_marketing_campaigns/marketing_campaigns_stats.json#/marketing_stats_automations_{id}"
+        },
+        "/v3/marketing/stats/singlesends": {
+            "$ref": "./spec/paths/new_marketing_campaigns/marketing_campaigns_stats.json#/marketing_stats_singlesends"
+        },
+        "/v3/marketing/stats/singlesends/{id}": {
+            "$ref": "./spec/paths/new_marketing_campaigns/marketing_campaigns_stats.json#/marketing_stats_singlesends_{id}"
+        },
+        "/v3/marketing/stats/automations/{id}/links": {
+            "$ref": "./spec/paths/new_marketing_campaigns/marketing_campaigns_stats.json#/marketing_stats_automations_{id}_links"
+        },
+        "/v3/marketing/stats/singlesends/{id}/links": {
+            "$ref": "./spec/paths/new_marketing_campaigns/marketing_campaigns_stats.json#/marketing_stats_singlesends_{id}_links"
+        },
+        "/v3/marketing/stats/singlesends/export": {
+            "$ref": "./spec/paths/new_marketing_campaigns/marketing_campaigns_stats.json#/marketing_stats_singlesends_export"
+        },
+        "/v3/marketing/stats/automations/export": {
+            "$ref": "./spec/paths/new_marketing_campaigns/marketing_campaigns_stats.json#/marketing_stats_automations_export"
+        },
+        "/v3/senders": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/sender_identities_api.json#/senders"
+        },
+        "/v3/senders/{sender_id}": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/sender_identities_api.json#/senders_{sender_id}"
+        },
+        "/v3/senders/{sender_id}/resend_verification": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/sender_identities_api.json#/senders_{sender_id}_resend_verification"
+        },
+        "/v3/contactdb/lists": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_lists.json#/contactdb_lists"
+        },
+        "/v3/contactdb/lists/{list_id}": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_lists.json#/contactdb_lists_{list_id}"
+        },
+        "/v3/contactdb/lists/{list_id}/recipients": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_lists.json#/contactdb_lists_{list_id}_recipients"
+        },
+        "/v3/contactdb/lists/{list_id}/recipients/{recipient_id}": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_lists.json#/contactdb_lists_{list_id}_recipients_{recipient_id}"
+        },
+        "/v3/contactdb/recipients": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_recipients.json#/contactdb_recipients"
+        },
+        "/v3/contactdb/status": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_recipients.json#/contactdb_status"
+        },
+        "/v3/contactdb/recipients/{recipient_id}": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_recipients.json#/contactdb_recipients_{recipient_id}"
+        },
+        "/v3/contactdb/recipients/{recipient_id}/lists": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_recipients.json#/contactdb_recipients_{recipient_id}_lists"
+        },
+        "/v3/contactdb/recipients/billable_count": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_recipients.json#/contactdb_recipients_billable_count"
+        },
+        "/v3/contactdb/recipients/count": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_recipients.json#/contactdb_recipients_count"
+        },
+        "/v3/contactdb/recipients/search": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_recipients.json#/contactdb_recipients_search"
+        },
+        "/v3/contactdb/custom_fields": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_custom_fields.json#/contactdb_custom_fields"
+        },
+        "/v3/contactdb/custom_fields/{custom_field_id}": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_custom_fields.json#/contactdb_custom_fields_{custom_field_id}"
+        },
+        "/v3/contactdb/reserved_fields": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_custom_fields.json#/contactdb_reserved_fields"
+        },
+        "/v3/contactdb/segments": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_segments.json#/contactdb_segments"
+        },
+        "/v3/contactdb/segments/{segment_id}": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_segments.json#/contactdb_segments_{segment_id}"
+        },
+        "/v3/contactdb/segments/{segment_id}/recipients": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/contacts_api_segments.json#/contactdb_segments_{segment_id}_recipients"
+        },
+        "/v3/campaigns": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/api.json#/campaigns"
+        },
+        "/v3/campaigns/{campaign_id}": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/api.json#/campaigns_{campaign_id}"
+        },
+        "/v3/campaigns/{campaign_id}/schedules/now": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/api.json#/campaigns_{campaign_id}_schedules_now"
+        },
+        "/v3/campaigns/{campaign_id}/schedules": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/api.json#/campaigns_{campaign_id}_schedules"
+        },
+        "/v3/campaigns/{campaign_id}/schedules/test": {
+            "$ref": "./spec/paths/legacy_marketing_campaigns/api.json#/campaigns_{campaign_id}_schedules_test"
+        },
+        "/v3/templates": {
+            "$ref": "./spec/paths/templates/transactional_templates.json#/templates"
+        },
+        "/v3/templates/{template_id}": {
+            "$ref": "./spec/paths/templates/transactional_templates.json#/templates_{template_id}"
+        },
+        "/v3/templates/{template_id}/versions": {
+            "$ref": "./spec/paths/templates/transactional_templates_versions.json#/templates_{template_id}_versions"
+        },
+        "/v3/templates/{template_id}/versions/{version_id}": {
+            "$ref": "./spec/paths/templates/transactional_templates_versions.json#/templates_{template_id}_versions_{version_id}"
+        },
+        "/v3/templates/{template_id}/versions/{version_id}/activate": {
+            "$ref": "./spec/paths/templates/transactional_templates_versions.json#/templates_{template_id}_versions_{version_id}_activate"
+        },
+        "/v3/user/webhooks/event/settings": {
+            "$ref": "./spec/paths/event_tracking/webhooks.json#/user_webhooks_event_settings"
+        },
+        "/v3/user/webhooks/parse/settings": {
+            "$ref": "./spec/paths/inbound_parse/settings.json#/user_webhooks_parse_settings"
+        },
+        "/v3/user/webhooks/parse/stats": {
+            "$ref": "./spec/paths/event_tracking/webhooks.json#/user_webhooks_parse_stats"
+        },
+        "/v3/user/webhooks/event/settings/signed": {
+            "$ref": "./spec/paths/event_tracking/webhooks.json#/user_webhooks_event_settings_signed"
+        },
+        "/v3/user/webhooks/event/test": {
+            "$ref": "./spec/paths/event_tracking/webhooks.json#/user_webhooks_event_test"
+        },
+        "/v3/tracking_settings": {
+            "$ref": "./spec/paths/event_tracking/settings_tracking.json#/tracking_settings"
+        },
+        "/v3/tracking_settings/click": {
+            "$ref": "./spec/paths/event_tracking/settings_tracking.json#/tracking_settings_click"
+        },
+        "/v3/tracking_settings/google_analytics": {
+            "$ref": "./spec/paths/event_tracking/settings_tracking.json#/tracking_settings_google_analytics"
+        },
+        "/v3/tracking_settings/open": {
+            "$ref": "./spec/paths/event_tracking/settings_tracking.json#/tracking_settings_open"
+        },
+        "/v3/tracking_settings/subscription": {
+            "$ref": "./spec/paths/event_tracking/settings_tracking.json#/tracking_settings_subscription"
+        },
+        "/v3/stats": {
+            "$ref": "./spec/paths/stats/stats.json#/stats"
+        },
+        "/v3/geo/stats": {
+            "$ref": "./spec/paths/stats/stats.json#/geo_stats"
+        },
+        "/v3/devices/stats": {
+            "$ref": "./spec/paths/stats/stats.json#/devices_stats"
+        },
+        "/v3/clients/stats": {
+            "$ref": "./spec/paths/stats/stats.json#/clients_stats"
+        },
+        "/v3/clients/{client_type}/stats": {
+            "$ref": "./spec/paths/stats/stats.json#/clients_{client_type}_stats"
+        },
+        "/v3/mailbox_providers/stats": {
+            "$ref": "./spec/paths/stats/stats.json#/mailbox_providers_stats"
+        },
+        "/v3/browsers/stats": {
+            "$ref": "./spec/paths/stats/stats.json#/browsers_stats"
+        },
+        "/v3/categories": {
+            "$ref": "./spec/paths/stats/categories.json#/categories"
+        },
+        "/v3/categories/stats/sums": {
+            "$ref": "./spec/paths/stats/categories.json#/categories_stats_sums"
+        },
+        "/v3/categories/stats": {
+            "$ref": "./spec/paths/stats/categories.json#/categories_stats"
+        },
+        "/v3/suppression/bounces": {
+            "$ref": "./spec/paths/supression_management/bounces.json#/suppression_bounces"
+        },
+        "/v3/suppression/bounces/{email}": {
+            "$ref": "./spec/paths/supression_management/bounces.json#/suppression_bounces_{email}"
+        },
+        "/v3/suppression/bounces/classifications": {
+            "$ref": "./spec/paths/supression_management/bounces.json#/suppression_bounces_classifications"
+        },
+        "/v3/suppression/bounces/classifications/{classification}": {
+            "$ref": "./spec/paths/supression_management/bounces.json#/suppression_bounces_classifications_{classification}"
+        },
+        "/v3/suppression/blocks": {
+            "$ref": "./spec/paths/supression_management/blocks.json#/suppression_blocks"
+        },
+        "/v3/suppression/blocks/{email}": {
+            "$ref": "./spec/paths/supression_management/blocks.json#/suppression_blocks_{email}"
+        },
+        "/v3/suppression/spam_reports": {
+            "$ref": "./spec/paths/supression_management/spam_reports.json#/suppression_spam_reports"
+        },
+        "/v3/suppression/spam_reports/{email}": {
+            "$ref": "./spec/paths/supression_management/spam_reports.json#/suppression_spam_reports_{email}"
+        },
+        "/v3/asm/suppressions/global": {
+            "$ref": "./spec/paths/supression_management/global_suppressions.json#/asm_suppressions_global"
+        },
+        "/v3/suppression/unsubscribes": {
+            "$ref": "./spec/paths/supression_management/global_suppressions.json#/suppression_unsubscribes"
+        },
+        "/v3/asm/suppressions/global/{email}": {
+            "$ref": "./spec/paths/supression_management/global_suppressions.json#/asm_suppressions_global_{email}"
+        },
+        "/v3/asm/groups": {
+            "$ref": "./spec/paths/supression_management/unsubscribe_groups.json#/asm_groups"
+        },
+        "/v3/asm/groups/{group_id}": {
+            "$ref": "./spec/paths/supression_management/unsubscribe_groups.json#/asm_groups_{group_id}"
+        },
+        "/v3/asm/groups/{group_id}/suppressions": {
+            "$ref": "./spec/paths/supression_management/supressions.json#/asm_groups_{group_id}_suppressions"
+        },
+        "/v3/asm/groups/{group_id}/suppressions/search": {
+            "$ref": "./spec/paths/supression_management/supressions.json#/asm_groups_{group_id}_suppressions_search"
+        },
+        "/v3/asm/suppressions": {
+            "$ref": "./spec/paths/supression_management/supressions.json#/asm_suppressions"
+        },
+        "/v3/asm/suppressions/{email}": {
+            "$ref": "./spec/paths/supression_management/supressions.json#/asm_suppressions_{email}"
+        },
+        "/v3/asm/groups/{group_id}/suppressions/{email}": {
+            "$ref": "./spec/paths/supression_management/supressions.json#/asm_groups_{group_id}_suppressions_{email}"
+        },
+        "/v3/suppression/invalid_emails": {
+            "$ref": "./spec/paths/supression_management/invalid.json#/suppression_invalid_emails"
+        },
+        "/v3/suppression/invalid_emails/{email}": {
+            "$ref": "./spec/paths/supression_management/invalid.json#/suppression_invalid_emails_{email}"
+        },
+        "/v3/user/webhooks/parse/settings/{hostname}": {
+            "$ref": "./spec/paths/inbound_parse/settings.json#/user_webhooks_parse_settings_{hostname}"
+        },
+        "/v3/mail/batch": {
+            "$ref": "./spec/paths/cancel_scheduled_sends.json#/mail_batch"
+        },
+        "/v3/user/scheduled_sends": {
+            "$ref": "./spec/paths/cancel_scheduled_sends.json#/user_scheduled_sends"
+        },
+        "/v3/mail/batch/{batch_id}": {
+            "$ref": "./spec/paths/cancel_scheduled_sends.json#/mail_batch_{batch_id}"
+        },
+        "/v3/user/scheduled_sends/{batch_id}": {
+            "$ref": "./spec/paths/cancel_scheduled_sends.json#/user_scheduled_sends_{batch_id}"
+        },
+        "/v3/messages": {
+            "$ref": "./spec/paths/email_activity.json#/messages"
+        },
+        "/v3/messages/{msg_id}": {
+            "$ref": "./spec/paths/email_activity.json#/messages_{msg_id}"
+        },
+        "/v3/messages/download": {
+            "$ref": "./spec/paths/email_activity.json#/messages_download"
+        },
+        "/v3/messages/download/{download_uuid}": {
+            "$ref": "./spec/paths/email_activity.json#/messages_download_{download_uuid}"
+        }
+    },
+    "components": {
+        "parameters": {
+            "$ref": "./spec/components/parameters.json"
+        },
+        "responses": {
+            "$ref": "./spec/components/responses.json"
+        },
+        "requestBodies": {
+            "$ref": "./spec/components/requestBodies.json"
+        },
+        "securitySchemes": {
+            "$ref": "./spec/components/securitySchemes.json"
+        },
+        "schemas": {
+            "$ref": "./spec/components/schemas.json"
+        }
+    },
+    "security": [
+        {
+            "Authorization": []
+        }
+    ],
+    "tags": [
+        {
+            "name": "Subuser Monitor Settings"
+        },
+        {
+            "name": "Segmenting Contacts"
+        },
+        {
+            "name": "Single Sign-On Settings"
+        },
+        {
+            "name": "Settings - Partner"
+        },
+        {
+            "name": "Contacts API - Recipients"
+        },
+        {
+            "name": "Settings - Inbound Parse"
+        },
+        {
+            "name": "Segmenting Contacts"
+        },
+        {
+            "name": "IP Access Management"
+        },
+        {
+            "name": "Messages"
+        },
+        {
+            "name": "Suppressions - Unsubscribe Groups"
+        },
+        {
+            "name": "Email CNAME Records"
+        },
+        {
+            "name": "CSV (UI only)"
+        },
+        {
+            "name": "Bounces API"
+        },
+        {
+            "name": "Designs API"
+        },
+        {
+            "name": "Custom Fields"
+        },
+        {
+            "name": "Segmenting Contacts V2"
+        },
+        {
+            "name": "Subuser Statistics"
+        },
+        {
+            "name": "Send Test Email"
+        },
+        {
+            "name": "IP Addresses"
+        },
+        {
+            "name": "Query"
+        },
+        {
+            "name": "V3"
+        },
+        {
+            "name": "Invalid Emails API"
+        },
+        {
+            "name": "Webhooks"
+        },
+        {
+            "name": "Suppressions - Global Suppressions"
+        },
+        {
+            "name": "Settings - Tracking"
+        },
+        {
+            "name": "Contacts API - Lists"
+        },
+        {
+            "name": "Marketing Campaigns Stats"
+        },
+        {
+            "name": "API Key Permissions"
+        },
+        {
+            "name": "Domain Authentication"
+        },
+        {
+            "name": "Sender Identities API"
+        },
+        {
+            "name": "Single Sign-On Teammates"
+        },
+        {
+            "name": "Mail Send"
+        },
+        {
+            "name": "Settings - Enforced TLS"
+        },
+        {
+            "name": "IP Warmup"
+        },
+        {
+            "name": "Categories"
+        },
+        {
+            "name": "Campaigns API"
+        },
+        {
+            "name": "Teammates"
+        },
+        {
+            "name": "Sender Verification"
+        },
+        {
+            "name": "Single Sends"
+        },
+        {
+            "name": "Blocks API"
+        },
+        {
+            "name": "Contacts"
+        },
+        {
+            "name": "Certificates"
+        },
+        {
+            "name": "Contacts API - Segments"
+        },
+        {
+            "name": "Senders"
+        },
+        {
+            "name": "Contacts API - Custom Fields"
+        },
+        {
+            "name": "Spam Reports API"
+        },
+        {
+            "name": "Subusers API"
+        },
+        {
+            "name": "Link branding"
+        },
+        {
+            "name": "Suppressions - Suppressions"
+        },
+        {
+            "name": "Users API"
+        },
+        {
+            "name": "Settings - Mail"
+        },
+        {
+            "name": "API Keys"
+        },
+        {
+            "name": "Transactional Templates"
+        },
+        {
+            "name": "Reverse DNS"
+        },
+        {
+            "name": "Email Address Validation"
+        },
+        {
+            "name": "Transactional Templates Versions"
+        },
+        {
+            "name": "Lists"
+        },
+        {
+            "name": "Cancel Scheduled Sends"
+        },
+        {
+            "name": "Stats"
+        },
+        {
+            "name": "Alerts"
+        },
+        {
+            "name": "IP Pools"
+        }
+    ],
+    "externalDocs": {
+        "description": "The Official Twilio SendGrid Documentation.",
+        "url": "https://docs.sengrid.com"
+    }
+}
