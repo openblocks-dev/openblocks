@@ -12,23 +12,19 @@ const dataSourceConfig = {
   type: "dataSource",
   params: [
     {
-      type: "groupTitle",
-      key: "ApiKey",
-      label: "HTTP Basic Auth",
-    },
-    {
       type: "textInput",
       key: "ApiKey.username",
       label: "Username",
-      tooltip: "Basic auth username",
-      placeholder: "<Basic Auth Username>",
+      tooltip: "The username of your GitHub account.",
+      placeholder: "<Your GitHub username>",
     },
     {
       type: "password",
       key: "ApiKey.password",
       label: "Password",
-      tooltip: "Basic auth password",
-      placeholder: "<Basic Auth Password>",
+      tooltip:
+        "[Document](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) about how to create a personal access token",
+      placeholder: "<Your Personal Access Token>",
     },
   ],
 } as const;
@@ -62,7 +58,7 @@ const gitHubPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   run: function (actionData, dataSourceConfig): Promise<any> {
     const runApiDsConfig = {
       url: "",
-      serverURL: "",
+      serverURL: "https://api.github.com",
       dynamicParamsConfig: dataSourceConfig,
     };
     return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
