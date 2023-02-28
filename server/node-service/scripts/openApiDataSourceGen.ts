@@ -29,6 +29,10 @@ async function gen(options: Options) {
   if (postMan) {
     console.info("is PostMan Collection start transforming...");
     const collection = postManCollectionFile ?? pluginDefaultCollectionFile;
+    if (collection) {
+      console.error("postman collection file path not got.");
+      return;
+    }
     await postManToOpenApi(collection, pluginSpecYamlFile, { defaultTag: "General" });
   }
 
@@ -100,7 +104,7 @@ const plugins = [
 
 program
   .option("--post-man")
-  .option("-f, --collection-file [postman collection file path]")
+  .option("-f, --post-man-collection-file [postman collection file path]")
   .option("-n, --name <char>")
   .option("-i, --id [plugin id]")
   .option("--url [spec-download-url]");

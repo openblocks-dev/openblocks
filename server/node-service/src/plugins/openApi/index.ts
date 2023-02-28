@@ -50,7 +50,8 @@ interface ActionDataType {
 export async function runOpenApi(
   actionData: ActionDataType,
   dataSourceConfig: DataSourceDataType,
-  spec: OpenAPI.Document | OpenAPI.Document[]
+  spec: OpenAPI.Document | OpenAPI.Document[],
+  defaultHeaders?: Record<string, string>
 ) {
   const specList = Array.isArray(spec) ? spec : [spec];
   const definitions = await Promise.all(specList.map((i) => SwaggerParser.dereference(i)));
@@ -64,6 +65,7 @@ export async function runOpenApi(
     operation = findOperation(actionName, def);
     if (operation) {
       definition = def;
+      break;
     }
   }
 
@@ -94,11 +96,27 @@ export async function runOpenApi(
       requestBody,
       securities,
       responseContentType: "application/json",
+      userFetch: async (url: string, req: Request) => {
+        const res = await fetch(url, req);
+        return new Response(res.body, {
+          status: res.status,
+          statusText: res.statusText,
+
+          // keep required headers to workaround the nodejs bug: https://github.com/nodejs/node/pull/46711
+          headers: {
+            "content-type": res.headers.get("content-type") || "",
+          },
+        });
+      },
       requestInterceptor: (req: any) => {
+        const headers = _.omitBy(req.headers, (i) => !i);
         const ret = {
           ...req,
           duplex: "half",
-          headers: _.omitBy(req.headers, (i) => !i),
+          headers: {
+            ...defaultHeaders,
+            ...headers,
+          },
         };
         return ret;
       },
