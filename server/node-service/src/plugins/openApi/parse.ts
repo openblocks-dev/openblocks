@@ -176,7 +176,7 @@ export async function parseOpenApi(
   if (typeof specJsonOrObj === "string") {
     spec = JSON.parse(specJsonOrObj);
   }
-  const openApiDoc = await SwaggerParser.dereference(spec);
+  const openApiDoc = await SwaggerParser.dereference(spec, { dereference: { circular: "ignore" } });
   const actions: ActionConfig[] = [];
   const categories: ActionCategory[] = [];
   if (!openApiDoc.paths) {

@@ -257,6 +257,8 @@ export function replaceServersUrl(schema: OpenAPIV3.Document, url: string) {
   if (schema.servers) {
     // Root level servers array's fixup
     schema.servers.map((server) => fixServers(server, url));
+  } else {
+    schema.servers = [{ url }];
   }
 
   Object.keys(schema.paths).forEach((path) => {

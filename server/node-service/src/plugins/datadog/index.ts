@@ -10,12 +10,32 @@ const spec = readYaml(path.join(__dirname, "./datadog.spec.yaml"));
 
 const dataSourceConfig = {
   type: "dataSource",
-  params: [],
+  params: [
+    {
+      type: "textInput",
+      key: "serverURL",
+      label: "Server URL",
+      defaultValue: "https://api.datadoghq.com",
+    },
+    {
+      type: "password",
+      key: "apiKeyAuth.value",
+      label: "Api Key",
+    },
+    {
+      type: "password",
+      key: "appKeyAuth.value",
+      label: "Application Key",
+    },
+  ],
 } as const;
 
 const parseOptions: ParseOpenApiOptions = {
   actionLabel: (method: string, path: string, operation: OpenAPI.Operation) => {
-    return _.upperFirst(operation.operationId || "");
+    return operation.summary || "";
+  },
+  actionDescription(method, path, operation) {
+    return operation.description || "";
   },
 };
 
@@ -42,7 +62,7 @@ const datadogPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   run: function (actionData, dataSourceConfig): Promise<any> {
     const runApiDsConfig = {
       url: "",
-      serverURL: "",
+      serverURL: dataSourceConfig.serverURL,
       dynamicParamsConfig: dataSourceConfig,
     };
     return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);

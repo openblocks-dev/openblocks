@@ -18,11 +18,19 @@ servers:
   - url: http://{{baseurl}}
   - url: https://{{subdomain}}.{{site}}
   - url: https://http-intake.logs.datadoghq.com
+security:
+  - apiKeyAuth: []
+  - appKeyAuth: []
 components:
   securitySchemes:
-    apikeyAuth:
-      type: http
-      scheme: apikey
+    apiKeyAuth:
+      type: apiKey 
+      in: header
+      name: DD-API-KEY
+    appKeyAuth:
+      type: apiKey 
+      in: header
+      name: DD-APPLICATION-KEY
 tags:
   - name: Audit
     description: Search your Audit Logs events over HTTP.
@@ -2598,7 +2606,8 @@ paths:
                 lambda_arn: >-
                   arn:aws:lambda:us-east-1:1234567:function:LogsCollectionAPITest
       security:
-        - apikeyAuth: []
+        - apiKeyAuth: []
+        - appKeyAuth: []
       parameters:
         - name: Content-Type
           in: header
