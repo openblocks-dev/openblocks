@@ -12,6 +12,14 @@ const dataSourceConfig = {
   type: "dataSource",
   params: [
     {
+      type: "textInput",
+      key: "notionVersion",
+      label: "Version",
+      defaultValue: "2022-06-28",
+      tooltip:
+        "Version list can be found [here](https://developers.notion.com/reference/changes-by-version).",
+    },
+    {
       type: "password",
       key: "bearerAuth.value",
       label: "Token",
@@ -51,8 +59,9 @@ const notionPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       serverURL: "",
       dynamicParamsConfig: dataSourceConfig,
     };
-    console.info(actionData);
-    return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
+    return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document, {
+      "Notion-Version": dataSourceConfig.notionVersion,
+    });
   },
 };
 

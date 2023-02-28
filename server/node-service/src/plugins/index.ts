@@ -25,6 +25,7 @@ import slackPlugin from "./slack";
 import supabaseStoragePlugin from "./supabaseStorage";
 import cloudinaryPlugin from "./cloudinary";
 import notionPlugin from "./notion";
+import datadogPlugin from "./datadog";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   s3Plugin,
@@ -54,6 +55,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   supabaseStoragePlugin,
   cloudinaryPlugin,
   notionPlugin,
+  datadogPlugin,
 ];
 
 try {
