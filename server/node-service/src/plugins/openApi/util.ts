@@ -17,7 +17,10 @@ interface FileParamValue {
   type?: string;
 }
 
-export function getFileData(value: FileParamValue | string): File | Buffer {
+export function getFileData(value: FileParamValue | string): File | Buffer | null {
+  if (!value) {
+    return null;
+  }
   if (typeof value === "string") {
     return Buffer.from(value, "base64");
   }
@@ -25,6 +28,9 @@ export function getFileData(value: FileParamValue | string): File | Buffer {
     return value;
   }
   const { data = "", name = "file", type } = value || {};
+  if (!data) {
+    return null;
+  }
   return new File([Buffer.from(data, "base64")], name, { type });
 }
 
@@ -107,10 +113,12 @@ export function normalizeParams(
     }
     const isFile = isFileData(name, operation, isOas3);
     const value = isFile ? getFileData(params[key]) : params[key];
-    if (isOas3 && position === "body") {
-      bodyEntries.push([name, value]);
-    } else {
-      paramEntries.push([name, value]);
+    if (value) {
+      if (isOas3 && position === "body") {
+        bodyEntries.push([name, value]);
+      } else {
+        paramEntries.push([name, value]);
+      }
     }
   });
 
@@ -130,7 +138,10 @@ export function normalizeParams(
           // process file fields
           const fileFields = findOas3FilePropertiesFromSchema(schema);
           fileFields.forEach(([name]) => {
-            requestBody[name] = getFileData(requestBody[name]);
+            const file = getFileData(requestBody[name]);
+            if (file) {
+              requestBody[name] = file;
+            }
           });
         }
       }
@@ -143,7 +154,10 @@ export function normalizeParams(
         const [name, value] = bodyEntries[0];
         if (name === "body") {
           if (mediaType === MediaTypeOctetStream) {
-            requestBody = getFileData(value);
+            const file = getFileData(value);
+            if (file) {
+              requestBody = file;
+            }
           } else {
             requestBody = value;
           }
@@ -189,6 +203,10 @@ export function findOperation(id: string, spec: OpenAPI.Document) {
     }
   }
   return null;
+}
+
+export function isFile(file: any): file is File {
+  return file instanceof File;
 }
 
 export function isFileData(name: string, operation: OpenAPI.Operation, isOas3: boolean): boolean {

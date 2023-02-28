@@ -9,6 +9,7 @@ import {
   isOas3,
   normalizeParams,
   parseUrl,
+  isFile,
 } from "./util";
 import { badRequest } from "../../common/error";
 import { safeJsonParse } from "../../common/util";
