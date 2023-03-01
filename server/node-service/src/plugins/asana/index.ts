@@ -6,26 +6,25 @@ import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
 import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
+
 const spec = readYaml(path.join(__dirname, "./asana.spec.yaml"));
+
 
 const dataSourceConfig = {
   type: "dataSource",
   params: [
     {
-      type: "groupTitle",
-      key: "personalAccessToken",
-      label: "Api Token Auth",
+      "type": "groupTitle",
+      "key": "personalAccessToken",
+      "label": "Api Token Auth"
     },
     {
-      type: "password",
-      key: "personalAccessToken.value",
-      label: "Token",
-      tooltip:
-        "A personal access token allows access to the api for the user who created it. This should be kept a secret and be treated like a password.",
-      placeholder:
-        "A personal access token allows access to the api for the user who created it. This should be kept a secret and be treated like a password.",
-    },
-  ],
+      "type": "password",
+      "key": "personalAccessToken.value",
+      "label": "Token",
+      "tooltip": "A [personal access token](https://developers.asana.com/docs/personal-access-token) allows access to the api for the user who created it. This should be kept a secret and be treated like a password.",
+    }
+  ]
 } as const;
 
 const parseOptions: ParseOpenApiOptions = {
@@ -43,12 +42,12 @@ const asanaPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   category: "api",
   dataSourceConfig,
   queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(spec, parseOptions);
+    const { actions, categories } = await parseOpenApi(spec as OpenAPI.Document, parseOptions);
     return {
       type: "query",
       label: "Action",
       categories: {
-        label: "Category",
+        label: "Resources",
         items: categories,
       },
       actions,
