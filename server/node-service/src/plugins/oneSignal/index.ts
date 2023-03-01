@@ -47,7 +47,7 @@ const oneSignalPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   category: "api",
   dataSourceConfig,
   queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(spec, parseOptions);
+    const { actions, categories } = await parseOpenApi(spec as OpenAPI.Document, parseOptions);
     return {
       type: "query",
       label: "Action",

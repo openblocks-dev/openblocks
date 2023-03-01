@@ -1,0 +1,196 @@
+components:
+  schemas:
+    chat.v3.channel:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^CH[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that we created to identify the Channel resource.
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the Channel resource.
+        service_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^IS[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Service](https://www.twilio.com/docs/chat/rest/service-resource)
+            the Channel resource is associated with.
+        friendly_name:
+          type: string
+          nullable: true
+          description: The string that you assigned to describe the resource.
+        unique_name:
+          type: string
+          nullable: true
+          description: An application-defined string that uniquely identifies the
+            resource. It can be used to address the resource in place of the resource's
+            `sid` in the URL.
+        attributes:
+          type: string
+          nullable: true
+          description: The JSON string that stores application-specific data. If attributes
+            have not been set, `{}` is returned.
+        type:
+          type: string
+          $ref: '#/components/schemas/channel_enum_channel_type'
+          nullable: true
+          description: 'The visibility of the channel. Can be: `public` or `private`.'
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was created specified
+            in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was last updated
+            specified in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        created_by:
+          type: string
+          nullable: true
+          description: The `identity` of the User that created the channel. If the
+            Channel was created by using the API, the value is `system`.
+        members_count:
+          type: integer
+          nullable: true
+          description: The number of Members in the Channel.
+        messages_count:
+          type: integer
+          nullable: true
+          description: The number of Messages that have been passed in the Channel.
+        messaging_service_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^MG[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique ID of the [Messaging Service](https://www.twilio.com/docs/sms/services/api)
+            this channel belongs to.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the Channel resource.
+    channel_enum_channel_type:
+      type: string
+      enum:
+      - public
+      - private
+    channel_enum_webhook_enabled_type:
+      type: string
+      enum:
+      - 'true'
+      - 'false'
+  securitySchemes:
+    accountSid_authToken:
+      type: http
+      scheme: basic
+info:
+  title: Twilio - Chat
+  description: This is the public Twilio REST API.
+  termsOfService: https://www.twilio.com/legal/tos
+  contact:
+    name: Twilio Support
+    url: https://support.twilio.com
+    email: support@twilio.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.39.1
+openapi: 3.0.1
+paths:
+  /v3/Services/{ServiceSid}/Channels/{Sid}:
+    servers:
+    - url: https://chat.twilio.com
+    description: A Channel resource represents a chat/conversation channel with an
+      ordered list of messages and a participant roster.
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - unique_name
+      - friendly_name
+      pathType: instance
+    post:
+      description: Update a specific Channel.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The unique SID identifier of the Service.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^IS[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: A 34 character string that uniquely identifies this Channel.
+        schema:
+          type: string
+        required: true
+      - name: X-Twilio-Webhook-Enabled
+        in: header
+        description: The X-Twilio-Webhook-Enabled HTTP request header
+        schema:
+          type: string
+          $ref: '#/components/schemas/channel_enum_webhook_enabled_type'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/chat.v3.channel'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: UpdateChannel
+      x-maturity:
+      - GA
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: UpdateChannelRequest
+              properties:
+                Type:
+                  type: string
+                  $ref: '#/components/schemas/channel_enum_channel_type'
+                  description: TThe Type for this Channel to migrate to. Can only
+                    be `private`. Migration to 'public' is not allowed.
+                MessagingServiceSid:
+                  type: string
+                  minLength: 34
+                  maxLength: 34
+                  pattern: ^MG[0-9a-fA-F]{32}$
+                  description: The unique ID of the [Messaging Service](https://www.twilio.com/docs/sms/services/api)
+                    this channel belongs to.
+  /v3/Services/{ServiceSid}/Channels:
+    servers:
+    - url: https://chat.twilio.com
+    description: A Channel resource represents a chat/conversation channel with an
+      ordered list of messages and a participant roster.
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - unique_name
+      - friendly_name
+      pathType: list
+servers:
+- url: https://chat.twilio.com
+x-maturity:
+- name: GA
+  description: This product is Generally Available.

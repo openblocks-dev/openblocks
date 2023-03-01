@@ -17,6 +17,7 @@ import {
   isOas3RefObject,
   isSwagger2HttpMethods,
   isValidHttpMethods,
+  mergeCategories,
   specVersion,
 } from "./util";
 
@@ -168,10 +169,32 @@ export const defaultParseOpenApiOptions: Required<ParseOpenApiOptions> = {
   },
 };
 
-export async function parseOpenApi(
-  specJsonOrObj: any,
+interface OpenAPIParseResult {
+  actions: ActionConfig[];
+  categories: ActionCategory[];
+}
+
+export async function parseMultiOpenApi(
+  spec: (OpenAPI.Document | string)[],
   options?: ParseOpenApiOptions
-): Promise<{ actions: ActionConfig[]; categories: ActionCategory[] }> {
+): Promise<OpenAPIParseResult> {
+  const results = await Promise.all(spec.map((i) => parseOpenApi(i, options)));
+  const reducedResults = results.reduce(
+    (a, b) => {
+      return {
+        actions: a.actions.concat(b.actions),
+        categories: mergeCategories(a.categories, b.categories),
+      };
+    },
+    { actions: [], categories: [] }
+  );
+  return reducedResults;
+}
+
+export async function parseOpenApi(
+  specJsonOrObj: OpenAPI.Document | string,
+  options?: ParseOpenApiOptions
+): Promise<OpenAPIParseResult> {
   let spec = specJsonOrObj;
   if (typeof specJsonOrObj === "string") {
     spec = JSON.parse(specJsonOrObj);

@@ -1,0 +1,137 @@
+components:
+  schemas:
+    lookups.v1.phone_number:
+      type: object
+      properties:
+        caller_name:
+          nullable: true
+          description: The name of the phone number's owner. If `null`, that information
+            was not available.
+        country_code:
+          type: string
+          nullable: true
+          description: The [ISO country code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
+            for the phone number.
+        phone_number:
+          type: string
+          format: phone-number
+          nullable: true
+          description: The phone number in [E.164](https://www.twilio.com/docs/glossary/what-e164)
+            format, which consists of a + followed by the country code and subscriber
+            number.
+        national_format:
+          type: string
+          nullable: true
+          description: The phone number, in national format.
+        carrier:
+          nullable: true
+          description: The telecom company that provides the phone number.
+        add_ons:
+          nullable: true
+          description: A JSON string with the results of the Add-ons you specified
+            in the `add_ons` parameters. For the format of the object, see [Using
+            Add-ons](https://www.twilio.com/docs/add-ons).
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the resource.
+    phone_number_enum_type:
+      type: string
+      enum:
+      - landline
+      - mobile
+      - voip
+  securitySchemes:
+    accountSid_authToken:
+      type: http
+      scheme: basic
+info:
+  title: Twilio - Lookups
+  description: This is the public Twilio REST API.
+  termsOfService: https://www.twilio.com/legal/tos
+  contact:
+    name: Twilio Support
+    url: https://support.twilio.com
+    email: support@twilio.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.39.1
+openapi: 3.0.1
+paths:
+  /v1/PhoneNumbers/{PhoneNumber}:
+    servers:
+    - url: https://lookups.twilio.com
+    description: Detailed information on phone numbers
+    x-twilio:
+      defaultOutputProperties:
+      - caller_name
+      - country_code
+      - carrier
+      pathType: instance
+    get:
+      description: ''
+      parameters:
+      - name: PhoneNumber
+        in: path
+        description: The phone number to lookup in [E.164](https://www.twilio.com/docs/glossary/what-e164)
+          format, which consists of a + followed by the country code and subscriber
+          number.
+        schema:
+          type: string
+          format: phone-number
+        required: true
+      - name: CountryCode
+        in: query
+        description: The [ISO country code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
+          of the phone number to fetch. This is used to specify the country when the
+          phone number is provided in a national format.
+        schema:
+          type: string
+      - name: Type
+        in: query
+        description: 'The type of information to return. Can be: `carrier` or `caller-name`.
+          The default is null.  Carrier information costs $0.005 per phone number
+          looked up.  Caller Name information is currently available only in the US
+          and costs $0.01 per phone number looked up.  To retrieve both types on information,
+          specify this parameter twice; once with `carrier` and once with `caller-name`
+          as the value.'
+        schema:
+          type: array
+          items:
+            type: string
+      - name: AddOns
+        in: query
+        description: The `unique_name` of an Add-on you would like to invoke. Can
+          be the `unique_name` of an Add-on that is installed on your account. You
+          can specify multiple instances of this parameter to invoke multiple Add-ons.
+          For more information about  Add-ons, see the [Add-ons documentation](https://www.twilio.com/docs/add-ons).
+        schema:
+          type: array
+          items:
+            type: string
+      - name: AddOnsData
+        in: query
+        description: Data specific to the add-on you would like to invoke. The content
+          and format of this value depends on the add-on.
+        schema:
+          type: object
+          format: prefixed-collapsible-map-AddOns
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/lookups.v1.phone_number'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchPhoneNumber
+      x-maturity:
+      - GA
+servers:
+- url: https://lookups.twilio.com
+x-maturity:
+- name: GA
+  description: This product is Generally Available.

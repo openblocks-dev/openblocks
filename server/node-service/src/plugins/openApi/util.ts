@@ -271,6 +271,40 @@ function fixServers(server: OpenAPIV3.ServerObject, url: string) {
   }
 }
 
+export function traversalOpenApiOperation(
+  schema: OpenAPI.Document,
+  fn: (operation: OpenAPI.Operation) => void
+) {
+  Object.values(schema.paths || {}).forEach(
+    (pathObj: OpenAPIV2.PathItemObject | OpenAPIV3.PathItemObject) => {
+      Object.entries(pathObj).forEach(([key, value]) => {
+        if (
+          Object.values(OpenAPIV2.HttpMethods).includes(key as OpenAPIV2.HttpMethods) ||
+          Object.values(OpenAPIV3.HttpMethods).includes(key as OpenAPIV3.HttpMethods)
+        ) {
+          fn(value);
+        }
+      });
+    }
+  );
+}
+
+export function appendTags(schema: OpenAPI.Document, tag: string) {
+  if (!schema.tags) {
+    schema.tags = [{ name: tag }];
+  } else if (!schema.tags.find((i) => i.name === tag)) {
+    schema.tags.push({ name: tag });
+  }
+
+  traversalOpenApiOperation(schema, (op) => {
+    if (!op.tags) {
+      op.tags = [tag];
+    } else if (!op.tags.includes(tag)) {
+      op.tags.push(tag);
+    }
+  });
+}
+
 export function replaceServersUrl(schema: OpenAPIV3.Document, url: string) {
   if (schema.servers) {
     // Root level servers array's fixup

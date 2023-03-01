@@ -54,6 +54,7 @@
     "openapi-types": "^12.1.0",
     "openblocks-core": "^0.0.7",
     "openblocks-sdk": "^0.0.35",
+    "pino": "^8.11.0",
     "stylis": "^4.1.3",
     "swagger-client": "^3.18.5",
     "typescript": "^4.9.3",

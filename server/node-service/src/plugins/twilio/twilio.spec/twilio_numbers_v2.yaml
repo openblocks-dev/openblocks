@@ -1,0 +1,2186 @@
+components:
+  schemas:
+    numbers.v2.regulatory_compliance.bundle:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that we created to identify the Bundle resource.
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the Bundle resource.
+        regulation_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^RN[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string of a regulation that is associated to the
+            Bundle resource.
+        friendly_name:
+          type: string
+          nullable: true
+          description: The string that you assigned to describe the resource.
+        status:
+          type: string
+          $ref: '#/components/schemas/bundle_enum_status'
+          nullable: true
+          description: The verification status of the Bundle resource.
+        valid_until:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+            format when the resource will be valid until.
+        email:
+          type: string
+          nullable: true
+          description: The email address that will receive updates when the Bundle
+            resource changes status.
+        status_callback:
+          type: string
+          format: uri
+          nullable: true
+          description: The URL we call to inform your application of status changes.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was created specified
+            in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was last updated
+            specified in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the Bundle resource.
+        links:
+          type: object
+          format: uri-map
+          nullable: true
+          description: The URLs of the Assigned Items of the Bundle resource.
+    bundle_enum_status:
+      type: string
+      enum:
+      - draft
+      - pending-review
+      - in-review
+      - twilio-rejected
+      - twilio-approved
+      - provisionally-approved
+    bundle_enum_end_user_type:
+      type: string
+      enum:
+      - individual
+      - business
+    bundle_enum_sort_by:
+      type: string
+      enum:
+      - valid-until
+      - date-updated
+    bundle_enum_sort_direction:
+      type: string
+      enum:
+      - ASC
+      - DESC
+    numbers.v2.regulatory_compliance.bundle.bundle_copy:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that we created to identify the Bundle resource.
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the Bundle resource.
+        regulation_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^RN[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string of a regulation that is associated to the
+            Bundle resource.
+        friendly_name:
+          type: string
+          nullable: true
+          description: The string that you assigned to describe the resource.
+        status:
+          type: string
+          $ref: '#/components/schemas/bundle_copy_enum_status'
+          nullable: true
+          description: The verification status of the Bundle resource.
+        valid_until:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+            format when the resource will be valid until.
+        email:
+          type: string
+          nullable: true
+          description: The email address that will receive updates when the Bundle
+            resource changes status.
+        status_callback:
+          type: string
+          format: uri
+          nullable: true
+          description: The URL we call to inform your application of status changes.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was created specified
+            in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was last updated
+            specified in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+    bundle_copy_enum_status:
+      type: string
+      enum:
+      - draft
+      - pending-review
+      - in-review
+      - twilio-rejected
+      - twilio-approved
+      - provisionally-approved
+    bundle_copy_enum_end_user_type:
+      type: string
+      enum:
+      - individual
+      - business
+    numbers.v2.regulatory_compliance.end_user:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^IT[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string created by Twilio to identify the End User
+            resource.
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the End User resource.
+        friendly_name:
+          type: string
+          nullable: true
+          description: The string that you assigned to describe the resource.
+        type:
+          type: string
+          $ref: '#/components/schemas/end_user_enum_type'
+          nullable: true
+          description: The type of end user of the Bundle resource - can be `individual`
+            or `business`.
+        attributes:
+          nullable: true
+          description: The set of parameters that are the attributes of the End Users
+            resource which are listed in the End User Types.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was created specified
+            in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was last updated
+            specified in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the End User resource.
+    end_user_enum_type:
+      type: string
+      enum:
+      - individual
+      - business
+    numbers.v2.regulatory_compliance.end_user_type:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^OY[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that identifies the End-User Type resource.
+        friendly_name:
+          type: string
+          nullable: true
+          description: A human-readable description that is assigned to describe the
+            End-User Type resource. Examples can include first name, last name, email,
+            business name, etc
+        machine_name:
+          type: string
+          nullable: true
+          description: A machine-readable description of the End-User Type resource.
+            Examples can include first_name, last_name, email, business_name, etc.
+        fields:
+          type: array
+          items: {}
+          nullable: true
+          description: The required information for creating an End-User. The required
+            fields will change as regulatory needs change and will differ for businesses
+            and individuals.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the End-User Type resource.
+    numbers.v2.regulatory_compliance.bundle.evaluation:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^EL[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that identifies the Evaluation resource.
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the Bundle resource.
+        regulation_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^RN[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string of a regulation that is associated to the
+            Bundle resource.
+        bundle_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that we created to identify the Bundle resource.
+        status:
+          type: string
+          $ref: '#/components/schemas/evaluation_enum_status'
+          nullable: true
+          description: The compliance status of the Evaluation resource.
+        results:
+          type: array
+          items: {}
+          nullable: true
+          description: The results of the Evaluation which includes the valid and
+            invalid attributes.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+        url:
+          type: string
+          format: uri
+          nullable: true
+    evaluation_enum_status:
+      type: string
+      enum:
+      - compliant
+      - noncompliant
+    numbers.v2.regulatory_compliance.bundle.item_assignment:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BV[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that we created to identify the Item Assignment
+            resource.
+        bundle_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that we created to identify the Bundle resource.
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the Item Assignment resource.
+        object_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^[a-zA-Z]{2}[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of an object bag that holds information of the different
+            items.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was created specified
+            in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the Identity resource.
+    numbers.v2.regulatory_compliance.regulation:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^RN[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that identifies the Regulation resource.
+        friendly_name:
+          type: string
+          nullable: true
+          description: 'A human-readable description that is assigned to describe
+            the Regulation resource. Examples can include Germany: Mobile - Business.'
+        iso_country:
+          type: string
+          nullable: true
+          description: The ISO country code of the phone number's country.
+        number_type:
+          type: string
+          nullable: true
+          description: The type of phone number restricted by the regulatory requirement.
+            For example, Germany mobile phone numbers provisioned by businesses require
+            a business name with commercial register proof from the Handelsregisterauszug
+            and a proof of address from Handelsregisterauszug or a trade license by
+            Gewerbeanmeldung.
+        end_user_type:
+          type: string
+          $ref: '#/components/schemas/regulation_enum_end_user_type'
+          nullable: true
+          description: The type of End User the regulation requires - can be `individual`
+            or `business`.
+        requirements:
+          nullable: true
+          description: The SID of an object that holds the regulatory information
+            of the phone number country, phone number type, and end user type.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the Regulation resource.
+    regulation_enum_end_user_type:
+      type: string
+      enum:
+      - individual
+      - business
+    numbers.v2.regulatory_compliance:
+      type: object
+      properties: {}
+    numbers.v2.regulatory_compliance.bundle.replace_items:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that we created to identify the Bundle resource.
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the Bundle resource.
+        regulation_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^RN[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string of a regulation that is associated to the
+            Bundle resource.
+        friendly_name:
+          type: string
+          nullable: true
+          description: The string that you assigned to describe the resource.
+        status:
+          type: string
+          $ref: '#/components/schemas/replace_items_enum_status'
+          nullable: true
+          description: The verification status of the Bundle resource.
+        valid_until:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+            format when the resource will be valid until.
+        email:
+          type: string
+          nullable: true
+          description: The email address that will receive updates when the Bundle
+            resource changes status.
+        status_callback:
+          type: string
+          format: uri
+          nullable: true
+          description: The URL we call to inform your application of status changes.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was created specified
+            in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was last updated
+            specified in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+    replace_items_enum_status:
+      type: string
+      enum:
+      - draft
+      - pending-review
+      - in-review
+      - twilio-rejected
+      - twilio-approved
+      - provisionally-approved
+    replace_items_enum_end_user_type:
+      type: string
+      enum:
+      - individual
+      - business
+    numbers.v2.regulatory_compliance.supporting_document:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^RD[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string created by Twilio to identify the Supporting
+            Document resource.
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the Document resource.
+        friendly_name:
+          type: string
+          nullable: true
+          description: The string that you assigned to describe the resource.
+        mime_type:
+          type: string
+          nullable: true
+          description: The image type uploaded in the Supporting Document container.
+        status:
+          type: string
+          $ref: '#/components/schemas/supporting_document_enum_status'
+          nullable: true
+          description: The verification status of the Supporting Document resource.
+        failure_reason:
+          type: string
+          nullable: true
+          description: The failure reason of the Supporting Document Resource.
+        type:
+          type: string
+          nullable: true
+          description: The type of the Supporting Document.
+        attributes:
+          nullable: true
+          description: The set of parameters that are the attributes of the Supporting
+            Documents resource which are listed in the Supporting Document Types.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was created specified
+            in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was last updated
+            specified in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the Supporting Document resource.
+    supporting_document_enum_status:
+      type: string
+      enum:
+      - draft
+      - pending-review
+      - rejected
+      - approved
+      - expired
+      - provisionally-approved
+    numbers.v2.regulatory_compliance.supporting_document_type:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^OY[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that identifies the Supporting Document Type
+            resource.
+        friendly_name:
+          type: string
+          nullable: true
+          description: A human-readable description of the Supporting Document Type
+            resource.
+        machine_name:
+          type: string
+          nullable: true
+          description: The machine-readable description of the Supporting Document
+            Type resource.
+        fields:
+          type: array
+          items: {}
+          nullable: true
+          description: The required information for creating a Supporting Document.
+            The required fields will change as regulatory needs change and will differ
+            for businesses and individuals.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the Supporting Document Type resource.
+  securitySchemes:
+    accountSid_authToken:
+      type: http
+      scheme: basic
+info:
+  title: Twilio - Numbers
+  description: This is the public Twilio REST API.
+  termsOfService: https://www.twilio.com/legal/tos
+  contact:
+    name: Twilio Support
+    url: https://support.twilio.com
+    email: support@twilio.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.39.1
+openapi: 3.0.1
+paths:
+  /v2/RegulatoryCompliance/Bundles:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - regulation_sid
+      - friendly_name
+      pathType: list
+      parent: /RegulatoryCompliance
+    post:
+      description: Create a new Bundle.
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.bundle'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreateBundle
+      x-maturity:
+      - GA
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreateBundleRequest
+              properties:
+                FriendlyName:
+                  type: string
+                  description: The string that you assigned to describe the resource.
+                Email:
+                  type: string
+                  description: The email address that will receive updates when the
+                    Bundle resource changes status.
+                StatusCallback:
+                  type: string
+                  format: uri
+                  description: The URL we call to inform your application of status
+                    changes.
+                RegulationSid:
+                  type: string
+                  minLength: 34
+                  maxLength: 34
+                  pattern: ^RN[0-9a-fA-F]{32}$
+                  description: The unique string of a regulation that is associated
+                    to the Bundle resource.
+                IsoCountry:
+                  type: string
+                  description: The [ISO country code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
+                    of the Bundle's phone number country ownership request.
+                EndUserType:
+                  type: string
+                  $ref: '#/components/schemas/bundle_enum_end_user_type'
+                  description: The [type of End User](https://www.twilio.com/docs/phone-numbers/regulatory/api/end-user-types)
+                    of the Bundle resource.
+                NumberType:
+                  type: string
+                  description: The type of phone number of the Bundle's ownership
+                    request. Can be `local`, `mobile`, `national`, or `toll free`.
+              required:
+              - FriendlyName
+              - Email
+    get:
+      description: Retrieve a list of all Bundles for an account.
+      parameters:
+      - name: Status
+        in: query
+        description: The verification status of the Bundle resource. Please refer
+          to [Bundle Statuses](https://www.twilio.com/docs/phone-numbers/regulatory/api/bundles#bundle-statuses)
+          for more details.
+        schema:
+          type: string
+          $ref: '#/components/schemas/bundle_enum_status'
+      - name: FriendlyName
+        in: query
+        description: The string that you assigned to describe the resource. The column
+          can contain 255 variable characters.
+        schema:
+          type: string
+      - name: RegulationSid
+        in: query
+        description: The unique string of a [Regulation resource](https://www.twilio.com/docs/phone-numbers/regulatory/api/regulations)
+          that is associated to the Bundle resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^RN[0-9a-fA-F]{32}$
+      - name: IsoCountry
+        in: query
+        description: The 2-digit [ISO country code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
+          of the Bundle's phone number country ownership request.
+        schema:
+          type: string
+      - name: NumberType
+        in: query
+        description: The type of phone number of the Bundle's ownership request. Can
+          be `local`, `mobile`, `national`, or `tollfree`.
+        schema:
+          type: string
+      - name: HasValidUntilDate
+        in: query
+        description: Indicates that the Bundle is a valid Bundle until a specified
+          expiration date.
+        schema:
+          type: boolean
+      - name: SortBy
+        in: query
+        description: Can be `valid-until` or `date-updated`. Defaults to `date-created`.
+        schema:
+          type: string
+          $ref: '#/components/schemas/bundle_enum_sort_by'
+      - name: SortDirection
+        in: query
+        description: Default is `DESC`. Can be `ASC` or `DESC`.
+        schema:
+          type: string
+          $ref: '#/components/schemas/bundle_enum_sort_direction'
+      - name: ValidUntilDate
+        in: query
+        description: Date to filter Bundles having their `valid_until_date` before
+          or after the specified date. Can be `ValidUntilDate>=` or `ValidUntilDate<=`.
+          Both can be used in conjunction as well. [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+          is the acceptable date format.
+        schema:
+          type: string
+          format: date-time
+      - name: ValidUntilDate<
+        in: query
+        description: Date to filter Bundles having their `valid_until_date` before
+          or after the specified date. Can be `ValidUntilDate>=` or `ValidUntilDate<=`.
+          Both can be used in conjunction as well. [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+          is the acceptable date format.
+        schema:
+          type: string
+          format: date-time
+      - name: ValidUntilDate>
+        in: query
+        description: Date to filter Bundles having their `valid_until_date` before
+          or after the specified date. Can be `ValidUntilDate>=` or `ValidUntilDate<=`.
+          Both can be used in conjunction as well. [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+          is the acceptable date format.
+        schema:
+          type: string
+          format: date-time
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListBundleResponse
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/numbers.v2.regulatory_compliance.bundle'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListBundle
+      x-maturity:
+      - GA
+  /v2/RegulatoryCompliance/Bundles/{Sid}:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - regulation_sid
+      - friendly_name
+      pathType: instance
+      parent: /RegulatoryCompliance
+    get:
+      description: Fetch a specific Bundle instance.
+      parameters:
+      - name: Sid
+        in: path
+        description: The unique string that we created to identify the Bundle resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.bundle'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchBundle
+      x-maturity:
+      - GA
+    post:
+      description: Updates a Bundle in an account.
+      parameters:
+      - name: Sid
+        in: path
+        description: The unique string that we created to identify the Bundle resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.bundle'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: UpdateBundle
+      x-maturity:
+      - GA
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: UpdateBundleRequest
+              properties:
+                Status:
+                  type: string
+                  $ref: '#/components/schemas/bundle_enum_status'
+                  description: The verification status of the Bundle resource.
+                StatusCallback:
+                  type: string
+                  format: uri
+                  description: The URL we call to inform your application of status
+                    changes.
+                FriendlyName:
+                  type: string
+                  description: The string that you assigned to describe the resource.
+                Email:
+                  type: string
+                  description: The email address that will receive updates when the
+                    Bundle resource changes status.
+    delete:
+      description: Delete a specific Bundle.
+      parameters:
+      - name: Sid
+        in: path
+        description: The unique string that we created to identify the Bundle resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '204':
+          description: The resource was deleted successfully.
+      security:
+      - accountSid_authToken: []
+      operationId: DeleteBundle
+      x-maturity:
+      - GA
+  /v2/RegulatoryCompliance/Bundles/{BundleSid}/Copies:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties: []
+      pathType: list
+      parent: /RegulatoryCompliance/Bundles/{Sid}
+      mountName: bundle_copies
+    post:
+      description: Creates a new copy of a Bundle. It will internally create copies
+        of all the bundle items (identities and documents) of the original bundle
+      parameters:
+      - name: BundleSid
+        in: path
+        description: The unique string that identifies the Bundle to be copied.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.bundle.bundle_copy'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreateBundleCopy
+      x-maturity:
+      - Beta
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreateBundleCopyRequest
+              properties:
+                FriendlyName:
+                  type: string
+                  description: The string that you assigned to describe the copied
+                    bundle.
+    get:
+      description: Retrieve a list of all Bundles Copies for a Bundle.
+      parameters:
+      - name: BundleSid
+        in: path
+        description: The unique string that we created to identify the Bundle resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+        required: true
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListBundleCopyResponse
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/numbers.v2.regulatory_compliance.bundle.bundle_copy'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListBundleCopy
+      x-maturity:
+      - Beta
+  /v2/RegulatoryCompliance/EndUsers:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - friendly_name
+      pathType: list
+      parent: /RegulatoryCompliance
+    post:
+      description: Create a new End User.
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.end_user'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreateEndUser
+      x-maturity:
+      - GA
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreateEndUserRequest
+              properties:
+                FriendlyName:
+                  type: string
+                  description: The string that you assigned to describe the resource.
+                Type:
+                  type: string
+                  $ref: '#/components/schemas/end_user_enum_type'
+                  description: The type of end user of the Bundle resource - can be
+                    `individual` or `business`.
+                Attributes:
+                  description: The set of parameters that are the attributes of the
+                    End User resource which are derived End User Types.
+              required:
+              - FriendlyName
+              - Type
+    get:
+      description: Retrieve a list of all End User for an account.
+      parameters:
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListEndUserResponse
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/numbers.v2.regulatory_compliance.end_user'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListEndUser
+      x-maturity:
+      - GA
+  /v2/RegulatoryCompliance/EndUsers/{Sid}:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - friendly_name
+      pathType: instance
+      parent: /RegulatoryCompliance
+    get:
+      description: Fetch specific End User Instance.
+      parameters:
+      - name: Sid
+        in: path
+        description: The unique string created by Twilio to identify the End User
+          resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^IT[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.end_user'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchEndUser
+      x-maturity:
+      - GA
+    post:
+      description: Update an existing End User.
+      parameters:
+      - name: Sid
+        in: path
+        description: The unique string created by Twilio to identify the End User
+          resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^IT[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.end_user'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: UpdateEndUser
+      x-maturity:
+      - GA
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: UpdateEndUserRequest
+              properties:
+                FriendlyName:
+                  type: string
+                  description: The string that you assigned to describe the resource.
+                Attributes:
+                  description: The set of parameters that are the attributes of the
+                    End User resource which are derived End User Types.
+    delete:
+      description: Delete a specific End User.
+      parameters:
+      - name: Sid
+        in: path
+        description: The unique string created by Twilio to identify the End User
+          resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^IT[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '204':
+          description: The resource was deleted successfully.
+      security:
+      - accountSid_authToken: []
+      operationId: DeleteEndUser
+      x-maturity:
+      - GA
+  /v2/RegulatoryCompliance/EndUserTypes:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - friendly_name
+      pathType: list
+      parent: /RegulatoryCompliance
+    get:
+      description: Retrieve a list of all End-User Types.
+      parameters:
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListEndUserTypeResponse
+                properties:
+                  end_user_types:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/numbers.v2.regulatory_compliance.end_user_type'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListEndUserType
+      x-maturity:
+      - GA
+  /v2/RegulatoryCompliance/EndUserTypes/{Sid}:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - friendly_name
+      pathType: instance
+      parent: /RegulatoryCompliance
+    get:
+      description: Fetch a specific End-User Type Instance.
+      parameters:
+      - name: Sid
+        in: path
+        description: The unique string that identifies the End-User Type resource.
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.end_user_type'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchEndUserType
+      x-maturity:
+      - GA
+  /v2/RegulatoryCompliance/Bundles/{BundleSid}/Evaluations:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      pathType: list
+      parent: /RegulatoryCompliance/Bundles/{Sid}
+    post:
+      description: Creates an evaluation for a bundle
+      parameters:
+      - name: BundleSid
+        in: path
+        description: The unique string that identifies the Bundle resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.bundle.evaluation'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreateEvaluation
+      x-maturity:
+      - GA
+    get:
+      description: Retrieve a list of Evaluations associated to the Bundle resource.
+      parameters:
+      - name: BundleSid
+        in: path
+        description: The unique string that identifies the Bundle resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+        required: true
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListEvaluationResponse
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/numbers.v2.regulatory_compliance.bundle.evaluation'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListEvaluation
+      x-maturity:
+      - GA
+  /v2/RegulatoryCompliance/Bundles/{BundleSid}/Evaluations/{Sid}:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      pathType: instance
+      parent: /RegulatoryCompliance/Bundles/{Sid}
+    get:
+      description: Fetch specific Evaluation Instance.
+      parameters:
+      - name: BundleSid
+        in: path
+        description: The unique string that we created to identify the Bundle resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The unique string that identifies the Evaluation resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^EL[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.bundle.evaluation'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchEvaluation
+      x-maturity:
+      - GA
+  /v2/RegulatoryCompliance/Bundles/{BundleSid}/ItemAssignments:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      pathType: list
+      parent: /RegulatoryCompliance/Bundles/{Sid}
+    post:
+      description: Create a new Assigned Item.
+      parameters:
+      - name: BundleSid
+        in: path
+        description: The unique string that we created to identify the Bundle resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.bundle.item_assignment'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreateItemAssignment
+      x-maturity:
+      - GA
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreateItemAssignmentRequest
+              properties:
+                ObjectSid:
+                  type: string
+                  minLength: 34
+                  maxLength: 34
+                  pattern: ^[a-zA-Z]{2}[0-9a-fA-F]{32}$
+                  description: The SID of an object bag that holds information of
+                    the different items.
+              required:
+              - ObjectSid
+    get:
+      description: Retrieve a list of all Assigned Items for an account.
+      parameters:
+      - name: BundleSid
+        in: path
+        description: The unique string that we created to identify the Bundle resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+        required: true
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListItemAssignmentResponse
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/numbers.v2.regulatory_compliance.bundle.item_assignment'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListItemAssignment
+      x-maturity:
+      - GA
+  /v2/RegulatoryCompliance/Bundles/{BundleSid}/ItemAssignments/{Sid}:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      pathType: instance
+      parent: /RegulatoryCompliance/Bundles/{Sid}
+    get:
+      description: Fetch specific Assigned Item Instance.
+      parameters:
+      - name: BundleSid
+        in: path
+        description: The unique string that we created to identify the Bundle resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The unique string that we created to identify the Identity resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BV[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.bundle.item_assignment'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchItemAssignment
+      x-maturity:
+      - GA
+    delete:
+      description: Remove an Assignment Item Instance.
+      parameters:
+      - name: BundleSid
+        in: path
+        description: The unique string that we created to identify the Bundle resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The unique string that we created to identify the Identity resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BV[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '204':
+          description: The resource was deleted successfully.
+      security:
+      - accountSid_authToken: []
+      operationId: DeleteItemAssignment
+      x-maturity:
+      - GA
+  /v2/RegulatoryCompliance/Regulations:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - friendly_name
+      pathType: list
+      parent: /RegulatoryCompliance
+    get:
+      description: Retrieve a list of all Regulations.
+      parameters:
+      - name: EndUserType
+        in: query
+        description: The type of End User the regulation requires - can be `individual`
+          or `business`.
+        schema:
+          type: string
+          $ref: '#/components/schemas/regulation_enum_end_user_type'
+      - name: IsoCountry
+        in: query
+        description: The ISO country code of the phone number's country.
+        schema:
+          type: string
+      - name: NumberType
+        in: query
+        description: The type of phone number that the regulatory requiremnt is restricting.
+        schema:
+          type: string
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListRegulationResponse
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/numbers.v2.regulatory_compliance.regulation'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListRegulation
+      x-maturity:
+      - GA
+  /v2/RegulatoryCompliance/Regulations/{Sid}:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - friendly_name
+      pathType: instance
+      parent: /RegulatoryCompliance
+    get:
+      description: Fetch specific Regulation Instance.
+      parameters:
+      - name: Sid
+        in: path
+        description: The unique string that identifies the Regulation resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^RN[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.regulation'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchRegulation
+      x-maturity:
+      - GA
+  /v2/RegulatoryCompliance:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties: []
+      pathType: list
+  /v2/RegulatoryCompliance/Bundles/{BundleSid}/ReplaceItems:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties: []
+      pathType: list
+      parent: /RegulatoryCompliance/Bundles/{Sid}
+      className: replace_items
+    post:
+      description: Replaces all bundle items in the target bundle (specified in the
+        path) with all the bundle items of the source bundle (specified by the from_bundle_sid
+        body param)
+      parameters:
+      - name: BundleSid
+        in: path
+        description: The unique string that identifies the Bundle where the item assignments
+          are going to be replaced.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^BU[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.bundle.replace_items'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreateReplaceItems
+      x-maturity:
+      - Beta
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreateReplaceItemsRequest
+              properties:
+                FromBundleSid:
+                  type: string
+                  minLength: 34
+                  maxLength: 34
+                  pattern: ^BU[0-9a-fA-F]{32}$
+                  description: The source bundle sid to copy the item assignments
+                    from.
+              required:
+              - FromBundleSid
+  /v2/RegulatoryCompliance/SupportingDocuments:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - friendly_name
+      pathType: list
+      parent: /RegulatoryCompliance
+    post:
+      description: Create a new Supporting Document.
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.supporting_document'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreateSupportingDocument
+      x-maturity:
+      - GA
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreateSupportingDocumentRequest
+              properties:
+                FriendlyName:
+                  type: string
+                  description: The string that you assigned to describe the resource.
+                Type:
+                  type: string
+                  description: The type of the Supporting Document.
+                Attributes:
+                  description: The set of parameters that are the attributes of the
+                    Supporting Documents resource which are derived Supporting Document
+                    Types.
+              required:
+              - FriendlyName
+              - Type
+    get:
+      description: Retrieve a list of all Supporting Document for an account.
+      parameters:
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListSupportingDocumentResponse
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/numbers.v2.regulatory_compliance.supporting_document'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListSupportingDocument
+      x-maturity:
+      - GA
+  /v2/RegulatoryCompliance/SupportingDocuments/{Sid}:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - friendly_name
+      pathType: instance
+      parent: /RegulatoryCompliance
+    get:
+      description: Fetch specific Supporting Document Instance.
+      parameters:
+      - name: Sid
+        in: path
+        description: The unique string created by Twilio to identify the Supporting
+          Document resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^RD[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.supporting_document'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchSupportingDocument
+      x-maturity:
+      - GA
+    post:
+      description: Update an existing Supporting Document.
+      parameters:
+      - name: Sid
+        in: path
+        description: The unique string created by Twilio to identify the Supporting
+          Document resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^RD[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.supporting_document'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: UpdateSupportingDocument
+      x-maturity:
+      - GA
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: UpdateSupportingDocumentRequest
+              properties:
+                FriendlyName:
+                  type: string
+                  description: The string that you assigned to describe the resource.
+                Attributes:
+                  description: The set of parameters that are the attributes of the
+                    Supporting Document resource which are derived Supporting Document
+                    Types.
+    delete:
+      description: Delete a specific Supporting Document.
+      parameters:
+      - name: Sid
+        in: path
+        description: The unique string created by Twilio to identify the Supporting
+          Document resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^RD[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '204':
+          description: The resource was deleted successfully.
+      security:
+      - accountSid_authToken: []
+      operationId: DeleteSupportingDocument
+      x-maturity:
+      - GA
+  /v2/RegulatoryCompliance/SupportingDocumentTypes:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - friendly_name
+      pathType: list
+      parent: /RegulatoryCompliance
+    get:
+      description: Retrieve a list of all Supporting Document Types.
+      parameters:
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListSupportingDocumentTypeResponse
+                properties:
+                  supporting_document_types:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/numbers.v2.regulatory_compliance.supporting_document_type'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListSupportingDocumentType
+      x-maturity:
+      - GA
+  /v2/RegulatoryCompliance/SupportingDocumentTypes/{Sid}:
+    servers:
+    - url: https://numbers.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - friendly_name
+      pathType: instance
+      parent: /RegulatoryCompliance
+    get:
+      description: Fetch a specific Supporting Document Type Instance.
+      parameters:
+      - name: Sid
+        in: path
+        description: The unique string that identifies the Supporting Document Type
+          resource.
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/numbers.v2.regulatory_compliance.supporting_document_type'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchSupportingDocumentType
+      x-maturity:
+      - GA
+servers:
+- url: https://numbers.twilio.com
+x-maturity:
+- name: GA
+  description: This product is Generally Available.
+- name: Beta
+  description: PLEASE NOTE that this is a Beta product that is subject to change.
+    Use it with caution.
