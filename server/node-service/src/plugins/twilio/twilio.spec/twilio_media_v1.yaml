@@ -1,0 +1,1070 @@
+components:
+  schemas:
+    media.v1.media_processor:
+      type: object
+      properties:
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the MediaProcessor resource.
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^ZX[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string generated to identify the MediaProcessor
+            resource.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was created specified
+            in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was last updated
+            specified in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        extension:
+          type: string
+          nullable: true
+          description: 'The [Media Extension](/docs/live/api/media-extensions-overview)
+            name or URL. Ex: `video-composer-v2`'
+        extension_context:
+          type: string
+          nullable: true
+          description: The context of the Media Extension, represented as a JSON dictionary.
+            See the documentation for the specific [Media Extension](/docs/live/api/media-extensions-overview)
+            you are using for more information about the context to send.
+        status:
+          type: string
+          $ref: '#/components/schemas/media_processor_enum_status'
+          nullable: true
+          description: 'The status of the MediaProcessor. Can be: `started`, `ended`
+            or `failed`.'
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the resource.
+        ended_reason:
+          type: string
+          nullable: true
+          description: The reason why a MediaProcessor ended. When a MediaProcessor
+            is in progress, will be `null`. When a MediaProcessor is completed, can
+            be `ended-via-api`, `max-duration-exceeded`, `error-loading-extension`,
+            `error-streaming-media` or `internal-service-error`. See [ended reasons](/docs/live/api/mediaprocessors#mediaprocessor-ended-reason-values)
+            for more details.
+        status_callback:
+          type: string
+          format: uri
+          nullable: true
+          description: The URL to which Twilio will send asynchronous webhook requests
+            for every MediaProcessor event. See [Status Callbacks](/docs/live/status-callbacks)
+            for details.
+        status_callback_method:
+          type: string
+          format: http-method
+          enum:
+          - HEAD
+          - GET
+          - POST
+          - PATCH
+          - PUT
+          - DELETE
+          nullable: true
+          description: The HTTP method Twilio should use to call the `status_callback`
+            URL. Can be `POST` or `GET` and the default is `POST`.
+        max_duration:
+          type: integer
+          nullable: true
+          description: The maximum time, in seconds, that the MediaProcessor can run
+            before automatically ends. The default value is 300 seconds, and the maximum
+            value is 90000 seconds. Once this maximum duration is reached, Twilio
+            will end the MediaProcessor, regardless of whether media is still streaming.
+    media_processor_enum_status:
+      type: string
+      enum:
+      - failed
+      - started
+      - ended
+    media_processor_enum_update_status:
+      type: string
+      enum:
+      - ended
+    media_processor_enum_order:
+      type: string
+      enum:
+      - asc
+      - desc
+    media.v1.media_recording:
+      type: object
+      properties:
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the MediaRecording resource.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was created specified
+            in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was last updated
+            specified in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        duration:
+          type: integer
+          nullable: true
+          description: The duration of the MediaRecording in seconds.
+        format:
+          type: string
+          $ref: '#/components/schemas/media_recording_enum_format'
+          nullable: true
+          description: The format of the MediaRecording, either `mp4` or `webm`.
+        links:
+          type: object
+          format: uri-map
+          nullable: true
+          description: The URLs of related resources.
+        processor_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^ZX[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the MediaProcessor resource which produced the MediaRecording.
+        resolution:
+          type: string
+          nullable: true
+          description: The dimensions of the video image in pixels expressed as columns
+            (width) and rows (height).
+        source_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^[a-zA-Z]{2}[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the resource that generated the original media track(s)
+            of the MediaRecording.
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KV[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string generated to identify the MediaRecording
+            resource.
+        media_size:
+          type: integer
+          format: int64
+          nullable: true
+          description: The size of the recording media in bytes.
+        status:
+          type: string
+          $ref: '#/components/schemas/media_recording_enum_status'
+          nullable: true
+          description: 'The status of the MediaRecording. Can be: `processing`, `completed`,
+            `deleted`, or `failed`.'
+        status_callback:
+          type: string
+          format: uri
+          nullable: true
+          description: The URL to which Twilio will send asynchronous webhook requests
+            for every MediaRecording event. See [Status Callbacks](/docs/live/status-callbacks)
+            for more details.
+        status_callback_method:
+          type: string
+          format: http-method
+          enum:
+          - HEAD
+          - GET
+          - POST
+          - PATCH
+          - PUT
+          - DELETE
+          nullable: true
+          description: The HTTP method Twilio should use to call the `status_callback`
+            URL. Can be `POST` or `GET` and the default is `POST`.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the resource.
+    media_recording_enum_format:
+      type: string
+      enum:
+      - mp4
+      - webm
+    media_recording_enum_order:
+      type: string
+      enum:
+      - asc
+      - desc
+    media_recording_enum_status:
+      type: string
+      enum:
+      - processing
+      - completed
+      - deleted
+      - failed
+    media.v1.player_streamer:
+      type: object
+      properties:
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the PlayerStreamer resource.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was created specified
+            in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was last updated
+            specified in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        video:
+          type: boolean
+          nullable: true
+          description: Specifies whether the PlayerStreamer is configured to stream
+            video. Defaults to `true`.
+        links:
+          type: object
+          format: uri-map
+          nullable: true
+          description: The URLs of related resources.
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^VJ[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string generated to identify the PlayerStreamer
+            resource.
+        status:
+          type: string
+          $ref: '#/components/schemas/player_streamer_enum_status'
+          nullable: true
+          description: 'The status of the PlayerStreamer. Can be: `created`, `started`,
+            `ended`, or `failed`. See [status](/docs/live/api/playerstreamers#status)
+            for more information.'
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the resource.
+        status_callback:
+          type: string
+          format: uri
+          nullable: true
+          description: The URL to which Twilio will send asynchronous webhook requests
+            for every PlayerStreamer event. See [Status Callbacks](/docs/live/status-callbacks)
+            for more details.
+        status_callback_method:
+          type: string
+          format: http-method
+          enum:
+          - HEAD
+          - GET
+          - POST
+          - PATCH
+          - PUT
+          - DELETE
+          nullable: true
+          description: The HTTP method Twilio should use to call the `status_callback`
+            URL. Can be `POST` or `GET` and the default is `POST`.
+        ended_reason:
+          type: string
+          $ref: '#/components/schemas/player_streamer_enum_ended_reason'
+          nullable: true
+          description: The reason why a PlayerStreamer ended. When a PlayerStreamer
+            is in progress, will be `null`. When a PlayerStreamer is completed, can
+            be `ended-via-api`, `max-duration-exceeded`, `stream-disconnected-by-source`
+            or `unexpected-failure`. See [ended reasons](/docs/live/api/playerstreamers#ended-reason)
+            for more details.
+        max_duration:
+          type: integer
+          nullable: true
+          description: The maximum time, in seconds, that the PlayerStreamer is active
+            (`created` or `started`) before automatically ends. The default value
+            is 300 seconds, and the maximum value is 90000 seconds. Once this maximum
+            duration is reached, Twilio will end the PlayerStreamer, regardless of
+            whether media is still streaming.
+    player_streamer_enum_status:
+      type: string
+      enum:
+      - created
+      - started
+      - ended
+      - failed
+    player_streamer_enum_update_status:
+      type: string
+      enum:
+      - ended
+    player_streamer_enum_order:
+      type: string
+      enum:
+      - asc
+      - desc
+    player_streamer_enum_ended_reason:
+      type: string
+      enum:
+      - ended-via-api
+      - max-duration-exceeded
+      - stream-disconnected-by-source
+      - unexpected-failure
+    media.v1.player_streamer.player_streamer_playback_grant:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^VJ[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string generated to identify the PlayerStreamer
+            resource that this PlaybackGrant authorizes views for.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the resource.
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created this resource.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time in GMT when the resource was created specified
+            in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
+        grant:
+          nullable: true
+          description: The grant that authorizes the player sdk to connect to the
+            livestream
+  securitySchemes:
+    accountSid_authToken:
+      type: http
+      scheme: basic
+info:
+  title: Twilio - Media
+  description: This is the public Twilio REST API.
+  termsOfService: https://www.twilio.com/legal/tos
+  contact:
+    name: Twilio Support
+    url: https://support.twilio.com
+    email: support@twilio.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.39.1
+openapi: 3.0.1
+paths:
+  /v1/MediaProcessors:
+    servers:
+    - url: https://media.twilio.com
+    description: A MediaProcessor resource provides the ability to capture content
+      from a web application with a Twilio Media Extension to create a livestream.
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - status
+      - extension
+      - extension_context
+      pathType: list
+      mountName: media_processor
+    post:
+      description: ''
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/media.v1.media_processor'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreateMediaProcessor
+      x-maturity:
+      - GA
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreateMediaProcessorRequest
+              properties:
+                Extension:
+                  type: string
+                  description: 'The [Media Extension](/docs/live/api/media-extensions-overview)
+                    name or URL. Ex: `video-composer-v2`'
+                ExtensionContext:
+                  type: string
+                  description: The context of the Media Extension, represented as
+                    a JSON dictionary. See the documentation for the specific [Media
+                    Extension](/docs/live/api/media-extensions-overview) you are using
+                    for more information about the context to send.
+                ExtensionEnvironment:
+                  description: User-defined environment variables for the Media Extension,
+                    represented as a JSON dictionary of key/value strings. See the
+                    documentation for the specific [Media Extension](/docs/live/api/media-extensions-overview)
+                    you are using for more information about whether you need to provide
+                    this.
+                StatusCallback:
+                  type: string
+                  format: uri
+                  description: The URL to which Twilio will send asynchronous webhook
+                    requests for every MediaProcessor event. See [Status Callbacks](/docs/live/status-callbacks)
+                    for details.
+                StatusCallbackMethod:
+                  type: string
+                  format: http-method
+                  enum:
+                  - HEAD
+                  - GET
+                  - POST
+                  - PATCH
+                  - PUT
+                  - DELETE
+                  description: The HTTP method Twilio should use to call the `status_callback`
+                    URL. Can be `POST` or `GET` and the default is `POST`.
+                MaxDuration:
+                  type: integer
+                  description: The maximum time, in seconds, that the MediaProcessor
+                    can run before automatically ends. The default value is 300 seconds,
+                    and the maximum value is 90000 seconds. Once this maximum duration
+                    is reached, Twilio will end the MediaProcessor, regardless of
+                    whether media is still streaming.
+              required:
+              - Extension
+              - ExtensionContext
+    get:
+      description: Returns a list of MediaProcessors.
+      parameters:
+      - name: Order
+        in: query
+        description: 'The sort order of the list by `date_created`. Can be: `asc`
+          (ascending) or `desc` (descending) with `desc` as the default.'
+        schema:
+          type: string
+          $ref: '#/components/schemas/media_processor_enum_order'
+      - name: Status
+        in: query
+        description: Status to filter by, with possible values `started`, `ended`
+          or `failed`.
+        schema:
+          type: string
+          $ref: '#/components/schemas/media_processor_enum_status'
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListMediaProcessorResponse
+                properties:
+                  media_processors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/media.v1.media_processor'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListMediaProcessor
+      x-maturity:
+      - GA
+  /v1/MediaProcessors/{Sid}:
+    servers:
+    - url: https://media.twilio.com
+    description: A MediaProcessor resource provides the ability to capture content
+      from a web application with a Twilio Media Extension to create a livestream.
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - status
+      - extension
+      - extension_context
+      pathType: instance
+      mountName: media_processor
+    get:
+      description: Returns a single MediaProcessor resource identified by a SID.
+      parameters:
+      - name: Sid
+        in: path
+        description: The SID of the MediaProcessor resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^ZX[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/media.v1.media_processor'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchMediaProcessor
+      x-maturity:
+      - GA
+    post:
+      description: Updates a MediaProcessor resource identified by a SID.
+      parameters:
+      - name: Sid
+        in: path
+        description: The SID of the MediaProcessor resource to update.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^ZX[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/media.v1.media_processor'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: UpdateMediaProcessor
+      x-maturity:
+      - GA
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: UpdateMediaProcessorRequest
+              properties:
+                Status:
+                  type: string
+                  $ref: '#/components/schemas/media_processor_enum_update_status'
+                  description: The status of the MediaProcessor. Can be `ended`.
+              required:
+              - Status
+  /v1/MediaRecordings/{Sid}:
+    servers:
+    - url: https://media.twilio.com
+    description: A MediaRecording resource exposes recording metadata and allows the
+      deletion of a particular recording.
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - status
+      pathType: instance
+      mountName: media_recording
+    delete:
+      description: Deletes a MediaRecording resource identified by a SID.
+      parameters:
+      - name: Sid
+        in: path
+        description: The SID of the MediaRecording resource to delete.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KV[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '204':
+          description: The resource was deleted successfully.
+      security:
+      - accountSid_authToken: []
+      operationId: DeleteMediaRecording
+      x-maturity:
+      - Preview
+    get:
+      description: Returns a single MediaRecording resource identified by a SID.
+      parameters:
+      - name: Sid
+        in: path
+        description: The SID of the MediaRecording resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KV[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/media.v1.media_recording'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchMediaRecording
+      x-maturity:
+      - Preview
+  /v1/MediaRecordings:
+    servers:
+    - url: https://media.twilio.com
+    description: A MediaRecording resource exposes recording metadata and allows the
+      deletion of a particular recording.
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - status
+      pathType: list
+      mountName: media_recording
+    get:
+      description: Returns a list of MediaRecordings.
+      parameters:
+      - name: Order
+        in: query
+        description: 'The sort order of the list by `date_created`. Can be: `asc`
+          (ascending) or `desc` (descending) with `desc` as the default.'
+        schema:
+          type: string
+          $ref: '#/components/schemas/media_recording_enum_order'
+      - name: Status
+        in: query
+        description: Status to filter by, with possible values `processing`, `completed`,
+          `deleted`, or `failed`.
+        schema:
+          type: string
+          $ref: '#/components/schemas/media_recording_enum_status'
+      - name: ProcessorSid
+        in: query
+        description: SID of a MediaProcessor to filter by.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^ZX[0-9a-fA-F]{32}$
+      - name: SourceSid
+        in: query
+        description: SID of a MediaRecording source to filter by.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^[a-zA-Z]{2}[0-9a-fA-F]{32}$
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListMediaRecordingResponse
+                properties:
+                  media_recordings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/media.v1.media_recording'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListMediaRecording
+      x-maturity:
+      - Preview
+  /v1/PlayerStreamers/{Sid}:
+    servers:
+    - url: https://media.twilio.com
+    description: A PlayerStreamer resource provides the ability to send a livestream
+      to a JavaScript, iOS, or Android Player SDK.
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - status
+      pathType: instance
+      mountName: player_streamer
+    get:
+      description: Returns a single PlayerStreamer resource identified by a SID.
+      parameters:
+      - name: Sid
+        in: path
+        description: The SID of the PlayerStreamer resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^VJ[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/media.v1.player_streamer'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchPlayerStreamer
+      x-maturity:
+      - GA
+    post:
+      description: Updates a PlayerStreamer resource identified by a SID.
+      parameters:
+      - name: Sid
+        in: path
+        description: The SID of the PlayerStreamer resource to update.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^VJ[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/media.v1.player_streamer'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: UpdatePlayerStreamer
+      x-maturity:
+      - GA
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: UpdatePlayerStreamerRequest
+              properties:
+                Status:
+                  type: string
+                  $ref: '#/components/schemas/player_streamer_enum_update_status'
+                  description: 'The status the PlayerStreamer should be transitioned
+                    to. Can be: `ended`.'
+              required:
+              - Status
+  /v1/PlayerStreamers:
+    servers:
+    - url: https://media.twilio.com
+    description: A PlayerStreamer resource provides the ability to send a livestream
+      to a JavaScript, iOS, or Android Player SDK.
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - status
+      pathType: list
+      mountName: player_streamer
+    post:
+      description: ''
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/media.v1.player_streamer'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreatePlayerStreamer
+      x-maturity:
+      - GA
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreatePlayerStreamerRequest
+              properties:
+                Video:
+                  type: boolean
+                  description: Specifies whether the PlayerStreamer is configured
+                    to stream video. Defaults to `true`.
+                StatusCallback:
+                  type: string
+                  format: uri
+                  description: The URL to which Twilio will send asynchronous webhook
+                    requests for every PlayerStreamer event. See [Status Callbacks](/docs/live/status-callbacks)
+                    for more details.
+                StatusCallbackMethod:
+                  type: string
+                  format: http-method
+                  enum:
+                  - HEAD
+                  - GET
+                  - POST
+                  - PATCH
+                  - PUT
+                  - DELETE
+                  description: The HTTP method Twilio should use to call the `status_callback`
+                    URL. Can be `POST` or `GET` and the default is `POST`.
+                MaxDuration:
+                  type: integer
+                  description: The maximum time, in seconds, that the PlayerStreamer
+                    is active (`created` or `started`) before automatically ends.
+                    The default value is 300 seconds, and the maximum value is 90000
+                    seconds. Once this maximum duration is reached, Twilio will end
+                    the PlayerStreamer, regardless of whether media is still streaming.
+    get:
+      description: Returns a list of PlayerStreamers.
+      parameters:
+      - name: Order
+        in: query
+        description: 'The sort order of the list by `date_created`. Can be: `asc`
+          (ascending) or `desc` (descending) with `desc` as the default.'
+        schema:
+          type: string
+          $ref: '#/components/schemas/player_streamer_enum_order'
+      - name: Status
+        in: query
+        description: Status to filter by, with possible values `created`, `started`,
+          `ended`, or `failed`.
+        schema:
+          type: string
+          $ref: '#/components/schemas/player_streamer_enum_status'
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListPlayerStreamerResponse
+                properties:
+                  player_streamers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/media.v1.player_streamer'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListPlayerStreamer
+      x-maturity:
+      - GA
+  /v1/PlayerStreamers/{Sid}/PlaybackGrant:
+    servers:
+    - url: https://media.twilio.com
+    description: A PlaybackGrant resource allows developers to generate a grant to
+      initialize the Twilio Live Player SDK and connect to a livestream.
+    x-twilio:
+      defaultOutputProperties: []
+      pathType: instance
+      parent: /PlayerStreamers/{Sid}
+    post:
+      description: ''
+      parameters:
+      - name: Sid
+        in: path
+        description: The unique string generated to identify the PlayerStreamer resource
+          associated with this PlaybackGrant
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^VJ[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/media.v1.player_streamer.player_streamer_playback_grant'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreatePlayerStreamerPlaybackGrant
+      x-maturity:
+      - GA
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreatePlayerStreamerPlaybackGrantRequest
+              properties:
+                Ttl:
+                  type: integer
+                  description: The time to live of the PlaybackGrant. Default value
+                    is 15 seconds. Maximum value is 60 seconds.
+                AccessControlAllowOrigin:
+                  type: string
+                  description: The full origin URL where the livestream can be streamed.
+                    If this is not provided, it can be streamed from any domain.
+    get:
+      description: '**This method is not enabled.** Returns a single PlaybackGrant
+        resource identified by a SID.'
+      parameters:
+      - name: Sid
+        in: path
+        description: The SID of the PlayerStreamer resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^VJ[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/media.v1.player_streamer.player_streamer_playback_grant'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchPlayerStreamerPlaybackGrant
+      x-maturity:
+      - GA
+servers:
+- url: https://media.twilio.com
+x-maturity:
+- name: GA
+  description: This product is Generally Available.
+- name: Preview
+  description: PLEASE NOTE that this is a Preview product that is subject to change.
+    Use it with caution. If you currently do not have developer preview access, please
+    contact help@twilio.com.

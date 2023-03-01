@@ -33,7 +33,7 @@ const <%=id %>Plugin: DataSourcePlugin<any, DataSourceConfigType> = {
   category: "api",
   dataSourceConfig,
   queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(spec, parseOptions);
+    const { actions, categories } = await parseOpenApi(spec<% if (isJsonSpec) { %> as unknown<% } %> as OpenAPI.Document, parseOptions);
     return {
       type: "query",
       label: "Action",

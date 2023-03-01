@@ -1,0 +1,729 @@
+components:
+  schemas:
+    pricing.v1.messaging:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        url:
+          type: string
+          format: uri
+          nullable: true
+        links:
+          type: object
+          format: uri-map
+          nullable: true
+    pricing.v1.messaging.messaging_country:
+      type: object
+      properties:
+        country:
+          type: string
+          nullable: true
+          description: The name of the country.
+        iso_country:
+          type: string
+          format: iso-country-code
+          nullable: true
+          description: The [ISO country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the resource.
+    pricing.v1.messaging.messaging_country-instance:
+      type: object
+      properties:
+        country:
+          type: string
+          nullable: true
+          description: The name of the country.
+        iso_country:
+          type: string
+          format: iso-country-code
+          nullable: true
+          description: The [ISO country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
+        outbound_sms_prices:
+          type: array
+          items:
+            type: object
+            format: outbound-sms-price
+            properties:
+              carrier:
+                type: string
+              mcc:
+                type: string
+              mnc:
+                type: string
+              prices:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    base_price:
+                      type: number
+                    current_price:
+                      type: number
+                    number_type:
+                      type: string
+          nullable: true
+          description: The list of [OutboundSMSPrice](https://www.twilio.com/docs/sms/api/pricing#outbound-sms-price)
+            records that represent the price to send a message for each MCC/MNC applicable
+            in this country.
+        inbound_sms_prices:
+          type: array
+          items:
+            type: object
+            format: inbound-sms-price
+            properties:
+              base_price:
+                type: number
+              current_price:
+                type: number
+              number_type:
+                type: string
+          nullable: true
+          description: The list of [InboundPrice](https://www.twilio.com/docs/sms/api/pricing#inbound-price)
+            records that describe the price to receive an inbound SMS to the different
+            Twilio phone number types supported in this country
+        price_unit:
+          type: string
+          format: currency
+          nullable: true
+          description: The currency in which prices are measured, specified in [ISO
+            4127](http://www.iso.org/iso/home/standards/currency_codes.htm) format
+            (e.g. `usd`, `eur`, `jpy`).
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the resource.
+    pricing.v1.phone_number:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        url:
+          type: string
+          format: uri
+          nullable: true
+        links:
+          type: object
+          format: uri-map
+          nullable: true
+    pricing.v1.phone_number.phone_number_country:
+      type: object
+      properties:
+        country:
+          type: string
+          nullable: true
+          description: The name of the country.
+        iso_country:
+          type: string
+          format: iso-country-code
+          nullable: true
+          description: The [ISO country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the resource.
+    pricing.v1.phone_number.phone_number_country-instance:
+      type: object
+      properties:
+        country:
+          type: string
+          nullable: true
+          description: The name of the country.
+        iso_country:
+          type: string
+          format: iso-country-code
+          nullable: true
+          description: The [ISO country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
+        phone_number_prices:
+          type: array
+          items:
+            type: object
+            format: phone-number-price
+            properties:
+              base_price:
+                type: number
+              current_price:
+                type: number
+              number_type:
+                type: string
+          nullable: true
+          description: The list of [PhoneNumberPrice](https://www.twilio.com/docs/phone-numbers/pricing#phone-number-price)
+            records.
+        price_unit:
+          type: string
+          format: currency
+          nullable: true
+          description: The currency in which prices are measured, specified in [ISO
+            4127](http://www.iso.org/iso/home/standards/currency_codes.htm) format
+            (e.g. `usd`, `eur`, `jpy`).
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the resource.
+    pricing.v1.voice:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        url:
+          type: string
+          format: uri
+          nullable: true
+        links:
+          type: object
+          format: uri-map
+          nullable: true
+    pricing.v1.voice.voice_country:
+      type: object
+      properties:
+        country:
+          type: string
+          nullable: true
+          description: The name of the country.
+        iso_country:
+          type: string
+          format: iso-country-code
+          nullable: true
+          description: The [ISO country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the resource.
+    pricing.v1.voice.voice_country-instance:
+      type: object
+      properties:
+        country:
+          type: string
+          nullable: true
+          description: The name of the country.
+        iso_country:
+          type: string
+          format: iso-country-code
+          nullable: true
+          description: The [ISO country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
+        outbound_prefix_prices:
+          type: array
+          items:
+            type: object
+            format: outbound-prefix-price
+            properties:
+              prefixes:
+                type: array
+                items:
+                  type: string
+              base_price:
+                type: number
+              current_price:
+                type: number
+              friendly_name:
+                type: string
+          nullable: true
+          description: The list of OutboundPrefixPrice records, which include a list
+            of the `prefixes`, the `friendly_name`, `base_price`, and the   `current_price`
+            for those prefixes.
+        inbound_call_prices:
+          type: array
+          items:
+            type: object
+            format: inbound-call-price
+            properties:
+              base_price:
+                type: number
+              current_price:
+                type: number
+              number_type:
+                type: string
+          nullable: true
+          description: The list of [InboundCallPrice](https://www.twilio.com/docs/voice/pricing#inbound-call-price)
+            records.
+        price_unit:
+          type: string
+          format: currency
+          nullable: true
+          description: The currency in which prices are measured, specified in [ISO
+            4127](http://www.iso.org/iso/home/standards/currency_codes.htm) format
+            (e.g. `usd`, `eur`, `jpy`).
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the resource.
+    pricing.v1.voice.voice_number:
+      type: object
+      properties:
+        number:
+          type: string
+          format: phone-number
+          nullable: true
+          description: The phone number.
+        country:
+          type: string
+          nullable: true
+          description: The name of the country.
+        iso_country:
+          type: string
+          format: iso-country-code
+          nullable: true
+          description: The [ISO country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
+        outbound_call_price:
+          type: object
+          format: outbound-call-price
+          properties:
+            base_price:
+              type: number
+            current_price:
+              type: number
+          nullable: true
+          description: The OutboundCallPrice record, which includes a list of `origination_prefixes`
+            and the `base_price` and `current_price` for those prefixes.
+        inbound_call_price:
+          type: object
+          format: inbound-call-price
+          properties:
+            base_price:
+              type: number
+            current_price:
+              type: number
+            number_type:
+              type: string
+          nullable: true
+          description: The [InboundCallPrice](https://www.twilio.com/docs/voice/pricing#inbound-call-price)
+            record. If `null`, the Phone Number is not a Twilio number owned by this
+            account.
+        price_unit:
+          type: string
+          format: currency
+          nullable: true
+          description: The currency in which prices are measured, specified in [ISO
+            4127](http://www.iso.org/iso/home/standards/currency_codes.htm) format
+            (e.g. `usd`, `eur`, `jpy`).
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the resource.
+  securitySchemes:
+    accountSid_authToken:
+      type: http
+      scheme: basic
+info:
+  title: Twilio - Pricing
+  description: This is the public Twilio REST API.
+  termsOfService: https://www.twilio.com/legal/tos
+  contact:
+    name: Twilio Support
+    url: https://support.twilio.com
+    email: support@twilio.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.39.1
+openapi: 3.0.1
+paths:
+  /v1/Messaging:
+    servers:
+    - url: https://pricing.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - name
+      pathType: instance
+  /v1/Messaging/Countries:
+    servers:
+    - url: https://pricing.twilio.com
+    description: Messaging pricing by country
+    x-twilio:
+      defaultOutputProperties:
+      - country
+      - outbound_sms_prices
+      - inbound_sms_prices
+      - price_unit
+      pathType: list
+      parent: /Messaging
+    get:
+      description: ''
+      parameters:
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListMessagingCountryResponse
+                properties:
+                  countries:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/pricing.v1.messaging.messaging_country'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListMessagingCountry
+      x-maturity:
+      - GA
+  /v1/Messaging/Countries/{IsoCountry}:
+    servers:
+    - url: https://pricing.twilio.com
+    description: Messaging pricing by country
+    x-twilio:
+      defaultOutputProperties:
+      - country
+      - outbound_sms_prices
+      - inbound_sms_prices
+      - price_unit
+      pathType: instance
+      parent: /Messaging
+    get:
+      description: ''
+      parameters:
+      - name: IsoCountry
+        in: path
+        description: The [ISO country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
+          of the pricing information to fetch.
+        schema:
+          type: string
+          format: iso-country-code
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pricing.v1.messaging.messaging_country-instance'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchMessagingCountry
+      x-maturity:
+      - GA
+  /v1/PhoneNumbers:
+    servers:
+    - url: https://pricing.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - name
+      pathType: list
+  /v1/PhoneNumbers/Countries:
+    servers:
+    - url: https://pricing.twilio.com
+    description: Phone number pricing by country
+    x-twilio:
+      defaultOutputProperties:
+      - country
+      - price_unit
+      pathType: list
+      parent: /PhoneNumbers
+    get:
+      description: ''
+      parameters:
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListPhoneNumberCountryResponse
+                properties:
+                  countries:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/pricing.v1.phone_number.phone_number_country'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListPhoneNumberCountry
+      x-maturity:
+      - GA
+  /v1/PhoneNumbers/Countries/{IsoCountry}:
+    servers:
+    - url: https://pricing.twilio.com
+    description: Phone number pricing by country
+    x-twilio:
+      defaultOutputProperties:
+      - country
+      - price_unit
+      pathType: instance
+      parent: /PhoneNumbers
+    get:
+      description: ''
+      parameters:
+      - name: IsoCountry
+        in: path
+        description: The [ISO country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
+          of the pricing information to fetch.
+        schema:
+          type: string
+          format: iso-country-code
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pricing.v1.phone_number.phone_number_country-instance'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchPhoneNumberCountry
+      x-maturity:
+      - GA
+  /v1/Voice:
+    servers:
+    - url: https://pricing.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - name
+      pathType: instance
+  /v1/Voice/Countries:
+    servers:
+    - url: https://pricing.twilio.com
+    description: Voice pricing by country
+    x-twilio:
+      defaultOutputProperties:
+      - country
+      - price_unit
+      pathType: list
+      parent: /Voice
+    get:
+      description: ''
+      parameters:
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListVoiceCountryResponse
+                properties:
+                  countries:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/pricing.v1.voice.voice_country'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListVoiceCountry
+      x-maturity:
+      - GA
+  /v1/Voice/Countries/{IsoCountry}:
+    servers:
+    - url: https://pricing.twilio.com
+    description: Voice pricing by country
+    x-twilio:
+      defaultOutputProperties:
+      - country
+      - price_unit
+      pathType: instance
+      parent: /Voice
+    get:
+      description: ''
+      parameters:
+      - name: IsoCountry
+        in: path
+        description: The [ISO country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
+          of the pricing information to fetch.
+        schema:
+          type: string
+          format: iso-country-code
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pricing.v1.voice.voice_country-instance'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchVoiceCountry
+      x-maturity:
+      - GA
+  /v1/Voice/Numbers/{Number}:
+    servers:
+    - url: https://pricing.twilio.com
+    description: Voice pricing for a specific phone number
+    x-twilio:
+      defaultOutputProperties:
+      - country
+      - outbound_call_price
+      - inbound_call_price
+      - price_unit
+      pathType: instance
+      parent: /Voice
+    get:
+      description: ''
+      parameters:
+      - name: Number
+        in: path
+        description: The phone number to fetch.
+        schema:
+          type: string
+          format: phone-number
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pricing.v1.voice.voice_number'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchVoiceNumber
+      x-maturity:
+      - GA
+  /v1/Voice/Numbers:
+    servers:
+    - url: https://pricing.twilio.com
+    description: Voice pricing for a specific phone number
+    x-twilio:
+      defaultOutputProperties:
+      - country
+      - outbound_call_price
+      - inbound_call_price
+      - price_unit
+      pathType: list
+      parent: /Voice
+servers:
+- url: https://pricing.twilio.com
+x-maturity:
+- name: GA
+  description: This product is Generally Available.

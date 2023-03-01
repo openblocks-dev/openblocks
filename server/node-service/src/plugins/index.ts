@@ -26,6 +26,7 @@ import supabaseStoragePlugin from "./supabaseStorage";
 import cloudinaryPlugin from "./cloudinary";
 import notionPlugin from "./notion";
 import datadogPlugin from "./datadog";
+import twilioPlugin from "./twilio";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   s3Plugin,
@@ -56,6 +57,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   cloudinaryPlugin,
   notionPlugin,
   datadogPlugin,
+  twilioPlugin,
 ];
 
 try {

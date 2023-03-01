@@ -29,10 +29,6 @@ async function gen(options: Options) {
   if (postMan) {
     console.info("is PostMan Collection start transforming...");
     const collection = postManCollectionFile ?? pluginDefaultCollectionFile;
-    if (collection) {
-      console.error("postman collection file path not got.");
-      return;
-    }
     await postManToOpenApi(collection, pluginSpecYamlFile, { defaultTag: "General" });
   }
 
