@@ -254,10 +254,16 @@ export async function parseOpenApi(
       let params: ActionParamConfig[] = [];
 
       if (main === 2) {
-        params = parseSwagger2Operation(operation as OpenAPIV2.OperationObject);
+        params = parseSwagger2Operation(
+          operation as OpenAPIV2.OperationObject,
+          pathSpec as OpenAPIV2.PathItemObject
+        );
       }
       if (main === 3) {
-        params = parseOas3Operation(operation as OpenAPIV3.OperationObject);
+        params = parseOas3Operation(
+          operation as OpenAPIV3.OperationObject,
+          pathSpec as OpenAPIV3.PathItemObject
+        );
       }
       const action: ActionConfig = {
         category: operation.tags || "",

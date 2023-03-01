@@ -33,10 +33,14 @@ const openApiV2TypeMap: Record<string, ActionParamType> = {
   file: "file",
 };
 
-export function parseOperation(operation: OpenAPIV2.OperationObject): ActionParamConfig[] {
+export function parseOperation(
+  operation: OpenAPIV2.OperationObject,
+  pathSpec: OpenAPIV2.PathItemObject
+): ActionParamConfig[] {
   const params: ActionParamConfig[] = [];
-
-  operation.parameters?.forEach((paramSpec) => {
+  const pathParametersSpec = pathSpec.parameters || [];
+  const operationParametersSpec = operation.parameters || [];
+  pathParametersSpec.concat(operationParametersSpec).forEach((paramSpec) => {
     if (isRefObject(paramSpec)) {
       console.warn("unexpected ref parameters:", paramSpec);
       return;
