@@ -28,6 +28,7 @@ import notionPlugin from "./notion";
 import datadogPlugin from "./datadog";
 import twilioPlugin from "./twilio";
 import gitlabPlugin from "./gitlab";
+import faunaPlugin from "./fauna";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   s3Plugin,
@@ -60,6 +61,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   datadogPlugin,
   twilioPlugin,
   gitlabPlugin,
+  faunaPlugin,
 ];
 
 try {
