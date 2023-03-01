@@ -92,7 +92,8 @@ export async function evalToValue<T extends Config>(
     config.type === "textInput" ||
     config.type === "select" ||
     config.type === "password" ||
-    config.type === "sqlInput"
+    config.type === "sqlInput" ||
+    config.type === "graphqlInput"
   ) {
     return toString(evalCodeToValue(dsl, context));
   }
@@ -107,6 +108,18 @@ export async function evalToValue<T extends Config>(
 
   if (config.type === "jsonInput" || config.type === "file") {
     return evalCodeToValue(dsl, context, true);
+  }
+
+  if (config.type === "keyValueInput") {
+    if (!Array.isArray(dsl)) {
+      return [];
+    }
+    return dsl.map(({ key, value }) => {
+      return {
+        key: evalCodeToValue(key, context),
+        value: evalCodeToValue(value, context, config.valueType === "json"),
+      };
+    });
   }
 
   throw new ServiceError(`invalid plugin definition, unknown config type: ${(config as any).type}`);

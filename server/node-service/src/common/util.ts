@@ -1,6 +1,20 @@
 import yaml from "yaml";
 import fs from "fs";
 
+export function kvToRecord(
+  kvs: { key: string; value: string }[],
+  trimEmpty: boolean = true
+): Record<string, string> {
+  const ret: Record<string, string> = {};
+  (kvs || []).forEach(({ key, value }) => {
+    if (trimEmpty && !value) {
+      return;
+    }
+    ret[key] = value;
+  });
+  return ret;
+}
+
 export function toString(value: any): string {
   if (value === undefined || value === null) {
     return "";
