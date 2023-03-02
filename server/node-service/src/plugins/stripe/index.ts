@@ -5,31 +5,14 @@ import { OpenAPIV3, OpenAPI } from "openapi-types";
 import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
 import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
+import { readFileSync } from "fs";
+import { parse } from "yaml";
 
-const spec = readYaml(path.join(__dirname, "./stripe.spec.yaml"));
+const yamlContent = readFileSync(path.join(__dirname, "./stripe.spec.yaml"), "utf-8");
 
 const dataSourceConfig = {
   type: "dataSource",
   params: [
-    {
-      type: "groupTitle",
-      key: "basicAuth",
-      label: "HTTP Basic Auth",
-    },
-    {
-      type: "textInput",
-      key: "basicAuth.username",
-      label: "Username",
-      tooltip: "Basic auth username",
-      placeholder: "<Basic Auth Username>",
-    },
-    {
-      type: "password",
-      key: "basicAuth.password",
-      label: "Password",
-      tooltip: "Basic auth password",
-      placeholder: "<Basic Auth Password>",
-    },
     {
       type: "groupTitle",
       key: "bearerAuth",
@@ -38,9 +21,9 @@ const dataSourceConfig = {
     {
       type: "password",
       key: "bearerAuth.value",
-      label: "Token",
-      tooltip: "Bearer HTTP authentication. Allowed headers-- Authorization: Bearer <api_key>",
-      placeholder: "Bearer HTTP authentication. Allowed headers-- Authorization: Bearer <api_key>",
+      label: "Secret Key",
+      tooltip: "You can gen a Secret Key [here](https://dashboard.stripe.com/test/apikeys)",
+      placeholder: "<Secret Key>",
     },
   ],
 } as const;
@@ -60,12 +43,13 @@ const stripePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   category: "api",
   dataSourceConfig,
   queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(spec, parseOptions);
+    const spec = parse(yamlContent);
+    const { actions, categories } = await parseOpenApi(spec as OpenAPI.Document, parseOptions);
     return {
       type: "query",
       label: "Action",
       categories: {
-        label: "Category",
+        label: "Resources",
         items: categories,
       },
       actions,
@@ -77,6 +61,9 @@ const stripePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       serverURL: "",
       dynamicParamsConfig: dataSourceConfig,
     };
+    // always use a new spec object
+    // because of this bug: https://github.com/APIDevTools/json-schema-ref-parser/issues/271
+    const spec = parse(yamlContent);
     return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
   },
 };
