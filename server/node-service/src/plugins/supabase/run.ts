@@ -1,11 +1,16 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { fetch } from "../../common/fetch";
 import path from "path";
 import { ServiceError } from "../../common/error";
 import { DataSourceDataType } from "./dataSourceConfig";
 import { ActionDataType } from "./queryConfig";
 
 function getClient(params: DataSourceDataType) {
-  return createClient(params.projectUrl, params.apiKey);
+  return createClient(params.projectUrl, params.apiKey, {
+    global: {
+      fetch: fetch as any,
+    },
+  });
 }
 
 function getBucket(actionConfig: ActionDataType, dataSourceConfig: DataSourceDataType) {
@@ -115,7 +120,14 @@ export default async function run(action: ActionDataType, dataSourceConfig: Data
     if (ret.error) {
       throw ret.error;
     }
-    return ret;
+    let signedUrl;
+    if (action.returnSignedUrl) {
+      signedUrl = await getFileSignedUrl(bucket, action.fileName, client);
+    }
+    return {
+      ...ret.data,
+      signedUrl,
+    };
   }
 
   if (action.actionName === "deleteFile") {
@@ -129,6 +141,9 @@ export default async function run(action: ActionDataType, dataSourceConfig: Data
   }
 
   if (action.actionName === "createSignedUrl") {
-    return await getFileSignedUrl(bucket, action.fileName, client);
+    const signedUrl = await getFileSignedUrl(bucket, action.fileName, client);
+    return {
+      signedUrl,
+    };
   }
 }
