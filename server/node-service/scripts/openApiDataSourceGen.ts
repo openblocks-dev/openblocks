@@ -7,6 +7,7 @@ import postManToOpenApi from "postman-to-openapi";
 import { program } from "commander";
 
 interface Options {
+  force: boolean;
   name: string;
   url: string;
   postMan: boolean;
@@ -15,7 +16,7 @@ interface Options {
 }
 
 async function gen(options: Options) {
-  const { postMan, postManCollectionFile, name, url: specUrl, id: pluginId } = options;
+  const { postMan, force, postManCollectionFile, name, url: specUrl, id: pluginId } = options;
   const id = pluginId ?? _.camelCase(name);
   const pluginDir = path.join(path.dirname(__dirname), "src/plugins", id);
   const pluginEntryFile = path.join(pluginDir, "index.ts");
@@ -37,7 +38,7 @@ async function gen(options: Options) {
     console.info(`plugin dir ${id} created.`);
   }
 
-  if (fs.existsSync(pluginEntryFile)) {
+  if (!force && fs.existsSync(pluginEntryFile)) {
     console.info(`plugin: ${id} is already existed.`);
     return;
   }
@@ -99,6 +100,7 @@ const plugins = [
 ];
 
 program
+  .option("--force")
   .option("--post-man")
   .option("-f, --post-man-collection-file [postman collection file path]")
   .option("-n, --name <char>")
@@ -108,7 +110,5 @@ program
 program.parse();
 
 const options = program.opts<Options>();
-
-console.info(options);
 
 gen(options);

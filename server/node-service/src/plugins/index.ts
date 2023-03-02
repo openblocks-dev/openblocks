@@ -22,7 +22,7 @@ import salesForcePlugin from "./salesForce";
 import sendGridPlugin from "./sendGrid";
 import shopifyPlugin from "./shopify";
 import slackPlugin from "./slack";
-import supabaseStoragePlugin from "./supabaseStorage";
+import supabasePlugin from "./supabase";
 import cloudinaryPlugin from "./cloudinary";
 import notionPlugin from "./notion";
 import datadogPlugin from "./datadog";
@@ -57,7 +57,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   shopifyPlugin,
   slackPlugin,
   stripePlugin,
-  supabaseStoragePlugin,
+  supabasePlugin,
   cloudinaryPlugin,
   notionPlugin,
   datadogPlugin,

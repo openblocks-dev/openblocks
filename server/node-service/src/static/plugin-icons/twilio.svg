@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect fill="#FFFFFF" x="0" y="0" width="16" height="16" rx="2"/>
+    <g transform="translate(1.000000, 1.000000)" fill-rule="nonzero">
+      <rect fill="#FFFFFF" x="0" y="0" width="14" height="14" rx="0.375"/>
+      <g>
+        <circle fill="#F22F46" cx="7" cy="7" r="7"/>
+        <circle fill="#FFFFFF" cx="7" cy="7" r="5.140625"/>
+        <circle fill="#F22F46" cx="5.27734375" cy="5.27734375" r="1.44921875"/>
+        <g transform="translate(7.273438, 3.828125)" fill="#F22F46">
+          <circle cx="1.44921875" cy="1.44921875" r="1.44921875"/>
+        </g>
+        <g transform="translate(3.828125, 7.273438)" fill="#F22F46">
+          <circle cx="1.44921875" cy="1.44921875" r="1.44921875"/>
+        </g>
+        <g transform="translate(7.273438, 7.273438)" fill="#F22F46">
+          <circle cx="1.44921875" cy="1.44921875" r="1.44921875"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
