@@ -7,6 +7,7 @@
     "@types/react": "17",
     "@types/react-dom": "17",
     "big.js": "^6.2.1",
+    "mermaid": "^10.0.0",
     "openblocks-cli": "workspace:^",
     "openblocks-sdk": "workspace:^",
     "react": "17",
@@ -26,6 +27,14 @@
       },
       "imageEditor": {
         "name": "Image Editor",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 60
+        }
+      },
+      "mermaid": {
+        "name": "Mermaid",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
           "w": 15,
