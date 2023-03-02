@@ -18,8 +18,10 @@ import {
 import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
+import { PaddingControl } from "../../controls/paddingControl";
+import { MarginControl } from "../../controls/marginControl";
 
-const Link = styled(Button)<{ $style: LinkStyleType }>`
+const Link = styled(Button) <{ $style: LinkStyleType }>`
   ${(props) => `color: ${props.$style.text};`}
   &.ant-btn {
     display: inline-flex;
@@ -50,7 +52,7 @@ function fixOldData(oldData: any) {
   return oldData;
 }
 
-const LinkTmpComp = (function () {
+const LinkTmpComp = (function() {
   const childrenMap = {
     text: withDefault(StringControl, trans("link.link")),
     onEvent: ButtonEventHandlerControl,
@@ -59,6 +61,8 @@ const LinkTmpComp = (function () {
     style: migrateOldData(styleControl(LinkStyle), fixOldData),
     prefixIcon: IconControl,
     suffixIcon: IconControl,
+    margin: MarginControl,
+    padding: PaddingControl,
   };
   return new UICompBuilder(childrenMap, (props) => {
     // chrome86 bug: button children should not contain only empty span
@@ -70,6 +74,14 @@ const LinkTmpComp = (function () {
           loading={props.loading}
           disabled={props.disabled}
           onClick={() => props.onEvent("click")}
+          style={{
+            margin: `${props.margin.top ? props.margin.top : 0} ${props.margin.right ? props.margin.right : 0
+              } ${props.margin.bottom ? props.margin.bottom : 0} ${props.margin.left ? props.margin.left : 0
+              }`,
+            padding: `${props.padding.top ? props.padding.top : 0} ${props.padding.right ? props.padding.right : 0
+              } ${props.padding.bottom ? props.padding.bottom : 0} ${props.padding.left ? props.padding.left : 0
+              }`,
+          }}
           type={"link"}
         >
           {hasChildren && (
@@ -103,6 +115,12 @@ const LinkTmpComp = (function () {
           </Section>
 
           <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          <Section name={trans("style.margin")}>
+            {children.margin.getPropertyView()}
+          </Section>
+          <Section name={trans("style.padding")}>
+            {children.padding.getPropertyView()}
+          </Section>
         </>
       );
     })

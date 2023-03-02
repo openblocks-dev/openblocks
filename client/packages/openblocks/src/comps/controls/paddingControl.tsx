@@ -26,22 +26,18 @@ export const PaddingControl = (function () {
   return new MultiCompBuilder(childrenMap, (props) => props)
     .setPropertyViewFn((children) => (
       <>
-        <PaddingContainer>
+        {children.top.propertyView({
+          label: trans("componentDoc.top"),
+        })}
+        {children.right.propertyView({
+          label: trans("componentDoc.right"),
+        })}
+        {children.bottom.propertyView({
+          label: trans("componentDoc.bottom"),
+        })}
           {children.left.propertyView({
             label: trans("componentDoc.left"),
           })}
-          {children.right.propertyView({
-            label: trans("componentDoc.right"),
-          })}
-        </PaddingContainer>
-        <PaddingContainer>
-          {children.top.propertyView({
-            label: trans("componentDoc.top"),
-          })}
-          {children.bottom.propertyView({
-            label: trans("componentDoc.bottom"),
-          })}
-        </PaddingContainer>
       </>
     ))
     .build();

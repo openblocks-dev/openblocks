@@ -2,7 +2,6 @@ import { StringControl } from "comps/controls/codeControl";
 import { withDefault } from "comps/generators";
 import { MultiCompBuilder } from "comps/generators/multi";
 import { trans } from "i18n";
-import { Section } from "openblocks-design";
 import styled from "styled-components";
 
 const MarginContainer = styled.div<{}>`
@@ -26,22 +25,18 @@ export const MarginControl = (function () {
   return new MultiCompBuilder(childrenMap, (props) => props)
     .setPropertyViewFn((children) => (
       <>
-        <MarginContainer>
-          {children.left.propertyView({
-            label: trans("componentDoc.left"),
-          })}
-          {children.right.propertyView({
-            label: trans("componentDoc.right"),
-          })}
-        </MarginContainer>
-        <MarginContainer>
-          {children.top.propertyView({
-            label: trans("componentDoc.top"),
-          })}
-          {children.bottom.propertyView({
-            label: trans("componentDoc.bottom"),
-          })}
-        </MarginContainer>
+        {children.top.propertyView({
+          label: trans("componentDoc.top"),
+        })}
+        {children.right.propertyView({
+          label: trans("componentDoc.right"),
+        })}
+        {children.bottom.propertyView({
+          label: trans("componentDoc.bottom"),
+        })}
+        {children.left.propertyView({
+          label: trans("componentDoc.left"),
+        })}
       </>
     ))
     .build();
