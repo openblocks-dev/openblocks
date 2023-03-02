@@ -70,6 +70,9 @@ export const en = {
     exceedSizeError: "Image size should not exceeds {size}",
   },
   imageUrl: "Image URL",
+  imageShape: "Image Shape",
+  circle: "Circle",
+  square: "Square",
   gridCompOperator: {
     notSupport: "Not support",
     selectAtLeastOneComponent: "Please select at least one component",

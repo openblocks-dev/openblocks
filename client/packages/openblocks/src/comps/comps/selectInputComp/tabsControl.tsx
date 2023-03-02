@@ -109,7 +109,7 @@ export const SegmentedControlBasicComp = (function () {
             element.style.removeProperty("width");
           }
         }
-      }, 300);
+      }, 10);
     }, [props.value.onChange]);
     return props.label({
       required: props.required,
@@ -134,7 +134,7 @@ export const SegmentedControlBasicComp = (function () {
             .map((option) => ({
               label: (
                 <div style={{ padding: "4px" }}>
-                  {option.image && <Avatar src={option.image} />}
+                  {option.image && <Avatar shape={option.imageShape} src={option.image} />}
                   <div>{option.label}</div>
                 </div>
               ),
