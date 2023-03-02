@@ -1,6 +1,4 @@
-import { readYaml } from "../../common/util";
 import _ from "lodash";
-import path from "path";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
 import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
 import { runOpenApi } from "../openApi";
@@ -12,29 +10,35 @@ const dataSourceConfig = {
   type: "dataSource",
   params: [
     {
-      type: "groupTitle",
-      key: "token",
-      label: "Api Token Auth",
+      type: "textInput",
+      key: "endpoint",
+      label: "Endpoint URL",
+      rules: [{ required: true }],
+      tooltip:
+        "Learn more about [Endpoint](https://huggingface.co/docs/inference-endpoints/guides/create_endpoint)",
     },
     {
       type: "password",
       key: "token.value",
-      label: "Token",
+      label: "Access Token",
+      rules: [{ required: true }],
+      tooltip:
+        "You can get an Access Token [in your profile setting page](https://huggingface.co/settings/tokens)",
     },
   ],
 } as const;
 
 const parseOptions: ParseOpenApiOptions = {
   actionLabel: (method: string, path: string, operation: OpenAPI.Operation) => {
-    return _.upperFirst(operation.operationId || "");
+    return _.upperFirst(operation.operationId?.split("_").join(" ") || "");
   },
 };
 
 type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
 
 const huggingFacePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
-  id: "huggingFace",
-  name: "Hugging Face",
+  id: "huggingFaceEndpoint",
+  name: "Hugging Face Endpoints",
   icon: "huggingFace.svg",
   category: "api",
   dataSourceConfig,

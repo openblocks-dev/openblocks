@@ -78,7 +78,14 @@ export function parseOperation(
       return;
     }
 
-    const { name, description = "", in: position, schema } = i;
+    const { name, description = "", in: position, schema: paramSchema } = i;
+
+    let schema = paramSchema;
+    if (!paramSchema) {
+      schema = {
+        type: "string",
+      };
+    }
     if (!schema || isRefObject(schema)) {
       console.warn("parameter spec with unexpected schema", i);
       return;
