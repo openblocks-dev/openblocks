@@ -13,6 +13,7 @@ import _ from "lodash";
 // @ts-ignore
 import SwaggerClient from "swagger-client";
 import {
+  appendCategories,
   isOas3HttpMethods,
   isOas3RefObject,
   isSwagger2HttpMethods,
@@ -239,7 +240,7 @@ export async function parseOpenApi(
         return;
       }
 
-      const operation = (pathSpec as any)[httpMethod];
+      const operation = (pathSpec as any)[httpMethod] as OpenAPI.Operation;
       if (!operation) {
         return;
       }
@@ -248,6 +249,14 @@ export async function parseOpenApi(
       if (!operationId) {
         console.warn("can not get operationId:", operation);
         return;
+      }
+
+      const { tags } = operation;
+      if (tags) {
+        appendCategories(
+          categories,
+          tags.map((i) => ({ label: _.upperFirst(i), value: i }))
+        );
       }
 
       // params

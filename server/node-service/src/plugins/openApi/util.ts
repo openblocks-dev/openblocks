@@ -410,3 +410,12 @@ export function mergeCategories(a: ActionCategory[], b: ActionCategory[]) {
   });
   return ret;
 }
+
+export function appendCategories(a: ActionCategory[], b: ActionCategory[]) {
+  b.forEach((i) => {
+    if (a.find((j) => i.value === j.value)) {
+      return;
+    }
+    a.push(i);
+  });
+}
