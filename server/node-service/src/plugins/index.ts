@@ -15,7 +15,7 @@ import asanaPlugin from "./asana";
 import circleCiPlugin from "./circleCi";
 import frontPlugin from "./front";
 import githubPlugin from "./github";
-import huggingFacePlugin from "./huggingFace";
+import huggingFacePlugin from "./huggingFaceEndpoint";
 import jiraPlugin from "./jira";
 import oneSignalPlugin from "./oneSignal";
 import salesForcePlugin from "./salesForce";
@@ -29,6 +29,7 @@ import datadogPlugin from "./datadog";
 import twilioPlugin from "./twilio";
 import gitlabPlugin from "./gitlab";
 import faunaPlugin from "./fauna";
+import huggingFaceInferencePlugin from "./huggingFaceInference";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   s3Plugin,
@@ -48,6 +49,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   frontPlugin,
   githubPlugin,
   huggingFacePlugin,
+  huggingFaceInferencePlugin,
   jiraPlugin,
   oneSignalPlugin,
   salesForcePlugin,

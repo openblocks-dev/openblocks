@@ -119,6 +119,7 @@ export async function runOpenApi(
             ...headers,
           },
         };
+        console.info(ret);
         return ret;
       },
     });
