@@ -11,6 +11,8 @@ import React, { ReactElement } from "react";
 import styled from "styled-components";
 import { ButtonEventHandlerControl } from "../../controls/eventHandlerControl";
 import { DropdownOptionControl } from "../../controls/optionsControl";
+import { PaddingControl } from "../../controls/paddingControl";
+import { MarginControl } from "../../controls/marginControl";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import {
   Button100,
@@ -52,7 +54,7 @@ const RightButtonWrapper = styled.div<{ $buttonStyle: ButtonStyleType }>`
   }
 `;
 
-const DropdownTmpComp = (function () {
+const DropdownTmpComp = (function() {
   const childrenMap = {
     text: withDefault(StringControl, trans("menu")),
     onlyMenu: BoolControl,
@@ -60,6 +62,8 @@ const DropdownTmpComp = (function () {
     disabled: BoolCodeControl,
     onEvent: ButtonEventHandlerControl,
     style: withDefault(ButtonStyleControl, { background: "#FFFFFF" }),
+    margin: MarginControl,
+    padding: PaddingControl,
   };
   return new UICompBuilder(childrenMap, (props) => {
     const hasIcon =
@@ -85,7 +89,8 @@ const DropdownTmpComp = (function () {
       <ButtonCompWrapper disabled={props.disabled}>
         {props.onlyMenu ? (
           <Dropdown disabled={props.disabled} overlay={menu}>
-            <Button100 $buttonStyle={props.style} disabled={props.disabled}>
+            <Button100 $buttonStyle={props.style} disabled={props.disabled}
+            >
               {props.text || " " /* Avoid button disappearing */}
             </Button100>
           </Dropdown>
@@ -106,6 +111,11 @@ const DropdownTmpComp = (function () {
                 })}
               </RightButtonWrapper>,
             ]}
+            style={{
+              margin: `${props.margin.top ? props.margin.top : 0} ${props.margin.right ? props.margin.right : 0} ${props.margin.bottom ? props.margin.bottom : 0} ${props.margin.left ? props.margin.left : 0}`,
+              padding: `${props.padding.top ? props.padding.top : 0} ${props.padding.right ? props.padding.right : 0} ${props.padding.bottom ? props.padding.bottom : 0} ${props.padding.left ? props.padding.left : 0}`,
+            }}
+
           >
             {/* Avoid button disappearing */}
             {!props.text || props.text?.length === 0 ? " " : props.text}
@@ -130,6 +140,12 @@ const DropdownTmpComp = (function () {
         <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
 
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        <Section name={trans("style.margin")}>
+          {children.margin.getPropertyView()}
+        </Section>
+        <Section name={trans("style.padding")}>
+          {children.padding.getPropertyView()}
+        </Section>
       </>
     ))
     .build();

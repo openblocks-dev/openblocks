@@ -3,8 +3,16 @@ import { SelectStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
 import { stringExposingStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
-import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { SelectChildrenMap, SelectPropertyView, SelectUIView } from "./selectCompConstants";
+import {
+  CommonNameConfig,
+  NameConfig,
+  withExposingConfigs,
+} from "../../generators/withExposing";
+import {
+  SelectChildrenMap,
+  SelectPropertyView,
+  SelectUIView,
+} from "./selectCompConstants";
 import {
   SelectInputCommonConfig,
   SelectInputInvalidConfig,
@@ -32,7 +40,9 @@ export const SelectBasicComp = (function () {
       children: (
         <SelectUIView
           {...props}
-          value={valueSet.has(props.value.value) ? props.value.value : undefined}
+          value={
+            valueSet.has(props.value.value) ? props.value.value : undefined
+          }
           onChange={(value) => {
             props.value.onChange(value ?? "").then(() => {
               propsRef.current.onEvent("change");

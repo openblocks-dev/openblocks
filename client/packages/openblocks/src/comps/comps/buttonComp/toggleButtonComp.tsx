@@ -10,14 +10,23 @@ import { Section, sectionNames } from "openblocks-design";
 import { trans } from "i18n";
 import styled from "styled-components";
 import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";
-import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
+import {
+  CommonNameConfig,
+  NameConfig,
+  withExposingConfigs,
+} from "../../generators/withExposing";
 import { Button100, ButtonCompWrapper } from "./buttonCompConstants";
 import { IconControl } from "comps/controls/iconControl";
-import { AlignWithStretchControl, LeftRightControl } from "comps/controls/dropdownControl";
+import {
+  AlignWithStretchControl,
+  LeftRightControl,
+} from "comps/controls/dropdownControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { ToggleButtonStyle } from "comps/controls/styleControlConstants";
 import { styleControl } from "comps/controls/styleControl";
 import { BoolControl } from "comps/controls/boolControl";
+import { PaddingControl } from "../../controls/paddingControl";
+import { MarginControl } from "../../controls/marginControl";
 
 const IconWrapper = styled.div`
   display: flex;
@@ -43,7 +52,10 @@ const ToggleTmpComp = (function () {
     value: booleanExposingStateControl("value"),
     showText: withDefault(BoolControl, true),
     trueText: withDefault(StringControl, trans("toggleButton.trueDefaultText")),
-    falseText: withDefault(StringControl, trans("toggleButton.falseDefaultText")),
+    falseText: withDefault(
+      StringControl,
+      trans("toggleButton.falseDefaultText")
+    ),
     onEvent: ChangeEventHandlerControl,
     disabled: BoolCodeControl,
     loading: BoolCodeControl,
@@ -53,6 +65,8 @@ const ToggleTmpComp = (function () {
     alignment: AlignWithStretchControl,
     style: styleControl(ToggleButtonStyle),
     showBorder: withDefault(BoolControl, true),
+    margin: MarginControl,
+    padding: PaddingControl,
   };
   return new UICompBuilder(childrenMap, (props) => {
     const text = props.showText
@@ -72,9 +86,25 @@ const ToggleTmpComp = (function () {
             props.onEvent("change");
             props.value.onChange(!props.value.value);
           }}
+          style={{
+            margin: `${props.margin.top ? props.margin.top : 0} ${
+              props.margin.right ? props.margin.right : 0
+            } ${props.margin.bottom ? props.margin.bottom : 0} ${
+              props.margin.left ? props.margin.left : 0
+            }`,
+            padding: `${props.padding.top ? props.padding.top : 0} ${
+              props.padding.right ? props.padding.right : 0
+            } ${props.padding.bottom ? props.padding.bottom : 0} ${
+              props.padding.left ? props.padding.left : 0
+            }`,
+          }}
         >
           {props.iconPosition === "right" && text}
-          {<IconWrapper>{props.value.value ? props.trueIcon : props.falseIcon}</IconWrapper>}
+          {
+            <IconWrapper>
+              {props.value.value ? props.trueIcon : props.falseIcon}
+            </IconWrapper>
+          }
           {props.iconPosition === "left" && text}
         </Button100>
       </ButtonCompWrapperStyled>
@@ -87,11 +117,17 @@ const ToggleTmpComp = (function () {
             label: trans("prop.defaultValue"),
             tooltip: trans("toggleButton.valueDesc"),
           })}
-          {children.showText.propertyView({ label: trans("toggleButton.showText") })}
+          {children.showText.propertyView({
+            label: trans("toggleButton.showText"),
+          })}
           {children.showText.getView() &&
-            children.trueText.propertyView({ label: trans("toggleButton.trueLabel") })}
+            children.trueText.propertyView({
+              label: trans("toggleButton.trueLabel"),
+            })}
           {children.showText.getView() &&
-            children.falseText.propertyView({ label: trans("toggleButton.falseLabel") })}
+            children.falseText.propertyView({
+              label: trans("toggleButton.falseLabel"),
+            })}
         </Section>
 
         <Section name={sectionNames.interaction}>
@@ -101,8 +137,12 @@ const ToggleTmpComp = (function () {
         </Section>
 
         <Section name={sectionNames.layout}>
-          {children.trueIcon.propertyView({ label: trans("toggleButton.trueIconLabel") })}
-          {children.falseIcon.propertyView({ label: trans("toggleButton.falseIconLabel") })}
+          {children.trueIcon.propertyView({
+            label: trans("toggleButton.trueIconLabel"),
+          })}
+          {children.falseIcon.propertyView({
+            label: trans("toggleButton.falseIconLabel"),
+          })}
           {children.showText.getView() &&
             children.iconPosition.propertyView({
               label: trans("toggleButton.iconPosition"),
@@ -116,8 +156,16 @@ const ToggleTmpComp = (function () {
         </Section>
 
         <Section name={sectionNames.style}>
-          {children.showBorder.propertyView({ label: trans("toggleButton.showBorder") })}
+          {children.showBorder.propertyView({
+            label: trans("toggleButton.showBorder"),
+          })}
           {children.style.getPropertyView()}
+        </Section>
+        <Section name={trans("style.margin")}>
+          {children.margin.getPropertyView()}
+        </Section>
+        <Section name={trans("style.padding")}>
+          {children.padding.getPropertyView()}
         </Section>
       </>
     ))
