@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient x1="13.3895974%" y1="85.2109053%" x2="87.5807988%" y2="10.2816358%" id="front_svg__a">
+      <stop stop-color="#FF0057" stop-opacity="0.16" offset="0%"/>
+      <stop stop-color="#FF0057" offset="86.1%"/>
+    </linearGradient>
+  </defs>
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect fill="#FFFFFF" x="0" y="0" width="16" height="16" rx="2"/>
+    <g transform="translate(4.000000, 2.000000)" fill-rule="nonzero">
+      <path d="M0,1.99676659 C0,0.894029663 0.904642857,0 2.02043651,0 L8.5,0 L8.5,2.84162964 C8.49955308,3.10686099 8.39286852,3.36105308 8.20341576,3.54828635 C8.01396301,3.73551961 7.75726111,3.84045683 7.48978175,3.84001293 L4.85714286,3.84001293 C4.59995115,3.83956901 4.35311555,3.94045381 4.17093727,4.12047375 C3.98875899,4.30049368 3.88616119,4.54490239 3.88571429,4.79993255 L3.88571429,11.0016153 C3.88526737,11.2668467 3.7785828,11.5210387 3.58913005,11.708272 C3.39967729,11.8955053 3.1429754,12.0004425 2.87549603,12 L0,12 L0,1.99676659 Z" fill="#001B38"/>
+      <ellipse fill="url(#front_svg__a)" transform="translate(4.881766, 4.824014) rotate(90.000000) translate(-4.881766, -4.824014) " cx="4.88176587" cy="4.82401415" rx="2.59211743" ry="2.62285714"/>
+      <ellipse fill="url(#front_svg__a)" opacity="0.5" transform="translate(4.881766, 4.824014) rotate(90.000000) translate(-4.881766, -4.824014) " cx="4.88176587" cy="4.82401415" rx="2.59211743" ry="2.62285714"/>
+    </g>
+  </g>
+</svg>
