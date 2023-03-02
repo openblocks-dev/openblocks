@@ -85,4 +85,4 @@ You can access Openblocks from [cloud-hosted version](https://cloud.openblocks.d
 - [Custom Markdown Style](https://cloud.openblocks.dev/apps/63c8bdb9de760726cd253c90/view)
 - [Use JS query to orchestrate other queries](https://cloud.openblocks.dev/apps/63c8fb1e0279b679be2b5a09/view)
 - [Data responder demo](https://cloud.openblocks.dev/apps/63f84d23f5f6f66102fedf81/view)
-- [Change theme by codes](https://cloud.openblocks.dev/apps/63f84ca9f5f6f66102fedf3b/view)
+- [Change theme by code](https://cloud.openblocks.dev/apps/63f84ca9f5f6f66102fedf3b/view)
