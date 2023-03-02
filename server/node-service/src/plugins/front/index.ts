@@ -10,11 +10,6 @@ const dataSourceConfig = {
   type: "dataSource",
   params: [
     {
-      type: "groupTitle",
-      key: "http",
-      label: "Api Token Auth",
-    },
-    {
       type: "password",
       key: "http.value",
       label: "Token",
@@ -24,7 +19,10 @@ const dataSourceConfig = {
 
 const parseOptions: ParseOpenApiOptions = {
   actionLabel: (method: string, path: string, operation: OpenAPI.Operation) => {
-    return _.upperFirst(operation.operationId || "");
+    return operation.summary || "";
+  },
+  actionDescription: (method: string, path: string, operation: OpenAPI.Operation) => {
+    return operation.description || "";
   },
 };
 
