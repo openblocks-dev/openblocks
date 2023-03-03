@@ -57,6 +57,7 @@ export const BottomResultPanel = (props: BottomResultPanelProps) => {
     <Draggable
       disabled={unDraggable}
       bounds={bounds}
+      enableUserSelectHack={false}
       onStart={(event, uiData) => {
         const { clientWidth, clientHeight } = window.document.documentElement;
         const targetRect = draggableRef.current?.getBoundingClientRect();

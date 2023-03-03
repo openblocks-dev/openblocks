@@ -6,6 +6,8 @@ import static java.util.Optional.ofNullable;
 
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
@@ -48,12 +50,20 @@ public class CookieHelper {
     }
 
     public String getCookieToken(ServerWebExchange exchange) {
-        MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
-        return ofNullable(cookies.getFirst(getCookieName()))
-                .map(HttpCookie::getValue)
-                .orElse("");
+        return getCookieValue(exchange, getCookieName(), "");
     }
 
+    @Nullable
+    public String getJWT(ServerWebExchange exchange) {
+        return getCookieValue(exchange, "JWT", null);
+    }
+
+    public String getCookieValue(ServerWebExchange exchange, String cookieName, String defaultValue) {
+        MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
+        return ofNullable(cookies.getFirst(cookieName))
+                .map(HttpCookie::getValue)
+                .orElse(defaultValue);
+    }
 
     public static String generateCookieToken() {
         return generate();

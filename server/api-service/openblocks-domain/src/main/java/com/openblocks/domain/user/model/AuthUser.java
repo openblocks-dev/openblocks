@@ -21,7 +21,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthenticationUser {
+public class AuthUser {
 
     private String uid;
     private String username;

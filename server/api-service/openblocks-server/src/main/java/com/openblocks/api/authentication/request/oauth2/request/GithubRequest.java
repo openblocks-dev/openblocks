@@ -16,7 +16,7 @@ import com.openblocks.api.authentication.request.oauth2.Oauth2DefaultSource;
 import com.openblocks.sdk.util.HttpUtils;
 import com.openblocks.api.authentication.request.AuthException;
 import com.openblocks.domain.user.model.AuthToken;
-import com.openblocks.domain.user.model.AuthenticationUser;
+import com.openblocks.domain.user.model.AuthUser;
 import com.openblocks.sdk.auth.Oauth2SimpleAuthConfig;
 
 public class GithubRequest extends AbstractOauth2Request<Oauth2SimpleAuthConfig> {
@@ -26,7 +26,7 @@ public class GithubRequest extends AbstractOauth2Request<Oauth2SimpleAuthConfig>
     }
 
     @Override
-    protected AuthToken getAccessToken(OAuth2RequestContext context) {
+    protected AuthToken getAuthToken(OAuth2RequestContext context) {
         String result;
 
         try {
@@ -66,14 +66,14 @@ public class GithubRequest extends AbstractOauth2Request<Oauth2SimpleAuthConfig>
     }
 
     @Override
-    protected AuthenticationUser getUserInfo(AuthToken authToken) {
+    protected AuthUser getAuthUser(AuthToken authToken) {
         String response = HttpUtils.get(source.userInfo(), null, Map.of("Authorization", "token " + authToken.getAccessToken()));
 
         JSONObject object = new JSONObject(response);
 
         this.checkResponse(object);
 
-        return AuthenticationUser.builder()
+        return AuthUser.builder()
                 .uid(object.get("id").toString())
                 .username(object.getString("login"))
                 .avatar(object.getString("avatar_url"))

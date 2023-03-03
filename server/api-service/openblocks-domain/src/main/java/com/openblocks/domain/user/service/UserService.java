@@ -6,7 +6,7 @@ import java.util.Map;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.server.ServerWebExchange;
 
-import com.openblocks.domain.user.model.AuthenticationUser;
+import com.openblocks.domain.user.model.AuthUser;
 import com.openblocks.domain.user.model.Connection;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.model.UserDetail;
@@ -33,9 +33,9 @@ public interface UserService {
 
     Mono<Boolean> bindEmail(User user, String email);
 
-    Mono<User> findByAuthUser(AuthenticationUser authenticationUser);
+    Mono<User> findByAuthUser(AuthUser authUser);
 
-    Mono<User> createNewUserByAuthUser(AuthenticationUser authenticationUser);
+    Mono<User> createNewUserByAuthUser(AuthUser authUser);
 
     Mono<Void> getUserAvatar(ServerWebExchange exchange, String userId);
 

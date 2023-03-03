@@ -43,7 +43,7 @@ import com.openblocks.domain.organization.model.Organization;
 import com.openblocks.domain.organization.model.OrganizationDomain;
 import com.openblocks.domain.organization.service.OrgMemberService;
 import com.openblocks.domain.organization.service.OrganizationService;
-import com.openblocks.domain.user.model.AuthenticationUser;
+import com.openblocks.domain.user.model.AuthUser;
 import com.openblocks.domain.user.model.Connection;
 import com.openblocks.domain.user.model.ConnectionAuthToken;
 import com.openblocks.domain.user.model.User;
@@ -90,16 +90,16 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     private OrgMemberService orgMemberService;
 
     @Override
-    public Mono<AuthenticationUser> authenticateByForm(String loginId, String password, String source, boolean register, String authId) {
+    public Mono<AuthUser> authenticateByForm(String loginId, String password, String source, boolean register, String authId) {
         return authenticate(authId, source, new FormAuthRequestContext(loginId, password, register));
     }
 
     @Override
-    public Mono<AuthenticationUser> authenticateByOauth2(String authId, String source, String code, String redirectUrl) {
+    public Mono<AuthUser> authenticateByOauth2(String authId, String source, String code, String redirectUrl) {
         return authenticate(authId, source, new OAuth2RequestContext(code, redirectUrl));
     }
 
-    protected Mono<AuthenticationUser> authenticate(String authId, @Deprecated String source, AuthRequestContext context) {
+    protected Mono<AuthUser> authenticate(String authId, @Deprecated String source, AuthRequestContext context) {
         return Mono.defer(() -> {
                     if (StringUtils.isNotBlank(authId)) {
                         return authenticationService.findAuthConfigByAuthId(authId);
@@ -127,7 +127,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     }
 
     @Override
-    public Mono<Void> loginOrRegister(AuthenticationUser authUser, ServerWebExchange exchange,
+    public Mono<Void> loginOrRegister(AuthUser authUser, ServerWebExchange exchange,
             String invitationId) {
         return updateOrCreateUser(authUser)
                 .delayUntil(user -> ReactiveSecurityContextHolder.getContext()
@@ -158,7 +158,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .then(businessEventPublisher.publishUserLoginEvent(authUser.getSource()));
     }
 
-    private Mono<User> updateOrCreateUser(AuthenticationUser authUser) {
+    private Mono<User> updateOrCreateUser(AuthUser authUser) {
         return findByAuthUser(authUser)
                 .flatMap(findByAuthUser -> {
                     if (findByAuthUser.userExist()) {
@@ -174,8 +174,8 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 });
     }
 
-    protected Mono<FindByAuthUser> findByAuthUser(AuthenticationUser authenticationUser) {
-        return userService.findByAuthUser(authenticationUser)
+    protected Mono<FindByAuthUser> findByAuthUser(AuthUser authUser) {
+        return userService.findByAuthUser(authUser)
                 .map(user -> new FindByAuthUser(true, user))
                 .defaultIfEmpty(new FindByAuthUser(false, null));
     }
@@ -183,7 +183,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     /**
      * Update the connection after re-authenticating
      */
-    private void updateConnection(AuthenticationUser authUser, User user) {
+    private void updateConnection(AuthUser authUser, User user) {
 
         String orgId = authUser.getOrgId();
         Connection oldConnection = getAuthConnection(authUser, user);
@@ -200,11 +200,11 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    protected Connection getAuthConnection(AuthenticationUser authenticationUser, User user) {
+    protected Connection getAuthConnection(AuthUser authUser, User user) {
         return user.getConnections()
                 .stream()
-                .filter(connection -> authenticationUser.getSource().equals(connection.getSource())
-                        && connection.getRawId().equals(authenticationUser.getUid()))
+                .filter(connection -> authUser.getSource().equals(connection.getSource())
+                        && connection.getRawId().equals(authUser.getUid()))
                 .findFirst()
                 .get();
     }
@@ -247,8 +247,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
 
     private Mono<Void> removeTokensByAuthId(String authId) {
         return sessionUserService.getVisitorOrgMemberCache()
-                .flatMap(orgMember -> orgMemberService.getOrganizationMembers(orgMember.getOrgId(), 0, Integer.MAX_VALUE))
-                .flatMapIterable(Function.identity())
+                .flatMapMany(orgMember -> orgMemberService.getOrganizationMembers(orgMember.getOrgId()))
                 .map(OrgMember::getUserId)
                 .flatMap(userId -> userApiService.getTokensByAuthId(userId, authId))
                 .delayUntil(token -> sessionUserService.removeUserSession(token))

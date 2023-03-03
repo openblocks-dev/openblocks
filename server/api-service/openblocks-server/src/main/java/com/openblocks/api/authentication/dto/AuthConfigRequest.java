@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class AuthConfigRequest extends HashMap<String, Object> {
 
@@ -37,14 +38,20 @@ public class AuthConfigRequest extends HashMap<String, Object> {
         return getString("clientSecret");
     }
 
-    @Nullable
-    public String getSource() {
-        return getString("source");
+    public String getSource(String defaultValue) {
+        String source = getString("source");
+        if (StringUtils.isNotBlank(source)) {
+            return source;
+        }
+        return defaultValue;
     }
 
-    @Nullable
-    public String getSourceName() {
-        return getString("sourceName");
+    public String getSourceName(String defaultValue) {
+        String sourceName = getString("sourceName");
+        if (StringUtils.isNotBlank(sourceName)) {
+            return sourceName;
+        }
+        return defaultValue;
     }
 
     public String getString(String key) {

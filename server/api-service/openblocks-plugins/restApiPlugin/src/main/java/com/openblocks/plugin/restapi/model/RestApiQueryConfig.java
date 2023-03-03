@@ -16,7 +16,9 @@ import com.openblocks.sdk.models.Property;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 @Builder
 public class RestApiQueryConfig {
@@ -44,6 +46,7 @@ public class RestApiQueryConfig {
     public static RestApiQueryConfig from(Map<String, Object> queryConfigs) {
         RestApiQueryConfig queryConfig = fromJson(toJson(queryConfigs), RestApiQueryConfig.class);
         if (queryConfig == null) {
+            log.error("deserialize query config fail:{}", toJson(queryConfigs));
             throw new PluginException(INVALID_QUERY_SETTINGS, "INVALID_RESTAPI");
         }
         return queryConfig;

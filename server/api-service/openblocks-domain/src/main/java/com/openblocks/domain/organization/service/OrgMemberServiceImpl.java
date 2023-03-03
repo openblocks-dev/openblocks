@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.openblocks.domain.group.model.GroupMember;
@@ -24,6 +25,7 @@ import com.openblocks.infra.annotation.PossibleEmptyMono;
 import com.openblocks.infra.birelation.BiRelation;
 import com.openblocks.infra.birelation.BiRelationService;
 import com.openblocks.infra.mongo.MongoUpsertHelper;
+import com.openblocks.infra.util.FluxHelper;
 import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.config.CommonConfig.Workspace;
 import com.openblocks.sdk.constants.WorkspaceMode;
@@ -55,10 +57,15 @@ public class OrgMemberServiceImpl implements OrgMemberService {
     private MongoUpsertHelper mongoUpsertHelper;
 
     @Override
-    public Mono<List<OrgMember>> getOrganizationMembers(String orgId, int page, int count) {
-        return biRelationService.getBySourceId(ORG_MEMBER, orgId)
-                .map(OrgMember::from)
-                .collectList();
+    public Flux<OrgMember> getOrganizationMembers(String orgId) {
+        return FluxHelper.getAllPageByPage(pageable -> biRelationService.getBySourceId(ORG_MEMBER, orgId, pageable), PageRequest.ofSize(100))
+                .map(OrgMember::from);
+    }
+
+    @Override
+    public Flux<OrgMember> getOrganizationMembers(String orgId, int page, int count) {
+        return biRelationService.getBySourceId(ORG_MEMBER, orgId, PageRequest.of(page, count))
+                .map(OrgMember::from);
     }
 
     /**

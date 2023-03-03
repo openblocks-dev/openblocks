@@ -5,7 +5,6 @@ import { StringStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../../generators/withExposing";
 import { RecordConstructorToView } from "openblocks-core";
-import { useRef } from "react";
 import { styleControl } from "comps/controls/styleControl";
 import { ImageStyle } from "comps/controls/styleControlConstants";
 import { TacoAudio } from "openblocks-design";
@@ -13,9 +12,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "../../generators/simpleGenerators";
 import { trans } from "i18n";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
-import { RefControl } from "comps/controls/refControl";
-import { refMethods } from "comps/generators/withMethodExposing";
-import ReactPlayer from "react-player";
+import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 
 const Container = styled.div`
   height: 100%;
@@ -42,10 +39,8 @@ const EventOptions = [
 ] as const;
 
 const ContainerAudio = (props: RecordConstructorToView<typeof childrenMap>) => {
-  const conRef = useRef<HTMLDivElement>(null);
-
   return (
-    <Container ref={conRef}>
+    <Container ref={props.containerRef}>
       <TacoAudio
         audioRef={props.viewRef}
         url={props.src.value}
@@ -65,7 +60,7 @@ const childrenMap = {
   style: styleControl(ImageStyle),
   autoPlay: BoolControl,
   loop: BoolControl,
-  viewRef: RefControl<ReactPlayer>,
+  ...mediaCommonChildren,
 };
 
 let AudioBasicComp = (function () {
@@ -93,7 +88,7 @@ let AudioBasicComp = (function () {
         </>
       );
     })
-    .setExposeMethodConfigs(refMethods(["seekTo", "showPreview"]))
+    .setExposeMethodConfigs(mediaMethods())
     .build();
 })();
 

@@ -39,7 +39,7 @@ import com.openblocks.domain.group.service.GroupMemberService;
 import com.openblocks.domain.group.service.GroupService;
 import com.openblocks.domain.organization.model.OrgMember;
 import com.openblocks.domain.organization.service.OrgMemberService;
-import com.openblocks.domain.user.model.AuthenticationUser;
+import com.openblocks.domain.user.model.AuthUser;
 import com.openblocks.domain.user.model.Connection;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.model.User.TransformedUserInfo;
@@ -155,12 +155,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<User> findByAuthUser(AuthenticationUser authenticationUser) {
-        return findBySourceAndId(authenticationUser.getSource(), authenticationUser.getUid());
+    public Mono<User> findByAuthUser(AuthUser authUser) {
+        return findBySourceAndId(authUser.getSource(), authUser.getUid());
     }
 
     @Override
-    public Mono<User> createNewUserByAuthUser(AuthenticationUser authUser) {
+    public Mono<User> createNewUserByAuthUser(AuthUser authUser) {
         User newUser = new User();
         newUser.setName(authUser.getUsername());
         newUser.setState(UserState.ACTIVATED);

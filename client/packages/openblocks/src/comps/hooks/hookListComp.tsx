@@ -1,5 +1,5 @@
 import { withDefault } from "comps/generators";
-import { list } from "comps/generators/list";
+import { list, ListDataType } from "comps/generators/list";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import {
   CompTree,
@@ -9,11 +9,34 @@ import {
 } from "comps/comps/containerBase/utils";
 import { HookComp } from "./hookComp";
 import { hookCompCategory } from "./hookCompTypes";
+import { CompParams } from "openblocks-core";
+
+const defaultHookListValue = [
+  // { compType: "title", name: "title" },
+  // { compType: "windowSize", name: "windowSize" },
+  { compType: "urlParams", name: "url" },
+  { compType: "momentJsLib", name: "moment" },
+  { compType: "lodashJsLib", name: "_" },
+  { compType: "utils", name: "utils" },
+  { compType: "message", name: "message" },
+  { compType: "localStorage", name: "localStorage" },
+  { compType: "currentUser", name: "currentUser" },
+  { compType: "theme", name: "theme" },
+] as const;
 
 const HookListTmpComp = list(HookComp);
 const HookListTmp2Comp = class extends HookListTmpComp {
   getAllCompItems() {
     return getAllCompItems(this.getCompTree());
+  }
+
+  override parseChildrenFromValue(params: CompParams<ListDataType<typeof HookComp>>) {
+    const existed = (params.value || []).map((i) => i.compType);
+    const lostItems = defaultHookListValue.filter((i) => !existed.includes(i.compType));
+    return super.parseChildrenFromValue({
+      ...params,
+      value: [...(params.value || []), ...lostItems],
+    });
   }
 
   private getCompTree(): CompTree {
@@ -71,16 +94,8 @@ const HookListTmp2Comp = class extends HookListTmpComp {
   }
 };
 
-const HookListTmp3Comp = withDefault(HookListTmp2Comp, [
-  // { compType: "title", name: "title" },
-  // { compType: "windowSize", name: "windowSize" },
-  { compType: "urlParams", name: "url" },
-  { compType: "momentJsLib", name: "moment" },
-  { compType: "lodashJsLib", name: "_" },
-  { compType: "utils", name: "utils" },
-  { compType: "message", name: "message" },
-  { compType: "localStorage", name: "localStorage" },
-  { compType: "currentUser", name: "currentUser" },
-  { compType: "theme", name: "theme" },
-]);
+const HookListTmp3Comp = withDefault(
+  HookListTmp2Comp,
+  defaultHookListValue as unknown as ListDataType<typeof HookComp>
+);
 export const HookListComp = HookListTmp3Comp;

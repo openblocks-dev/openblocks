@@ -99,17 +99,17 @@ class DataChangeResponderAsBottomRes extends DataResponderItemCompBase implement
   }
   reduce(action: CompAction<any>) {
     if (action.type === CompActionTypes.UPDATE_NODES_V2) {
-      const depends = this.children.data.node().dependValues();
+      const value = action.value.data.value;
       const dsl = this.children.data.toJsonValue();
-      const lastDependsKey = "__data_responder_data_last_depends";
-      const lastDslKey = "__data_responder_last_node";
+      const lastDataValueKey = "__data_responder_data_last_value";
+      const lastDataDslKey = "__data_responder_last_dsl";
       const target = this as any;
-      const preDepends = target[lastDependsKey];
-      const preDsl = target[lastDslKey];
-      const dependsChanged = !_.isEqual(preDepends, depends);
+      const preValue = target[lastDataValueKey];
+      const preDsl = target[lastDataDslKey];
+      const valueChanged = !_.isEqual(preValue, value);
       const dslNotChanged = _.isEqual(preDsl, dsl);
 
-      if (dependsChanged && dslNotChanged) {
+      if (valueChanged && dslNotChanged) {
         const onEvent = this.children.onEvent.getView();
         setTimeout(() => {
           onEvent("dataChange");
@@ -118,8 +118,8 @@ class DataChangeResponderAsBottomRes extends DataResponderItemCompBase implement
 
       const next = super.reduce(action);
       return setFieldsNoTypeCheck(next, {
-        [lastDependsKey]: depends,
-        [lastDslKey]: dsl,
+        [lastDataValueKey]: value,
+        [lastDataDslKey]: dsl,
       });
     }
     return super.reduce(action);

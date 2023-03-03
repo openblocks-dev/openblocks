@@ -87,6 +87,7 @@ public class OrgApiServiceImpl implements OrgApiService {
 
     private Mono<OrgMemberListView> getOrgMemberListView(String orgId, int page, int count) {
         return orgMemberService.getOrganizationMembers(orgId, page, count)
+                .collectList()
                 .flatMap(orgMembers -> {
                     List<String> userIds = orgMembers.stream()
                             .map(OrgMember::getUserId)
@@ -97,6 +98,7 @@ public class OrgApiServiceImpl implements OrgApiService {
                             .map(orgMember -> {
                                 User user = map.get(orgMember.getUserId());
                                 if (user == null) {
+                                    log.warn("user {} not exist and will be removed from the result.", orgMember.getUserId());
                                     return null;
                                 }
                                 return build(user, orgMember);
@@ -367,6 +369,7 @@ public class OrgApiServiceImpl implements OrgApiService {
                             .isCloudHosting(commonConfig.isCloud())
                             .workspaceMode(commonConfig.getWorkspace().getMode())
                             .selfDomain(hasSelfDomain)
+                            .cookieName(commonConfig.getCookieName())
                             .build();
                 });
     }
