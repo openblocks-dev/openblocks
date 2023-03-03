@@ -48,6 +48,9 @@ public abstract class AbstractAuthConfig {
         this.source = source;
     }
 
+    /**
+     * @see com.openblocks.sdk.auth.constants.AuthTypeConstants
+     */
     public abstract String getAuthType();
 
     public final boolean isEnable() {

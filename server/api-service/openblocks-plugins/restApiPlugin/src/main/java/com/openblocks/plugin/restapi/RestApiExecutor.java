@@ -61,6 +61,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.internal.Base64;
@@ -88,6 +89,7 @@ import com.openblocks.plugin.restapi.helpers.BufferingFilter;
 import com.openblocks.plugin.restapi.model.QueryBody;
 import com.openblocks.plugin.restapi.model.RestApiQueryConfig;
 import com.openblocks.plugin.restapi.model.RestApiQueryExecutionContext;
+import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.QueryExecutionResult;
@@ -114,12 +116,17 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
     private static final String DEFAULT_REST_ERROR_CODE = "REST_API_EXECUTION_ERROR";
     private static final int MAX_REDIRECTS = 7;
     private final DataUtils dataUtils = DataUtils.getInstance();
+    private final CommonConfig commonConfig;
 
     // Set an unlimited buffer size, because query payload limit will be handled in webFilter
     private final ExchangeStrategies exchangeStrategies = ExchangeStrategies
             .builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(-1))
             .build();
+
+    public RestApiExecutor(CommonConfig commonConfig) {
+        this.commonConfig = commonConfig;
+    }
 
     @Override
     public RestApiQueryExecutionContext buildQueryExecutionContext(RestApiDatasourceConfig datasourceConfig,
@@ -348,14 +355,19 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
             }
 
             if (request.isForwardAllCookies()) {
-                requestCookies.forEach(
-                        (cookieName, httpCookies) -> currentCookies.addAll(cookieName, collectList(httpCookies, HttpCookie::getValue)));
+                requestCookies.forEach((cookieName, httpCookies) -> {
+                    if (StringUtils.equals(cookieName, commonConfig.getCookieName())) {
+                        return;
+                    }
+                    currentCookies.addAll(cookieName, collectList(httpCookies, HttpCookie::getValue));
+                });
                 return;
             }
 
             requestCookies.entrySet()
                     .stream()
                     .filter(it -> forwardCookies.contains(it.getKey()))
+                    .filter(it -> ObjectUtils.notEqual(it.getKey(), commonConfig.getCookieName()))
                     .forEach(entry -> {
                         String cookieName = entry.getKey();
                         List<HttpCookie> httpCookies = entry.getValue();

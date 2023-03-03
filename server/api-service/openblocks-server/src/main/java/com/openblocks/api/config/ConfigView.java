@@ -19,4 +19,5 @@ public class ConfigView {
     private List<AbstractAuthConfig> authConfigs;
     private WorkspaceMode workspaceMode;
     private boolean selfDomain;
+    private String cookieName;
 }

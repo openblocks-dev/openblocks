@@ -367,6 +367,7 @@ public class OrgApiServiceImpl implements OrgApiService {
                             .isCloudHosting(commonConfig.isCloud())
                             .workspaceMode(commonConfig.getWorkspace().getMode())
                             .selfDomain(hasSelfDomain)
+                            .cookieName(commonConfig.getCookieName())
                             .build();
                 });
     }

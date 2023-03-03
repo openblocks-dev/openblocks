@@ -10,7 +10,7 @@ import com.openblocks.api.authentication.request.oauth2.Oauth2Source;
 import com.openblocks.api.authentication.util.AuthenticationUtils;
 import com.openblocks.domain.authentication.context.AuthRequestContext;
 import com.openblocks.domain.user.model.AuthToken;
-import com.openblocks.domain.user.model.AuthenticationUser;
+import com.openblocks.domain.user.model.AuthUser;
 import com.openblocks.domain.user.model.ConnectionAuthToken;
 import com.openblocks.sdk.auth.Oauth2SimpleAuthConfig;
 
@@ -30,15 +30,15 @@ public abstract class AbstractOauth2Request<T extends Oauth2SimpleAuthConfig> im
         this.context = context;
     }
 
-    public Mono<AuthenticationUser> auth(AuthRequestContext authRequestContext) {
+    public Mono<AuthUser> auth(AuthRequestContext authRequestContext) {
         return Mono.defer(() -> {
                     try {
                         OAuth2RequestContext context = (OAuth2RequestContext) authRequestContext;
 
-                        AuthToken token = this.getAccessToken(context);
-                        AuthenticationUser authenticationUser = this.getUserInfo(token);
-                        authenticationUser.setAuthToken(token);
-                        return Mono.just(authenticationUser);
+                        AuthToken token = this.getAuthToken(context);
+                        AuthUser authUser = this.getAuthUser(token);
+                        authUser.setAuthToken(token);
+                        return Mono.just(authUser);
                     } catch (Exception e) {
                         log.error("get oidc failed: {}", toJson(authRequestContext), e);
                         return deferredError(FAIL_TO_GET_OIDC_INFO, "FAIL_TO_GET_OIDC_INFO", e.getMessage());
@@ -47,9 +47,9 @@ public abstract class AbstractOauth2Request<T extends Oauth2SimpleAuthConfig> im
                 .subscribeOn(AuthenticationUtils.AUTH_REQUEST_THREAD_POOL);
     }
 
-    protected abstract AuthToken getAccessToken(OAuth2RequestContext context);
+    protected abstract AuthToken getAuthToken(OAuth2RequestContext context);
 
-    protected abstract AuthenticationUser getUserInfo(AuthToken authToken);
+    protected abstract AuthUser getAuthUser(AuthToken authToken);
 
     public Mono<ConnectionAuthToken> refresh(ConnectionAuthToken old) {
         return Mono.fromSupplier(() -> {

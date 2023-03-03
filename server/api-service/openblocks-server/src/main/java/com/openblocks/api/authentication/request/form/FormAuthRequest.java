@@ -9,7 +9,7 @@ import com.openblocks.api.authentication.request.AuthRequest;
 import com.openblocks.domain.authentication.context.AuthRequestContext;
 import com.openblocks.domain.authentication.context.FormAuthRequestContext;
 import com.openblocks.domain.encryption.EncryptionService;
-import com.openblocks.domain.user.model.AuthenticationUser;
+import com.openblocks.domain.user.model.AuthUser;
 import com.openblocks.domain.user.service.UserService;
 import com.openblocks.sdk.auth.AbstractAuthConfig;
 import com.openblocks.sdk.auth.EmailAuthConfig;
@@ -28,7 +28,7 @@ public class FormAuthRequest implements AuthRequest {
     private EncryptionService encryptionService;
 
     @Override
-    public Mono<AuthenticationUser> auth(AuthRequestContext authRequestContext) {
+    public Mono<AuthUser> auth(AuthRequestContext authRequestContext) {
         FormAuthRequestContext context = (FormAuthRequestContext) authRequestContext;
 
         return Mono.defer(() -> {
@@ -57,6 +57,6 @@ public class FormAuthRequest implements AuthRequest {
                                 return Mono.empty();
                             });
                 })
-                .thenReturn(AuthenticationUser.builder().uid(context.getLoginId()).username(context.getLoginId()).build());
+                .thenReturn(AuthUser.builder().uid(context.getLoginId()).username(context.getLoginId()).build());
     }
 }
