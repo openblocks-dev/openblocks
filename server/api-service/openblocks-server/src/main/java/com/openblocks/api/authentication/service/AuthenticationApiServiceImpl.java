@@ -247,8 +247,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
 
     private Mono<Void> removeTokensByAuthId(String authId) {
         return sessionUserService.getVisitorOrgMemberCache()
-                .flatMap(orgMember -> orgMemberService.getOrganizationMembers(orgMember.getOrgId(), 0, Integer.MAX_VALUE))
-                .flatMapIterable(Function.identity())
+                .flatMapMany(orgMember -> orgMemberService.getOrganizationMembers(orgMember.getOrgId()))
                 .map(OrgMember::getUserId)
                 .flatMap(userId -> userApiService.getTokensByAuthId(userId, authId))
                 .delayUntil(token -> sessionUserService.removeUserSession(token))
