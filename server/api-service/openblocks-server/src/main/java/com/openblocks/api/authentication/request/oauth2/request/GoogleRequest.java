@@ -1,77 +1,85 @@
 package com.openblocks.api.authentication.request.oauth2.request;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.http.client.utils.URIBuilder;
-import org.json.JSONObject;
+import org.springframework.core.ParameterizedTypeReference;
 
+import com.openblocks.api.authentication.request.AuthException;
 import com.openblocks.api.authentication.request.oauth2.OAuth2RequestContext;
 import com.openblocks.api.authentication.request.oauth2.Oauth2DefaultSource;
-import com.openblocks.sdk.util.HttpUtils;
-import com.openblocks.api.authentication.request.AuthException;
 import com.openblocks.domain.user.model.AuthToken;
 import com.openblocks.domain.user.model.AuthUser;
 import com.openblocks.sdk.auth.Oauth2SimpleAuthConfig;
+import com.openblocks.sdk.util.JsonUtils;
+import com.openblocks.sdk.webclient.WebClientBuildHelper;
+
+import reactor.core.publisher.Mono;
 
 public class GoogleRequest extends AbstractOauth2Request<Oauth2SimpleAuthConfig> {
 
-    public GoogleRequest(Oauth2SimpleAuthConfig config, OAuth2RequestContext context) {
-        super(config, Oauth2DefaultSource.GOOGLE, context);
+    public GoogleRequest(Oauth2SimpleAuthConfig config) {
+        super(config, Oauth2DefaultSource.GOOGLE);
     }
 
     @Override
-    protected AuthToken getAuthToken(OAuth2RequestContext context) {
-        String result;
-
+    protected Mono<AuthToken> getAuthToken(OAuth2RequestContext context) {
+        URI uri;
         try {
-            result = new URIBuilder(source.accessToken())
+            uri = new URIBuilder(source.accessToken())
                     .addParameter("code", context.getCode())
                     .addParameter("client_id", config.getClientId())
                     .addParameter("client_secret", config.getClientSecret())
                     .addParameter("grant_type", "authorization_code")
-                    .addParameter("redirect_uri", GoogleRequest.this.context.getRedirectUrl())
-                    .toString();
+                    .addParameter("redirect_uri", context.getRedirectUrl())
+                    .build();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
-        String response = HttpUtils.post(result, null, null, null);
-        JSONObject accessTokenObject = new JSONObject(response);
-        this.checkResponse(accessTokenObject);
-        return AuthToken.builder()
-                .accessToken(accessTokenObject.getString("access_token"))
-                .expireIn(accessTokenObject.getInt("expires_in"))
-                .build();
+
+        return WebClientBuildHelper.builder()
+                .systemProxy()
+                .build()
+                .post()
+                .uri(uri)
+                .exchangeToMono(response -> response.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+                }))
+                .flatMap(map -> {
+                    if (map.containsKey("error") || map.containsKey("error_description")) {
+                        throw new AuthException(JsonUtils.toJson(map));
+                    }
+                    AuthToken authToken = AuthToken.builder()
+                            .accessToken(MapUtils.getString(map, "access_token"))
+                            .expireIn(MapUtils.getIntValue(map, "expires_in"))
+                            .build();
+                    return Mono.just(authToken);
+                });
     }
 
     @Override
-    protected AuthUser getAuthUser(AuthToken authToken) {
-        String userInfo = HttpUtils.post(userInfoUrl(authToken), null, Map.of("Authorization", "Bearer " + authToken.getAccessToken()), null);
-
-        JSONObject object = new JSONObject(userInfo);
-        this.checkResponse(object);
-
-        return AuthUser.builder()
-                .uid(object.getString("sub"))
-                .username(object.getString("name"))
-                .avatar(object.getString("picture"))
-                .rawUserInfo(object.toMap())
-                .build();
-    }
-
-    private String userInfoUrl(AuthToken authToken) {
-        try {
-            return new URIBuilder(source.userInfo())
-                    .addParameter("access_token", authToken.getAccessToken())
-                    .toString();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void checkResponse(JSONObject object) {
-        if (object.has("error") || object.has("error_description")) {
-            throw new AuthException(object);
-        }
+    protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
+        return WebClientBuildHelper.builder()
+                .systemProxy()
+                .build()
+                .post()
+                .uri(source.userInfo())
+                .header("Authorization", "Bearer " + authToken.getAccessToken())
+                .exchangeToMono(response -> response.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+                }))
+                .flatMap(map -> {
+                    if (map.containsKey("error") || map.containsKey("error_description")) {
+                        throw new AuthException(JsonUtils.toJson(map));
+                    }
+                    AuthUser authUser = AuthUser.builder()
+                            .uid(MapUtils.getString(map, "sub"))
+                            .username(MapUtils.getString(map, "name"))
+                            .avatar(MapUtils.getString(map, "picture"))
+                            .rawUserInfo(map)
+                            .build();
+                    return Mono.just(authUser);
+                });
     }
 }
