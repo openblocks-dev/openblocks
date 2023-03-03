@@ -34,6 +34,7 @@ import org.springframework.http.HttpMethod;
 import com.google.common.base.Joiner;
 import com.openblocks.plugin.es.model.EsConnection;
 import com.openblocks.plugin.es.model.EsDatasourceConfig;
+import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.config.dynamic.Conf;
 import com.openblocks.sdk.config.dynamic.ConfigCenter;
 import com.openblocks.sdk.exception.BizError;
@@ -44,7 +45,6 @@ import com.openblocks.sdk.plugin.common.QueryExecutionUtils;
 import com.openblocks.sdk.util.ExceptionUtils;
 import com.openblocks.sdk.util.JsonUtils;
 import com.openblocks.sdk.util.Preconditions;
-import com.openblocks.sdk.webclient.NameResolver;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -61,10 +61,12 @@ public class EsConnector implements DatasourceConnector<EsConnection, EsDatasour
     private static final Joiner JOINER = Joiner.on("/");
 
     private final Conf<Duration> datasourceValidateTimeout;
+    private final CommonConfig commonConfig;
 
-    public EsConnector(ConfigCenter configCenter) {
+    public EsConnector(ConfigCenter configCenter, CommonConfig commonConfig) {
         datasourceValidateTimeout = configCenter.mongoPlugin().ofInteger("datasourceValidateTimeoutMillis", 6000)
                 .then(Duration::ofMillis);
+        this.commonConfig = commonConfig;
     }
 
     @Nonnull
@@ -100,7 +102,7 @@ public class EsConnector implements DatasourceConnector<EsConnection, EsDatasour
      */
     private RestClient buildRestClient(EsDatasourceConfig esDatasourceConfig) {
         ConnectionStringParseResult parseResult = parseConnectionString(esDatasourceConfig.getConnectionString());
-        if (NameResolver.DISALLOWED_HOSTS.contains(parseResult.getHost())) {
+        if (commonConfig.getDisallowedHosts().contains(parseResult.getHost())) {
             throw new BizException(BizError.INVALID_DATASOURCE_CONFIG_TYPE, "INVALID_CONNECTION_STRING");
         }
         HttpHost httpHost = new HttpHost(parseResult.getHost(), parseResult.getPort(), parseResult.getSchema());

@@ -13,8 +13,6 @@ import static com.openblocks.sdk.util.JsonUtils.toJsonThrows;
 import static com.openblocks.sdk.util.MustacheHelper.renderMustacheString;
 import static com.openblocks.sdk.util.StreamUtils.collectList;
 import static com.openblocks.sdk.util.StreamUtils.distinctByKey;
-import static com.openblocks.sdk.webclient.WebClients.builder;
-import static com.openblocks.sdk.webclient.WebClients.withSafeHost;
 import static org.apache.commons.lang3.StringUtils.firstNonBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
@@ -61,6 +59,7 @@ import com.openblocks.plugin.graphql.helpers.AuthHelper;
 import com.openblocks.plugin.graphql.helpers.BufferingFilter;
 import com.openblocks.plugin.graphql.model.GraphQLQueryConfig;
 import com.openblocks.plugin.graphql.model.GraphQLQueryExecutionContext;
+import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.QueryExecutionResult;
@@ -76,6 +75,7 @@ import com.openblocks.sdk.query.QueryVisitorContext;
 import com.openblocks.sdk.util.JsonUtils;
 import com.openblocks.sdk.util.MoreMapUtils;
 import com.openblocks.sdk.util.MustacheHelper;
+import com.openblocks.sdk.webclient.WebClientBuildHelper;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -99,6 +99,12 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
     private final Scheduler scheduler = QueryExecutionUtils.querySharedScheduler();
     private final DataUtils dataUtils = DataUtils.getInstance();
     Consumer<HttpHeaders> DEFAULT_HEADERS_CONSUMER = httpHeaders -> {};
+
+    private final CommonConfig commonConfig;
+
+    public GraphQLExecutor(CommonConfig commonConfig) {
+        this.commonConfig = commonConfig;
+    }
 
     private static List<Property> renderMustacheValueInProperties(List<Property> properties, Map<String, Object> paramMap) {
         return properties.stream()
@@ -244,7 +250,9 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
     public Mono<QueryExecutionResult> executeQuery(Object o, GraphQLQueryExecutionContext context) {
         return Mono.defer(() -> {
             URI uri = RestApiUriBuilder.buildUri(context.getUrl(), new HashMap<>(), context.getUrlParams());
-            WebClient.Builder webClientBuilder = withSafeHost(builder());
+            WebClient.Builder webClientBuilder = WebClientBuildHelper.builder()
+                    .disallowedHosts(commonConfig.getDisallowedHosts())
+                    .toWebClientBuilder();
 
             Map<String, String> allHeaders = context.getHeaders();
             String contentType = context.getContentType();

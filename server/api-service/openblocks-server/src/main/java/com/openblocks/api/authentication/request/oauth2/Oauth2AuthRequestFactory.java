@@ -26,8 +26,8 @@ public class Oauth2AuthRequestFactory implements AuthRequestFactory<OAuth2Reques
 
     private AbstractOauth2Request<? extends Oauth2SimpleAuthConfig> buildRequest(OAuth2RequestContext context) {
         return switch (context.getAuthConfig().getAuthType()) {
-            case GITHUB -> new GithubRequest((Oauth2SimpleAuthConfig) context.getAuthConfig(), context);
-            case GOOGLE -> new GoogleRequest((Oauth2SimpleAuthConfig) context.getAuthConfig(), context);
+            case GITHUB -> new GithubRequest((Oauth2SimpleAuthConfig) context.getAuthConfig());
+            case GOOGLE -> new GoogleRequest((Oauth2SimpleAuthConfig) context.getAuthConfig());
             default -> throw new UnsupportedOperationException(context.getAuthConfig().getAuthType());
         };
     }

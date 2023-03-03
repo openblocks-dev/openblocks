@@ -44,6 +44,7 @@ import com.openblocks.domain.query.service.LibraryQueryService;
 import com.openblocks.domain.query.service.QueryExecutionService;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.service.UserService;
+import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.PluginCommonError;
 import com.openblocks.sdk.models.Property;
@@ -83,6 +84,9 @@ public class LibraryQueryApiService {
 
     @Autowired
     private ResourcePermissionService resourcePermissionService;
+
+    @Autowired
+    private CommonConfig commonConfig;
 
     @Value("${server.port}")
     private int port;
@@ -254,8 +258,8 @@ public class LibraryQueryApiService {
 
                     QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port,
                             exchange.getRequest().getCookies(),
-                            paramsAndHeadersInheritFromLogin
-                    );
+                            paramsAndHeadersInheritFromLogin,
+                            commonConfig.getDisallowedHosts());
 
                     Map<String, Object> queryConfig = baseQuery.getQueryConfig();
                     String timeoutStr = firstNonBlank(baseQuery.getTimeoutStr(), "5s");
@@ -292,7 +296,8 @@ public class LibraryQueryApiService {
                     Datasource datasource = tuple.getT3();
                     Mono<List<Property>> paramsAndHeadersInheritFromLogin =
                             getParamsAndHeadersInheritFromLogin(userId, orgId);
-                    QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port, cookies, paramsAndHeadersInheritFromLogin);
+                    QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port, cookies, paramsAndHeadersInheritFromLogin,
+                            commonConfig.getDisallowedHosts());
                     Map<String, Object> queryConfig = baseQuery.getQueryConfig();
                     String timeoutStr = baseQuery.getTimeoutStr();
                     return queryExecutionService.executeQuery(datasource, queryConfig, queryExecutionRequest.paramMap(), timeoutStr,

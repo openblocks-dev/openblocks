@@ -1,5 +1,6 @@
 package com.openblocks.api.authentication.request.oauth2.request;
 
+import static com.openblocks.api.authentication.util.AuthenticationUtils.AUTH_REQUEST_THREAD_POOL;
 import static com.openblocks.sdk.exception.BizError.FAIL_TO_GET_OIDC_INFO;
 import static com.openblocks.sdk.util.ExceptionUtils.deferredError;
 import static com.openblocks.sdk.util.JsonUtils.toJson;
@@ -7,11 +8,9 @@ import static com.openblocks.sdk.util.JsonUtils.toJson;
 import com.openblocks.api.authentication.request.AuthRequest;
 import com.openblocks.api.authentication.request.oauth2.OAuth2RequestContext;
 import com.openblocks.api.authentication.request.oauth2.Oauth2Source;
-import com.openblocks.api.authentication.util.AuthenticationUtils;
 import com.openblocks.domain.authentication.context.AuthRequestContext;
 import com.openblocks.domain.user.model.AuthToken;
 import com.openblocks.domain.user.model.AuthUser;
-import com.openblocks.domain.user.model.ConnectionAuthToken;
 import com.openblocks.sdk.auth.Oauth2SimpleAuthConfig;
 
 import lombok.extern.slf4j.Slf4j;
@@ -22,46 +21,23 @@ public abstract class AbstractOauth2Request<T extends Oauth2SimpleAuthConfig> im
 
     protected T config;
     protected Oauth2Source source;
-    protected OAuth2RequestContext context;
 
-    public AbstractOauth2Request(T config, Oauth2Source source, OAuth2RequestContext context) {
+    public AbstractOauth2Request(T config, Oauth2Source source) {
         this.config = config;
         this.source = source;
-        this.context = context;
     }
 
     public Mono<AuthUser> auth(AuthRequestContext authRequestContext) {
-        return Mono.defer(() -> {
-                    try {
-                        OAuth2RequestContext context = (OAuth2RequestContext) authRequestContext;
-
-                        AuthToken token = this.getAuthToken(context);
-                        AuthUser authUser = this.getAuthUser(token);
-                        authUser.setAuthToken(token);
-                        return Mono.just(authUser);
-                    } catch (Exception e) {
-                        log.error("get oidc failed: {}", toJson(authRequestContext), e);
-                        return deferredError(FAIL_TO_GET_OIDC_INFO, "FAIL_TO_GET_OIDC_INFO", e.getMessage());
-                    }
+        return getAuthToken((OAuth2RequestContext) authRequestContext)
+                .flatMap(authToken -> getAuthUser(authToken).doOnNext(authUser -> authUser.setAuthToken(authToken)))
+                .onErrorResume(throwable -> {
+                    log.error("get oidc failed: {}", toJson(authRequestContext), throwable);
+                    return deferredError(FAIL_TO_GET_OIDC_INFO, "FAIL_TO_GET_OIDC_INFO", throwable.getMessage());
                 })
-                .subscribeOn(AuthenticationUtils.AUTH_REQUEST_THREAD_POOL);
+                .subscribeOn(AUTH_REQUEST_THREAD_POOL);
     }
 
-    protected abstract AuthToken getAuthToken(OAuth2RequestContext context);
+    protected abstract Mono<AuthToken> getAuthToken(OAuth2RequestContext context);
 
-    protected abstract AuthUser getAuthUser(AuthToken authToken);
-
-    public Mono<ConnectionAuthToken> refresh(ConnectionAuthToken old) {
-        return Mono.fromSupplier(() -> {
-            AuthToken authToken = AuthToken.builder()
-                    .refreshToken(old.getRefreshToken())
-                    .build();
-            AuthToken refresh = refresh(authToken);
-            return ConnectionAuthToken.of(refresh);
-        });
-    }
-
-    protected AuthToken refresh(AuthToken authToken) {
-        throw new UnsupportedOperationException();
-    }
+    protected abstract Mono<AuthUser> getAuthUser(AuthToken authToken);
 }
