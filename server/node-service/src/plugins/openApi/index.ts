@@ -15,6 +15,8 @@ import { badRequest } from "../../common/error";
 import { safeJsonParse } from "../../common/util";
 import { OpenAPI, OpenAPIV2, OpenAPIV3 } from "openapi-types";
 import _ from "lodash";
+import { fetch } from "../../common/fetch";
+import { RequestInit, Response } from "node-fetch";
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -97,17 +99,8 @@ export async function runOpenApi(
       requestBody,
       securities,
       responseContentType: "application/json",
-      userFetch: async (url: string, req: Request) => {
-        const res = await fetch(url, req);
-        return new Response(res.body, {
-          status: res.status,
-          statusText: res.statusText,
-
-          // keep required headers to workaround the nodejs bug: https://github.com/nodejs/node/pull/46711
-          headers: {
-            "content-type": res.headers.get("content-type") || "",
-          },
-        });
+      userFetch: async (url: string, req: RequestInit) => {
+        return fetch(url, req);
       },
       requestInterceptor: (req: any) => {
         const headers = _.omitBy(req.headers, (i) => !i);
