@@ -41,7 +41,6 @@ import static com.openblocks.sdk.util.MustacheHelper.renderMustacheString;
 import static com.openblocks.sdk.util.StreamUtils.collectList;
 import static org.apache.commons.collections4.MapUtils.emptyIfNull;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-import static org.springframework.web.reactive.function.client.WebClient.builder;
 
 import java.io.IOException;
 import java.net.URI;
@@ -103,7 +102,7 @@ import com.openblocks.sdk.plugin.restapi.auth.AuthConfig;
 import com.openblocks.sdk.plugin.restapi.auth.BasicAuthConfig;
 import com.openblocks.sdk.plugin.restapi.auth.RestApiAuthType;
 import com.openblocks.sdk.query.QueryVisitorContext;
-import com.openblocks.sdk.webclient.WebClients;
+import com.openblocks.sdk.webclient.WebClientBuildHelper;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -238,7 +237,10 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
 
         return Mono.defer(() -> authByOauth2InheritFromLogin(context))
                 .then(Mono.defer(() -> {
-                    WebClient.Builder webClientBuilder = WebClients.withSafeHostAndSecure(builder(), context.getSslConfig());
+                    WebClient.Builder webClientBuilder = WebClientBuildHelper.builder()
+                            .disallowedHosts(commonConfig.getDisallowedHosts())
+                            .sslConfig(context.getSslConfig())
+                            .toWebClientBuilder();
 
                     Map<String, String> allHeaders = context.getHeaders();
                     String contentType = context.getContentType();

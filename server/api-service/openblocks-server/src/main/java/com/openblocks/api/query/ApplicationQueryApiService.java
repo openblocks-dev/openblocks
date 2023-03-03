@@ -35,6 +35,7 @@ import com.openblocks.domain.query.service.LibraryQueryRecordService;
 import com.openblocks.domain.query.service.LibraryQueryService;
 import com.openblocks.domain.query.service.QueryExecutionService;
 import com.openblocks.infra.util.TupleUtils;
+import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.QueryExecutionResult;
@@ -67,6 +68,9 @@ public class ApplicationQueryApiService {
 
     @Autowired
     private QueryExecutionService queryExecutionService;
+
+    @Autowired
+    private CommonConfig commonConfig;
 
     @Value("${server.port}")
     private int port;
@@ -107,7 +111,7 @@ public class ApplicationQueryApiService {
 
                     MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
                     QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, app.getOrganizationId(), port, cookies,
-                            getAuthParamsAndHeadersInheritFromLogin(userId, app.getOrganizationId()));
+                            getAuthParamsAndHeadersInheritFromLogin(userId, app.getOrganizationId()), commonConfig.getDisallowedHosts());
                     return queryExecutionService.executeQuery(datasource, baseQuery.getQueryConfig(), queryExecutionRequest.paramMap(),
                                     appQuery.getTimeoutStr(), queryVisitorContext
                             )
