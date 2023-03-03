@@ -18,7 +18,7 @@ const dataSourceConfig = {
       rules: [{ required: true }],
       placeholder: "<Your API KEY>",
       tooltip:
-        "[Document](https://platform.openai.com/account/api-keys) on which you can create your api key",
+        "[In your Open AI account page](https://platform.openai.com/account/api-keys) on which you can create your api key",
     },
   ],
 } as const;
