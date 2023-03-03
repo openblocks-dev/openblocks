@@ -1137,7 +1137,7 @@ paths:
       summary: |
         Answers the specified question using the provided documents and examples.
 
-        The endpoint first [searches](/docs/api-reference/searches) over provided documents or files to find relevant context. The relevant context is combined with the provided examples and question to create the prompt for [completion](/docs/api-reference/completions).
+        The endpoint first [searches](https://platform.openai.com/docs/api-reference/searches) over provided documents or files to find relevant context. The relevant context is combined with the provided examples and question to create the prompt for [completion](https://platform.openai.com/docs/api-reference/completions).
       requestBody:
         required: true
         content:
@@ -1243,10 +1243,10 @@ paths:
       summary: |
         Classifies the specified `query` using provided examples.
 
-        The endpoint first [searches](/docs/api-reference/searches) over the labeled examples
+        The endpoint first [searches](https://platform.openai.com/docs/api-reference/searches) over the labeled examples
         to select the ones most relevant for the particular query. Then, the relevant examples
         are combined with the query to construct a prompt to produce the final label via the
-        [completions](/docs/api-reference/completions) endpoint.
+        [completions](https://platform.openai.com/docs/api-reference/completions) endpoint.
 
         Labeled examples can be provided via an uploaded `file`, or explicitly listed in the
         request using the `examples` parameter for quick tests and small scale use cases.
@@ -1363,7 +1363,7 @@ paths:
 
         Response includes details of the enqueued job including job status and the name of the fine-tuned models once complete.
 
-        [Learn more about Fine-tuning](/docs/guides/fine-tuning)
+        [Learn more about Fine-tuning](https://platform.openai.com/docs/guides/fine-tuning)
       requestBody:
         required: true
         content:
@@ -1505,7 +1505,7 @@ paths:
       summary: |
         Gets info about the fine-tune job.
 
-        [Learn more about Fine-tuning](/docs/guides/fine-tuning)
+        [Learn more about Fine-tuning](https://platform.openai.com/docs/guides/fine-tuning)
       parameters:
         - in: path
           name: fine_tune_id
@@ -2063,7 +2063,7 @@ components:
       type: object
       properties:
         model: &model_configuration
-          description: ID of the model to use. You can use the [List models](/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](/docs/models/overview) for descriptions of them.
+          description: ID of the model to use. You can use the [List models](https://platform.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://platform.openai.com/docs/models/overview) for descriptions of them.
           type: string
         prompt:
           description: &completions_prompt_description |
@@ -2191,7 +2191,7 @@ components:
           description: &completions_presence_penalty_description |
             Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
 
-            [See more information about frequency and presence penalties.](/docs/api-reference/parameter-details)
+            [See more information about frequency and presence penalties.](https://platform.openai.com/docs/api-reference/parameter-details)
         frequency_penalty:
           type: number
           default: 0
@@ -2201,7 +2201,7 @@ components:
           description: &completions_frequency_penalty_description |
             Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
 
-            [See more information about frequency and presence penalties.](/docs/api-reference/parameter-details)
+            [See more information about frequency and presence penalties.](https://platform.openai.com/docs/api-reference/parameter-details)
         best_of:
           type: integer
           default: 1
@@ -2229,7 +2229,7 @@ components:
           type: string
           example: user-1234
           description: |
-            A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](/docs/guides/safety-best-practices/end-user-ids).
+            A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids).
       required:
         - model
 
@@ -2333,7 +2333,7 @@ components:
           description: ID of the model to use. Currently, only `gpt-3.5-turbo` and `gpt-3.5-turbo-0301` are supported.
           type: string
         messages:
-          description: The messages to generate chat completions for, in the [chat format](/docs/guides/chat/introduction).
+          description: The messages to generate chat completions for, in the [chat format](https://platform.openai.com/docs/guides/chat/introduction).
           type: array
           minItems: 1
           items:
@@ -2833,14 +2833,14 @@ components:
           description: |
             Name of the [JSON Lines](https://jsonlines.readthedocs.io/en/latest/) file to be uploaded.
 
-            If the `purpose` is set to "fine-tune", each line is a JSON record with "prompt" and "completion" fields representing your [training examples](/docs/guides/fine-tuning/prepare-training-data).
+            If the `purpose` is set to "fine-tune", each line is a JSON record with "prompt" and "completion" fields representing your [training examples](https://platform.openai.com/docs/guides/fine-tuning/prepare-training-data).
           type: string
           format: binary
         purpose:
           description: |
             The intended purpose of the uploaded documents.
 
-            Use "fine-tune" for [Fine-tuning](/docs/api-reference/fine-tunes). This allows us to validate the format of the uploaded file.
+            Use "fine-tune" for [Fine-tuning](https://platform.openai.com/docs/api-reference/fine-tunes). This allows us to validate the format of the uploaded file.
 
           type: string
       required:
@@ -2903,18 +2903,18 @@ components:
           nullable: true
         file:
           description: |
-            The ID of an uploaded file that contains documents to search over. See [upload file](/docs/api-reference/files/upload) for how to upload a file of the desired format and purpose.
+            The ID of an uploaded file that contains documents to search over. See [upload file](https://platform.openai.com/docs/api-reference/files/upload) for how to upload a file of the desired format and purpose.
 
             You should specify either `documents` or a `file`, but not both.
           type: string
           nullable: true
         search_model: &search_model_configuration
-          description: ID of the model to use for [Search](/docs/api-reference/searches/create). You can select one of `ada`, `babbage`, `curie`, or `davinci`.
+          description: ID of the model to use for [Search](https://platform.openai.com/docs/api-reference/searches/create). You can select one of `ada`, `babbage`, `curie`, or `davinci`.
           type: string
           default: ada
           nullable: true
         max_rerank:
-          description: The maximum number of documents to be ranked by [Search](/docs/api-reference/searches/create) when using `file`. Setting it to a higher value leads to improved accuracy but with increased latency and cost.
+          description: The maximum number of documents to be ranked by [Search](https://platform.openai.com/docs/api-reference/searches/create) when using `file`. Setting it to a higher value leads to improved accuracy but with increased latency and cost.
           type: integer
           default: 200
           nullable: true
@@ -3039,7 +3039,7 @@ components:
           nullable: true
         file:
           description: |
-            The ID of the uploaded file that contains training examples. See [upload file](/docs/api-reference/files/upload) for how to upload a file of the desired format and purpose.
+            The ID of the uploaded file that contains training examples. See [upload file](https://platform.openai.com/docs/api-reference/files/upload) for how to upload a file of the desired format and purpose.
 
             You should specify either `examples` or `file`, but not both.
           type: string
@@ -3065,7 +3065,7 @@ components:
           example: 0
         logprobs: *context_completions_logprobs_configuration
         max_examples:
-          description: The maximum number of examples to be ranked by [Search](/docs/api-reference/searches/create) when using `file`. Setting it to a higher value leads to improved accuracy but with increased latency and cost.
+          description: The maximum number of examples to be ranked by [Search](https://platform.openai.com/docs/api-reference/searches/create) when using `file`. Setting it to a higher value leads to improved accuracy but with increased latency and cost.
           type: integer
           default: 200
           nullable: true
@@ -3110,13 +3110,13 @@ components:
           description: |
             The ID of an uploaded file that contains training data.
 
-            See [upload file](/docs/api-reference/files/upload) for how to upload a file.
+            See [upload file](https://platform.openai.com/docs/api-reference/files/upload) for how to upload a file.
 
             Your dataset must be formatted as a JSONL file, where each training
             example is a JSON object with the keys "prompt" and "completion".
             Additionally, you must upload your file with the purpose `fine-tune`.
 
-            See the [fine-tuning guide](/docs/guides/fine-tuning/creating-training-data) for more details.
+            See the [fine-tuning guide](https://platform.openai.com/docs/guides/fine-tuning/creating-training-data) for more details.
           type: string
           example: "file-ajSREls59WBbvgSzJSVWxMCB"
         validation_file:
@@ -3125,14 +3125,14 @@ components:
 
             If you provide this file, the data is used to generate validation
             metrics periodically during fine-tuning. These metrics can be viewed in
-            the [fine-tuning results file](/docs/guides/fine-tuning/analyzing-your-fine-tuned-model).
+            the [fine-tuning results file](https://platform.openai.com/docs/guides/fine-tuning/analyzing-your-fine-tuned-model).
             Your train and validation data should be mutually exclusive.
 
             Your dataset must be formatted as a JSONL file, where each validation
             example is a JSON object with the keys "prompt" and "completion".
             Additionally, you must upload your file with the purpose `fine-tune`.
 
-            See the [fine-tuning guide](/docs/guides/fine-tuning/creating-training-data) for more details.
+            See the [fine-tuning guide](https://platform.openai.com/docs/guides/fine-tuning/creating-training-data) for more details.
           type: string
           nullable: true
           example: "file-XjSREls59WBbvgSzJSVWxMCa"
@@ -3195,7 +3195,7 @@ components:
           description: |
             If set, we calculate classification-specific metrics such as accuracy
             and F-1 score using the validation set at the end of every epoch.
-            These metrics can be viewed in the [results file](/docs/guides/fine-tuning/analyzing-your-fine-tuned-model).
+            These metrics can be viewed in the [results file](https://platform.openai.com/docs/guides/fine-tuning/analyzing-your-fine-tuned-model).
 
             In order to compute classification metrics, you must provide a
             `validation_file`. Additionally, you must
@@ -3367,7 +3367,7 @@ components:
           type: string
         prompt:
           description: |
-            An optional text to guide the model's style or continue a previous audio segment. The [prompt](/docs/guides/speech-to-text/prompting) should match the audio language.
+            An optional text to guide the model's style or continue a previous audio segment. The [prompt](https://platform.openai.com/docs/guides/speech-to-text/prompting) should match the audio language.
           type: string
         response_format:
           description: |
@@ -3411,7 +3411,7 @@ components:
           type: string
         prompt:
           description: |
-            An optional text to guide the model's style or continue a previous audio segment. The [prompt](/docs/guides/speech-to-text/prompting) should be in English.
+            An optional text to guide the model's style or continue a previous audio segment. The [prompt](https://platform.openai.com/docs/guides/speech-to-text/prompting) should be in English.
           type: string
         response_format:
           description: |
@@ -3573,7 +3573,7 @@ x-oaiMeta:
     - id: models
       title: Models
       description: |
-        List and describe the various models available in the API. You can refer to the [Models](/docs/models) documentation to understand what models are available and the differences between them.
+        List and describe the various models available in the API. You can refer to the [Models](https://platform.openai.com/docs/models) documentation to understand what models are available and the differences between them.
     - id: completions
       title: Completions
       description: |
@@ -3591,35 +3591,35 @@ x-oaiMeta:
       description: |
         Given a prompt and/or an input image, the model will generate a new image.
 
-        Related guide: [Image generation](/docs/guides/images)
+        Related guide: [Image generation](https://platform.openai.com/docs/guides/images)
     - id: embeddings
       title: Embeddings
       description: |
         Get a vector representation of a given input that can be easily consumed by machine learning models and algorithms.
 
-        Related guide: [Embeddings](/docs/guides/embeddings)
+        Related guide: [Embeddings](https://platform.openai.com/docs/guides/embeddings)
     - id: audio
       title: Audio
       description: |
         Learn how to turn audio into text.
 
-        Related guide: [Speech to text](/docs/guides/speech-to-text)
+        Related guide: [Speech to text](https://platform.openai.com/docs/guides/speech-to-text)
     - id: files
       title: Files
       description: |
-        Files are used to upload documents that can be used with features like [Fine-tuning](/docs/api-reference/fine-tunes).
+        Files are used to upload documents that can be used with features like [Fine-tuning](https://platform.openai.com/docs/api-reference/fine-tunes).
     - id: fine-tunes
       title: Fine-tunes
       description: |
         Manage fine-tuning jobs to tailor a model to your specific training data.
 
-        Related guide: [Fine-tune models](/docs/guides/fine-tuning)
+        Related guide: [Fine-tune models](https://platform.openai.com/docs/guides/fine-tuning)
     - id: moderations
       title: Moderations
       description: |
         Given a input text, outputs if the model classifies it as violating OpenAI's content policy.
 
-        Related guide: [Moderations](/docs/guides/moderation)
+        Related guide: [Moderations](https://platform.openai.com/docs/guides/moderation)
     - id: searches
       title: Searches
       warning:
@@ -3628,7 +3628,7 @@ x-oaiMeta:
       description: |
         Given a query and a set of documents or labels, the model ranks each document based on its semantic similarity to the provided query.
 
-        Related guide: [Search](/docs/guides/search)
+        Related guide: [Search](https://platform.openai.com/docs/guides/search)
     - id: classifications
       title: Classifications
       warning:
@@ -3637,7 +3637,7 @@ x-oaiMeta:
       description: |
         Given a query and a set of labeled examples, the model will predict the most likely label for the query. Useful as a drop-in replacement for any ML classification or text-to-label task.
 
-        Related guide: [Classification](/docs/guides/classifications)
+        Related guide: [Classification](https://platform.openai.com/docs/guides/classifications)
     - id: answers
       title: Answers
       warning:
@@ -3646,10 +3646,10 @@ x-oaiMeta:
       description: |
         Given a question, a set of documents, and some examples, the API generates an answer to the question based on the information in the set of documents. This is useful for question-answering applications on sources of truth, like company documentation or a knowledge base.
 
-        Related guide: [Question answering](/docs/guides/answers)
+        Related guide: [Question answering](https://platform.openai.com/docs/guides/answers)
     - id: engines
       title: Engines
       description: These endpoints describe and provide access to the various engines available in the API.
       warning:
         title: The Engines endpoints are deprecated.
-        message: Please use their replacement, [Models](/docs/api-reference/models), instead. [Learn more](https://help.openai.com/TODO).
+        message: Please use their replacement, [Models](https://platform.openai.com/docs/api-reference/models), instead. [Learn more](https://help.openai.com/TODO).
