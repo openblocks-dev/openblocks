@@ -30,6 +30,7 @@ import twilioPlugin from "./twilio";
 import gitlabPlugin from "./gitlab";
 import faunaPlugin from "./fauna";
 import huggingFaceInferencePlugin from "./huggingFaceInference";
+import didPlugin from "./did";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   s3Plugin,
@@ -64,6 +65,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   twilioPlugin,
   gitlabPlugin,
   faunaPlugin,
+  didPlugin,
 ];
 
 try {

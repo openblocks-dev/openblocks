@@ -1,0 +1,162 @@
+{
+  "components": {
+    "examples": {},
+    "headers": {},
+    "parameters": {},
+    "requestBodies": {},
+    "responses": {},
+    "schemas": {
+      "CreditsItem": {
+        "properties": {
+          "owner_id": { "type": "string" },
+          "created_at": { "type": "string" },
+          "modified_at": { "type": "string" },
+          "remaining": { "type": "number", "format": "double" },
+          "total": { "type": "number", "format": "double" },
+          "expire_at": { "type": "string" },
+          "valid_from": { "type": "string" },
+          "product_id": { "type": "string" },
+          "product_billing_interval": { "type": "string", "enum": ["month", "year"] }
+        },
+        "required": ["owner_id", "created_at", "modified_at", "remaining", "total", "expire_at"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UserCredits": {
+        "properties": {
+          "credits": { "items": { "$ref": "#/components/schemas/CreditsItem" }, "type": "array" },
+          "remaining": { "type": "number", "format": "double" },
+          "total": { "type": "number", "format": "double" }
+        },
+        "required": ["credits", "remaining", "total"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "JsonError": {
+        "properties": {
+          "kind": { "type": "string" },
+          "description": { "type": "string" },
+          "details": {}
+        },
+        "required": ["kind", "description"],
+        "type": "object",
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "basic": { "type": "http", "scheme": "basic" },
+      "bearer": { "type": "http", "scheme": "bearer" }
+    }
+  },
+  "info": {
+    "title": "credits",
+    "version": "1.1.0",
+    "description": "information regarding your D-ID API credits",
+    "license": { "name": "ISC" },
+    "contact": { "name": "D-ID" }
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/credits": {
+      "get": {
+        "operationId": "Get",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserCredits" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "credits": [
+                        {
+                          "owner_id": "52907745-7672-470e-a803-a2f8feb52944",
+                          "remaining": 10000,
+                          "total": 10000,
+                          "expire_at": "2022-11-01T08:04:43.587Z"
+                        }
+                      ],
+                      "remaining": 10000,
+                      "total": 10000
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFoundError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "NotFoundError",
+                      "description": "not credits found for user"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Gets the remaning credits object for the authenticated user",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": []
+      }
+    },
+    "/credits/all": {
+      "get": {
+        "operationId": "GetAll",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserCredits" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "credits": [
+                        {
+                          "owner_id": "52907745-7672-470e-a803-a2f8feb52944",
+                          "remaining": 10000,
+                          "total": 10000,
+                          "expire_at": "2022-11-01T08:04:43.587Z"
+                        }
+                      ],
+                      "remaining": 10000,
+                      "total": 10000
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFoundError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "NotFoundError",
+                      "description": "not credits found for user"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Gets the remaning credits object for the authenticated user, including inactive credits",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": []
+      }
+    }
+  },
+  "servers": [{ "url": "https://api.d-id.com/" }]
+}

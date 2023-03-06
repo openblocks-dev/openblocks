@@ -1,0 +1,795 @@
+{
+  "components": {
+    "examples": {},
+    "headers": {},
+    "parameters": {},
+    "requestBodies": {},
+    "responses": {},
+    "schemas": {
+      "ClipActorDto": {
+        "properties": {
+          "id": { "type": "string", "description": "The id of the actor", "example": "amy" },
+          "gender": {
+            "type": "string",
+            "description": "The gender of the presenter.\nmale / female / other"
+          },
+          "created_at": { "type": "string", "description": "Creation time as iso-8601 string" },
+          "modified_at": {
+            "type": "string",
+            "description": "Last modified time as iso-8601 string"
+          },
+          "image_url": { "type": "string", "description": "High resolution image of the actor" },
+          "thumbnail_url": {
+            "type": "string",
+            "description": "A low resolution image representing the actor"
+          }
+        },
+        "required": ["id", "gender", "created_at", "modified_at", "image_url", "thumbnail_url"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "GetClipsActorsResponse": {
+        "properties": {
+          "actors": { "items": { "$ref": "#/components/schemas/ClipActorDto" }, "type": "array" },
+          "token": { "type": "string" }
+        },
+        "required": ["actors"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "ClipDriverDto": {
+        "properties": {
+          "presenter_id": { "type": "string", "example": "amy-zjBKSuTooU" },
+          "driver_id": { "type": "string", "example": "a5PgMbeGQE" },
+          "gender": {
+            "type": "string",
+            "description": "The gender of the presenter.\nmale / female / other"
+          },
+          "created_at": { "type": "string", "description": "Creation time as iso-8601 string" },
+          "owner_id": { "type": "string", "description": "The owner id of the driver" },
+          "modified_at": {
+            "type": "string",
+            "description": "Last modified time as iso-8601 string"
+          },
+          "width": {
+            "type": "number",
+            "format": "double",
+            "description": "The video width in pixels"
+          },
+          "height": {
+            "type": "number",
+            "format": "double",
+            "description": "The video height in pixels"
+          },
+          "driver_image_url": {
+            "type": "string",
+            "description": "High resolution image of the driver image"
+          },
+          "thumbnail_url": {
+            "type": "string",
+            "description": "A low resolution image representing the presenter in the video"
+          },
+          "video_url": {
+            "type": "string",
+            "description": "A short video, trimmed from the original driver in high resolution"
+          },
+          "preview_url": {
+            "type": "string",
+            "description": "A short gif, trimmed from the original driver in low resolution"
+          }
+        },
+        "required": [
+          "presenter_id",
+          "driver_id",
+          "gender",
+          "created_at",
+          "owner_id",
+          "modified_at",
+          "width",
+          "height",
+          "driver_image_url",
+          "thumbnail_url",
+          "video_url",
+          "preview_url"
+        ],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "GetClipsDriversResponse": {
+        "properties": {
+          "clips_drivers": {
+            "items": { "$ref": "#/components/schemas/ClipDriverDto" },
+            "type": "array"
+          },
+          "token": { "type": "string" }
+        },
+        "required": ["clips_drivers"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "ClipStatus": {
+        "enum": ["created", "done", "error", "started", "rejected"],
+        "type": "string"
+      },
+      "CreateClipResponse": {
+        "properties": {
+          "id": { "type": "string", "description": "The ID of the clip" },
+          "object": {
+            "type": "string",
+            "enum": ["clip"],
+            "nullable": false,
+            "description": "An identifier of this clip"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Clip creation time as iso-8601 string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ClipStatus",
+            "description": "The status of the clip"
+          }
+        },
+        "required": ["id", "object", "created_at", "status"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "JsonError": {
+        "properties": {
+          "kind": { "type": "string" },
+          "description": { "type": "string" },
+          "details": {}
+        },
+        "required": ["kind", "description"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "VoiceConfigMicrosoft": {
+        "properties": {
+          "style": {
+            "type": "string",
+            "description": "The style of the voice.\nAvailable styles change between voices."
+          },
+          "rate": {
+            "type": "string",
+            "description": "The speed of the voice.\nThe value is relative to 1, 0.5 being half speed, 2 being twice as fast, etc.\nAnother option is a constant value from x-slow/slow/medium/fast/x-fast.",
+            "example": "0.5"
+          },
+          "pitch": {
+            "type": "string",
+            "description": "The pitch of the voice.\nValue could be an absolute value in Hz (including units), a relative value in Hz or st(semitones)\nor a constant value from x-low/low/medium/high/x-high.",
+            "example": "+2st"
+          }
+        },
+        "type": "object",
+        "additionalProperties": true
+      },
+      "Microsoft_tts_provider": {
+        "description": "AzureMicrosoft provider details, contains the provider type and requested voice id and style",
+        "properties": {
+          "type": { "type": "string", "enum": ["microsoft"], "nullable": false },
+          "voice_id": {
+            "type": "string",
+            "description": "The voice_id from the list of available voices.\nFor full list of voice_ids: https://d-id.readme.io/reference/microsoft-azure",
+            "example": "Jenny",
+            "default": "Jenny"
+          },
+          "voice_config": {
+            "$ref": "#/components/schemas/VoiceConfigMicrosoft",
+            "description": "Voice customization options"
+          }
+        },
+        "required": ["type", "voice_id"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "TextToSpeechProviders": { "$ref": "#/components/schemas/Microsoft_tts_provider" },
+      "TextScript": {
+        "description": "Text script contains an input text to be spoken by the actor",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["text"],
+            "nullable": false,
+            "description": "The type of the script."
+          },
+          "provider": {
+            "$ref": "#/components/schemas/Microsoft_tts_provider",
+            "description": "text-to-speech provider from list of supported providers. default is microsoft tts"
+          },
+          "input": {
+            "type": "string",
+            "description": "The input text that will be synthesized to an audio file.\nNote that each provider has its own limitations on the text length.",
+            "example": "This is an example text",
+            "maxLength": 40000,
+            "minLength": 3
+          },
+          "ssml": {
+            "type": "boolean",
+            "description": "Is the text provided in ssml form.",
+            "default": "false"
+          }
+        },
+        "required": ["type", "input"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "AudioUrl": {
+        "type": "string",
+        "example": "https://path.to/audio.mp3",
+        "pattern": "^(https|s3):\\/\\/[\\S]+\\.(?:m4a|M4A|flac|FLAC|mp3|MP3|mp4|MP4|wav|WAV)([?#][\\w.\\/=&#%-]+)?$"
+      },
+      "ScriptType": { "type": "string", "enum": ["text", "audio"] },
+      "AudioScript": {
+        "description": "Audio script contains an audio file url to be spoken by the actor",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["audio"],
+            "nullable": false,
+            "description": "The type of the script."
+          },
+          "audio_url": {
+            "$ref": "#/components/schemas/AudioUrl",
+            "description": "The URL of the audio file which will be used by the actor.\nFile size is limit to 15MB."
+          }
+        },
+        "required": ["type", "audio_url"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "Script": {
+        "anyOf": [
+          { "$ref": "#/components/schemas/TextScript" },
+          { "$ref": "#/components/schemas/AudioScript" }
+        ]
+      },
+      "Logo": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "https url to an ARGB jpg/png image, a default logo is used otherwise",
+            "pattern": "((https|s3):\\/\\/.+)"
+          },
+          "position": {
+            "items": { "type": "integer", "format": "int32" },
+            "type": "array",
+            "description": "position of the logo in pixels from the top left corner (w,h) negative values are subtracted from last pixel",
+            "example": [0, 500],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "required": ["url", "position"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "ClipConfig": {
+        "properties": {
+          "logo": { "anyOf": [{ "$ref": "#/components/schemas/Logo" }, { "type": "boolean" }] },
+          "result_format": {
+            "type": "string",
+            "enum": ["mp4", "gif", "mov", "webm"],
+            "description": "File format of the animated result",
+            "default": "mp4"
+          }
+        },
+        "type": "object",
+        "additionalProperties": true
+      },
+      "CropType": { "type": "string", "enum": ["rectangle"], "nullable": false },
+      "RectangleCrop": {
+        "description": "Custom crop",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["rectangle"],
+            "nullable": false,
+            "description": "The type of the crop."
+          },
+          "rectangle": {
+            "properties": {
+              "bottom": { "type": "number", "format": "double" },
+              "right": { "type": "number", "format": "double" },
+              "left": { "type": "number", "format": "double" },
+              "top": { "type": "number", "format": "double" }
+            },
+            "required": ["bottom", "right", "left", "top"],
+            "type": "object"
+          }
+        },
+        "required": ["type", "rectangle"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "Crop": { "$ref": "#/components/schemas/RectangleCrop" },
+      "ClipPresenterConfig": {
+        "properties": { "crop": { "$ref": "#/components/schemas/RectangleCrop" } },
+        "type": "object",
+        "additionalProperties": true
+      },
+      "ClipBackground": {
+        "properties": {
+          "color": {
+            "anyOf": [{ "type": "string" }, { "type": "boolean", "enum": [false] }],
+            "description": "Background color of the animated result, or false to use transparent background in-case of webm result format.",
+            "example": "#47ffff",
+            "pattern": "^#[a-fA-F0-9]{6}$"
+          }
+        },
+        "type": "object",
+        "additionalProperties": true
+      },
+      "UserData": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500,
+        "pattern": "^(?!\\s*$).+$"
+      },
+      "SecuredUrl": { "type": "string", "pattern": "^(?:https):\\/\\/[\\S]+$" },
+      "RemoteUrl": {
+        "type": "string",
+        "example": "https://path.to.directory/movie.mp4",
+        "pattern": "(https|s3):\\/\\/.+"
+      },
+      "CreateClipRequest": {
+        "properties": {
+          "presenter_id": {
+            "type": "string",
+            "description": "a selection from the list or provided driver ids.",
+            "example": "amy-zjBKSuTooU"
+          },
+          "driver_id": {
+            "type": "string",
+            "description": "a selection from the list or provided driver ids.\nIf not provided a driver video will be selected for you from the predefined drivers bank.",
+            "example": "a5PgMbeGQE",
+            "default": "a5PgMbeGQE"
+          },
+          "script": { "$ref": "#/components/schemas/Script" },
+          "config": {
+            "$ref": "#/components/schemas/ClipConfig",
+            "description": "Advanced configuration options."
+          },
+          "created_by": { "type": "string", "description": "The user created the clip." },
+          "presenter_config": {
+            "$ref": "#/components/schemas/ClipPresenterConfig",
+            "description": "Advanced presenter configuration options."
+          },
+          "background": {
+            "$ref": "#/components/schemas/ClipBackground",
+            "description": "Background color of the clip result"
+          },
+          "user_data": {
+            "$ref": "#/components/schemas/UserData",
+            "description": "Non-sensitive custom data that will be added to the clip response and webhook."
+          },
+          "name": { "type": "string", "description": "The name of the clip" },
+          "webhook": {
+            "$ref": "#/components/schemas/SecuredUrl",
+            "description": "A webhook URL for sending the payload including animate details.\nIn a case of empty value, the webhook will not be triggered.",
+            "example": "https://host.domain.tld/to/webhook"
+          },
+          "result_url": {
+            "$ref": "#/components/schemas/RemoteUrl",
+            "description": "The URL of the clip video, if not provided use default destination.",
+            "example": "https://path.to.directory/"
+          }
+        },
+        "required": ["presenter_id", "driver_id", "script"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "Record_string.any_": {
+        "properties": {},
+        "type": "object",
+        "description": "Construct a type with a set of properties K of type T"
+      },
+      "GetClipResponse": {
+        "properties": {
+          "id": { "type": "string", "description": "Unique identifier for the object" },
+          "owner_id": {
+            "type": "string",
+            "description": "Unique identifier of the owner that submitted the clip"
+          },
+          "audio_url": {
+            "$ref": "#/components/schemas/SecuredUrl",
+            "description": "The URL of the audio file which will be used by the actor",
+            "example": "https://path.to/audio.mp3"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Clip creation time as iso-8601 string"
+          },
+          "created_by": { "type": "string", "description": "The user id that created the clip" },
+          "modified_at": {
+            "type": "string",
+            "description": "last modified time as iso-8601 string"
+          },
+          "started_at": { "type": "string", "description": "Clip start time as iso-8601 string" },
+          "completed_at": {
+            "type": "string",
+            "description": "Clip completion time as iso-8601 string"
+          },
+          "config": {
+            "$ref": "#/components/schemas/ClipConfig",
+            "description": "The configuration that used to process the clip"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ClipStatus",
+            "description": "The status of the clip"
+          },
+          "result_url": { "type": "string", "description": "The result url of the clip" },
+          "presenter_id": {
+            "type": "string",
+            "description": "The identity of the actor that is used in the clip"
+          },
+          "driver_id": {
+            "type": "string",
+            "description": "The identifier of the presenter's acting driver that is used in the clip"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Record_string.any_",
+            "description": "metadata that has been collected through the process"
+          },
+          "webhook": {
+            "type": "string",
+            "description": "A webhook URL for sending the payload including animate details. In a case of empty value, the webhook will not be triggered"
+          },
+          "name": { "type": "string", "description": "The name of the clip" }
+        },
+        "required": ["id", "owner_id", "created_at", "modified_at", "status"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "GetClipsResponse": {
+        "properties": {
+          "clips": { "items": { "$ref": "#/components/schemas/GetClipResponse" }, "type": "array" },
+          "token": { "type": "string" }
+        },
+        "required": ["clips"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "UpdateClipFields": {
+        "properties": { "name": { "type": "string" } },
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "securitySchemes": {
+      "basic": { "type": "http", "scheme": "basic" },
+      "bearer": { "type": "http", "scheme": "bearer" }
+    }
+  },
+  "info": {
+    "title": "clips",
+    "version": "1.1.0",
+    "description": "Clips",
+    "license": { "name": "ISC" },
+    "contact": { "name": "D-ID" }
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/clips/actors": {
+      "get": {
+        "operationId": "GetActors",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetClipsActorsResponse" }
+              }
+            }
+          }
+        },
+        "description": "Get clips actors",
+        "summary": "Get actors list",
+        "security": [{ "optional": [] }],
+        "parameters": [
+          {
+            "description": "pagination - the amount of actors to return",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": { "default": 100, "format": "double", "type": "number" }
+          },
+          {
+            "description": "pagination - the pagination token from the previous response, default = 100",
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ]
+      }
+    },
+    "/clips/actors/{id}/drivers": {
+      "get": {
+        "operationId": "GetActorDrivers",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetClipsDriversResponse" }
+              }
+            }
+          }
+        },
+        "description": "Get clips actor drivers",
+        "summary": "Get driver list of an actor",
+        "security": [{ "optional": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } },
+          {
+            "description": "pagination - the amount of actors to return",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": { "default": 100, "format": "double", "type": "number" }
+          },
+          {
+            "description": "pagination - the pagination token from the previous response, default = 100",
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ]
+      }
+    },
+    "/clips": {
+      "post": {
+        "operationId": "Create",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreateClipResponse" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "id": "clp_s4d-SZd2xs",
+                      "object": "clip",
+                      "created_at": "2020-09-03T13:56:54.995",
+                      "status": "created"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "BadRequestError", "description": "invalid actor url" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "AuthorizationError", "description": "user unauthenticated" }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "InsufficientCreditsError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "InsufficientCreditsError",
+                      "description": "not enough credits"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PermissionError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "PermissionError",
+                      "description": "user has no permission for stitch"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "451": {
+            "description": "ImageModerationError | CelebrityRecognizedError | TextModerationError | AudioModerationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "ImageModerationError",
+                      "description": "Automatic content moderation - contact support if you would like to submit for manual review"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a clip",
+        "summary": "Create a clip",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateClipRequest" } }
+          }
+        }
+      },
+      "get": {
+        "operationId": "GetMany",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/GetClipsResponse" } }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "AuthorizationError", "description": "user unauthenticated" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Get clips",
+        "summary": "Get clips",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [
+          {
+            "description": "pagination - the amount of clips to return",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": { "default": 100, "format": "double", "type": "number" }
+          },
+          {
+            "description": "pagination - the pagination token from the previous response, default = 100",
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ]
+      }
+    },
+    "/clips/{id}": {
+      "get": {
+        "operationId": "GetById",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/GetClipResponse" } }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "AuthorizationError", "description": "user unauthenticated" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFoundError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": { "value": { "kind": "NotFoundError", "description": "not found" } }
+                }
+              }
+            }
+          }
+        },
+        "description": "Get a specific clip",
+        "summary": "Get a specific clip",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ]
+      },
+      "delete": {
+        "operationId": "Delete",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/GetClipResponse" } }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "AuthorizationError", "description": "user unauthenticated" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFoundError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": { "value": { "kind": "NotFoundError", "description": "not found" } }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "NotReadyError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "NotReadyError",
+                      "description": "clip is in process, try again later"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Delete a specific clip",
+        "summary": "Delete a specific clip",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ]
+      }
+    }
+  },
+  "servers": [{ "url": "https://api.d-id.com/" }]
+}
