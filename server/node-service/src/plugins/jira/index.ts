@@ -1,14 +1,22 @@
+import { readFileSync } from "fs";
 import _ from "lodash";
-import { OpenAPIV3, OpenAPI } from "openapi-types";
-import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
+import { OpenAPI } from "openapi-types";
+import { ConfigToType, DataSourcePlugin, QueryConfig } from "openblocks-sdk/dataSource";
+import path from "path";
 import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
-import spec from "./jira.spec.json";
+const specJson = readFileSync(path.join(__dirname, "./jira.spec.json")).toString();
 
 const dataSourceConfig = {
   type: "dataSource",
   params: [
+    {
+      type: "textInput",
+      key: "serverUrl",
+      label: "Server URL",
+      placeholder: "https://your-domain.atlassian.net",
+    },
     {
       type: "groupTitle",
       key: "basicAuth",
@@ -17,16 +25,16 @@ const dataSourceConfig = {
     {
       type: "textInput",
       key: "basicAuth.username",
-      label: "Username",
-      tooltip: "Basic auth username",
-      placeholder: "<Basic Auth Username>",
+      label: "Account Email",
+      tooltip: "The email of your atlassian account",
+      placeholder: "<The email of your atlassian account>",
     },
     {
       type: "password",
       key: "basicAuth.password",
-      label: "Password",
+      label: "Api Token",
       tooltip: "Basic auth password",
-      placeholder: "<Basic Auth Password>",
+      placeholder: "<API Token>",
     },
   ],
 } as const;
@@ -35,9 +43,14 @@ const parseOptions: ParseOpenApiOptions = {
   actionLabel: (method: string, path: string, operation: OpenAPI.Operation) => {
     return _.upperFirst(operation.operationId || "");
   },
+  actionDescription(method, path, operation) {
+    return operation.description || "";
+  },
 };
 
 type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
+
+let queryConfig: QueryConfig;
 
 const jiraPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "jira",
@@ -46,27 +59,28 @@ const jiraPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   category: "api",
   dataSourceConfig,
   queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(
-      spec as unknown as OpenAPI.Document,
-      parseOptions
-    );
-    return {
-      type: "query",
-      label: "Action",
-      categories: {
-        label: "Category",
-        items: categories,
-      },
-      actions,
-    };
+    if (!queryConfig) {
+      const { actions, categories } = await parseOpenApi(JSON.parse(specJson), parseOptions);
+      queryConfig = {
+        type: "query",
+        label: "Action",
+        categories: {
+          label: "Category",
+          items: categories,
+        },
+        actions,
+      };
+    }
+    return queryConfig;
   },
   run: function (actionData, dataSourceConfig): Promise<any> {
+    const spec = JSON.parse(specJson);
     const runApiDsConfig = {
       url: "",
-      serverURL: "",
+      serverURL: dataSourceConfig.serverUrl,
       dynamicParamsConfig: dataSourceConfig,
     };
-    return runOpenApi(actionData, runApiDsConfig, spec as unknown as OpenAPIV3.Document);
+    return runOpenApi(actionData, runApiDsConfig, spec);
   },
 };
 
