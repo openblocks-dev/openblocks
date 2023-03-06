@@ -18,7 +18,6 @@ import githubPlugin from "./github";
 import huggingFacePlugin from "./huggingFaceEndpoint";
 import jiraPlugin from "./jira";
 import oneSignalPlugin from "./oneSignal";
-import salesForcePlugin from "./salesForce";
 import sendGridPlugin from "./sendGrid";
 import shopifyPlugin from "./shopify";
 import slackPlugin from "./slack";
@@ -53,7 +52,6 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   huggingFaceInferencePlugin,
   jiraPlugin,
   oneSignalPlugin,
-  salesForcePlugin,
   sendGridPlugin,
   shopifyPlugin,
   slackPlugin,
