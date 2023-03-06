@@ -19,6 +19,11 @@ export type SimpleColorConfig = CommonColorConfig & {
 export type RadiusConfig = CommonColorConfig & {
   readonly radius: string;
 };
+
+export type MarginConfig = CommonColorConfig & {
+  readonly margin: string;
+};
+
 export type DepColorConfig = CommonColorConfig & {
   readonly depName?: string;
   readonly depTheme?: keyof ThemeDetail;
@@ -28,6 +33,7 @@ export type DepColorConfig = CommonColorConfig & {
 export type SingleColorConfig =
   | SimpleColorConfig
   | DepColorConfig
+  | MarginConfig
   | RadiusConfig;
 
 export const defaultTheme: ThemeDetail = {
@@ -216,11 +222,11 @@ const CARD_RADIUS = {
 } as const;
 
 const getStaticBorder = (color: string = SECOND_SURFACE_COLOR) =>
-  ({
-    name: "border",
-    label: trans("style.border"),
-    color,
-  } as const);
+({
+  name: "border",
+  label: trans("style.border"),
+  color,
+} as const);
 
 const HEADER_BACKGROUND = {
   name: "headerBackground",
@@ -316,6 +322,14 @@ export const TextStyle = [
     transformer: toSelf,
   },
 ] as const;
+
+export const MarginStyle = [
+  {
+    name: "margin",
+    label: trans("style.margin"),
+    margin: "margin",
+  },
+];
 
 export const ContainerStyle = [
   ...BG_STATIC_BORDER_RADIUS,
