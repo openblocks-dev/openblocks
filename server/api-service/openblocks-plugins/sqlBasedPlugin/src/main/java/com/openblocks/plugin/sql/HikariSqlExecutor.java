@@ -99,13 +99,28 @@ public class HikariSqlExecutor {
     private Map<String, Object> getAffectRowsAndGeneratedKeys(Statement statement, int updateCount) throws SQLException {
         Map<String, Object> result = newHashMapWithExpectedSize(2);
         result.put("affectedRows", updateCount);
-        try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-            List<Long> generatedIds = getGeneratedIds(generatedKeys);
+
+        ResultSet generatedKeys = getGeneratedKeys(statement);
+        if (generatedKeys == null) {
+            return result;
+        }
+
+        try (generatedKeys) {
+            List<Object> generatedIds = getGeneratedIds(generatedKeys);
             if (!generatedIds.isEmpty()) {
                 result.put("generatedKeys", generatedIds);
             }
         }
         return result;
+    }
+
+    private static ResultSet getGeneratedKeys(Statement statement) {
+        // Oracle will throw exception here in some cases, so we catch the exception here
+        try {
+            return statement.getGeneratedKeys();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static boolean isGeneratedKeysWithNullValue(List<Map<String, Object>> dataRows) {
@@ -178,13 +193,13 @@ public class HikariSqlExecutor {
         }
     }
 
-    private List<Long> getGeneratedIds(ResultSet generatedKeys) throws SQLException {
+    private List<Object> getGeneratedIds(ResultSet generatedKeys) throws SQLException {
         if (generatedKeys == null) {
             return emptyList();
         }
-        List<Long> array = newArrayList();
+        List<Object> array = newArrayList();
         while (generatedKeys.next()) {
-            array.add(generatedKeys.getLong(1));
+            array.add(generatedKeys.getObject(1));
         }
         return array;
     }

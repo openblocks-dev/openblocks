@@ -1,44 +1,62 @@
 package com.openblocks.plugin.oracle.model;
 
-import java.util.function.Function;
+import static com.openblocks.sdk.exception.BizError.INVALID_DATASOURCE_CONFIG_TYPE;
+import static com.openblocks.sdk.util.ExceptionUtils.ofException;
+
+import java.util.Map;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.openblocks.sdk.config.SerializeConfig.JsonViews;
 import com.openblocks.sdk.models.DatasourceConnectionConfig;
+import com.openblocks.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 
-import lombok.Builder;
-import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
-@Getter
-@Builder
-public class OracleDatasourceConfig implements DatasourceConnectionConfig {
-
-    private final String username;
-    @JsonView(JsonViews.Internal.class)
-    private String password;
-    private final String host;
-    private final Integer port;
+@SuperBuilder
+public class OracleDatasourceConfig extends SqlBasedDatasourceConnectionConfig {
     private final String sid;
     private final String serviceName;
     private final String jdbcUrl;
 
-    private final boolean enableTurnOffPreparedStatement;
-
     @JsonCreator
-    public OracleDatasourceConfig(String username, String password, String host, Integer port, String sid, String serviceName, String jdbcUrl,
-            boolean enableTurnOffPreparedStatement) {
-        this.username = username;
-        this.password = password;
-        this.host = host;
-        this.port = port;
+    private OracleDatasourceConfig(String username, String password, String host,
+            Long port, String sid, String serviceName, String jdbcUrl,
+            boolean enableTurnOffPreparedStatement, boolean isReadonly, Map<String, Object> extParams) {
+        super("", username, password, host, port, false, "", isReadonly, enableTurnOffPreparedStatement, extParams);
         this.sid = sid;
         this.serviceName = serviceName;
         this.jdbcUrl = jdbcUrl;
-        this.enableTurnOffPreparedStatement = enableTurnOffPreparedStatement;
+    }
+
+    @Override
+    public DatasourceConnectionConfig mergeWithUpdatedConfig(DatasourceConnectionConfig detailConfig) {
+        if (!(detailConfig instanceof OracleDatasourceConfig newConfig)) {
+            throw ofException(INVALID_DATASOURCE_CONFIG_TYPE, "INVALID_DATASOURCE_CONFIG_TYPE",
+                    detailConfig.getClass().getSimpleName());
+        }
+
+        return OracleDatasourceConfig.builder()
+                .username(newConfig.getUsername())
+                .password(ObjectUtils.firstNonNull(newConfig.getPassword(), getPassword()))
+                .host(newConfig.getHost())
+                .port(newConfig.getPort())
+                .jdbcUrl(newConfig.getJdbcUrl())
+                .sid(newConfig.getSid())
+                .serviceName(newConfig.getServiceName())
+                .enableTurnOffPreparedStatement(newConfig.isEnableTurnOffPreparedStatement())
+                .isReadonly(newConfig.isReadonly())
+                .extParams(newConfig.getExtParams())
+                .build();
+    }
+
+    public String getSid() {
+        return sid;
+    }
+
+    public String getServiceName() {
+        return serviceName;
     }
 
     public String getJdbcUrl() {
@@ -46,34 +64,14 @@ public class OracleDatasourceConfig implements DatasourceConnectionConfig {
             return jdbcUrl;
         }
         if (StringUtils.isNotBlank(sid)) {
-            return String.format("jdbc:oracle:thin:@%s:%s:%s", host, port, sid);
+            return String.format("jdbc:oracle:thin:@%s:%s:%s", getHost(), getPort(), getSid());
         }
-        return String.format("jdbc:oracle:thin:@//%s:%s/%s", host, port, serviceName);
+        return String.format("jdbc:oracle:thin:@//%s:%s/%s", getHost(), getPort(), getServiceName());
     }
 
     @Override
-    public DatasourceConnectionConfig mergeWithUpdatedConfig(DatasourceConnectionConfig detailConfig) {
-        OracleDatasourceConfig newConfig = (OracleDatasourceConfig) detailConfig;
-        return OracleDatasourceConfig.builder()
-                .username(newConfig.getUsername())
-                .password(ObjectUtils.firstNonNull(newConfig.getPassword(), this.password))
-                .host(newConfig.getHost())
-                .port(newConfig.getPort())
-                .sid(newConfig.getSid())
-                .serviceName(newConfig.getServiceName())
-                .jdbcUrl(newConfig.getJdbcUrl())
-                .build();
+    protected long defaultPort() {
+        return 1521;
     }
 
-    @Override
-    public DatasourceConnectionConfig doEncrypt(Function<String, String> encryptFunc) {
-        this.password = encryptFunc.apply(this.password);
-        return this;
-    }
-
-    @Override
-    public DatasourceConnectionConfig doDecrypt(Function<String, String> decryptFunc) {
-        this.password = decryptFunc.apply(this.password);
-        return this;
-    }
 }

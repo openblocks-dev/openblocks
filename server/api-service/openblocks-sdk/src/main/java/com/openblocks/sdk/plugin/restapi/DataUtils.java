@@ -160,7 +160,7 @@ public class DataUtils {
         parseMultipartFormDataList(property)
                 .forEach(multipartFormData -> {
                     String name = multipartFormData.getName();
-                    String data = multipartFormData.getData();
+                    String data = multipartFormData.getData().trim();
                     byte[] decodedValue;
                     try {
                         decodedValue = Base64.getDecoder().decode(data);

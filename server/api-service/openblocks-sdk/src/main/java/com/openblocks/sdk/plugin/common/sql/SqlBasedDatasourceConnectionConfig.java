@@ -18,10 +18,12 @@ import com.openblocks.sdk.exception.ServerException;
 import com.openblocks.sdk.models.DatasourceConnectionConfig;
 
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Getter
+@SuperBuilder
 public abstract class SqlBasedDatasourceConnectionConfig implements DatasourceConnectionConfig {
 
     private final String database;
@@ -100,7 +102,7 @@ public abstract class SqlBasedDatasourceConnectionConfig implements DatasourceCo
     }
 
     @Override
-    public final DatasourceConnectionConfig mergeWithUpdatedConfig(DatasourceConnectionConfig updatedDatasourceConnectionConfig) {
+    public DatasourceConnectionConfig mergeWithUpdatedConfig(DatasourceConnectionConfig updatedDatasourceConnectionConfig) {
         if (!(updatedDatasourceConnectionConfig instanceof SqlBasedDatasourceConnectionConfig updatedConfig)) {
             throw ofException(INVALID_DATASOURCE_CONFIG_TYPE, "INVALID_DATASOURCE_CONFIG_TYPE",
                     updatedDatasourceConnectionConfig.getClass().getSimpleName());

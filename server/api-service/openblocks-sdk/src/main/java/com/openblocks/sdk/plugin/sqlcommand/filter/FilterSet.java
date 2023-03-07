@@ -25,12 +25,18 @@ import com.openblocks.sdk.util.SqlGuiUtils;
 import com.openblocks.sdk.util.SqlGuiUtils.GuiSqlValue;
 import com.openblocks.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
+import lombok.Getter;
+
 public class FilterSet extends ForwardingList<FilterCondition> {
 
     private final ArrayList<FilterCondition> filters = newArrayList();
 
     public void addCondition(String column, String condition, Object value) {
         filters.add(new FilterCondition(column, condition, value));
+    }
+
+    public void addCondition(FilterCondition condition) {
+        filters.add(condition);
     }
 
     @Override
@@ -48,12 +54,18 @@ public class FilterSet extends ForwardingList<FilterCondition> {
         List<Object> bindParams = newArrayList();
 
         for (int i = 0; i < filters.size(); i++) {
-            String column = filters.get(i).column();
-            Object value = filters.get(i).value();
-            String condition = filters.get(i).condition();
+            FilterCondition filterCondition = filters.get(i);
+            String column = filterCondition.getColumn();
+            Object value = filterCondition.getValue();
+            String condition = filterCondition.getCondition();
 
-            RenderItem renderItem = renderCondition(condition, value, requestMap, column,
-                    columnFrontDelimiter, columnBackDelimiter, renderWithRawSql, escapeSql);
+            RenderItem renderItem;
+            if (filterCondition instanceof RawFilterCondition it) {
+                renderItem = RenderItem.withRawSql(it.getColumn() + it.getCondition() + it.getValue());
+            } else {
+                renderItem = renderCondition(condition, value, requestMap, column,
+                        columnFrontDelimiter, columnBackDelimiter, renderWithRawSql, escapeSql);
+            }
             sb.append(renderItem.conditionSql());
             if (renderItem.needBind()) {
                 bindParams.add(renderItem.bindValue());
@@ -127,7 +139,23 @@ public class FilterSet extends ForwardingList<FilterCondition> {
     }
 
 
-    public record FilterCondition(String column, String condition, Object value) {
+    @Getter
+    public static class FilterCondition {
+        private final String column;
+        private final String condition;
+        private final Object value;
+
+        public FilterCondition(String column, String condition, Object value) {
+            this.column = column;
+            this.condition = condition;
+            this.value = value;
+        }
+    }
+
+    public static class RawFilterCondition extends FilterCondition {
+        public RawFilterCondition(String column, String condition, Object value) {
+            super(column, condition, value);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -163,8 +191,8 @@ public class FilterSet extends ForwardingList<FilterCondition> {
 
     public Set<String> extractMustacheKeys() {
         return stream()
-                .filter(it -> it.value() instanceof String)
-                .map(filterCondition -> MustacheHelper.extractMustacheKeysWithCurlyBraces((String) filterCondition.value()))
+                .filter(it -> it.getValue() instanceof String)
+                .map(filterCondition -> MustacheHelper.extractMustacheKeysWithCurlyBraces(String.valueOf(filterCondition.getValue())))
                 .flatMap(Set::stream)
                 .collect(Collectors.toSet());
     }

@@ -36,7 +36,7 @@ public interface DatasourceConnector<Connection, ConnectionConfig extends Dataso
         Class<? super ConnectionConfig> tClass = type.getRawType();
         Object result = fromJson(toJson(configMap), tClass);
         if (result == null) {
-            throw ofPluginException(PluginCommonError.DATASOURCE_ARGUMENT_ERROR, "INVALID_SQLSERVER_CONFIG");
+            throw ofPluginException(PluginCommonError.DATASOURCE_ARGUMENT_ERROR, "DATASOURCE_CONFIG_ERROR");
         }
         return (ConnectionConfig) result;
     }

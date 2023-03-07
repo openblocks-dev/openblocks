@@ -25,6 +25,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
@@ -193,7 +194,13 @@ public class UserServiceImpl implements UserService {
                 .build();
         user.getConnections().add(connection);
         return repository.save(user)
-                .then(Mono.just(true));
+                .then(Mono.just(true))
+                .onErrorResume(throwable -> {
+                    if (throwable instanceof DuplicateKeyException) {
+                        return Mono.error(new BizException(BizError.ALREADY_BIND, "ALREADY_BIND", email, ""));
+                    }
+                    return Mono.error(throwable);
+                });
     }
 
     @Override
