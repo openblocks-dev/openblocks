@@ -1,52 +1,22 @@
-import _ from "lodash";
-import { OpenAPIV3, OpenAPI } from "openapi-types";
-import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
-import { runOpenApi } from "../openApi";
-import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
+import { PluginContext } from "openblocks-sdk/dataSource";
+import queryConfig, { ActionDataType } from "./queryConfig";
+import { dataSourceConfig, DataSourceDataType } from "./dataSourceConfig";
+import run from "./run";
 
-import spec from "./slack.spec.json";
-
-const dataSourceConfig = {
-  type: "dataSource",
-  params: [],
-} as const;
-
-const parseOptions: ParseOpenApiOptions = {
-  actionLabel: (method: string, path: string, operation: OpenAPI.Operation) => {
-    return _.upperFirst(operation.operationId || "");
-  },
-};
-
-type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
-
-const slackPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
+const slackPlugin = {
   id: "slack",
   name: "Slack",
   icon: "slack.svg",
-  category: "api",
+  category: "database",
   dataSourceConfig,
-  queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(
-      spec as unknown as OpenAPI.Document,
-      parseOptions
-    );
-    return {
-      type: "query",
-      label: "Action",
-      categories: {
-        label: "Category",
-        items: categories,
-      },
-      actions,
-    };
-  },
-  run: function (actionData, dataSourceConfig): Promise<any> {
-    const runApiDsConfig = {
-      url: "",
-      serverURL: "",
-      dynamicParamsConfig: dataSourceConfig,
-    };
-    return runOpenApi(actionData, runApiDsConfig, spec as unknown as OpenAPIV3.Document);
+  queryConfig: queryConfig,
+
+  run: async (action: ActionDataType, dataSourceConfig: DataSourceDataType, ctx: PluginContext) => {
+    try {
+      return await run(action, dataSourceConfig);
+    } catch (e) {
+      throw e;
+    }
   },
 };
 
