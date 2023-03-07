@@ -14422,7 +14422,7 @@ __metadata:
     rc-trigger: ^5.3.1
     react: ^17.0.2
     react-colorful: ^5.5.1
-    react-documents: ^1.1.2
+    react-documents: ^1.2.1
     react-dom: ^17.0.2
     react-draggable: ^4.4.4
     react-grid-layout: ^1.3.0
@@ -15959,15 +15959,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-documents@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "react-documents@npm:1.1.2"
+"react-documents@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "react-documents@npm:1.2.1"
   dependencies:
     docviewhelper: ">= 0.0.1"
   peerDependencies:
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
-  checksum: ef203f998abda594c5df84ac13d2b6abf5096ebc36558c5450b5a7fe493794a4d25e129029a662cf96650a0a4c650bf33b065929894c664e5970422da74c9051
+  checksum: a3f91557d2a05793cacc414208e2e05c37f7f54858ae4dd852aa8c42b4a9e9df3748f2e6cb62b1a153f9ee65271d7b61eb8afc7bf21338ed7ed97e9a4ea85d58
   languageName: node
   linkType: hard
 

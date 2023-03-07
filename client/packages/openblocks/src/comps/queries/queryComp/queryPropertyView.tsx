@@ -293,7 +293,7 @@ export const QueryGeneralPropertyView = (props: {
               }}
               status={datasourceStatus}
             />
-            {comp instanceof SQLQuery &&
+            {children.comp instanceof SQLQuery &&
               !NOT_SUPPORT_GUI_SQL_QUERY.includes(children.compType.getView()) && (
                 <div style={{ width: "104px", marginLeft: "8px", flexShrink: 0 }}>
                   {/* query comp should not aware of specific queryType  */}
