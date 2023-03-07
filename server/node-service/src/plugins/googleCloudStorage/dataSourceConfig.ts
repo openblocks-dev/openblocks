@@ -8,7 +8,7 @@ export const dataSourceConfig = {
       label: "Private Key",
       type: "password",
       tooltip:
-        "The private key associated with a Service Account with GCS privileges, [Documentation](https://cloud.google.com/iam/docs/service-accounts?hl=zh-cn) for service accounts.",
+        "The private key associated with a Service Account with GCS privileges, [Documentation](https://cloud.google.com/iam/docs/service-accounts) for service accounts.",
       rules: [
         { required: true, message: "Please input your private key of google Service Account" },
       ],
@@ -22,3 +22,4 @@ export const dataSourceConfig = {
 } as const;
 
 export type DataSourceDataType = ConfigToType<typeof dataSourceConfig>;
+
