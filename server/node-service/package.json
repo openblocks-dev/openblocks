@@ -11,9 +11,9 @@
     "debug": "nodemon --inspect src/server.ts",
     "start": "node ./build/src/server.js",
     "test": "jest",
-    "copy": "copyfiles -u 1 src/**/*.!(ts|test.ts) build/src",
+    "copy": "copyfiles -u 1 src/**/*.!(ts|test.ts) build",
     "genOpenApiPlugin": "npx ts-node --files ./scripts/openApiDataSourceGen.ts",
-    "build": "rm -rf build/ && yarn test && tsc && cp -r src/static build/src/static"
+    "build": "rm -rf build/ && yarn test && tsc && yarn copy"
   },
   "devDependencies": {
     "@types/jest": "^29.2.4",

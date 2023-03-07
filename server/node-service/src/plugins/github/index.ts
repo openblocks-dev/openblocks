@@ -6,7 +6,7 @@ import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
 import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
-const spec = readYaml(path.join(__dirname, "./gitHub.spec.yaml"));
+const spec = readYaml(path.join(__dirname, "./github.spec.yaml"));
 
 const dataSourceConfig = {
   type: "dataSource",
