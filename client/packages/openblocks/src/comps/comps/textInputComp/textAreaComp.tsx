@@ -31,6 +31,7 @@ import {
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { TextAreaRef } from "antd/lib/input/TextArea";
+import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 
 const TextAreaStyled = styled(TextArea)<{
   $style: InputLikeStyleType;
@@ -115,7 +116,10 @@ TextAreaTmpComp = class extends TextAreaTmpComp {
   }
 };
 
-const TextareaTmp2Comp = withMethodExposing(TextAreaTmpComp, refMethods(["focus", "blur"]));
+const TextareaTmp2Comp = withMethodExposing(
+  TextAreaTmpComp,
+  refMethods([focusWithOptions, blurMethod])
+);
 
 export const TextAreaComp = withExposingConfigs(TextareaTmp2Comp, [
   new NameConfig("value", trans("export.inputValueDesc")),

@@ -1,5 +1,6 @@
 import { Cascader } from "antd";
 import { CascaderStyleType } from "comps/controls/styleControlConstants";
+import { blurMethod, focusMethod } from "comps/utils/methodUtils";
 import { trans } from "i18n";
 import styled from "styled-components";
 import { UICompBuilder, withDefault } from "../../generators";
@@ -45,7 +46,7 @@ let CascaderBasicComp = (function () {
         <CascaderPropertyView {...children} />
       </>
     ))
-    .setExposeMethodConfigs(refMethods(["focus", "blur"]))
+    .setExposeMethodConfigs(refMethods([focusMethod, blurMethod]))
     .build();
 })();
 

@@ -97,6 +97,8 @@ export interface HttpConfig {
   params: KeyValue;
   // body: string;
   bodyFormData: KeyValue;
+  forwardCookies: string[];
+  forwardAllCookies: boolean;
 
   authConfig: {
     type: AuthType;

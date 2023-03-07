@@ -25,6 +25,11 @@ public class DeleteCommand implements GuiSqlCommand {
         this.columnBackDelimiter = columnBackDelimiter;
     }
 
+    protected DeleteCommand(String table, FilterSet filterSet, boolean allowMultiModify,
+            String columnDelimiter) {
+        this(table, filterSet, allowMultiModify, columnDelimiter, columnDelimiter);
+    }
+
     @Override
     public GuiSqlCommandRenderResult render(Map<String, Object> requestMap) {
 

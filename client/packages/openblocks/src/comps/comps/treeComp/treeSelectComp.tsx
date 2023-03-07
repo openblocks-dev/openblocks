@@ -20,7 +20,7 @@ import {
   useTree,
   valuePropertyView,
 } from "./treeUtils";
-import { getStyle } from "../selectInputComp/selectCompConstants";
+import { baseSelectRefMethods, getStyle } from "../selectInputComp/selectCompConstants";
 import { useSelectInputValidate } from "../selectInputComp/selectInputConstants";
 import { StringControl } from "comps/controls/codeControl";
 import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
@@ -34,7 +34,6 @@ import {
 } from "comps/utils/propertyUtils";
 import { BaseSelectRef } from "rc-select";
 import { RefControl } from "comps/controls/refControl";
-import { refMethods } from "comps/generators/withMethodExposing";
 
 const StyledTreeSelect = styled(TreeSelect)<{ $style: TreeSelectStyleType }>`
   width: 100%;
@@ -165,7 +164,7 @@ let TreeBasicComp = (function () {
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>
     ))
-    .setExposeMethodConfigs(refMethods(["focus", "blur", "scrollTo"]))
+    .setExposeMethodConfigs(baseSelectRefMethods)
     .build();
 })();
 

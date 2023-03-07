@@ -1,11 +1,21 @@
 import { AppPathParams } from "constants/applicationConstants";
-import React, { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { shallowEqual, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 import { DATASOURCE_URL, QUERY_LIBRARY_URL } from "../constants/routesURL";
-import { AuthSearchParams } from "@openblocks-ee/constants/authConstants";
+import { AuthSearchParams } from "constants/authConstants";
 import { checkIsMobile } from "util/commonUtils";
 import { EditorContext } from "comps/editorState";
+import { getDataSourceStructures } from "redux/selectors/datasourceSelectors";
+import { DatasourceStructure } from "api/datasourceApi";
 
 export const ForceViewModeContext = React.createContext<boolean>(false);
 
@@ -128,4 +138,26 @@ export function useCurrentPage(): PageType {
 export function useIsMobile() {
   const editorState = useContext(EditorContext);
   return checkIsMobile(editorState.getAppSettings().maxWidth);
+}
+
+function getMetaData(
+  datasourceStructure: Record<string, DatasourceStructure[]>,
+  selectedDatasourceId: string
+): Record<string, string> {
+  let ret: Record<string, string> = {};
+  datasourceStructure[selectedDatasourceId]?.forEach((table) => {
+    ret[table.name] = "table";
+    table.columns?.forEach((c) => {
+      ret[c.name] = c.type;
+    });
+  });
+  return ret;
+}
+
+export function useMetaData(datasourceId: string) {
+  const datasourceStructure = useSelector(getDataSourceStructures);
+  return useMemo(
+    () => getMetaData(datasourceStructure, datasourceId),
+    [datasourceStructure, datasourceId]
+  );
 }

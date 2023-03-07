@@ -18,8 +18,8 @@ export type ParamConfig = {
   description?: string;
 };
 export type ParamsConfig = Array<ParamConfig>;
-export type MethodConfig = {
-  name: string;
+export type MethodConfig<T extends string = string> = {
+  name: T;
   params: ParamsConfig;
   description?: string;
 };

@@ -16,13 +16,12 @@ import {
   UpdateUserPayload,
   updateUserSuccess,
 } from "redux/reduxActions/userActions";
-import history from "util/history";
 import { validateResponse } from "api/apiUtils";
 import { Org } from "constants/orgConstants";
 import { SERVER_ERROR_CODES } from "constants/apiConstants";
 import { defaultUser } from "constants/userConstants";
 import { message } from "antd";
-import { AuthSearchParams } from "@openblocks-ee/constants/authConstants";
+import { AuthSearchParams } from "constants/authConstants";
 
 function validResponseData(response: AxiosResponse<ApiResponse>) {
   return response && response.data && response.data.data;

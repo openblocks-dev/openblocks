@@ -34,6 +34,7 @@ public class CommonConfig {
     private String cookieName;
     private int maxQueryRequestSizeInMb = 10;
     private int maxQueryResponseSizeInMb = 10;
+    private Query query = new Query();
     private Cookie cookie = new Cookie();
     private JsExecutor jsExecutor = new JsExecutor();
     private Set<String> disallowedHosts = new HashSet<>();
@@ -92,5 +93,12 @@ public class CommonConfig {
     @Data
     public static class JsExecutor {
         private String host;
+    }
+
+
+    @Getter
+    @Setter
+    public static class Query {
+        private long readStructureTimeout = 15000;
     }
 }

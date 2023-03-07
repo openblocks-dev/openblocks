@@ -1,4 +1,4 @@
-import { DateRangeComp } from "comps/comps/dateComp";
+import { DateRangeComp } from "comps/comps/dateComp/dateComp";
 import { trans } from "i18n";
 import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";

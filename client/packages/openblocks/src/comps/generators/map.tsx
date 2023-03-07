@@ -31,6 +31,21 @@ export type ClearAction = {
   type: "clear";
 };
 
+export type BatchDeleteAction = {
+  type: "batchDelete";
+  keys: Array<string>;
+};
+
+export type FilterAction = {
+  type: "filter";
+  keys: Array<string>;
+};
+
+export type ForEachAction = {
+  type: "forEach";
+  action: CompAction;
+};
+
 export function map<ChildCompCtor extends CompConstructor<any, any>>(
   childConstructor: ChildCompCtor
 ) {
@@ -78,11 +93,20 @@ export function map<ChildCompCtor extends CompConstructor<any, any>>(
         return this.setChildren({ ...this.children, ...newComps });
       } else if (isMyCustomAction<ClearAction>(action, "clear")) {
         return this.setChildren({});
+      } else if (isMyCustomAction<BatchDeleteAction>(action, "batchDelete")) {
+        const { keys } = action.value;
+        return this.setChildren(_.omit(this.children, keys));
+      } else if (isMyCustomAction<FilterAction>(action, "filter")) {
+        const { keys } = action.value;
+        return this.setChildren(_.pick(this.children, keys));
+      } else if (isMyCustomAction<ForEachAction>(action, "forEach")) {
+        const newChildren = _.mapValues(this.children, (comp) => comp.reduce(action.value.action));
+        return this.setChildren(newChildren);
       }
       return super.reduce(action);
     }
     @memo
-    exposingNode(): Node<unknown> {
+    exposingNode() {
       const childrenExposingNodes = _.mapValues(this.children, (comp) =>
         (comp as any).exposingNode()
       );
@@ -102,6 +126,15 @@ export function map<ChildCompCtor extends CompConstructor<any, any>>(
     }
     static clearAction() {
       return customAction<ClearAction>({ type: "clear" });
+    }
+    static batchDeleteAction(keys: Array<string>) {
+      return customAction<BatchDeleteAction>({ type: "batchDelete", keys });
+    }
+    static filterAction(keys: Array<string>) {
+      return customAction<FilterAction>({ type: "filter", keys });
+    }
+    static forEachAction(action: CompAction) {
+      return customAction<ForEachAction>({ type: "forEach", action });
     }
   }
 

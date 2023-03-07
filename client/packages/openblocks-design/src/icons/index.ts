@@ -268,3 +268,5 @@ export { ReactComponent as ManualIcon } from "./icon-manual.svg";
 export { ReactComponent as WarnIcon } from "./icon-warn.svg";
 export { ReactComponent as SyncManualIcon } from "./icon-sync-manual.svg";
 export { ReactComponent as DangerIcon } from "icons/icon-danger.svg";
+export { ReactComponent as TableMinusIcon } from "icons/icon-table-minus.svg";
+export { ReactComponent as TablePlusIcon } from "icons/icon-table-plus.svg";

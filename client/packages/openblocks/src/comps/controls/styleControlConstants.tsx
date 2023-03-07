@@ -572,7 +572,7 @@ export const IframeStyle = [getBackground(), getStaticBorder("#00000000"), RADIU
 
 export const DateTimeStyle = [
   LABEL,
-  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
+  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
   ...ACCENT_VALIDATE,
 ] as const;

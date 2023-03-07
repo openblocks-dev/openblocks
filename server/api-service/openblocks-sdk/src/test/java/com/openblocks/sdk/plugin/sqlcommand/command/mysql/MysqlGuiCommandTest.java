@@ -36,7 +36,7 @@ public class MysqlGuiCommandTest {
         var command = new MysqlInsertCommand("user", changeSet);
         var render = command.render(Map.of("email", email, "info", infoMap));
 
-        Assert.assertEquals("insert into user (`id`,`name`,`email`,`info`) values (?,?,?,?);", render.sql());
+        Assert.assertEquals("insert into user (`id`,`name`,`email`,`info`) values (?,?,?,?)", render.sql());
         assertThat(render.bindParams()).isEqualTo(List.of(Integer.parseInt(id), name, email, toJson(infoMap)));
 
         assertThat(command.extractMustacheKeys()).isEqualTo(Set.of("{{ email }}", "{{ info }}"));
@@ -177,7 +177,7 @@ public class MysqlGuiCommandTest {
         var render = command.render(Map.of("email", email, "info", infoMap));
 
         Assert.assertEquals(
-                "insert into user (`id`,`name`,`email`,`info`) values (?,?,?,?),(?,?,?,?);",
+                "insert into user (`id`,`name`,`email`,`info`) values (?,?,?,?),(?,?,?,?)",
                 render.sql());
 
         List<Object> expectedParams = new ArrayList<>();

@@ -16,36 +16,37 @@ import {
   NodeToValue,
   RecordNode,
   updateNodesV2Action,
+  wrapChildAction,
   wrapContext,
   WrapContextFn,
   WrapContextNodeV2,
   wrapDispatch,
-  wrapChildAction,
 } from "openblocks-core";
 import { ReactNode } from "react";
 import { JSONValue } from "util/jsonTypes";
-import { lastValueIfEqual, setFieldsNoTypeCheck, shallowEqual } from "util/objectUtils";
+import { depthEqual, lastValueIfEqual, setFieldsNoTypeCheck } from "util/objectUtils";
 import { CompExposingContext } from "./withContext";
 
-export function withParams<
-  ParamNames extends readonly string[],
-  TCtor extends MultiCompConstructor
->(VariantCompCtor: TCtor, paramNames: ParamNames) {
-  type ParamValues = Record<ParamNames[number], unknown>;
+type ParamValues = Record<string, unknown>;
+
+export function withParams<TCtor extends MultiCompConstructor>(
+  VariantCompCtor: TCtor,
+  paramNames: string[]
+) {
   const paramValues = _.mapValues(
     _.keyBy(paramNames, (x) => x),
     () => ""
-  ) as ParamValues;
+  );
   return withParamsWithDefault(VariantCompCtor, paramValues);
 }
 
 /**
  * build a new Comp that contains parameters as nodes based on the input Comp
  */
-export function withParamsWithDefault<
-  ParamValues extends Record<string, unknown>,
-  TCtor extends MultiCompConstructor
->(VariantCompCtor: TCtor, defaultParamValues: ParamValues) {
+export function withParamsWithDefault<TCtor extends MultiCompConstructor>(
+  VariantCompCtor: TCtor,
+  defaultParamValues: ParamValues
+) {
   type SetPartialParamDataAction = {
     type: "setPartialParamData";
     data: Partial<ParamValues>;
@@ -174,7 +175,7 @@ export function withParamsWithDefault<
     }
 
     setParams(params: ParamValues): this {
-      if (this.params && shallowEqual(this.params, params)) {
+      if (this.params && depthEqual(this.params, params, 3)) {
         return this;
       }
       let comp = setFieldsNoTypeCheck(this, { params });

@@ -10,14 +10,15 @@ import {
   CustomAction,
   customAction,
   fromRecord,
-  FunctionNode,
   MultiBaseComp,
+  Node,
   withFunction,
   wrapDispatch,
 } from "openblocks-core";
 import { ReactNode } from "react";
 import { JSONValue } from "util/jsonTypes";
 import { lastValueIfEqual, setFieldsNoTypeCheck } from "util/objectUtils";
+import { CompToExposingValue } from "./withExposing";
 
 export type ListDataType<T> = Array<ConstructorToDataType<T>>;
 export type CustomListAction<CompCtor extends CompConstructor = CompConstructor> = CustomAction<
@@ -53,6 +54,10 @@ type ListAction<CompCtor extends CompConstructor = CompConstructor> =
   | {
       type: "multi";
       actions: Array<ToType<CustomListAction<CompCtor>>>;
+    }
+  | {
+      type: "forEach";
+      action: CompAction;
     };
 
 /**
@@ -101,6 +106,7 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
         };
       }, {});
     }
+    /** use this function to generate keys, which can reproduce the same key sequence when rebuilding */
     private genKey() {
       // assert that nextKey is always greater than all current keys
       while (this.__nextKey > 0 && !this.children.hasOwnProperty(this.__nextKey - 1))
@@ -190,12 +196,17 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
             children: {},
             childrenOrder: [],
           });
-        case "multi":
+        case "multi": {
           let comp = this;
           action.actions.forEach((actionInner) => {
             comp = comp.reduce(actionInner);
           });
           return comp;
+        }
+        case "forEach": {
+          const newChildren = _.mapValues(this.children, (comp) => comp.reduce(action.action));
+          return this.setChildren(newChildren);
+        }
       }
     }
     pushAction(value: ConstructorToDataType<ChildCompCtor>) {
@@ -241,16 +252,19 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
       });
     }
 
-    exposingNode(): FunctionNode<any, ConstructorToDataType<ChildCompCtor>[]> {
-      const childrenExposingNodes = this.getChildrenArray().map((i) => (i as any).exposingNode());
+    exposingNode() {
+      const childrenExposingNodes = this.getChildrenArray().map(
+        (i) =>
+          (i as any).exposingNode() as Node<CompToExposingValue<ConstructorToComp<ChildCompCtor>>>
+      );
       const childrenExposingNode = fromRecord(Object.fromEntries(childrenExposingNodes.entries()));
       const result = withFunction(childrenExposingNode, (i) => Object.values(i));
       return lastValueIfEqual(
         this,
         "_expose_",
-        [this.node(), result],
+        [this.node(), result] as const,
         (a, b) => a[0] === b[0]
-      )[1] as FunctionNode<any, ConstructorToDataType<ChildCompCtor>[]>;
+      )[1];
     }
 
     /**
@@ -259,7 +273,14 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
     multiAction(actions: Array<CustomListAction<ChildCompCtor>>) {
       return customAction<ListAction<ChildCompCtor>>({
         type: "multi",
-        actions: actions,
+        actions,
+      });
+    }
+
+    forEachAction(action: CompAction) {
+      return customAction<ListAction<ChildCompCtor>>({
+        type: "forEach",
+        action,
       });
     }
   }

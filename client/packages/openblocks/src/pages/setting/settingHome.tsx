@@ -42,7 +42,7 @@ export function SettingHome() {
       key: SettingPageEnum.Organization,
       label: trans("settings.organization"),
     },
-    ...(isEE() && currentOrgAdmin(user) && (isSelfDomain(config) || isEnterpriseMode(config))
+    ...(currentOrgAdmin(user) && (isSelfDomain(config) || isEnterpriseMode(config))
       ? [
           {
             key: SettingPageEnum.IdSource,

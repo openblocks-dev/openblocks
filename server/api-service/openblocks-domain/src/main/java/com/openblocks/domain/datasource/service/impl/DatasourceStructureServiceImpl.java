@@ -17,6 +17,7 @@ import com.openblocks.domain.datasource.service.DatasourceStructureService;
 import com.openblocks.domain.plugin.DatasourceMetaInfo;
 import com.openblocks.domain.plugin.service.DatasourceMetaInfoService;
 import com.openblocks.infra.mongo.MongoUpsertHelper;
+import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
 import com.openblocks.sdk.exception.PluginException;
@@ -32,7 +33,8 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class DatasourceStructureServiceImpl implements DatasourceStructureService {
 
-    public static final int GET_STRUCTURE_DEFAULT_TIMEOUT_MILLIS = 8000;
+    @Autowired
+    private CommonConfig commonConfig;
 
     @Autowired
     private DatasourceService datasourceService;
@@ -98,12 +100,13 @@ public class DatasourceStructureServiceImpl implements DatasourceStructureServic
     private Mono<DatasourceStructure> getLatestStructure(Datasource datasource,
             QueryExecutor<? extends DatasourceConnectionConfig, Object, ? extends QueryExecutionContext> queryExecutor) {
 
+        long readStructureTimeout = commonConfig.getQuery().getReadStructureTimeout();
         return connectionContextService.getOrCreateConnection(datasource)
                 .flatMap(connectionContext -> queryExecutor.doGetStructure(connectionContext.connection(), datasource.getDetailConfig())
-                        .timeout(Duration.ofMillis(GET_STRUCTURE_DEFAULT_TIMEOUT_MILLIS))
+                        .timeout(Duration.ofMillis(readStructureTimeout))
                         .doOnError(connectionContext::onQueryError)
                         .onErrorMap(TimeoutException.class, e -> new BizException(BizError.PLUGIN_EXECUTION_TIMEOUT, "PLUGIN_EXECUTION_TIMEOUT",
-                                GET_STRUCTURE_DEFAULT_TIMEOUT_MILLIS))
+                                readStructureTimeout))
                 )
                 .onErrorMap(e -> {
                     if (e instanceof PluginException) {

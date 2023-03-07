@@ -13,6 +13,7 @@ import { UICompBuilder, withDefault } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
 import {
   getStyle,
+  inputRefMethods,
   TextInputBasicSection,
   textInputChildren,
   TextInputConfigs,
@@ -20,7 +21,7 @@ import {
   TextInputValidationOptions,
   useTextInputProps,
 } from "./textInputConstants";
-import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
+import { withMethodExposing } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
 import { InputLikeStyle, InputLikeStyleType } from "comps/controls/styleControlConstants";
@@ -104,10 +105,7 @@ const PasswordTmpComp = (function () {
     .build();
 })();
 
-const PasswordTmp2Comp = withMethodExposing(
-  PasswordTmpComp,
-  refMethods(["focus", "blur", "select", "setSelectionRange"])
-);
+const PasswordTmp2Comp = withMethodExposing(PasswordTmpComp, inputRefMethods);
 
 export const PasswordComp = withExposingConfigs(PasswordTmp2Comp, [
   new NameConfig("value", trans("export.inputValueDesc")),

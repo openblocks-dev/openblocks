@@ -1,4 +1,4 @@
-import { SystemConfig } from "@openblocks-ee/constants/configConstants";
+import { SystemConfig } from "constants/configConstants";
 import { useSelector } from "react-redux";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 

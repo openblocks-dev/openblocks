@@ -1,36 +1,32 @@
-import { TimePicker } from "antd";
 import _ from "lodash";
 import moment from "moment";
-import { Section, sectionNames } from "openblocks-design";
 import { RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
 import {
   BoolCodeControl,
   CustomRuleControl,
   RangeControl,
   StringControl,
-} from "../controls/codeControl";
-import { BoolControl } from "../controls/boolControl";
+} from "../../controls/codeControl";
+import { BoolControl } from "../../controls/boolControl";
 import {
   blurEvent,
   changeEvent,
   eventHandlerControl,
   focusEvent,
-} from "../controls/eventHandlerControl";
-import { stringExposingStateControl } from "../controls/codeStateControl";
-import { LabelControl } from "../controls/labelControl";
-import { UICompBuilder, withDefault } from "../generators";
+} from "../../controls/eventHandlerControl";
+import { stringExposingStateControl } from "../../controls/codeStateControl";
+import { LabelControl } from "../../controls/labelControl";
+import { UICompBuilder, withDefault } from "../../generators";
 import {
   CommonNameConfig,
   depsConfig,
   NameConfig,
   withExposingConfigs,
-} from "../generators/withExposing";
-import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
+} from "../../generators/withExposing";
+import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
 import { DateTimeStyle, DateTimeStyleType } from "comps/controls/styleControlConstants";
-import styled from "styled-components";
-import { disabledTime, getStyle } from "./dateComp";
-import { refMethods, withMethodExposing } from "../generators/withMethodExposing";
+import { withMethodExposing } from "../../generators/withMethodExposing";
 import {
   disabledPropertyView,
   formatPropertyView,
@@ -44,11 +40,13 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { TIME_FORMAT, TimeParser } from "util/dateTimeUtils";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
-import { checkIsMobile } from "util/commonUtils";
+import React, { ReactNode } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
+import { Section, sectionNames } from "components/Section";
+import { dateRefMethods, disabledTime, handleDateChange } from "comps/comps/dateComp/dateCompUtil";
+import { TimeUIView } from "./timeUIView";
+import { TimeRangeUIView } from "comps/comps/dateComp/timeRangeUIView";
 import { RefControl } from "comps/controls/refControl";
 import { CommonPickerMethods } from "antd/lib/date-picker/generatePicker/interface";
 
@@ -73,6 +71,7 @@ const commonChildren = {
   secondStep: RangeControl.closed(1, 60, 1),
   style: styleControl(DateTimeStyle),
   suffixIcon: withDefault(IconControl, "/icon:regular/clock"),
+  viewRef: RefControl<CommonPickerMethods>,
   ...validationChildren,
 };
 
@@ -113,133 +112,117 @@ function validate(
   return { validateStatus: "success" };
 }
 
-const TimePickerStyled = styled(TimePicker)<{ $style: DateTimeStyleType }>`
-  width: 100%;
-  ${(props) => props.$style && getStyle(props.$style)}
-`;
+const childrenMap = {
+  value: stringExposingStateControl("value"),
+  ...commonChildren,
+  ...formDataChildren,
+};
+export type TimeCompViewProps = Pick<
+  RecordConstructorToView<typeof childrenMap>,
+  "disabled" | "use12Hours" | "hourStep" | "minuteStep" | "secondStep" | "format" | "viewRef"
+> & {
+  onFocus: () => void;
+  onBlur: () => void;
+  $style: DateTimeStyleType;
+  disabledTime: () => ReturnType<typeof disabledTime>;
+  suffixIcon?: ReactNode | false;
+};
 
-const RangePickerStyled = styled(TimePicker.RangePicker)<{ $style: DateTimeStyleType }>`
-  width: 100%;
-  ${(props) => props.$style && getStyle(props.$style)}
-`;
+export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
+  const time = moment(props.value.value, TimeParser);
 
-export const timePickerControl = (function () {
-  const childrenMap = {
-    value: stringExposingStateControl("value"),
-    ...commonChildren,
-    ...formDataChildren,
-    viewRef: RefControl<CommonPickerMethods>,
-  };
+  return props.label({
+    required: props.required,
+    style: props.style,
+    children: (
+      <TimeUIView
+        viewRef={props.viewRef}
+        $style={props.style}
+        disabled={props.disabled}
+        value={time.isValid() ? time : null}
+        disabledTime={() => disabledTime(props.minTime, props.maxTime)}
+        {...timePickerComps(props)}
+        onChange={(time) => {
+          handleDateChange(
+            time && time.isValid() ? time.format(TIME_FORMAT) : "",
+            props.value.onChange,
+            props.onEvent
+          );
+        }}
+        onFocus={() => props.onEvent("focus")}
+        onBlur={() => props.onEvent("blur")}
+        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
+      />
+    ),
+    ...validate(props),
+  });
+})
+  .setPropertyViewFn((children) => (
+    <>
+      <Section name={sectionNames.basic}>
+        {children.value.propertyView({
+          label: trans("prop.defaultValue"),
+          tooltip: trans("time.formatTip"),
+        })}
+        {commonBasicSection(children)}
+      </Section>
+      <FormDataPropertyView {...children} />
+      {children.label.getPropertyView()}
 
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    const editorState = useContext(EditorContext);
-    const children = (
-      <>
-        <TimePickerStyled
-          ref={props.viewRef}
-          $style={props.style}
-          disabled={props.disabled}
-          value={(() => {
-            const time = moment(props.value.value, TimeParser);
-            return time.isValid() ? time : null;
-          })()}
-          disabledTime={() => disabledTime(props.minTime, props.maxTime)}
-          {...timePickerComps(props)}
-          onChange={(time) => {
-            const mom = time ? moment(time) : null;
-            props.value.onChange(mom && mom.isValid() ? mom.format(TIME_FORMAT) : "");
-            props.onEvent("change");
-          }}
-          onFocus={() => props.onEvent("focus")}
-          onBlur={() => props.onEvent("blur")}
-          inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
-          suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
-        />
-      </>
-    );
+      <Section name={sectionNames.interaction}>
+        {children.onEvent.getPropertyView()}
+        {disabledPropertyView(children)}
+      </Section>
 
-    return props.label({
-      required: props.required,
-      style: props.style,
-      children: children,
-      ...validate(props),
-    });
-  })
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.value.propertyView({
-            label: trans("prop.defaultValue"),
-            tooltip: trans("time.formatTip"),
-          })}
-          {commonBasicSection(children)}
-        </Section>
-        <FormDataPropertyView {...children} />
-        {children.label.getPropertyView()}
+      <Section name={sectionNames.validation}>
+        {requiredPropertyView(children)}
+        {minTimePropertyView(children)}
+        {maxTimePropertyView(children)}
+        {children.customRule.propertyView({})}
+      </Section>
 
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-          {disabledPropertyView(children)}
-        </Section>
+      <Section name={sectionNames.advanced}>{commonAdvanceSection(children)}</Section>
 
-        <Section name={sectionNames.validation}>
-          {requiredPropertyView(children)}
-          {minTimePropertyView(children)}
-          {maxTimePropertyView(children)}
-          {children.customRule.propertyView({})}
-        </Section>
+      <Section name={sectionNames.layout}>
+        {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+        {hiddenPropertyView(children)}
+      </Section>
 
-        <Section name={sectionNames.advanced}>{commonAdvanceSection(children)}</Section>
-
-        <Section name={sectionNames.layout}>
-          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-          {hiddenPropertyView(children)}
-        </Section>
-
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-      </>
-    ))
-    .setExposeMethodConfigs(refMethods(["focus", "blur"]))
-    .build();
-})();
+      <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+    </>
+  ))
+  .setExposeMethodConfigs(dateRefMethods)
+  .build();
 
 export const timeRangeControl = (function () {
   const childrenMap = {
     start: stringExposingStateControl("start"),
     end: stringExposingStateControl("end"),
     ...commonChildren,
-    viewRef: RefControl<CommonPickerMethods>,
   };
 
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    const editorState = useContext(EditorContext);
+  return new UICompBuilder(childrenMap, (props) => {
+    const start = moment(props.start.value, TimeParser);
+    const end = moment(props.end.value, TimeParser);
+
     const children = (
-      <>
-        <RangePickerStyled
-          ref={props.viewRef}
-          $style={props.style}
-          disabled={props.disabled}
-          value={(() => {
-            const start = moment(props.start.value, TimeParser);
-            const end = moment(props.end.value, TimeParser);
-            return [start.isValid() ? start : null, end.isValid() ? end : null];
-          })()}
-          disabledTime={() => disabledTime(props.minTime, props.maxTime)}
-          {...timePickerComps(props)}
-          order={true}
-          onCalendarChange={(time) => {
-            const start = time?.[0];
-            const end = time?.[1];
-            props.start.onChange(start && start.isValid() ? start.format(TIME_FORMAT) : "");
-            props.end.onChange(end && end.isValid() ? end.format(TIME_FORMAT) : "");
-            props.onEvent("change");
-          }}
-          onFocus={() => props.onEvent("focus")}
-          onBlur={() => props.onEvent("blur")}
-          inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
-          suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
-        />
-      </>
+      <TimeRangeUIView
+        viewRef={props.viewRef}
+        $style={props.style}
+        disabled={props.disabled}
+        start={start.isValid() ? start : null}
+        end={end.isValid() ? end : null}
+        disabledTime={() => disabledTime(props.minTime, props.maxTime)}
+        {...timePickerComps(props)}
+        onChange={(start, end) => {
+          props.start.onChange(start && start.isValid() ? start.format(TIME_FORMAT) : "");
+          props.end.onChange(end && end.isValid() ? end.format(TIME_FORMAT) : "");
+          props.onEvent("change");
+        }}
+        onFocus={() => props.onEvent("focus")}
+        onBlur={() => props.onEvent("blur")}
+        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
+      />
     );
 
     const startResult = validate({ ...props, value: props.start });
@@ -375,7 +358,7 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
 ]);
 
 TimeRangeComp = withMethodExposing(TimeRangeComp, [
-  ...refMethods<typeof TimeRangeComp>(["focus", "blur"]),
+  ...dateRefMethods,
   {
     method: {
       name: "clearAll",

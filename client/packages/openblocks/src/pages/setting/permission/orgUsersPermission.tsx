@@ -211,7 +211,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
             // reset password
             if (
               currentOrgAdmin(currentUser) &&
-              sysConfig?.email.enableLogin &&
+              sysConfig?.form.enableLogin &&
               !isSaasMode(sysConfig)
             ) {
               const resetText = trans("userAuth.resetPassword");

@@ -75,6 +75,8 @@ import { QueryPropertyView } from "./queryComp/queryPropertyView";
 import { getTriggerType, onlyManualTrigger } from "./queryCompUtils";
 import axios from "axios";
 
+const latestExecution: Record<string, number> = {};
+
 export type QueryResultExtra = Omit<
   QueryExecuteResponse,
   "code" | "message" | "data" | "success" | "runTime" | "queryCode"
@@ -142,7 +144,7 @@ const childrenMap = {
       return unit === "s" ? value * 1000 : value;
     },
   }),
-  cancelPrevious: withDefault(BoolPureControl, true),
+  cancelPrevious: withDefault(BoolPureControl, false),
 };
 
 let QueryCompTmp = withTypeAndChildren<typeof QueryMap, ToInstanceType<typeof childrenMap>>(
@@ -378,6 +380,9 @@ QueryCompTmp = class extends QueryCompTmp {
     const queryFunc = this.getTypeSafeView();
     const promiseParams = getPromiseParams(action);
     const { applicationId, parentApplicationPath } = getReduceContext();
+    const cancelPrevious = this.children.cancelPrevious.getView();
+    const executeId = performance.now();
+    latestExecution[queryId] = executeId;
     this.children.confirmationModal
       .getView()(() => {
         this.dispatch(
@@ -392,11 +397,15 @@ QueryCompTmp = class extends QueryCompTmp {
           applicationPath: parentApplicationPath,
           args: action.args,
           timeout: this.children.timeout,
-          cancelPrevious: this.children.cancelPrevious.getView(),
         });
       }, getTriggerType(this) === "manual")
       .then(
         (result) => {
+          if (cancelPrevious && latestExecution[queryId] !== executeId) {
+            promiseParams &&
+              promiseParams.reject(new Error("The result of this query was ignored."));
+            return;
+          }
           this.processResult(result, action, startTime);
           if (result.success ?? true) {
             promiseParams && promiseParams.resolve(result.data);
@@ -408,17 +417,18 @@ QueryCompTmp = class extends QueryCompTmp {
           if (axios.isCancel(error)) {
             return;
           }
-
-          this.processResult(
-            {
-              code: QUERY_EXECUTION_ERROR,
-              success: false,
-              data: {},
-              message: error.message,
-            },
-            action,
-            startTime
-          );
+          if (!cancelPrevious || latestExecution[queryId] === executeId) {
+            this.processResult(
+              {
+                code: QUERY_EXECUTION_ERROR,
+                success: false,
+                data: {},
+                message: error.message,
+              },
+              action,
+              startTime
+            );
+          }
           promiseParams && promiseParams.reject(error);
         }
       )
@@ -540,16 +550,17 @@ QueryCompTmp = withMethodExposing(QueryCompTmp, [
   {
     method: {
       name: "run",
-      params: [],
+      params: [{ name: "args", type: "JSON" }],
     },
-    execute: (comp, params) =>
-      getPromiseAfterDispatch(
+    execute: (comp, params) => {
+      return getPromiseAfterDispatch(
         comp.dispatch,
         executeQueryAction({
           args: params[0] as Record<string, unknown> | undefined,
         }),
         { notHandledError: trans("query.fixedDelayError") }
-      ),
+      );
+    },
   },
 ]);
 

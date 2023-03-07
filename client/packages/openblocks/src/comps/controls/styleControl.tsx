@@ -298,3 +298,14 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
     })
     .build();
 }
+
+export function useStyle<T extends readonly SingleColorConfig[]>(colorConfigs: T) {
+  const theme = useContext(ThemeContext);
+  const bgColor = useContext(BackgroundColorContext);
+  type ColorMap = { [K in Names<T>]: string };
+  const props = {} as ColorMap;
+  colorConfigs.forEach((config) => {
+    props[config.name as Names<T>] = "";
+  });
+  return calcColors(props, colorConfigs, theme?.theme, bgColor);
+}
