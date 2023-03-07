@@ -12,35 +12,12 @@ const dataSourceConfig = {
   type: "dataSource",
   params: [
     {
-      type: "groupTitle",
-      key: "api_key_header",
-      label: "Api Key Auth",
+      "type": "password",
+      "key": "api_key_header.value",
+      "label": "Personal API Token",
+      "tooltip": "[Personal API Token](https://circleci.com/docs/managing-api-tokens/#creating-a-personal-api-token)"
     },
-    {
-      type: "password",
-      key: "api_key_header.value",
-      label: "Circle-Token",
-    },
-    {
-      type: "groupTitle",
-      key: "basic_auth",
-      label: "HTTP Basic Auth",
-    },
-    {
-      type: "textInput",
-      key: "basic_auth.username",
-      label: "Username",
-      tooltip: "Basic auth username",
-      placeholder: "<Basic Auth Username>",
-    },
-    {
-      type: "password",
-      key: "basic_auth.password",
-      label: "Password",
-      tooltip: "Basic auth password",
-      placeholder: "<Basic Auth Password>",
-    },
-  ],
+  ]
 } as const;
 
 const parseOptions: ParseOpenApiOptions = {
@@ -54,19 +31,16 @@ type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
 const circleCiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "circleCi",
   name: "CircleCI",
-  icon: "circleCi.svg",
+  icon: "circleCI.svg",
   category: "api",
   dataSourceConfig,
   queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(
-      spec as unknown as OpenAPI.Document,
-      parseOptions
-    );
+    const { actions, categories } = await parseOpenApi(spec as unknown as OpenAPI.Document, parseOptions);
     return {
       type: "query",
       label: "Action",
       categories: {
-        label: "Category",
+        label: "Resources",
         items: categories,
       },
       actions,

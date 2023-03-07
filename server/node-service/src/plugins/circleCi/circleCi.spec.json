@@ -9870,6 +9870,12 @@
     },
     {
       "name": "Webhook"
+    },
+    {
+      "name": "Project"
+    },
+    {
+      "name": "Schedule"
     }
   ]
 }
