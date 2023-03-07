@@ -17,7 +17,7 @@ const queryConfig = {
           label: "Channel",
           key: "channel",
           type: "textInput",
-        }
+        },
       ],
     },
   ],

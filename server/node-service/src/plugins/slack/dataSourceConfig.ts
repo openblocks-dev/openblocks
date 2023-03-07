@@ -7,12 +7,9 @@ export const dataSourceConfig = {
       key: "webhookURL",
       label: "Webhook URL",
       type: "password",
-      tooltip:
-        "[Documentation](https://my.slack.com/apps/new/A0F7XDUAZ-incoming-webhooks)",
-      rules: [
-        { required: true, message: "Please input your webhook URL" },
-      ],
-    }
+      tooltip: "[Documentation](https://my.slack.com/apps/new/A0F7XDUAZ-incoming-webhooks)",
+      rules: [{ required: true, message: "Please input your webhook URL" }],
+    },
   ],
 } as const;
 
