@@ -102,6 +102,14 @@ public class DatasourceMetaInfoServiceImpl implements DatasourceMetaInfoService 
             .connectionPool(ClientBasedConnectionPool.class)
             .build();
 
+    private static final DatasourceMetaInfo MARIA_DB = DatasourceMetaInfo.builder()
+            .type("mariadb")
+            .displayName("MariaDB")
+            .pluginExecutorKey("mysql-plugin")
+            .hasStructureInfo(true)
+            .connectionPool(ClientBasedConnectionPool.class)
+            .build();
+
     private static final DatasourceMetaInfo SMTP = DatasourceMetaInfo.builder()
             .type(ConfigTypes.SMTP)
             .displayName("SMTP")
