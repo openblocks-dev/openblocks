@@ -4,6 +4,7 @@ import { File } from "formdata-node";
 import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
 import swaggerClient from "swagger-client";
 import { ActionCategory } from "openblocks-sdk/dataSource";
+import SwaggerClient from "swagger-client";
 
 export const MediaTypeOctetStream = "application/octet-stream";
 export const MediaTypeUrlEncoded = "application/x-www-form-urlencoded";
@@ -186,7 +187,7 @@ export function findOas3FilePropertiesFromSchema(
   });
 }
 
-export function findOperation(id: string, spec: OpenAPI.Document) {
+export function findOperation(id: string, spec: OpenAPI.Document, specId: string = "") {
   if (!spec.paths) {
     return null;
   }
@@ -197,8 +198,11 @@ export function findOperation(id: string, spec: OpenAPI.Document) {
     }
     for (const method of Object.keys(pathObj)) {
       const operation: OpenAPI.Operation = (pathObj as any)[method];
-      if (swaggerClient.helpers.opId(operation, path, method) === id) {
-        return operation;
+      if (getOperationId(operation, path, method, specId) === id) {
+        return {
+          operation,
+          realOperationId: getOperationId(operation, path, method),
+        };
       }
     }
   }
@@ -345,13 +349,13 @@ export function getSchemaType(
   return schema.type;
 }
 
-export function getSchemaExample(
-  schema?:
-    | OpenAPIV2.SchemaObject
-    | OpenAPIV2.ReferenceObject
-    | OpenAPIV3.SchemaObject
-    | OpenAPIV3.ReferenceObject
-): any {
+type SchemaObject =
+  | OpenAPIV2.SchemaObject
+  | OpenAPIV2.ReferenceObject
+  | OpenAPIV3.SchemaObject
+  | OpenAPIV3.ReferenceObject;
+
+export function getSchemaExample(schema?: SchemaObject): any {
   if (!schema || isOas3RefObject(schema) || isSwagger2RefObject(schema)) {
     return;
   }
@@ -375,6 +379,22 @@ export function getSchemaExample(
       (schema as OpenAPIV3.ArraySchemaObject | OpenAPIV2.SchemaObject).items
     );
     return _.isNil(itemExample) ? [] : [itemExample];
+  }
+  if (schema.oneOf && schema.oneOf.length > 0) {
+    const firstSchema = schema.oneOf[0];
+    return getSchemaExample(firstSchema as SchemaObject);
+  }
+  if (schema.anyOf && schema.anyOf.length > 0) {
+    const firstSchema = schema.anyOf[0];
+    return getSchemaExample(firstSchema as SchemaObject);
+  }
+  if (schema.allOf && schema.allOf.length > 0) {
+    return (schema.allOf as SchemaObject[]).reduce((a: any, b: SchemaObject) => {
+      return {
+        ...a,
+        ...getSchemaExample(b),
+      };
+    }, {});
   }
   let ret: any;
   if (schema.properties) {
@@ -418,4 +438,17 @@ export function appendCategories(a: ActionCategory[], b: ActionCategory[]) {
     }
     a.push(i);
   });
+}
+
+export function getOperationId(
+  operation: OpenAPI.Operation,
+  path: string,
+  method: string,
+  specId: string = ""
+) {
+  const operationId: string = SwaggerClient.helpers.opId(operation, path, method);
+  if (!operationId) {
+    return "";
+  }
+  return operationId + specId;
 }

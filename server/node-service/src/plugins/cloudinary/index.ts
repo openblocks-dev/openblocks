@@ -2,14 +2,18 @@ import { readYaml } from "../../common/util";
 import _ from "lodash";
 import path from "path";
 import { OpenAPI } from "openapi-types";
-import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
+import { ConfigToType, DataSourcePlugin, QueryConfig } from "openblocks-sdk/dataSource";
 import { runOpenApi } from "../openApi";
-import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
+import { parseMultiOpenApi, parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 import { mergeCategories } from "../../plugins/openApi/util";
 
 // all OpenAPI specs generated from https://www.postman.com/cloudinaryteam/workspace/programmable-media/collection/16080251-d28221d4-b2f8-4244-a4eb-7e77abe3a857?ctx=documentation
 const adminApiSpec = readYaml(path.join(__dirname, "./adminApi.spec.yaml"));
 const uploadApiSpec = readYaml(path.join(__dirname, "./uploadApi.spec.yaml"));
+const specList = [
+  { spec: adminApiSpec, id: "admin" },
+  { spec: uploadApiSpec, id: "upload" },
+];
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -42,6 +46,8 @@ const parseOptions: ParseOpenApiOptions = {
 
 type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
 
+let queryConfig: QueryConfig;
+
 const cloudinaryPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "cloudinary",
   name: "cloudinary",
@@ -49,19 +55,19 @@ const cloudinaryPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   category: "api",
   dataSourceConfig,
   queryConfig: async () => {
-    const [parsedAdminApi, parsedUploadApi] = await Promise.all([
-      parseOpenApi(adminApiSpec, parseOptions),
-      parseOpenApi(uploadApiSpec, parseOptions),
-    ]);
-    return {
-      type: "query",
-      label: "Action",
-      categories: {
-        label: "Resources",
-        items: mergeCategories(parsedUploadApi.categories, parsedAdminApi.categories),
-      },
-      actions: parsedAdminApi.actions.concat(parsedUploadApi.actions),
-    };
+    if (!queryConfig) {
+      const { actions, categories } = await parseMultiOpenApi(specList, parseOptions);
+      queryConfig = {
+        type: "query",
+        label: "Action",
+        categories: {
+          label: "Resources",
+          items: categories,
+        },
+        actions,
+      };
+    }
+    return queryConfig;
   },
   run: function (actionData, dataSourceConfig): Promise<any> {
     const runApiDsConfig = {
@@ -69,7 +75,7 @@ const cloudinaryPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       serverURL: "",
       dynamicParamsConfig: dataSourceConfig,
     };
-    return runOpenApi(actionData, runApiDsConfig, [adminApiSpec, uploadApiSpec]);
+    return runOpenApi(actionData, runApiDsConfig, specList);
   },
 };
 

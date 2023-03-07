@@ -14,6 +14,7 @@ import _ from "lodash";
 import SwaggerClient from "swagger-client";
 import {
   appendCategories,
+  getOperationId,
   isOas3HttpMethods,
   isOas3RefObject,
   isSwagger2HttpMethods,
@@ -175,11 +176,18 @@ interface OpenAPIParseResult {
   categories: ActionCategory[];
 }
 
+export type MultiOpenApiSpecItem = {
+  spec: OpenAPI.Document | string;
+  id: string;
+};
+
 export async function parseMultiOpenApi(
-  spec: (OpenAPI.Document | string)[],
-  options?: ParseOpenApiOptions
+  specList: MultiOpenApiSpecItem[],
+  options?: Omit<ParseOpenApiOptions, "specId">
 ): Promise<OpenAPIParseResult> {
-  const results = await Promise.all(spec.map((i) => parseOpenApi(i, options)));
+  const results = await Promise.all(
+    specList.map(({ id, spec }) => parseOpenApi(spec, options, id))
+  );
   const reducedResults = results.reduce(
     (a, b) => {
       return {
@@ -194,7 +202,12 @@ export async function parseMultiOpenApi(
 
 export async function parseOpenApi(
   specJsonOrObj: OpenAPI.Document | string,
-  options?: ParseOpenApiOptions
+  options?: ParseOpenApiOptions,
+  /**
+   * when parse multi open api this field is required.
+   * This will be used to ensure operationId is unique among all operations in all specs.
+   */
+  specId?: string
 ): Promise<OpenAPIParseResult> {
   let spec = specJsonOrObj;
   if (typeof specJsonOrObj === "string") {
@@ -245,7 +258,7 @@ export async function parseOpenApi(
         return;
       }
 
-      const operationId: string = SwaggerClient.helpers.opId(operation, path, httpMethod);
+      const operationId: string = getOperationId(operation, path, httpMethod, specId);
       if (!operationId) {
         console.warn("can not get operationId:", operation);
         return;

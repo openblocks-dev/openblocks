@@ -3,9 +3,9 @@ import _ from "lodash";
 import fs from "fs";
 import path from "path";
 import { OpenAPI } from "openapi-types";
-import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
+import { ConfigToType, DataSourcePlugin, QueryConfig } from "openblocks-sdk/dataSource";
 import { runOpenApi } from "../openApi";
-import { parseMultiOpenApi, ParseOpenApiOptions } from "../openApi/parse";
+import { MultiOpenApiSpecItem, parseMultiOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 import { appendTags } from "../openApi/util";
 
 function genTagFromFileName(name: string) {
@@ -19,14 +19,18 @@ function genTagFromFileName(name: string) {
   }, "");
 }
 
-const specList: OpenAPI.Document[] = [];
+const specList: MultiOpenApiSpecItem[] = [];
 
 const start = performance.now();
 const specFiles = fs.readdirSync(path.join(__dirname, "./twilio.spec"));
 specFiles.forEach((specFile) => {
   const spec = readYaml(path.join(__dirname, "./twilio.spec", specFile));
-  appendTags(spec, genTagFromFileName(specFile));
-  specList.push(spec);
+  const tag = genTagFromFileName(specFile);
+  appendTags(spec, tag);
+  specList.push({
+    id: tag,
+    spec,
+  });
 });
 logger.info("twilio spec list loaded, duration: %d ms", performance.now() - start);
 
@@ -54,6 +58,8 @@ const parseOptions: ParseOpenApiOptions = {
   },
 };
 
+let queryConfig: QueryConfig;
+
 type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
 
 const twilioPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
@@ -62,18 +68,23 @@ const twilioPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   icon: "twilio.svg",
   category: "api",
   dataSourceConfig,
+
   queryConfig: async () => {
-    const { actions, categories } = await parseMultiOpenApi(specList, parseOptions);
-    return {
-      type: "query",
-      label: "Action",
-      categories: {
-        label: "Resources",
-        items: categories,
-      },
-      actions,
-    };
+    if (!queryConfig) {
+      const { actions, categories } = await parseMultiOpenApi(specList, parseOptions);
+      queryConfig = {
+        type: "query",
+        label: "Action",
+        categories: {
+          label: "Resources",
+          items: categories,
+        },
+        actions,
+      };
+    }
+    return queryConfig;
   },
+
   run: function (actionData, dataSourceConfig): Promise<any> {
     const runApiDsConfig = {
       url: "",

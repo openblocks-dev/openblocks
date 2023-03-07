@@ -4,17 +4,21 @@ import path from "path";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
 import { QueryConfig, ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
 import { runOpenApi } from "../openApi";
-import { parseMultiOpenApi, parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
+import { MultiOpenApiSpecItem, parseMultiOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 import { appendTags } from "../../plugins/openApi/util";
 import { readdirSync } from "fs";
 
-const specList: OpenAPI.Document[] = [];
+const specList: MultiOpenApiSpecItem[] = [];
 const specFiles = readdirSync(path.join(__dirname, "./did.spec"));
 const start = performance.now();
 specFiles.forEach((specFile) => {
   const spec = readYaml(path.join(__dirname, "./did.spec", specFile));
-  appendTags(spec, _.upperFirst(specFile.replace(".json", "")));
-  specList.push(spec);
+  const tag = _.upperFirst(specFile.replace(".json", ""));
+  appendTags(spec, tag);
+  specList.push({
+    spec,
+    id: tag,
+  });
 });
 logger.info("did spec list loaded, duration: %d ms", performance.now() - start);
 

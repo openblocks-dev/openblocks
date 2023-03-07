@@ -1,7 +1,7 @@
 import SwaggerClient from "swagger-client";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
-import { authParamsConfig, parseOpenApi, retrieveSpec } from "./parse";
+import { authParamsConfig, MultiOpenApiSpecItem, parseOpenApi, retrieveSpec } from "./parse";
 import {
   extractSecurityParams,
   findOperation,
@@ -53,21 +53,32 @@ interface ActionDataType {
 export async function runOpenApi(
   actionData: ActionDataType,
   dataSourceConfig: DataSourceDataType,
-  spec: OpenAPI.Document | OpenAPI.Document[],
+  spec: OpenAPI.Document | MultiOpenApiSpecItem[],
   defaultHeaders?: Record<string, string>
 ) {
-  const specList = Array.isArray(spec) ? spec : [spec];
-  const definitions = await Promise.all(specList.map((i) => SwaggerParser.dereference(i)));
+  const specList = Array.isArray(spec) ? spec : [{ spec, id: "" }];
+  const definitions = await Promise.all(
+    specList.map(async ({ id, spec }) => {
+      const deRefedSpec = await SwaggerParser.dereference(spec);
+      return {
+        def: deRefedSpec,
+        id,
+      };
+    })
+  );
   const { actionName, ...otherActionData } = actionData;
   const { serverURL } = dataSourceConfig;
 
   let definition: OpenAPI.Document | undefined;
   let operation;
+  let realOperationId;
 
-  for (const def of definitions) {
-    operation = findOperation(actionName, def);
-    if (operation) {
+  for (const { id, def } of definitions) {
+    const ret = findOperation(actionName, def, id);
+    if (ret) {
       definition = def;
+      operation = ret.operation;
+      realOperationId = ret.realOperationId;
       break;
     }
   }
@@ -94,7 +105,7 @@ export async function runOpenApi(
     const securities = extractSecurityParams(dataSourceConfig.dynamicParamsConfig, definition);
     const response = await SwaggerClient.execute({
       spec: definition,
-      operationId: actionName,
+      operationId: realOperationId,
       parameters,
       requestBody,
       securities,
