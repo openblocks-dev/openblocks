@@ -10,26 +10,18 @@ const dataSourceConfig = {
   type: "dataSource",
   params: [
     {
-      type: "groupTitle",
-      key: "app_key",
-      label: "Api Token Auth",
+      "type": "password",
+      "key": "app_key.value",
+      "label": "REST API Key",
+      'tooltip': 'Private key used for most API calls like sending push notifications and updating users. [Documentation](https://documentation.onesignal.com/docs/accounts-and-keys#rest-api-key)'
     },
     {
-      type: "password",
-      key: "app_key.value",
-      label: "Token",
-    },
-    {
-      type: "groupTitle",
-      key: "user_key",
-      label: "Api Token Auth",
-    },
-    {
-      type: "password",
-      key: "user_key.value",
-      label: "Token",
-    },
-  ],
+      "type": "password",
+      "key": "user_key.value",
+      "label": "User Auth Key",
+      'tooltip': 'Another type of REST API key used for viewing Apps and related updates. [Documentation](https://documentation.onesignal.com/docs/accounts-and-keys#user-auth-key)'
+    }
+  ]
 } as const;
 
 const parseOptions: ParseOpenApiOptions = {
@@ -47,12 +39,12 @@ const oneSignalPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   category: "api",
   dataSourceConfig,
   queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(spec as OpenAPI.Document, parseOptions);
+    const { actions, categories } = await parseOpenApi(spec as unknown as OpenAPI.Document, parseOptions);
     return {
       type: "query",
       label: "Action",
       categories: {
-        label: "Category",
+        label: "Resources",
         items: categories,
       },
       actions,
