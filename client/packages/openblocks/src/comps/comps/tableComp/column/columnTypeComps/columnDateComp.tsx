@@ -118,9 +118,12 @@ const Wrapper = styled.div`
 `;
 
 export function formatDate(date: string, format: string) {
-  let mom = moment(date, DateParser);
+  let mom = moment(date);
   if (!mom.isValid()) {
-    mom = moment(0, DateParser);
+    mom = moment.utc(date, DateParser).local();
+    if (!mom.isValid()) {
+      mom = moment(0);
+    }
   }
   return mom.isValid() ? mom.format(format) : "";
 }
