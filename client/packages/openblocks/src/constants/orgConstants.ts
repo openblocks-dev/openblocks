@@ -50,9 +50,6 @@ export type Org = {
   id: string;
   name: string;
   logoUrl?: string;
-  contactName?: string;
-  contactEmail?: string;
-  contactPhoneNumber?: string;
   createdBy: string;
   commonSettings: CommonSettingResponseData;
   createTime?: string;

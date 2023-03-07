@@ -43,6 +43,9 @@ export function listPropertyView(compType: ListCompType) {
             }),
           })}
         </Section>
+        <Section name={trans("prop.pagination")}>
+          {comp.children.pagination.getPropertyView()}
+        </Section>
         <Section name={sectionNames.layout}>{children.autoHeight.getPropertyView()}</Section>
         {/* <Section name={sectionNames.style}>{children.showBorder.propertyView({ label: "" })}</Section> */}
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>

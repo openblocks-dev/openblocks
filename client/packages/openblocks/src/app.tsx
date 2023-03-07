@@ -47,7 +47,7 @@ import { SystemWarning } from "./components/SystemWarning";
 import { getBrandingConfig, getSystemConfigFetching } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
 
-const LazyUserAuthComp = React.lazy(() => import("@openblocks-ee/pages/userAuth"));
+const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
 const LazyComponentDoc = React.lazy(() => import("pages/ComponentDoc"));
 const LazyComponentPlayground = React.lazy(() => import("pages/ComponentPlayground"));

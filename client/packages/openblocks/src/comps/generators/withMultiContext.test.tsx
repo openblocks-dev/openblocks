@@ -21,7 +21,7 @@ const testData = {
   },
 };
 
-const WithMContextComp = withMultiContext(TestComp, ["a"]);
+const WithMContextComp = withMultiContext(TestComp);
 
 describe("withMultiContext", () => {
   it("common", () => {
@@ -33,7 +33,7 @@ describe("withMultiContext", () => {
     });
     comp = evalAndReduce(comp);
     const key1 = "k1";
-    const a0 = comp.getView()({ a: 11 }, key1);
+    const a0 = comp.getView()({ a: 11 }, key1).getView();
     expect(a0.v1 === "v1: 12").toBeTruthy();
     expect(a0.v2 === 13).toBeTruthy();
     // interaction

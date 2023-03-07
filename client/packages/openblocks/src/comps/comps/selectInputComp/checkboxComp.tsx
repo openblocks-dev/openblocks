@@ -23,8 +23,9 @@ import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { refMethods } from "comps/generators/withMethodExposing";
 
-const getStyle = (style: CheckboxStyleType) => {
+export const getStyle = (style: CheckboxStyleType) => {
   return css`
+    &,
     .ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled) {
       color: ${style.staticText};
       height: 22px;

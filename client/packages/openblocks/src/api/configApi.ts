@@ -1,7 +1,7 @@
 import Api from "./api";
 import { AxiosPromise } from "axios";
 import { ApiResponse } from "./apiResponses";
-import { ConfigResponseData } from "@openblocks-ee/constants/configConstants";
+import { ConfigResponseData } from "constants/configConstants";
 
 export interface ConfigResponse extends ApiResponse {
   data: ConfigResponseData;

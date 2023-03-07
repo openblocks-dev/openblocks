@@ -17,7 +17,7 @@ function EmailCard() {
   const [email, setEmail] = useState("");
   const dispatch = useDispatch();
   const config = useSelector(selectSystemConfig);
-  const authId = config?.email.id;
+  const authId = config?.form.id;
 
   const bindEmail = (email: string) => {
     UserApi.bindEmail({ email: email, authId })

@@ -53,7 +53,13 @@ let ProgressCircleTmpComp = (function () {
     style: styleControl(ProgressStyle),
   };
   return new UICompBuilder(childrenMap, (props) => {
-    return <StyledProgressCircle $style={props.style} percent={props.value.value} type="circle" />;
+    return (
+      <StyledProgressCircle
+        $style={props.style}
+        percent={Math.round(props.value.value)}
+        type="circle"
+      />
+    );
   })
     .setPropertyViewFn((children) => {
       return (

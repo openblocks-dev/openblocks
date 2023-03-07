@@ -1,19 +1,18 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 import { NofileIcon } from "openblocks-design";
 import { EmptyTab } from "./BottomTabs";
-import { CompNameContext, EditorContext } from "../../../comps/editorState";
+import { CompNameContext, EditorContext } from "comps/editorState";
 import { BottomSidebar } from "./BottomSidebar";
-import { AppState } from "../../../redux/reducers";
 import { useSelector } from "react-redux";
-import { DatasourceStructure } from "../../../api/datasourceApi";
 import { MetaDataContext } from "base/codeEditor/codeEditorTypes";
 import { editorBottomClassName } from "pages/tutorials/tutorialsConstant";
 import BottomMetaDrawer from "./BottomMetaDrawer";
 import { BottomResComp, BottomResTypeEnum } from "types/bottomRes";
-import { ResCreatePanel } from "../../../components/ResCreatePanel";
+import { ResCreatePanel } from "components/ResCreatePanel";
 import { trans } from "i18n";
-import { getDataSource } from "../../../redux/selectors/datasourceSelectors";
+import { getDataSource } from "redux/selectors/datasourceSelectors";
+import { useMetaData } from "util/hooks";
 
 const Container = styled.div`
   width: 100%;
@@ -61,7 +60,6 @@ export function BottomSkeleton() {
 
 export const BottomContent = () => {
   const editorState = useContext(EditorContext);
-  const datasourceStructure = useSelector((state: AppState) => state.entities.datasource.structure);
   const datasourceInfos = useSelector(getDataSource);
   const selectedComp = editorState.selectedBottomResComp();
   const [isCreatePanelShow, showCreatePanel] = useState(false);
@@ -112,10 +110,7 @@ export const BottomContent = () => {
   // keep reference unchanged when metaData unchange, avoid re-configure when auto-completion changes
   const selectedDatasourceId =
     editorState.selectedQueryComp()?.children.datasourceId.getView() || "";
-  const metaData = useMemo(
-    () => getMetaData(datasourceStructure, selectedDatasourceId),
-    [datasourceStructure, selectedDatasourceId]
-  );
+  const metaData = useMetaData(selectedDatasourceId);
   return (
     <Container className={editorBottomClassName}>
       <Left>
@@ -150,20 +145,6 @@ export const BottomContent = () => {
     </Container>
   );
 };
-
-function getMetaData(
-  datasourceStructure: Record<string, DatasourceStructure[]>,
-  selectedDatasourceId: string
-): Record<string, string> {
-  let ret: Record<string, string> = {};
-  datasourceStructure[selectedDatasourceId]?.forEach((table) => {
-    ret[table.name] = "table";
-    table.columns?.forEach((c) => {
-      ret[c.name] = c.type;
-    });
-  });
-  return ret;
-}
 
 interface BottomLeftProps {
   onOpenCreatePanel: () => void;

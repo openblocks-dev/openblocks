@@ -51,4 +51,8 @@ export const DatasourceFormRegistry: Partial<Record<DatasourceType, DatasourceFo
   googleSheets: { enableTest: false, form: GoogleSheetsDatasourceForm },
   graphql: { enableTest: false, form: GraphqlDatasourceForm },
   snowflake: { form: SnowflakeDatasourceForm, whitelist: true },
+  oceanBase: {
+    form: sqlDatasourceForm({ placeholder: "My OceanBase1", port: "2881" }),
+    whitelist: true,
+  },
 };

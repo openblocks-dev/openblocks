@@ -1,4 +1,13 @@
-import { Form, Input, InputNumber, InputNumberProps, InputProps, Radio, Select } from "antd";
+import {
+  Form,
+  Input,
+  InputNumber,
+  InputNumberProps,
+  InputProps,
+  Radio,
+  Select,
+  SelectProps,
+} from "antd";
 import { ReactNode } from "react";
 import { CheckBox } from "./checkBox";
 import { CustomSelect } from "./customSelect";
@@ -37,14 +46,16 @@ const FormInput = styled(Input)`
   &:not(.ant-input-affix-wrapper-disabled) {
     background: #ffffff;
   }
+
   border: 1px solid #d7d9e0;
   border-radius: 4px;
 `;
 
 const FormNumberInput = styled(InputNumber)`
-  &:not(.ant-input-number-affix-wrapper-disabled)&:not(.ant-input-number-disabled) {
+  &:not(.ant-input-number-affix-wrapper-disabled) &:not(.ant-input-number-disabled) {
     background: #ffffff;
   }
+
   border: 1px solid #d7d9e0;
   border-radius: 4px;
 `;
@@ -53,6 +64,7 @@ const FormInputPassword = styled(Input)`
   &:not(.ant-input-affix-wrapper-disabled) {
     background: #ffffff;
   }
+
   border: 1px solid #d7d9e0;
   border-radius: 4px;
 `;
@@ -309,6 +321,7 @@ const FormSelect = (props: any) => {
   return (
     <SelectWrapper>
       <CustomSelect
+        mode={props.mode}
         value={value}
         style={{
           width: "100%",
@@ -337,7 +350,9 @@ const FormSelect = (props: any) => {
   );
 };
 
-export interface FormSelectItemProps<T extends OptionsType> extends FormItemProps {
+export interface FormSelectItemProps<T extends OptionsType>
+  extends FormItemProps,
+    Pick<SelectProps, "mode"> {
   options: T;
   afterChange?: (value: ValueFromOption<T>) => void;
 }

@@ -1,4 +1,5 @@
 import { ColumnComp, newPrimaryColumn } from "comps/comps/tableComp/column/tableColumnComp";
+import { COLUMN_CHILDREN_KEY } from "comps/comps/tableComp/tableUtils";
 import { list } from "comps/generators/list";
 import { getReduceContext } from "comps/utils/reduceContext";
 import _ from "lodash";
@@ -60,7 +61,7 @@ export class ColumnListComp extends ColumnListTmpComp {
         const actions = this.geneColumnsAction(rowExample);
         comp = this.reduce(this.multiAction(actions));
       }
-      return comp.updateRenderData(action.value.data);
+      return comp;
     }
     return super.reduce(action);
   }
@@ -85,27 +86,6 @@ export class ColumnListComp extends ColumnListTmpComp {
   dispatchClearChangeSet() {
     const columns = this.getView();
     columns.forEach((column) => column.dispatchClearChangeSet());
-  }
-
-  updateRenderData(data: Array<JSONObject>) {
-    const columns = this.getView();
-    const actions = columns.map((col) => {
-      const dataIndex = col.children.dataIndex.getView();
-      const paramValueMap = _.chain(data)
-        .toPairs()
-        .fromPairs()
-        .mapValues((row, index) => ({
-          currentCell: row[dataIndex],
-          currentRow: row,
-          currentIndex: index,
-          currentOriginalIndex: index,
-        }))
-        .value();
-      const render = col.children.render.clear().batchSet(paramValueMap);
-      const newCol = col.setChild("render", render);
-      return this.pushCompAction(newCol);
-    });
-    return this.reduce(this.multiAction([this.clearAction(), ...actions]));
   }
 
   /**
@@ -151,7 +131,10 @@ export class ColumnListComp extends ColumnListTmpComp {
     });
     // The order should be the same as the data
     dataKeys.forEach((key) => {
-      if (!columnsView.find((column) => column.getView().dataIndex === key)) {
+      if (
+        key !== COLUMN_CHILDREN_KEY &&
+        !columnsView.find((column) => column.getView().dataIndex === key)
+      ) {
         // to Add
         actions.push(this.pushAction(newPrimaryColumn(key)));
       }
@@ -194,5 +177,9 @@ export class ColumnListComp extends ColumnListTmpComp {
       (a, b) => shallowEqual(a[1], b[1])
     )[0];
     return result;
+  }
+
+  setSelectionAction(key: string) {
+    return this.forEachAction(ColumnComp.setSelectionAction(key));
   }
 }

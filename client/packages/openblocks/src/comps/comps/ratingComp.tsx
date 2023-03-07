@@ -115,6 +115,6 @@ const getStyle = (style: RatingStyleType) => {
   `;
 };
 
-const RateStyled = styled(Rate)<{ $style: RatingStyleType }>`
+export const RateStyled = styled(Rate)<{ $style: RatingStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
