@@ -50,7 +50,7 @@ let queryConfig: QueryConfig;
 
 const cloudinaryPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "cloudinary",
-  name: "cloudinary",
+  name: "Cloudinary",
   icon: "cloudinary.svg",
   category: "api",
   dataSourceConfig,

@@ -10,6 +10,7 @@ export const graphQLQueryConfig = {
           type: "graphqlInput",
           label: "Query",
           key: "query",
+          placeholder: "GraphQL queries",
         },
         {
           type: "keyValueInput",

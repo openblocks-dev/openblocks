@@ -1,6 +1,4 @@
-import { readYaml } from "../../common/util";
 import _ from "lodash";
-import path from "path";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
 import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
 import { runOpenApi } from "../openApi";
@@ -12,12 +10,13 @@ const dataSourceConfig = {
   type: "dataSource",
   params: [
     {
-      "type": "password",
-      "key": "api_key_header.value",
-      "label": "Personal API Token",
-      "tooltip": "[Personal API Token](https://circleci.com/docs/managing-api-tokens/#creating-a-personal-api-token)"
+      type: "password",
+      key: "api_key_header.value",
+      label: "API Token",
+      tooltip:
+        "[Personal API Token](https://circleci.com/docs/managing-api-tokens/#creating-a-personal-api-token)",
     },
-  ]
+  ],
 } as const;
 
 const parseOptions: ParseOpenApiOptions = {
@@ -35,7 +34,10 @@ const circleCiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   category: "api",
   dataSourceConfig,
   queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(spec as unknown as OpenAPI.Document, parseOptions);
+    const { actions, categories } = await parseOpenApi(
+      spec as unknown as OpenAPI.Document,
+      parseOptions
+    );
     return {
       type: "query",
       label: "Action",
