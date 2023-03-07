@@ -1,0 +1,247 @@
+{
+  "components": {
+    "examples": {},
+    "headers": {},
+    "parameters": {},
+    "requestBodies": {},
+    "responses": {},
+    "schemas": {
+      "OverlapKind": { "enum": ["NO", "PARTIAL", "YES", "UNKNOWN"], "type": "string" },
+      "Rect": {
+        "properties": {
+          "top": { "type": "number", "format": "double" },
+          "left": { "type": "number", "format": "double" },
+          "bottom": { "type": "number", "format": "double" },
+          "right": { "type": "number", "format": "double" }
+        },
+        "required": ["top", "left", "bottom", "right"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "FaceSquare": {
+        "properties": {
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Size of the square side",
+            "minimum": 0
+          },
+          "top_left": {
+            "items": { "type": "integer", "format": "int32" },
+            "type": "array",
+            "description": "Top left location of the face in the frame - can be negative",
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "overlap": { "$ref": "#/components/schemas/OverlapKind" },
+          "face_id": { "type": "string" },
+          "detect_confidence": { "type": "number", "format": "double" },
+          "detection": { "$ref": "#/components/schemas/Rect" }
+        },
+        "required": ["size", "top_left"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UploadImageResponseDto": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "The temporary URL of the image.\nThis URL should be provided when creating an animation via the /animations endpoint."
+          },
+          "id": {
+            "type": "string",
+            "description": "A unique identifier which represents this image operation"
+          },
+          "faces": { "items": { "$ref": "#/components/schemas/FaceSquare" }, "type": "array" }
+        },
+        "required": ["url"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "JsonError": {
+        "properties": {
+          "kind": { "type": "string" },
+          "description": { "type": "string" },
+          "details": {}
+        },
+        "required": ["kind", "description"],
+        "type": "object",
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "basic": { "type": "http", "scheme": "basic" },
+      "bearer": { "type": "http", "scheme": "bearer" }
+    }
+  },
+  "info": {
+    "title": "images",
+    "version": "1.3.0",
+    "description": "Images",
+    "license": { "name": "ISC" },
+    "contact": { "name": "D-ID" }
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/images": {
+      "post": {
+        "operationId": "Upload an image",
+        "responses": {
+          "201": {
+            "description": "The image has been uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UploadImageResponseDto" },
+                "examples": { "Example 1": { "value": { "id": "tn8607bms7" } } }
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequestError | InvalidFileSizeError | InvalidImageResolutionError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "BadRequestError", "description": "invalid image" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "AuthorizationError", "description": "user unauthenticated" }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "InsufficientCreditsError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "InsufficientCreditsError",
+                      "description": "not enough credits"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "UnsupportedMimeTypeError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "UnsupportedMimeTypeError",
+                      "description": "The provided mime type is not supported",
+                      "details": { "received": "image/png", "supported": ["image/jpeg"] }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "451": {
+            "description": "ImageModerationError | CelebrityRecognizedError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "ImageModerationError",
+                      "description": "Automatic content moderation - contact support if you would like to submit for manual review"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Upload an image to a temporary storage before creating an animation.\nThe image is uploaded using `multipart/form-data`; the filename directive is optional and if provided should contain up to 50 valid characters long.\n\nValid characters: a-z A-Z 0-9 . _ -\nSupported mime types: image/jpeg,image/png\nStorage duration: 24-48H",
+        "summary": "Upload image",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The binary data of the image"
+                  },
+                  "detect_faces": { "type": "string" },
+                  "metadata": { "type": "string" },
+                  "source_url": { "type": "string" },
+                  "result_url": {
+                    "type": "string",
+                    "description": "A URL to upload the image to. If provided, the image will be uploaded to this URL instead of the default bucket. Should be an https presigned URL. S3 presigned urls should have the putObject permission with content type matching the uploaded image."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/images/{id}": {
+      "delete": {
+        "operationId": "Delete",
+        "responses": {
+          "204": { "description": "OK" },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "AuthorizationError", "description": "user unauthenticated" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFoundError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "NotFoundError", "description": "image not found" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Delete an image",
+        "summary": "Delete image",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ]
+      }
+    }
+  },
+  "servers": [{ "url": "https://api.d-id.com/" }]
+}

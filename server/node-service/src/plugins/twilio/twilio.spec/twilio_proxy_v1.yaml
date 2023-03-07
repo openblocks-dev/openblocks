@@ -1,0 +1,2612 @@
+components:
+  schemas:
+    proxy.v1.service.session.interaction:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KI[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that we created to identify the Interaction
+            resource.
+        session_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the parent [Session](https://www.twilio.com/docs/proxy/api/session)
+            resource.
+        service_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+            resource.
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the Interaction resource.
+        data:
+          type: string
+          nullable: true
+          description: 'A JSON string that includes the message body of message interactions
+            (e.g. `{"body": "hello"}`) or the call duration (when available) of a
+            call (e.g. `{"duration": "5"}`).'
+        type:
+          type: string
+          $ref: '#/components/schemas/interaction_enum_type'
+          nullable: true
+          description: 'The Type of the Interaction. Can be: `message`, `voice` or
+            `unknown`.'
+        inbound_participant_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KP[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the inbound [Participant](https://www.twilio.com/docs/proxy/api/participant)
+            resource.
+        inbound_resource_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^[a-zA-Z]{2}[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the inbound resource; either the [Call](https://www.twilio.com/docs/voice/api/call-resource)
+            or [Message](https://www.twilio.com/docs/sms/api/message.
+        inbound_resource_status:
+          type: string
+          $ref: '#/components/schemas/interaction_enum_resource_status'
+          nullable: true
+          description: The inbound resource status of the Interaction. Will always
+            be `delivered` for messages and `in-progress` for calls.
+        inbound_resource_type:
+          type: string
+          nullable: true
+          description: The inbound resource type. Can be [Call](https://www.twilio.com/docs/voice/api/call-resource)
+            or [Message](https://www.twilio.com/docs/sms/api/message-resource).
+        inbound_resource_url:
+          type: string
+          format: uri
+          nullable: true
+          description: The URL of the Twilio inbound resource
+        outbound_participant_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KP[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the outbound [Participant](https://www.twilio.com/docs/proxy/api/participant)).
+        outbound_resource_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^[a-zA-Z]{2}[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the outbound resource; either the [Call](https://www.twilio.com/docs/voice/api/call-resource)
+            or [Message](https://www.twilio.com/docs/sms/api/message-resource).
+        outbound_resource_status:
+          type: string
+          $ref: '#/components/schemas/interaction_enum_resource_status'
+          nullable: true
+          description: 'The outbound resource status of the Interaction. Can be: `accepted`,
+            `canceled`, `deleted`, `delivered`, `delivery-unknown`, `failed`, `partially-delivered`,
+            `queued`, `read`, `received`, `receiving`, `scheduled`, `sending`, `sent`,
+            `undelivered`, or `unknown` for messages.  Can be `initiated` or `completed`
+            or `unknown` for calls.'
+        outbound_resource_type:
+          type: string
+          nullable: true
+          description: 'The outbound resource type. Can be: [Call](https://www.twilio.com/docs/voice/api/call-resource)
+            or [Message](https://www.twilio.com/docs/sms/api/message-resource).'
+        outbound_resource_url:
+          type: string
+          format: uri
+          nullable: true
+          description: The URL of the Twilio outbound resource.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            and time in GMT when the Interaction was created.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            and time in GMT when the resource was last updated.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the Interaction resource.
+    interaction_enum_type:
+      type: string
+      enum:
+      - message
+      - voice
+      - unknown
+    interaction_enum_resource_status:
+      type: string
+      enum:
+      - accepted
+      - answered
+      - busy
+      - canceled
+      - completed
+      - deleted
+      - delivered
+      - delivery-unknown
+      - failed
+      - in-progress
+      - initiated
+      - no-answer
+      - queued
+      - received
+      - receiving
+      - ringing
+      - scheduled
+      - sending
+      - sent
+      - undelivered
+      - unknown
+    proxy.v1.service.session.participant.message_interaction:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KI[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that we created to identify the MessageInteraction
+            resource.
+        session_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the parent [Session](https://www.twilio.com/docs/proxy/api/session)
+            resource.
+        service_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+            resource.
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the MessageInteraction resource.
+        data:
+          type: string
+          nullable: true
+          description: 'A JSON string that includes the message body sent to the participant.
+            (e.g. `{"body": "hello"}`)'
+        type:
+          type: string
+          $ref: '#/components/schemas/message_interaction_enum_type'
+          nullable: true
+          description: The Type of Message Interaction. This value is always `message`.
+        participant_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KP[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Participant](https://www.twilio.com/docs/proxy/api/participant)
+            resource.
+        inbound_participant_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KP[0-9a-fA-F]{32}$
+          nullable: true
+          description: Always empty for created Message Interactions.
+        inbound_resource_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^[a-zA-Z]{2}[0-9a-fA-F]{32}$
+          nullable: true
+          description: Always empty for created Message Interactions.
+        inbound_resource_status:
+          type: string
+          $ref: '#/components/schemas/message_interaction_enum_resource_status'
+          nullable: true
+          description: Always empty for created Message Interactions.
+        inbound_resource_type:
+          type: string
+          nullable: true
+          description: Always empty for created Message Interactions.
+        inbound_resource_url:
+          type: string
+          format: uri
+          nullable: true
+          description: Always empty for created Message Interactions.
+        outbound_participant_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KP[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the outbound [Participant](https://www.twilio.com/docs/proxy/api/participant)
+            resource.
+        outbound_resource_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^[a-zA-Z]{2}[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the outbound [Message](https://www.twilio.com/docs/sms/api/message-resource)
+            resource.
+        outbound_resource_status:
+          type: string
+          $ref: '#/components/schemas/message_interaction_enum_resource_status'
+          nullable: true
+          description: 'The outbound message resource status. Can be: `accepted`,
+            `deleted`, `delivered`, `delivery-unknown`, `failed`, `queued`, `received`,
+            `receiving`, `scheduled`, `sending`, `sent`, `undelivered`, or `unknown`.'
+        outbound_resource_type:
+          type: string
+          nullable: true
+          description: The outbound resource type. This value is always `Message`.
+        outbound_resource_url:
+          type: string
+          format: uri
+          nullable: true
+          description: The URL of the Twilio message resource.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            and time in GMT when the resource was created.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            and time in GMT when the resource was last updated.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the MessageInteraction resource.
+    message_interaction_enum_type:
+      type: string
+      enum:
+      - message
+      - voice
+      - unknown
+    message_interaction_enum_resource_status:
+      type: string
+      enum:
+      - accepted
+      - answered
+      - busy
+      - canceled
+      - completed
+      - deleted
+      - delivered
+      - delivery-unknown
+      - failed
+      - in-progress
+      - initiated
+      - no-answer
+      - queued
+      - received
+      - receiving
+      - ringing
+      - scheduled
+      - sending
+      - sent
+      - undelivered
+      - unknown
+    proxy.v1.service.session.participant:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KP[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that we created to identify the Participant
+            resource.
+        session_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the parent [Session](https://www.twilio.com/docs/proxy/api/session)
+            resource.
+        service_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the resource's parent [Service](https://www.twilio.com/docs/proxy/api/service)
+            resource.
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the Participant resource.
+        friendly_name:
+          type: string
+          nullable: true
+          description: The string that you assigned to describe the participant. This
+            value must be 255 characters or fewer. Supports UTF-8 characters. **This
+            value should not have PII.**
+        identifier:
+          type: string
+          nullable: true
+          description: The phone number or channel identifier of the Participant.
+            This value must be 191 characters or fewer. Supports UTF-8 characters.
+        proxy_identifier:
+          type: string
+          nullable: true
+          description: The phone number or short code (masked number) of the participant's
+            partner. The participant will call or message the partner participant
+            at this number.
+        proxy_identifier_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^PN[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the Proxy Identifier assigned to the Participant.
+        date_deleted:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            when the Participant was removed from the session.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            and time in GMT when the resource was created.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            and time in GMT when the resource was last updated.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the Participant resource.
+        links:
+          type: object
+          format: uri-map
+          nullable: true
+          description: The URLs to resources related the participant.
+    proxy.v1.service.phone_number:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^PN[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that we created to identify the PhoneNumber
+            resource.
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the PhoneNumber resource.
+        service_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the PhoneNumber resource's parent [Service](https://www.twilio.com/docs/proxy/api/service)
+            resource.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            and time in GMT when the resource was created.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            and time in GMT when the resource was last updated.
+        phone_number:
+          type: string
+          format: phone-number
+          nullable: true
+          description: The phone number in [E.164](https://www.twilio.com/docs/glossary/what-e164)
+            format, which consists of a + followed by the country code and subscriber
+            number.
+        friendly_name:
+          type: string
+          nullable: true
+          description: The string that you assigned to describe the resource.
+        iso_country:
+          type: string
+          nullable: true
+          description: The ISO Country Code for the phone number.
+        capabilities:
+          type: object
+          format: phone-number-capabilities
+          properties:
+            mms:
+              type: boolean
+            sms:
+              type: boolean
+            voice:
+              type: boolean
+            fax:
+              type: boolean
+          nullable: true
+          description: The capabilities of the phone number.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the PhoneNumber resource.
+        is_reserved:
+          type: boolean
+          nullable: true
+          description: Whether the phone number should be reserved and not be assigned
+            to a participant using proxy pool logic. See [Reserved Phone Numbers](https://www.twilio.com/docs/proxy/reserved-phone-numbers)
+            for more information.
+        in_use:
+          type: integer
+          nullable: true
+          description: The number of open session assigned to the number. See the
+            [How many Phone Numbers do I need?](https://www.twilio.com/docs/proxy/phone-numbers-needed)
+            guide for more information.
+    proxy.v1.service:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that we created to identify the Service resource.
+        unique_name:
+          type: string
+          nullable: true
+          description: An application-defined string that uniquely identifies the
+            resource. This value must be 191 characters or fewer in length and be
+            unique. Supports UTF-8 characters. **This value should not have PII.**
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the Service resource.
+        chat_instance_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^IS[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the Chat Service Instance managed by Proxy Service.
+            The Chat Service enables Proxy to forward SMS and channel messages to
+            this chat instance. This is a one-to-one relationship.
+        callback_url:
+          type: string
+          format: uri
+          nullable: true
+          description: The URL we call when the interaction status changes.
+        default_ttl:
+          type: integer
+          nullable: true
+          description: The default `ttl` value for Sessions created in the Service.
+            The TTL (time to live) is measured in seconds after the Session's last
+            create or last Interaction. The default value of `0` indicates an unlimited
+            Session length. You can override a Session's default TTL value by setting
+            its `ttl` value.
+        number_selection_behavior:
+          type: string
+          $ref: '#/components/schemas/service_enum_number_selection_behavior'
+          nullable: true
+          description: 'The preference for Proxy Number selection in the Service instance.
+            Can be: `prefer-sticky` or `avoid-sticky`. `prefer-sticky` means that
+            we will try and select the same Proxy Number for a given participant if
+            they have previous [Sessions](https://www.twilio.com/docs/proxy/api/session),
+            but we will not fail if that Proxy Number cannot be used.  `avoid-sticky`
+            means that we will try to use different Proxy Numbers as long as that
+            is possible within a given pool rather than try and use a previously assigned
+            number.'
+        geo_match_level:
+          type: string
+          $ref: '#/components/schemas/service_enum_geo_match_level'
+          nullable: true
+          description: 'Where a proxy number must be located relative to the participant
+            identifier. Can be: `country`, `area-code`, or `extended-area-code`. The
+            default value is `country` and more specific areas than `country` are
+            only available in North America.'
+        intercept_callback_url:
+          type: string
+          format: uri
+          nullable: true
+          description: The URL we call on each interaction. If we receive a 403 status,
+            we block the interaction; otherwise the interaction continues.
+        out_of_session_callback_url:
+          type: string
+          format: uri
+          nullable: true
+          description: The URL we call when an inbound call or SMS action occurs on
+            a closed or non-existent Session. If your server (or a Twilio [function](https://www.twilio.com/functions))
+            responds with valid [TwiML](https://www.twilio.com/docs/voice/twiml),
+            we will process it. This means it is possible, for example, to play a
+            message for a call, send an automated text message response, or redirect
+            a call to another Phone Number. See [Out-of-Session Callback Response
+            Guide](https://www.twilio.com/docs/proxy/out-session-callback-response-guide)
+            for more information.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            and time in GMT when the resource was created.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            and time in GMT when the resource was last updated.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the Service resource.
+        links:
+          type: object
+          format: uri-map
+          nullable: true
+          description: The URLs of resources related to the Service.
+    service_enum_geo_match_level:
+      type: string
+      enum:
+      - area-code
+      - overlay
+      - radius
+      - country
+    service_enum_number_selection_behavior:
+      type: string
+      enum:
+      - avoid-sticky
+      - prefer-sticky
+    proxy.v1.service.session:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that we created to identify the Session resource.
+        service_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Service](https://www.twilio.com/docs/proxy/api/service)
+            the session is associated with.
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the Session resource.
+        date_started:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            when the Session started.
+        date_ended:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            when the Session ended.
+        date_last_interaction:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            when the Session last had an interaction.
+        date_expiry:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            when the Session should expire. If this is value is present, it overrides
+            the `ttl` value.
+        unique_name:
+          type: string
+          nullable: true
+          description: An application-defined string that uniquely identifies the
+            resource. This value must be 191 characters or fewer in length and be
+            unique. Supports UTF-8 characters. **This value should not have PII.**
+        status:
+          type: string
+          $ref: '#/components/schemas/session_enum_status'
+          nullable: true
+          description: 'The status of the Session. Can be: `open`, `in-progress`,
+            `closed`, `failed`, or `unknown`.'
+        closed_reason:
+          type: string
+          nullable: true
+          description: The reason the Session ended.
+        ttl:
+          type: integer
+          nullable: true
+          description: The time, in seconds, when the session will expire. The time
+            is measured from the last Session create or the Session's last Interaction.
+        mode:
+          type: string
+          $ref: '#/components/schemas/session_enum_mode'
+          nullable: true
+          description: 'The Mode of the Session. Can be: `message-only`, `voice-only`,
+            or `voice-and-message`.'
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            and time in GMT when the resource was created.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            and time in GMT when the resource was last updated.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the Session resource.
+        links:
+          type: object
+          format: uri-map
+          nullable: true
+          description: The URLs of resources related to the Session.
+    session_enum_status:
+      type: string
+      enum:
+      - open
+      - in-progress
+      - closed
+      - failed
+      - unknown
+    session_enum_mode:
+      type: string
+      enum:
+      - message-only
+      - voice-only
+      - voice-and-message
+    proxy.v1.service.short_code:
+      type: object
+      properties:
+        sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^SC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string that we created to identify the ShortCode
+            resource.
+        account_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^AC[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the [Account](https://www.twilio.com/docs/iam/api/account)
+            that created the ShortCode resource.
+        service_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+          nullable: true
+          description: The SID of the ShortCode resource's parent [Service](https://www.twilio.com/docs/proxy/api/service)
+            resource.
+        date_created:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            and time in GMT when the resource was created.
+        date_updated:
+          type: string
+          format: date-time
+          nullable: true
+          description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date
+            and time in GMT when the resource was last updated.
+        short_code:
+          type: string
+          nullable: true
+          description: The short code's number.
+        iso_country:
+          type: string
+          nullable: true
+          description: The ISO Country Code for the short code.
+        capabilities:
+          type: object
+          format: phone-number-capabilities
+          properties:
+            mms:
+              type: boolean
+            sms:
+              type: boolean
+            voice:
+              type: boolean
+            fax:
+              type: boolean
+          nullable: true
+          description: The capabilities of the short code.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: The absolute URL of the ShortCode resource.
+        is_reserved:
+          type: boolean
+          nullable: true
+          description: Whether the short code should be reserved and not be assigned
+            to a participant using proxy pool logic. See [Reserved Phone Numbers](https://www.twilio.com/docs/proxy/reserved-phone-numbers)
+            for more information.
+  securitySchemes:
+    accountSid_authToken:
+      type: http
+      scheme: basic
+info:
+  title: Twilio - Proxy
+  description: This is the public Twilio REST API.
+  termsOfService: https://www.twilio.com/legal/tos
+  contact:
+    name: Twilio Support
+    url: https://support.twilio.com
+    email: support@twilio.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.39.1
+openapi: 3.0.1
+paths:
+  /v1/Services/{ServiceSid}/Sessions/{SessionSid}/Interactions/{Sid}:
+    servers:
+    - url: https://proxy.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - type
+      - data
+      pathType: instance
+      parent: /Services/{ServiceSid}/Sessions/{Sid}
+    get:
+      description: Retrieve a list of Interactions for a given [Session](https://www.twilio.com/docs/proxy/api/session).
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          of the resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: SessionSid
+        in: path
+        description: The SID of the parent [Session](https://www.twilio.com/docs/proxy/api/session)
+          of the resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the Interaction
+          resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KI[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service.session.interaction'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchInteraction
+      x-maturity:
+      - Beta
+    delete:
+      description: Delete a specific Interaction.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          of the resource to delete.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: SessionSid
+        in: path
+        description: The SID of the parent [Session](https://www.twilio.com/docs/proxy/api/session)
+          of the resource to delete.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the Interaction
+          resource to delete.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KI[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '204':
+          description: The resource was deleted successfully.
+      security:
+      - accountSid_authToken: []
+      operationId: DeleteInteraction
+      x-maturity:
+      - Beta
+  /v1/Services/{ServiceSid}/Sessions/{SessionSid}/Interactions:
+    servers:
+    - url: https://proxy.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - type
+      - data
+      pathType: list
+      parent: /Services/{ServiceSid}/Sessions/{Sid}
+    get:
+      description: Retrieve a list of all Interactions for a Session. A maximum of
+        100 records will be returned per page.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          to read the resources from.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: SessionSid
+        in: path
+        description: The SID of the parent [Session](https://www.twilio.com/docs/proxy/api/session)
+          to read the resources from.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+        required: true
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListInteractionResponse
+                properties:
+                  interactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/proxy.v1.service.session.interaction'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListInteraction
+      x-maturity:
+      - Beta
+  /v1/Services/{ServiceSid}/Sessions/{SessionSid}/Participants/{ParticipantSid}/MessageInteractions:
+    servers:
+    - url: https://proxy.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - type
+      - data
+      pathType: list
+      parent: /Services/{ServiceSid}/Sessions/{SessionSid}/Participants/{Sid}
+    post:
+      description: Create a new message Interaction to send directly from your system
+        to one [Participant](https://www.twilio.com/docs/proxy/api/participant).  The
+        `inbound` properties for the Interaction will always be empty.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: SessionSid
+        in: path
+        description: The SID of the parent [Session](https://www.twilio.com/docs/proxy/api/session)
+          resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+        required: true
+      - name: ParticipantSid
+        in: path
+        description: The SID of the [Participant](https://www.twilio.com/docs/proxy/api/participant)
+          resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KP[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service.session.participant.message_interaction'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreateMessageInteraction
+      x-maturity:
+      - Beta
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreateMessageInteractionRequest
+              properties:
+                Body:
+                  type: string
+                  description: The message to send to the participant
+                MediaUrl:
+                  type: array
+                  items:
+                    type: string
+                    format: uri
+                  description: Reserved. Not currently supported.
+      x-twilio:
+        conditional:
+        - - body
+          - media_url
+    get:
+      description: ''
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          to read the resources from.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: SessionSid
+        in: path
+        description: The SID of the parent [Session](https://www.twilio.com/docs/proxy/api/session)
+          to read the resources from.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+        required: true
+      - name: ParticipantSid
+        in: path
+        description: The SID of the [Participant](https://www.twilio.com/docs/proxy/api/participant)
+          to read the resources from.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KP[0-9a-fA-F]{32}$
+        required: true
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListMessageInteractionResponse
+                properties:
+                  interactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/proxy.v1.service.session.participant.message_interaction'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListMessageInteraction
+      x-maturity:
+      - Beta
+  /v1/Services/{ServiceSid}/Sessions/{SessionSid}/Participants/{ParticipantSid}/MessageInteractions/{Sid}:
+    servers:
+    - url: https://proxy.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - type
+      - data
+      pathType: instance
+      parent: /Services/{ServiceSid}/Sessions/{SessionSid}/Participants/{Sid}
+    get:
+      description: ''
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          of the resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: SessionSid
+        in: path
+        description: The SID of the parent [Session](https://www.twilio.com/docs/proxy/api/session)
+          of the resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+        required: true
+      - name: ParticipantSid
+        in: path
+        description: The SID of the [Participant](https://www.twilio.com/docs/proxy/api/participant)
+          resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KP[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the MessageInteraction
+          resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KI[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service.session.participant.message_interaction'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchMessageInteraction
+      x-maturity:
+      - Beta
+  /v1/Services/{ServiceSid}/Sessions/{SessionSid}/Participants/{Sid}:
+    servers:
+    - url: https://proxy.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - friendly_name
+      - identifier
+      - proxy_identifier
+      pathType: instance
+      parent: /Services/{ServiceSid}/Sessions/{Sid}
+    get:
+      description: Fetch a specific Participant.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          of the resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: SessionSid
+        in: path
+        description: The SID of the parent [Session](https://www.twilio.com/docs/proxy/api/session)
+          of the resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the Participant
+          resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KP[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service.session.participant'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchParticipant
+      x-maturity:
+      - Beta
+    delete:
+      description: Delete a specific Participant. This is a soft-delete. The participant
+        remains associated with the session and cannot be re-added. Participants are
+        only permanently deleted when the [Session](https://www.twilio.com/docs/proxy/api/session)
+        is deleted.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          of the resource to delete.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: SessionSid
+        in: path
+        description: The SID of the parent [Session](https://www.twilio.com/docs/proxy/api/session)
+          of the resource to delete.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the Participant
+          resource to delete.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KP[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '204':
+          description: The resource was deleted successfully.
+      security:
+      - accountSid_authToken: []
+      operationId: DeleteParticipant
+      x-maturity:
+      - Beta
+  /v1/Services/{ServiceSid}/Sessions/{SessionSid}/Participants:
+    servers:
+    - url: https://proxy.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - friendly_name
+      - identifier
+      - proxy_identifier
+      pathType: list
+      parent: /Services/{ServiceSid}/Sessions/{Sid}
+    get:
+      description: Retrieve a list of all Participants in a Session.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          of the resources to read.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: SessionSid
+        in: path
+        description: The SID of the parent [Session](https://www.twilio.com/docs/proxy/api/session)
+          of the resources to read.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+        required: true
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListParticipantResponse
+                properties:
+                  participants:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/proxy.v1.service.session.participant'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListParticipant
+      x-maturity:
+      - Beta
+    post:
+      description: Add a new Participant to the Session
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: SessionSid
+        in: path
+        description: The SID of the parent [Session](https://www.twilio.com/docs/proxy/api/session)
+          resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service.session.participant'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreateParticipant
+      x-maturity:
+      - Beta
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreateParticipantRequest
+              properties:
+                Identifier:
+                  type: string
+                  description: The phone number of the Participant.
+                FriendlyName:
+                  type: string
+                  description: The string that you assigned to describe the participant.
+                    This value must be 255 characters or fewer. **This value should
+                    not have PII.**
+                ProxyIdentifier:
+                  type: string
+                  description: The proxy phone number to use for the Participant.
+                    If not specified, Proxy will select a number from the pool.
+                ProxyIdentifierSid:
+                  type: string
+                  minLength: 34
+                  maxLength: 34
+                  pattern: ^PN[0-9a-fA-F]{32}$
+                  description: The SID of the Proxy Identifier to assign to the Participant.
+              required:
+              - Identifier
+  /v1/Services/{ServiceSid}/PhoneNumbers:
+    servers:
+    - url: https://proxy.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - friendly_name
+      - phone_number
+      pathType: list
+      parent: /Services/{Sid}
+    post:
+      description: Add a Phone Number to a Service's Proxy Number Pool.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          resource of the new PhoneNumber resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service.phone_number'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreatePhoneNumber
+      x-maturity:
+      - Beta
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreatePhoneNumberRequest
+              properties:
+                Sid:
+                  type: string
+                  minLength: 34
+                  maxLength: 34
+                  pattern: ^PN[0-9a-fA-F]{32}$
+                  description: The SID of a Twilio [IncomingPhoneNumber](https://www.twilio.com/docs/phone-numbers/api/incomingphonenumber-resource)
+                    resource that represents the Twilio Number you would like to assign
+                    to your Proxy Service.
+                PhoneNumber:
+                  type: string
+                  format: phone-number
+                  description: The phone number in [E.164](https://www.twilio.com/docs/glossary/what-e164)
+                    format.  E.164 phone numbers consist of a + followed by the country
+                    code and subscriber number without punctuation characters. For
+                    example, +14155551234.
+                IsReserved:
+                  type: boolean
+                  description: Whether the new phone number should be reserved and
+                    not be assigned to a participant using proxy pool logic. See [Reserved
+                    Phone Numbers](https://www.twilio.com/docs/proxy/reserved-phone-numbers)
+                    for more information.
+    get:
+      description: Retrieve a list of all Phone Numbers in the Proxy Number Pool for
+        a Service. A maximum of 100 records will be returned per page.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          of the PhoneNumber resources to read.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListPhoneNumberResponse
+                properties:
+                  phone_numbers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/proxy.v1.service.phone_number'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListPhoneNumber
+      x-maturity:
+      - Beta
+  /v1/Services/{ServiceSid}/PhoneNumbers/{Sid}:
+    servers:
+    - url: https://proxy.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - friendly_name
+      - phone_number
+      pathType: instance
+      parent: /Services/{Sid}
+    delete:
+      description: Delete a specific Phone Number from a Service.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          of the PhoneNumber resource to delete.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the PhoneNumber
+          resource to delete.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^PN[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '204':
+          description: The resource was deleted successfully.
+      security:
+      - accountSid_authToken: []
+      operationId: DeletePhoneNumber
+      x-maturity:
+      - Beta
+    get:
+      description: Fetch a specific Phone Number.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          of the PhoneNumber resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the PhoneNumber
+          resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^PN[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service.phone_number'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchPhoneNumber
+      x-maturity:
+      - Beta
+    post:
+      description: Update a specific Proxy Number.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          of the PhoneNumber resource to update.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the PhoneNumber
+          resource to update.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^PN[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service.phone_number'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: UpdatePhoneNumber
+      x-maturity:
+      - Beta
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: UpdatePhoneNumberRequest
+              properties:
+                IsReserved:
+                  type: boolean
+                  description: Whether the phone number should be reserved and not
+                    be assigned to a participant using proxy pool logic. See [Reserved
+                    Phone Numbers](https://www.twilio.com/docs/proxy/reserved-phone-numbers)
+                    for more information.
+  /v1/Services/{Sid}:
+    servers:
+    - url: https://proxy.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - unique_name
+      - date_created
+      pathType: instance
+    get:
+      description: Fetch a specific Service.
+      parameters:
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the Service
+          resource to fetch.
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchService
+      x-maturity:
+      - Beta
+    delete:
+      description: Delete a specific Service.
+      parameters:
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the Service
+          resource to delete.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '204':
+          description: The resource was deleted successfully.
+      security:
+      - accountSid_authToken: []
+      operationId: DeleteService
+      x-maturity:
+      - Beta
+    post:
+      description: Update a specific Service.
+      parameters:
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the Service
+          resource to update.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: UpdateService
+      x-maturity:
+      - Beta
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: UpdateServiceRequest
+              properties:
+                UniqueName:
+                  type: string
+                  description: An application-defined string that uniquely identifies
+                    the resource. This value must be 191 characters or fewer in length
+                    and be unique. **This value should not have PII.**
+                DefaultTtl:
+                  type: integer
+                  description: The default `ttl` value to set for Sessions created
+                    in the Service. The TTL (time to live) is measured in seconds
+                    after the Session's last create or last Interaction. The default
+                    value of `0` indicates an unlimited Session length. You can override
+                    a Session's default TTL value by setting its `ttl` value.
+                CallbackUrl:
+                  type: string
+                  format: uri
+                  description: The URL we should call when the interaction status
+                    changes.
+                GeoMatchLevel:
+                  type: string
+                  $ref: '#/components/schemas/service_enum_geo_match_level'
+                  description: 'Where a proxy number must be located relative to the
+                    participant identifier. Can be: `country`, `area-code`, or `extended-area-code`.
+                    The default value is `country` and more specific areas than `country`
+                    are only available in North America.'
+                NumberSelectionBehavior:
+                  type: string
+                  $ref: '#/components/schemas/service_enum_number_selection_behavior'
+                  description: 'The preference for Proxy Number selection in the Service
+                    instance. Can be: `prefer-sticky` or `avoid-sticky` and the default
+                    is `prefer-sticky`. `prefer-sticky` means that we will try and
+                    select the same Proxy Number for a given participant if they have
+                    previous [Sessions](https://www.twilio.com/docs/proxy/api/session),
+                    but we will not fail if that Proxy Number cannot be used.  `avoid-sticky`
+                    means that we will try to use different Proxy Numbers as long
+                    as that is possible within a given pool rather than try and use
+                    a previously assigned number.'
+                InterceptCallbackUrl:
+                  type: string
+                  format: uri
+                  description: The URL we call on each interaction. If we receive
+                    a 403 status, we block the interaction; otherwise the interaction
+                    continues.
+                OutOfSessionCallbackUrl:
+                  type: string
+                  format: uri
+                  description: The URL we should call when an inbound call or SMS
+                    action occurs on a closed or non-existent Session. If your server
+                    (or a Twilio [function](https://www.twilio.com/functions)) responds
+                    with valid [TwiML](https://www.twilio.com/docs/voice/twiml), we
+                    will process it. This means it is possible, for example, to play
+                    a message for a call, send an automated text message response,
+                    or redirect a call to another Phone Number. See [Out-of-Session
+                    Callback Response Guide](https://www.twilio.com/docs/proxy/out-session-callback-response-guide)
+                    for more information.
+                ChatInstanceSid:
+                  type: string
+                  minLength: 34
+                  maxLength: 34
+                  pattern: ^IS[0-9a-fA-F]{32}$
+                  description: The SID of the Chat Service Instance managed by Proxy
+                    Service. The Chat Service enables Proxy to forward SMS and channel
+                    messages to this chat instance. This is a one-to-one relationship.
+  /v1/Services:
+    servers:
+    - url: https://proxy.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - unique_name
+      - date_created
+      pathType: list
+    get:
+      description: Retrieve a list of all Services for Twilio Proxy. A maximum of
+        100 records will be returned per page.
+      parameters:
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListServiceResponse
+                properties:
+                  services:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/proxy.v1.service'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListService
+      x-maturity:
+      - Beta
+    post:
+      description: Create a new Service for Twilio Proxy
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreateService
+      x-maturity:
+      - Beta
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreateServiceRequest
+              properties:
+                UniqueName:
+                  type: string
+                  description: An application-defined string that uniquely identifies
+                    the resource. This value must be 191 characters or fewer in length
+                    and be unique. **This value should not have PII.**
+                DefaultTtl:
+                  type: integer
+                  description: The default `ttl` value to set for Sessions created
+                    in the Service. The TTL (time to live) is measured in seconds
+                    after the Session's last create or last Interaction. The default
+                    value of `0` indicates an unlimited Session length. You can override
+                    a Session's default TTL value by setting its `ttl` value.
+                CallbackUrl:
+                  type: string
+                  format: uri
+                  description: The URL we should call when the interaction status
+                    changes.
+                GeoMatchLevel:
+                  type: string
+                  $ref: '#/components/schemas/service_enum_geo_match_level'
+                  description: 'Where a proxy number must be located relative to the
+                    participant identifier. Can be: `country`, `area-code`, or `extended-area-code`.
+                    The default value is `country` and more specific areas than `country`
+                    are only available in North America.'
+                NumberSelectionBehavior:
+                  type: string
+                  $ref: '#/components/schemas/service_enum_number_selection_behavior'
+                  description: 'The preference for Proxy Number selection in the Service
+                    instance. Can be: `prefer-sticky` or `avoid-sticky` and the default
+                    is `prefer-sticky`. `prefer-sticky` means that we will try and
+                    select the same Proxy Number for a given participant if they have
+                    previous [Sessions](https://www.twilio.com/docs/proxy/api/session),
+                    but we will not fail if that Proxy Number cannot be used.  `avoid-sticky`
+                    means that we will try to use different Proxy Numbers as long
+                    as that is possible within a given pool rather than try and use
+                    a previously assigned number.'
+                InterceptCallbackUrl:
+                  type: string
+                  format: uri
+                  description: The URL we call on each interaction. If we receive
+                    a 403 status, we block the interaction; otherwise the interaction
+                    continues.
+                OutOfSessionCallbackUrl:
+                  type: string
+                  format: uri
+                  description: The URL we should call when an inbound call or SMS
+                    action occurs on a closed or non-existent Session. If your server
+                    (or a Twilio [function](https://www.twilio.com/functions)) responds
+                    with valid [TwiML](https://www.twilio.com/docs/voice/twiml), we
+                    will process it. This means it is possible, for example, to play
+                    a message for a call, send an automated text message response,
+                    or redirect a call to another Phone Number. See [Out-of-Session
+                    Callback Response Guide](https://www.twilio.com/docs/proxy/out-session-callback-response-guide)
+                    for more information.
+                ChatInstanceSid:
+                  type: string
+                  minLength: 34
+                  maxLength: 34
+                  pattern: ^IS[0-9a-fA-F]{32}$
+                  description: The SID of the Chat Service Instance managed by Proxy
+                    Service. The Chat Service enables Proxy to forward SMS and channel
+                    messages to this chat instance. This is a one-to-one relationship.
+              required:
+              - UniqueName
+  /v1/Services/{ServiceSid}/Sessions/{Sid}:
+    servers:
+    - url: https://proxy.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - unique_name
+      - date_started
+      - date_ended
+      pathType: instance
+      parent: /Services/{Sid}
+    get:
+      description: Fetch a specific Session.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          of the resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the Session
+          resource to fetch.
+        schema:
+          type: string
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service.session'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchSession
+      x-maturity:
+      - Beta
+    delete:
+      description: Delete a specific Session.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          of the resource to delete.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the Session
+          resource to delete.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '204':
+          description: The resource was deleted successfully.
+      security:
+      - accountSid_authToken: []
+      operationId: DeleteSession
+      x-maturity:
+      - Beta
+    post:
+      description: Update a specific Session.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          of the resource to update.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the Session
+          resource to update.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KC[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service.session'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: UpdateSession
+      x-maturity:
+      - Beta
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: UpdateSessionRequest
+              properties:
+                DateExpiry:
+                  type: string
+                  format: date-time
+                  description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+                    date when the Session should expire. If this is value is present,
+                    it overrides the `ttl` value.
+                Ttl:
+                  type: integer
+                  description: The time, in seconds, when the session will expire.
+                    The time is measured from the last Session create or the Session's
+                    last Interaction.
+                Status:
+                  type: string
+                  $ref: '#/components/schemas/session_enum_status'
+                  description: 'The new status of the resource. Can be: `in-progress`
+                    to re-open a session or `closed` to close a session.'
+  /v1/Services/{ServiceSid}/Sessions:
+    servers:
+    - url: https://proxy.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - unique_name
+      - date_started
+      - date_ended
+      pathType: list
+      parent: /Services/{Sid}
+    get:
+      description: Retrieve a list of all Sessions for the Service. A maximum of 100
+        records will be returned per page.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          of the resource to read.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListSessionResponse
+                properties:
+                  sessions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/proxy.v1.service.session'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListSession
+      x-maturity:
+      - Beta
+    post:
+      description: Create a new Session
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service.session'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreateSession
+      x-maturity:
+      - Beta
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreateSessionRequest
+              properties:
+                UniqueName:
+                  type: string
+                  description: An application-defined string that uniquely identifies
+                    the resource. This value must be 191 characters or fewer in length
+                    and be unique. **This value should not have PII.**
+                DateExpiry:
+                  type: string
+                  format: date-time
+                  description: The [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+                    date when the Session should expire. If this is value is present,
+                    it overrides the `ttl` value.
+                Ttl:
+                  type: integer
+                  description: The time, in seconds, when the session will expire.
+                    The time is measured from the last Session create or the Session's
+                    last Interaction.
+                Mode:
+                  type: string
+                  $ref: '#/components/schemas/session_enum_mode'
+                  description: 'The Mode of the Session. Can be: `message-only`, `voice-only`,
+                    or `voice-and-message` and the default value is `voice-and-message`.'
+                Status:
+                  type: string
+                  $ref: '#/components/schemas/session_enum_status'
+                  description: 'The initial status of the Session. Can be: `open`,
+                    `in-progress`, `closed`, `failed`, or `unknown`. The default is
+                    `open` on create.'
+                Participants:
+                  type: array
+                  items: {}
+                  description: The Participant objects to include in the new session.
+  /v1/Services/{ServiceSid}/ShortCodes:
+    servers:
+    - url: https://proxy.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - short_code
+      - iso_country
+      pathType: list
+      parent: /Services/{Sid}
+    post:
+      description: Add a Short Code to the Proxy Number Pool for the Service.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          resource.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service.short_code'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreateShortCode
+      x-maturity:
+      - Beta
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreateShortCodeRequest
+              properties:
+                Sid:
+                  type: string
+                  minLength: 34
+                  maxLength: 34
+                  pattern: ^SC[0-9a-fA-F]{32}$
+                  description: The SID of a Twilio [ShortCode](https://www.twilio.com/docs/sms/api/short-code)
+                    resource that represents the short code you would like to assign
+                    to your Proxy Service.
+              required:
+              - Sid
+    get:
+      description: Retrieve a list of all Short Codes in the Proxy Number Pool for
+        the Service. A maximum of 100 records will be returned per page.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          to read the resources from.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: PageSize
+        in: query
+        description: How many resources to return in each list page. The default is
+          50, and the maximum is 1000.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      - name: Page
+        in: query
+        description: The page index. This value is simply for client state.
+        schema:
+          type: integer
+          minimum: 0
+      - name: PageToken
+        in: query
+        description: The page token. This is provided by the API.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                title: ListShortCodeResponse
+                properties:
+                  short_codes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/proxy.v1.service.short_code'
+                  meta:
+                    type: object
+                    properties:
+                      first_page_url:
+                        type: string
+                        format: uri
+                      next_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
+                      previous_page_url:
+                        type: string
+                        format: uri
+                        nullable: true
+                      url:
+                        type: string
+                        format: uri
+                      key:
+                        type: string
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: ListShortCode
+      x-maturity:
+      - Beta
+  /v1/Services/{ServiceSid}/ShortCodes/{Sid}:
+    servers:
+    - url: https://proxy.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - sid
+      - short_code
+      - iso_country
+      pathType: instance
+      parent: /Services/{Sid}
+    delete:
+      description: Delete a specific Short Code from a Service.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          resource to delete the ShortCode resource from.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the ShortCode
+          resource to delete.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^SC[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '204':
+          description: The resource was deleted successfully.
+      security:
+      - accountSid_authToken: []
+      operationId: DeleteShortCode
+      x-maturity:
+      - Beta
+    get:
+      description: Fetch a specific Short Code.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          to fetch the resource from.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the ShortCode
+          resource to fetch.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^SC[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service.short_code'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: FetchShortCode
+      x-maturity:
+      - Beta
+    post:
+      description: Update a specific Short Code.
+      parameters:
+      - name: ServiceSid
+        in: path
+        description: The SID of the parent [Service](https://www.twilio.com/docs/proxy/api/service)
+          of the resource to update.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^KS[0-9a-fA-F]{32}$
+        required: true
+      - name: Sid
+        in: path
+        description: The Twilio-provided string that uniquely identifies the ShortCode
+          resource to update.
+        schema:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^SC[0-9a-fA-F]{32}$
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/proxy.v1.service.short_code'
+          description: OK
+      security:
+      - accountSid_authToken: []
+      operationId: UpdateShortCode
+      x-maturity:
+      - Beta
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: UpdateShortCodeRequest
+              properties:
+                IsReserved:
+                  type: boolean
+                  description: Whether the short code should be reserved and not be
+                    assigned to a participant using proxy pool logic. See [Reserved
+                    Phone Numbers](https://www.twilio.com/docs/proxy/reserved-phone-numbers)
+                    for more information.
+servers:
+- url: https://proxy.twilio.com
+x-maturity:
+- name: Beta
+  description: PLEASE NOTE that this is a Beta product that is subject to change.
+    Use it with caution.

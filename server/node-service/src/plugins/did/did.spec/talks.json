@@ -1,0 +1,1159 @@
+{
+  "components": {
+    "examples": {},
+    "headers": {},
+    "parameters": {},
+    "requestBodies": {},
+    "responses": {},
+    "schemas": {
+      "TalkStatus": {
+        "enum": ["created", "done", "error", "started", "rejected"],
+        "type": "string"
+      },
+      "CreateTalkResponseDto": {
+        "properties": {
+          "id": { "type": "string", "description": "The ID of the talk" },
+          "object": { "type": "string", "description": "An identifier of this talk" },
+          "created_by": {
+            "type": "string",
+            "description": "The user id of the user that created the talk"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Talk creation time as iso-8601 string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TalkStatus",
+            "description": "The status of the talk"
+          }
+        },
+        "required": ["id", "object", "created_by", "created_at", "status"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "JsonError": {
+        "properties": {
+          "kind": { "type": "string" },
+          "description": { "type": "string" },
+          "details": {}
+        },
+        "required": ["kind", "description"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "ImagePath": {
+        "type": "string",
+        "example": "https://path.to.directory/image.jpg",
+        "pattern": "(https|s3):.*\\.(?:jpg|jpeg|png|JPG|JPEG|PNG)"
+      },
+      "DriverUrl": { "type": "string", "pattern": "(https|s3|bank):\\/\\/.+" },
+      "VoiceConfigMicrosoft": {
+        "properties": {
+          "style": {
+            "type": "string",
+            "description": "The style of the voice.\nAvailable styles change between voices."
+          },
+          "rate": {
+            "type": "string",
+            "description": "The speed of the voice.\nThe value is relative to 1, 0.5 being half speed, 2 being twice as fast, etc.\nAnother option is a constant value from x-slow/slow/medium/fast/x-fast.",
+            "example": "0.5"
+          },
+          "pitch": {
+            "type": "string",
+            "description": "The pitch of the voice.\nValue could be an absolute value in Hz (including units), a relative value in Hz or st(semitones)\nor a constant value from x-low/low/medium/high/x-high.",
+            "example": "+2st"
+          }
+        },
+        "type": "object",
+        "additionalProperties": true
+      },
+      "Microsoft_tts_provider": {
+        "description": "AzureMicrosoft provider details, contains the provider type and requested voice id and style",
+        "properties": {
+          "type": { "type": "string", "enum": ["microsoft"], "nullable": false },
+          "voice_id": {
+            "type": "string",
+            "description": "The voice_id from the list of available voices.\nFor full list of voice_ids: https://d-id.readme.io/reference/microsoft-azure",
+            "example": "Jenny",
+            "default": "Jenny"
+          },
+          "voice_config": {
+            "$ref": "#/components/schemas/VoiceConfigMicrosoft",
+            "description": "Voice customization options"
+          }
+        },
+        "required": ["type", "voice_id"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "VoiceIdsAmazon": {
+        "type": "string",
+        "enum": [
+          "Amy",
+          "Aria",
+          "Ayanda",
+          "Bianca",
+          "Brian",
+          "Camila",
+          "Emma",
+          "Gabrielle",
+          "Ivy",
+          "Joanna",
+          "Joey",
+          "Justin",
+          "Kendra",
+          "Kevin",
+          "Kimberly",
+          "Lea",
+          "Lucia",
+          "Lupe",
+          "Matthew",
+          "Olivia",
+          "Salli",
+          "Seoyeon",
+          "Takumi",
+          "Vicki"
+        ],
+        "nullable": false
+      },
+      "Amazon_tts_provider": {
+        "description": "Amazon provider details, contains the provider type and requested voice id",
+        "properties": {
+          "type": { "type": "string", "enum": ["amazon"], "nullable": false },
+          "voice_id": {
+            "$ref": "#/components/schemas/VoiceIdsAmazon",
+            "description": "The voice_id from the list of available voices.\nFor full list of voice_ids: https://d-id.readme.io/reference/text-to-speech-providers",
+            "example": "Joanna"
+          }
+        },
+        "required": ["type", "voice_id"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "TextToSpeechProviders": {
+        "anyOf": [
+          { "$ref": "#/components/schemas/Microsoft_tts_provider" },
+          { "$ref": "#/components/schemas/Amazon_tts_provider" }
+        ]
+      },
+      "TextScript": {
+        "description": "Text script contains an input text to be spoken by the actor",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["text"],
+            "nullable": false,
+            "description": "The type of the script."
+          },
+          "provider": {
+            "$ref": "#/components/schemas/TextToSpeechProviders",
+            "description": "text-to-speech provider from list of supported providers. default is microsoft tts"
+          },
+          "input": {
+            "type": "string",
+            "description": "The input text that will be synthesized to an audio file.\nNote that each provider has its own limitations on the text length.",
+            "example": "This is an example text",
+            "maxLength": 40000,
+            "minLength": 3
+          },
+          "ssml": {
+            "type": "boolean",
+            "description": "Is the text provided in ssml form.",
+            "default": "false"
+          }
+        },
+        "required": ["type", "input"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "AudioUrl": {
+        "type": "string",
+        "example": "https://path.to/audio.mp3",
+        "pattern": "^(https|s3):\\/\\/[\\S]+\\.(?:m4a|M4A|flac|FLAC|mp3|MP3|mp4|MP4|wav|WAV)([?#][\\w.\\/=&#%-]+)?$"
+      },
+      "ScriptType": { "type": "string", "enum": ["text", "audio"] },
+      "AudioScript": {
+        "description": "Audio script contains an audio file url to be spoken by the actor",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["audio"],
+            "nullable": false,
+            "description": "The type of the script."
+          },
+          "audio_url": {
+            "$ref": "#/components/schemas/AudioUrl",
+            "description": "The URL of the audio file which will be used by the actor.\nFile size is limit to 15MB."
+          }
+        },
+        "required": ["type", "audio_url"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "Script": {
+        "anyOf": [
+          { "$ref": "#/components/schemas/TextScript" },
+          { "$ref": "#/components/schemas/AudioScript" }
+        ]
+      },
+      "Logo": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "https url to an ARGB jpg/png image, a default logo is used otherwise",
+            "pattern": "((https|s3):\\/\\/.+)"
+          },
+          "position": {
+            "items": { "type": "integer", "format": "int32" },
+            "type": "array",
+            "description": "position of the logo in pixels from the top left corner (w,h) negative values are subtracted from last pixel",
+            "example": [0, 500],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "required": ["url", "position"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "ResultFormat": { "type": "string", "enum": ["mp4", "gif", "mov"] },
+      "TalksConfig": {
+        "properties": {
+          "logo": { "anyOf": [{ "$ref": "#/components/schemas/Logo" }, { "type": "boolean" }] },
+          "stitch": {
+            "type": "boolean",
+            "description": "Stitch back the animated result to the original image"
+          },
+          "result_format": {
+            "$ref": "#/components/schemas/ResultFormat",
+            "description": "File format of the animated result"
+          },
+          "fluent": {
+            "type": "boolean",
+            "description": "Interpolate between the last & first frames of the driver video\nWhen used together with `pad_audio` can create a seamless transition between videos of the same driver",
+            "default": "false"
+          },
+          "pad_audio": {
+            "type": "number",
+            "format": "double",
+            "description": "Pad the audio with silence at the end (given in seconds)\nWill increase the video duration & the credits it consumes",
+            "default": "0.0",
+            "minimum": 0,
+            "maximum": 60
+          }
+        },
+        "type": "object",
+        "additionalProperties": true
+      },
+      "UserData": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500,
+        "pattern": "^(?!\\s*$).+$"
+      },
+      "SecuredUrl": { "type": "string", "pattern": "^(?:https):\\/\\/[\\S]+$" },
+      "RemoteUrl": {
+        "type": "string",
+        "example": "https://path.to.directory/movie.mp4",
+        "pattern": "(https|s3):\\/\\/.+"
+      },
+      "OverlapKind": { "enum": ["NO", "PARTIAL", "YES", "UNKNOWN"], "type": "string" },
+      "Rect": {
+        "properties": {
+          "top": { "type": "number", "format": "double" },
+          "left": { "type": "number", "format": "double" },
+          "bottom": { "type": "number", "format": "double" },
+          "right": { "type": "number", "format": "double" }
+        },
+        "required": ["top", "left", "bottom", "right"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "FaceSquareDto": {
+        "properties": {
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Size of the square side",
+            "minimum": 0
+          },
+          "top_left": {
+            "items": { "type": "integer", "format": "int32" },
+            "type": "array",
+            "description": "Top left location of the face in the frame - can be negative",
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "overlap": { "$ref": "#/components/schemas/OverlapKind" },
+          "face_id": { "type": "string" },
+          "detect_confidence": { "type": "number", "format": "double" },
+          "detection": { "$ref": "#/components/schemas/Rect" }
+        },
+        "required": ["size", "top_left"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "CreateTalkRequest": {
+        "properties": {
+          "source_url": {
+            "$ref": "#/components/schemas/ImagePath",
+            "description": "The URL of the source image to be animated by the driver video, or a selection from the list of provided\nstudio actors."
+          },
+          "driver_url": {
+            "$ref": "#/components/schemas/DriverUrl",
+            "description": "The URL of the driver video to drive the talk, or a selection from the list or provided drivers\nIf not provided a driver video will be selected for you from the predefined drivers bank",
+            "example": "bank://lively"
+          },
+          "script": { "$ref": "#/components/schemas/Script" },
+          "config": {
+            "$ref": "#/components/schemas/TalksConfig",
+            "description": "Advanced configuration options"
+          },
+          "user_data": {
+            "$ref": "#/components/schemas/UserData",
+            "description": "Non-sensitive custom data that will be added to the talk response and webhook"
+          },
+          "name": { "type": "string", "description": "The name of the talk video" },
+          "webhook": {
+            "$ref": "#/components/schemas/SecuredUrl",
+            "description": "A webhook URL for sending the payload including animate details\nIn a case of empty value, the webhook will not be triggered",
+            "example": "https://host.domain.tld/to/webhook"
+          },
+          "result_url": {
+            "$ref": "#/components/schemas/RemoteUrl",
+            "description": "The URL of the talk video, if not provided use default destination.",
+            "example": "https://path.to.directory/"
+          },
+          "face": {
+            "$ref": "#/components/schemas/FaceSquareDto",
+            "description": "The face to animate - otherwise detects the face automatically",
+            "example": { "top_left": [0, 0], "size": 512 }
+          }
+        },
+        "required": ["source_url", "script"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "Record_string.any_": {
+        "properties": {},
+        "type": "object",
+        "description": "Construct a type with a set of properties K of type T"
+      },
+      "GetTalkDto": {
+        "properties": {
+          "id": { "type": "string", "description": "Unique identifier for the object" },
+          "user_id": {
+            "type": "string",
+            "description": "Unique identifier of the user that submitted the talk"
+          },
+          "source_url": {
+            "type": "string",
+            "description": "The URL of the source image to be animated by the driver video. Image type of .jpg | .png"
+          },
+          "driver_url": {
+            "type": "string",
+            "description": "The URL of the driver video to drive the talk, if not provided a driver video will be selected for you from the predefined DriversBank"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Talk creation time as iso-8601 string"
+          },
+          "created_by": {
+            "type": "string",
+            "description": "The user id of the user that created the talk"
+          },
+          "audio_url": {
+            "$ref": "#/components/schemas/SecuredUrl",
+            "description": "The URL of the audio file which will be used by the actor",
+            "example": "https://path.to/audio.mp3"
+          },
+          "started_at": { "type": "string", "description": "Talk start time as iso-8601 string" },
+          "modified_at": {
+            "type": "string",
+            "description": "last modified time as iso-8601 string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TalkStatus",
+            "description": "The status of the talk"
+          },
+          "result_url": { "type": "string", "description": "s3 uri to the resulting video" },
+          "metadata": {
+            "$ref": "#/components/schemas/Record_string.any_",
+            "description": "metadata that has been collected through the process"
+          },
+          "webhook": {
+            "type": "string",
+            "description": "A webhook URL for sending the payload including animate details. In a case of empty value, the webhook will not be triggered"
+          },
+          "config": {
+            "$ref": "#/components/schemas/TalksConfig",
+            "description": "The configuration that used to process the talk"
+          }
+        },
+        "required": ["id", "user_id", "source_url", "created_at", "modified_at", "status"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "GetTalksDto": {
+        "properties": {
+          "talks": { "items": { "$ref": "#/components/schemas/GetTalkDto" }, "type": "array" },
+          "token": { "type": "string" }
+        },
+        "required": ["talks"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "UpdateTalkFields": {
+        "properties": { "name": { "type": "string" } },
+        "type": "object",
+        "additionalProperties": true
+      },
+      "Jsep": {
+        "properties": {
+          "type": { "type": "string", "enum": ["offer", "answer"] },
+          "sdp": { "type": "string" }
+        },
+        "required": ["type", "sdp"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "IceServer": {
+        "properties": {
+          "urls": {
+            "anyOf": [{ "items": { "type": "string" }, "type": "array" }, { "type": "string" }]
+          },
+          "username": { "type": "string" },
+          "credential": { "type": "string" }
+        },
+        "required": ["urls"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "CreateStreamResponseDto": {
+        "properties": {
+          "session_id": { "type": "string" },
+          "streamId": { "type": "string", "description": "Id of the stream", "deprecated": true },
+          "id": { "type": "string", "description": "Id of the stream" },
+          "jsep": {
+            "$ref": "#/components/schemas/Jsep",
+            "description": "Jsep offer object used to create a peer connection"
+          },
+          "iceServers": {
+            "items": { "$ref": "#/components/schemas/IceServer" },
+            "type": "array",
+            "description": "ICE servers used to create a peer connection",
+            "deprecated": true
+          },
+          "ice_servers": {
+            "items": { "$ref": "#/components/schemas/IceServer" },
+            "type": "array",
+            "description": "ICE servers used to create a peer connection"
+          }
+        },
+        "required": ["streamId", "id", "jsep", "iceServers", "ice_servers"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "IceCandidate": {
+        "properties": {
+          "candidate": { "type": "string" },
+          "sdpMid": { "type": "string" },
+          "sdpMLineIndex": { "type": "number", "format": "double" }
+        },
+        "required": ["candidate", "sdpMid", "sdpMLineIndex"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "Pick_TalksConfig.Exclude_keyofTalksConfig.logo__": {
+        "properties": {
+          "stitch": {
+            "type": "boolean",
+            "description": "Stitch back the animated result to the original image"
+          },
+          "result_format": {
+            "$ref": "#/components/schemas/ResultFormat",
+            "description": "File format of the animated result"
+          },
+          "fluent": {
+            "type": "boolean",
+            "description": "Interpolate between the last & first frames of the driver video\nWhen used together with `pad_audio` can create a seamless transition between videos of the same driver",
+            "default": "false"
+          },
+          "pad_audio": {
+            "type": "number",
+            "format": "double",
+            "description": "Pad the audio with silence at the end (given in seconds)\nWill increase the video duration & the credits it consumes",
+            "default": "0.0",
+            "minimum": 0,
+            "maximum": 60
+          }
+        },
+        "type": "object",
+        "description": "From T, pick a set of properties whose keys are in the union K"
+      },
+      "Omit_TalksConfig.logo_": {
+        "$ref": "#/components/schemas/Pick_TalksConfig.Exclude_keyofTalksConfig.logo__",
+        "description": "Construct a type with the properties of T except for those in type K."
+      },
+      "CreateTalkStreamRequest": {
+        "properties": {
+          "session_id": { "type": "string" },
+          "driver_url": {
+            "$ref": "#/components/schemas/DriverUrl",
+            "description": "The URL of the driver video to drive the talk, or a selection from the list or provided drivers.\nIf not provided a driver video will be selected for you from the predefined drivers bank.",
+            "example": "bank://lively"
+          },
+          "script": { "$ref": "#/components/schemas/Script" },
+          "config": {
+            "$ref": "#/components/schemas/Omit_TalksConfig.logo_",
+            "description": "Advanced configuration options."
+          },
+          "user_data": {
+            "$ref": "#/components/schemas/UserData",
+            "description": "Non-sensitive custom data that will be added to the talk response and webhook."
+          },
+          "name": { "type": "string", "description": "The name of the talk video" }
+        },
+        "required": ["script"],
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "securitySchemes": {
+      "basic": { "type": "http", "scheme": "basic" },
+      "bearer": { "type": "http", "scheme": "bearer" }
+    }
+  },
+  "info": {
+    "title": "talks",
+    "version": "1.1.0",
+    "description": "Talks",
+    "license": { "name": "ISC" },
+    "contact": { "name": "D-ID" }
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/talks": {
+      "post": {
+        "operationId": "Create",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreateTalkResponseDto" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "id": "tlk_AbCs-xcz",
+                      "object": "talk",
+                      "created_at": "2020-09-03T13:56:54.995",
+                      "created_by": "123",
+                      "status": "created"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "BadRequestError",
+                      "description": "invalid actor url"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "AuthorizationError",
+                      "description": "user unauthenticated"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "InsufficientCreditsError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "InsufficientCreditsError",
+                      "description": "not enough credits"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PermissionError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "PermissionError",
+                      "description": "user has no permission for stitch"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "451": {
+            "description": "ImageModerationError | CelebrityRecognizedError | TextModerationError | AudioModerationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "ImageModerationError",
+                      "description": "Automatic content moderation - contact support if you would like to submit for manual review"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a talk",
+        "summary": "Create a talk",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateTalkRequest" } }
+          }
+        }
+      },
+      "get": {
+        "operationId": "GetMany",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/GetTalksDto" } }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "AuthorizationError",
+                      "description": "user unauthenticated"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Get talks",
+        "summary": "Get talks",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [
+          {
+            "description": "pagination - the amount of talks to return",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": { "default": 100, "format": "double", "type": "number" }
+          },
+          {
+            "description": "pagination - the pagination token from the previous response, default = 100",
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ]
+      }
+    },
+    "/talks/{id}": {
+      "get": {
+        "operationId": "GetById",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/GetTalkDto" } }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "AuthorizationError",
+                      "description": "user unauthenticated"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFoundError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "NotFoundError", "description": "not found" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Get a specific talk",
+        "summary": "Get a specific talk",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ]
+      },
+      "delete": {
+        "operationId": "Delete",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/GetTalkDto" } }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "AuthorizationError",
+                      "description": "user unauthenticated"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFoundError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "NotFoundError", "description": "not found" }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "NotReadyError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "NotReadyError",
+                      "description": "talk is in process, try again later"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Delete a specific talk",
+        "summary": "Delete a specific talk",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ]
+      }
+    },
+    "/talks/streams": {
+      "post": {
+        "operationId": "CreateStream",
+        "responses": {
+          "201": {
+            "description": "Created stream",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreateStreamResponseDto" }
+              }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "AuthorizationError",
+                      "description": "user unauthenticated"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "face": { "$ref": "#/components/schemas/FaceSquareDto" },
+                  "source_url": { "type": "string" }
+                },
+                "required": ["source_url"],
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/talks/streams/{id}/sdp": {
+      "post": {
+        "operationId": "StartConnection",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": { "status": { "type": "string" } },
+                  "required": ["status"],
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "MissingSessionCookie",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "MissingSessionCookie",
+                      "description": "missing session cookie"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "AuthorizationError",
+                      "description": "user unauthenticated"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } },
+          {
+            "in": "header",
+            "name": "cookie",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "session_id": { "type": "string" },
+                  "answer": { "$ref": "#/components/schemas/Jsep" }
+                },
+                "required": ["answer"],
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/talks/streams/{id}/ice": {
+      "post": {
+        "operationId": "AddIceCandidate",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": { "status": { "type": "string" } },
+                  "required": ["status"],
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "MissingSessionCookie",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "MissingSessionCookie",
+                      "description": "missing session cookie"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "AuthorizationError",
+                      "description": "user unauthenticated"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } },
+          {
+            "in": "header",
+            "name": "cookie",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "anyOf": [
+                      { "$ref": "#/components/schemas/IceCandidate" },
+                      { "properties": {}, "type": "object" }
+                    ]
+                  },
+                  {
+                    "properties": { "session_id": { "type": "string" } },
+                    "type": "object"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/talks/streams/{id}": {
+      "post": {
+        "operationId": "CreateTalkStream",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "duration": { "type": "number", "format": "double" },
+                    "session_id": { "type": "string" },
+                    "status": { "type": "string" }
+                  },
+                  "required": ["duration", "session_id", "status"],
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "MissingSessionCookie",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "MissingSessionCookie",
+                      "description": "missing session cookie"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "AuthorizationError",
+                      "description": "user unauthenticated"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } },
+          {
+            "in": "header",
+            "name": "cookie",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateTalkStreamRequest" }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "DeleteStream",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": { "status": { "type": "string" } },
+                  "required": ["status"],
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "MissingSessionCookie",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "MissingSessionCookie",
+                      "description": "missing session cookie"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "AuthorizationError",
+                      "description": "user unauthenticated"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } },
+          {
+            "in": "header",
+            "name": "cookie",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": { "session_id": { "type": "string" } },
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [{ "url": "https://api.d-id.com/" }]
+}

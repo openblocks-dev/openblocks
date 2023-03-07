@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect fill="#FFFFFF" x="0" y="0" width="16" height="16" rx="2"/>
+    <g transform="translate(2.000000, 2.000000)" fill-rule="nonzero">
+      <polygon fill="#9DD6E3" points="12 0 12 8.00012569 7.99999997 8.00012569 7.99999997 12 9.42640251e-05 12 9.37498517e-05 8.00008181 0 8.00012569 0 3.99996857 3.99999999 3.99996857 3.99999999 0"/>
+      <polygon fill="#3F72AB" points="9.42640251e-05 12 4.00009425 12 4.00009425 7.9999372 9.42640251e-05 7.9999372"/>
+      <polygon fill="#00A9D1" points="7.99999997 8.00012569 12 8.00012569 12 3.99996857 7.99999997 3.99996857"/>
+      <polygon fill="#00A9D1" points="3.99999999 4.00006284 7.99999997 4.00006284 7.99999997 0 3.99999999 0"/>
+      <polygon fill="#2191C4" points="3.99999999 8.00003142 7.99999997 8.00003142 7.99999997 3.99996857 3.99999999 3.99996857"/>
+      <polygon fill="#3F72AB" points="7.99999997 4.00006284 12 4.00006284 12 0 7.99999997 0"/>
+    </g>
+  </g>
+</svg>

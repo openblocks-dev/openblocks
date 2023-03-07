@@ -1,0 +1,686 @@
+{
+  "components": {
+    "examples": {},
+    "headers": {},
+    "parameters": {},
+    "requestBodies": {},
+    "responses": {},
+    "schemas": {
+      "AnimationStatus": { "enum": ["created", "done", "error", "started"], "type": "string" },
+      "CreateAnimationResponseDto": {
+        "properties": {
+          "id": { "type": "string", "description": "The ID of the animation" },
+          "object": { "type": "string", "description": "An identifier of this animation" },
+          "created_by": {
+            "type": "string",
+            "description": "The user id of the user that created the animation"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Animation creation time as iso-8601 string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AnimationStatus",
+            "description": "The status of the animation"
+          }
+        },
+        "required": ["id", "object", "created_by", "created_at", "status"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "JsonError": {
+        "properties": {
+          "kind": { "type": "string" },
+          "description": { "type": "string" },
+          "details": {}
+        },
+        "required": ["kind", "description"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "RemoteImageUrl": {
+        "type": "string",
+        "example": "https://path.to.directory/image.jpg",
+        "pattern": "(https|s3):.*\\.(?:jpg|jpeg|tiff|png|bmp|JPG|JPEG|TIFF|PNG|BMP)"
+      },
+      "DriverUrl": { "type": "string", "pattern": "(https|s3|bank):\\/\\/.+" },
+      "RemoteUrl": {
+        "type": "string",
+        "example": "https://path.to.directory/movie.mp4",
+        "pattern": "(https|s3):\\/\\/.+"
+      },
+      "OverlapKind": { "enum": ["NO", "PARTIAL", "YES", "UNKNOWN"], "type": "string" },
+      "Rect": {
+        "properties": {
+          "top": { "type": "number", "format": "double" },
+          "left": { "type": "number", "format": "double" },
+          "bottom": { "type": "number", "format": "double" },
+          "right": { "type": "number", "format": "double" }
+        },
+        "required": ["top", "left", "bottom", "right"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "FaceSquareDto": {
+        "properties": {
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Size of the square side",
+            "minimum": 0
+          },
+          "top_left": {
+            "items": { "type": "integer", "format": "int32" },
+            "type": "array",
+            "description": "Top left location of the face in the frame - can be negative",
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "overlap": { "$ref": "#/components/schemas/OverlapKind" },
+          "face_id": { "type": "string" },
+          "detect_confidence": { "type": "number", "format": "double" },
+          "detection": { "$ref": "#/components/schemas/Rect" }
+        },
+        "required": ["size", "top_left"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "SecuredUrl": { "type": "string", "pattern": "^(?:https):\\/\\/[\\S]+$" },
+      "Logo": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "https url to an ARGB jpg/png image, a default logo is used otherwise",
+            "pattern": "((https|s3):\\/\\/.+)"
+          },
+          "position": {
+            "items": { "type": "integer", "format": "int32" },
+            "type": "array",
+            "description": "position of the logo in pixels from the top left corner (w,h) negative values are subtracted from last pixel",
+            "example": [0, 500],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "required": ["url", "position"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "LogoDto": { "anyOf": [{ "$ref": "#/components/schemas/Logo" }, { "type": "boolean" }] },
+      "VideoPath": {
+        "type": "string",
+        "example": "https://path.to.directory/movie.mp4",
+        "pattern": "(https|s3):.*\\.(?:mp4|mov|mpeg)"
+      },
+      "ResultFormat": { "type": "string", "enum": ["mp4", "gif", "mov"] },
+      "AnimateConfigDto": {
+        "properties": {
+          "logo": { "$ref": "#/components/schemas/LogoDto" },
+          "overlay": {
+            "$ref": "#/components/schemas/VideoPath",
+            "description": "URL to overlay video to add on the animated result"
+          },
+          "stitch": {
+            "type": "boolean",
+            "description": "stitch back the animated result to the original image"
+          },
+          "max_animated_faces": {
+            "type": "number",
+            "format": "double",
+            "description": "the amount of faces to animate when stitch: true. Defaults to 5",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "result_format": {
+            "$ref": "#/components/schemas/ResultFormat",
+            "description": "the file format of the animated video result"
+          }
+        },
+        "type": "object",
+        "additionalProperties": true
+      },
+      "UserData": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500,
+        "pattern": "^(?!\\s*$).+$"
+      },
+      "CreateAnimationDto": {
+        "properties": {
+          "source_url": {
+            "$ref": "#/components/schemas/RemoteImageUrl",
+            "description": "The URL of the source image to be animated by the driver video. Image type of jpg|jpeg|tiff|png|bmp",
+            "example": "https://path.to/image.jpg"
+          },
+          "driver_url": {
+            "$ref": "#/components/schemas/DriverUrl",
+            "description": "The URL of the driver video to drive the animation, if not provided a driver video will be selected for you from the predefined DriversBank",
+            "example": "bank://nostalgia/"
+          },
+          "result_url": {
+            "$ref": "#/components/schemas/RemoteUrl",
+            "description": "The URL of the animation video, if not provided use default destination\nSupports S3 Signed URLs",
+            "example": "https://path.to.directory/movie.mp4"
+          },
+          "face": {
+            "$ref": "#/components/schemas/FaceSquareDto",
+            "description": "the face to animate - otherwise detects the dominant face",
+            "example": { "top_left": [0, 0], "size": 512 }
+          },
+          "webhook": {
+            "$ref": "#/components/schemas/SecuredUrl",
+            "description": "A webhook URL for sending the payload including animate details. In a case of empty value, the webhook will not be triggered",
+            "example": "https://host.domain.tld/to/webhook"
+          },
+          "config": {
+            "$ref": "#/components/schemas/AnimateConfigDto",
+            "description": "Advanced configuration option"
+          },
+          "user_data": {
+            "$ref": "#/components/schemas/UserData",
+            "description": "Non-sensitive custom data that will be added to the animation response and webhook."
+          }
+        },
+        "required": ["source_url"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "Record_string.any_": {
+        "properties": {},
+        "type": "object",
+        "description": "Construct a type with a set of properties K of type T"
+      },
+      "DriverError": {
+        "properties": {
+          "kind": { "type": "string", "default": "DriverError" },
+          "description": {
+            "type": "string",
+            "default": "Driver provided is invalid or cannot be loaded"
+          }
+        },
+        "type": "object",
+        "additionalProperties": true
+      },
+      "LogoError": {
+        "properties": {
+          "kind": { "type": "string", "default": "LogoError" },
+          "description": {
+            "type": "string",
+            "default": "Could not load logo image or invalid format or position"
+          }
+        },
+        "type": "object",
+        "additionalProperties": true
+      },
+      "SourceError": {
+        "properties": {
+          "kind": { "type": "string", "default": "SourceError" },
+          "description": {
+            "type": "string",
+            "default": "Could not load source image or invalid format"
+          }
+        },
+        "type": "object",
+        "additionalProperties": true
+      },
+      "FaceError": {
+        "properties": {
+          "kind": { "type": "string", "default": "FaceError" },
+          "description": { "type": "string", "default": "face not detected" }
+        },
+        "type": "object",
+        "additionalProperties": true
+      },
+      "VideoEnhanceError": {
+        "properties": {
+          "kind": { "type": "string", "default": "VideoEnhanceError" },
+          "description": {
+            "type": "string",
+            "default": "Failed to create enhanced video (logo, subsample)"
+          }
+        },
+        "type": "object",
+        "additionalProperties": true
+      },
+      "UnknownError": {
+        "properties": {
+          "kind": { "type": "string", "default": "UnknownError" },
+          "description": { "type": "string", "default": "Unknown internal error" }
+        },
+        "type": "object",
+        "additionalProperties": true
+      },
+      "AnimationError": {
+        "anyOf": [
+          { "$ref": "#/components/schemas/DriverError" },
+          { "$ref": "#/components/schemas/LogoError" },
+          { "$ref": "#/components/schemas/SourceError" },
+          { "$ref": "#/components/schemas/FaceError" },
+          { "$ref": "#/components/schemas/VideoEnhanceError" },
+          { "$ref": "#/components/schemas/UnknownError" }
+        ]
+      },
+      "GetAnimationResponseDto": {
+        "properties": {
+          "id": { "type": "string", "description": "Unique identifier for the object" },
+          "user_id": {
+            "type": "string",
+            "description": "Unique identifier of the user that submitted the animation"
+          },
+          "source_url": {
+            "type": "string",
+            "description": "The URL of the source image to be animated by the driver video. Image type of .jpg | .png"
+          },
+          "driver_url": {
+            "type": "string",
+            "description": "The URL of the driver video to drive the animation, if not provided a driver video will be selected for you from the predefined DriversBank"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Animation creation time as iso-8601 string"
+          },
+          "created_by": {
+            "type": "string",
+            "description": "The user id of the user that created the animation"
+          },
+          "started_at": {
+            "type": "string",
+            "description": "Animation start time as iso-8601 string"
+          },
+          "modified_at": {
+            "type": "string",
+            "description": "last modified time as iso-8601 string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AnimationStatus",
+            "description": "The status of the animation"
+          },
+          "result_url": { "type": "string", "description": "s3 uri to the resulting video" },
+          "metadata": {
+            "$ref": "#/components/schemas/Record_string.any_",
+            "description": "metadata that has been collected through the process"
+          },
+          "error": {
+            "$ref": "#/components/schemas/AnimationError",
+            "description": "The error that failed the animation"
+          },
+          "webhook": {
+            "type": "string",
+            "description": "A webhook URL for sending the payload including animate details. In a case of empty value, the webhook will not be triggered"
+          },
+          "config": {
+            "$ref": "#/components/schemas/AnimateConfigDto",
+            "description": "The configuration that used to process the animation"
+          }
+        },
+        "required": ["id", "user_id", "source_url", "created_at", "modified_at", "status"],
+        "type": "object",
+        "additionalProperties": true
+      },
+      "GetAnimationsResponseDto": {
+        "properties": {
+          "animations": {
+            "items": { "$ref": "#/components/schemas/GetAnimationResponseDto" },
+            "type": "array"
+          },
+          "token": { "type": "string" }
+        },
+        "required": ["animations"],
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "securitySchemes": {
+      "basic": { "type": "http", "scheme": "basic" },
+      "bearer": { "type": "http", "scheme": "bearer" }
+    }
+  },
+  "info": {
+    "title": "animations",
+    "version": "1.3.0",
+    "description": "Animations",
+    "license": { "name": "ISC" },
+    "contact": { "name": "D-ID" }
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/animations": {
+      "post": {
+        "operationId": "Create",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreateAnimationResponseDto" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "id": "52907745-7672-470e-a803-a2f8feb52944",
+                      "object": "animation",
+                      "created_at": "2020-09-03T13:56:54.995",
+                      "created_by": "995",
+                      "status": "created"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequestError | InvalidFileSizeError | InvalidImageResolutionError | ConfigError | InvalidFaceError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "BadRequestError", "description": "invalid source url" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "AuthorizationError", "description": "user unauthenticated" }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "InsufficientCreditsError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "InsufficientCreditsError",
+                      "description": "not enough credits"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PermissionError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "PermissionError",
+                      "description": "user has no permission for stitch"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Create an animation",
+        "summary": "Create an animation",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateAnimationDto" } }
+          }
+        }
+      },
+      "get": {
+        "operationId": "GetMany",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetAnimationsResponseDto" }
+              }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "AuthorizationError", "description": "user unauthenticated" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Get animations",
+        "summary": "Get animations",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [
+          {
+            "description": "pagination - the amount of animations to return",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": { "default": 100, "format": "double", "type": "number" }
+          },
+          {
+            "description": "pagination - the pagination token from the previous response, default = 100",
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ]
+      }
+    },
+    "/animations/tasks": {
+      "post": {
+        "operationId": "CreateTask",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreateAnimationResponseDto" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "id": "52907745-7672-470e-a803-a2f8feb52944",
+                      "object": "animation",
+                      "created_at": "2020-09-03T13:56:54.995",
+                      "created_by": "995",
+                      "status": "created"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequestError | InvalidFileSizeError | InvalidImageResolutionError | ConfigError | InvalidFaceError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "BadRequestError", "description": "invalid source url" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "AuthorizationError", "description": "user unauthenticated" }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "InsufficientCreditsError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "InsufficientCreditsError",
+                      "description": "not enough credits"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PermissionError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "PermissionError",
+                      "description": "user has no permission for stitch"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Create an animation task",
+        "summary": "Create an animation task",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateAnimationDto" } }
+          }
+        }
+      }
+    },
+    "/animations/{id}": {
+      "get": {
+        "operationId": "GetById",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetAnimationResponseDto" }
+              }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "AuthorizationError", "description": "user unauthenticated" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFoundError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": { "value": { "kind": "NotFoundError", "description": "not found" } }
+                }
+              }
+            }
+          }
+        },
+        "description": "Get a specific animation",
+        "summary": "Get a specific animation",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ]
+      },
+      "delete": {
+        "operationId": "Delete",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetAnimationResponseDto" }
+              }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "AuthorizationError", "description": "user unauthenticated" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFoundError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": { "value": { "kind": "NotFoundError", "description": "not found" } }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "NotReadyError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "NotReadyError",
+                      "description": "animation is in process, try again later"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Delete a specific animation",
+        "summary": "Delete a specific animation",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ]
+      }
+    }
+  },
+  "servers": [{ "url": "https://api.d-id.com/" }]
+}

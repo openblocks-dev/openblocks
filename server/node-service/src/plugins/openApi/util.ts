@@ -3,6 +3,8 @@ import url from "url";
 import { File } from "formdata-node";
 import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
 import swaggerClient from "swagger-client";
+import { ActionCategory } from "openblocks-sdk/dataSource";
+import SwaggerClient from "swagger-client";
 
 export const MediaTypeOctetStream = "application/octet-stream";
 export const MediaTypeUrlEncoded = "application/x-www-form-urlencoded";
@@ -16,7 +18,10 @@ interface FileParamValue {
   type?: string;
 }
 
-export function getFileData(value: FileParamValue | string): File | Buffer {
+export function getFileData(value: FileParamValue | string): File | Buffer | null {
+  if (!value) {
+    return null;
+  }
   if (typeof value === "string") {
     return Buffer.from(value, "base64");
   }
@@ -24,6 +29,9 @@ export function getFileData(value: FileParamValue | string): File | Buffer {
     return value;
   }
   const { data = "", name = "file", type } = value || {};
+  if (!data) {
+    return null;
+  }
   return new File([Buffer.from(data, "base64")], name, { type });
 }
 
@@ -106,10 +114,12 @@ export function normalizeParams(
     }
     const isFile = isFileData(name, operation, isOas3);
     const value = isFile ? getFileData(params[key]) : params[key];
-    if (isOas3 && position === "body") {
-      bodyEntries.push([name, value]);
-    } else {
-      paramEntries.push([name, value]);
+    if (value) {
+      if (isOas3 && position === "body") {
+        bodyEntries.push([name, value]);
+      } else {
+        paramEntries.push([name, value]);
+      }
     }
   });
 
@@ -129,7 +139,10 @@ export function normalizeParams(
           // process file fields
           const fileFields = findOas3FilePropertiesFromSchema(schema);
           fileFields.forEach(([name]) => {
-            requestBody[name] = getFileData(requestBody[name]);
+            const file = getFileData(requestBody[name]);
+            if (file) {
+              requestBody[name] = file;
+            }
           });
         }
       }
@@ -142,7 +155,10 @@ export function normalizeParams(
         const [name, value] = bodyEntries[0];
         if (name === "body") {
           if (mediaType === MediaTypeOctetStream) {
-            requestBody = getFileData(value);
+            const file = getFileData(value);
+            if (file) {
+              requestBody = file;
+            }
           } else {
             requestBody = value;
           }
@@ -171,7 +187,7 @@ export function findOas3FilePropertiesFromSchema(
   });
 }
 
-export function findOperation(id: string, spec: OpenAPI.Document) {
+export function findOperation(id: string, spec: OpenAPI.Document, specId: string = "") {
   if (!spec.paths) {
     return null;
   }
@@ -182,12 +198,19 @@ export function findOperation(id: string, spec: OpenAPI.Document) {
     }
     for (const method of Object.keys(pathObj)) {
       const operation: OpenAPI.Operation = (pathObj as any)[method];
-      if (swaggerClient.helpers.opId(operation, path, method) === id) {
-        return operation;
+      if (getOperationId(operation, path, method, specId) === id) {
+        return {
+          operation,
+          realOperationId: getOperationId(operation, path, method),
+        };
       }
     }
   }
   return null;
+}
+
+export function isFile(file: any): file is File {
+  return file instanceof File;
 }
 
 export function isFileData(name: string, operation: OpenAPI.Operation, isOas3: boolean): boolean {
@@ -252,10 +275,46 @@ function fixServers(server: OpenAPIV3.ServerObject, url: string) {
   }
 }
 
+export function traversalOpenApiOperation(
+  schema: OpenAPI.Document,
+  fn: (operation: OpenAPI.Operation) => void
+) {
+  Object.values(schema.paths || {}).forEach(
+    (pathObj: OpenAPIV2.PathItemObject | OpenAPIV3.PathItemObject) => {
+      Object.entries(pathObj).forEach(([key, value]) => {
+        if (
+          Object.values(OpenAPIV2.HttpMethods).includes(key as OpenAPIV2.HttpMethods) ||
+          Object.values(OpenAPIV3.HttpMethods).includes(key as OpenAPIV3.HttpMethods)
+        ) {
+          fn(value);
+        }
+      });
+    }
+  );
+}
+
+export function appendTags(schema: OpenAPI.Document, tag: string) {
+  if (!schema.tags) {
+    schema.tags = [{ name: tag }];
+  } else if (!schema.tags.find((i) => i.name === tag)) {
+    schema.tags.push({ name: tag });
+  }
+
+  traversalOpenApiOperation(schema, (op) => {
+    if (!op.tags) {
+      op.tags = [tag];
+    } else if (!op.tags.includes(tag)) {
+      op.tags.push(tag);
+    }
+  });
+}
+
 export function replaceServersUrl(schema: OpenAPIV3.Document, url: string) {
   if (schema.servers) {
     // Root level servers array's fixup
     schema.servers.map((server) => fixServers(server, url));
+  } else {
+    schema.servers = [{ url }];
   }
 
   Object.keys(schema.paths).forEach((path) => {
@@ -290,13 +349,13 @@ export function getSchemaType(
   return schema.type;
 }
 
-export function getSchemaExample(
-  schema?:
-    | OpenAPIV2.SchemaObject
-    | OpenAPIV2.ReferenceObject
-    | OpenAPIV3.SchemaObject
-    | OpenAPIV3.ReferenceObject
-): any {
+type SchemaObject =
+  | OpenAPIV2.SchemaObject
+  | OpenAPIV2.ReferenceObject
+  | OpenAPIV3.SchemaObject
+  | OpenAPIV3.ReferenceObject;
+
+export function getSchemaExample(schema?: SchemaObject): any {
   if (!schema || isOas3RefObject(schema) || isSwagger2RefObject(schema)) {
     return;
   }
@@ -321,6 +380,22 @@ export function getSchemaExample(
     );
     return _.isNil(itemExample) ? [] : [itemExample];
   }
+  if (schema.oneOf && schema.oneOf.length > 0) {
+    const firstSchema = schema.oneOf[0];
+    return getSchemaExample(firstSchema as SchemaObject);
+  }
+  if (schema.anyOf && schema.anyOf.length > 0) {
+    const firstSchema = schema.anyOf[0];
+    return getSchemaExample(firstSchema as SchemaObject);
+  }
+  if (schema.allOf && schema.allOf.length > 0) {
+    return (schema.allOf as SchemaObject[]).reduce((a: any, b: SchemaObject) => {
+      return {
+        ...a,
+        ...getSchemaExample(b),
+      };
+    }, {});
+  }
   let ret: any;
   if (schema.properties) {
     Object.entries(schema.properties).forEach(([name, def]) => {
@@ -343,4 +418,37 @@ export function parseUrl(target: string) {
     host,
     schema: protocol?.replace(/\W/g, "") || "https",
   };
+}
+
+export function mergeCategories(a: ActionCategory[], b: ActionCategory[]) {
+  const ret = [...a];
+  b.forEach((i) => {
+    if (ret.find((j) => i.value === j.value)) {
+      return;
+    }
+    ret.push(i);
+  });
+  return ret;
+}
+
+export function appendCategories(a: ActionCategory[], b: ActionCategory[]) {
+  b.forEach((i) => {
+    if (a.find((j) => i.value === j.value)) {
+      return;
+    }
+    a.push(i);
+  });
+}
+
+export function getOperationId(
+  operation: OpenAPI.Operation,
+  path: string,
+  method: string,
+  specId: string = ""
+) {
+  const operationId: string = SwaggerClient.helpers.opId(operation, path, method);
+  if (!operationId) {
+    return "";
+  }
+  return operationId + specId;
 }
