@@ -550,7 +550,7 @@ QueryCompTmp = withMethodExposing(QueryCompTmp, [
   {
     method: {
       name: "run",
-      params: [],
+      params: [{ name: "args", type: "JSON" }],
     },
     execute: (comp, params) => {
       return getPromiseAfterDispatch(

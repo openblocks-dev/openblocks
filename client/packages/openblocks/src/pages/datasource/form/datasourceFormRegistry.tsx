@@ -55,4 +55,49 @@ export const DatasourceFormRegistry: Partial<Record<DatasourceType, DatasourceFo
     form: sqlDatasourceForm({ placeholder: "My OceanBase1", port: "2881" }),
     whitelist: true,
   },
+  tidb: {
+    form: sqlDatasourceForm({ placeholder: "My TiDB1", port: "4000" }),
+    whitelist: true,
+  },
+  openGauss: {
+    form: sqlDatasourceForm({ placeholder: "My OpenGauss1", port: "5432" }),
+    whitelist: true,
+  },
+  gaussdb: {
+    form: sqlDatasourceForm({ placeholder: "My Gauss1", port: "5432" }),
+    whitelist: true,
+  },
+  dameng: {
+    form: sqlDatasourceForm({
+      placeholder: "My DaMeng1",
+      port: "5236",
+      supportSSL: false,
+      supportDatabase: false,
+    }),
+    whitelist: true,
+  },
+  polardbMysql: {
+    form: sqlDatasourceForm({ placeholder: "My PolarDB1", port: "3306" }),
+    whitelist: true,
+  },
+  tdengine: {
+    form: sqlDatasourceForm({
+      placeholder: "My TDengine1",
+      port: "6041",
+      supportPreparedStatement: false,
+    }),
+    whitelist: true,
+  },
+  sequoiadbMysql: {
+    form: sqlDatasourceForm({ placeholder: "My SequoiaDB1", port: "3306" }),
+    whitelist: true,
+  },
+  mogdb: {
+    form: sqlDatasourceForm({ placeholder: "My MogDB1", port: "5432" }),
+    whitelist: true,
+  },
+  starrocks: {
+    form: sqlDatasourceForm({ placeholder: "My StarRocks1", port: "9030" }),
+    whitelist: true,
+  },
 };

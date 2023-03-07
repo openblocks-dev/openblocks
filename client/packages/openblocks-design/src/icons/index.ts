@@ -205,7 +205,6 @@ export { ReactComponent as MSSQLIcon } from "./icon-query-mssql.svg";
 export { ReactComponent as SMTPIcon } from "./icon-query-SMTP.svg";
 export { ReactComponent as OracleIcon } from "./icon-query-OracleDB.svg";
 export { ReactComponent as ClickHouseIcon } from "./icon-query-ClickHouse.svg";
-export { ReactComponent as OceanBaseIcon } from "./icon-query-OceanBase.svg";
 export { ReactComponent as ResetIcon } from "./icon-style-reset.svg";
 export { ReactComponent as EditIcon } from "./icon-edit.svg";
 export { ReactComponent as EditableIcon } from "./icon-editable.svg";

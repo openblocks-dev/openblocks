@@ -4,9 +4,13 @@ import { trans } from "i18n";
 import { arrayStringExposingStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { SelectChildrenMap, SelectPropertyView, SelectUIView } from "./selectCompConstants";
+import {
+  baseSelectRefMethods,
+  SelectChildrenMap,
+  SelectPropertyView,
+  SelectUIView,
+} from "./selectCompConstants";
 import { SelectInputInvalidConfig, useSelectInputValidate } from "./selectInputConstants";
-import { refMethods } from "comps/generators/withMethodExposing";
 
 const MultiSelectBasicComp = (function () {
   const childrenMap = {
@@ -37,7 +41,7 @@ const MultiSelectBasicComp = (function () {
     });
   })
     .setPropertyViewFn((children) => <SelectPropertyView {...children} />)
-    .setExposeMethodConfigs(refMethods(["focus", "blur", "scrollTo"]))
+    .setExposeMethodConfigs(baseSelectRefMethods)
     .build();
 })();
 

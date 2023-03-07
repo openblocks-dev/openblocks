@@ -43,6 +43,8 @@ import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
 import { BaseSelectRef } from "rc-select";
+import { refMethods } from "comps/generators/withMethodExposing";
+import { blurMethod, focusMethod } from "comps/utils/methodUtils";
 
 export const getStyle = (
   style: SelectStyleType | MultiSelectStyleType | CascaderStyleType | TreeSelectStyleType
@@ -265,3 +267,5 @@ export const SelectPropertyView = (
     <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
   </>
 );
+
+export const baseSelectRefMethods = refMethods<BaseSelectRef>([focusMethod, blurMethod]);

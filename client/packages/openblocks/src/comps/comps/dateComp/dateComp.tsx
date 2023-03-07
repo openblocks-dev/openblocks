@@ -21,7 +21,7 @@ import { CommonNameConfig, depsConfig, withExposingConfigs } from "../../generat
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
 import { DateTimeStyle, DateTimeStyleType } from "comps/controls/styleControlConstants";
-import { refMethods, withMethodExposing } from "../../generators/withMethodExposing";
+import { withMethodExposing } from "../../generators/withMethodExposing";
 import {
   disabledPropertyView,
   formatPropertyView,
@@ -41,7 +41,7 @@ import React, { ReactNode } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { Section, sectionNames } from "components/Section";
-import { disabledTime, handleDateChange } from "comps/comps/dateComp/dateCompUtil";
+import { dateRefMethods, disabledTime, handleDateChange } from "comps/comps/dateComp/dateCompUtil";
 import { DateUIView } from "./dateUIView";
 import { useIsMobile } from "util/hooks";
 import { RefControl } from "comps/controls/refControl";
@@ -246,7 +246,7 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
       </>
     );
   })
-  .setExposeMethodConfigs(refMethods(["focus", "blur"]))
+  .setExposeMethodConfigs(dateRefMethods)
   .build();
 
 export const dateRangeControl = (function () {
@@ -351,7 +351,6 @@ export const dateRangeControl = (function () {
         </>
       );
     })
-    .setExposeMethodConfigs(refMethods(["focus", "blur"]))
     .build();
 })();
 
@@ -484,7 +483,7 @@ export let DateRangeComp = withExposingConfigs(dateRangeControl, [
 ]);
 
 DateRangeComp = withMethodExposing(DateRangeComp, [
-  ...refMethods<typeof DateRangeComp>(["focus", "blur"]),
+  ...dateRefMethods,
   {
     method: {
       name: "clearAll",

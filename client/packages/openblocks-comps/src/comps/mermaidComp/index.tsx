@@ -8,10 +8,11 @@ import {
   withMethodExposing,
 } from "openblocks-sdk";
 
-import Mermaid from "./mermaid"
+import Mermaid from "./mermaid";
 
 const childrenMap = {
-  code: stringExposingStateControl("code",
+  code: stringExposingStateControl(
+    "code",
     `graph LR
    Start --> Stop`
   ),
@@ -26,22 +27,18 @@ const childrenMap = {
 
 const CompBase = new UICompBuilder(childrenMap, (props: any) => {
   const code = props.code.value;
-  return (
-    <Mermaid code={code}/>
-  );
-}).setPropertyViewFn((children: any) => {
-  return (
-    <>
-      <Section name="Basic">
-        {children.code.propertyView({ label: "code" })}
-      </Section>
-      <Section name="Interaction">{children.onEvent.propertyView()}</Section>
-    </>
-  );
-}).build();
+  return <Mermaid code={code} />;
+})
+  .setPropertyViewFn((children: any) => {
+    return (
+      <>
+        <Section name="Basic">{children.code.propertyView({ label: "code" })}</Section>
+        <Section name="Interaction">{children.onEvent.propertyView()}</Section>
+      </>
+    );
+  })
+  .build();
 
 const AppViewCompTemp = withMethodExposing(CompBase, []);
 
-export const MermaidComp = withExposingConfigs(AppViewCompTemp, [
-  new NameConfig("code", ""),
-]);
+export const MermaidComp = withExposingConfigs(AppViewCompTemp, [new NameConfig("code", "")]);

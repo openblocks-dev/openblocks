@@ -245,11 +245,17 @@ export const SQLQuery = class extends SQLTmpQuery {
   }
 };
 
-export const SUPPORT_GUI_SQL_QUERY: ResourceType[] = [
-  "mysql",
-  "postgres",
-  "mssql",
-  "oracle",
-  "oceanBase",
+export const NOT_SUPPORT_GUI_SQL_QUERY: ResourceType[] = [
+  "clickHouse",
+  "snowflake",
+  "tdengine",
+  "dameng",
 ];
-export const SUPPORT_UPSERT_SQL_QUERY: ResourceType[] = ["mysql", "oceanBase"];
+export const SUPPORT_UPSERT_SQL_QUERY: ResourceType[] = [
+  "mysql",
+  "oceanBase",
+  "tidb",
+  "polardbMysql",
+  "sequoiadbMysql",
+  "starrocks",
+];

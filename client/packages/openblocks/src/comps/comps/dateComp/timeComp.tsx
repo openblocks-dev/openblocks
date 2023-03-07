@@ -1,4 +1,3 @@
-import { TimePicker } from "antd";
 import _ from "lodash";
 import moment from "moment";
 import { RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
@@ -27,7 +26,6 @@ import {
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
 import { DateTimeStyle, DateTimeStyleType } from "comps/controls/styleControlConstants";
-import styled from "styled-components";
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import {
   disabledPropertyView,
@@ -46,7 +44,7 @@ import React, { ReactNode } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { Section, sectionNames } from "components/Section";
-import { disabledTime, getStyle, handleDateChange } from "comps/comps/dateComp/dateCompUtil";
+import { dateRefMethods, disabledTime, handleDateChange } from "comps/comps/dateComp/dateCompUtil";
 import { TimeUIView } from "./timeUIView";
 import { TimeRangeUIView } from "comps/comps/dateComp/timeRangeUIView";
 import { RefControl } from "comps/controls/refControl";
@@ -193,6 +191,7 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
       <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
     </>
   ))
+  .setExposeMethodConfigs(dateRefMethods)
   .build();
 
 export const timeRangeControl = (function () {
@@ -359,6 +358,7 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
 ]);
 
 TimeRangeComp = withMethodExposing(TimeRangeComp, [
+  ...dateRefMethods,
   {
     method: {
       name: "clearAll",
