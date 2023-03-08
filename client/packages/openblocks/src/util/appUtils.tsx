@@ -4,6 +4,7 @@ import { AppPathParams } from "../constants/applicationConstants";
 import { APP_EDITOR_URL, APPLICATION_VIEW_URL } from "../constants/routesURL";
 import history from "./history";
 import { isEmpty } from "lodash";
+import { UiLayoutType } from "comps/comps/uiComp";
 
 export function keyValueListToSearchStr(kvs: KeyValue[]) {
   const searchParams = new URLSearchParams();
@@ -52,4 +53,8 @@ export function openApp(props: {
   } else {
     history.push(targetURL);
   }
+}
+
+export function isAggregationApp(appType: UiLayoutType) {
+  return appType === "nav" || appType === "mobileTabLayout";
 }

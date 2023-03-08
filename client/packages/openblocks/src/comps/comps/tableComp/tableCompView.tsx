@@ -4,8 +4,9 @@ import { TableCellContext, TableRowContext } from "comps/comps/tableComp/tableCo
 import { TableToolbar } from "comps/comps/tableComp/tableToolbarComp";
 import { RowColorViewType } from "comps/comps/tableComp/tableTypes";
 import {
-  columnsToAntdFormat,
+  COL_MIN_WIDTH,
   COLUMN_CHILDREN_KEY,
+  columnsToAntdFormat,
   CustomColumnType,
   onTableChange,
   RecordType,
@@ -17,6 +18,7 @@ import {
   TableStyleType,
 } from "comps/controls/styleControlConstants";
 import { CompNameContext, EditorContext } from "comps/editorState";
+import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { trans } from "i18n";
 import _ from "lodash";
 import { darkenColor, isDarkColor } from "openblocks-design";
@@ -73,7 +75,9 @@ const getStyle = (style: TableStyleType) => {
           background: ${background};
           color: ${style.cellText};
           // Column type view and edit color
-          p, span.ant-badge-status-text, input {
+          p,
+          span.ant-badge-status-text,
+          input {
             color: ${style.cellText};
           }
         }
@@ -85,7 +89,9 @@ const getStyle = (style: TableStyleType) => {
           background: ${alternateBackground};
           color: ${style.cellText};
           // Column type view and edit color
-          p, span.ant-badge-status-text, input {
+          p,
+          span.ant-badge-status-text,
+          input {
             color: ${style.cellText};
           }
         }
@@ -158,17 +164,17 @@ const TableWrapper = styled.div<{
     border-color: inherit;
   }
 
-  .ant-table .ant-table-row-expand-icon {
+  .ant-table .ant-table-cell-with-append .ant-table-row-expand-icon {
     margin: 0;
     top: 18px;
     left: 4px;
   }
 
-  .ant-table.ant-table-small .ant-table-row-expand-icon {
+  .ant-table.ant-table-small .ant-table-cell-with-append .ant-table-row-expand-icon {
     top: 10px;
   }
 
-  .ant-table.ant-table-middle .ant-table-row-expand-icon {
+  .ant-table.ant-table-middle .ant-table-cell-with-append .ant-table-row-expand-icon {
     top: 14px;
   }
 
@@ -229,6 +235,8 @@ const TableWrapper = styled.div<{
 `;
 
 const TableTh = styled.th<{ width?: number }>`
+  overflow: hidden;
+
   > div {
     overflow: hidden;
     white-space: pre;
@@ -250,8 +258,6 @@ const TableTd = styled.td<{ background: string; $isEditing: boolean }>`
       background: ${props.background} !important;
    `};
 `;
-
-const MinColumnWidth = 55;
 
 const ResizeableTitle = (props: any) => {
   const { onResize, onResizeStop, width, viewModeResizable, ...restProps } = props;
@@ -376,12 +382,25 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
   const columns = props.columns.map((col, index) => {
     const { width, ...restCol } = col;
     const resizeWidth = (resizeData.index === index ? resizeData.width : col.width) ?? 0;
+    let colWidth: number | string = "auto";
+    let minWidth: number | string = COL_MIN_WIDTH;
+    if (resizeWidth > 0) {
+      // fixed width
+      if (index === props.columns.length - 1) {
+        // the last column auto width
+        colWidth = "100%";
+        minWidth = resizeWidth;
+      } else {
+        minWidth = "unset";
+        colWidth = resizeWidth;
+      }
+    }
     return {
       ...restCol,
       RC_TABLE_INTERNAL_COL_DEFINE: {
         style: {
-          minWidth: resizeWidth > 0 ? "unset" : MinColumnWidth,
-          width: resizeWidth > 0 ? resizeWidth : "auto",
+          minWidth: minWidth,
+          width: colWidth,
         },
       },
       onCell: (record: RecordType, rowIndex: any) => ({
@@ -429,7 +448,7 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
       {...props}
       pagination={false}
       columns={columns}
-      scroll={{ x: MinColumnWidth * columns.length }}
+      scroll={{ x: COL_MIN_WIDTH * columns.length }}
     ></Table>
   );
 }
@@ -464,6 +483,7 @@ export function TableCompView(props: {
     [compChildren.dynamicColumnConfig]
   );
   const columnsAggrData = comp.columnAggrData;
+  const expansion = useMemo(() => compChildren.expansion.getView(), [compChildren.expansion]);
   const antdColumns = useMemo(
     () =>
       columnsToAntdFormat(
@@ -544,30 +564,38 @@ export function TableCompView(props: {
   );
 
   return (
-    <TableWrapper $style={style} toolbarPosition={toolbar.position}>
-      {toolbar.position === "above" && toolbarView}
-      <ResizeableTable<RecordType>
-        expandable={{ childrenColumnName: COLUMN_CHILDREN_KEY }}
-        rowColor={compChildren.rowColor.getView() as any}
-        {...compChildren.selection.getView()(onEvent)}
-        bordered={!compChildren.hideBordered.getView()}
-        onChange={(pagination, filters, sorter, extra) => {
-          onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
-        }}
-        showHeader={!compChildren.hideHeader.getView()}
-        columns={antdColumns}
-        viewModeResizable={compChildren.viewModeResizable.getView()}
-        dataSource={pageDataInfo.data}
-        size={compChildren.size.getView()}
-        tableLayout="fixed"
-        loading={
-          loading ||
-          // fixme isLoading type
-          (compChildren.showDataLoadSpinner.getView() && (compChildren.data as any).isLoading()) ||
-          compChildren.loading.getView()
-        }
-      />
-      {toolbar.position === "below" && toolbarView}
-    </TableWrapper>
+    <BackgroundColorContext.Provider value={style.background}>
+      <TableWrapper $style={style} toolbarPosition={toolbar.position}>
+        {toolbar.position === "above" && toolbarView}
+        <ResizeableTable<RecordType>
+          expandable={{
+            ...expansion.expandableConfig,
+            childrenColumnName: COLUMN_CHILDREN_KEY,
+            fixed: "left",
+          }}
+          rowColor={compChildren.rowColor.getView() as any}
+          {...compChildren.selection.getView()(onEvent)}
+          bordered={!compChildren.hideBordered.getView()}
+          onChange={(pagination, filters, sorter, extra) => {
+            onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
+          }}
+          showHeader={!compChildren.hideHeader.getView()}
+          columns={antdColumns}
+          viewModeResizable={compChildren.viewModeResizable.getView()}
+          dataSource={pageDataInfo.data}
+          size={compChildren.size.getView()}
+          tableLayout="fixed"
+          loading={
+            loading ||
+            // fixme isLoading type
+            (compChildren.showDataLoadSpinner.getView() &&
+              (compChildren.data as any).isLoading()) ||
+            compChildren.loading.getView()
+          }
+        />
+        {toolbar.position === "below" && toolbarView}
+        {expansion.expandModalView}
+      </TableWrapper>
+    </BackgroundColorContext.Provider>
   );
 }

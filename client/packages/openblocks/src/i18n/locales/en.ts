@@ -934,8 +934,7 @@ export const en = {
   },
   optionsControl: {
     option: "Option",
-    option1: "Option 1",
-    option2: "Option 2",
+    optionI: "Option {i}",
     viewDocs: "View docs",
     tip: 'The "item" and "i" variables represent the value and index of each item in the data array',
   },
@@ -1169,6 +1168,7 @@ export const en = {
     position: "Position",
     showDataLoadSpinner: "Show spinner during data loading",
     showValue: "Show Value",
+    expandable: "expandable",
   },
   image: {
     src: "Image source",
@@ -1371,9 +1371,15 @@ export const en = {
     newOrg: "New workspace",
     title: "Workspace",
     createOrg: "Create workspace",
-    deleteModalTitle: "Delete this workspace",
+    deleteModalTitle: "Are you sure to delete this workspace?",
     deleteModalContent:
-      "The workspace cannot be restored after deletion. Are you sure to delete the workspace?",
+      "You are about to delete this workspace {permanentlyDelete}. Once deleted, the workspace {notRestored}.",
+    permanentlyDelete: "permanently",
+    notRestored: "cannot be restored",
+    deleteModalLabel: "Please enter a workspace name{name}to confirm the operation:",
+    deleteModalTip: "Please enter a workspace name",
+    deleteModalErr: "Workspace name is incorrect",
+    deleteModalBtn: "Delete",
     editOrgTitle: "Edit workspace information",
     orgNameLabel: "Workspace name:",
     orgNameCheckMsg: "Workspace name cannot be empty",
@@ -1721,6 +1727,8 @@ export const en = {
     hideWhenNoPermission: "Hidden for users without app permission",
     queryParam: "URL Query params",
     hashParam: "URL Hash params",
+    tabBar: "Tab bar",
+    emptyTabTooltip: "Configure this page on the right pane",
   },
   appSetting: {
     title: "App settings",
@@ -1942,7 +1950,11 @@ export const en = {
     home: "Home",
     all: "All",
     app: "App",
-    navLayout: "Navigation",
+    navigation: "Navigation",
+    navLayout: "PC Navigation",
+    navLayoutDesc: "Provide left side navigation",
+    mobileTabLayout: "Mobile Navigation",
+    mobileTabLayoutDesc: "Provide bottom side navigation",
     folders: "Folders",
     folder: "Folder",
     rootFolder: "Root",
@@ -2001,6 +2013,8 @@ export const en = {
     copyNameLabel: "{type} name",
     copyModalfolderLabel: "Add to folder",
     copyNamePlaceholder: "Please enter a {type} name",
+    chooseNavType: "Please choose navigation type",
+    createNavigation: "Create Navigation",
   },
   carousel: {
     dotPosition: "Dots position",
@@ -2327,5 +2341,8 @@ export const en = {
     disableContent:
       "Disabling will cause some users to be unable to log in. Are you sure to proceed?",
     manualTip: "",
+  },
+  slotControl: {
+    configSlotView: "config slot view",
   },
 };

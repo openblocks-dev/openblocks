@@ -17,6 +17,7 @@ export const Layers = {
   modal: 950,
   //
   drawer: 950,
+  tabBar: 800,
   //
   historySnapshotPanel: 555,
   //

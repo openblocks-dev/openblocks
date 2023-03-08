@@ -56,7 +56,7 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
     extends MultiBaseComp<ChildrenType, JSONValue, Node<NodeValue>>
     implements Comp<ViewReturn>
   {
-    private readonly cacheParamsMap: Record<string, ParamValues> = {};
+    protected readonly cacheParamsMap: Record<string, ParamValues> = {};
 
     override parseChildrenFromValue(params: CompParams): ChildrenType {
       const dispatch = params.dispatch ?? _.noop;
@@ -119,10 +119,24 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
       if (isMyCustomAction<ClearAction>(action, "clear")) {
         comp = comp.setChild(MAP_KEY, comp.children[MAP_KEY].reduce(MapCtor.clearAction()));
         comp = setFieldsNoTypeCheck(comp, { cacheParamsMap: {} });
-        return comp;
-      }
-
-      if (
+      } else if (isMyCustomAction<SetCacheParamsAction>(action, "setCacheParams")) {
+        const { paramsMap } = action.value;
+        const mapComps = this.getMap();
+        const deleteKeys = _(paramsMap)
+          .pickBy(
+            (params, key) =>
+              mapComps.hasOwnProperty(key) && !depthEqual(params, mapComps[key].getParams(), 3)
+          )
+          .map((params, key) => key)
+          .value();
+        if (!_.isEmpty(deleteKeys)) {
+          comp = comp.reduce(wrapChildAction(MAP_KEY, MapCtor.batchDeleteAction(deleteKeys)));
+        }
+        const cacheParamsMap = { ...this.cacheParamsMap, ...paramsMap };
+        if (!depthEqual(cacheParamsMap, comp.cacheParamsMap, 3)) {
+          comp = setFieldsNoTypeCheck(comp, { cacheParamsMap });
+        }
+      } else if (
         isChildAction(action) &&
         (action.path[0] === VIRTUAL_NAME ||
           (action.path[0] === MAP_KEY &&
@@ -158,6 +172,10 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
       return comp;
     }
 
+    getCachedParams(key: string): ParamValues | undefined {
+      return this.cacheParamsMap[key];
+    }
+
     getOriginalComp() {
       return this.children[COMP_KEY];
     }
@@ -179,11 +197,23 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
     static forEachAction(action: CompAction) {
       return wrapChildAction(MAP_KEY, MapCtor.forEachAction(action));
     }
+
+    static setCacheParamsAction(paramsMap: Record<string, Record<string, unknown>>) {
+      return customAction<SetCacheParamsAction>({
+        type: "setCacheParams",
+        paramsMap,
+      });
+    }
   }
 
   return WithMultiContextComp;
 
   type ClearAction = {
     type: "clear";
+  };
+
+  type SetCacheParamsAction = {
+    type: "setCacheParams";
+    paramsMap: Record<string, Record<string, unknown>>;
   };
 }

@@ -28,6 +28,7 @@ import {
   RecordConstructorToView,
 } from "openblocks-core";
 import { JSONObject } from "util/jsonTypes";
+import { ExpansionControl } from "./expansionControl";
 import { PaginationControl } from "./paginationControl";
 import { SelectionControl } from "./selectionControl";
 
@@ -127,6 +128,7 @@ const tableChildrenMap = {
   dynamicColumn: BoolPureControl,
   // todo: support object config
   dynamicColumnConfig: ArrayStringControl,
+  expansion: ExpansionControl,
 };
 
 export const TableInitComp = (function () {

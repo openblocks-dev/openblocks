@@ -5,7 +5,7 @@ import UIComp from "comps/comps/uiComp";
 import { defaultTheme } from "comps/controls/styleControlConstants";
 import { EditorContext } from "comps/editorState";
 import { ThemeContext } from "comps/utils/themeContext";
-import { AppTypeEnum } from "constants/applicationConstants";
+import { AppUILayoutType } from "constants/applicationConstants";
 import { Layers } from "constants/Layers";
 import { TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
@@ -43,6 +43,7 @@ import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { DefaultPanelStatus, getPanelStatus, savePanelStatus } from "util/localStorageUtil";
 import Bottom from "./bottom/BottomPanel";
 import { LeftContent } from "./LeftContent";
+import { isAggregationApp } from "util/appUtils";
 
 const HookCompContainer = styled.div`
   pointer-events: none;
@@ -342,7 +343,7 @@ function EditorView(props: EditorViewProps) {
               {menuKey === SiderKey.State && <LeftContent uiComp={uiComp} />}
               {menuKey === SiderKey.Setting && (
                 <SettingsDiv>
-                  {application?.applicationType !== AppTypeEnum.NavLayout && (
+                  {application && !isAggregationApp(AppUILayoutType[application.applicationType]) && (
                     <>
                       {appSettingsComp.getPropertyView()}
                       <Divider />

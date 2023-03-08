@@ -35,7 +35,8 @@ const ModalHeaderWrapper = styled.div<{ $draggable?: boolean }>`
   cursor: ${(props) => (props.$draggable ? "move" : "auto")};
   display: flex;
   align-items: center;
-  padding: 16px;
+  line-height: 26px;
+  padding: 11px 16px;
 `;
 
 const ModalHeaderTitle = styled.div`
@@ -44,6 +45,7 @@ const ModalHeaderTitle = styled.div`
   color: #222222;
   flex-grow: 1;
   min-width: 0;
+  height: 16px;
   display: flex;
   align-items: center;
 
@@ -58,6 +60,7 @@ const ModalCloseIcon = styled.div`
   margin-left: 16px;
   width: 16px;
   height: 16px;
+  display: flex;
   cursor: pointer;
   color: ${GreyTextColor};
 
@@ -101,8 +104,8 @@ export const ModalFooterWrapper = styled.div`
     height: 28px;
     margin-top: 12px;
     margin-left: 8px;
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-left: 11px;
+    padding-right: 11px;
   }
 `;
 
@@ -268,6 +271,7 @@ CustomModal.confirm = (props: {
   bodyStyle?: React.CSSProperties;
   footer?: ReactNode;
   type?: "info" | "warn" | "error" | "success";
+  width?: number | string;
 }): any => {
   const defaultConfirmProps: ModalFuncProps = {
     ...DEFAULT_PROPS,
@@ -317,6 +321,7 @@ CustomModal.confirm = (props: {
         okText={props.okText}
         bodyStyle={{ ...defaultConfirmProps.bodyStyle, ...props.bodyStyle }}
         footer={props.footer}
+        width={props.width}
       />
     ),
   });

@@ -12,12 +12,15 @@ const RateStyled = styled(Rate)<{ isEdit?: boolean }>`
   overflow-x: auto;
   overflow-x: overlay;
   color: #ffd400;
-  display: flex;
-  align-items: center;
-  height: 22px;
+  display: block;
+  .ant-rate-star > div {
+    height: 18px;
+    width: 18px;
+  }
   .ant-rate-star-half .ant-rate-star-first,
   .ant-rate-star-full .ant-rate-star-second {
     color: #ffd400;
+    position: absolute;
   }
   .ant-rate-star-first {
     width: 100%;
@@ -61,7 +64,7 @@ export const RatingComp = (function () {
       return (
         <Wrapper
           onBlur={(e) => {
-            if (!e.target?.contains(e.relatedTarget)) {
+            if (!e.currentTarget?.contains(e.relatedTarget)) {
               props.onChangeEnd();
             }
           }}
