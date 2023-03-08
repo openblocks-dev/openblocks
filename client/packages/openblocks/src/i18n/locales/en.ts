@@ -1168,7 +1168,7 @@ export const en = {
     position: "Position",
     showDataLoadSpinner: "Show spinner during data loading",
     showValue: "Show Value",
-    expandable: "expandable",
+    expandable: "Expandable",
   },
   image: {
     src: "Image source",
@@ -2343,6 +2343,6 @@ export const en = {
     manualTip: "",
   },
   slotControl: {
-    configSlotView: "config slot view",
+    configSlotView: "Config slot view",
   },
 };

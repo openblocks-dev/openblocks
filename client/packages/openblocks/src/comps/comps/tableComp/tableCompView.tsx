@@ -19,6 +19,7 @@ import {
 } from "comps/controls/styleControlConstants";
 import { CompNameContext, EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
+import { PrimaryColor } from "constants/style";
 import { trans } from "i18n";
 import _ from "lodash";
 import { darkenColor, isDarkColor } from "openblocks-design";
@@ -162,6 +163,10 @@ const TableWrapper = styled.div<{
   .ant-table-wrapper {
     border-top: ${(props) => (props.toolbarPosition === "above" ? "1px solid" : "unset")};
     border-color: inherit;
+  }
+
+  .ant-table-row-expand-icon {
+    color: ${PrimaryColor};
   }
 
   .ant-table .ant-table-cell-with-append .ant-table-row-expand-icon {
