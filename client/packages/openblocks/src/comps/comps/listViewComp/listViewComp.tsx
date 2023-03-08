@@ -20,7 +20,10 @@ import { reduceInContext } from "comps/utils/reduceContext";
 import { trans } from "i18n";
 import _ from "lodash";
 import {
+  changeValueAction,
   CompAction,
+  CompActionTypes,
+  deferAction,
   fromRecord,
   fromValue,
   Node,
@@ -31,6 +34,7 @@ import { JSONValue } from "util/jsonTypes";
 import { depthEqual, lastValueIfEqual, shallowEqual } from "util/objectUtils";
 import { CompTree, getAllCompItems, IContainer } from "../containerBase";
 import { SimpleContainerComp, toSimpleContainerData } from "../containerBase/simpleContainerComp";
+import { PaginationControl } from "../tableComp/paginationControl";
 import { ContextContainerComp } from "./contextContainerComp";
 import { ListView } from "./listView";
 import { listPropertyView } from "./listViewPropertyView";
@@ -46,6 +50,7 @@ const childrenMap = {
   container: ContextContainerComp,
   autoHeight: AutoHeightControl,
   showBorder: BoolControl,
+  pagination: withDefault(PaginationControl, { pageSize: "6" }),
   style: styleControl(ListViewStyle),
 };
 
@@ -75,6 +80,24 @@ export class ListViewImplComp extends ListViewTmpComp implements IContainer {
   override reduce(action: CompAction): this {
     // console.info("listView reduce. action: ", action);
     let comp = reduceInContext({ inEventContext: true }, () => super.reduce(action));
+
+    if (action.type === CompActionTypes.UPDATE_NODES_V2) {
+      const { itemCount } = getData(comp.children.noOfRows.getView());
+      const pagination = comp.children.pagination.getView();
+      const total = pagination.total || itemCount;
+      const offset = (pagination.current - 1) * pagination.pageSize;
+      if (offset >= total && pagination.current > 1) {
+        // reset pageNo
+        setTimeout(() =>
+          comp.children.pagination.children.pageNo.dispatch(deferAction(changeValueAction(1)))
+        );
+      } else if (String(offset) !== this.children.container.getSelection()) {
+        // sync selection
+        setTimeout(() =>
+          comp.children.container.dispatch(ContextContainerComp.setSelectionAction(String(offset)))
+        );
+      }
+    }
 
     // console.info("listView reduce. action: ", action, "\nthis: ", this, "\ncomp: ", comp);
     return comp;

@@ -20,7 +20,7 @@ type ReduceContext = {
    * FIXME: After stabilization, let the table also use this method
    */
   inEventContext: boolean;
-  withParamsContext: { params: Record<string, JSONValue> };
+  withParamsContext: { params: Record<string, unknown> };
   disableUpdateState: boolean;
 };
 export type PartialReduceContext = Partial<ReduceContext>;

@@ -1,19 +1,23 @@
-import { message } from "antd";
 import { tableDataRowExample } from "comps/comps/tableComp/column/tableColumnListComp";
 import { getPageSize } from "comps/comps/tableComp/paginationControl";
-import { TableFilter, TableToolbar } from "comps/comps/tableComp/tableToolbarComp";
+import { TableCompView } from "comps/comps/tableComp/tableCompView";
+import { TableFilter } from "comps/comps/tableComp/tableToolbarComp";
 import {
   columnHide,
-  columnsToAntdFormat,
+  ColumnsAggrData,
+  COLUMN_CHILDREN_KEY,
   filterData,
-  getDisplayDataV2,
-  getTableTransData,
-  onTableChange,
+  genSelectionParams,
+  getColumnsAggr,
+  getOriDisplayData,
+  OB_ROW_ORI_INDEX,
+  RecordType,
   sortData,
+  transformDispalyData,
+  tranToTableRecord,
 } from "comps/comps/tableComp/tableUtils";
 import { isTriggerAction } from "comps/controls/actionSelector/actionSelectorControl";
-import { CompNameContext, EditorContext } from "comps/editorState";
-import { UICompBuilder, withPropertyViewFn, withViewFn } from "comps/generators";
+import { withPropertyViewFn, withViewFn } from "comps/generators";
 import { childrenToProps } from "comps/generators/multi";
 import { HidableView } from "comps/generators/uiCompBuilder";
 import { withDispatchHook } from "comps/generators/withDispatchHook";
@@ -24,8 +28,8 @@ import {
   NameConfig,
   withExposingConfigs,
 } from "comps/generators/withExposing";
-import { __SUPER_NODE_KEY } from "comps/generators/withIsLoading";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
+import { NameGenerator } from "comps/utils";
 import { trans } from "i18n";
 import _ from "lodash";
 import {
@@ -35,169 +39,42 @@ import {
   deferAction,
   executeQueryAction,
   fromRecord,
+  onlyEvalAction,
   routeByNameAction,
   withFunction,
   wrapChildAction,
 } from "openblocks-core";
-import { useCallback, useContext, useMemo, useState } from "react";
 import { saveDataAsFile } from "util/fileUtils";
-import { useUserViewMode } from "util/hooks";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { lastValueIfEqual, shallowEqual } from "util/objectUtils";
-import { ResizeableTable, TableWrapper } from "./resizeableTable";
+import { IContainer } from "../containerBase";
+import { getSelectedRowKeys } from "./selectionControl";
 import { compTablePropertyView } from "./tablePropertyView";
-import { RecordType, RowColorComp, tableChildrenMap, TableChildrenView } from "./tableTypes";
+import { RowColorComp, TableChildrenView, TableInitComp } from "./tableTypes";
 
-function TableView(props: {
-  comp: InstanceType<typeof TableTmpComp>;
-  onRefresh: (allQueryNames: Array<string>, setLoading: (loading: boolean) => void) => void;
-  onDownload: (fileName: string) => void;
-}) {
-  const editorState = useContext(EditorContext);
-  const viewMode = useUserViewMode();
-  const compName = useContext(CompNameContext);
-  const [loading, setLoading] = useState(false);
-  const { comp, onDownload, onRefresh } = props;
-  const compChildren = comp.children;
-  const style = compChildren.style.getView();
-  const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
-  const hasChange = useMemo(() => !_.isEmpty(changeSet), [changeSet]);
-  const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
-  const columnViews = useMemo(() => columns.map((c) => c.getView()), [columns]);
-  const data = useMemo(() => compChildren.data.getView(), [compChildren.data]);
-  const sort = useMemo(() => compChildren.sort.getView(), [compChildren.sort]);
-  const toolbar = useMemo(() => compChildren.toolbar.getView(), [compChildren.toolbar]);
-  const pagination = useMemo(() => compChildren.pagination.getView(), [compChildren.pagination]);
-  const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
-  const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
-  const dynamicColumn = compChildren.dynamicColumn.getView();
-  const dynamicColumnConfig = useMemo(
-    () => compChildren.dynamicColumnConfig.getView(),
-    [compChildren.dynamicColumnConfig]
-  );
-  const antdColumns = useMemo(
-    () =>
-      columnsToAntdFormat(
-        columnViews,
-        sort,
-        toolbar.columnSetting,
-        size,
-        dynamicColumn,
-        dynamicColumnConfig
-      ),
-    [columnViews, sort, toolbar.columnSetting, size, dynamicColumnConfig, dynamicColumn]
-  );
-  const transformedData = useMemo(() => {
-    return getTableTransData(
-      data,
-      columnViews,
-      pagination.pageSize,
-      toolbar.filter,
-      sort,
-      toolbar.searchText,
-      toolbar.showFilter,
-      toolbar.columnSetting
-    );
-  }, [columnViews, data, pagination.pageSize, sort, toolbar]);
-
-  const pageDataInfo = useMemo(() => {
-    // Data pagination
-    let pagedData = transformedData;
-    let current = pagination.current;
-    const total = pagination.total || transformedData.length;
-    if (data.length > pagination.pageSize) {
-      // Local pagination
-      let offset = (current - 1) * pagination.pageSize;
-      if (offset >= total) {
-        current = 1;
-        offset = 0;
-      }
-      pagedData = pagedData.slice(offset, offset + pagination.pageSize);
-    }
-    return {
-      total: total,
-      current: current,
-      data: pagedData.map((record: any, index) => ({
-        record: record.originData,
-        index: record.originIndex,
-      })),
-    };
-  }, [data.length, pagination, transformedData]);
-
-  const handleChangeEvent = useCallback(
-    (eventName) => {
-      if (eventName === "saveChanges" && !compChildren.onEvent.isBind(eventName)) {
-        !viewMode && message.warn(trans("table.saveChangesNotBind"));
-        return;
-      }
-      compChildren.onEvent.getView()(eventName);
-      setTimeout(() => compChildren.columns.dispatchClearChangeSet(), 0);
-    },
-    [viewMode, compChildren.onEvent, compChildren.columns]
-  );
-
-  const toolbarView = (
-    <TableToolbar
-      toolbar={toolbar}
-      $style={style}
-      pagination={{
-        ...pagination,
-        total: pageDataInfo.total,
-        current: pageDataInfo.current,
-      }}
-      columns={columns}
-      onRefresh={() =>
-        onRefresh(
-          editorState.queryCompInfoList().map((info) => info.name),
-          setLoading
-        )
-      }
-      onDownload={() => onDownload(`${compName}-data`)}
-      hasChange={hasChange}
-      onSaveChanges={() => handleChangeEvent("saveChanges")}
-      onCancelChanges={() => handleChangeEvent("cancelChanges")}
-      onEvent={onEvent}
-    />
-  );
-
-  return (
-    <TableWrapper $style={style} toolbarPosition={toolbar.position}>
-      {toolbar.position === "above" && toolbarView}
-      <ResizeableTable<RecordType>
-        rowColor={compChildren.rowColor.getView() as any}
-        {...compChildren.selection.getView()(onEvent)}
-        bordered={!compChildren.hideBordered.getView()}
-        onChange={(pagination, filters, sorter, extra) => {
-          onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
-        }}
-        showHeader={!compChildren.hideHeader.getView()}
-        columns={antdColumns}
-        viewModeResizable={compChildren.viewModeResizable.getView()}
-        dataSource={pageDataInfo.data}
-        size={compChildren.size.getView()}
-        tableLayout="fixed"
-        loading={
-          loading ||
-          // fixme isLoading type
-          (compChildren.showDataLoadSpinner.getView() && (compChildren.data as any).isLoading()) ||
-          compChildren.loading.getView()
-        }
-      />
-      {toolbar.position === "below" && toolbarView}
-    </TableWrapper>
-  );
-}
-
-let TableTmpInitComp = (function () {
-  return new UICompBuilder(tableChildrenMap, () => {
-    return <></>;
-  })
-    .setPropertyViewFn(() => <></>)
-    .build();
-})();
-
-let TableTmpComp = class extends TableTmpInitComp {
+export class TableImplComp extends TableInitComp implements IContainer {
   private prevUnevaledValue?: string;
+  readonly filterData: RecordType[] = [];
+  readonly columnAggrData: ColumnsAggrData = {};
+
+  private getSlotContainer() {
+    return this.children.expansion.children.slot.getSelectedComp().getComp().children.container;
+  }
+  findContainer(key: string) {
+    return this.getSlotContainer().findContainer(key);
+  }
+
+  getCompTree() {
+    return this.getSlotContainer().getCompTree();
+  }
+
+  getPasteValue(nameGenerator: NameGenerator) {
+    return this.getSlotContainer().getPasteValue(nameGenerator);
+  }
+
+  realSimpleContainer(key?: string) {
+    return this.getSlotContainer().realSimpleContainer(key);
+  }
 
   downloadData(fileName: string) {
     saveDataAsFile({
@@ -285,22 +162,43 @@ let TableTmpComp = class extends TableTmpInitComp {
     return doGenColumn;
   }
 
-  updateContext() {
-    const data = this.children.data.getView();
-    const newColumns = this.children.columns.updateRenderData(data);
-    return this.setChild("columns", newColumns);
-  }
-
   override reduce(action: CompAction): this {
+    if (action.type === CompActionTypes.ONLY_EVAL) return this;
     let comp = super.reduce(action);
-    if (action.type === CompActionTypes.CUSTOM) {
-      // If a new custom column is added, then update it as well
-      const columnAdded =
-        comp.children.columns.getView().length !== this.children.columns.getView().length;
-      if (columnAdded) {
-        comp = comp.updateContext();
-      }
-    } else if (action.type === CompActionTypes.UPDATE_NODES_V2) {
+    let needMoreEval = false;
+
+    const thisSelection = getSelectedRowKeys(this.children.selection)[0] ?? 0;
+    const newSelection = getSelectedRowKeys(comp.children.selection)[0] ?? 0;
+    const selectionChanged =
+      this.children.selection !== comp.children.selection && thisSelection !== newSelection;
+    if (
+      (action.type === CompActionTypes.CUSTOM &&
+        comp.children.columns.getView().length !== this.children.columns.getView().length) ||
+      selectionChanged
+    ) {
+      comp = comp.setChild(
+        "columns",
+        comp.children.columns.reduce(comp.children.columns.setSelectionAction(newSelection))
+      );
+      needMoreEval = true;
+    }
+
+    let params = comp.children.expansion.children.slot.getCachedParams(newSelection);
+    if (selectionChanged || _.isNil(params)) {
+      params = _.isNil(params) ? genSelectionParams(this.filterData, newSelection) : undefined;
+      comp = comp.setChild(
+        "expansion",
+        comp.children.expansion.reduce(
+          comp.children.expansion.setSelectionAction(newSelection, params)
+        )
+      );
+      needMoreEval = true;
+    }
+    if (action.type === CompActionTypes.UPDATE_NODES_V2 && needMoreEval) {
+      setTimeout(() => comp.dispatch(onlyEvalAction()));
+    }
+
+    if (action.type === CompActionTypes.UPDATE_NODES_V2) {
       const nextRowExample = tableDataRowExample(comp.children.data.getView());
       const dataChanged =
         comp.children.data !== this.children.data &&
@@ -347,30 +245,34 @@ let TableTmpComp = class extends TableTmpInitComp {
     const extra = {
       sortedData: this.sortDataNode(),
       filterData: this.filterNode(),
+      oriDisplayData: this.oriDisplayDataNode(),
+      columnAggrData: this.columnAggrNode(),
     };
     return {
       node: extra,
-      updateNodeFields: (value: any) => ({}),
+      updateNodeFields: (value: any) => ({
+        filterData: value.filterData,
+        columnAggrData: value.columnAggrData,
+      }),
     };
   }
 
   // handle sort: data -> sortedData
   sortDataNode() {
     const nodes = {
-      data: this.children.data.node(),
+      data: this.children.data.exposingNode(),
       sort: this.children.sort.node(),
       dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
       sortables: this.children.columns.getColumnsNode("sortable"),
     };
     const sortedDataNode = withFunction(fromRecord(nodes), (input) => {
       const { data, sort, dataIndexes, sortables } = input;
-      const realData: typeof data = (data as any)[__SUPER_NODE_KEY];
       const columns = _(dataIndexes)
         .mapValues((dataIndex, idx) => ({ sortable: !!sortables[idx] }))
         .mapKeys((sortable, idx) => dataIndexes[idx])
         .value();
-      const sortedData = sortData(realData.value, columns, sort);
-      // console.info( "sortNode. data: ", realData, " sort: ", sort, " columns: ", columns, " sortedData: ", sortedData);
+      const sortedData = sortData(data, columns, sort);
+      // console.info( "sortNode. data: ", data, " sort: ", sort, " columns: ", columns, " sortedData: ", sortedData);
       return sortedData;
     });
     return lastValueIfEqual(this, "sortedDataNode", [sortedDataNode, nodes] as const, (a, b) =>
@@ -390,18 +292,70 @@ let TableTmpComp = class extends TableTmpInitComp {
       const { data, searchValue, filter, showFilter } = input;
       const filteredData = filterData(data, searchValue.value, filter, showFilter.value);
       // console.info("filterNode. data: ", data, " filter: ", filter, " filteredData: ", filteredData);
-      return filteredData;
+      return filteredData.map((row) => tranToTableRecord(row, row[OB_ROW_ORI_INDEX]));
     });
     return lastValueIfEqual(this, "filteredDataNode", [filteredDataNode, nodes] as const, (a, b) =>
       shallowEqual(a[1], b[1])
     )[0];
   }
-};
 
-TableTmpComp = withViewFn(TableTmpComp, (comp) => {
+  oriDisplayDataNode() {
+    const nodes = {
+      data: this.filterNode(),
+      // --> pageSize
+      showSizeChanger: this.children.pagination.children.showSizeChanger.node(),
+      pageSize: this.children.pagination.children.pageSize.node(),
+      pageSizeOptions: this.children.pagination.children.pageSizeOptions.node(),
+      changablePageSize: this.children.pagination.children.changeablePageSize.node(),
+      // <-- pageSize
+      withParams: this.children.columns.withParamsNode(),
+      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
+    };
+    const resNode = withFunction(fromRecord(nodes), (input) => {
+      const columns = _(input.dataIndexes)
+        .mapValues((dataIndex, idx) => ({
+          dataIndex,
+          render: input.withParams[idx],
+        }))
+        .value();
+      const pageSize = getPageSize(
+        input.showSizeChanger.value,
+        input.pageSize.value,
+        input.pageSizeOptions.value,
+        input.changablePageSize
+      );
+      return getOriDisplayData(input.data, pageSize, Object.values(columns));
+    });
+    return lastValueIfEqual(this, "oriDisplayDataNode", [resNode, nodes] as const, (a, b) =>
+      shallowEqual(a[1], b[1])
+    )[0];
+  }
+
+  columnAggrNode() {
+    const nodes = {
+      oriDisplayData: this.oriDisplayDataNode(),
+      withParams: this.children.columns.withParamsNode(),
+      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
+    };
+    const resNode = withFunction(fromRecord(nodes), (input) => {
+      const dataIndexWithParamsDict = _(input.dataIndexes)
+        .mapValues((dataIndex, idx) => input.withParams[idx])
+        .mapKeys((withParams, idx) => input.dataIndexes[idx])
+        .value();
+      const res = getColumnsAggr(input.oriDisplayData, dataIndexWithParamsDict);
+      // console.info("columnAggrNode: ", res);
+      return res;
+    });
+    return lastValueIfEqual(this, "columnAggrNode", [resNode, nodes] as const, (a, b) =>
+      shallowEqual(a[1], b[1])
+    )[0];
+  }
+}
+
+let TableTmpComp = withViewFn(TableImplComp, (comp) => {
   return (
     <HidableView hidden={comp.children.hidden.getView()}>
-      <TableView
+      <TableCompView
         comp={comp}
         onRefresh={(allQueryNames, setLoading) => comp.refreshData(allQueryNames, setLoading)}
         onDownload={(fileName) => comp.downloadData(fileName)}
@@ -430,12 +384,18 @@ TableTmpComp = withDispatchHook(TableTmpComp, (dispatch) => (action) => {
   return dispatch(action);
 });
 
-function _indexKeyToRecord(data: JSONValue[], key: string) {
-  const index = Number(key);
-  if (index >= 0 && index < data.length) {
-    return data[index];
+function _indexKeyToRecord(data: JSONObject[], key: string) {
+  const keyPath = (key + "").split("-");
+  let currentData = data;
+  let res = undefined;
+  for (let k of keyPath) {
+    const index = Number(k);
+    if (index >= 0 && currentData && index < currentData.length) {
+      res = currentData[index];
+      currentData = res[COLUMN_CHILDREN_KEY] as JSONObject[];
+    }
   }
-  return undefined;
+  return res;
 }
 
 TableTmpComp = withMethodExposing(TableTmpComp, [
@@ -547,7 +507,6 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
       const record: Record<string, Record<string, JSONValue>> = {};
       Object.values(input.columns).forEach((column: any) => {
         const dataIndex: string = column.dataIndex;
-        // const title: string = column.title;
         const render = column.render; // {comp, map: [0].comp.changeValue, length}
         _.forEach(render.map, (value, key) => {
           const changeValue = value.comp?.changeValue;
@@ -647,14 +606,7 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     "displayData",
     (comp) => {
       return {
-        data: comp.filterNode(),
-        // --> pageSize
-        showSizeChanger: comp.children.pagination.children.showSizeChanger.node(),
-        pageSize: comp.children.pagination.children.pageSize.node(),
-        pageSizeOptions: comp.children.pagination.children.pageSizeOptions.node(),
-        changablePageSize: comp.children.pagination.children.changeablePageSize.node(),
-        // <-- pageSize
-        withParams: comp.children.columns.withParamsNode(),
+        oriDisplayData: comp.oriDisplayDataNode(),
         dataIndexes: comp.children.columns.getColumnsNode("dataIndex"),
         titles: comp.children.columns.getColumnsNode("title"),
         // --> hide
@@ -665,7 +617,7 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
       };
     },
     (input) => {
-      const columns = _(input.dataIndexes)
+      const dataIndexTitleDict = _(input.dataIndexes)
         .pickBy(
           (_1, idx) =>
             !columnHide({
@@ -674,19 +626,10 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
               enableColumnSetting: input.columnSetting.value,
             })
         )
-        .mapValues((dataIndex, idx) => ({
-          dataIndex,
-          title: input.titles[idx].value,
-          render: input.withParams[idx],
-        }))
+        .mapValues((_dataIndex, idx) => input.titles[idx]?.value)
+        .mapKeys((_title, idx) => input.dataIndexes[idx])
         .value();
-      const pageSize = getPageSize(
-        input.showSizeChanger.value,
-        input.pageSize.value,
-        input.pageSizeOptions.value,
-        input.changablePageSize
-      );
-      return getDisplayDataV2(input.data, pageSize, Object.values(columns));
+      return transformDispalyData(input.oriDisplayData, dataIndexTitleDict);
     },
     trans("table.displayDataDesc")
   ),

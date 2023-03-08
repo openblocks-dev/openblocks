@@ -5,7 +5,6 @@ import {
   CompParams,
   ConstructorToComp,
   ConstructorToNodeType,
-  ConstructorToView,
   customAction,
   deferAction,
   isChildAction,
@@ -21,7 +20,7 @@ import {
 } from "openblocks-core";
 import { ReactNode } from "react";
 import { JSONValue } from "util/jsonTypes";
-import { setFieldsNoTypeCheck, shallowEqual } from "util/objectUtils";
+import { depthEqual, setFieldsNoTypeCheck } from "util/objectUtils";
 import { map } from "./map";
 import { withParamsWithDefault } from "./withParams";
 
@@ -45,7 +44,7 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
     [MAP_KEY]: MapCtor,
   };
   type ChildrenType = RecordConstructorToComp<typeof childrenMap>;
-  type ViewReturn = (params: ParamValues, key: string) => ConstructorToView<TCtor>;
+  type ViewReturn = (params: ParamValues, key: string) => ConstructorToComp<TCtor>;
 
   type CompNodeValue = NodeToValue<ConstructorToNodeType<typeof WithParamCompCtor>>;
   type NodeValue = {
@@ -57,7 +56,7 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
     extends MultiBaseComp<ChildrenType, JSONValue, Node<NodeValue>>
     implements Comp<ViewReturn>
   {
-    private readonly cacheParamsMap: Record<string, ParamValues> = {};
+    protected readonly cacheParamsMap: Record<string, ParamValues> = {};
 
     override parseChildrenFromValue(params: CompParams): ChildrenType {
       const dispatch = params.dispatch ?? _.noop;
@@ -77,7 +76,7 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
       // don't provide _key_ parameter if no storage no interaction needed
       return (params: ParamValues, key: string) => {
         this.cacheParamsMap[key] = params;
-        return this.getComp(key)?.getView();
+        return this.getComp(key)!.getComp();
       };
     }
 
@@ -86,7 +85,7 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
       const params = this.cacheParamsMap[key];
       if (_.isNil(params)) return undefined;
       const mapComps = this.getMap();
-      if (mapComps.hasOwnProperty(key) && shallowEqual(params, mapComps[key].getParams())) {
+      if (mapComps.hasOwnProperty(key) && depthEqual(params, mapComps[key].getParams(), 3)) {
         return mapComps[key];
       }
       return undefined;
@@ -97,7 +96,7 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
       const params = this.cacheParamsMap[key];
       if (_.isNil(comp) && !_.isNil(params)) {
         const mapComps = this.getMap();
-        if (mapComps.hasOwnProperty(key) && !shallowEqual(params, mapComps[key].getParams())) {
+        if (mapComps.hasOwnProperty(key) && !depthEqual(params, mapComps[key].getParams(), 3)) {
           setTimeout(() =>
             // refresh the item, since params changed
             this.children[MAP_KEY].dispatch(deferAction(MapCtor.batchDeleteAction([key])))
@@ -120,10 +119,24 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
       if (isMyCustomAction<ClearAction>(action, "clear")) {
         comp = comp.setChild(MAP_KEY, comp.children[MAP_KEY].reduce(MapCtor.clearAction()));
         comp = setFieldsNoTypeCheck(comp, { cacheParamsMap: {} });
-        return comp;
-      }
-
-      if (
+      } else if (isMyCustomAction<SetCacheParamsAction>(action, "setCacheParams")) {
+        const { paramsMap } = action.value;
+        const mapComps = this.getMap();
+        const deleteKeys = _(paramsMap)
+          .pickBy(
+            (params, key) =>
+              mapComps.hasOwnProperty(key) && !depthEqual(params, mapComps[key].getParams(), 3)
+          )
+          .map((params, key) => key)
+          .value();
+        if (!_.isEmpty(deleteKeys)) {
+          comp = comp.reduce(wrapChildAction(MAP_KEY, MapCtor.batchDeleteAction(deleteKeys)));
+        }
+        const cacheParamsMap = { ...this.cacheParamsMap, ...paramsMap };
+        if (!depthEqual(cacheParamsMap, comp.cacheParamsMap, 3)) {
+          comp = setFieldsNoTypeCheck(comp, { cacheParamsMap });
+        }
+      } else if (
         isChildAction(action) &&
         (action.path[0] === VIRTUAL_NAME ||
           (action.path[0] === MAP_KEY &&
@@ -159,6 +172,10 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
       return comp;
     }
 
+    getCachedParams(key: string): ParamValues | undefined {
+      return this.cacheParamsMap[key];
+    }
+
     getOriginalComp() {
       return this.children[COMP_KEY];
     }
@@ -173,8 +190,19 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
       });
     }
 
-    static filterAction(keys: Array<string>) {
-      return wrapChildAction(MAP_KEY, MapCtor.filterAction(keys));
+    static batchDeleteAction(keys: Array<string>) {
+      return wrapChildAction(MAP_KEY, MapCtor.batchDeleteAction(keys));
+    }
+
+    static forEachAction(action: CompAction) {
+      return wrapChildAction(MAP_KEY, MapCtor.forEachAction(action));
+    }
+
+    static setCacheParamsAction(paramsMap: Record<string, Record<string, unknown>>) {
+      return customAction<SetCacheParamsAction>({
+        type: "setCacheParams",
+        paramsMap,
+      });
     }
   }
 
@@ -182,5 +210,10 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
 
   type ClearAction = {
     type: "clear";
+  };
+
+  type SetCacheParamsAction = {
+    type: "setCacheParams";
+    paramsMap: Record<string, Record<string, unknown>>;
   };
 }

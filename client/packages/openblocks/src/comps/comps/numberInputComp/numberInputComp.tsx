@@ -41,6 +41,14 @@ import {
 import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
+import {
+  blurMethod,
+  clickMethod,
+  focusWithOptions,
+  selectMethod,
+  setRangeTextMethod,
+  setSelectionRangeMethod,
+} from "comps/utils/methodUtils";
 
 const getStyle = (style: InputLikeStyleType) => {
   return css`
@@ -383,7 +391,14 @@ const NumberInputTmpComp = (function () {
 
 const NumberInputTmp2Comp = withMethodExposing(
   NumberInputTmpComp,
-  refMethods(["focus", "blur", "click", "select", "setSelectionRange", "setRangeText"])
+  refMethods([
+    focusWithOptions,
+    blurMethod,
+    clickMethod,
+    selectMethod,
+    setSelectionRangeMethod,
+    setRangeTextMethod,
+  ])
 );
 
 export const NumberInputComp = withExposingConfigs(NumberInputTmp2Comp, [

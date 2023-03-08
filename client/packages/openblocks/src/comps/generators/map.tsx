@@ -41,6 +41,11 @@ export type FilterAction = {
   keys: Array<string>;
 };
 
+export type ForEachAction = {
+  type: "forEach";
+  action: CompAction;
+};
+
 export function map<ChildCompCtor extends CompConstructor<any, any>>(
   childConstructor: ChildCompCtor
 ) {
@@ -94,11 +99,14 @@ export function map<ChildCompCtor extends CompConstructor<any, any>>(
       } else if (isMyCustomAction<FilterAction>(action, "filter")) {
         const { keys } = action.value;
         return this.setChildren(_.pick(this.children, keys));
+      } else if (isMyCustomAction<ForEachAction>(action, "forEach")) {
+        const newChildren = _.mapValues(this.children, (comp) => comp.reduce(action.value.action));
+        return this.setChildren(newChildren);
       }
       return super.reduce(action);
     }
     @memo
-    exposingNode(): Node<unknown> {
+    exposingNode() {
       const childrenExposingNodes = _.mapValues(this.children, (comp) =>
         (comp as any).exposingNode()
       );
@@ -124,6 +132,9 @@ export function map<ChildCompCtor extends CompConstructor<any, any>>(
     }
     static filterAction(keys: Array<string>) {
       return customAction<FilterAction>({ type: "filter", keys });
+    }
+    static forEachAction(action: CompAction) {
+      return customAction<ForEachAction>({ type: "forEach", action });
     }
   }
 

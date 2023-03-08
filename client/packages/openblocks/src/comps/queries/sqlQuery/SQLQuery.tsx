@@ -196,7 +196,9 @@ const SQLQueryPropertyView = (props: { comp: InstanceType<typeof SQLQuery> }) =>
                   : []),
                 { label: trans("sqlQuery.update"), value: "UPDATE" },
                 { label: trans("sqlQuery.delete"), value: "DELETE" },
-                { label: trans("sqlQuery.bulkInsert"), value: "BULK_INSERT" },
+                ...(context?.resourceType !== "oracle"
+                  ? [{ label: trans("sqlQuery.bulkInsert"), value: "BULK_INSERT" }]
+                  : []),
                 { label: trans("sqlQuery.bulkUpdate"), value: "BULK_UPDATE" },
               ] as const
             }
@@ -245,11 +247,18 @@ export const SQLQuery = class extends SQLTmpQuery {
   }
 };
 
-export const SUPPORT_GUI_SQL_QUERY: ResourceType[] = [
-  "mysql",
-  "postgres",
-  "mssql",
-  "oracle",
-  "oceanBase",
+export const NOT_SUPPORT_GUI_SQL_QUERY: ResourceType[] = [
+  "clickHouse",
+  "snowflake",
+  "tdengine",
+  "dameng",
 ];
-export const SUPPORT_UPSERT_SQL_QUERY: ResourceType[] = ["mysql", "oceanBase"];
+const SUPPORT_UPSERT_SQL_QUERY: ResourceType[] = [
+  "mysql",
+  "oceanBase",
+  "tidb",
+  "polardbMysql",
+  "sequoiadbMysql",
+  "starrocks",
+  "mariadb",
+];

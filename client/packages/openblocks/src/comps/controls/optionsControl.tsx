@@ -245,6 +245,7 @@ export function mapOptionsControl<T extends OptionsControlType>(
       return hasPropertyView(this) ? this.propertyView({ autoMap: true }) : super.getPropertyView();
     }
   }
+
   const MapDataComp = withContext(TempComp, ["item", "i"] as const);
   const TmpOptionControl = new MultiCompBuilder(
     {
@@ -409,8 +410,8 @@ SelectInputOption = class extends SelectInputOption implements OptionCompPropert
 
 export const SelectInputOptionControl = optionsControl(SelectInputOption, {
   initOptions: [
-    { label: trans("optionsControl.option1"), value: "1" },
-    { label: trans("optionsControl.option2"), value: "2" },
+    { label: trans("optionsControl.optionI", { i: 1 }), value: "1" },
+    { label: trans("optionsControl.optionI", { i: 2 }), value: "2" },
   ],
   uniqField: "value",
 });
@@ -445,8 +446,8 @@ SelectOption = class extends SelectOption implements OptionCompProperty {
 
 export const SelectOptionControl = optionsControl(SelectOption, {
   initOptions: [
-    { label: trans("optionsControl.option1"), value: "1" },
-    { label: trans("optionsControl.option2"), value: "2" },
+    { label: trans("optionsControl.optionI", { i: 1 }), value: "1" },
+    { label: trans("optionsControl.optionI", { i: 2 }), value: "2" },
   ],
   uniqField: "value",
 });
@@ -474,8 +475,8 @@ const DropdownOption = new MultiCompBuilder(
 
 export const DropdownOptionControl = optionsControl(DropdownOption, {
   initOptions: [
-    { label: trans("optionsControl.option1") },
-    { label: trans("optionsControl.option2") },
+    { label: trans("optionsControl.optionI", { i: 1 }) },
+    { label: trans("optionsControl.optionI", { i: 2 }) },
   ],
 });
 

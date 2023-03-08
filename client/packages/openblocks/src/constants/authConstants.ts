@@ -9,9 +9,7 @@ import Login, { ThirdPartyBindCard } from "pages/userAuth/login";
 import UserRegister from "pages/userAuth/register";
 import { AuthRedirect } from "pages/userAuth/thirdParty/authRedirect";
 import React from "react";
-import GoogleIcon from "icons/icon-login-google.svg";
-import GithubIcon from "icons/icon-login-github.svg";
-import { EmailLoginIcon } from "icons";
+import { GoogleLoginIcon, GithubLoginIcon, EmailLoginIcon } from "assets/icons";
 
 export type AuthInviteInfo = InviteInfo & { invitationId: string };
 export type AuthLocationState = { inviteInfo?: AuthInviteInfo; thirdPartyAuthError?: boolean };
@@ -81,10 +79,10 @@ export type ServerAuthType = "GOOGLE" | "GITHUB" | "FORM";
 export type ServerAuthTypeInfoValueType = { logo: string; isOAuth2?: boolean };
 export const ServerAuthTypeInfo: { [key in ServerAuthType]?: ServerAuthTypeInfoValueType } = {
   GOOGLE: {
-    logo: GoogleIcon,
+    logo: GoogleLoginIcon,
     isOAuth2: true,
   },
-  GITHUB: { logo: GithubIcon, isOAuth2: true },
+  GITHUB: { logo: GithubLoginIcon, isOAuth2: true },
   FORM: { logo: EmailLoginIcon },
 };
 

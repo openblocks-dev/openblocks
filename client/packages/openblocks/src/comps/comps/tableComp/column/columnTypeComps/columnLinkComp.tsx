@@ -8,7 +8,6 @@ import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import { disabledPropertyView } from "comps/utils/propertyUtils";
 import styled, { css } from "styled-components";
-import { LightActiveTextColor, PrimaryColor } from "constants/style";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 

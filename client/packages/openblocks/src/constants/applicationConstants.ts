@@ -2,12 +2,23 @@ import { JSONValue } from "util/jsonTypes";
 import { ExtraActionType } from "openblocks-core";
 import { CommonSettingResponseData } from "api/commonSettingApi";
 import { PermissionItem } from "../components/PermissionDialog/PermissionList";
+import { UiLayoutType } from "comps/comps/uiComp";
 
+// To be same with HomeResTypeEnum
 export enum AppTypeEnum {
   Application = 1,
   Module = 2,
   NavLayout = 3,
+  // 4 folder, 5 mobile
+  MobileTabLayout = 6,
 }
+
+export const AppUILayoutType: Record<AppTypeEnum, UiLayoutType> = {
+  [AppTypeEnum.Application]: "normal",
+  [AppTypeEnum.Module]: "module",
+  [AppTypeEnum.NavLayout]: "nav",
+  [AppTypeEnum.MobileTabLayout]: "mobileTabLayout",
+};
 
 export type ApplicationDSLType = "editing" | "published";
 export type ApplicationRoleType = "viewer" | "editor" | "owner";

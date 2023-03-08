@@ -5,7 +5,7 @@ import { AdvancedSetting } from "./advanced/AdvancedSetting";
 import { currentOrgAdmin } from "util/permissionUtils";
 import { trans } from "i18n";
 import AuditSetting from "@openblocks-ee/pages/setting/audit";
-import { developEnv, isEE, isEnterpriseMode, isSelfDomain, showAuditLog } from "util/envUtils";
+import { isEE, isEnterpriseMode, isSelfDomain, showAuditLog } from "util/envUtils";
 import { TwoColumnSettingPageContent } from "./styled";
 import SubSideBar from "components/layout/SubSideBar";
 import { Menu } from "openblocks-design";
@@ -42,38 +42,29 @@ export function SettingHome() {
       key: SettingPageEnum.Organization,
       label: trans("settings.organization"),
     },
-    ...(isEE() && currentOrgAdmin(user) && (isSelfDomain(config) || isEnterpriseMode(config))
-      ? [
-          {
-            key: SettingPageEnum.IdSource,
-            label: trans("settings.idSource"),
-          },
-        ]
-      : []),
-    ...(showAuditLog(config) && currentOrgAdmin(user)
-      ? [
-          {
-            key: SettingPageEnum.Audit,
-            label: trans("settings.audit"),
-          },
-        ]
-      : []),
+    {
+      key: SettingPageEnum.IdSource,
+      label: trans("settings.idSource"),
+      disabled: !currentOrgAdmin(user) || (!isSelfDomain(config) && !isEnterpriseMode(config)),
+    },
+    {
+      key: SettingPageEnum.Audit,
+      label: trans("settings.audit"),
+      disabled: !showAuditLog(config) || !currentOrgAdmin(user),
+    },
     {
       key: SettingPageEnum.Theme,
       label: trans("settings.theme"),
     },
-    ...(developEnv() ||
-    (isEE() &&
-      currentOrgAdmin(user) &&
-      enableCustomBrand(config) &&
-      (isSelfDomain(config) || isEnterpriseMode(config)))
-      ? [
-          {
-            key: SettingPageEnum.Branding,
-            label: trans("settings.branding"),
-          },
-        ]
-      : []),
+    {
+      key: SettingPageEnum.Branding,
+      label: trans("settings.branding"),
+      disabled:
+        !isEE() ||
+        !currentOrgAdmin(user) ||
+        !enableCustomBrand(config) ||
+        (!isSelfDomain(config) && !isEnterpriseMode(config)),
+    },
     {
       key: SettingPageEnum.Advanced,
       label: trans("settings.advanced"),

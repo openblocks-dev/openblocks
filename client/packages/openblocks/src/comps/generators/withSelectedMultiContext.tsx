@@ -8,7 +8,7 @@ import {
   MultiCompConstructor,
 } from "openblocks-core";
 import { ReactNode } from "react";
-import { setFieldsNoTypeCheck } from "util/objectUtils";
+import { depthEqual, setFieldsNoTypeCheck } from "util/objectUtils";
 import { COMP_KEY, MAP_KEY, withMultiContext } from "./withMultiContext";
 
 /**
@@ -31,20 +31,28 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
       let comp = this;
       const thisCompMap = this.getMap();
       if (isMyCustomAction<SetSelectionAction>(action, "setSelection")) {
-        const selection = action.value.selection;
-        if (selection === this.selection) return this;
-        comp = setFieldsNoTypeCheck(comp, { selection: selection });
-        if (thisCompMap.hasOwnProperty(selection)) {
-          // sync selection and original comp
+        const { selection, params } = action.value;
+        const selectedComp = this.getSelectedComp();
+        if (
+          selection === this.selection &&
+          (_.isNil(params) || depthEqual(params, selectedComp.getParams(), 3))
+        ) {
+          return this;
+        }
+        if (!_.isNil(params)) {
+          comp = comp.reduce(WithMultiContextComp.setCacheParamsAction({ [selection]: params }));
+        }
+        comp = setFieldsNoTypeCheck(comp, { selection });
+        if (comp.cacheParamsMap.hasOwnProperty(selection)) {
+          // sync params of selection and original comp
           comp = comp.setChild(
             COMP_KEY,
-            thisCompMap[selection].changeDispatch(this.getOriginalComp().dispatch)
+            comp.getOriginalComp().setParams(comp.cacheParamsMap[selection])
           );
         }
-        return comp;
+      } else {
+        comp = super.reduce(action);
       }
-
-      comp = super.reduce(action);
 
       if (this.selection && this.selection === comp.selection) {
         const selection = this.selection;
@@ -81,14 +89,19 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
       return comp;
     }
 
+    getSelection() {
+      return this.selection;
+    }
+
     getSelectedComp() {
       return this.getComp(this.selection) ?? this.getOriginalComp();
     }
 
-    static setSelectionAction(selection: string) {
+    static setSelectionAction(selection: string, params?: Record<string, unknown>) {
       return customAction<SetSelectionAction>({
         type: "setSelection",
         selection,
+        params,
       });
     }
   }
@@ -98,5 +111,6 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
   type SetSelectionAction = {
     type: "setSelection";
     selection: string;
+    params?: Record<string, unknown>;
   };
 }

@@ -33,7 +33,7 @@ const getStyle = (style: ProgressStyleType) => {
   `;
 };
 
-const ProgressStyled = styled(Progress)<{ $style: ProgressStyleType }>`
+export const ProgressStyled = styled(Progress)<{ $style: ProgressStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 

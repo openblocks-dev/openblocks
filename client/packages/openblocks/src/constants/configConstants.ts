@@ -1,7 +1,7 @@
 import { ThirdPartyConfigType } from "constants/authConstants";
 import { QR_CODE_OAUTH_URL } from "constants/routesURL";
 import { UserConnectionSource } from "@openblocks-ee/constants/userConstants";
-import { GeneralLoginIcon } from "openblocks-design";
+import { GeneralLoginIcon } from "assets/icons";
 import {
   isRouteLink,
   ServerAuthType,

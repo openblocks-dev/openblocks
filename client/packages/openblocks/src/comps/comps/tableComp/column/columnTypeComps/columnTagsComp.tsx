@@ -106,9 +106,14 @@ export const Wrapper = styled.div`
       background-color: white;
       right: 1.5px;
       border-right: 1px solid #d7d9e0;
+      cursor: pointer;
+      pointer-events: auto;
       svg {
         min-width: 18px;
         min-height: 18px;
+      }
+      &:hover svg path {
+        fill: #315efb;
       }
     }
     .ant-select-selector .ant-select-selection-search {
@@ -154,6 +159,7 @@ export const DropdownStyled = styled.div`
 const TagEdit = (props: TagEditPropsType) => {
   const defaultTags = useContext(TagsContext);
   const [tags, setTags] = useState(defaultTags);
+  const [open, setOpen] = useState(true);
   return (
     <Wrapper>
       <CustomSelect
@@ -161,10 +167,10 @@ const TagEdit = (props: TagEditPropsType) => {
         defaultOpen
         bordered={false}
         optionLabelProp="children"
-        showArrow
         showSearch
         defaultValue={props.value}
         style={{ width: "100%" }}
+        open={open}
         suffixIcon={<PackUpIcon />}
         onSearch={(value) => {
           if (defaultTags.findIndex((item) => item.includes(value)) < 0) {
@@ -172,6 +178,7 @@ const TagEdit = (props: TagEditPropsType) => {
           } else {
             setTags(defaultTags);
           }
+          props.onChange(value);
         }}
         onChange={(value) => {
           props.onChange(value);
@@ -188,6 +195,7 @@ const TagEdit = (props: TagEditPropsType) => {
             props.onChangeEnd();
           }
         }}
+        onClick={() => setOpen(!open)}
       >
         {tags.map((value, index) => (
           <CustomSelect.Option value={value} key={index}>

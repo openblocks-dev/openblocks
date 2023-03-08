@@ -21,7 +21,7 @@ export function getPageSize(
   }
 }
 
-export const PaginationControl = (function () {
+export const PaginationTmpControl = (function () {
   const childrenMap = {
     showQuickJumper: BoolControl,
     showSizeChanger: BoolControl,
@@ -83,5 +83,12 @@ export const PaginationControl = (function () {
     })
     .build();
 })();
+
+export class PaginationControl extends PaginationTmpControl {
+  getOffset() {
+    const pagination = this.getView();
+    return (pagination.current - 1) * pagination.pageSize;
+  }
+}
 
 export type PaginationNodeType = ConstructorToNodeType<typeof PaginationControl>;

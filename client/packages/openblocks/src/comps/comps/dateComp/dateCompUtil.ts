@@ -4,6 +4,9 @@ import { range } from "lodash";
 import { DateTimeStyleType } from "../../controls/styleControlConstants";
 import { css } from "styled-components";
 import { isDarkColor, lightenColor } from "components/colorSelect/colorUtils";
+import { CommonPickerMethods } from "antd/lib/date-picker/generatePicker/interface";
+import { blurMethod, focusMethod } from "comps/utils/methodUtils";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 export const handleDateChange = (
   time: string,
@@ -112,3 +115,5 @@ export const getMobileStyle = (style: DateTimeStyleType) =>
     border-radius: ${style.radius};
     border-color: ${style.border};
   `;
+
+export const dateRefMethods = refMethods<CommonPickerMethods>([focusMethod, blurMethod]);

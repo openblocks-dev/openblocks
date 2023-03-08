@@ -14,6 +14,7 @@ export const databasePlugins: Partial<DatasourceType>[] = [
   "oracle",
   "clickHouse",
   "snowflake",
+  "mariadb",
 ];
 
 export const apiPluginsForQueryLibrary: Partial<DatasourceType>[] = [

@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { ResourceType } from "@openblocks-ee/constants/queryConstants";
 import {
   ClickHouseIcon,
+  DataResponderIcon,
   DeleteApiIcon,
   EsIcon,
   GetApiIcon,
@@ -9,6 +10,7 @@ import {
   GraphqlIcon,
   HeadApiIcon,
   JSIcon,
+  MariaDBIcon,
   MongoIcon,
   MSSQLIcon,
   MysqlIcon,
@@ -27,7 +29,6 @@ import {
   TempStateIcon,
   TraceApiIcon,
   TransformerIcon,
-  DataResponderIcon,
 } from "openblocks-design";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { HttpMethod } from "api/api";
@@ -130,6 +131,8 @@ export const getBottomResIcon = (
         return <OpenBlocksQueryIcon />;
       case "snowflake":
         return <SnowflakeIcon />;
+      case "mariadb":
+        return <MariaDBIcon />;
       default:
         if (defaultIconUrl) {
           return getBottomResIconInnerByUrl(type, defaultIconUrl);

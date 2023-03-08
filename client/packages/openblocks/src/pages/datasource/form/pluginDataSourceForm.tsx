@@ -201,6 +201,7 @@ export const PluginDataSourceForm = (props: DatasourceFormProps) => {
 
   const dataSourceConfig = pluginDef.dataSourceConfig;
   const initialValues = getDefaultValues(pluginDef, datasource);
+  const hasGeneralSettings = dataSourceConfig.params?.[0]?.type !== "groupTitle";
 
   return (
     <DatasourceForm form={form} initialValues={initialValues} onFieldsChange={handleFieldsChange}>
@@ -218,7 +219,7 @@ export const PluginDataSourceForm = (props: DatasourceFormProps) => {
       </FormSection>
 
       <FormSection size={props.size}>
-        <GeneralSettingFormSectionLabel />
+        {hasGeneralSettings && <GeneralSettingFormSectionLabel />}
         {(dataSourceConfig.params || []).map((field) => {
           return (
             <React.Fragment key={field.key}>

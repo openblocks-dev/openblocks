@@ -1,4 +1,5 @@
 import { ColumnComp, newPrimaryColumn } from "comps/comps/tableComp/column/tableColumnComp";
+import { calcColumnWidth, COLUMN_CHILDREN_KEY } from "comps/comps/tableComp/tableUtils";
 import { list } from "comps/generators/list";
 import { getReduceContext } from "comps/utils/reduceContext";
 import _ from "lodash";
@@ -57,10 +58,10 @@ export class ColumnListComp extends ColumnListTmpComp {
       const { readOnly } = getReduceContext();
       let comp = this;
       if (action.value.doGeneColumn && (action.value.dynamicColumn || !readOnly)) {
-        const actions = this.geneColumnsAction(rowExample);
+        const actions = this.geneColumnsAction(rowExample, action.value.data);
         comp = this.reduce(this.multiAction(actions));
       }
-      return comp.updateRenderData(action.value.data);
+      return comp;
     }
     return super.reduce(action);
   }
@@ -87,27 +88,6 @@ export class ColumnListComp extends ColumnListTmpComp {
     columns.forEach((column) => column.dispatchClearChangeSet());
   }
 
-  updateRenderData(data: Array<JSONObject>) {
-    const columns = this.getView();
-    const actions = columns.map((col) => {
-      const dataIndex = col.children.dataIndex.getView();
-      const paramValueMap = _.chain(data)
-        .toPairs()
-        .fromPairs()
-        .mapValues((row, index) => ({
-          currentCell: row[dataIndex],
-          currentRow: row,
-          currentIndex: index,
-          currentOriginalIndex: index,
-        }))
-        .value();
-      const render = col.children.render.clear().batchSet(paramValueMap);
-      const newCol = col.setChild("render", render);
-      return this.pushCompAction(newCol);
-    });
-    return this.reduce(this.multiAction([this.clearAction(), ...actions]));
-  }
-
   /**
    * If the table data changes, call this method to trigger the action
    */
@@ -126,7 +106,7 @@ export class ColumnListComp extends ColumnListTmpComp {
   /**
    * According to the data, adjust the column
    */
-  private geneColumnsAction(rowExample: RowExampleType) {
+  private geneColumnsAction(rowExample: RowExampleType, data: Array<JSONObject>) {
     // If no data, return directly
     if (rowExample === undefined || rowExample === null) {
       return [];
@@ -151,9 +131,12 @@ export class ColumnListComp extends ColumnListTmpComp {
     });
     // The order should be the same as the data
     dataKeys.forEach((key) => {
-      if (!columnsView.find((column) => column.getView().dataIndex === key)) {
+      if (
+        key !== COLUMN_CHILDREN_KEY &&
+        !columnsView.find((column) => column.getView().dataIndex === key)
+      ) {
         // to Add
-        actions.push(this.pushAction(newPrimaryColumn(key)));
+        actions.push(this.pushAction(newPrimaryColumn(key, calcColumnWidth(key, data))));
       }
     });
     if (actions.length === 0) {
@@ -194,5 +177,9 @@ export class ColumnListComp extends ColumnListTmpComp {
       (a, b) => shallowEqual(a[1], b[1])
     )[0];
     return result;
+  }
+
+  setSelectionAction(key: string) {
+    return this.forEachAction(ColumnComp.setSelectionAction(key));
   }
 }
