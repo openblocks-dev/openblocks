@@ -1,5 +1,9 @@
 import { ColumnComp, newPrimaryColumn } from "comps/comps/tableComp/column/tableColumnComp";
-import { calcColumnWidth, COLUMN_CHILDREN_KEY } from "comps/comps/tableComp/tableUtils";
+import {
+  calcColumnWidth,
+  COLUMN_CHILDREN_KEY,
+  supportChildrenTree,
+} from "comps/comps/tableComp/tableUtils";
 import { list } from "comps/generators/list";
 import { getReduceContext } from "comps/utils/reduceContext";
 import _ from "lodash";
@@ -123,7 +127,7 @@ export class ColumnListComp extends ColumnListTmpComp {
         return;
       }
       const dataIndex = column.getView().dataIndex;
-      if (!dataKeys.find((key) => dataIndex === key)) {
+      if (dataIndex === COLUMN_CHILDREN_KEY || !dataKeys.find((key) => dataIndex === key)) {
         // to Delete
         actions.push(this.deleteAction(index - deleteCnt));
         deleteCnt += 1;
@@ -131,10 +135,10 @@ export class ColumnListComp extends ColumnListTmpComp {
     });
     // The order should be the same as the data
     dataKeys.forEach((key) => {
-      if (
-        key !== COLUMN_CHILDREN_KEY &&
-        !columnsView.find((column) => column.getView().dataIndex === key)
-      ) {
+      if (key === COLUMN_CHILDREN_KEY && supportChildrenTree(data)) {
+        return;
+      }
+      if (!columnsView.find((column) => column.getView().dataIndex === key)) {
         // to Add
         actions.push(this.pushAction(newPrimaryColumn(key, calcColumnWidth(key, data))));
       }

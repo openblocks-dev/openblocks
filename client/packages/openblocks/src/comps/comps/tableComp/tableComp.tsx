@@ -15,6 +15,7 @@ import {
   sortData,
   transformDispalyData,
   tranToTableRecord,
+  supportChildrenTree,
 } from "comps/comps/tableComp/tableUtils";
 import { isTriggerAction } from "comps/controls/actionSelector/actionSelectorControl";
 import { withPropertyViewFn, withViewFn } from "comps/generators";
@@ -60,6 +61,7 @@ export class TableImplComp extends TableInitComp implements IContainer {
   private getSlotContainer() {
     return this.children.expansion.children.slot.getSelectedComp().getComp().children.container;
   }
+
   findContainer(key: string) {
     return this.getSlotContainer().findContainer(key);
   }
@@ -291,8 +293,11 @@ export class TableImplComp extends TableInitComp implements IContainer {
     const filteredDataNode = withFunction(fromRecord(nodes), (input) => {
       const { data, searchValue, filter, showFilter } = input;
       const filteredData = filterData(data, searchValue.value, filter, showFilter.value);
+      const supportChildren = supportChildrenTree(filteredData);
       // console.info("filterNode. data: ", data, " filter: ", filter, " filteredData: ", filteredData);
-      return filteredData.map((row) => tranToTableRecord(row, row[OB_ROW_ORI_INDEX]));
+      return filteredData.map((row) =>
+        tranToTableRecord(row, row[OB_ROW_ORI_INDEX], supportChildren)
+      );
     });
     return lastValueIfEqual(this, "filteredDataNode", [filteredDataNode, nodes] as const, (a, b) =>
       shallowEqual(a[1], b[1])
@@ -390,7 +395,7 @@ function _indexKeyToRecord(data: JSONObject[], key: string) {
   let res = undefined;
   for (let k of keyPath) {
     const index = Number(k);
-    if (index >= 0 && currentData && index < currentData.length) {
+    if (index >= 0 && Array.isArray(currentData) && index < currentData.length) {
       res = currentData[index];
       currentData = res[COLUMN_CHILDREN_KEY] as JSONObject[];
     }

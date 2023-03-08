@@ -35,8 +35,7 @@ const ModalHeaderWrapper = styled.div<{ $draggable?: boolean }>`
   cursor: ${(props) => (props.$draggable ? "move" : "auto")};
   display: flex;
   align-items: center;
-  line-height: 26px;
-  padding: 11px 16px;
+  padding: 16px;
 `;
 
 const ModalHeaderTitle = styled.div`

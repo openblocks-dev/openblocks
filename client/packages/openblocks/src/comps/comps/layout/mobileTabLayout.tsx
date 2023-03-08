@@ -157,7 +157,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
     currentTab.children.app.getAppId() &&
     currentTab.children.app.getView()) || (
     <EmptyContent
-      text={trans("aggregation.emptyTabTooltip")}
+      text={readOnly ? "" : trans("aggregation.emptyTabTooltip")}
       style={{ height: "100%", backgroundColor: "white" }}
     />
   );

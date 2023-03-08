@@ -93,7 +93,7 @@ const LayoutPickWrapper = styled.div`
 const LayoutItemWrapper = styled.div`
   background: #f9fafb;
   cursor: pointer;
-  width: 160px;
+  width: 184px;
   border: 1px solid #eeeeee;
   border-radius: 4px;
   display: flex;

@@ -10,6 +10,7 @@ import {
   CustomColumnType,
   onTableChange,
   RecordType,
+  supportChildrenTree,
 } from "comps/comps/tableComp/tableUtils";
 import {
   defaultTheme,
@@ -137,7 +138,7 @@ const getStyle = (style: TableStyleType) => {
       }
 
       // link color
-      td a {
+      td :not(li) > a {
         color: ${isDark && "#A6FFFF"};
 
         &:hover {
@@ -568,6 +569,7 @@ export function TableCompView(props: {
       onEvent={onEvent}
     />
   );
+  const supportChildren = supportChildrenTree(data);
 
   return (
     <BackgroundColorContext.Provider value={style.background}>
@@ -576,7 +578,9 @@ export function TableCompView(props: {
         <ResizeableTable<RecordType>
           expandable={{
             ...expansion.expandableConfig,
-            childrenColumnName: COLUMN_CHILDREN_KEY,
+            childrenColumnName: supportChildren
+              ? COLUMN_CHILDREN_KEY
+              : "OB_CHILDREN_KEY_PLACEHOLDER",
             fixed: "left",
           }}
           rowColor={compChildren.rowColor.getView() as any}

@@ -50,6 +50,13 @@ export class QueryApi extends Api {
 
   static queryExecuteCancelTokenSource: Record<string, CancelTokenSource> = {};
 
+  static cancelAllQuery() {
+    Object.values(QueryApi.queryExecuteCancelTokenSource).forEach((s) => {
+      s.cancel();
+    });
+    QueryApi.queryExecuteCancelTokenSource = {};
+  }
+
   static executeQuery(
     request: QueryExecuteRequest,
     timeout?: number
