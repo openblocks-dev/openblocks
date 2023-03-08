@@ -279,14 +279,22 @@ function actionSelectorControl(needContext: boolean) {
       if (!this.children.condition.getView()) {
         return;
       }
+
+      let executor = (x: Function) => x();
+
+      const limitEnabled = !!this.children.delay.unevaledValue;
+      if (limitEnabled) {
+        executor = limitExecutor(
+          this,
+          "execute_query",
+          this.children.slowdown.getView(),
+          this.children.delay.getView()
+        );
+      }
+
       return () =>
         getPromiseAfterExecuteDispatch(
-          limitExecutor(
-            this,
-            "execute_query",
-            this.children.slowdown.getView(),
-            this.children.delay.getView()
-          ),
+          executor,
           this.dispatch,
           customAction<ActionTriggered>({
             type: ACTION_TRIGGERED_TYPE_STRING,
