@@ -5,7 +5,7 @@ import { AdvancedSetting } from "./advanced/AdvancedSetting";
 import { currentOrgAdmin } from "util/permissionUtils";
 import { trans } from "i18n";
 import AuditSetting from "@openblocks-ee/pages/setting/audit";
-import { isEE, isEnterpriseMode, isSelfDomain, showAuditLog } from "util/envUtils";
+import { developEnv, isEE, isEnterpriseMode, isSelfDomain, showAuditLog } from "util/envUtils";
 import { TwoColumnSettingPageContent } from "./styled";
 import SubSideBar from "components/layout/SubSideBar";
 import { Menu } from "openblocks-design";
@@ -42,29 +42,38 @@ export function SettingHome() {
       key: SettingPageEnum.Organization,
       label: trans("settings.organization"),
     },
-    {
-      key: SettingPageEnum.IdSource,
-      label: trans("settings.idSource"),
-      disabled: !currentOrgAdmin(user) || (!isSelfDomain(config) && !isEnterpriseMode(config)),
-    },
-    {
-      key: SettingPageEnum.Audit,
-      label: trans("settings.audit"),
-      disabled: !showAuditLog(config) || !currentOrgAdmin(user),
-    },
+    ...(isEE() && currentOrgAdmin(user) && (isSelfDomain(config) || isEnterpriseMode(config))
+      ? [
+          {
+            key: SettingPageEnum.IdSource,
+            label: trans("settings.idSource"),
+          },
+        ]
+      : []),
+    ...(showAuditLog(config) && currentOrgAdmin(user)
+      ? [
+          {
+            key: SettingPageEnum.Audit,
+            label: trans("settings.audit"),
+          },
+        ]
+      : []),
     {
       key: SettingPageEnum.Theme,
       label: trans("settings.theme"),
     },
-    {
-      key: SettingPageEnum.Branding,
-      label: trans("settings.branding"),
-      disabled:
-        !isEE() ||
-        !currentOrgAdmin(user) ||
-        !enableCustomBrand(config) ||
-        (!isSelfDomain(config) && !isEnterpriseMode(config)),
-    },
+    ...(developEnv() ||
+    (isEE() &&
+      currentOrgAdmin(user) &&
+      enableCustomBrand(config) &&
+      (isSelfDomain(config) || isEnterpriseMode(config)))
+      ? [
+          {
+            key: SettingPageEnum.Branding,
+            label: trans("settings.branding"),
+          },
+        ]
+      : []),
     {
       key: SettingPageEnum.Advanced,
       label: trans("settings.advanced"),

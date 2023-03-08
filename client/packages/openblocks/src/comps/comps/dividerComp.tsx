@@ -16,12 +16,7 @@ import { trans } from "i18n";
 type IProps = DividerProps & { $style: DividerStyleType; dashed: boolean };
 
 const StyledDivider = styled(Divider)<IProps>`
-  margin-top: 3.5px;
-  .ant-divider-inner-text {
-    height: 32px;
-    display: flex;
-    align-items: center;
-  }
+  margin: 0;
   border-top: 1px ${(props) => (props.dashed ? "dashed" : "solid")} ${(props) => props.$style.color};
 
   &.ant-divider-horizontal.ant-divider-with-text {

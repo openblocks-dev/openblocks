@@ -1,9 +1,5 @@
 import { Button, Dropdown, Menu, Skeleton } from "antd";
-import {
-  Button100,
-  ButtonCompWrapper,
-  buttonRefMethods,
-} from "comps/comps/buttonComp/buttonCompConstants";
+import { Button100, ButtonCompWrapper } from "comps/comps/buttonComp/buttonCompConstants";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { ScannerEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
@@ -20,6 +16,7 @@ import { arrayStringExposingStateControl } from "comps/controls/codeStateControl
 import { BoolControl } from "comps/controls/boolControl";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
 import { RefControl } from "comps/controls/refControl";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 const Error = styled.div`
   color: #f5222d;
@@ -225,7 +222,7 @@ const ScannerTmpComp = (function () {
         </>
       );
     })
-    .setExposeMethodConfigs(buttonRefMethods)
+    .setExposeMethodConfigs(refMethods(["focus", "blur", "click"]))
     .build();
 })();
 

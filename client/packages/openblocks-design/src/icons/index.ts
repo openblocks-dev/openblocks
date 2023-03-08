@@ -217,7 +217,6 @@ export { ReactComponent as ToggleButtonCompIcon } from "./icon-toggle-button.svg
 export { ReactComponent as GoogleSheetsIcon } from "./icon-query-GoogleSheets.svg";
 export { ReactComponent as GraphqlIcon } from "./icon-query-Graphql.svg";
 export { ReactComponent as SnowflakeIcon } from "./icon-query-snowflake.svg";
-export { ReactComponent as MariaDBIcon } from "./icon-query-MariaDB.svg";
 export { ReactComponent as imageEditorIcon } from "./icon-insert-imageEditor.svg";
 export { ReactComponent as HomeSettingsIcon } from "./icon-home-settings.svg";
 export { ReactComponent as HomeSettingsActiveIcon } from "./icon-home-settings-active.svg";
@@ -269,8 +268,3 @@ export { ReactComponent as ManualIcon } from "./icon-manual.svg";
 export { ReactComponent as WarnIcon } from "./icon-warn.svg";
 export { ReactComponent as SyncManualIcon } from "./icon-sync-manual.svg";
 export { ReactComponent as DangerIcon } from "icons/icon-danger.svg";
-export { ReactComponent as TableMinusIcon } from "icons/icon-table-minus.svg";
-export { ReactComponent as TablePlusIcon } from "icons/icon-table-plus.svg";
-export { ReactComponent as MobileAppIcon } from "icons/icon-mobile-app.svg";
-export { ReactComponent as MobileNavIcon } from "icons/icon-navigation-mobile.svg";
-export { ReactComponent as PcNavIcon } from "icons/icon-navigation-pc.svg";

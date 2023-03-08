@@ -11,7 +11,6 @@ import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import {
-  selectDivRefMethods,
   SelectInputInvalidConfig,
   SelectInputValidationChildren,
   SelectInputValidationSection,
@@ -22,6 +21,7 @@ import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 const getStyle = (style: SegmentStyleType) => {
   return css`
@@ -120,7 +120,7 @@ const SegmentedControlBasicComp = (function () {
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>
     ))
-    .setExposeMethodConfigs(selectDivRefMethods)
+    .setExposeMethodConfigs(refMethods(["focus", "blur"]))
     .build();
 })();
 

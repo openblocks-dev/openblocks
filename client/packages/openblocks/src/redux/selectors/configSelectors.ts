@@ -1,5 +1,5 @@
 import { AppState } from "redux/reducers";
-import { SystemConfig } from "constants/configConstants";
+import { SystemConfig } from "@openblocks-ee/constants/configConstants";
 
 export const getSystemConfigFetching = (state: AppState) => {
   return state.ui.config.fetchingConfig;

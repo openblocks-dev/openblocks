@@ -6,7 +6,7 @@ import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { getCurrentTheme } from "comps/utils/themeUtil";
 import { trans } from "i18n";
-import { useContext, useEffect, useMemo } from "react";
+import { useContext, useEffect } from "react";
 import { getThemeList } from "redux/selectors/commonSettingSelectors";
 import { useSelector } from "redux/store/store";
 import { setLocalThemeId } from "util/localStorageUtil";
@@ -38,12 +38,8 @@ let ThemeTempComp = withViewFn(
     stateValue: stateComp<ExposingData>(INIT_DATA),
   }),
   (comp) => {
-    const commonThemes = useSelector(getThemeList);
-    const globalThemes = getGlobalSettings().orgCommonSettings?.themeList;
-    const themeList = useMemo(
-      () => commonThemes || globalThemes || [],
-      [commonThemes, globalThemes]
-    );
+    const themeList =
+      useSelector(getThemeList) || getGlobalSettings().orgCommonSettings?.themeList || [];
     const editorState = useContext(EditorContext);
     const appThemeId = editorState.getAppSettings().themeId;
     const currentTheme = getCurrentTheme(themeList, appThemeId);

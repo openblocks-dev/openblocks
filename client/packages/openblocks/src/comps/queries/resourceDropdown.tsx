@@ -1,27 +1,25 @@
 import { Divider, message, Select } from "antd";
 import { useSelector } from "react-redux";
 import React, { useContext, useMemo, useState } from "react";
-import { DataSourceTypeInfo } from "api/datasourceApi";
+import { DataSourceTypeInfo } from "../../api/datasourceApi";
 import styled from "styled-components";
 import { CustomSelect, EllipsisTextCss } from "openblocks-design";
-import { DatasourceModal } from "pages/datasource/datasourceModal";
+import { DatasourceModal } from "../../pages/datasource/datasourceModal";
 import { InputStatus } from "antd/lib/_util/statusUtils";
-import { getDataSource, getDataSourceTypes } from "redux/selectors/datasourceSelectors";
+import { getDataSource, getDataSourceTypes } from "../../redux/selectors/datasourceSelectors";
 import { getUser } from "redux/selectors/usersSelectors";
 import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { trans } from "i18n";
 import { DatasourceType, ResourceType } from "@openblocks-ee/constants/queryConstants";
 import {
+  databasePlugins,
   OPENBLOCKS_API_ID,
   OPENBLOCKS_API_INFO,
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
-} from "constants/datasourceConstants";
-import {
-  apiPluginsForQueryLibrary,
-  databasePlugins,
-} from "@openblocks-ee/constants/datasourceConstants";
-import { QueryContext } from "util/context/QueryContext";
+} from "../../constants/datasourceConstants";
+import { apiPluginsForQueryLibrary } from "@openblocks-ee/constants/datasourceConstants";
+import { QueryContext } from "../../util/context/QueryContext";
 
 const SelectOptionLabel = styled.div`
   font-size: 13px;

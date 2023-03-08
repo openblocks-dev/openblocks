@@ -129,11 +129,7 @@ export function GridItem(props: GridItemProps) {
         onDragStart={isDraggable ? onDragStart : undefined}
         onDrag={onDrag}
         onDragEnd={onDragEnd}
-        onMouseDown={(e) => {
-          e.stopPropagation();
-          const event = new MouseEvent("mousedown");
-          document.dispatchEvent(event);
-        }}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         <IsDroppable.Provider value={draggingUtils.getData("i") !== i}>
           {child}

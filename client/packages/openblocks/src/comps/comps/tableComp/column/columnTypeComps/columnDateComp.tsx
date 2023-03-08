@@ -117,13 +117,10 @@ const Wrapper = styled.div`
   background: transparent !important;
 `;
 
-export function formatDate(date: string, format: string) {
-  let mom = moment(date);
+function formatDate(date: string, format: string) {
+  let mom = moment(date, DateParser);
   if (!mom.isValid()) {
-    mom = moment.utc(date, DateParser).local();
-    if (!mom.isValid()) {
-      mom = moment(0);
-    }
+    mom = moment(0, DateParser);
   }
   return mom.isValid() ? mom.format(format) : "";
 }
@@ -135,14 +132,13 @@ const childrenMap = {
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
 
-type DateEditProps = {
+type DateTimeEditProps = {
   value: string;
   onChange: (value: string) => void;
   onChangeEnd: () => void;
-  showTime: boolean;
 };
 
-export const DateEdit = (props: DateEditProps) => {
+const DateTimeEdit = (props: DateTimeEditProps) => {
   const [panelOpen, setPanelOpen] = useState(true);
   let value = moment(props.value, DateParser);
   if (!value.isValid()) {
@@ -167,7 +163,7 @@ export const DateEdit = (props: DateEditProps) => {
         bordered={false}
         autoFocus
         defaultValue={value}
-        showTime={props.showTime}
+        showTime
         showNow={true}
         defaultOpen={true}
         panelRender={(panelNode) => <StylePanel>{panelNode}</StylePanel>}
@@ -184,7 +180,7 @@ export const DateEdit = (props: DateEditProps) => {
   );
 };
 
-export const DateComp = (function () {
+export const DateTimeComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
@@ -195,12 +191,7 @@ export const DateComp = (function () {
     getBaseValue
   )
     .setEditViewFn((props) => (
-      <DateEdit
-        value={props.value}
-        onChange={props.onChange}
-        onChangeEnd={props.onChangeEnd}
-        showTime={false}
-      />
+      <DateTimeEdit value={props.value} onChange={props.onChange} onChangeEnd={props.onChangeEnd} />
     ))
     .setPropertyViewFn((children) => (
       <>

@@ -31,7 +31,6 @@ import { CompStateIcon } from "./editorConstants";
 import { UICompType } from "comps/uiCompRegistry";
 import { CollapseWrapper, DirectoryTreeStyle, Node } from "./styledComponents";
 import { DataNode, EventDataNode } from "antd/lib/tree";
-import { isAggregationApp } from "util/appUtils";
 
 const CollapseTitleWrapper = styled.div`
   display: flex;
@@ -440,14 +439,14 @@ export const LeftContent = (props: LeftContentProps) => {
   };
 
   const uiCollapse = useMemo(() => {
-    if (isAggregationApp(editorState.getAppType())) {
+    if (editorState.getAppType() === "nav") {
       return;
     }
     return getTreeUI(TreeUIKey.Components);
   }, [editorState, uiCollapseClick, expandedKeys, showData]);
 
   const modalsCollapse = useMemo(() => {
-    if (isAggregationApp(editorState.getAppType())) {
+    if (editorState.getAppType() === "nav") {
       return;
     }
     return getTreeUI(TreeUIKey.Modals);

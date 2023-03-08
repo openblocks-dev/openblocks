@@ -91,12 +91,22 @@ type MethodKeys<T> = {
   [K in keyof T]: T[K] extends Function ? (K extends string ? K : never) : never;
 }[keyof T];
 
-export function refMethods<T>(
-  methods: MethodConfig<MethodKeys<T>>[]
-): MethodConfigInfo<ExposeMethodCompConstructor<MultiBaseComp<{ viewRef: RefControl<T> }>>>[] {
+type RefType<V> = V extends ExposeMethodCompConstructor<
+  MultiBaseComp<{ viewRef: RefControl<infer X> }>
+>
+  ? X
+  : never;
+
+export function refMethods<
+  T extends ExposeMethodCompConstructor<MultiBaseComp<{ viewRef: RefControl<any> }>>
+>(methods: MethodKeys<RefType<T>>[]): MethodConfigInfo<T>[] {
   return methods.map((method) => ({
-    method,
-    execute: (comp: MultiBaseComp<{ viewRef: RefControl<T> }>, params: EvalParamType[]) =>
-      (comp.children.viewRef.viewRef?.[method.name] as any)?.(...params),
+    method: {
+      name: method,
+      description: method,
+      params: [],
+    },
+    execute: (comp: ConstructorToComp<T>, params: EvalParamType[]) =>
+      comp.children.viewRef.viewRef?.[method]?.(...params),
   }));
 }

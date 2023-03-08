@@ -6,7 +6,7 @@ import { QueryGeneralPropertyView } from "../../queries/queryComp/queryPropertyV
 import { InputListComp } from "./inputListComp";
 import { CompExposingContext } from "comps/generators/withContext";
 import { QueryContext } from "util/context/QueryContext";
-import { QueryLibraryEditorView } from "pages/queryLibrary/queryLibraryEditorView";
+import { QueryLibraryEditorView } from "../../../pages/queryLibrary/queryLibraryEditorView";
 import {
   CustomModal,
   EditPopover,
@@ -19,15 +19,12 @@ import {
 } from "openblocks-design";
 import ReactHotkeys from "../../../util/hotkeys";
 import { executeQueryAction, renameAction } from "openblocks-core";
-import { deleteQueryLibrary } from "redux/reduxActions/queryLibraryActions";
+import { deleteQueryLibrary } from "../../../redux/reduxActions/queryLibraryActions";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
-import { DataSourceStructureTree } from "pages/editor/bottom/BottomMetaDrawer";
+import { DataSourceStructureTree } from "../../../pages/editor/bottom/BottomMetaDrawer";
 import { trans } from "i18n";
-import { QueryLibraryResultPanel } from "components/resultPanel/QueryLibraryResultPanel";
-import { DatasourceStructure } from "api/datasourceApi";
-import { MetaDataContext } from "base/codeEditor/codeEditorTypes";
-import { useMetaData } from "util/hooks";
+import { QueryLibraryResultPanel } from "../../../components/resultPanel/QueryLibraryResultPanel";
 
 const children = {
   query: withPropertyViewFn(QueryComp, (comp) => (
@@ -84,20 +81,6 @@ export const QueryLibraryComp = class extends QueryLibraryCompBase {
   }
 };
 
-function getMetaData(
-  datasourceStructure: Record<string, DatasourceStructure[]>,
-  selectedDatasourceId: string
-): Record<string, string> {
-  let ret: Record<string, string> = {};
-  datasourceStructure[selectedDatasourceId]?.forEach((table) => {
-    ret[table.name] = "table";
-    table.columns?.forEach((c) => {
-      ret[c.name] = c.type;
-    });
-  });
-  return ret;
-}
-
 const PropertyView = (props: {
   comp: QueryLibraryCompType;
   onPublish: () => void;
@@ -108,9 +91,6 @@ const PropertyView = (props: {
   const reduxDispatch = useDispatch();
 
   const [showResult, setShowResult] = useState<boolean>(false);
-
-  const did = comp.children.query.children.datasourceId.getView();
-  const metaData = useMetaData(did);
 
   useEffect(() => {
     setShowResult(false);
@@ -124,80 +104,78 @@ const PropertyView = (props: {
     );
 
   return (
-    <MetaDataContext.Provider value={metaData}>
-      <CompExposingContext.Provider
-        value={exposingDataForAutoComplete(comp.nameAndExposingInfo(), false)}
+    <CompExposingContext.Provider
+      value={exposingDataForAutoComplete(comp.nameAndExposingInfo(), false)}
+    >
+      <ReactHotkeys
+        global={true}
+        keyName={"command+enter"}
+        onKeyDown={handleExec}
+        allowRepeat={true}
+        wrapperStyle={{ width: "100%" }}
       >
-        <ReactHotkeys
-          global={true}
-          keyName={"command+enter"}
-          onKeyDown={handleExec}
-          allowRepeat={true}
-          wrapperStyle={{ width: "100%" }}
-        >
-          <QueryLibraryEditorView
-            comp={comp}
-            title={
-              <EditText
-                text={comp.children.query.children.name.getView()}
-                onFinish={(value) =>
-                  value !== comp.children.query.children.name.getView() &&
-                  comp.dispatch(renameAction(comp.children.query.children.name.getView(), value))
+        <QueryLibraryEditorView
+          comp={comp}
+          title={
+            <EditText
+              text={comp.children.query.children.name.getView()}
+              onFinish={(value) =>
+                value !== comp.children.query.children.name.getView() &&
+                comp.dispatch(renameAction(comp.children.query.children.name.getView(), value))
+              }
+            />
+          }
+          headerRight={
+            <>
+              <EditPopover
+                items={[
+                  { text: trans("queryLibrary.publish"), onClick: onPublish },
+                  { text: trans("queryLibrary.historyVersion"), onClick: onHistoryShow },
+                ]}
+                del={() =>
+                  CustomModal.confirm({
+                    title: trans("queryLibrary.deleteQueryLabel"),
+                    content: trans("queryLibrary.deleteQueryContent"),
+                    onConfirm: () =>
+                      reduxDispatch(
+                        deleteQueryLibrary({
+                          queryLibraryId: comp.children.query.children.id.getView(),
+                        })
+                      ),
+                    confirmBtnType: "delete",
+                    okText: trans("delete"),
+                  })
                 }
-              />
-            }
-            headerRight={
-              <>
-                <EditPopover
-                  items={[
-                    { text: trans("queryLibrary.publish"), onClick: onPublish },
-                    { text: trans("queryLibrary.historyVersion"), onClick: onHistoryShow },
-                  ]}
-                  del={() =>
-                    CustomModal.confirm({
-                      title: trans("queryLibrary.deleteQueryLabel"),
-                      content: trans("queryLibrary.deleteQueryContent"),
-                      onConfirm: () =>
-                        reduxDispatch(
-                          deleteQueryLibrary({
-                            queryLibraryId: comp.children.query.children.id.getView(),
-                          })
-                        ),
-                      confirmBtnType: "delete",
-                      okText: trans("delete"),
-                    })
-                  }
-                >
-                  <PopoverButton>
-                    <PopoverIcon tabIndex={-1} />
-                  </PopoverButton>
-                </EditPopover>
-                <RunButton
-                  onClick={handleExec}
-                  loading={comp.children.query.children.isFetching.getView()}
-                  buttonType="primary"
-                >
-                  <RunIcon />
-                  {trans("queryLibrary.run")}
-                </RunButton>
-              </>
-            }
-            bodyLeft={
-              <>
-                {comp.getQueryPropertyView()}
-                {showResult && (
-                  <QueryLibraryResultPanel
-                    comp={comp.children.query as any}
-                    onClose={() => setShowResult(false)}
-                  />
-                )}
-              </>
-            }
-            bodyRight={<ScrollBar>{comp.getRightPropertyView()}</ScrollBar>}
-          />
-        </ReactHotkeys>
-      </CompExposingContext.Provider>
-    </MetaDataContext.Provider>
+              >
+                <PopoverButton>
+                  <PopoverIcon tabIndex={-1} />
+                </PopoverButton>
+              </EditPopover>
+              <RunButton
+                onClick={handleExec}
+                loading={comp.children.query.children.isFetching.getView()}
+                buttonType="primary"
+              >
+                <RunIcon />
+                {trans("queryLibrary.run")}
+              </RunButton>
+            </>
+          }
+          bodyLeft={
+            <>
+              {comp.getQueryPropertyView()}
+              {showResult && (
+                <QueryLibraryResultPanel
+                  comp={comp.children.query as any}
+                  onClose={() => setShowResult(false)}
+                />
+              )}
+            </>
+          }
+          bodyRight={<ScrollBar>{comp.getRightPropertyView()}</ScrollBar>}
+        />
+      </ReactHotkeys>
+    </CompExposingContext.Provider>
   );
 };
 

@@ -1,12 +1,6 @@
 import { FormInput, PasswordInput } from "openblocks-design";
-import {
-  AuthBottomView,
-  ConfirmButton,
-  FormWrapperMobile,
-  LoginCardTitle,
-  StyledRouteLink,
-} from "pages/userAuth/authComponents";
-import React, { useContext, useState } from "react";
+import { ConfirmButton, FormWrapperMobile, LoginCardTitle } from "pages/userAuth/authComponents";
+import React, { useState } from "react";
 import { message } from "antd";
 import styled from "styled-components";
 import UserApi from "api/userApi";
@@ -14,10 +8,10 @@ import { useRedirectUrl } from "util/hooks";
 import { checkEmailValid, checkPhoneValid } from "util/stringUtils";
 import { UserConnectionSource } from "@openblocks-ee/constants/userConstants";
 import { trans } from "i18n";
-import { AuthContext, authRespValidate } from "pages/userAuth/authUtils";
-import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
-import { AUTH_REGISTER_URL } from "constants/routesURL";
-import { useLocation } from "react-router-dom";
+import { authRespValidate } from "pages/userAuth/authUtils";
+import { requiresUnAuth } from "pages/userAuth/authHOC";
+import { useSelector } from "react-redux";
+import { selectSystemConfig } from "redux/selectors/configSelectors";
 
 const AccountLoginWrapper = styled(FormWrapperMobile)`
   display: flex;
@@ -30,7 +24,7 @@ const onSubmit = (
   password: string,
   redirectUrl: string | null,
   invitationId?: string,
-  authId?: string
+  authId?: string,
 ) => {
   UserApi.formLogin({
     register: false,
@@ -48,15 +42,12 @@ const onSubmit = (
     });
 };
 
-export default function FormLogin() {
+function AccountPassLogin(props: { invitationId?: string }) {
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const redirectUrl = useRedirectUrl();
-  const { systemConfig, inviteInfo } = useContext(AuthContext);
-  const invitationId = inviteInfo?.invitationId;
-  const authId = systemConfig?.form.id;
-  const location = useLocation();
-
+  const config = useSelector(selectSystemConfig);
+  const authId = config?.email.id;
   return (
     <>
       <LoginCardTitle>{trans("userAuth.login")}</LoginCardTitle>
@@ -78,19 +69,13 @@ export default function FormLogin() {
         />
         <ConfirmButton
           disabled={!account || !password}
-          onClick={() => onSubmit(account, password, redirectUrl, invitationId, authId)}
+          onClick={() => onSubmit(account, password, redirectUrl, props.invitationId, authId)}
         >
           {trans("userAuth.login")}
         </ConfirmButton>
       </AccountLoginWrapper>
-      <AuthBottomView>
-        <ThirdPartyAuth invitationId={invitationId} authGoal="login" />
-        {systemConfig.form.enableRegister && (
-          <StyledRouteLink to={{ pathname: AUTH_REGISTER_URL, state: location.state }}>
-            {trans("userAuth.register")}
-          </StyledRouteLink>
-        )}
-      </AuthBottomView>
     </>
   );
 }
+
+export default requiresUnAuth(AccountPassLogin);

@@ -1,13 +1,14 @@
+import { MultiBaseComp } from "openblocks-core";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { list } from "comps/generators/list";
 import { parseChildrenFromValueAndChildrenMap, ToViewReturn } from "comps/generators/multi";
 import { withDefault } from "comps/generators/simpleGenerators";
+import { fromRecord } from "openblocks-core";
+import _ from "lodash";
+import { ReactNode } from "react";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import _ from "lodash";
-import { fromRecord, MultiBaseComp, Node, RecordNode, RecordNodeToValue } from "openblocks-core";
-import { ReactNode } from "react";
 
 const events = [clickEvent];
 
@@ -65,7 +66,7 @@ export class NavItemComp extends MultiBaseComp<ChildrenType> {
     this.children.items.addItem(value);
   }
 
-  exposingNode(): RecordNode<NavItemExposing> {
+  exposingNode() {
     return fromRecord({
       label: this.children.label.exposingNode(),
       hidden: this.children.hidden.exposingNode(),
@@ -74,13 +75,6 @@ export class NavItemComp extends MultiBaseComp<ChildrenType> {
     });
   }
 }
-
-type NavItemExposing = {
-  label: Node<string>;
-  hidden: Node<boolean>;
-  active: Node<boolean>;
-  items: Node<RecordNodeToValue<NavItemExposing>[]>;
-};
 
 export function navListComp() {
   const NavItemListCompBase = list(NavItemComp);

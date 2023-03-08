@@ -351,10 +351,8 @@ interface HasExposingNode<T = any> {
   exposingNode: () => Node<T>;
 }
 
-export type CompToExposingValue<T> = T extends HasExposingNode<infer X> ? X : never;
-
 type GetExposingType<T extends Record<string, any>> = {
-  [key in keyof T]: CompToExposingValue<T[key]>;
+  [key in keyof T]: T[key] extends HasExposingNode<infer X> ? X : never;
 };
 
 export type ChildrenTypeToDepsKeys<T extends Record<string, Comp<unknown>>> = ReadonlyArray<

@@ -25,15 +25,6 @@ describe("mapComp", () => {
     expect(comp.getView().b.getView()).toEqual("b");
     expect(comp.getView().c.getView()).toEqual("c");
 
-    let comp1 = comp.reduce(MapComp.filterAction(["a", "c"]));
-    expect(_.size(comp1.getView())).toEqual(2);
-    expect(comp1.getView().a.getView()).toEqual("a");
-    expect(comp1.getView().c.getView()).toEqual("c");
-
-    comp = comp.reduce(MapComp.batchDeleteAction(["a", "c"]));
-    expect(_.size(comp.getView())).toEqual(1);
-    expect(comp.getView().b.getView()).toEqual("b");
-
     comp = comp.reduce(MapComp.clearAction());
     expect(_.size(comp.getView())).toEqual(0);
   });

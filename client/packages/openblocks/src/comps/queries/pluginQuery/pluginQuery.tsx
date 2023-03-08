@@ -29,13 +29,11 @@ import { CompConstructor } from "openblocks-core";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ControlParams, ControlType } from "comps/controls/controlParams";
 import MarkdownTooltip from "openblocks-design/src/components/MarkdownTooltip";
-import { KeyValueControlParams, keyValueListControl } from "comps/controls/keyValueControl";
-import { VariablesControl } from "../httpQuery/graphqlQuery";
 
-function wrapConfig<CP extends {} = ControlParams>(
+function wrapConfig(
   paramsControl: ControlType,
   config: KeyedParamConfig,
-  controlParams?: CP
+  controlParams: ControlParams = {}
 ) {
   return class extends paramsControl {
     getPropertyView(): ReactNode {
@@ -47,7 +45,7 @@ function wrapConfig<CP extends {} = ControlParams>(
             {config.label}
           </QueryConfigLabel>
           <QueryConfigItemWrapper>
-            {this.propertyView({ placeholder: config.placeholder, ...(controlParams || {}) })}
+            {this.propertyView({ placeholder: config.placeholder, ...controlParams })}
           </QueryConfigItemWrapper>
         </QueryConfigWrapper>
       );
@@ -118,7 +116,7 @@ function ActionSelectView(props: ActionSelectViewProps) {
 
   return (
     <>
-      {(config.categories?.items || []).length > 0 && config.categories && (
+      {config.categories && (
         <Dropdown
           placement="bottom"
           label={config.categories.label}
@@ -274,25 +272,6 @@ export function configToComp(
 
   if (config.type === "sqlInput") {
     Comp = wrapConfig(ParamsJsonControl, config, { styleName: "medium", language: "sql" });
-  }
-
-  if (config.type === "graphqlInput") {
-    Comp = wrapConfig(ParamsStringControl, config, { styleName: "medium" });
-  }
-
-  if (config.type === "keyValueInput") {
-    if (config.valueType === "json") {
-      Comp = wrapConfig(withDefault(VariablesControl, [{ key: "", value: "" }]), config);
-    } else {
-      Comp = wrapConfig<KeyValueControlParams>(
-        withDefault(keyValueListControl(), [{ key: "", value: "" }]),
-        config,
-        {
-          keyFlexBasics: 184,
-          valueFlexBasics: 232,
-        }
-      );
-    }
   }
 
   if (!Comp) {

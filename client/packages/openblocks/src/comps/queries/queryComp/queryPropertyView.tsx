@@ -34,7 +34,7 @@ import { PageType } from "constants/pageConstants";
 import { EditorContext } from "../../editorState";
 import { QueryComp } from "../queryComp";
 import { ResourceDropdown } from "../resourceDropdown";
-import { NOT_SUPPORT_GUI_SQL_QUERY, SQLQuery } from "../sqlQuery/SQLQuery";
+import { SUPPORT_GUI_SQL_QUERY } from "../sqlQuery/SQLQuery";
 
 export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> }) {
   const { comp } = props;
@@ -293,13 +293,12 @@ export const QueryGeneralPropertyView = (props: {
               }}
               status={datasourceStatus}
             />
-            {children.comp instanceof SQLQuery &&
-              !NOT_SUPPORT_GUI_SQL_QUERY.includes(children.compType.getView()) && (
-                <div style={{ width: "104px", marginLeft: "8px", flexShrink: 0 }}>
-                  {/* query comp should not aware of specific queryType  */}
-                  {(children.comp.children as any).mode.propertyView({})}
-                </div>
-              )}
+            {SUPPORT_GUI_SQL_QUERY.includes(children.compType.getView()) && (
+              <div style={{ width: "104px", marginLeft: "8px", flexShrink: 0 }}>
+                {/* query comp should not aware of specific queryType  */}
+                {(children.comp.children as any).mode.propertyView({})}
+              </div>
+            )}
           </QueryConfigItemWrapper>
         </QueryConfigWrapper>
 

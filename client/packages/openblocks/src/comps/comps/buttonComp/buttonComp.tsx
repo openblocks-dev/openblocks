@@ -16,13 +16,9 @@ import styled from "styled-components";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { IForm } from "../formComp/formDataConstants";
 import { SimpleNameComp } from "../simpleNameComp";
-import {
-  Button100,
-  ButtonCompWrapper,
-  buttonRefMethods,
-  ButtonStyleControl,
-} from "./buttonCompConstants";
+import { Button100, ButtonCompWrapper, ButtonStyleControl } from "./buttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
@@ -181,7 +177,7 @@ const ButtonTmpComp = (function () {
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>
     ))
-    .setExposeMethodConfigs(buttonRefMethods)
+    .setExposeMethodConfigs(refMethods(["focus", "blur", "click"]))
     .build();
 })();
 

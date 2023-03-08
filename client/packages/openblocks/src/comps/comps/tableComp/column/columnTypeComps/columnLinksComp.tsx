@@ -9,7 +9,6 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import styled from "styled-components";
 import { ColumnLink } from "comps/comps/tableComp/column/columnTypeComps/columnLinkComp";
-import { LightActiveTextColor, PrimaryColor } from "constants/style";
 
 const LinksWrapper = styled.div`
   white-space: nowrap;
@@ -20,16 +19,6 @@ const LinksWrapper = styled.div`
 
   > a:last-child {
     margin-right: 0;
-  }
-`;
-
-const MenuLinkWrapper = styled.div`
-  > a {
-    color: ${PrimaryColor} !important;
-
-    :hover {
-      color: ${LightActiveTextColor} !important;
-    }
   }
 `;
 
@@ -75,13 +64,11 @@ export const ColumnLinksComp = (function () {
             .slice(3)
             .map((option, index) => (
               <Menu.Item key={index}>
-                <MenuLinkWrapper>
-                  <ColumnLink
-                    disabled={option.disabled}
-                    label={option.label}
-                    onClick={option.onClick}
-                  />
-                </MenuLinkWrapper>
+                <ColumnLink
+                  disabled={option.disabled}
+                  label={option.label}
+                  onClick={option.onClick}
+                />
               </Menu.Item>
             ))}
         </Menu>

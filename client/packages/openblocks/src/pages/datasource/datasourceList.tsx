@@ -113,7 +113,7 @@ export const DatasourceList = () => {
         onCancel={() => showCreateForm(false)}
         activeStepKey={"type"}
         destroyOnClose={true}
-        width="888px"
+        width="600px"
         steps={[
           {
             key: "type",

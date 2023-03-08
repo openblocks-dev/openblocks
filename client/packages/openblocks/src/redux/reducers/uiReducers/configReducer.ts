@@ -1,5 +1,5 @@
 import { createReducer } from "util/reducerUtils";
-import { SystemConfig } from "constants/configConstants";
+import { SystemConfig } from "@openblocks-ee/constants/configConstants";
 import {
   ReduxAction,
   ReduxActionErrorTypes,

@@ -1,6 +1,6 @@
 {
   "name": "openblocks-sdk",
-  "version": "0.0.38",
+  "version": "0.0.36",
   "type": "module",
   "files": [
     "src",

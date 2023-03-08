@@ -8,7 +8,6 @@ import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import styled, { css } from "styled-components";
 import {
-  selectDivRefMethods,
   SelectInputInvalidConfig,
   SelectInputValidationChildren,
   useSelectInputValidate,
@@ -22,10 +21,10 @@ import { ValueFromOption } from "openblocks-design";
 import { EllipsisTextCss } from "openblocks-design";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
+import { refMethods } from "comps/generators/withMethodExposing";
 
-export const getStyle = (style: CheckboxStyleType) => {
+const getStyle = (style: CheckboxStyleType) => {
   return css`
-    &,
     .ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled) {
       color: ${style.staticText};
       height: 22px;
@@ -144,7 +143,7 @@ const CheckboxBasicComp = (function () {
     });
   })
     .setPropertyViewFn((children) => <RadioPropertyView {...children} />)
-    .setExposeMethodConfigs(selectDivRefMethods)
+    .setExposeMethodConfigs(refMethods(["focus", "blur"]))
     .build();
 })();
 

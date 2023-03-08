@@ -7,12 +7,12 @@ import {
   NameConfigPlaceHolder,
   NameConfigRequired,
 } from "comps/generators/withExposing";
+import { refMethods } from "comps/generators/withMethodExposing";
 import styled from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
 import {
   getStyle,
-  inputRefMethods,
   TextInputBasicSection,
   textInputChildren,
   TextInputConfigs,
@@ -93,7 +93,7 @@ export const InputComp = new UICompBuilder(childrenMap, (props) => {
       </>
     );
   })
-  .setExposeMethodConfigs(inputRefMethods)
+  .setExposeMethodConfigs(refMethods(["focus", "blur", "select", "setSelectionRange"]))
   .setExposeStateConfigs([
     new NameConfig("value", trans("export.inputValueDesc")),
     NameConfigPlaceHolder,

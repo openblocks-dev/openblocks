@@ -1,43 +1,23 @@
-import { Pagination } from "antd";
 import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import _ from "lodash";
-import { ConstructorToView, deferAction } from "openblocks-core";
-import { HintPlaceHolder, pageItemRender } from "openblocks-design";
-import { RefObject, useContext, useEffect, useMemo, useRef } from "react";
+import { HintPlaceHolder } from "openblocks-design";
+import { useContext, useMemo, useRef } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import styled from "styled-components";
 import { checkIsMobile } from "util/commonUtils";
 import { useDelayState } from "util/hooks";
-import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import {
   ContainerBaseProps,
   gridItemCompToGridItems,
   InnerGrid,
 } from "../containerComp/containerView";
-import { ContextContainerComp } from "./contextContainerComp";
 import { ListViewImplComp } from "./listViewComp";
-import { getCurrentItemParams, getData } from "./listViewUtils";
+import { getData } from "./listViewUtils";
 
-const ListViewWrapper = styled.div<{ $style: any; $paddingWidth: string }>`
-  height: 100%;
-  border: 1px solid ${(props) => props.$style.border};
-  border-radius: ${(props) => props.$style.radius};
-  padding: 3px ${(props) => props.$paddingWidth};
-  background-color: ${(props) => props.$style.background};
-`;
-
-const FooterWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3px;
-`;
-
-const BodyWrapper = styled.div`
+const Wrapper = styled.div`
   overflow: auto;
   overflow: overlay;
-  height: 100%;
 `;
 
 const FlexWrapper = styled.div`
@@ -58,45 +38,6 @@ const ContainerInListView = (props: ContainerBaseProps) => {
   );
 };
 
-type ListItemProps = {
-  itemIdx: number;
-  offset: number;
-  containerProps: ConstructorToView<typeof SimpleContainerComp>;
-  autoHeight: boolean;
-  scrollContainerRef?: RefObject<HTMLDivElement>;
-  minHeight?: string;
-  unMountFn?: () => void;
-};
-
-function ListItem(props: ListItemProps) {
-  const { itemIdx, offset, containerProps, autoHeight, scrollContainerRef, minHeight } = props;
-
-  useEffect(() => {
-    return props.unMountFn;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return (
-    <ContainerInListView
-      layout={containerProps.layout}
-      items={gridItemCompToGridItems(containerProps.items)}
-      positionParams={containerProps.positionParams}
-      // all layout changes should only reflect on the commonContainer
-      dispatch={itemIdx === offset ? containerProps.dispatch : _.noop}
-      style={{ height: "100%", backgroundColor: "transparent", flex: "auto" }}
-      autoHeight={autoHeight}
-      isDroppable={itemIdx === offset}
-      isDraggable={itemIdx === offset}
-      isResizable={itemIdx === offset}
-      isSelectable={itemIdx === offset}
-      scrollContainerRef={scrollContainerRef}
-      overflow={"hidden"}
-      minHeight={minHeight}
-      enableGridLines={true}
-    />
-  );
-}
-
 type Props = {
   comp: InstanceType<typeof ListViewImplComp>;
 };
@@ -114,39 +55,18 @@ export function ListView(props: Props) {
     () => children.heightUnitOfRow.getView(),
     [children.heightUnitOfRow]
   );
-  const containerFn = useMemo(() => children.container.getView(), [children.container]);
-  const itemIndexName = useMemo(() => children.itemIndexName.getView(), [children.itemIndexName]);
-  const itemDataName = useMemo(() => children.itemDataName.getView(), [children.itemDataName]);
-  const { data, itemCount: totalCount } = useMemo(
-    () => getData(children.noOfRows.getView()),
-    [children.noOfRows]
-  );
+  const containerComps = useMemo(() => children.container.getView(), [children.container]);
+  const itemCount = useMemo(() => _.size(containerComps), [containerComps]);
   const autoHeight = useMemo(() => children.autoHeight.getView(), [children.autoHeight]);
   const noOfColumns = useMemo(
     () => Math.max(1, children.noOfColumns.getView()),
     [children.noOfColumns]
   );
-  const pageInfo = useMemo(() => {
-    const pagination = children.pagination.getView();
-    const total = pagination.total || totalCount;
-    let current = pagination.current;
-    let offset = (current - 1) * pagination.pageSize;
-    const currentPageSize = Math.max(0, Math.min(pagination.pageSize, total - offset));
-    return {
-      pagination: { ...pagination, current: current, total: total },
-      offset,
-      currentPageSize,
-      total,
-    };
-  }, [children.pagination, totalCount]);
   const style = children.style.getView();
 
-  const commonLayout = comp.realSimpleContainer()!.children.layout.getView();
-  const isOneItem =
-    pageInfo.currentPageSize > 0 && (_.isEmpty(commonLayout) || editorState.isDragging);
-  const noOfRows = isOneItem
-    ? 1
-    : Math.floor((pageInfo.currentPageSize + noOfColumns - 1) / noOfColumns);
+  const commonLayout = children.container.getOriginalComp().getComp().children.layout.getView();
+  const isOneItem = itemCount > 0 && (_.isEmpty(commonLayout) || editorState.isDragging);
+  const noOfRows = isOneItem ? 1 : Math.floor((itemCount + noOfColumns - 1) / noOfColumns);
   const rowHeight = isOneItem ? "100%" : dynamicHeight ? "auto" : heightUnitOfRow * 44 + "px";
 
   // minHeight is used to ensure that the container height will not shrink when dragging, and the current padding needs to be subtracted during calculation
@@ -164,33 +84,29 @@ export function ListView(props: Props) {
       >
         <FlexWrapper>
           {_.range(0, noOfColumns).map((colIdx) => {
-            const itemIdx = rowIdx * noOfColumns + colIdx + pageInfo.offset;
-            if (
-              itemIdx >= pageInfo.total ||
-              itemIdx >= pageInfo.offset + pageInfo.pagination.pageSize ||
-              (isOneItem && itemIdx > pageInfo.offset)
-            ) {
+            const itemIdx = rowIdx * noOfColumns + colIdx;
+            if (itemIdx >= itemCount || (isOneItem && itemIdx > 0)) {
               return <div key={itemIdx} style={{ flex: "auto" }}></div>;
             }
-            const containerProps = containerFn(
-              { [itemIndexName]: itemIdx, [itemDataName]: getCurrentItemParams(data, itemIdx) },
-              String(itemIdx)
-            ).getView();
-            const unMountFn = () => {
-              comp.children.container.dispatch(
-                deferAction(ContextContainerComp.batchDeleteAction([String(itemIdx)]))
-              );
-            };
+            const containerProps = containerComps[itemIdx].getView();
             return (
-              <ListItem
+              <ContainerInListView
                 key={itemIdx}
-                itemIdx={itemIdx}
-                offset={pageInfo.offset}
-                containerProps={containerProps}
+                layout={containerProps.layout}
+                items={gridItemCompToGridItems(containerProps.items)}
+                positionParams={containerProps.positionParams}
+                // all layout changes should only reflect on the commonContainer
+                dispatch={itemIdx === 0 ? containerProps.dispatch : _.noop}
+                style={{ height: "100%", backgroundColor: "transparent", flex: "auto" }}
                 autoHeight={isDragging || dynamicHeight}
+                isDroppable={itemIdx === 0}
+                isDraggable={itemIdx === 0}
+                isResizable={itemIdx === 0}
+                isSelectable={itemIdx === 0}
                 scrollContainerRef={ref}
+                overflow={"hidden"}
                 minHeight={minHeight}
-                unMountFn={unMountFn}
+                enableGridLines={true}
               />
             );
           })}
@@ -205,22 +121,26 @@ export function ListView(props: Props) {
   const paddingWidth = isMobile ? "4px" : "16px";
   // log.debug("renders: ", renders);
   return (
-    <BackgroundColorContext.Provider value={style.background}>
-      <ListViewWrapper $style={style} $paddingWidth={paddingWidth}>
-        <BodyWrapper ref={ref}>
-          <ReactResizeDetector
-            onResize={(width?: number, height?: number) => {
-              if (height) setListHeight(height);
-            }}
-            observerOptions={{ box: "border-box" }}
-          >
-            <div style={{ height: autoHeight ? "auto" : "100%" }}>{renders}</div>
-          </ReactResizeDetector>
-        </BodyWrapper>
-        <FooterWrapper>
-          <Pagination size="small" itemRender={pageItemRender} {...pageInfo.pagination} />
-        </FooterWrapper>
-      </ListViewWrapper>
-    </BackgroundColorContext.Provider>
+    <Wrapper
+      ref={ref}
+      style={{
+        height: "100%",
+        backgroundColor: style.background,
+        border: `1px solid ${style.border}`,
+        borderRadius: style.radius,
+        padding: `3px ${paddingWidth}`,
+      }}
+    >
+      <ReactResizeDetector
+        onResize={(width?: number, height?: number) => {
+          if (height) setListHeight(height);
+        }}
+        observerOptions={{ box: "border-box" }}
+      >
+        <BackgroundColorContext.Provider value={style.background}>
+          <div style={{ height: autoHeight ? "auto" : "100%" }}>{renders}</div>
+        </BackgroundColorContext.Provider>
+      </ReactResizeDetector>
+    </Wrapper>
   );
 }

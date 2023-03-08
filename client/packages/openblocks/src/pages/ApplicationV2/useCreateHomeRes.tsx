@@ -1,8 +1,4 @@
-import {
-  ApplicationDetail,
-  AppTypeEnum,
-  AppUILayoutType,
-} from "../../constants/applicationConstants";
+import { ApplicationDetail, AppTypeEnum } from "../../constants/applicationConstants";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback } from "react";
 import { HomeResTypeEnum } from "../../types/homeRes";
@@ -58,12 +54,24 @@ export function useCreateHomeRes() {
           newAppPrefix(user.username, applicationType),
           names
         );
-        const dsl = {
-          ui: {
-            compType: AppUILayoutType[applicationType],
-            comp: {},
-          },
-        };
+
+        let dsl = {};
+
+        if (applicationType === AppTypeEnum.Module) {
+          dsl = {
+            ui: {
+              compType: "module",
+              comp: {},
+            },
+          };
+        } else if (applicationType === AppTypeEnum.NavLayout) {
+          dsl = {
+            ui: {
+              compType: "nav",
+              comp: {},
+            },
+          };
+        }
 
         dispatch(
           createApplication({

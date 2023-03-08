@@ -119,7 +119,6 @@ interface ControlPropertyViewWrapperProps {
   childrenWrapperStyle?: React.CSSProperties;
   labelTooltipOverlayInnerStyle?: React.CSSProperties;
   extraChildren?: ReactNode;
-  labelStyle?: React.CSSProperties;
 }
 
 export const ControlPropertyViewWrapper = (
@@ -137,18 +136,12 @@ export const ControlPropertyViewWrapper = (
     extraChildren,
     labelTooltipOverlayInnerStyle,
     lastNode,
-    labelStyle,
   } = props;
 
   return (
     <Wrapper layout={layout} placement={placement}>
       {label && (
-        <LabelWrapper
-          layout={layout}
-          placement={placement}
-          labelEllipsis={labelEllipsis}
-          style={labelStyle}
-        >
+        <LabelWrapper layout={layout} placement={placement} labelEllipsis={labelEllipsis}>
           <ToolTipLabel
             title={tooltip}
             label={label}

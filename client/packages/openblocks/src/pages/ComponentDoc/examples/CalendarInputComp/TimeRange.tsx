@@ -1,4 +1,4 @@
-import { TimeRangeComp } from "../../../../comps/comps/dateComp/timeComp";
+import { TimeRangeComp } from "comps/comps/timeComp";
 import { trans } from "i18n";
 import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";

@@ -1,5 +1,5 @@
 import { Button } from "antd";
-import { ButtonCompWrapper, buttonRefMethods } from "comps/comps/buttonComp/buttonCompConstants";
+import { ButtonCompWrapper } from "comps/comps/buttonComp/buttonCompConstants";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
@@ -19,6 +19,7 @@ import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 const Link = styled(Button)<{ $style: LinkStyleType }>`
   ${(props) => `color: ${props.$style.text};`}
@@ -109,7 +110,7 @@ const LinkTmpComp = (function () {
         </>
       );
     })
-    .setExposeMethodConfigs(buttonRefMethods)
+    .setExposeMethodConfigs(refMethods(["focus", "blur", "click"]))
     .build();
 })();
 

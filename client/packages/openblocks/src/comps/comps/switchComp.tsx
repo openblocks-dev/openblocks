@@ -15,7 +15,6 @@ import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { refMethods } from "comps/generators/withMethodExposing";
-import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
 
 const EventOptions = [
   changeEvent,
@@ -130,7 +129,7 @@ let SwitchTmpComp = (function () {
         </>
       );
     })
-    .setExposeMethodConfigs(refMethods([focusWithOptions, blurMethod, clickMethod]))
+    .setExposeMethodConfigs(refMethods(["focus", "blur", "click"]))
     .build();
 })();
 

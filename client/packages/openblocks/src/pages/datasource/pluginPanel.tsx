@@ -13,7 +13,7 @@ import {
 } from "@openblocks-ee/constants/datasourceConstants";
 
 export const DataSourceButton = styled(AntdButton)`
-  width: 208px;
+  width: 184px;
   height: ${(props) => (props.size === "small" ? "36px" : "44px")};
   border: 1px solid #d7d9e0;
   border-radius: 4px;

@@ -20,18 +20,7 @@ type MediaCompType = ExposeMethodCompConstructor<
 
 export function mediaMethods(): MethodConfigInfo<MediaCompType>[] {
   return [
-    ...refMethods<ReactPlayer>([
-      {
-        name: "seekTo",
-        description: trans("media.seekTo"),
-        params: [{ name: "amount", type: "number", description: trans("media.seekToAmount") }],
-      },
-      {
-        name: "showPreview",
-        description: trans("media.showPreview"),
-        params: [],
-      },
-    ]),
+    ...refMethods<MediaCompType>(["seekTo", "showPreview"]),
     {
       method: {
         name: "play",

@@ -1,7 +1,6 @@
 import * as localeData from "./locales";
 import IntlMessageFormat from "intl-messageformat";
 import log from "loglevel";
-import { Fragment } from "react";
 
 const defaultLocale = "en";
 
@@ -151,11 +150,7 @@ export class Translator<Messages extends object> {
     variables?: Record<string, VariableValue>
   ) {
     const message = this.getMessage(key);
-    const node = new IntlMessageFormat(message, i18n.locale).format(variables);
-    if (Array.isArray(node)) {
-      return node.map((n, i) => <Fragment key={i}>{n}</Fragment>);
-    }
-    return node;
+    return new IntlMessageFormat(message, i18n.locale).format(variables);
   }
 
   private getMessage(key: NestedKey<Messages> | GlobalMessageKey) {

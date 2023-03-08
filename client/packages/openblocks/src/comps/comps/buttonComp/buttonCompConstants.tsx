@@ -4,8 +4,6 @@ import { ButtonStyleType, ButtonStyle } from "comps/controls/styleControlConstan
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import styled, { css } from "styled-components";
 import { genActiveColor, genHoverColor } from "openblocks-design";
-import { refMethods } from "comps/generators/withMethodExposing";
-import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
 
 export function getButtonStyle(buttonStyle: ButtonStyleType) {
   const hoverColor = genHoverColor(buttonStyle.background);
@@ -46,10 +44,8 @@ export const Button100 = styled(Button)<{ $buttonStyle: ButtonStyleType }>`
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
   span {
     overflow: hidden;
-    text-overflow: ellipsis;
   }
   gap: 6px;
 `;
@@ -86,9 +82,3 @@ function fixOldData(oldData: any) {
 }
 const ButtonTmpStyleControl = styleControl(ButtonStyle);
 export const ButtonStyleControl = migrateOldData(ButtonTmpStyleControl, fixOldData);
-
-export const buttonRefMethods = refMethods<HTMLElement>([
-  focusWithOptions,
-  blurMethod,
-  clickMethod,
-]);

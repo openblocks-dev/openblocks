@@ -149,10 +149,7 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             tooltip: trans("table.dynamicColumnConfigDesc"),
           })}
       </Section>
-      <Section name={sectionNames.layout}>
-        {comp.children.expansion.getPropertyView()}
-        {hiddenPropertyView(comp.children)}
-      </Section>
+      <Section name={sectionNames.layout}>{hiddenPropertyView(comp.children)}</Section>
       <Section name={trans("prop.rowSelection")}>
         {comp.children.selection.getPropertyView()}
       </Section>

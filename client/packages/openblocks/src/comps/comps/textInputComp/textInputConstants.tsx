@@ -13,7 +13,7 @@ import { Section, sectionNames, ValueFromOption } from "openblocks-design";
 import _ from "lodash";
 import { css } from "styled-components";
 import { EMAIL_PATTERN, URL_PATTERN } from "util/stringUtils";
-import { MultiBaseComp, RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
+import { RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
 import {
@@ -32,18 +32,6 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { ChangeEvent, useRef, useState } from "react";
-import { refMethods } from "comps/generators/withMethodExposing";
-import { InputRef } from "antd";
-import {
-  blurMethod,
-  clickMethod,
-  focusWithOptions,
-  selectMethod,
-  setRangeTextMethod,
-  setSelectionRangeMethod,
-} from "comps/utils/methodUtils";
-import { RefControl } from "comps/controls/refControl";
-import { EvalParamType } from "comps/controls/actionSelector/executeCompTypes";
 
 export const TextInputValidationOptions = [
   {
@@ -113,7 +101,7 @@ export const textInputValidate = (
   }
   const optionValue = props.validationType;
   const regex: RegExp = valueInfoMap[optionValue]?.extra ?? props.regex; // pass if empty by default
-  if (value && !regex.test(value)) {
+  if (!regex.test(value)) {
     return { validateStatus: "error", help: valueInfoMap[optionValue].help };
   }
   return { validateStatus: "" };
@@ -253,17 +241,3 @@ export function getStyle(style: InputLikeStyleType) {
     }
   `;
 }
-
-export const inputRefMethods = [
-  ...refMethods<InputRef>([focusWithOptions, blurMethod, selectMethod, setSelectionRangeMethod]),
-  {
-    method: clickMethod,
-    execute: (comp: MultiBaseComp<{ viewRef: RefControl<InputRef> }>, params: EvalParamType[]) =>
-      comp.children.viewRef.viewRef?.input?.click(),
-  },
-  {
-    method: setRangeTextMethod,
-    execute: (comp: MultiBaseComp<{ viewRef: RefControl<InputRef> }>, params: EvalParamType[]) =>
-      (comp.children.viewRef.viewRef?.input?.setRangeText as any)?.(...params),
-  },
-];

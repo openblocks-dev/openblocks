@@ -1,4 +1,4 @@
-import { DatePickerComp } from "comps/comps/dateComp/dateComp";
+import { DatePickerComp } from "comps/comps/dateComp";
 import { trans } from "i18n";
 import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";

@@ -1,5 +1,5 @@
 import { CellProps } from "components/table/EditableCell";
-import { DateTimeComp } from "comps/comps/tableComp/column/columnTypeComps/columnDateTimeComp";
+import { DateTimeComp } from "comps/comps/tableComp/column/columnTypeComps/columnDateComp";
 import { ButtonComp } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 import { withType } from "comps/generators";
 import { trans } from "i18n";
@@ -11,11 +11,7 @@ import { ColumnLinksComp } from "./columnTypeComps/columnLinksComp";
 import { ColumnMarkdownComp } from "./columnTypeComps/columnMarkdownComp";
 import { ColumnTagsComp } from "./columnTypeComps/columnTagsComp";
 import { SimpleTextComp } from "./columnTypeComps/simpleTextComp";
-import { BadgeStatusComp } from "./columnTypeComps/columnStatusComp";
-import { BooleanComp } from "./columnTypeComps/columnBooleanComp";
-import { RatingComp } from "./columnTypeComps/columnRatingComp";
-import { ProgressComp } from "./columnTypeComps/columnProgressComp";
-import { DateComp } from "./columnTypeComps/columnDateComp";
+import { BadgeStatusComp } from './columnTypeComps/columnStatusComp';
 
 const actionOptions = [
   {
@@ -47,28 +43,12 @@ const actionOptions = [
     value: "image",
   },
   {
-    label: trans("table.date"),
-    value: "date",
-  },
-  {
     label: trans("table.dateTime"),
     value: "dateTime",
   },
   {
     label: "Markdown",
     value: "markdown",
-  },
-  {
-    label: trans("table.boolean"),
-    value: "boolean",
-  },
-  {
-    label: trans("table.rating"),
-    value: "rating",
-  },
-  {
-    label: trans("table.progress"),
-    value: "progress",
   },
 ] as const;
 
@@ -82,10 +62,6 @@ export const ColumnTypeCompMap = {
   image: ImageComp,
   markdown: ColumnMarkdownComp,
   dateTime: DateTimeComp,
-  boolean: BooleanComp,
-  rating: RatingComp,
-  progress: ProgressComp,
-  date: DateComp,
 };
 
 type ColumnTypeMapType = typeof ColumnTypeCompMap;

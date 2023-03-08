@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { AttributeIcon } from "openblocks-design";
 import { InsertIcon } from "openblocks-design";
 import { trans } from "i18n";
-import { isAggregationApp } from "util/appUtils";
 
 type RightPanelProps = {
   onTabChange: (key: string) => void;
@@ -19,7 +18,7 @@ type RightPanelProps = {
 export default function RightPanel(props: RightPanelProps) {
   const { onTabChange, showPropertyPane, uiComp } = props;
   const uiCompType = uiComp && (uiComp.children.compType.getView() as UiLayoutType);
-  const aggregationApp = uiCompType && isAggregationApp(uiCompType);
+  const isNavLayout = uiCompType === "nav";
   const [activeKey, setActiveKey] = useState("insert");
   const tabConfigs = [
     {
@@ -29,7 +28,7 @@ export default function RightPanel(props: RightPanelProps) {
       content: <PropertyView uiComp={uiComp} />,
     },
   ];
-  if (!aggregationApp) {
+  if (!isNavLayout) {
     tabConfigs.push({
       key: "insert",
       title: trans("rightPanel.createTab"),
@@ -38,9 +37,9 @@ export default function RightPanel(props: RightPanelProps) {
     });
   }
   useEffect(() => {
-    const key = aggregationApp || showPropertyPane ? "property" : "insert";
+    const key = isNavLayout || showPropertyPane ? "property" : "insert";
     key !== activeKey && setActiveKey(key);
-  }, [showPropertyPane, aggregationApp, activeKey]);
+  }, [showPropertyPane, isNavLayout, activeKey]);
 
   return (
     <RightPanelWrapper className="cypress-right-content">

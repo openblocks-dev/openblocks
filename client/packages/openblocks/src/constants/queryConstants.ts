@@ -28,8 +28,7 @@ export type DatasourceType =
   | "clickHouse"
   | "googleSheets"
   | "graphql"
-  | "snowflake"
-  | "mariadb";
+  | "snowflake";
 
 export type ResourceType = DatasourceType | "js" | "libraryQuery" | "view";
 
@@ -51,7 +50,6 @@ export const QueryMap = {
   googleSheets: GoogleSheetsQuery,
   graphql: GraphqlQuery,
   snowflake: SQLQuery,
-  mariadb: SQLQuery,
 };
 
 export const JsPluginQueryMap: Record<string, MultiCompConstructor> = {};

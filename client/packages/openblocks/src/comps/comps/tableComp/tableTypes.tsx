@@ -11,14 +11,7 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
 import { TableStyle } from "comps/controls/styleControlConstants";
-import {
-  MultiCompBuilder,
-  stateComp,
-  UICompBuilder,
-  valueComp,
-  withContext,
-  withDefault,
-} from "comps/generators";
+import { MultiCompBuilder, stateComp, valueComp, withContext, withDefault } from "comps/generators";
 import { uiChildren } from "comps/generators/uiCompBuilder";
 import { withIsLoadingMethod } from "comps/generators/withIsLoading";
 import { trans } from "i18n";
@@ -28,7 +21,6 @@ import {
   RecordConstructorToView,
 } from "openblocks-core";
 import { JSONObject } from "util/jsonTypes";
-import { ExpansionControl } from "./expansionControl";
 import { PaginationControl } from "./paginationControl";
 import { SelectionControl } from "./selectionControl";
 
@@ -107,7 +99,7 @@ export type RowColorViewType = (param: {
   columnTitle: string;
 }) => string;
 
-const tableChildrenMap = {
+export const tableChildrenMap = {
   hideBordered: BoolControl,
   hideHeader: BoolControl,
   data: withIsLoadingMethod(JSONObjectArrayControl),
@@ -128,18 +120,17 @@ const tableChildrenMap = {
   dynamicColumn: BoolPureControl,
   // todo: support object config
   dynamicColumnConfig: ArrayStringControl,
-  expansion: ExpansionControl,
 };
-
-export const TableInitComp = (function () {
-  return new UICompBuilder(tableChildrenMap, () => {
-    return <></>;
-  })
-    .setPropertyViewFn(() => <></>)
-    .build();
-})();
-
 const uiChildrenMap = uiChildren(tableChildrenMap);
 export type TableChildrenType = RecordConstructorToComp<typeof uiChildrenMap>;
 export type TableChildrenView = RecordConstructorToView<typeof uiChildrenMap>;
 export type TableOnEventView = ConstructorToView<typeof TableEventControl>;
+
+/**
+ * Wrap the original line, mainly for the logic of the default key
+ */
+export type RowWrapper = {
+  record: any;
+  index: number;
+};
+export type RecordType = RowWrapper;

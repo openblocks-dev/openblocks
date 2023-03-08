@@ -92,9 +92,28 @@ const SettingsStyled = styled.div`
 `;
 
 const DivStyled = styled.div`
-  div {
-    width: 100%;
+  > div {
     display: block;
+    > div:nth-of-type(1) {
+      width: 100%;
+      > div {
+        line-height: 1;
+        margin-bottom: 8px;
+      }
+    }
+    > div:nth-of-type(2) {
+      width: 100%;
+      margin-bottom: 12px;
+      input {
+        cursor: pointer !important;
+      }
+      > div {
+        width: 100%;
+      }
+      ::after {
+        width: 0;
+      }
+    }
   }
 `;
 
@@ -185,12 +204,7 @@ function AppSettingsModal(props: ChildrenInstance) {
           dropdownLabel: trans("appSetting.canvasMaxWidth"),
           inputLabel: trans("appSetting.userDefinedMaxWidth"),
           inputPlaceholder: trans("appSetting.inputUserDefinedPxValue"),
-          placement: "bottom",
-          min: 350,
-          lastNode: <span>{trans("appSetting.maxWidthTip")}</span>,
-          labelStyle: {marginBottom: "8px"},
-          dropdownStyle: {marginBottom: "12px"},
-          inputStyle: {marginBottom: "12px"}
+          placement: "modal",
         })}
         <Dropdown
           defaultValue={
@@ -204,8 +218,6 @@ function AppSettingsModal(props: ChildrenInstance) {
           options={THEME_OPTIONS}
           label={trans("appSetting.themeSetting")}
           placement="bottom"
-          labelStyle={{marginBottom: "8px"}}
-          dropdownStyle={{marginBottom: "12px"}}
           itemNode={(value) => <DropdownItem value={value} />}
           preNode={() => (
             <>

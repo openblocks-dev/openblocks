@@ -4,13 +4,10 @@ import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { RadioChildrenMap, RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
-import {
-  selectDivRefMethods,
-  SelectInputInvalidConfig,
-  useSelectInputValidate,
-} from "./selectInputConstants";
+import { SelectInputInvalidConfig, useSelectInputValidate } from "./selectInputConstants";
 import { EllipsisTextCss, ValueFromOption } from "openblocks-design";
 import { trans } from "i18n";
+import { refMethods } from "comps/generators/withMethodExposing";
 
 const getStyle = (style: RadioStyleType) => {
   return css`
@@ -112,7 +109,7 @@ const RadioBasicComp = (function () {
     });
   })
     .setPropertyViewFn((children) => <RadioPropertyView {...children} />)
-    .setExposeMethodConfigs(selectDivRefMethods)
+    .setExposeMethodConfigs(refMethods(["focus", "blur"]))
     .build();
 })();
 

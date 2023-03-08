@@ -1,12 +1,11 @@
 import "comps/comps/layout/navLayout";
-import "comps/comps/layout/mobileTabLayout";
 import { ModalComp } from "comps/hooks/modalComp";
 import { ButtonComp } from "./comps/buttonComp/buttonComp";
 import { DropdownComp } from "./comps/buttonComp/dropdownComp";
 import { LinkComp } from "./comps/buttonComp/linkComp";
 import { ContainerComp, defaultContainerData } from "./comps/containerComp/containerComp";
 import { CustomComp } from "./comps/customComp/customComp";
-import { DatePickerComp, DateRangeComp } from "./comps/dateComp/dateComp";
+import { DatePickerComp, DateRangeComp } from "./comps/dateComp";
 import { DividerComp } from "./comps/dividerComp";
 import { FileComp } from "./comps/fileComp/fileComp";
 import { FileViewerComp } from "./comps/fileViewerComp";
@@ -32,7 +31,8 @@ import { TextComp } from "./comps/textComp";
 import { InputComp } from "./comps/textInputComp/inputComp";
 import { PasswordComp } from "./comps/textInputComp/passwordComp";
 import { TextAreaComp } from "./comps/textInputComp/textAreaComp";
-import { TimePickerComp, TimeRangeComp } from "./comps/dateComp/timeComp";
+import { TimePickerComp, TimeRangeComp } from "./comps/timeComp";
+import "comps/comps/layout/navLayout";
 
 import {
   AudioCompIcon,

@@ -2,11 +2,10 @@ import { PresetStatusColorType } from "antd/es/_util/colors";
 import _ from "lodash";
 import { changeChildAction, DispatchType } from "openblocks-core";
 import { constantColors } from "openblocks-design";
-import React, { ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { JSONValue } from "util/jsonTypes";
 import ColumnTypeView from "./columnTypeView";
-import { TableCellContext } from "comps/comps/tableComp/tableContext";
 
 type StatusType = PresetStatusColorType | "none";
 export const TABLE_EDITABLE_SWITCH_ON = true;
@@ -35,7 +34,6 @@ export interface CellProps {
   candidateTags?: string[];
   candidateStatus?: { text: string; status: StatusType }[];
 }
-
 export type CellViewReturn = (props: CellProps) => ReactNode;
 export type EditViewFn<T> = (props: {
   value: T;
@@ -50,7 +48,7 @@ export const SizeWrapper = styled.div<{ $size?: string }>`
       props.$size === "small" ? "8.5px 8px" : props.$size === "large" ? "16.5px 16px" : "12.5px 8px"
     };
     line-height: 21px;
-    min-height: ${props.$size === "small" ? "39px" : props.$size === "large" ? "55px" : "47px"};
+    height: ${props.$size === "small" ? "39px" : props.$size === "large" ? "55px" : "47px"};
     `}
 `;
 
@@ -84,7 +82,7 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
   } = props;
   const status = _.isNil(changeValue) ? "normal" : "toSave";
   const editable = editViewFn ? props.editable : false;
-  const { isEditing, setIsEditing } = useContext(TableCellContext);
+  const [isEditing, setIsEditing] = useState(false);
   const value = changeValue ?? baseValue!;
 
   const [tmpValue, setTmpValue] = useState<T | null>(value);

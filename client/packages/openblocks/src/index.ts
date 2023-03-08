@@ -9,7 +9,6 @@ import { debug } from "loglevel";
 import { bootstrap } from "./app";
 import "./index.less";
 import log from "loglevel";
-import "antd-mobile/es/global";
 
 window.numbro = numbro;
 window.Papa = Papa;

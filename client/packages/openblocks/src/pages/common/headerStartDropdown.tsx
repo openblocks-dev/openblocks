@@ -63,7 +63,6 @@ export const TypeName = {
   [AppTypeEnum.Application]: trans("home.app"),
   [AppTypeEnum.Module]: trans("home.module"),
   [AppTypeEnum.NavLayout]: trans("home.navLayout"),
-  [AppTypeEnum.MobileTabLayout]: trans("home.mobileTabLayout"),
 };
 
 export function HeaderStartDropdown(props: { setEdit: () => void }) {

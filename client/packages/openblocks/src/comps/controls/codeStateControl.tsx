@@ -303,7 +303,7 @@ export const jsonObjectExposingStateControl = (paramName: string, defaultValue?:
 export const jsonValueExposingStateControl = (paramName: string, defaultValue?: JSONValue) =>
   stateControlMethodExposing(jsonValueStateControl(defaultValue), {
     name: paramName,
-    type: "JSONValue",
+    type: "JSON",
   });
 
 export function jsonExposingStateControl<T extends JSONValue>(

@@ -6,7 +6,6 @@ import { ConstructorToDataType } from "openblocks-core";
 import { EditorState } from "../../editorState";
 import { isArrayLikeObject } from "lodash";
 import { i18nObjs } from "i18n";
-import { calcColumnWidth } from "comps/comps/tableComp/tableUtils";
 // for test only
 const dataSource = [
   {
@@ -52,9 +51,7 @@ const tableInitValue = {
 const tableData = {
   ...tableInitValue,
   data: JSON.stringify(i18nObjs.table.defaultData, null, " "),
-  columns: i18nObjs.table.columns.map((t) =>
-    newPrimaryColumn(t.key, calcColumnWidth(t.key, i18nObjs.table.defaultData), t.title, t.isTag)
-  ),
+  columns: i18nObjs.table.columns.map((t) => newPrimaryColumn(t.key, t.title, t.isTag)),
 };
 export const MockTableComp = withDefault(TableComp, tableData);
 

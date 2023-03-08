@@ -11,6 +11,7 @@ import styled from "styled-components";
 import { message } from "antd";
 import { trans, transToNode } from "../../i18n";
 import { useParams } from "react-router-dom";
+import { TypeName } from "pages/common/headerStartDropdown";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { CopyModal } from "pages/common/copyModal";
 
@@ -53,7 +54,7 @@ export const HomeResOptions = (props: {
         ...options,
         { text: trans("rename"), onClick: () => onRename(res) },
         {
-          text: trans("header.duplicate", { type: HomeResInfo[res.type].name.toLowerCase() }),
+          text: trans("header.duplicate", { type: TypeName[res.type].toLowerCase() }),
           onClick: () => {
             onDuplicate?.(res);
             setShowCopyModal(true);

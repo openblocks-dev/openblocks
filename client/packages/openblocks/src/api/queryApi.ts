@@ -55,10 +55,18 @@ export class QueryApi extends Api {
     timeout?: number
   ): AxiosPromise<QueryExecuteResponse> {
     const queryId = (request.queryId ?? request.libraryQueryId)!;
+    const { cancelPrevious = true } = request;
 
-    if (!QueryApi.queryExecuteCancelTokenSource[queryId]) {
-      // associate with same token if query can not cancel previous one
+    if (cancelPrevious) {
+      if (QueryApi.queryExecuteCancelTokenSource[queryId]) {
+        QueryApi.queryExecuteCancelTokenSource[queryId].cancel("cancel");
+      }
       QueryApi.queryExecuteCancelTokenSource[queryId] = axios.CancelToken.source();
+    } else {
+      if (!QueryApi.queryExecuteCancelTokenSource[queryId]) {
+        // associate with same token if query can not cancel previous one
+        QueryApi.queryExecuteCancelTokenSource[queryId] = axios.CancelToken.source();
+      }
     }
 
     return Api.post(QueryApi.url + "/execute", request, undefined, {
