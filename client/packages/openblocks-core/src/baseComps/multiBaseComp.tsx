@@ -63,7 +63,13 @@ export abstract class MultiBaseComp<
   override reduce(action: CompAction): this {
     const comp = this.reduceOrUndefined(action);
     if (!comp) {
-      throw new Error("not supported action, should not happen");
+      console.warn(
+        "not supported action, should not happen, action:",
+        action,
+        "\ncurrent comp:",
+        this
+      );
+      return this;
     }
     return comp;
   }
