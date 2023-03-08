@@ -19,7 +19,6 @@ import { TableNameComp } from "./tableNameComp";
 import { ChangeSetComp } from "./changeSetComp";
 import { FilterComp } from "./FilterComp";
 import { trans } from "i18n";
-import { ResourceType } from "@openblocks-ee/constants/queryConstants";
 import { ColumnNameDropdown } from "./columnNameDropdown";
 import React, { useContext } from "react";
 import { QueryContext } from "util/context/QueryContext";
@@ -247,13 +246,13 @@ export const SQLQuery = class extends SQLTmpQuery {
   }
 };
 
-export const NOT_SUPPORT_GUI_SQL_QUERY: ResourceType[] = [
+export const NOT_SUPPORT_GUI_SQL_QUERY: string[] = [
   "clickHouse",
   "snowflake",
   "tdengine",
   "dameng",
 ];
-const SUPPORT_UPSERT_SQL_QUERY: ResourceType[] = [
+const SUPPORT_UPSERT_SQL_QUERY: string[] = [
   "mysql",
   "oceanBase",
   "tidb",

@@ -379,21 +379,22 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
     index: -1,
     width: -1,
   });
+  let allColumnFixed = true;
   const columns = props.columns.map((col, index) => {
     const { width, ...restCol } = col;
     const resizeWidth = (resizeData.index === index ? resizeData.width : col.width) ?? 0;
     let colWidth: number | string = "auto";
     let minWidth: number | string = COL_MIN_WIDTH;
     if (resizeWidth > 0) {
-      // fixed width
-      if (index === props.columns.length - 1) {
-        // the last column auto width
-        colWidth = "100%";
-        minWidth = resizeWidth;
-      } else {
-        minWidth = "unset";
-        colWidth = resizeWidth;
-      }
+      minWidth = "unset";
+      colWidth = resizeWidth;
+    } else {
+      allColumnFixed = false;
+    }
+    if (allColumnFixed && index === props.columns.length - 1) {
+      // all column fixed, the last column fill extra space
+      colWidth = "auto";
+      minWidth = resizeWidth;
     }
     return {
       ...restCol,
