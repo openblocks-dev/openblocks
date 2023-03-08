@@ -601,6 +601,8 @@ export const en = {
     file: "File",
     extraBodyTooltip:
       "Key values in Extra body will be appended in body with JSON or Form Data types",
+    forwardCookies: "Forward cookies",
+    forwardAllCookies: "Forward all cookie",
   },
   smtpQuery: {
     attachment: "Attachment",
@@ -983,11 +985,17 @@ export const en = {
     date: "Date",
     clearAllDesc: "Clear all",
     resetAllDesc: "Reset all",
+    placeholder: "Select date",
+    startDate: "Start date",
+    endDate: "End date",
   },
   time: {
     start: "Start time",
     end: "End time",
     formatTip: "Support:\n" + "HH:mm:ss\nTimestamp",
+    placeholder: "Select Time",
+    startTime: "Start time",
+    endTime: "End time",
   },
   button: {
     prefixIcon: "Prefix icon",
@@ -1705,6 +1713,7 @@ export const en = {
     canvasMaxWidth: "Maximum canvas width",
     userDefinedMaxWidth: "Custom maximum width",
     inputUserDefinedPxValue: "Please enter a custom pixel value",
+    maxWidthTip: "Max width should be greater than or equal to 350",
     themeSetting: "Theme setting",
     themeSettingDefault: "Default",
     themeCreate: "Create theme",

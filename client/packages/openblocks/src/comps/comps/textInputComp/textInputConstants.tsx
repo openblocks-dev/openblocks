@@ -101,7 +101,7 @@ export const textInputValidate = (
   }
   const optionValue = props.validationType;
   const regex: RegExp = valueInfoMap[optionValue]?.extra ?? props.regex; // pass if empty by default
-  if (!regex.test(value)) {
+  if (value && !regex.test(value)) {
     return { validateStatus: "error", help: valueInfoMap[optionValue].help };
   }
   return { validateStatus: "" };

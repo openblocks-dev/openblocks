@@ -153,6 +153,8 @@ interface DropdownProps<T extends OptionsType> extends Omit<SelectProps, "placem
   itemNode?: (value: string) => JSX.Element;
   preNode?: () => JSX.Element;
   lineHeight?: number;
+  labelStyle?: React.CSSProperties;
+  dropdownStyle?: React.CSSProperties;
 }
 
 export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
@@ -161,14 +163,14 @@ export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
   return (
     <FlexDiv>
       {props.label && (
-        <LabelWrapper placement={placement}>
+        <LabelWrapper placement={placement} style={props.labelStyle}>
           <ToolTipLabel title={props.toolTip} label={props.label} />
         </LabelWrapper>
       )}
 
       {!props.radioButton && (
         <Tooltip title={!props.label ? props.toolTip : undefined}>
-          <DropdownContainer placement={placement}>
+          <DropdownContainer placement={placement} style={props.dropdownStyle}>
             <CustomSelect
               open={props.open}
               listHeight={props.lineHeight}

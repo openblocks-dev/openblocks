@@ -44,8 +44,10 @@ export const Button100 = styled(Button)<{ $buttonStyle: ButtonStyleType }>`
   display: inline-flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
   span {
     overflow: hidden;
+    text-overflow: ellipsis;
   }
   gap: 6px;
 `;

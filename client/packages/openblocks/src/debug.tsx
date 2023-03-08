@@ -14,8 +14,8 @@ import { useCompInstance } from "comps/utils/useCompInstance";
 import React, { useMemo } from "react";
 import { useHistory, useParams } from "react-router";
 import { useInterval, useTitle, useWindowSize } from "react-use";
-import { DatePickerComp, DateRangeComp } from "./comps/comps/dateComp";
-import { TimePickerComp, TimeRangeComp } from "./comps/comps/timeComp";
+import { DatePickerComp, DateRangeComp } from "comps/comps/dateComp/dateComp";
+import { TimePickerComp, TimeRangeComp } from "comps/comps/dateComp/timeComp";
 import { trans } from "i18n";
 
 const WindowSizeComp = hookToComp(useWindowSize);

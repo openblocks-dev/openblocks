@@ -31,8 +31,8 @@ const ModalWrapper = styled.div<ModalWrapperProps>`
   will-change: transform;
 `;
 
-const ModalHeaderWrapper = styled.div`
-  cursor: move;
+const ModalHeaderWrapper = styled.div<{ $draggable?: boolean }>`
+  cursor: ${(props) => (props.$draggable ? "move" : "auto")};
   display: flex;
   align-items: center;
   padding: 16px;
@@ -214,7 +214,7 @@ function CustomModalRender(props: CustomModalProps & ModalFuncProps) {
   return (
     <Draggable handle=".handle" disabled={!props.draggable}>
       <ModalWrapper width={props.width}>
-        <ModalHeaderWrapper className="handle">
+        <ModalHeaderWrapper className="handle" $draggable={props.draggable}>
           <ModalHeader
             title={props.title}
             onCancel={props.onCancel}

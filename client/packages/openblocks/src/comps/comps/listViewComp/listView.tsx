@@ -13,7 +13,7 @@ import {
   InnerGrid,
 } from "../containerComp/containerView";
 import { ListViewImplComp } from "./listViewComp";
-import { getData } from "./listViewUtils";
+import { getCurrentItemParams, getData } from "./listViewUtils";
 
 const Wrapper = styled.div`
   overflow: auto;
@@ -55,8 +55,23 @@ export function ListView(props: Props) {
     () => children.heightUnitOfRow.getView(),
     [children.heightUnitOfRow]
   );
-  const containerComps = useMemo(() => children.container.getView(), [children.container]);
-  const itemCount = useMemo(() => _.size(containerComps), [containerComps]);
+  const containerFn = useMemo(() => children.container.getView(), [children.container]);
+  const itemIndexName = useMemo(() => children.itemIndexName.getView(), [children.itemIndexName]);
+  const itemDataName = useMemo(() => children.itemDataName.getView(), [children.itemDataName]);
+  const { data, itemCount } = useMemo(
+    () => getData(children.noOfRows.getView()),
+    [children.noOfRows]
+  );
+  const containers = useMemo(
+    () =>
+      _.range(0, itemCount).map((itemIdx) =>
+        containerFn(
+          { [itemIndexName]: itemIdx, [itemDataName]: getCurrentItemParams(data, itemIdx) },
+          String(itemIdx)
+        )
+      ),
+    [containerFn, data, itemCount, itemDataName, itemIndexName]
+  );
   const autoHeight = useMemo(() => children.autoHeight.getView(), [children.autoHeight]);
   const noOfColumns = useMemo(
     () => Math.max(1, children.noOfColumns.getView()),
@@ -88,7 +103,7 @@ export function ListView(props: Props) {
             if (itemIdx >= itemCount || (isOneItem && itemIdx > 0)) {
               return <div key={itemIdx} style={{ flex: "auto" }}></div>;
             }
-            const containerProps = containerComps[itemIdx].getView();
+            const containerProps = containers[itemIdx];
             return (
               <ContainerInListView
                 key={itemIdx}

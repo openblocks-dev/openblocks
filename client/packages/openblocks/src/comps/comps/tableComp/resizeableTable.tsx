@@ -59,6 +59,10 @@ const getStyle = (style: TableStyleType) => {
         td {
           background: ${background};
           color: ${style.cellText};
+          // Column type view and edit color
+          div:not(:has(a)), p, span.ant-badge-status-text, input {
+            color: ${style.cellText};
+          }
         }
       }
 
@@ -67,6 +71,10 @@ const getStyle = (style: TableStyleType) => {
         td {
           background: ${alternateBackground};
           color: ${style.cellText};
+          // Column type view and edit color
+          div:not(:has(a)), p, span.ant-badge-status-text, input {
+            color: ${style.cellText};
+          }
         }
       }
 
@@ -115,6 +123,9 @@ const getStyle = (style: TableStyleType) => {
         &:hover {
           color: ${isDark && "#2EE6E6"};
         }
+      }
+      td div:has(a) {
+        color: ${isDark && "#A6FFFF"};
       }
     }
   `;

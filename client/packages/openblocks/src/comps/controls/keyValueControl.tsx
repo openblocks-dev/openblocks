@@ -42,7 +42,7 @@ const ValueWrapper = styled.div<{ flexBasics?: number }>`
   flex-basis: ${(props) => (props.flexBasics ? props.flexBasics + "px" : "0%")};
 `;
 
-type KeyValueControlParams = ControlParams & {
+export type KeyValueControlParams = ControlParams & {
   showType?: boolean;
   typeTooltip?: ReactNode;
   keyFlexBasics?: number;

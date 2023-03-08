@@ -3,7 +3,7 @@ import React, { Dispatch, SetStateAction, useContext, useEffect, useRef, useStat
 import { shallowEqual, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 import { DATASOURCE_URL, QUERY_LIBRARY_URL } from "../constants/routesURL";
-import { AuthSearchParams } from "@openblocks-ee/constants/authConstants";
+import { AuthSearchParams } from "constants/authConstants";
 import { checkIsMobile } from "util/commonUtils";
 import { EditorContext } from "comps/editorState";
 

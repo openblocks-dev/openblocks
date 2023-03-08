@@ -12,6 +12,7 @@ import {
   FormInputItem,
   FormInputPasswordItem,
   FormItemProps,
+  FormKeyValueItem,
   FormNumberInputItem,
   FormSection,
   FormSectionLabel,
@@ -54,6 +55,7 @@ const valueTypeToWidget: Record<
   checkbox: FormCheckboxItem,
   password: FormInputPasswordItem,
   select: FormSelectItem,
+  keyValueInput: FormKeyValueItem,
 };
 
 function getFieldWidget(

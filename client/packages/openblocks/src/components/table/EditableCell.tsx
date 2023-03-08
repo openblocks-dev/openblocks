@@ -48,7 +48,7 @@ export const SizeWrapper = styled.div<{ $size?: string }>`
       props.$size === "small" ? "8.5px 8px" : props.$size === "large" ? "16.5px 16px" : "12.5px 8px"
     };
     line-height: 21px;
-    height: ${props.$size === "small" ? "39px" : props.$size === "large" ? "55px" : "47px"};
+    min-height: ${props.$size === "small" ? "39px" : props.$size === "large" ? "55px" : "47px"};
     `}
 `;
 

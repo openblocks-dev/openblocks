@@ -21,7 +21,7 @@ const testData = {
   },
 };
 
-const WithMContextComp = withMultiContext(TestComp, ["a"]);
+const WithMContextComp = withMultiContext(TestComp);
 
 describe("withMultiContext", () => {
   it("common", () => {

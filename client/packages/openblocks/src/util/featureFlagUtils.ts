@@ -1,4 +1,4 @@
-import { SystemConfig } from "@openblocks-ee/constants/configConstants";
+import { SystemConfig } from "constants/configConstants";
 
 export function enableCustomBrand(config?: SystemConfig) {
   return config?.featureFlag?.enableCustomBranding;

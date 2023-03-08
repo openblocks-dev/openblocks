@@ -21,8 +21,8 @@ import { trans } from "i18n";
 import _ from "lodash";
 import {
   CompAction,
-  CompActionTypes,
   fromRecord,
+  fromValue,
   Node,
   withFunction,
   WrapContextNodeV2,
@@ -55,10 +55,7 @@ const ListViewTmpComp = new UICompBuilder(childrenMap, () => <></>)
 
 export class ListViewImplComp extends ListViewTmpComp implements IContainer {
   private getOriginalContainer() {
-    const containers = this.children.container.getView();
-    return containers[0]
-      ? containers[0].getComp()
-      : this.children.container.getOriginalComp().getComp();
+    return this.children.container.getSelectedComp().getComp();
   }
   realSimpleContainer(key?: string): SimpleContainerComp | undefined {
     return this.getOriginalContainer().realSimpleContainer(key);
@@ -79,64 +76,49 @@ export class ListViewImplComp extends ListViewTmpComp implements IContainer {
     // console.info("listView reduce. action: ", action);
     let comp = reduceInContext({ inEventContext: true }, () => super.reduce(action));
 
-    if (action.type === CompActionTypes.UPDATE_NODES_V2) {
-      const dataChanged = !_.isEqual(
-        this.children.noOfRows.getView(),
-        comp.children.noOfRows.getView()
-      );
-      const nameChanged =
-        !_.isEqual(this.children.itemIndexName.getView(), comp.children.itemIndexName.getView()) ||
-        !_.isEqual(this.children.itemDataName.getView(), comp.children.itemDataName.getView());
-      if (dataChanged || nameChanged) {
-        const { data: compData, itemCount: compItemCount } = getData(
-          comp.children.noOfRows.getView()
-        );
-        setTimeout(() => {
-          comp.children.container.dispatch(
-            ContextContainerComp.resetContextAction({
-              itemIndexName: comp.children.itemIndexName.getView(),
-              itemDataName: comp.children.itemDataName.getView(),
-              itemCount: compItemCount,
-              data: compData,
-            })
-          );
-        });
-      }
-    }
     // console.info("listView reduce. action: ", action, "\nthis: ", this, "\ncomp: ", comp);
     return comp;
   }
   /** expose the data from inner comps */
   itemsNode(): Node<Record<string, unknown>[]> {
-    const containers = this.children.container.getView();
-    const size = _.size(containers);
+    const { itemCount } = getData(this.children.noOfRows.getView());
+    const itemIndexName = this.children.itemIndexName.getView();
+    const itemDataName = this.children.itemDataName.getView();
+    const dataExposingNode = this.children.noOfRows.exposingNode();
+    const containerComp = this.children.container;
     // for each container expose each comps with params
-    const exposingRecord = _(_.range(0, size))
+    const exposingRecord = _(_.range(0, itemCount))
       .toPairs()
       .fromPairs()
       .mapValues((itemIdx) => {
-        let container = containers[itemIdx];
+        let container =
+          containerComp.getCachedComp(String(itemIdx)) ?? containerComp.getOriginalComp();
         // FIXME: replace allComps as non-list-view comps
         const allComps = getAllCompItems(container.getComp().getCompTree());
         const nodeRecord = _(allComps)
           .mapKeys((gridItemComp) => gridItemComp.children.name.getView())
           .mapValues((gridItemComp) => gridItemComp.children.comp.exposingNode())
           .value();
-        const paramsNodes = container.getParamNodes();
+        const paramsNodes = {
+          [itemIndexName]: fromValue(itemIdx),
+          [itemDataName]: withFunction(dataExposingNode, (value) =>
+            typeof value === "number" ? {} : value[itemIdx]
+          ),
+        };
         const resNode = new WrapContextNodeV2(fromRecord(nodeRecord), paramsNodes);
         const res = lastValueIfEqual(
           this,
           "exposing_row_" + itemIdx,
-          [resNode, nodeRecord, paramsNodes] as const,
-          (a, b) => depthEqual(a.slice(1), b.slice(1), 3)
+          [resNode, dataExposingNode, nodeRecord, itemIndexName, itemDataName] as const,
+          (a, b) => a[1] === b[1] && depthEqual(a.slice(2), b.slice(2), 3)
         )[0];
-        // console.info("listView exposingRecord. i: ", i, " res id: ", getObjectId(res), " container id: ", getObjectId(container), " hitCache: ", hitCache);
+        // console.info("listView exposingRecord. itemIdx: ", itemIdx, " res id: ", getObjectId(res), " container id: ", getObjectId(container));
         return res;
       })
       .value();
     // transform record to array
     const exposings = withFunction(fromRecord(exposingRecord), (record) => {
-      return _.range(0, size).map((i) => record[i]);
+      return _.range(0, itemCount).map((i) => record[i]);
     });
 
     return lastValueIfEqual(this, "exposing_data", [exposings, exposingRecord] as const, (a, b) =>

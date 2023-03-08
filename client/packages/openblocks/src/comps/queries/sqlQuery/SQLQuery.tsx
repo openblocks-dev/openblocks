@@ -22,7 +22,7 @@ import { trans } from "i18n";
 import { ResourceType } from "@openblocks-ee/constants/queryConstants";
 import { ColumnNameDropdown } from "./columnNameDropdown";
 import React, { useContext } from "react";
-import { QueryContext } from "../../../util/context/QueryContext";
+import { QueryContext } from "util/context/QueryContext";
 
 const AllowMultiModifyComp = withPropertyViewFn(BoolPureControl, (comp) =>
   comp.propertyView({
@@ -245,5 +245,11 @@ export const SQLQuery = class extends SQLTmpQuery {
   }
 };
 
-export const SUPPORT_GUI_SQL_QUERY: ResourceType[] = ["mysql", "postgres", "mssql", "oracle"];
-export const SUPPORT_UPSERT_SQL_QUERY: ResourceType[] = ["mysql"];
+export const SUPPORT_GUI_SQL_QUERY: ResourceType[] = [
+  "mysql",
+  "postgres",
+  "mssql",
+  "oracle",
+  "oceanBase",
+];
+export const SUPPORT_UPSERT_SQL_QUERY: ResourceType[] = ["mysql", "oceanBase"];

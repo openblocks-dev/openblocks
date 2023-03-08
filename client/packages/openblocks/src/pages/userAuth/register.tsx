@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
+  AuthContainer,
   ConfirmButton,
   FormWrapperMobile,
   LoginCardTitle,
@@ -17,9 +18,7 @@ import { requiresUnAuth } from "./authHOC";
 import { useLocation } from "react-router-dom";
 import { UserConnectionSource } from "@openblocks-ee/constants/userConstants";
 import { trans } from "i18n";
-import { authRespValidate, checkPassWithMsg } from "pages/userAuth/authUtils";
-import { useSelector } from "react-redux";
-import { selectSystemConfig } from "redux/selectors/configSelectors";
+import { AuthContext, authRespValidate, checkPassWithMsg } from "pages/userAuth/authUtils";
 
 const StyledFormInput = styled(FormInput)`
   margin-bottom: 16px;
@@ -45,16 +44,15 @@ const TermsAndPrivacyInfoWrapper = styled.div`
   }
 `;
 
-function UserRegister(props: { invitationId?: string }) {
+function UserRegister() {
   const [submitBtnDisable, setSubmitBtnDisable] = useState(false);
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const redirectUrl = useRedirectUrl();
-  const systemConfig = useSelector(selectSystemConfig);
   const location = useLocation();
-  const config = useSelector(selectSystemConfig);
-  const authId = config?.email.id;
-  if (!systemConfig || !systemConfig.email.enableRegister) {
+  const { systemConfig, inviteInfo } = useContext(AuthContext);
+  const authId = systemConfig.form.id;
+  if (!systemConfig || !systemConfig.form.enableRegister) {
     return null;
   }
   const onSubmit = () => {
@@ -62,9 +60,9 @@ function UserRegister(props: { invitationId?: string }) {
       register: true,
       loginId: account,
       password: password,
-      invitationId: props.invitationId,
+      invitationId: inviteInfo?.invitationId,
       source: UserConnectionSource.email,
-      authId
+      authId,
     })
       .then((resp) => {
         authRespValidate(resp, false, redirectUrl);
@@ -75,34 +73,36 @@ function UserRegister(props: { invitationId?: string }) {
   };
 
   return (
-    <RegisterContent>
-      <LoginCardTitle>{trans("userAuth.registerByEmail")}</LoginCardTitle>
-      <StyledFormInput
-        className="form-input"
-        label={trans("userAuth.email")}
-        onChange={(value, valid) => setAccount(valid ? value : "")}
-        placeholder={trans("userAuth.inputEmail")}
-        checkRule={{
-          check: checkEmailValid,
-          errorMsg: trans("userAuth.inputValidEmail"),
-        }}
-      />
-      <StyledPasswordInput
-        className="form-input"
-        valueCheck={checkPassWithMsg}
-        onChange={(value, valid) => setPassword(valid ? value : "")}
-        doubleCheck
-      />
-      <ConfirmButton disabled={!account || !password || submitBtnDisable} onClick={onSubmit}>
-        {trans("userAuth.register")}
-      </ConfirmButton>
-      <TermsAndPrivacyInfoWrapper>
-        <TermsAndPrivacyInfo onCheckChange={(e) => setSubmitBtnDisable(!e.target.checked)} />
-      </TermsAndPrivacyInfoWrapper>
-      <StyledRouteLinkLogin to={{ pathname: AUTH_LOGIN_URL, state: location.state }}>
-        {trans("userAuth.userLogin")}
-      </StyledRouteLinkLogin>
-    </RegisterContent>
+    <AuthContainer title={trans("userAuth.register")} type="large">
+      <RegisterContent>
+        <LoginCardTitle>{trans("userAuth.registerByEmail")}</LoginCardTitle>
+        <StyledFormInput
+          className="form-input"
+          label={trans("userAuth.email")}
+          onChange={(value, valid) => setAccount(valid ? value : "")}
+          placeholder={trans("userAuth.inputEmail")}
+          checkRule={{
+            check: checkEmailValid,
+            errorMsg: trans("userAuth.inputValidEmail"),
+          }}
+        />
+        <StyledPasswordInput
+          className="form-input"
+          valueCheck={checkPassWithMsg}
+          onChange={(value, valid) => setPassword(valid ? value : "")}
+          doubleCheck
+        />
+        <ConfirmButton disabled={!account || !password || submitBtnDisable} onClick={onSubmit}>
+          {trans("userAuth.register")}
+        </ConfirmButton>
+        <TermsAndPrivacyInfoWrapper>
+          <TermsAndPrivacyInfo onCheckChange={(e) => setSubmitBtnDisable(!e.target.checked)} />
+        </TermsAndPrivacyInfoWrapper>
+        <StyledRouteLinkLogin to={{ pathname: AUTH_LOGIN_URL, state: location.state }}>
+          {trans("userAuth.userLogin")}
+        </StyledRouteLinkLogin>
+      </RegisterContent>
+    </AuthContainer>
   );
 }
 

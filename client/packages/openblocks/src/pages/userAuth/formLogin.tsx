@@ -1,6 +1,12 @@
 import { FormInput, PasswordInput } from "openblocks-design";
-import { ConfirmButton, FormWrapperMobile, LoginCardTitle } from "pages/userAuth/authComponents";
-import React, { useState } from "react";
+import {
+  AuthBottomView,
+  ConfirmButton,
+  FormWrapperMobile,
+  LoginCardTitle,
+  StyledRouteLink,
+} from "pages/userAuth/authComponents";
+import React, { useContext, useState } from "react";
 import { message } from "antd";
 import styled from "styled-components";
 import UserApi from "api/userApi";
@@ -8,10 +14,10 @@ import { useRedirectUrl } from "util/hooks";
 import { checkEmailValid, checkPhoneValid } from "util/stringUtils";
 import { UserConnectionSource } from "@openblocks-ee/constants/userConstants";
 import { trans } from "i18n";
-import { authRespValidate } from "pages/userAuth/authUtils";
-import { requiresUnAuth } from "pages/userAuth/authHOC";
-import { useSelector } from "react-redux";
-import { selectSystemConfig } from "redux/selectors/configSelectors";
+import { AuthContext, authRespValidate } from "pages/userAuth/authUtils";
+import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
+import { AUTH_REGISTER_URL } from "constants/routesURL";
+import { useLocation } from "react-router-dom";
 
 const AccountLoginWrapper = styled(FormWrapperMobile)`
   display: flex;
@@ -24,7 +30,7 @@ const onSubmit = (
   password: string,
   redirectUrl: string | null,
   invitationId?: string,
-  authId?: string,
+  authId?: string
 ) => {
   UserApi.formLogin({
     register: false,
@@ -42,12 +48,15 @@ const onSubmit = (
     });
 };
 
-function AccountPassLogin(props: { invitationId?: string }) {
+export default function FormLogin() {
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const redirectUrl = useRedirectUrl();
-  const config = useSelector(selectSystemConfig);
-  const authId = config?.email.id;
+  const { systemConfig, inviteInfo } = useContext(AuthContext);
+  const invitationId = inviteInfo?.invitationId;
+  const authId = systemConfig?.form.id;
+  const location = useLocation();
+
   return (
     <>
       <LoginCardTitle>{trans("userAuth.login")}</LoginCardTitle>
@@ -69,13 +78,19 @@ function AccountPassLogin(props: { invitationId?: string }) {
         />
         <ConfirmButton
           disabled={!account || !password}
-          onClick={() => onSubmit(account, password, redirectUrl, props.invitationId, authId)}
+          onClick={() => onSubmit(account, password, redirectUrl, invitationId, authId)}
         >
           {trans("userAuth.login")}
         </ConfirmButton>
       </AccountLoginWrapper>
+      <AuthBottomView>
+        <ThirdPartyAuth invitationId={invitationId} authGoal="login" />
+        {systemConfig.form.enableRegister && (
+          <StyledRouteLink to={{ pathname: AUTH_REGISTER_URL, state: location.state }}>
+            {trans("userAuth.register")}
+          </StyledRouteLink>
+        )}
+      </AuthBottomView>
     </>
   );
 }
-
-export default requiresUnAuth(AccountPassLogin);

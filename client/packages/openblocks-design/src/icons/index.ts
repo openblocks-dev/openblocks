@@ -205,6 +205,7 @@ export { ReactComponent as MSSQLIcon } from "./icon-query-mssql.svg";
 export { ReactComponent as SMTPIcon } from "./icon-query-SMTP.svg";
 export { ReactComponent as OracleIcon } from "./icon-query-OracleDB.svg";
 export { ReactComponent as ClickHouseIcon } from "./icon-query-ClickHouse.svg";
+export { ReactComponent as OceanBaseIcon } from "./icon-query-OceanBase.svg";
 export { ReactComponent as ResetIcon } from "./icon-style-reset.svg";
 export { ReactComponent as EditIcon } from "./icon-edit.svg";
 export { ReactComponent as EditableIcon } from "./icon-editable.svg";
@@ -268,3 +269,9 @@ export { ReactComponent as ManualIcon } from "./icon-manual.svg";
 export { ReactComponent as WarnIcon } from "./icon-warn.svg";
 export { ReactComponent as SyncManualIcon } from "./icon-sync-manual.svg";
 export { ReactComponent as DangerIcon } from "icons/icon-danger.svg";
+import GoogleLoginIcon from "icons/icon-login-google.svg";
+import GithubLoginIcon from "icons/icon-login-github.svg";
+import GeneralLoginIcon from "icons/icon-login-general.svg";
+import EmailLoginIcon from "icons/icon-login-email.svg";
+
+export { GoogleLoginIcon, GithubLoginIcon, GeneralLoginIcon, EmailLoginIcon };
