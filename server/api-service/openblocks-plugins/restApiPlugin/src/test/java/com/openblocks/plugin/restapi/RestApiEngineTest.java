@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.collect.ImmutableMap;
 import com.openblocks.plugin.restapi.model.RestApiQueryExecutionContext;
+import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.QueryExecutionResult;
 import com.openblocks.sdk.plugin.common.RestApiUriBuilder;
@@ -33,11 +34,11 @@ import reactor.test.StepVerifier;
 
 public class RestApiEngineTest {
 
-    private final RestApiExecutor executor = new RestApiExecutor();
+    private final RestApiExecutor executor = new RestApiExecutor(new CommonConfig());
     private static final RestApiConnector connector = new RestApiConnector();
 
     private final QueryVisitorContext queryVisitorContext = new QueryVisitorContext("userId1",
-            "workspace1", 8080, null, null);
+            "workspace1", 8080, null, null, null);
 
     @Test
     public void testUrlConcatenationWithUriBuilder() {

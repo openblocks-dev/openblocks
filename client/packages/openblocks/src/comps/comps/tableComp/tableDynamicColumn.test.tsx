@@ -1,10 +1,10 @@
+import { TableComp } from "comps/comps/tableComp/tableComp";
+import { columnsToAntdFormat } from "comps/comps/tableComp/tableUtils";
+import { evalAndReduce } from "comps/utils";
+import { reduceInContext } from "comps/utils/reduceContext";
 import _ from "lodash";
 import { changeChildAction, fromValue, SimpleNode } from "openblocks-core";
-import { TableComp } from "comps/comps/tableComp/tableComp";
-import { evalAndReduce } from "comps/utils";
 import { JSONObject } from "util/jsonTypes";
-import { reduceInContext } from "comps/utils/reduceContext";
-import { columnsToAntdFormat } from "comps/comps/tableComp/tableUtils";
 
 const expectColumn = (
   comp: InstanceType<typeof TableComp>,
@@ -42,11 +42,12 @@ const expectColumn = (
       comp.children.toolbar.getView().columnSetting,
       comp.children.size.getView(),
       comp.children.dynamicColumn.getView(),
-      dynamicColumnConfig
+      dynamicColumnConfig,
+      comp.columnAggrData
     );
     expect(columnViews.length).toBeGreaterThanOrEqual(antdColumns.length);
     antdColumns.forEach((column) => {
-      const dataIndex = (column as any).dataIndex[1];
+      const dataIndex = (column as any).dataIndex;
       const colView = columnViews.find((c) => c.dataIndex === dataIndex);
       if (!colView) {
         throw new Error(`Error, column should not be undefined, column: ${JSON.stringify(column)}`);

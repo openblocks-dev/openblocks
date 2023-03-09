@@ -1,4 +1,13 @@
-import { Form, Input, InputProps, Radio, Select, InputNumber, InputNumberProps } from "antd";
+import {
+  Form,
+  Input,
+  InputNumber,
+  InputNumberProps,
+  InputProps,
+  Radio,
+  Select,
+  SelectProps,
+} from "antd";
 import { ReactNode } from "react";
 import { CheckBox } from "./checkBox";
 import { CustomSelect } from "./customSelect";
@@ -37,14 +46,16 @@ const FormInput = styled(Input)`
   &:not(.ant-input-affix-wrapper-disabled) {
     background: #ffffff;
   }
+
   border: 1px solid #d7d9e0;
   border-radius: 4px;
 `;
 
 const FormNumberInput = styled(InputNumber)`
-  &:not(.ant-input-number-affix-wrapper-disabled)&:not(.ant-input-number-disabled) {
+  &:not(.ant-input-number-affix-wrapper-disabled) &:not(.ant-input-number-disabled) {
     background: #ffffff;
   }
+
   border: 1px solid #d7d9e0;
   border-radius: 4px;
 `;
@@ -53,6 +64,7 @@ const FormInputPassword = styled(Input)`
   &:not(.ant-input-affix-wrapper-disabled) {
     background: #ffffff;
   }
+
   border: 1px solid #d7d9e0;
   border-radius: 4px;
 `;
@@ -72,6 +84,7 @@ const FormCheckbox = styled(CheckBox)`
 
 const StartIcon = styled(Star)`
   margin-right: 4px;
+  flex-shrink: 0;
 `;
 const LabelDiv = styled.div<{ width?: number }>`
   display: flex;
@@ -129,7 +142,7 @@ export const FormSection = styled.div<{ size?: FormSize }>`
 
 export interface FormItemProps extends AntdFormItemProps {
   disabled?: boolean;
-  label?: string;
+  label?: ReactNode;
   required?: boolean;
   placeholder?: string;
   help?: ReactNode;
@@ -308,6 +321,8 @@ const FormSelect = (props: any) => {
   return (
     <SelectWrapper>
       <CustomSelect
+        open={props.open}
+        mode={props.mode}
         value={value}
         style={{
           width: "100%",
@@ -336,7 +351,9 @@ const FormSelect = (props: any) => {
   );
 };
 
-export interface FormSelectItemProps<T extends OptionsType> extends FormItemProps {
+export interface FormSelectItemProps<T extends OptionsType>
+  extends FormItemProps,
+    Pick<SelectProps, "mode" | "open"> {
   options: T;
   afterChange?: (value: ValueFromOption<T>) => void;
 }

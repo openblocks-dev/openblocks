@@ -1,7 +1,6 @@
 package com.openblocks.domain.organization.service;
 
 import static com.openblocks.infra.birelation.BiRelationBizType.ORG_MEMBER;
-import static com.openblocks.infra.util.MonoUtils.emptyMonoIfEmptyList;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -9,9 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.openblocks.domain.group.model.GroupMember;
 import com.openblocks.domain.group.service.GroupMemberService;
 import com.openblocks.domain.group.service.GroupService;
 import com.openblocks.domain.organization.model.MemberRole;
@@ -22,6 +24,8 @@ import com.openblocks.domain.organization.model.OrganizationState;
 import com.openblocks.infra.annotation.PossibleEmptyMono;
 import com.openblocks.infra.birelation.BiRelation;
 import com.openblocks.infra.birelation.BiRelationService;
+import com.openblocks.infra.mongo.MongoUpsertHelper;
+import com.openblocks.infra.util.FluxHelper;
 import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.config.CommonConfig.Workspace;
 import com.openblocks.sdk.constants.WorkspaceMode;
@@ -49,11 +53,19 @@ public class OrgMemberServiceImpl implements OrgMemberService {
     @Autowired
     private CommonConfig commonConfig;
 
+    @Autowired
+    private MongoUpsertHelper mongoUpsertHelper;
+
     @Override
-    public Mono<List<OrgMember>> getOrganizationMembers(String orgId, int page, int count) {
-        return emptyMonoIfEmptyList(biRelationService.getBySourceId(ORG_MEMBER, orgId)
-                .map(OrgMember::from)
-                .collectList());
+    public Flux<OrgMember> getOrganizationMembers(String orgId) {
+        return FluxHelper.getAllPageByPage(pageable -> biRelationService.getBySourceId(ORG_MEMBER, orgId, pageable), PageRequest.ofSize(100))
+                .map(OrgMember::from);
+    }
+
+    @Override
+    public Flux<OrgMember> getOrganizationMembers(String orgId, int page, int count) {
+        return biRelationService.getBySourceId(ORG_MEMBER, orgId, PageRequest.of(page, count))
+                .map(OrgMember::from);
     }
 
     /**
@@ -77,12 +89,13 @@ public class OrgMemberServiceImpl implements OrgMemberService {
                 .flatMap(orgIds -> {
                     Workspace workspace = commonConfig.getWorkspace();
                     if (workspace.getMode() == WorkspaceMode.ENTERPRISE) {
-                        if (StringUtils.isNotBlank(workspace.getEnterpriseOrgId())) {
-                            if (orgIds.contains(workspace.getEnterpriseOrgId())) {
-                                return Mono.just(List.of(workspace.getEnterpriseOrgId()));
+                        String enterpriseOrgId = workspace.getEnterpriseOrgId();
+                        if (StringUtils.isNotBlank(enterpriseOrgId)) {
+                            if (orgIds.contains(enterpriseOrgId)) {
+                                return Mono.just(List.of(enterpriseOrgId));
                             }
-                            return addMember(workspace.getEnterpriseOrgId(), userId, MemberRole.MEMBER)
-                                    .thenReturn(List.of(workspace.getEnterpriseOrgId()));
+                            return addMember(enterpriseOrgId, userId, MemberRole.MEMBER)
+                                    .thenReturn(List.of(enterpriseOrgId));
                         }
                         if (orgIds.size() > 1) {
                             return Mono.just(orgIds.subList(0, 1));
@@ -220,5 +233,37 @@ public class OrgMemberServiceImpl implements OrgMemberService {
         return biRelationService.getBySourceIdAndRelation(ORG_MEMBER, orgId, MemberRole.ADMIN.getValue())
                 .map(OrgMember::from)
                 .collectList();
+    }
+
+    @Override
+    public Mono<Void> bulkAddMember(String orgId, Collection<String> userIds, MemberRole memberRole) {
+        List<BiRelation> biRelations = userIds.stream()
+                .map(userId -> BiRelation.builder()
+                        .bizType(ORG_MEMBER)
+                        .sourceId(orgId)
+                        .targetId(userId)
+                        .relation(memberRole.getValue())
+                        .state(OrgMemberState.NORMAL.getValue())
+                        .build())
+                .toList();
+        return biRelationService.batchAddBiRelation(biRelations)
+                .then(bulkAddToAllUserGroup(orgId, userIds));
+    }
+
+    private Mono<Void> bulkAddToAllUserGroup(String orgId, Collection<String> userIds) {
+        return groupService.getAllUsersGroup(orgId)
+                .map(group -> userIds.stream()
+                        .map(userId -> new GroupMember(group.getId(), userId, MemberRole.MEMBER, orgId, System.currentTimeMillis()))
+                        .toList())
+                .flatMap(groupMemberService::bulkAddMember)
+                .then();
+    }
+
+    @Override
+    public Mono<Boolean> bulkRemoveMember(String orgId, Collection<String> userIds) {
+        List<Document> filters = userIds.stream()
+                .map(userId -> new Document(Map.of("bizType", ORG_MEMBER.name(), "sourceId", orgId, "targetId", userId)))
+                .toList();
+        return mongoUpsertHelper.bulkRemove(filters, BiRelation.class);
     }
 }

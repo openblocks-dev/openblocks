@@ -47,7 +47,7 @@ public class PostgresCommandTest {
         GuiSqlCommandRenderResult render = insertCommand.render(Map.of("email", email, "info", infoMap));
 
         Assert.assertEquals("""
-                        insert into user ("id","name","email","info") values (12312,$$jack$$,$$jack@gmail.com$$,$${"age":35,"job":"sales"}$$);""",
+                        insert into user ("id","name","email","info") values (12312,$$jack$$,$$jack@gmail.com$$,$${"age":35,"job":"sales"}$$)""",
                 render.sql());
         Assertions.assertThat(render.bindParams()).isEqualTo(List.of());
 
@@ -165,7 +165,7 @@ public class PostgresCommandTest {
 
         Assert.assertEquals(
                 """
-                        insert into user ("id","name","email","info") values (12312,$$jack$$,$$jack@gmail.com$$,$${"age":35,"job":"sales"}$$),(12312,$$jack$$,$$jack@gmail.com$$,$${"age":35,"job":"sales"}$$);""",
+                        insert into user ("id","name","email","info") values (12312,$$jack$$,$$jack@gmail.com$$,$${"age":35,"job":"sales"}$$),(12312,$$jack$$,$$jack@gmail.com$$,$${"age":35,"job":"sales"}$$)""",
                 render.sql());
 
         Assertions.assertThat(render.bindParams()).isEqualTo(List.of());

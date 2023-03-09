@@ -1,5 +1,4 @@
 /// <reference types="react" />
-import * as react from "react";
 import { ReactNode } from "react";
 
 declare type EvalMethods = Record<string, Record<string, Function>>;
@@ -347,12 +346,18 @@ declare function isDynamicSegment(segment: string): boolean;
 declare function getDynamicStringSegments(input: string): string[];
 
 declare function clearMockWindow(): void;
+declare type SandboxScope = "function" | "expression";
 interface SandBoxOption {
   /**
    * disable all limit, like running in host
    */
   disableLimit?: boolean;
+  /**
+   * the scope this sandbox works in, which will use different blacklist
+   */
+  scope?: SandboxScope;
 }
+declare function evalScript(script: string, context: any, methods?: EvalMethods): any;
 declare function evalFunc(
   functionBody: string,
   context: any,
@@ -364,6 +369,24 @@ declare function evalFunc(
 declare function evalStyle(id: string, css: string[]): void;
 declare function clearStyleEval(id?: string): void;
 
+declare class DefaultParser {
+  readonly context: Record<string, unknown>;
+  protected readonly segments: string[];
+  private readonly valueAndMsgs;
+  constructor(unevaledValue: string, context: Record<string, unknown>);
+  parse(): ValueAndMsg<unknown>;
+  parseObject(): unknown;
+  evalDynamicSegment(segment: string): unknown;
+}
+declare class RelaxedJsonParser extends DefaultParser {
+  constructor(unevaledValue: string, context: Record<string, unknown>);
+  parseObject(): any;
+  parseRelaxedJson(): any;
+  evalIndexedObject(obj: any): any;
+  evalIndexedStringToObject(indexedString: string): unknown;
+  evalIndexedStringToString(indexedString: string): string;
+  evalIndexedSnippet(snippet: string): unknown;
+}
 declare function evalFunctionResult(
   unevaledValue: string,
   context: Record<string, unknown>,
@@ -504,7 +527,7 @@ declare type ExtraActionType =
   | "recover"
   | "upgrade";
 declare type ActionExtraInfo = {
-  compInfos: {
+  compInfos?: {
     compName: string;
     compType: string;
     type: ExtraActionType;
@@ -631,7 +654,7 @@ declare function changeChildAction(childName: string, value: JSONValue): CompAct
 declare function updateNodesV2Action(value: any): UpdateNodesV2Action;
 declare function wrapActionExtraInfo<T extends CompAction>(
   action: T,
-  extraCompInfos: ActionExtraInfo["compInfos"]
+  extraInfos: ActionExtraInfo
 ): T;
 declare function deferAction<T extends CompAction>(action: T): T;
 
@@ -760,19 +783,7 @@ declare class Translator<Messages extends object> {
   transToNode(
     key: NestedKey<Messages> | GlobalMessageKey,
     variables?: Record<string, VariableValue>
-  ):
-    | string
-    | {}
-    | react.ReactElement<any, string | react.JSXElementConstructor<any>>
-    | Iterable<react.ReactNode>
-    | react.ReactPortal
-    | (
-        | string
-        | {}
-        | react.ReactElement<any, string | react.JSXElementConstructor<any>>
-        | Iterable<react.ReactNode>
-        | react.ReactPortal
-      )[];
+  ): {};
   private getMessage;
 }
 declare function getI18nObjects<I18nObjects>(fileData: object, filterLocales?: string): I18nObjects;
@@ -822,6 +833,7 @@ export {
   RecordNode,
   RecordNodeToValue,
   RecordOptionalNodeToValue,
+  RelaxedJsonParser,
   RenameAction,
   ReplaceCompAction,
   RouteByNameAction,
@@ -851,6 +863,7 @@ export {
   evalFunctionResult,
   evalNodeOrMinor,
   evalPerfUtil,
+  evalScript,
   evalStyle,
   executeQueryAction,
   fromRecord,

@@ -11,8 +11,8 @@ import { useContext } from "react";
 import { ThemeContext } from "comps/utils/themeContext";
 import {
   defaultTheme,
-  DepColorConfig,
   DEP_TYPE,
+  DepColorConfig,
   RadiusConfig,
   SimpleColorConfig,
   SingleColorConfig,
@@ -24,15 +24,18 @@ import {
 } from "api/commonSettingApi";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { trans } from "i18n";
+import { useIsMobile } from "util/hooks";
 
 function isSimpleColorConfig(
   config: SingleColorConfig
 ): config is SimpleColorConfig {
   return config.hasOwnProperty("color");
 }
+
 function isDepColorConfig(config: SingleColorConfig): config is DepColorConfig {
   return config.hasOwnProperty("depName") || config.hasOwnProperty("depTheme");
 }
+
 function isRadiusConfig(config: SingleColorConfig): config is RadiusConfig {
   return config.hasOwnProperty("radius");
 }
@@ -42,13 +45,16 @@ type Names<T extends readonly SingleColorConfig[]> = T[number]["name"];
 export type StyleConfigType<T extends readonly SingleColorConfig[]> = {
   [K in Names<T>]: string;
 };
+
 // Options[number]["value"]
 function isEmptyColor(color: string) {
   return _.isEmpty(color);
 }
+
 function isEmptyRadius(radius: string) {
   return _.isEmpty(radius);
 }
+
 /**
  * Calculate the actual used color from the dsl color
  */
@@ -132,6 +138,8 @@ const TitleDiv = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 13px;
+  line-height: 1;
+
   span:nth-of-type(2) {
     cursor: pointer;
     color: #8b8fa3;
@@ -233,6 +241,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
     .setPropertyViewFn((children) => {
       const theme = useContext(ThemeContext);
       const bgColor = useContext(BackgroundColorContext);
+      const isMobile = useIsMobile();
+
       const props = calcColors(
         childrenToProps(children) as ColorMap,
         colorConfigs,
@@ -268,44 +278,66 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
             )}
           </TitleDiv>
           <StyleContent>
-            {colorConfigs.map((config, index) => {
-              const name: Names<T> = config.name;
-              let depMsg = (config as SimpleColorConfig)["color"];
-              if (isDepColorConfig(config)) {
-                if (config.depType === DEP_TYPE.CONTRAST_TEXT) {
-                  depMsg = trans("style.contrastText");
-                } else if (
-                  config.depType === DEP_TYPE.SELF &&
-                  config.depTheme
-                ) {
-                  depMsg = getThemeDetailName(config.depTheme);
-                } else {
-                  depMsg = trans("style.generated");
+            {colorConfigs
+              .filter(
+                (config) =>
+                  !config.platform ||
+                  (isMobile && config.platform === "mobile") ||
+                  (!isMobile && config.platform === "pc")
+              )
+              .map((config, index) => {
+                const name: Names<T> = config.name;
+                let depMsg = (config as SimpleColorConfig)["color"];
+                if (isDepColorConfig(config)) {
+                  if (config.depType === DEP_TYPE.CONTRAST_TEXT) {
+                    depMsg = trans("style.contrastText");
+                  } else if (
+                    config.depType === DEP_TYPE.SELF &&
+                    config.depTheme
+                  ) {
+                    depMsg = getThemeDetailName(config.depTheme);
+                  } else {
+                    depMsg = trans("style.generated");
+                  }
                 }
-              }
-              return (
-                <div key={index}>
-                  {name === "radius" || name === "gap" || name === "cardRadius"
-                    ? (
-                      children[name] as InstanceType<typeof RadiusControl>
-                    ).propertyView({
-                      label: config.label,
-                      preInputNode: <RadiusIcon title="" />,
-                      placeholder: props[name],
-                    })
-                    : children[name].propertyView({
-                      label: config.label,
-                      panelDefaultColor: props[name],
-                      // isDep: isDepColorConfig(config),
-                      isDep: true,
-                      depMsg: depMsg,
-                    })}
-                </div>
-              );
-            })}
+                return (
+                  <div key={index}>
+                    {name === "radius" ||
+                    name === "gap" ||
+                    name === "cardRadius"
+                      ? (
+                          children[name] as InstanceType<typeof RadiusControl>
+                        ).propertyView({
+                          label: config.label,
+                          preInputNode: <RadiusIcon title="" />,
+                          placeholder: props[name],
+                        })
+                      : children[name].propertyView({
+                          label: config.label,
+                          panelDefaultColor: props[name],
+                          // isDep: isDepColorConfig(config),
+                          isDep: true,
+                          depMsg: depMsg,
+                        })}
+                  </div>
+                );
+              })}
           </StyleContent>
         </>
       );
     })
     .build();
+}
+
+export function useStyle<T extends readonly SingleColorConfig[]>(
+  colorConfigs: T
+) {
+  const theme = useContext(ThemeContext);
+  const bgColor = useContext(BackgroundColorContext);
+  type ColorMap = { [K in Names<T>]: string };
+  const props = {} as ColorMap;
+  colorConfigs.forEach((config) => {
+    props[config.name as Names<T>] = "";
+  });
+  return calcColors(props, colorConfigs, theme?.theme, bgColor);
 }

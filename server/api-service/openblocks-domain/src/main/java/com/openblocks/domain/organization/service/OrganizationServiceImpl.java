@@ -1,5 +1,6 @@
 package com.openblocks.domain.organization.service;
 
+import static com.openblocks.domain.authentication.AuthenticationService.DEFAULT_AUTH_CONFIG;
 import static com.openblocks.domain.organization.model.OrganizationState.ACTIVE;
 import static com.openblocks.domain.organization.model.OrganizationState.DELETED;
 import static com.openblocks.domain.util.QueryDslUtils.fieldName;
@@ -10,6 +11,7 @@ import static com.openblocks.sdk.util.LocaleUtils.getLocale;
 import static com.openblocks.sdk.util.LocaleUtils.getMessage;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.Nonnull;
@@ -29,6 +31,7 @@ import com.openblocks.domain.organization.event.OrgDeletedEvent;
 import com.openblocks.domain.organization.model.MemberRole;
 import com.openblocks.domain.organization.model.Organization;
 import com.openblocks.domain.organization.model.Organization.OrganizationCommonSettings;
+import com.openblocks.domain.organization.model.OrganizationDomain;
 import com.openblocks.domain.organization.model.OrganizationState;
 import com.openblocks.domain.organization.model.QOrganization;
 import com.openblocks.domain.organization.repository.OrganizationRepository;
@@ -42,6 +45,7 @@ import com.openblocks.sdk.constants.FieldName;
 import com.openblocks.sdk.constants.WorkspaceMode;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
+import com.openblocks.sdk.util.UriUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -101,6 +105,9 @@ public class OrganizationServiceImpl implements OrganizationService {
                         if (Boolean.TRUE.equals(join)) {
                             return Mono.empty();
                         }
+                        OrganizationDomain organizationDomain = new OrganizationDomain();
+                        organizationDomain.setAuthConfigs(List.of(DEFAULT_AUTH_CONFIG));
+                        organization.setOrganizationDomain(organizationDomain);
                         return create(organization, user.getId());
                     });
         });
@@ -255,8 +262,9 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public Mono<Organization> getByDomain(String domain) {
-        return repository.findByOrganizationDomain_DomainAndState(domain, ACTIVE);
+    public Mono<Organization> getByDomain() {
+        return UriUtils.getRefererDomainFromContext()
+                .flatMap(domain -> repository.findByOrganizationDomain_DomainAndState(domain, ACTIVE));
     }
 
     @Override

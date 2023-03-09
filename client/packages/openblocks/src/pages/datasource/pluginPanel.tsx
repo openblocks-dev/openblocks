@@ -13,7 +13,7 @@ import {
 } from "@openblocks-ee/constants/datasourceConstants";
 
 export const DataSourceButton = styled(AntdButton)`
-  width: 184px;
+  width: 208px;
   height: ${(props) => (props.size === "small" ? "36px" : "44px")};
   border: 1px solid #d7d9e0;
   border-radius: 4px;
@@ -86,7 +86,7 @@ export const PluginPanel = (props: { onSelect: (t: DataSourceTypeInfo) => void }
         </SectionBody>
       </SectionWrapper>
       <SectionWrapper>
-        <SectionLabel>APIS</SectionLabel>
+        <SectionLabel>APIs</SectionLabel>
         <SectionBody>
           {datasourceTypes
             .filter((t) => apiList.includes(t.id) || t.definition?.category === "api")

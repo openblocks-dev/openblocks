@@ -20,6 +20,7 @@ import { checkIsMobile } from "util/commonUtils";
 import history from "util/history";
 import { APPLICATION_VIEW_URL } from "constants/routesURL";
 import { TypographyText } from "../../components/TypographyText";
+import { useParams } from "react-router-dom";
 
 const EditButton = styled(TacoButton)`
   width: 52px;
@@ -35,7 +36,7 @@ const ExecButton = styled(TacoButton)`
   width: 52px;
   height: 24px;
   padding: 5px 12px;
-  margin-right: 44px;
+  margin-right: 24px;
   background: #fafbff;
   border: 1px solid #c9d1fc;
   border-radius: 4px;
@@ -104,6 +105,7 @@ const CardInfo = styled.div`
   flex-grow: 1;
   cursor: pointer;
   overflow: hidden;
+  padding-right: 12px;
 
   :hover {
     .ant-typography {
@@ -141,6 +143,8 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
   const { res, onMove } = props;
   const [appNameEditing, setAppNameEditing] = useState(false);
   const dispatch = useDispatch();
+
+  const { folderId } = useParams<{ folderId: string }>();
 
   const subTitle = trans("home.resCardSubTitle", {
     time: timestampToHumanReadable(res.lastModifyTime, MONTH_MILLIS),
@@ -188,7 +192,9 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
               if (res.type === HomeResTypeEnum.Folder) {
                 dispatch(updateFolder({ id: res.id, name: value }));
               } else {
-                dispatch(updateAppMetaAction(res.id, value));
+                dispatch(
+                  updateAppMetaAction({ applicationId: res.id, name: value, folderId: folderId })
+                );
               }
               setAppNameEditing(false);
             }}

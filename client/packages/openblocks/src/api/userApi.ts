@@ -5,15 +5,29 @@ import { BaseUserInfo, CurrentUser } from "constants/userConstants";
 import { MarkUserStatusPayload, UpdateUserPayload } from "redux/reduxActions/userActions";
 import { ApiResponse, GenericApiResponse } from "./apiResponses";
 
-interface CommonLoginParam {
+export interface CommonLoginParam {
   invitationId?: string;
+  authId?: string;
+  source?: string;
+}
+
+export interface CommonBindParam {
+  reLoginOnBindFail?: boolean;
+  authId?: string;
+  source?: string;
+}
+
+interface ThirdPartyAuthRequest {
+  state: string;
+  code: string;
+  redirectUrl: string;
 }
 
 interface FormLoginRequest extends CommonLoginParam {
   loginId: string;
   password: string;
   register: boolean;
-  source: string;
+  authId?: string;
 }
 
 export interface GetUserResponse extends ApiResponse {
@@ -25,6 +39,8 @@ export interface GetUserResponse extends ApiResponse {
 export type GetCurrentUserResponse = GenericApiResponse<CurrentUser>;
 
 class UserApi extends Api {
+  static thirdPartyLoginURL = "/auth/tp/login";
+  static thirdPartyBindURL = "/auth/tp/bind";
   static usersURL = "/v1/users";
   static sendVerifyCodeURL = "/auth/otp/send";
   static logoutURL = "/auth/logout";
@@ -38,13 +54,25 @@ class UserApi extends Api {
   static userDetailURL = (id: string) => `/users/userDetail/${id}`;
   static resetPasswordURL = `/users/reset-password`;
 
+  static thirdPartyLogin(
+    request: ThirdPartyAuthRequest & CommonLoginParam
+  ): AxiosPromise<ApiResponse> {
+    return Api.post(UserApi.thirdPartyLoginURL, undefined, request);
+  }
+
+  static bindThirdParty(
+    request: ThirdPartyAuthRequest & CommonBindParam
+  ): AxiosPromise<ApiResponse> {
+    return Api.post(UserApi.thirdPartyBindURL, undefined, request);
+  }
+
   static formLogin(request: FormLoginRequest): AxiosPromise<ApiResponse> {
     const { invitationId, ...reqBody } = request;
     const queryParam = invitationId ? { invitationId: invitationId } : undefined;
     return Api.post(UserApi.formLoginURL, reqBody, queryParam);
   }
 
-  static bindEmail(request: { email: string }): AxiosPromise<ApiResponse> {
+  static bindEmail(request: { email: string; authId?: string }): AxiosPromise<ApiResponse> {
     return Api.post(UserApi.emailBindURL, undefined, request);
   }
 

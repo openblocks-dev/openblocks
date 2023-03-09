@@ -139,7 +139,22 @@ export class EditorState {
     const queryComInfoList = this.queryCompInfoList();
     const stateComInfoList = this.getTempStateCompInfoList();
     const transformerComInfoList = this.getTransformerCompInfoList();
-    return [...queryComInfoList, ...stateComInfoList, ...transformerComInfoList];
+    const dataResponderInfoList = this.getDataResponderInfoList();
+    return [
+      ...queryComInfoList,
+      ...stateComInfoList,
+      ...transformerComInfoList,
+      ...dataResponderInfoList,
+    ];
+  }
+
+  getDataResponderInfoList(): Array<CompInfo> {
+    const listComp = this.getDataRespondersComp();
+    const exposingInfo = listComp.nameAndExposingInfo();
+    return listComp.getView().map((item) => {
+      const name = item.children.name.getView();
+      return this.getCompInfo(exposingInfo, name, BottomResTypeEnum.DateResponder);
+    });
   }
 
   getTempStateCompInfoList(): Array<CompInfo> {
@@ -375,6 +390,8 @@ export class EditorState {
         return this.getTempStatesComp();
       case BottomResTypeEnum.Transformer:
         return this.getTransformersComp();
+      case BottomResTypeEnum.DateResponder:
+        return this.getDataRespondersComp();
     }
   }
 
@@ -397,6 +414,10 @@ export class EditorState {
 
   getTransformersComp() {
     return this.rootComp.children.transformers;
+  }
+
+  getDataRespondersComp() {
+    return this.rootComp.children.dataResponders;
   }
 
   getHooksComp() {

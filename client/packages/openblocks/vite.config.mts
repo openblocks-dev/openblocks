@@ -18,7 +18,8 @@ const apiProxyTarget = process.env.API_PROXY_TARGET;
 const nodeServiceApiProxyTarget = process.env.NODE_SERVICE_API_PROXY_TARGET;
 const nodeEnv = process.env.NODE_ENV ?? "development";
 const edition = process.env.REACT_APP_EDITION;
-const isEE = edition === "enterprise";
+const isEEGlobal = edition === "enterprise-global";
+const isEE = edition === "enterprise" || isEEGlobal;
 const isDev = nodeEnv === "development";
 const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 const browserCheckFileName = `browser-check-${process.env.REACT_APP_COMMIT_ID}.js`;
@@ -59,7 +60,7 @@ export const viteConfig: UserConfig = {
     alias: {
       "@openblocks-ee": path.resolve(
         __dirname,
-        isEE ? "../openblocks/src/ee" : "../openblocks/src"
+        isEE ? `../openblocks/src/${isEEGlobal ? "ee-global" : "ee"}` : "../openblocks/src"
       ),
     },
   },

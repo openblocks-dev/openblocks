@@ -35,7 +35,6 @@ import com.openblocks.infra.constant.NewUrl;
 import com.openblocks.infra.constant.Url;
 import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.exception.BizError;
-import com.openblocks.sdk.util.UriUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -68,10 +67,9 @@ public class UserController {
 
     @GetMapping("/me")
     public Mono<ResponseView<?>> getUserProfile(ServerWebExchange exchange) {
-        String domain = UriUtils.getRefererDomain(exchange);
         return sessionUserService.getVisitor()
                 .flatMap(user -> userHomeApiService.buildUserProfileView(user, exchange))
-                .flatMap(view -> orgApiService.checkOrganizationDomain(domain)
+                .flatMap(view -> orgApiService.checkOrganizationDomain()
                         .flatMap(OrganizationDomainCheckResult::buildOrganizationDomainCheckView)
                         .switchIfEmpty(Mono.just(ResponseView.success(view))));
     }

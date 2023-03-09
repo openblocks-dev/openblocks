@@ -6,9 +6,8 @@ import styled, { css } from "styled-components";
 import { AlignCenter } from "openblocks-design";
 import { AlignLeft } from "openblocks-design";
 import { AlignRight } from "openblocks-design";
-import { HorizontalAlignmentControl } from "../controls/dropdownControl";
 import { MarginControl } from "../controls/marginControl";
-import { UICompBuilder, withDefault } from "../generators";
+import { UICompBuilder } from "../generators";
 import {
   NameConfig,
   NameConfigHidden,
@@ -23,8 +22,8 @@ import {
 } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { StringControl } from "../controls/codeControl";
 import { PaddingControl } from "../controls/paddingControl";
+import { alignWithJustifyControl } from "comps/controls/alignControl";
 
 const getStyle = (style: TextStyleType) => {
   return css`
@@ -142,7 +141,7 @@ let TextTmpComp = (function () {
     ),
     autoHeight: AutoHeightControl,
     type: dropdownControl(typeOptions, "markdown"),
-    horizontalAlignment: HorizontalAlignmentControl,
+    horizontalAlignment: alignWithJustifyControl(),
     verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
     style: styleControl(TextStyle),
     margin: MarginControl,

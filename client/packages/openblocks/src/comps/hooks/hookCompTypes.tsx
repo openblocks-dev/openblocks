@@ -13,6 +13,7 @@ const AllHookComp = [
   "localStorage",
   "currentUser",
   "urlParams",
+  "theme",
 ] as const;
 
 export type HookCompType = typeof AllHookComp[number];

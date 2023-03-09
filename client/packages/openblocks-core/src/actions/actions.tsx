@@ -1,25 +1,25 @@
-import { JSONValue } from "util/jsonTypes";
+import { CompConstructor } from "baseComps/comp";
 import _ from "lodash";
+import { JSONValue } from "util/jsonTypes";
 import {
-  CompAction,
   ActionContextType,
   ActionExtraInfo,
   AddChildAction,
   BroadcastAction,
   ChangeValueAction,
+  CompAction,
   CompActionTypes,
   CustomAction,
   ExecuteQueryAction,
   MultiChangeAction,
   RenameAction,
+  ReplaceCompAction,
   RouteByNameAction,
   SimpleCompAction,
+  TriggerModuleEventAction,
   UpdateActionContextAction,
   UpdateNodesV2Action,
-  TriggerModuleEventAction,
-  ReplaceCompAction,
 } from "./actionTypes";
-import { CompConstructor } from "baseComps/comp";
 
 export function customAction<DataType>(value: DataType): CustomAction<DataType> {
   return {
@@ -189,9 +189,9 @@ export function updateNodesV2Action(value: any): UpdateNodesV2Action {
 
 export function wrapActionExtraInfo<T extends CompAction>(
   action: T,
-  extraCompInfos: ActionExtraInfo["compInfos"]
+  extraInfos: ActionExtraInfo
 ): T {
-  return { ...action, extraInfo: { compInfos: extraCompInfos } };
+  return { ...action, extraInfo: { ...action.extraInfo, ...extraInfos } };
 }
 
 export function deferAction<T extends CompAction>(action: T): T {

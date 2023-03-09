@@ -39,7 +39,6 @@ export const en = {
   icon: "Icon",
   code: "Code",
   title: "Title",
-  focus: "Focus",
   emptyContent: "Empty content",
   more: "More",
   search: "Search",
@@ -62,6 +61,23 @@ export const en = {
     setDesc: "Set property: {property}",
     clearDesc: "Clear property: {property}",
     resetDesc: "Reset property: {property} to default value",
+  },
+  method: {
+    focus: "Set focus",
+    focusOptions: "Focus options. See HTMLElement.focus()",
+    blur: "Remove focus",
+    click: "Click",
+    select: "Select all the text",
+    setSelectionRange:
+      "Set the start and end positions of the current text selection",
+    selectionStart: "The 0-based index of the first selected character.",
+    selectionEnd:
+      "The 0-based index of the character after the last selected character.",
+    setRangeText: "Replace a range of text",
+    replacement: "The string to insert.",
+    replaceStart: "The 0-based index of the first character to replace.",
+    replaceEnd:
+      "The 0-based index of the character after the last character to replace.",
   },
   errorBoundary: {
     encounterError:
@@ -331,6 +347,9 @@ export const en = {
     paddingRight: "Padding Right",
     paddingTop: "Padding Top",
     paddingBottom: "Padding Bottom",
+    pen: "Pen",
+    footerIcon: "Footer icon",
+    tips: "Tips",
   },
   export: {
     hiddenDesc: "If true, the component is hidden",
@@ -427,6 +446,7 @@ export const en = {
     confirmationMessage: "Are you sure you want to run this query?",
     newQuery: "New query",
     recentlyUsed: "Recently used",
+    dataResponder: "Data responder",
     tempState: "Temporary state",
     transformer: "Transformer",
     quickRestAPI: "REST Query",
@@ -463,8 +483,11 @@ export const en = {
       "Minimum value: 100ms, periodical execution will be disabled for values below that.\n" +
       "\n" +
       "E.g. 300 (i.e. 300ms), 800ms, 5s.",
+    cancelPrevious: "Ignore the results of previous uncompleted executions.",
+    cancelPreviousTooltip: "",
+
     dataSourceStatusError:
-      "The query data source is invalid or does not exist. Update the current query data source.",
+      "If a new execution is triggered, the result of the previous uncompleted executions will be ignored if the previous executions did not complete, and the ignored executions will not trigger the event list of the query.",
     success: "Success",
     fail: "Failure",
     successDesc: "Triggered when the execution success",
@@ -472,8 +495,9 @@ export const en = {
     fixedDelayError: "Query not run",
     execSuccess: "run success",
     execFail: "run failed",
+    execIgnored: "The results of this query was ignored.",
     deleteSuccessMessage:
-      "Delete query success. You can use {undoKey} to undo.",
+      "Successfully deleted. You can use {undoKey} to undo.",
     dataExportDesc: "Data obtained by the current query",
     codeExportDesc: "Current query status code",
     successExportDesc: "Whether the current query was executed successfully",
@@ -585,6 +609,7 @@ export const en = {
     readData: "Read Data",
     appendData: "Append Row",
     updateData: "Update Row",
+    deleteData: "Delete Row",
     clearData: "Clear Row",
     serviceAccountRequireMessage: "Please enter your Service Account",
     ASC: "ASC",
@@ -622,6 +647,10 @@ export const en = {
     version: "Version",
     desc: "Description",
   },
+  snowflake: {
+    accountIdentifierTooltip: "See ",
+    extParamsTooltip: "Configure more connection parameters",
+  },
   openBlocksQuery: {
     queryOrgUsers: "Query workspace users",
   },
@@ -637,6 +666,8 @@ export const en = {
     file: "File",
     extraBodyTooltip:
       "Key values in Extra body will be appended in body with JSON or Form Data types",
+    forwardCookies: "Forward cookies",
+    forwardAllCookies: "Forward all cookies",
   },
   smtpQuery: {
     attachment: "Attachment",
@@ -841,6 +872,9 @@ export const en = {
     imageEditorCompName: "Image Editor",
     imageEditorCompDesc: "Image Editor component",
     imageEditorCompKeywords: "",
+    signatureCompName: "Signature",
+    signatureCompDesc: "Signature component",
+    signatureCompKeywords: "",
   },
   comp: {
     menuViewDocs: "View documentation",
@@ -967,8 +1001,7 @@ export const en = {
   },
   optionsControl: {
     option: "Option",
-    option1: "Option 1",
-    option2: "Option 2",
+    optionI: "Option {i}",
     viewDocs: "View docs",
     tip: 'The "item" and "i" variables represent the value and index of each item in the data array',
   },
@@ -1038,11 +1071,17 @@ export const en = {
     date: "Date",
     clearAllDesc: "Clear all",
     resetAllDesc: "Reset all",
+    placeholder: "Select date",
+    startDate: "Start date",
+    endDate: "End date",
   },
   time: {
     start: "Start time",
     end: "End time",
     formatTip: "Support:\n" + "HH:mm:ss\nTimestamp",
+    placeholder: "Select Time",
+    startTime: "Start time",
+    endTime: "End time",
   },
   button: {
     prefixIcon: "Prefix icon",
@@ -1143,10 +1182,14 @@ export const en = {
     link: "Link",
     links: "Links",
     tag: "Tag",
+    date: "Date",
     dateTime: "Date Time",
     badgeStatus: "Status",
     button: "Button",
     image: "Image",
+    boolean: "Boolean",
+    rating: "Rating",
+    progress: "Progress",
     option: "Operation ",
     optionList: "Operation list",
     option1: "Operation 1",
@@ -1201,6 +1244,8 @@ export const en = {
       `Example: ["id", "name"]`,
     position: "Position",
     showDataLoadSpinner: "Show spinner during data loading",
+    showValue: "Show Value",
+    expandable: "Expandable",
   },
   image: {
     src: "Image source",
@@ -1265,7 +1310,7 @@ export const en = {
     backgroundColor: "Background color",
     animationStart: "Animation Start",
     valueDesc: "Current json Data",
-    loop: "Loop"
+    loop: "Loop",
   },
   audio: {
     src: "Audio URL",
@@ -1308,6 +1353,16 @@ export const en = {
     endedDesc: "Triggered when the video ends playing",
     currentTimeStamp: "The current playback position of the video in seconds",
     duration: "The total duration of the video in seconds",
+  },
+  media: {
+    playDesc: "Begins playback of the media.",
+    pauseDesc: "Pauses the media playback.",
+    loadDesc:
+      "Resets the media to the beginning and restart selecting the media resource.",
+    seekTo:
+      "Seek to the given number of seconds, or fraction if amount is between 0 and 1",
+    seekToAmount: "Number of seconds, or fraction if it is between 0 and 1",
+    showPreview: "Show preview",
   },
   rangeSlider: {
     start: "Start value",
@@ -1360,6 +1415,8 @@ export const en = {
     advanced: "Advanced",
     lab: "Lab",
     branding: "Branding",
+    idSource: "ID Providers",
+    premium: "Premium",
   },
   memberSettings: {
     admin: "Admin",
@@ -1403,14 +1460,24 @@ export const en = {
     createTime: "Create time",
     manageBtn: "Manage",
     userDetail: "Detail",
+    syncDeleteTip: "This group has been deleted from the address book source",
+    syncGroupTip:
+      "This group is an address book synchronization group and cannot be edited",
   },
   orgSettings: {
     newOrg: "New workspace",
     title: "Workspace",
     createOrg: "Create workspace",
-    deleteModalTitle: "Delete this workspace",
+    deleteModalTitle: "Are you sure to delete this workspace?",
     deleteModalContent:
-      "The workspace cannot be restored after deletion. Are you sure to delete the workspace?",
+      "You are about to delete this workspace {permanentlyDelete}. Once deleted, the workspace {notRestored}.",
+    permanentlyDelete: "permanently",
+    notRestored: "cannot be restored",
+    deleteModalLabel:
+      "Please enter workspace name{name}to confirm the operation:",
+    deleteModalTip: "Please enter workspace name",
+    deleteModalErr: "Workspace name is incorrect",
+    deleteModalBtn: "Delete",
     editOrgTitle: "Edit workspace information",
     orgNameLabel: "Workspace name:",
     orgNameCheckMsg: "Workspace name cannot be empty",
@@ -1489,6 +1556,12 @@ export const en = {
     noOfRowsTooltip:
       "Number of rows in the list - This is usually set to a variable (for example, '{{query1.data.length}}') if you need to present the results of a query.",
     noOfColumns: "Column count",
+    itemIndexName: "Item index name",
+    itemIndexNameDesc:
+      "the variable name refer to the item's index, default as {default}",
+    itemDataName: "Item data name",
+    itemDataNameDesc:
+      "the variable name refer to the item's data object, default as {default}",
     itemsDesc: "Exposing data of Comps in list",
     dataDesc: "The raw data used in the current list",
     dataTooltip:
@@ -1529,6 +1602,12 @@ export const en = {
     closeDesc: "Triggered when the switch is turned off",
     valueDesc: "Current switch status",
   },
+  signature: {
+    tips: "Tips",
+    signHere: "Sign here",
+    showUndo: "Show undo",
+    showClear: "Show clear",
+  },
   localStorageComp: {
     valueDesc: "All data items currently stored",
     setItemDesc: "Add an item",
@@ -1547,6 +1626,9 @@ export const en = {
     warn: "Send a warning notification",
     error: "Send a error notification",
   },
+  themeComp: {
+    switchTo: "Switch theme",
+  },
   transformer: {
     preview: "Preview",
     docLink: "About transformer",
@@ -1564,6 +1646,15 @@ export const en = {
     valueDesc: "Temporary state value",
     deleteMessage:
       "The temporary state is deleted successfully. You can use {undoKey} to undo.",
+  },
+  dataResponder: {
+    data: "Data",
+    dataDesc: "Data of current data responder",
+    dataTooltip:
+      "When this data is changed, it will trigger subsequent actions.",
+    docLink: "About the Data responder",
+    deleteMessage:
+      "The data responder is deleted successfully. You can use {undoKey} to undo.",
   },
   theme: {
     title: "Themes",
@@ -1595,7 +1686,7 @@ export const en = {
     leaveTipContent: "You haven't saved yet, confirm leaving?",
     leaveTipOkText: "Leave",
     goList: "Back to the list",
-    saveBtn: "Save the settings",
+    saveBtn: "Save",
     mainColor: "Main colors",
     text: "Text colors",
     defaultTheme: "Default",
@@ -1756,6 +1847,8 @@ export const en = {
     hideWhenNoPermission: "Hidden for users without app permission",
     queryParam: "URL Query params",
     hashParam: "URL Hash params",
+    tabBar: "Tab bar",
+    emptyTabTooltip: "Configure this page on the right pane",
   },
   appSetting: {
     title: "App settings",
@@ -1771,6 +1864,7 @@ export const en = {
     canvasMaxWidth: "Maximum canvas width",
     userDefinedMaxWidth: "Custom maximum width",
     inputUserDefinedPxValue: "Please enter a custom pixel value",
+    maxWidthTip: "Max width should be greater than or equal to 350",
     themeSetting: "Theme setting",
     themeSettingDefault: "Default",
     themeCreate: "Create theme",
@@ -1979,7 +2073,11 @@ export const en = {
     home: "Home",
     all: "All",
     app: "App",
-    navLayout: "Navigation",
+    navigation: "Navigation",
+    navLayout: "PC Navigation",
+    navLayoutDesc: "Left-side menu for easy desktop navigation.",
+    mobileTabLayout: "Mobile Navigation",
+    mobileTabLayoutDesc: "Bottom navigation bar for smooth mobile browsing.",
     folders: "Folders",
     folder: "Folder",
     rootFolder: "Root",
@@ -2040,6 +2138,8 @@ export const en = {
     copyNameLabel: "{type} name",
     copyModalfolderLabel: "Add to folder",
     copyNamePlaceholder: "Please enter a {type} name",
+    chooseNavType: "Please choose navigation type",
+    createNavigation: "Create Navigation",
   },
   carousel: {
     dotPosition: "Dots position",
@@ -2345,5 +2445,38 @@ export const en = {
   },
   componentDocExtra: {
     table,
+  },
+  idSource: {
+    title: "ID Providers",
+    form: "Email",
+    pay: "Premium",
+    enable: "Enable",
+    unEnable: "Not Enabled",
+    loginType: "Login type",
+    status: "Status",
+    desc: "Description",
+    manual: "Address book:",
+    syncManual: "Sync Address book",
+    syncManualSuccess: "Sync succeeded",
+    enableRegister: "Allow registration",
+    saveBtn: "Save and enable",
+    save: "Save",
+    none: "None",
+    formPlaceholder: "Please enter {form}",
+    formSelectPlaceholder: "Please select the {form}",
+    saveSuccess: "Saved successfully",
+    dangerLabel: "Danger Zone",
+    dangerTip:
+      "Disabling this ID provider may result in some users being unable to log in. Proceed with caution.",
+    disable: "Disable",
+    disableSuccess: "Disabled successfully",
+    encryptedServer: "-------- Encrypted on the server side --------",
+    disableTip: "Tips",
+    disableContent:
+      "Disabling this ID provider may result in some users being unable to log in. Are you sure to proceed?",
+    manualTip: "",
+  },
+  slotControl: {
+    configSlotView: "Configure expanded view",
   },
 };

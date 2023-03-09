@@ -101,7 +101,7 @@ public abstract class InsertCommand implements GuiSqlCommand {
         sb.deleteCharAt(sb.length() - 1).append(") values (");
         String repeatedQuestionMarks = StringUtils.repeat("?,", insertRow.size());
         sb.append(repeatedQuestionMarks);
-        sb.deleteCharAt(sb.length() - 1).append(");");
+        sb.deleteCharAt(sb.length() - 1).append(")");
         return sb.toString();
     }
 

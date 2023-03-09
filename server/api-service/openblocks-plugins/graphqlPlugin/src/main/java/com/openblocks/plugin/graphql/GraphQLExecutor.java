@@ -7,15 +7,12 @@ import static com.openblocks.sdk.exception.PluginCommonError.JSON_PARSE_ERROR;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_EXECUTION_TIMEOUT;
-import static com.openblocks.sdk.plugin.restapi.DataUtils.parseJsonBody;
 import static com.openblocks.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
 import static com.openblocks.sdk.util.JsonUtils.readTree;
 import static com.openblocks.sdk.util.JsonUtils.toJsonThrows;
 import static com.openblocks.sdk.util.MustacheHelper.renderMustacheString;
 import static com.openblocks.sdk.util.StreamUtils.collectList;
 import static com.openblocks.sdk.util.StreamUtils.distinctByKey;
-import static com.openblocks.sdk.webclient.WebClients.builder;
-import static com.openblocks.sdk.webclient.WebClients.withSafeHost;
 import static org.apache.commons.lang3.StringUtils.firstNonBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
@@ -62,6 +59,7 @@ import com.openblocks.plugin.graphql.helpers.AuthHelper;
 import com.openblocks.plugin.graphql.helpers.BufferingFilter;
 import com.openblocks.plugin.graphql.model.GraphQLQueryConfig;
 import com.openblocks.plugin.graphql.model.GraphQLQueryExecutionContext;
+import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.QueryExecutionResult;
@@ -77,6 +75,7 @@ import com.openblocks.sdk.query.QueryVisitorContext;
 import com.openblocks.sdk.util.JsonUtils;
 import com.openblocks.sdk.util.MoreMapUtils;
 import com.openblocks.sdk.util.MustacheHelper;
+import com.openblocks.sdk.webclient.WebClientBuildHelper;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -100,6 +99,12 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
     private final Scheduler scheduler = QueryExecutionUtils.querySharedScheduler();
     private final DataUtils dataUtils = DataUtils.getInstance();
     Consumer<HttpHeaders> DEFAULT_HEADERS_CONSUMER = httpHeaders -> {};
+
+    private final CommonConfig commonConfig;
+
+    public GraphQLExecutor(CommonConfig commonConfig) {
+        this.commonConfig = commonConfig;
+    }
 
     private static List<Property> renderMustacheValueInProperties(List<Property> properties, Map<String, Object> paramMap) {
         return properties.stream()
@@ -245,7 +250,9 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
     public Mono<QueryExecutionResult> executeQuery(Object o, GraphQLQueryExecutionContext context) {
         return Mono.defer(() -> {
             URI uri = RestApiUriBuilder.buildUri(context.getUrl(), new HashMap<>(), context.getUrlParams());
-            WebClient.Builder webClientBuilder = withSafeHost(builder());
+            WebClient.Builder webClientBuilder = WebClientBuildHelper.builder()
+                    .disallowedHosts(commonConfig.getDisallowedHosts())
+                    .toWebClientBuilder();
 
             Map<String, String> allHeaders = context.getHeaders();
             String contentType = context.getContentType();
@@ -379,13 +386,6 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
         return QueryExecutionResult.ofRestApiResult(statusCode, headersObjectNode, responseBodyData.getBody());
     }
 
-    private String addHttpToUrlWhenPrefixNotPresent(String url) {
-        if (url == null || url.toLowerCase().startsWith("http") || url.contains("://")) {
-            return url;
-        }
-        return "http://" + url;
-    }
-
     private JsonNode parseExecuteResultHeaders(HttpHeaders headers) {
         // Convert the headers into json tree to store in the results
         String headerInJsonString;
@@ -440,19 +440,19 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
 
     private BodyInserter<?, ? super ClientHttpRequest> buildBodyInserter(boolean isEncodeParams,
             String requestContentType,
-            String queryBody,
+            Object queryBody,
             List<Property> bodyFormData) {
-        if (StringUtils.isBlank(queryBody)) {
-            return BodyInserters.fromValue(new byte[0]);
-        }
         switch (requestContentType) {
-            case MediaType.APPLICATION_JSON_VALUE:
-                final Object bodyObject = parseJsonBody(queryBody);
-                return BodyInserters.fromValue(bodyObject);
+
             case MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE:
                 return dataUtils.buildBodyInserter(bodyFormData, requestContentType, isEncodeParams);
+
+            // include application/json
             default:
-                return BodyInserters.fromValue((queryBody).getBytes(StandardCharsets.ISO_8859_1));
+                if (queryBody == null) {
+                    return BodyInserters.fromValue(new byte[0]);
+                }
+                return BodyInserters.fromValue(queryBody);
         }
     }
 

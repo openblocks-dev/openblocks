@@ -5,7 +5,7 @@
  * Context will break the simple nature of pure functions and complicate things, try to avoid using.
  */
 
-import { JSONObject } from "util/jsonTypes";
+import { JSONValue } from "util/jsonTypes";
 
 type ReduceContext = {
   readOnly: boolean;
@@ -20,10 +20,11 @@ type ReduceContext = {
    * FIXME: After stabilization, let the table also use this method
    */
   inEventContext: boolean;
-  listViewContext: { currentItem: JSONObject; listViewDepth: number };
+  withParamsContext: { params: Record<string, unknown> };
+  disableUpdateState: boolean;
 };
 export type PartialReduceContext = Partial<ReduceContext>;
-export type ListViewContext = ReduceContext["listViewContext"];
+export type WithParamsContext = ReduceContext["withParamsContext"];
 
 let context: ReduceContext = {
   readOnly: false,
@@ -31,7 +32,8 @@ let context: ReduceContext = {
   moduleDSL: {},
   parentApplicationPath: [],
   inEventContext: false,
-  listViewContext: { currentItem: {}, listViewDepth: 0 },
+  withParamsContext: { params: {} },
+  disableUpdateState: false,
 };
 
 export function getApplicationIdInReducer() {

@@ -50,7 +50,7 @@ const VariableControl = class extends simpleMultiComp({
   }
 };
 
-const VariablesControl = class extends list(VariableControl) {
+export const VariablesControl = class extends list(VariableControl) {
   getQueryParams() {
     return this.getView().reduce(
       (result: FunctionProperty[], kv) => [...result, ...kv.children.value.getQueryParams()],

@@ -37,7 +37,7 @@ public interface OrgApiService {
 
     Mono<Boolean> update(String orgId, UpdateOrgRequest updateOrgRequest);
 
-    Mono<OrganizationDomainCheckResult> checkOrganizationDomain(String domain);
+    Mono<OrganizationDomainCheckResult> checkOrganizationDomain();
 
     Mono<OrganizationCommonSettings> getOrgCommonSettings(String orgId);
 
@@ -45,6 +45,6 @@ public interface OrgApiService {
 
     Mono<Boolean> tryAddUserToOrgAndSwitchOrg(String orgId, String userId);
 
-    Mono<ConfigView> getOrganizationConfigs(String domain);
+    Mono<ConfigView> getOrganizationConfigs();
 }
 

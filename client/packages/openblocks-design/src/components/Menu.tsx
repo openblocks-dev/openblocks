@@ -77,6 +77,13 @@ const StyledAntdMenu = styled(AntdMenu)`
   .ant-menu-item:focus-visible {
     box-shadow: unset;
   }
+
+  .ant-menu-item-disabled .text {
+    color: #b8b9bf;
+    & + span {
+      opacity: 0.4;
+    }
+  }
 `;
 
 const MenuItemContentWrapper = styled.div`

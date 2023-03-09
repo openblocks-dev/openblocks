@@ -33,7 +33,7 @@ public class GraphQLQueryExecutionContext extends QueryExecutionContext {
 
     private JsonNode variablesParams;
     @Setter
-    private String queryBody;
+    private Object queryBody;
     private String contentType;
     private boolean encodeParams;
 
@@ -49,7 +49,7 @@ public class GraphQLQueryExecutionContext extends QueryExecutionContext {
         return url;
     }
 
-    public String getQueryBody() {
+    public Object getQueryBody() {
         return queryBody;
     }
 

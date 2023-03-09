@@ -2,30 +2,33 @@ import styled from "styled-components";
 import { ResourceType } from "@openblocks-ee/constants/queryConstants";
 import {
   ClickHouseIcon,
+  DataResponderIcon,
+  DeleteApiIcon,
   EsIcon,
+  GetApiIcon,
   GoogleSheetsIcon,
   GraphqlIcon,
+  HeadApiIcon,
   JSIcon,
+  MariaDBIcon,
   MongoIcon,
   MSSQLIcon,
   MysqlIcon,
   OpenBlocksQueryIcon,
+  OptionsApiIcon,
   OracleIcon,
+  PatchApiIcon,
+  PostApiIcon,
   PostgresIcon,
+  PutApiIcon,
   QueryLibraryIcon,
   RedisIcon,
   RestApiIcon,
   SMTPIcon,
+  SnowflakeIcon,
   TempStateIcon,
-  TransformerIcon,
-  DeleteApiIcon,
-  GetApiIcon,
-  PatchApiIcon,
-  PostApiIcon,
-  PutApiIcon,
-  OptionsApiIcon,
-  HeadApiIcon,
   TraceApiIcon,
+  TransformerIcon,
 } from "openblocks-design";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { HttpMethod } from "api/api";
@@ -36,7 +39,7 @@ const QueryLibrary = styled(QueryLibraryIcon)`
   }
 `;
 
-const IconWrapper = styled.div<{ isRestApi?: boolean }>`
+export const IconWrapper = styled.div<{ isRestApi?: boolean }>`
   display: flex;
   width: ${(props) => (props.isRestApi ? "26px" : "16px")};
   height: ${(props) => (props.isRestApi ? "13px" : "16px")};
@@ -57,7 +60,7 @@ export const LargeBottomResIconWrapper = styled(IconWrapper)`
   }
 `;
 
-function getBottomResIconInnerByUrl(type: ResourceType, url: string) {
+function getBottomResIconInnerByUrl(type: BottomResType, url: string) {
   let fullUrl = url;
   if (!fullUrl.startsWith("http")) {
     fullUrl = `${REACT_APP_API_HOST}/node-service/plugin-icons/${url}`;
@@ -68,7 +71,8 @@ function getBottomResIconInnerByUrl(type: ResourceType, url: string) {
 export type BottomResType =
   | ResourceType
   | BottomResTypeEnum.TempState
-  | BottomResTypeEnum.Transformer;
+  | BottomResTypeEnum.Transformer
+  | BottomResTypeEnum.DateResponder;
 
 const HttpMethodIcon = {
   DELETE: <DeleteApiIcon />,
@@ -93,6 +97,8 @@ export const getBottomResIcon = (
         return <TempStateIcon />;
       case BottomResTypeEnum.Transformer:
         return <TransformerIcon />;
+      case BottomResTypeEnum.DateResponder:
+        return <DataResponderIcon />;
       case "mysql":
         return <MysqlIcon />;
       case "mongodb":
@@ -123,6 +129,10 @@ export const getBottomResIcon = (
         return <GraphqlIcon />;
       case "openblocksApi":
         return <OpenBlocksQueryIcon />;
+      case "snowflake":
+        return <SnowflakeIcon />;
+      case "mariadb":
+        return <MariaDBIcon />;
       default:
         if (defaultIconUrl) {
           return getBottomResIconInnerByUrl(type, defaultIconUrl);

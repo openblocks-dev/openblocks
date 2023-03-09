@@ -65,6 +65,7 @@ const Wrapper = styled.div<{ hasLabel: boolean }>`
   flex-direction: ${(props) => (props.hasLabel ? "column" : "row")};
   height: ${(props) => (props.hasLabel ? "auto" : "32px")};
   align-items: ${(props) => (props.hasLabel ? "auto" : "center")};
+  gap: 4px;
 `;
 
 const CodeEditorWrapper = styled.div<{ hasLabel: boolean }>`

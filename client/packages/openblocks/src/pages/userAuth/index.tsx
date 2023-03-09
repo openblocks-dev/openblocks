@@ -1,56 +1,33 @@
-import { AUTH_LOGIN_URL, AUTH_REGISTER_URL, USER_AUTH_URL } from "constants/routesURL";
+import { AUTH_LOGIN_URL, USER_AUTH_URL } from "constants/routesURL";
 import { Redirect, Route, Switch, useLocation } from "react-router-dom";
-import { AuthBottomView, AuthContainer, StyledRouteLink } from "pages/userAuth/authComponents";
-import { InviteInfo } from "api/inviteApi";
-import { trans } from "i18n";
-import AccountPassLogin from "pages/userAuth/accountPassLogin";
-import UserRegister from "pages/userAuth/register";
+import React from "react";
 import { useSelector } from "react-redux";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
-import { WhiteLoading } from "openblocks-design";
-import { getLoginTitle } from "pages/userAuth/authUtils";
+import { AuthContext } from "pages/userAuth/authUtils";
+import { AuthRoutes } from "@openblocks-ee/constants/authConstants";
+import { AuthLocationState } from "constants/authConstants";
+import { ProductLoading } from "components/ProductLoading";
 
-type AuthInviteInfo = InviteInfo & { invitationId: string };
-export type AuthLocationState = { inviteInfo?: AuthInviteInfo };
-
-export function UserAuth() {
+export default function UserAuth() {
   const location = useLocation<AuthLocationState>();
-  const inviteInfo = location.state?.inviteInfo;
   const systemConfig = useSelector(selectSystemConfig);
   if (!systemConfig) {
-    return <WhiteLoading />;
+    return <ProductLoading hideHeader />;
   }
-
   return (
-    <Switch location={location}>
-      <Redirect exact from={USER_AUTH_URL} to={AUTH_LOGIN_URL} />
-      <Route
-        exact
-        path={AUTH_LOGIN_URL}
-        component={() => (
-          <AuthContainer title={getLoginTitle(inviteInfo?.createUserName)}>
-            <AccountPassLogin invitationId={inviteInfo?.invitationId} />
-            <AuthBottomView>
-              {systemConfig.email.enableRegister && (
-                <StyledRouteLink to={{ pathname: AUTH_REGISTER_URL, state: location.state }}>
-                  {trans("userAuth.register")}
-                </StyledRouteLink>
-              )}
-            </AuthBottomView>
-          </AuthContainer>
-        )}
-      />
-      <Route
-        exact
-        path={AUTH_REGISTER_URL}
-        component={() => (
-          <AuthContainer title={trans("userAuth.register")} type="large">
-            <UserRegister invitationId={inviteInfo?.invitationId} />
-          </AuthContainer>
-        )}
-      />
-    </Switch>
+    <AuthContext.Provider
+      value={{
+        systemConfig: systemConfig,
+        inviteInfo: location.state?.inviteInfo,
+        thirdPartyAuthError: location.state?.thirdPartyAuthError,
+      }}
+    >
+      <Switch location={location}>
+        <Redirect exact from={USER_AUTH_URL} to={AUTH_LOGIN_URL} />
+        {AuthRoutes.map((route) => (
+          <Route key={route.path} exact path={route.path} component={route.component} />
+        ))}
+      </Switch>
+    </AuthContext.Provider>
   );
 }
-
-export default UserAuth;

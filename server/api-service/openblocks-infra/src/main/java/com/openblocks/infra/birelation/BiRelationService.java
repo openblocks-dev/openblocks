@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -87,6 +88,10 @@ public class BiRelationService {
 
     public Flux<BiRelation> getBySourceId(BiRelationBizType bizType, String sourceId) {
         return biRelationRepository.findByBizTypeAndSourceId(bizType, sourceId);
+    }
+
+    public Flux<BiRelation> getBySourceId(BiRelationBizType bizType, String sourceId, Pageable pageable) {
+        return biRelationRepository.findByBizTypeAndSourceId(bizType, sourceId, pageable);
     }
 
     public Flux<BiRelation> getByTargetIds(BiRelationBizType bizType, Collection<String> targetId) {

@@ -2,9 +2,12 @@ package com.openblocks.domain.group.service;
 
 import static com.openblocks.infra.birelation.BiRelationBizType.GROUP_MEMBER;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +15,9 @@ import com.openblocks.domain.group.model.Group;
 import com.openblocks.domain.group.model.GroupMember;
 import com.openblocks.domain.organization.model.MemberRole;
 import com.openblocks.domain.organization.model.OrgMemberState;
+import com.openblocks.infra.birelation.BiRelation;
 import com.openblocks.infra.birelation.BiRelationService;
+import com.openblocks.infra.mongo.MongoUpsertHelper;
 
 import reactor.core.publisher.Mono;
 
@@ -21,6 +26,9 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 
     @Autowired
     private BiRelationService biRelationService;
+
+    @Autowired
+    private MongoUpsertHelper mongoUpsertHelper;
 
     @Override
     public Mono<List<GroupMember>> getGroupMembers(String groupId, int page, int count) {
@@ -93,4 +101,27 @@ public class GroupMemberServiceImpl implements GroupMemberService {
                 .collectList();
     }
 
+    @Override
+    public Mono<List<GroupMember>> bulkAddMember(Collection<GroupMember> groupMembers) {
+        List<BiRelation> biRelations = groupMembers.stream()
+                .map(groupMember -> BiRelation.builder()
+                        .bizType(GROUP_MEMBER)
+                        .sourceId(groupMember.getGroupId())
+                        .targetId(groupMember.getUserId())
+                        .relation(MemberRole.MEMBER.getValue())
+                        .state(OrgMemberState.NORMAL.getValue())
+                        .extParam1(groupMember.getOrgId())
+                        .build())
+                .toList();
+        return biRelationService.batchAddBiRelation(biRelations)
+                .map(r -> r.stream().map(GroupMember::from).toList());
+    }
+
+    @Override
+    public Mono<Boolean> bulkRemoveMember(String groupId, Collection<String> userIds) {
+        List<Document> filters = userIds.stream()
+                .map(userId -> new Document(Map.of("bizType", GROUP_MEMBER.name(), "sourceId", groupId, "targetId", userId)))
+                .toList();
+        return mongoUpsertHelper.bulkRemove(filters, BiRelation.class);
+    }
 }

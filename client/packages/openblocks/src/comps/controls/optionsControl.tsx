@@ -239,7 +239,14 @@ export function mapOptionsControl<T extends OptionsControlType>(
   VariantComp: T,
   uniqField?: keyof ConstructorToView<T>
 ) {
-  const MapDataComp = withContext(VariantComp, ["item", "i"] as const);
+  // @ts-ignore
+  class TempComp extends VariantComp {
+    override getPropertyView() {
+      return hasPropertyView(this) ? this.propertyView({ autoMap: true }) : super.getPropertyView();
+    }
+  }
+
+  const MapDataComp = withContext(TempComp, ["item", "i"] as const);
   const TmpOptionControl = new MultiCompBuilder(
     {
       data: withDefault(ArrayControl, "[]"),
@@ -259,9 +266,7 @@ export function mapOptionsControl<T extends OptionsControlType>(
       <>
         {children.data.propertyView({ label: trans("data") })}
         <AutoArea>
-          {hasPropertyView(children.mapData)
-            ? children.mapData.propertyView({ autoMap: true })
-            : children.mapData.getPropertyView()}
+          {children.mapData.getPropertyView()}
           {OptionTip}
         </AutoArea>
       </>
@@ -405,8 +410,8 @@ SelectInputOption = class extends SelectInputOption implements OptionCompPropert
 
 export const SelectInputOptionControl = optionsControl(SelectInputOption, {
   initOptions: [
-    { label: trans("optionsControl.option1"), value: "1" },
-    { label: trans("optionsControl.option2"), value: "2" },
+    { label: trans("optionsControl.optionI", { i: 1 }), value: "1" },
+    { label: trans("optionsControl.optionI", { i: 2 }), value: "2" },
   ],
   uniqField: "value",
 });
@@ -441,8 +446,8 @@ SelectOption = class extends SelectOption implements OptionCompProperty {
 
 export const SelectOptionControl = optionsControl(SelectOption, {
   initOptions: [
-    { label: trans("optionsControl.option1"), value: "1" },
-    { label: trans("optionsControl.option2"), value: "2" },
+    { label: trans("optionsControl.optionI", { i: 1 }), value: "1" },
+    { label: trans("optionsControl.optionI", { i: 2 }), value: "2" },
   ],
   uniqField: "value",
 });
@@ -470,8 +475,8 @@ const DropdownOption = new MultiCompBuilder(
 
 export const DropdownOptionControl = optionsControl(DropdownOption, {
   initOptions: [
-    { label: trans("optionsControl.option1") },
-    { label: trans("optionsControl.option2") },
+    { label: trans("optionsControl.optionI", { i: 1 }) },
+    { label: trans("optionsControl.optionI", { i: 2 }) },
   ],
 });
 

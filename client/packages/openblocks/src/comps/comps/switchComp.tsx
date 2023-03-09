@@ -13,6 +13,9 @@ import { CommonNameConfig, NameConfig, withExposingConfigs } from "../generators
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
 import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { RefControl } from "comps/controls/refControl";
+import { refMethods } from "comps/generators/withMethodExposing";
+import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
 
 const EventOptions = [
   changeEvent,
@@ -84,6 +87,7 @@ let SwitchTmpComp = (function () {
     onEvent: eventHandlerControl(EventOptions),
     disabled: BoolCodeControl,
     style: migrateOldData(styleControl(SwitchStyle), fixOldData),
+    viewRef: RefControl<HTMLElement>,
 
     ...formDataChildren,
   };
@@ -95,6 +99,7 @@ let SwitchTmpComp = (function () {
           <Switch
             checked={props.value.value}
             disabled={props.disabled}
+            ref={props.viewRef}
             onChange={(checked) => {
               props.value.onChange(checked);
               props.onEvent("change");
@@ -125,6 +130,7 @@ let SwitchTmpComp = (function () {
         </>
       );
     })
+    .setExposeMethodConfigs(refMethods([focusWithOptions, blurMethod, clickMethod]))
     .build();
 })();
 

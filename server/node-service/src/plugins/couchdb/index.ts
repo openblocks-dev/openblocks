@@ -60,7 +60,7 @@ const couchdbPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   category: "database",
   dataSourceConfig,
   queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(spec, parseOptions);
+    const { actions, categories } = await parseOpenApi(spec as OpenAPI.Document, parseOptions);
     return {
       type: "query",
       label: "Operation",

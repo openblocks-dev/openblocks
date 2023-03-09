@@ -79,8 +79,8 @@ export class UICompBuilder<ChildrenCompMap extends Record<string, Comp<unknown>>
     return this;
   }
 
-  setExposeMethodConfigs<T = MultiBaseComp<ChildrenCompMap>>(
-    configs: MethodConfigsType<ExposeMethodCompConstructor<T>>
+  setExposeMethodConfigs(
+    configs: MethodConfigsType<ExposeMethodCompConstructor<MultiBaseComp<ChildrenCompMap>>>
   ) {
     this.methodConfigs = configs;
     return this;

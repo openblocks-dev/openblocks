@@ -6,7 +6,7 @@ import { findParentContainer } from "./containerBase/utils";
 import { AppLayoutComp } from "./gridLayoutComp";
 import { ModuleLayoutComp } from "./moduleContainerComp/moduleLayoutComp";
 
-export type UiLayoutType = "normal" | "module" | "nav";
+export type UiLayoutType = "normal" | "module" | "nav" | "mobileTabLayout";
 /**
  * support different base layout
  */

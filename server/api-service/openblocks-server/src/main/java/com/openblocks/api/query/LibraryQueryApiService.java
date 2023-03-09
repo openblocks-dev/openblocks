@@ -44,12 +44,12 @@ import com.openblocks.domain.query.service.LibraryQueryService;
 import com.openblocks.domain.query.service.QueryExecutionService;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.service.UserService;
+import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.PluginCommonError;
 import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.QueryExecutionResult;
 import com.openblocks.sdk.query.QueryVisitorContext;
-import com.openblocks.sdk.util.UriUtils;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -84,6 +84,9 @@ public class LibraryQueryApiService {
 
     @Autowired
     private ResourcePermissionService resourcePermissionService;
+
+    @Autowired
+    private CommonConfig commonConfig;
 
     @Value("${server.port}")
     private int port;
@@ -251,13 +254,12 @@ public class LibraryQueryApiService {
                     BaseQuery baseQuery = tuple.getT2();
                     Datasource datasource = tuple.getT3();
                     Mono<List<Property>> paramsAndHeadersInheritFromLogin = orgMember.isInvalid()
-                                                                            ? Mono.empty() : getParamsAndHeadersInheritFromLogin(userId, orgId,
-                            UriUtils.getRefererDomain(exchange));
+                                                                            ? Mono.empty() : getParamsAndHeadersInheritFromLogin(userId, orgId);
 
                     QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port,
                             exchange.getRequest().getCookies(),
-                            paramsAndHeadersInheritFromLogin
-                    );
+                            paramsAndHeadersInheritFromLogin,
+                            commonConfig.getDisallowedHosts());
 
                     Map<String, Object> queryConfig = baseQuery.getQueryConfig();
                     String timeoutStr = firstNonBlank(baseQuery.getTimeoutStr(), "5s");
@@ -293,8 +295,9 @@ public class LibraryQueryApiService {
                     BaseQuery baseQuery = tuple.getT2();
                     Datasource datasource = tuple.getT3();
                     Mono<List<Property>> paramsAndHeadersInheritFromLogin =
-                            getParamsAndHeadersInheritFromLogin(userId, orgId, UriUtils.getRefererDomain(exchange));
-                    QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port, cookies, paramsAndHeadersInheritFromLogin);
+                            getParamsAndHeadersInheritFromLogin(userId, orgId);
+                    QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port, cookies, paramsAndHeadersInheritFromLogin,
+                            commonConfig.getDisallowedHosts());
                     Map<String, Object> queryConfig = baseQuery.getQueryConfig();
                     String timeoutStr = baseQuery.getTimeoutStr();
                     return queryExecutionService.executeQuery(datasource, queryConfig, queryExecutionRequest.paramMap(), timeoutStr,
@@ -320,7 +323,7 @@ public class LibraryQueryApiService {
                 .map(LibraryQueryRecord::getQuery);
     }
 
-    protected Mono<List<Property>> getParamsAndHeadersInheritFromLogin(String userId, String orgId, String domain) {
+    protected Mono<List<Property>> getParamsAndHeadersInheritFromLogin(String userId, String orgId) {
         return Mono.empty();
     }
 

@@ -12,6 +12,7 @@ import {
   ParamsControlType,
   ParamsBooleanControl,
   ParamsJsonControl,
+  ParamsStringJsonControl,
 } from "comps/controls/paramsControl";
 import { MultiCompBuilder, valueComp, withDefault } from "comps/generators";
 import { withTypeAndChildrenAbstract } from "comps/generators/withType";
@@ -27,19 +28,26 @@ import { FunctionProperty, toQueryView } from "../queryCompUtils";
 import { CompConstructor } from "openblocks-core";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ControlParams, ControlType } from "comps/controls/controlParams";
+import MarkdownTooltip from "openblocks-design/src/components/MarkdownTooltip";
+import { KeyValueControlParams, keyValueListControl } from "comps/controls/keyValueControl";
+import { VariablesControl } from "../httpQuery/graphqlQuery";
 
-function wrapConfig(
+function wrapConfig<CP extends {} = ControlParams>(
   paramsControl: ControlType,
   config: KeyedParamConfig,
-  controlParams: ControlParams = {}
+  controlParams?: CP
 ) {
   return class extends paramsControl {
     getPropertyView(): ReactNode {
       return (
         <QueryConfigWrapper key={config.key}>
-          <QueryConfigLabel tooltip={config.tooltip}>{config.label}</QueryConfigLabel>
+          <QueryConfigLabel
+            tooltip={config.tooltip && <MarkdownTooltip>{config.tooltip}</MarkdownTooltip>}
+          >
+            {config.label}
+          </QueryConfigLabel>
           <QueryConfigItemWrapper>
-            {this.propertyView({ placeholder: config.placeholder, ...controlParams })}
+            {this.propertyView({ placeholder: config.placeholder, ...(controlParams || {}) })}
           </QueryConfigItemWrapper>
         </QueryConfigWrapper>
       );
@@ -110,7 +118,7 @@ function ActionSelectView(props: ActionSelectViewProps) {
 
   return (
     <>
-      {config.categories && (
+      {(config.categories?.items || []).length > 0 && config.categories && (
         <Dropdown
           placement="bottom"
           label={config.categories.label}
@@ -257,11 +265,34 @@ export function configToComp(
   }
 
   if (config.type === "file") {
-    Comp = wrapConfig(ParamsStringControl, config);
+    Comp = wrapConfig(ParamsStringJsonControl, config);
   }
 
   if (config.type === "jsonInput") {
     Comp = wrapConfig(ParamsJsonControl, config, { styleName: "medium" });
+  }
+
+  if (config.type === "sqlInput") {
+    Comp = wrapConfig(ParamsJsonControl, config, { styleName: "medium", language: "sql" });
+  }
+
+  if (config.type === "graphqlInput") {
+    Comp = wrapConfig(ParamsStringControl, config, { styleName: "medium" });
+  }
+
+  if (config.type === "keyValueInput") {
+    if (config.valueType === "json") {
+      Comp = wrapConfig(withDefault(VariablesControl, [{ key: "", value: "" }]), config);
+    } else {
+      Comp = wrapConfig<KeyValueControlParams>(
+        withDefault(keyValueListControl(), [{ key: "", value: "" }]),
+        config,
+        {
+          keyFlexBasics: 184,
+          valueFlexBasics: 232,
+        }
+      );
+    }
   }
 
   if (!Comp) {

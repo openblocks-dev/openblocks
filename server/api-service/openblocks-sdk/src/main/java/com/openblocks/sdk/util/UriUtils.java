@@ -11,8 +11,10 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ServerWebExchange;
 
 import com.google.common.net.InternetDomainName;
+import com.openblocks.sdk.constants.GlobalContext;
 
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 public class UriUtils {
@@ -20,12 +22,22 @@ public class UriUtils {
     public static final String REFERER = "Referer";
     private static final String LOCALHOST = "localhost";
 
-    public static String getRefererDomain(ServerWebExchange exchange) {
+    public static String getRefererDomainFromRequest(ServerWebExchange exchange) {
         ServerHttpRequest request = exchange.getRequest();
         return Optional.ofNullable(getRefererURI(request))
                 .map(URI::getHost)
                 .map(String::toLowerCase)
                 .orElse("");
+    }
+
+    public static Mono<String> getRefererDomainFromContext() {
+        return Mono.deferContextual(contextView -> {
+            String domain = contextView.getOrDefault(GlobalContext.DOMAIN, null);
+            if (domain == null) {
+                return Mono.empty();
+            }
+            return Mono.just(domain);
+        });
     }
 
     @Nullable

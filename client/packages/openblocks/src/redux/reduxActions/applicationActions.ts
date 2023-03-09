@@ -99,13 +99,13 @@ export const updateApplication = (payload: UpdateApplicationPayload) => ({
 });
 
 export type UpdateAppMetaPayload = {
-  folderId: string;
+  folderId?: string;
   applicationId: string;
   name: string;
 };
-export const updateAppMetaAction = (applicationId: string, name: string) => ({
+export const updateAppMetaAction = (payload: UpdateAppMetaPayload) => ({
   type: ReduxActionTypes.UPDATE_APPLICATION_META,
-  payload: { applicationId: applicationId, name: name },
+  payload: payload,
 });
 
 export type PublishApplicationPayload = {

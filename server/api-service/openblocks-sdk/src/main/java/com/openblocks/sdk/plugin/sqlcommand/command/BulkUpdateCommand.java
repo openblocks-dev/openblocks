@@ -37,6 +37,11 @@ public class BulkUpdateCommand implements GuiSqlCommand {
         this.columnBackDelimiter = columnBackDelimiter;
     }
 
+    protected BulkUpdateCommand(String table, BulkObjectChangeSet bulkObjectChangeSet, String primaryKey,
+            String columnDelimiter) {
+        this(table, bulkObjectChangeSet, primaryKey, columnDelimiter, columnDelimiter);
+    }
+
     @Override
     public GuiSqlCommandRenderResult render(Map<String, Object> requestMap) {
 

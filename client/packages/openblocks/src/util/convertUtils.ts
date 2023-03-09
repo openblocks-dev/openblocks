@@ -61,6 +61,12 @@ export function toNumber(value: any): number {
   return Number.isFinite(result) ? result : 0;
 }
 
+export function tryToNumber(value: string): number | string {
+  const res = Number(value);
+  if (isNaN(res)) return value;
+  return res;
+}
+
 export function toBoolean(value: any): boolean {
   if (value === "0" || value === "false") {
     return false;
@@ -147,6 +153,13 @@ export function toNumberOrJSONObjectArray(value: any) {
   const num = Number(value);
   if (Number.isFinite(num)) return num;
   return toArray(value, toJSONObject);
+}
+
+export function toStringOrJSONObject(value: any) {
+  if (typeof value === "string") {
+    return value;
+  }
+  return toJSONObject(value);
 }
 
 export function toArrayJSONObject(value: any) {

@@ -1,0 +1,228 @@
+{
+  "components": {
+    "examples": {},
+    "headers": {},
+    "parameters": {},
+    "requestBodies": {},
+    "responses": {},
+    "schemas": {
+      "Record_string.any_": {
+        "properties": {},
+        "type": "object",
+        "description": "Construct a type with a set of properties K of type T"
+      },
+      "UploadAudioResponseDto": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "The temporary URL of the audio.\nThis URL should be provided when creating an animation via the /animations endpoint."
+          },
+          "id": {
+            "type": "string",
+            "description": "A unique identifier for the audio.\nThis identifier should be used when deleting the audio via the /audio/{id} endpoint."
+          },
+          "duration": {
+            "type": "number",
+            "format": "double",
+            "description": "The duration of the audio in seconds"
+          },
+          "moderation_metadata": {
+            "$ref": "#/components/schemas/Record_string.any_",
+            "description": "The audio moderation results metadata."
+          }
+        },
+        "required": ["url"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "JsonError": {
+        "properties": {
+          "kind": { "type": "string" },
+          "description": { "type": "string" },
+          "details": {}
+        },
+        "required": ["kind", "description"],
+        "type": "object",
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "basic": { "type": "http", "scheme": "basic" },
+      "bearer": { "type": "http", "scheme": "bearer" }
+    }
+  },
+  "info": {
+    "title": "audios",
+    "version": "1.1.0",
+    "description": "Audios",
+    "license": { "name": "ISC" },
+    "contact": { "name": "D-ID" }
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/audios": {
+      "post": {
+        "operationId": "Upload an audio",
+        "responses": {
+          "201": {
+            "description": "The audio has been uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UploadAudioResponseDto" },
+                "examples": { "Example 1": { "value": { "id": "DE8sPnUCMg7MBcFJisx5Z" } } }
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequestError | InvalidFileSizeError | InvalidAudioDurationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "BadRequestError", "description": "invalid audio" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "AuthorizationError", "description": "user unauthenticated" }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "InsufficientCreditsError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "InsufficientCreditsError",
+                      "description": "not enough credits"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "UnsupportedMimeTypeError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "UnsupportedMimeTypeError",
+                      "description": "The provided mime type is not supported",
+                      "details": { "received": "image/jpg", "supported": ["audio/*", "video/*"] }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "451": {
+            "description": "AudioModerationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "AudioModerationError",
+                      "description": "Automatic audio moderation failed - Please try a different audio file"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Upload an audio file to a temporary storage before creating an animation.\nThe audio is uploaded using `multipart/form-data`; the filename directive is optional and if provided should contain up to 50 valid characters long.\nThe resulting file is stored as a .wav file in a 16kHz sample rate.\n\nValid characters: a-z A-Z 0-9 . _ -\nSupported mime types: \"audio/*, video/*\"\nStorage duration: 24-48H",
+        "summary": "Upload audio file",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "audio": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The uploaded audio file, the file must not exceed 6MB in size."
+                  },
+                  "source_url": { "type": "string" },
+                  "result_url": {
+                    "type": "string",
+                    "description": "A URL to upload the audio to. If provided, the audio will be uploaded to this URL instead of the default bucket. https presigned URL supported. S3 presigned urls should have the putObject permission with content type audio/wav."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/audios/{id}": {
+      "delete": {
+        "operationId": "Delete",
+        "responses": {
+          "204": { "description": "OK" },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "AuthorizationError", "description": "user unauthenticated" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFoundError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "NotFoundError", "description": "audio not found" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Delete an audio file",
+        "summary": "Delete an audio file",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [
+          {
+            "description": "The id of the audio file",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ]
+      }
+    }
+  },
+  "servers": [{ "url": "https://api.d-id.com/" }]
+}

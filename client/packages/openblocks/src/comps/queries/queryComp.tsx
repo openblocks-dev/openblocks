@@ -1,4 +1,29 @@
+import {
+  manualTriggerResource,
+  QueryMap,
+  ResourceType,
+} from "@openblocks-ee/constants/queryConstants";
 import { message } from "antd";
+import DataSourceIcon from "components/DataSourceIcon";
+import { SimpleNameComp } from "comps/comps/simpleNameComp";
+import { StringControl } from "comps/controls/codeControl";
+import { eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { EditorState } from "comps/editorState";
+import {
+  stateComp,
+  valueComp,
+  withDefault,
+  withTypeAndChildren,
+  withViewFn,
+} from "comps/generators";
+import { list } from "comps/generators/list";
+import { ToInstanceType } from "comps/generators/multi";
+import { withMethodExposing } from "comps/generators/withMethodExposing";
+import { NameAndExposingInfo } from "comps/utils/exposingTypes";
+import { genQueryId } from "comps/utils/idGenerator";
+import { getReduceContext } from "comps/utils/reduceContext";
+import { trans } from "i18n";
+import _ from "lodash";
 import {
   changeChildAction,
   ChangeValueAction,
@@ -17,31 +42,8 @@ import {
   multiChangeAction,
   wrapActionExtraInfo,
 } from "openblocks-core";
-import { SimpleNameComp } from "comps/comps/simpleNameComp";
-import { StringControl } from "comps/controls/codeControl";
-import { eventHandlerControl } from "comps/controls/eventHandlerControl";
-import { stateComp, valueComp, withTypeAndChildren, withViewFn } from "comps/generators";
-import { list } from "comps/generators/list";
-import { withMethodExposing } from "comps/generators/withMethodExposing";
-import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { ValueFromOption } from "openblocks-design";
-import _ from "lodash";
 import { ReactNode, useEffect } from "react";
-import { getPromiseAfterDispatch, getPromiseParams } from "util/promiseUtils";
-import { QueryExecuteResponse } from "../../api/queryApi";
-import { JSONObject, JSONValue } from "../../util/jsonTypes";
-import { NameConfig, withExposingConfigs } from "../generators/withExposing";
-import { getTriggerType, onlyManualTrigger } from "./queryCompUtils";
-import { QueryNotificationControl } from "./queryComp/queryNotificationControl";
-import { QueryPropertyView } from "./queryComp/queryPropertyView";
-import { getReduceContext } from "comps/utils/reduceContext";
-import { QueryConfirmationModal } from "./queryComp/queryConfirmationModal";
-import { BoolPureControl } from "../controls/boolControl";
-import { useFixedDelay } from "../../util/hooks";
-import { millisecondsControl } from "../controls/millisecondControl";
-import { EditorState } from "comps/editorState";
-import { genQueryId } from "comps/utils/idGenerator";
-import { paramsMillisecondsControl } from "../controls/paramsControl";
 import {
   BottomResComp,
   BottomResCompResult,
@@ -49,24 +51,31 @@ import {
   BottomResListComp,
   BottomResTypeEnum,
 } from "types/bottomRes";
-import { QueryContext } from "../../util/context/QueryContext";
-import { perfMark, perfMeasure } from "util/perfUtils";
-import { trans } from "i18n";
 import { undoKey } from "util/keyUtils";
+import { setFieldsNoTypeCheck } from "util/objectUtils";
+import { perfMark, perfMeasure } from "util/perfUtils";
+import { getPromiseAfterDispatch, getPromiseParams } from "util/promiseUtils";
+import { QueryExecuteResponse } from "../../api/queryApi";
 import {
-  manualTriggerResource,
-  QueryMap,
-  ResourceType,
-} from "@openblocks-ee/constants/queryConstants";
-import {
+  JsPluginQueryMap,
   QUERY_EXECUTION_ERROR,
   QUERY_EXECUTION_OK,
-  JsPluginQueryMap,
 } from "../../constants/queryConstants";
-import DataSourceIcon from "components/DataSourceIcon";
-import { setFieldsNoTypeCheck } from "util/objectUtils";
-import { ToInstanceType } from "comps/generators/multi";
+import { QueryContext } from "../../util/context/QueryContext";
+import { useFixedDelay } from "../../util/hooks";
+import { JSONObject, JSONValue } from "../../util/jsonTypes";
+import { BoolPureControl } from "../controls/boolControl";
+import { millisecondsControl } from "../controls/millisecondControl";
+import { paramsMillisecondsControl } from "../controls/paramsControl";
+import { NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { HttpQuery } from "./httpQuery/httpQuery";
+import { QueryConfirmationModal } from "./queryComp/queryConfirmationModal";
+import { QueryNotificationControl } from "./queryComp/queryNotificationControl";
+import { QueryPropertyView } from "./queryComp/queryPropertyView";
+import { getTriggerType, onlyManualTrigger } from "./queryCompUtils";
+import axios from "axios";
+
+const latestExecution: Record<string, number> = {};
 
 export type QueryResultExtra = Omit<
   QueryExecuteResponse,
@@ -135,6 +144,7 @@ const childrenMap = {
       return unit === "s" ? value * 1000 : value;
     },
   }),
+  cancelPrevious: withDefault(BoolPureControl, false),
 };
 
 let QueryCompTmp = withTypeAndChildren<typeof QueryMap, ToInstanceType<typeof childrenMap>>(
@@ -290,6 +300,7 @@ QueryCompTmp = withViewFn(QueryCompTmp, (comp) => {
 QueryCompTmp = class extends QueryCompTmp {
   override reduce(action: CompAction): this {
     if (action.type === CompActionTypes.EXECUTE_QUERY) {
+      if (getReduceContext().disableUpdateState) return this;
       return this.executeQuery(action);
     } else if (action.type === CompActionTypes.CHANGE_VALUE) {
       const value: any = (action as ChangeValueAction).value;
@@ -369,6 +380,9 @@ QueryCompTmp = class extends QueryCompTmp {
     const queryFunc = this.getTypeSafeView();
     const promiseParams = getPromiseParams(action);
     const { applicationId, parentApplicationPath } = getReduceContext();
+    const cancelPrevious = this.children.cancelPrevious.getView();
+    const executeId = performance.now();
+    latestExecution[queryId] = executeId;
     this.children.confirmationModal
       .getView()(() => {
         this.dispatch(
@@ -387,6 +401,11 @@ QueryCompTmp = class extends QueryCompTmp {
       }, getTriggerType(this) === "manual")
       .then(
         (result) => {
+          if (cancelPrevious && latestExecution[queryId] !== executeId) {
+            promiseParams &&
+              promiseParams.reject(new Error("The result of this query was ignored."));
+            return;
+          }
           this.processResult(result, action, startTime);
           if (result.success ?? true) {
             promiseParams && promiseParams.resolve(result.data);
@@ -395,16 +414,21 @@ QueryCompTmp = class extends QueryCompTmp {
           }
         },
         (error) => {
-          this.processResult(
-            {
-              code: QUERY_EXECUTION_ERROR,
-              success: false,
-              data: {},
-              message: error.message,
-            },
-            action,
-            startTime
-          );
+          if (axios.isCancel(error)) {
+            return;
+          }
+          if (!cancelPrevious || latestExecution[queryId] === executeId) {
+            this.processResult(
+              {
+                code: QUERY_EXECUTION_ERROR,
+                success: false,
+                data: {},
+                message: error.message,
+              },
+              action,
+              startTime
+            );
+          }
           promiseParams && promiseParams.reject(error);
         }
       )
@@ -526,16 +550,17 @@ QueryCompTmp = withMethodExposing(QueryCompTmp, [
   {
     method: {
       name: "run",
-      params: [],
+      params: [{ name: "args", type: "JSON" }],
     },
-    execute: (comp, params) =>
-      getPromiseAfterDispatch(
+    execute: (comp, params) => {
+      return getPromiseAfterDispatch(
         comp.dispatch,
         executeQueryAction({
           args: params[0] as Record<string, unknown> | undefined,
         }),
         { notHandledError: trans("query.fixedDelayError") }
-      ),
+      );
+    },
   },
 ]);
 
@@ -579,13 +604,15 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
           isNewCreate: true,
           order: Date.now(),
         }),
-        [
-          {
-            type: "add",
-            compName: name,
-            compType: compType,
-          },
-        ]
+        {
+          compInfos: [
+            {
+              type: "add",
+              compName: name,
+              compType: compType,
+            },
+          ],
+        }
       )
     );
     editorState.setSelectedBottomRes(name, BottomResTypeEnum.Query);
@@ -609,13 +636,15 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
           isNewCreate: true,
           order: Date.now(),
         }),
-        [
-          {
-            type: "add",
-            compName: name,
-            compType: originQuery.children.compType.getView(),
-          },
-        ]
+        {
+          compInfos: [
+            {
+              type: "add",
+              compName: name,
+              compType: originQuery.children.compType.getView(),
+            },
+          ],
+        }
       )
     );
     editorState.setSelectedBottomRes(newQueryName, BottomResTypeEnum.Query);
@@ -629,13 +658,15 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
       return;
     }
     this.dispatch(
-      wrapActionExtraInfo(this.deleteAction(toDelQueryIndex), [
-        {
-          type: "delete",
-          compName: toDelQuery.children.name.getView(),
-          compType: toDelQuery.children.compType.getView(),
-        },
-      ])
+      wrapActionExtraInfo(this.deleteAction(toDelQueryIndex), {
+        compInfos: [
+          {
+            type: "delete",
+            compName: toDelQuery.children.name.getView(),
+            compType: toDelQuery.children.compType.getView(),
+          },
+        ],
+      })
     );
     message.success(trans("query.deleteSuccessMessage", { undoKey }));
   }

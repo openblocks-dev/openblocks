@@ -25,6 +25,8 @@ interface DropdownControlParams<T extends OptionsType> extends ControlParams {
   onChange?: (value: string) => void;
   options?: T;
   showSearch?: boolean;
+  dropdownStyle?: React.CSSProperties;
+  labelStyle?: React.CSSProperties;
 }
 
 interface DropdownPropertyViewProps<T extends OptionsType>
@@ -63,6 +65,8 @@ function DropdownPropertyView<T extends OptionsType>(props: DropdownPropertyView
       showSearch={params.showSearch}
       onChange={onChange}
       disabled={params.disabled}
+      dropdownStyle={props.dropdownStyle}
+      labelStyle={props.labelStyle}
     />
   );
 }

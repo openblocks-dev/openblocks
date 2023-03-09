@@ -3,7 +3,9 @@ package com.openblocks.sdk.config;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,8 +34,10 @@ public class CommonConfig {
     private String cookieName;
     private int maxQueryRequestSizeInMb = 10;
     private int maxQueryResponseSizeInMb = 10;
+    private Query query = new Query();
     private Cookie cookie = new Cookie();
     private JsExecutor jsExecutor = new JsExecutor();
+    private Set<String> disallowedHosts = new HashSet<>();
 
     public boolean isSelfHost() {
         return !isCloud();
@@ -89,5 +93,12 @@ public class CommonConfig {
     @Data
     public static class JsExecutor {
         private String host;
+    }
+
+
+    @Getter
+    @Setter
+    public static class Query {
+        private long readStructureTimeout = 15000;
     }
 }

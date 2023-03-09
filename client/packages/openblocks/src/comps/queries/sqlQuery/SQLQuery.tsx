@@ -19,10 +19,9 @@ import { TableNameComp } from "./tableNameComp";
 import { ChangeSetComp } from "./changeSetComp";
 import { FilterComp } from "./FilterComp";
 import { trans } from "i18n";
-import { ResourceType } from "@openblocks-ee/constants/queryConstants";
 import { ColumnNameDropdown } from "./columnNameDropdown";
 import React, { useContext } from "react";
-import { QueryContext } from "../../../util/context/QueryContext";
+import { QueryContext } from "util/context/QueryContext";
 
 const AllowMultiModifyComp = withPropertyViewFn(BoolPureControl, (comp) =>
   comp.propertyView({
@@ -191,12 +190,14 @@ const SQLQueryPropertyView = (props: { comp: InstanceType<typeof SQLQuery> }) =>
             options={
               [
                 { label: trans("sqlQuery.insert"), value: "INSERT" },
-                ...(context?.resourceType === "postgres" || context?.resourceType === "mssql"
-                  ? []
-                  : [{ label: trans("sqlQuery.upsert"), value: "UPSERT" }]),
+                ...(context?.resourceType && SUPPORT_UPSERT_SQL_QUERY.includes(context.resourceType)
+                  ? [{ label: trans("sqlQuery.upsert"), value: "UPSERT" }]
+                  : []),
                 { label: trans("sqlQuery.update"), value: "UPDATE" },
                 { label: trans("sqlQuery.delete"), value: "DELETE" },
-                { label: trans("sqlQuery.bulkInsert"), value: "BULK_INSERT" },
+                ...(context?.resourceType !== "oracle"
+                  ? [{ label: trans("sqlQuery.bulkInsert"), value: "BULK_INSERT" }]
+                  : []),
                 { label: trans("sqlQuery.bulkUpdate"), value: "BULK_UPDATE" },
               ] as const
             }
@@ -245,4 +246,18 @@ export const SQLQuery = class extends SQLTmpQuery {
   }
 };
 
-export const SUPPORT_GUI_SQL_QUERY: ResourceType[] = ["mysql", "postgres", "mssql"];
+export const NOT_SUPPORT_GUI_SQL_QUERY: string[] = [
+  "clickHouse",
+  "snowflake",
+  "tdengine",
+  "dameng",
+];
+const SUPPORT_UPSERT_SQL_QUERY: string[] = [
+  "mysql",
+  "oceanBase",
+  "tidb",
+  "polardbMysql",
+  "sequoiadbMysql",
+  "starrocks",
+  "mariadb",
+];

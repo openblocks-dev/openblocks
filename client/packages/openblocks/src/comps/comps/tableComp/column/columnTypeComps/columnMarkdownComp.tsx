@@ -15,6 +15,9 @@ const Wrapper = styled.div`
 
   > .markdown-body {
     margin: 0;
+    p {
+      line-height: 21px;
+    }
   }
 `;
 

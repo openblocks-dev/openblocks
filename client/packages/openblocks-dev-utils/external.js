@@ -59,7 +59,7 @@ export const getAllLibGlobalVarNames = () => {
   return ret;
 };
 
-export const libsImportCode = () => {
+export const libsImportCode = (exclude = []) => {
   const importLines = [];
   const assignLines = [];
   libs.forEach((i) => {
@@ -71,6 +71,10 @@ export const libsImportCode = () => {
       name = i.name;
       merge = i.mergeDefaultAndNameExports ?? false;
       from = i.from ?? name;
+    }
+
+    if (exclude.includes(name)) {
+      return;
     }
 
     const varName = getLibGlobalVarName(name);

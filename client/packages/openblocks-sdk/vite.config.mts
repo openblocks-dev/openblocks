@@ -5,6 +5,7 @@ import svgrPlugin from "vite-plugin-svgr";
 import path from "path";
 import { ensureLastSlash } from "openblocks-dev-utils/util";
 import { buildVars } from "openblocks-dev-utils/buildVars";
+import { globalDepPlugin } from "openblocks-dev-utils/globalDepPlguin";
 
 const define = {};
 buildVars.forEach(({ name, defaultValue }) => {
@@ -72,6 +73,7 @@ export const viteConfig: UserConfig = {
     },
   },
   plugins: [
+    globalDepPlugin(["openblocks-sdk"]),
     react({
       babel: {
         parserOpts: {

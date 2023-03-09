@@ -21,6 +21,8 @@ import { Section, sectionNames } from "openblocks-design";
 import { SelectEventHandlerControl } from "../../controls/eventHandlerControl";
 import { MarginControl } from "../../controls/marginControl";
 import { PaddingControl } from "../../controls/paddingControl";
+import { RefControl } from "comps/controls/refControl";
+import { CascaderRef } from "antd/lib/cascader";
 
 export const defaultDataSource = JSON.stringify(i18nObjs.cascader, null, " ");
 
@@ -36,6 +38,7 @@ export const CascaderChildren = {
   showSearch: BoolControl.DEFAULT_TRUE,
   margin: MarginControl,
   padding: PaddingControl,
+  viewRef: RefControl<CascaderRef>,
 };
 
 export const CascaderPropertyView = (

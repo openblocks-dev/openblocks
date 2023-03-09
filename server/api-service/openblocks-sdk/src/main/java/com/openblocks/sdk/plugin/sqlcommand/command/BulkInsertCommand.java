@@ -32,6 +32,11 @@ public class BulkInsertCommand implements GuiSqlCommand {
         this.columnBackDelimiter = columnBackDelimiter;
     }
 
+    protected BulkInsertCommand(String table, BulkObjectChangeSet bulkObjectChangeSet,
+            String columnDelimiter) {
+        this(table, bulkObjectChangeSet, columnDelimiter, columnDelimiter);
+    }
+
     @SuppressWarnings("DuplicatedCode")
     public GuiSqlCommandRenderResult render(Map<String, Object> requestMap) {
         String renderedTable = MustacheHelper.renderMustacheString(table, requestMap);
@@ -75,7 +80,7 @@ public class BulkInsertCommand implements GuiSqlCommand {
                 }
             }
         }
-        sb.deleteCharAt(sb.length() - 1).append(";");
+        sb.deleteCharAt(sb.length() - 1);
 
         return new GuiSqlCommandRenderResult(sb.toString(), bindParams);
     }

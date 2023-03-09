@@ -98,6 +98,8 @@ const ChildrenWrapper = styled.div<{ layout: ControlLayout }>`
 
 const LastNode = styled.div`
   margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
 
   .ant-select-selection-item {
     width: 40px;
@@ -117,6 +119,7 @@ interface ControlPropertyViewWrapperProps {
   childrenWrapperStyle?: React.CSSProperties;
   labelTooltipOverlayInnerStyle?: React.CSSProperties;
   extraChildren?: ReactNode;
+  labelStyle?: React.CSSProperties;
 }
 
 export const ControlPropertyViewWrapper = (
@@ -134,12 +137,18 @@ export const ControlPropertyViewWrapper = (
     extraChildren,
     labelTooltipOverlayInnerStyle,
     lastNode,
+    labelStyle,
   } = props;
 
   return (
     <Wrapper layout={layout} placement={placement}>
       {label && (
-        <LabelWrapper layout={layout} placement={placement} labelEllipsis={labelEllipsis}>
+        <LabelWrapper
+          layout={layout}
+          placement={placement}
+          labelEllipsis={labelEllipsis}
+          style={labelStyle}
+        >
           <ToolTipLabel
             title={tooltip}
             label={label}

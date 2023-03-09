@@ -78,3 +78,11 @@ export function getHomeLayout(): HomeLayoutType {
   const layout = localStorage.getItem("home_layout");
   return layout === "list" || layout === "card" ? layout : "card";
 }
+
+export function getLocalThemeId() {
+  return localStorage.getItem("theme_id");
+}
+
+export function setLocalThemeId(themeId: string) {
+  return localStorage.setItem("theme_id", themeId);
+}

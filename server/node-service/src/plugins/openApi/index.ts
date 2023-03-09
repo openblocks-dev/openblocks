@@ -1,7 +1,7 @@
 import SwaggerClient from "swagger-client";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
-import { authParamsConfig, parseOpenApi, retrieveSpec } from "./parse";
+import { authParamsConfig, MultiOpenApiSpecItem, parseOpenApi, retrieveSpec } from "./parse";
 import {
   extractSecurityParams,
   findOperation,
@@ -9,11 +9,14 @@ import {
   isOas3,
   normalizeParams,
   parseUrl,
+  isFile,
 } from "./util";
 import { badRequest } from "../../common/error";
 import { safeJsonParse } from "../../common/util";
-import { OpenAPI, OpenAPIV2 } from "openapi-types";
+import { OpenAPI, OpenAPIV2, OpenAPIV3 } from "openapi-types";
 import _ from "lodash";
+import { fetch } from "../../common/fetch";
+import { RequestInit, Response } from "node-fetch";
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -50,16 +53,44 @@ interface ActionDataType {
 export async function runOpenApi(
   actionData: ActionDataType,
   dataSourceConfig: DataSourceDataType,
-  spec: OpenAPI.Document
+  spec: OpenAPI.Document | MultiOpenApiSpecItem[],
+  defaultHeaders?: Record<string, string>
 ) {
-  const definition = await SwaggerParser.dereference(spec);
+  const specList = Array.isArray(spec) ? spec : [{ spec, id: "" }];
+  const definitions = await Promise.all(
+    specList.map(async ({ id, spec }) => {
+      const deRefedSpec = await SwaggerParser.dereference(spec);
+      return {
+        def: deRefedSpec,
+        id,
+      };
+    })
+  );
   const { actionName, ...otherActionData } = actionData;
   const { serverURL } = dataSourceConfig;
-  const isOas3Spec = isOas3(definition);
 
+  let definition: OpenAPI.Document | undefined;
+  let operation;
+  let realOperationId;
+
+  for (const { id, def } of definitions) {
+    const ret = findOperation(actionName, def, id);
+    if (ret) {
+      definition = def;
+      operation = ret.operation;
+      realOperationId = ret.realOperationId;
+      break;
+    }
+  }
+
+  if (!operation || !definition) {
+    throw badRequest(`unknown operation: ${actionName}`);
+  }
+
+  const isOas3Spec = isOas3(definition);
   if (serverURL) {
     if (isOas3Spec) {
-      replaceServersUrl(definition, serverURL);
+      replaceServersUrl(definition as OpenAPIV3.Document, serverURL);
     } else {
       const swaggerDoc = definition as OpenAPIV2.Document;
       const { host, pathname, schema } = parseUrl(serverURL);
@@ -69,26 +100,28 @@ export async function runOpenApi(
     }
   }
 
-  const operation = findOperation(actionName, definition);
-  if (!operation) {
-    throw badRequest(`unknown operation: ${actionName}`);
-  }
-
   try {
     const { parameters, requestBody } = normalizeParams(otherActionData, operation, isOas3Spec);
     const securities = extractSecurityParams(dataSourceConfig.dynamicParamsConfig, definition);
     const response = await SwaggerClient.execute({
       spec: definition,
-      operationId: actionName,
+      operationId: realOperationId,
       parameters,
       requestBody,
       securities,
       responseContentType: "application/json",
+      userFetch: async (url: string, req: RequestInit) => {
+        return fetch(url, req);
+      },
       requestInterceptor: (req: any) => {
+        const headers = _.omitBy(req.headers, (i) => !i);
         const ret = {
           ...req,
           duplex: "half",
-          headers: _.omitBy(req.headers, (i) => !i),
+          headers: {
+            ...defaultHeaders,
+            ...headers,
+          },
         };
         return ret;
       },
@@ -107,7 +140,7 @@ export async function runOpenApi(
 
 const openApiPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
   id: "openApi",
-  name: "OpenApi",
+  name: "Open API",
   icon: "swagger.svg",
   category: "api",
   dataSourceConfig: {

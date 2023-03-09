@@ -274,14 +274,18 @@ export const DatasourceEditPage = () => {
                 {trans("query.whitelistTooltip")}
               </div>
 
-              <span>{trans("query.address")}</span>
-              {REACT_APP_SERVER_IPS.split(",")
-                .filter((s) => s)
-                .map((ip, i) => (
-                  <IPWrapper key={i}>
-                    {ip} <CopyTextButton text={ip} />
-                  </IPWrapper>
-                ))}
+              {REACT_APP_SERVER_IPS && (
+                <>
+                  <span>{trans("query.address")}</span>
+                  {REACT_APP_SERVER_IPS.split(",")
+                    .filter((s) => s)
+                    .map((ip, i) => (
+                      <IPWrapper key={i}>
+                        {ip} <CopyTextButton text={ip} />
+                      </IPWrapper>
+                    ))}
+                </>
+              )}
             </Whitelist>
           )}
         </Body>

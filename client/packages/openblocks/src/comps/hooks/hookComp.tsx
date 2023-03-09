@@ -27,6 +27,7 @@ import { LocalStorageComp } from "./localStorageComp";
 import { DrawerComp } from "comps/hooks/drawerComp";
 import { trans } from "i18n";
 import { useCurrentUser } from "util/currentUser";
+import { ThemeComp } from "./themeComp";
 
 window._ = _;
 window.moment = moment;
@@ -91,6 +92,7 @@ const HookMap: HookCompMapRawType = {
   currentUser: CurrentUserHookComp,
   urlParams: UrlParamsHookComp,
   drawer: DrawerComp,
+  theme: ThemeComp,
 };
 
 export const HookTmpComp = withTypeAndChildren(HookMap, "title", {

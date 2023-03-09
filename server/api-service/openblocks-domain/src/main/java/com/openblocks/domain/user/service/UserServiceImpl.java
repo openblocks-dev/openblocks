@@ -25,20 +25,22 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 
-import com.google.common.collect.ImmutableSet;
 import com.openblocks.domain.asset.model.Asset;
 import com.openblocks.domain.asset.service.AssetService;
+import com.openblocks.domain.authentication.AuthenticationService;
+import com.openblocks.domain.authentication.context.FormAuthRequestContext;
 import com.openblocks.domain.encryption.EncryptionService;
 import com.openblocks.domain.group.model.Group;
 import com.openblocks.domain.group.service.GroupMemberService;
 import com.openblocks.domain.group.service.GroupService;
 import com.openblocks.domain.organization.model.OrgMember;
 import com.openblocks.domain.organization.service.OrgMemberService;
-import com.openblocks.domain.user.model.AuthorizedUser;
+import com.openblocks.domain.user.model.AuthUser;
 import com.openblocks.domain.user.model.Connection;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.model.User.TransformedUserInfo;
@@ -46,6 +48,7 @@ import com.openblocks.domain.user.model.UserDetail;
 import com.openblocks.domain.user.model.UserState;
 import com.openblocks.domain.user.repository.UserRepository;
 import com.openblocks.infra.mongo.MongoUpsertHelper;
+import com.openblocks.infra.mongo.MongoUpsertHelper.PartialResourceWithId;
 import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.config.dynamic.Conf;
 import com.openblocks.sdk.config.dynamic.ConfigCenter;
@@ -82,6 +85,8 @@ public class UserServiceImpl implements UserService {
     private GroupService groupService;
     @Autowired
     private CommonConfig commonConfig;
+    @Autowired
+    private AuthenticationService authenticationService;
 
     private Conf<Integer> avatarMaxSizeInKb;
 
@@ -151,17 +156,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<User> findByAuthUser(AuthorizedUser authorizedUser) {
-        return findBySourceAndId(authorizedUser.getSource(), authorizedUser.getUid());
+    public Mono<User> findByAuthUser(AuthUser authUser) {
+        return findBySourceAndId(authUser.getSource(), authUser.getUid());
     }
 
     @Override
-    public Mono<User> createNewUserByAuthUser(AuthorizedUser authUser) {
+    public Mono<User> createNewUserByAuthUser(AuthUser authUser) {
         User newUser = new User();
         newUser.setName(authUser.getUsername());
         newUser.setState(UserState.ACTIVATED);
         newUser.setIsEnabled(true);
         newUser.setTpAvatarLink(authUser.getAvatar());
+        if (AuthSourceConstants.EMAIL.equals(authUser.getSource())
+                && authUser.getAuthContext() instanceof FormAuthRequestContext formAuthRequestContext) {
+            newUser.setPassword(encryptionService.encryptPassword(formAuthRequestContext.getPassword()));
+        }
         Set<Connection> connections = newHashSet();
         Connection connection = authUser.toAuthConnection();
         connections.add(connection);
@@ -185,7 +194,13 @@ public class UserServiceImpl implements UserService {
                 .build();
         user.getConnections().add(connection);
         return repository.save(user)
-                .then(Mono.just(true));
+                .then(Mono.just(true))
+                .onErrorResume(throwable -> {
+                    if (throwable instanceof DuplicateKeyException) {
+                        return Mono.error(new BizException(BizError.ALREADY_BIND, "ALREADY_BIND", email, ""));
+                    }
+                    return Mono.error(throwable);
+                });
     }
 
     @Override
@@ -202,29 +217,6 @@ public class UserServiceImpl implements UserService {
         visitor.setAvatar(null);
         return repository.save(visitor).thenReturn(userAvatar)
                 .flatMap(assetService::remove);
-    }
-
-    @Override
-    public Mono<User> register(String loginId, String password, String source) {
-        return findBySourceAndId(source, loginId)
-                .flatMap(user -> ofError(BizError.USER_LOGIN_ID_EXIST, "USER_LOGIN_ID_EXIST"))
-                .then(createNewUser(loginId, password, source));
-    }
-
-    private Mono<User> createNewUser(String loginId, String password, String source) {
-        User newUser = new User();
-        newUser.setName(loginId);
-        newUser.setState(UserState.ACTIVATED);
-        newUser.setIsEnabled(true);
-        newUser.setPassword(encryptionService.encryptPassword(password));
-        Connection connection = Connection.builder()
-                .source(source)
-                .name(loginId)
-                .rawId(loginId)
-                .build();
-        newUser.setConnections(ImmutableSet.of(connection));
-        newUser.setIsNewUser(true);
-        return repository.save(newUser);
     }
 
     @Override
@@ -364,4 +356,20 @@ public class UserServiceImpl implements UserService {
                 .map(Connection::getName)
                 .orElse("");
     }
+
+    @Override
+    public Flux<User> bulkCreateUser(Collection<User> users) {
+        return repository.saveAll(users);
+    }
+
+    @Override
+    public Mono<Void> bulkUpdateUser(Collection<PartialResourceWithId<User>> partialResourceWithIds) {
+        return mongoUpsertHelper.bulkUpdate(partialResourceWithIds).then();
+    }
+
+    @Override
+    public Flux<User> findBySourceAndIds(String connectionSource, Collection<String> connectionSourceUuids) {
+        return repository.findByConnections_SourceAndConnections_RawIdIn(connectionSource, connectionSourceUuids);
+    }
+
 }

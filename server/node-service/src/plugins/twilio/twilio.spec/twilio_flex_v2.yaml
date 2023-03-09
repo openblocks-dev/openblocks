@@ -1,0 +1,95 @@
+components:
+  schemas:
+    flex.v2.web_channel:
+      type: object
+      properties:
+        conversation_sid:
+          type: string
+          minLength: 34
+          maxLength: 34
+          pattern: ^CH[0-9a-fA-F]{32}$
+          nullable: true
+          description: The unique string representing the [Conversation resource](https://www.twilio.com/docs/conversations/api/conversation-resource)
+            created.
+        identity:
+          type: string
+          nullable: true
+          description: The unique string representing the User created and should
+            be authorized to participate in the Conversation. For more details, see
+            [User Identity & Access Tokens](https://www.twilio.com/docs/conversations/identity).
+  securitySchemes:
+    accountSid_authToken:
+      type: http
+      scheme: basic
+info:
+  title: Twilio - Flex
+  description: This is the public Twilio REST API.
+  termsOfService: https://www.twilio.com/legal/tos
+  contact:
+    name: Twilio Support
+    url: https://support.twilio.com
+    email: support@twilio.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.39.1
+openapi: 3.0.1
+paths:
+  /v2/WebChats:
+    servers:
+    - url: https://flex-api.twilio.com
+    description: 'TODO: Resource-level docs'
+    x-twilio:
+      defaultOutputProperties:
+      - conversation_sid
+      pathType: list
+      mountName: web_channels
+      className: web_channels
+    post:
+      description: ''
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/flex.v2.web_channel'
+          description: Created
+      security:
+      - accountSid_authToken: []
+      operationId: CreateWebChannel
+      x-maturity:
+      - GA
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              title: CreateWebChannelRequest
+              properties:
+                AddressSid:
+                  type: string
+                  description: The SID of the Conversations Address. See [Address
+                    Configuration Resource](https://www.twilio.com/docs/conversations/api/address-configuration-resource)
+                    for configuration details. When a conversation is created on the
+                    Flex backend, the callback URL will be set to the corresponding
+                    Studio Flow SID or webhook URL in your address configuration.
+                ChatFriendlyName:
+                  type: string
+                  description: The Conversation's friendly name. See the [Conversation
+                    resource](https://www.twilio.com/docs/conversations/api/conversation-resource)
+                    for an example.
+                CustomerFriendlyName:
+                  type: string
+                  description: The Conversation participant's friendly name. See the
+                    [Conversation Participant Resource](https://www.twilio.com/docs/conversations/api/conversation-participant-resource)
+                    for an example.
+                PreEngagementData:
+                  type: string
+                  description: The pre-engagement data.
+              required:
+              - AddressSid
+servers:
+- url: https://flex-api.twilio.com
+x-maturity:
+- name: GA
+  description: This product is Generally Available.

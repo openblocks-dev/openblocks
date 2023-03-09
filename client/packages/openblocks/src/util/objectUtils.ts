@@ -83,6 +83,31 @@ export function containAllFields(obj: Record<string, any>, fields?: Record<strin
 }
 
 /**
+ * check equal with in depth
+ * @param o1 Object1
+ * @param o2 Object2
+ * @param depth the with-in depth, the same as o1 === o2 when depth === 1, then same as _.isEqual(o1, o2) when depth === Infinity
+ * @returns o1 equals o2 or not with in depth
+ */
+export function depthEqual(o1: any, o2: any, depth: number = Infinity): boolean {
+  if (depth === 0) {
+    return false;
+  }
+  if (o1 === o2) {
+    return true;
+  }
+  if (!_.isObjectLike(o1) || !_.isObjectLike(o2)) {
+    return false;
+  }
+  const size1 = _.size(o1),
+    size2 = _.size(o2);
+  if (size1 !== size2) {
+    return false;
+  }
+  return _.every(o1, (v1, key) => depthEqual(v1, o2[key], depth - 1));
+}
+
+/**
  * return a new object based on obj added with fields.
  *
  * @remarks

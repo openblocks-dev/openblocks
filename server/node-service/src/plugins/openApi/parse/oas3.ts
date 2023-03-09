@@ -61,20 +61,31 @@ const schemaToActionParamConfig = (
   return param;
 };
 
-export function parseOperation(operation?: OpenAPIV3.OperationObject): ActionParamConfig[] {
+export function parseOperation(
+  operation?: OpenAPIV3.OperationObject,
+  pathSpec?: OpenAPIV3.PathItemObject
+): ActionParamConfig[] {
   const params: ActionParamConfig[] = [];
-  if (!operation) {
+  if (!operation || !pathSpec) {
     return [];
   }
-  const { parameters, requestBody } = operation;
+  const { parameters: pathParameters = [] } = pathSpec;
+  const { parameters = [], requestBody } = operation;
 
-  parameters?.forEach((i) => {
+  pathParameters.concat(parameters).forEach((i) => {
     if (isRefObject(i)) {
       console.warn("unexpected ref parameters:", i);
       return;
     }
 
-    const { name, description = "", in: position, schema } = i;
+    const { name, description = "", in: position, schema: paramSchema } = i;
+
+    let schema = paramSchema;
+    if (!paramSchema) {
+      schema = {
+        type: "string",
+      };
+    }
     if (!schema || isRefObject(schema)) {
       console.warn("parameter spec with unexpected schema", i);
       return;

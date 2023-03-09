@@ -7,16 +7,11 @@ import {
   getConnectedName,
   HeadNameFiled,
   ProfileInfoItem,
+  ProfileModalCardProps,
 } from "pages/setting/profile/profileComponets";
 import { trans } from "i18n";
 
-type ModalSettingProps = {
-  setModalContent: (element: JSX.Element) => void;
-  setTitle: (title: string) => void;
-  setShowBackLink: (show: boolean) => void;
-};
-
-export function ProfileInfoCard(props: ModalSettingProps) {
+export function ProfileInfoCard(props: ProfileModalCardProps) {
   const user = useSelector(getUser);
   const { setModalContent, setTitle, setShowBackLink } = props;
   const hasPass = user.hasPassword;

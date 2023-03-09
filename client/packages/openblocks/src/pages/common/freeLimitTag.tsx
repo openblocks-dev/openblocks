@@ -20,8 +20,8 @@ const NewTagStyle = styled(TagStyled)`
   color: #4965f2;
 `;
 
-export default function FreeLimitTag() {
-  return <TagStyled>{trans("freeLimit")}</TagStyled>;
+export default function FreeLimitTag(props: { text?: string }) {
+  return <TagStyled>{props.text || trans("freeLimit")}</TagStyled>;
 }
 
 export function NewTag() {

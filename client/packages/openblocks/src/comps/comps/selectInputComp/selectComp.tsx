@@ -9,6 +9,7 @@ import {
   withExposingConfigs,
 } from "../../generators/withExposing";
 import {
+  baseSelectRefMethods,
   SelectChildrenMap,
   SelectPropertyView,
   SelectUIView,
@@ -21,7 +22,7 @@ import {
 import { useRef } from "react";
 import { RecordConstructorToView } from "openblocks-core";
 
-export const SelectBasicComp = (function () {
+const SelectBasicComp = (function () {
   const childrenMap = {
     ...SelectChildrenMap,
     value: stringExposingStateControl("value"),
@@ -56,6 +57,7 @@ export const SelectBasicComp = (function () {
     });
   })
     .setPropertyViewFn((children) => <SelectPropertyView {...children} />)
+    .setExposeMethodConfigs(baseSelectRefMethods)
     .build();
 })();
 

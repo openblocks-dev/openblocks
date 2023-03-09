@@ -8,13 +8,10 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.time.Duration;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
-
-import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
@@ -46,12 +43,6 @@ public class MssqlConnector implements DatasourceConnector<HikariDataSource, Mss
         this.connectionPoolIdleTimeoutMillis = configCenter.mysqlPlugin().ofInteger("connectionPoolIdleTimeoutMinutes", 6)
                 .then(Duration::ofMinutes)
                 .then(Duration::toMillis);
-    }
-
-    @Nonnull
-    @Override
-    public MssqlDatasourceConfig resolveConfig(Map<String, Object> configMap) {
-        return MssqlDatasourceConfig.buildFrom(configMap);
     }
 
     @Override

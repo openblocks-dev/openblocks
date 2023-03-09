@@ -108,7 +108,8 @@ public class ClickHouseQueryExecutor implements QueryExecutor<ClickHouseDatasour
     }
 
     @Override
-    public Mono<DatasourceStructure> getStructure(HikariDataSource hikariDataSource) {
+    public Mono<DatasourceStructure> getStructure(HikariDataSource hikariDataSource,
+            ClickHouseDatasourceConfig connectionConfig) {
 
         return Mono.fromCallable(() -> {
                     Connection connection = getConnection(hikariDataSource);

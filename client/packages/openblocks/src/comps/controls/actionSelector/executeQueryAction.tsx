@@ -56,11 +56,15 @@ export class ExecuteQueryAction extends ExecuteQueryTmpAction {
           }))
           .filter(
             // Filter out the current query under query
-            (option) =>
-              placement !== "query" ||
-              (placement === "query" &&
-                editorState.selectedBottomResType === BottomResTypeEnum.Query &&
-                option.value !== editorState.selectedBottomResName)
+            (option) => {
+              if (
+                placement === "query" &&
+                editorState.selectedBottomResType === BottomResTypeEnum.Query
+              ) {
+                return option.value !== editorState.selectedBottomResName;
+              }
+              return true;
+            }
           ) || [];
 
       // input queries

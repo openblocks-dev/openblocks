@@ -7,7 +7,6 @@ import static com.openblocks.sdk.util.JsonUtils.toJson;
 
 import java.util.Map;
 
-import com.openblocks.sdk.models.DatasourceConnectionConfig;
 import com.openblocks.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 
 import lombok.Builder;
@@ -20,20 +19,13 @@ public class ClickHouseDatasourceConfig extends SqlBasedDatasourceConnectionConf
 
     @Builder
     protected ClickHouseDatasourceConfig(String database, String username, String password, String host, Long port, boolean usingSsl,
-            String serverTimezone, boolean isReadonly, boolean enableTurnOffPreparedStatement) {
-        super(database, username, password, host, port, usingSsl, serverTimezone, isReadonly, enableTurnOffPreparedStatement);
+            String serverTimezone, boolean isReadonly, boolean enableTurnOffPreparedStatement, Map<String, Object> extParams) {
+        super(database, username, password, host, port, usingSsl, serverTimezone, isReadonly, enableTurnOffPreparedStatement, extParams);
     }
 
     @Override
     protected long defaultPort() {
         return DEFAULT_PORT;
-    }
-
-    @Override
-    protected DatasourceConnectionConfig createMergedConnectionConfig(String database, String username, String password, String host, long port,
-            boolean usingSsl, String serverTimezone, boolean readonly, boolean enableTurnOffPreparedStatement) {
-        return new ClickHouseDatasourceConfig(database, username, password, host, port, usingSsl, serverTimezone, readonly,
-                enableTurnOffPreparedStatement);
     }
 
     public static ClickHouseDatasourceConfig buildFrom(Map<String, Object> requestMap) {

@@ -6,6 +6,7 @@ import { ReactNode } from "react";
 import styled from "styled-components";
 import { CustomSelect } from "./customSelect";
 import { EllipsisTextCss } from "./Label";
+import { TacoMarkDown } from "./markdown";
 import { Tooltip, ToolTipLabel } from "./toolTip";
 
 type ControlPlacement = "bottom" | "right" | "modal";
@@ -152,6 +153,8 @@ interface DropdownProps<T extends OptionsType> extends Omit<SelectProps, "placem
   itemNode?: (value: string) => JSX.Element;
   preNode?: () => JSX.Element;
   lineHeight?: number;
+  labelStyle?: React.CSSProperties;
+  dropdownStyle?: React.CSSProperties;
 }
 
 export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
@@ -160,14 +163,14 @@ export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
   return (
     <FlexDiv>
       {props.label && (
-        <LabelWrapper placement={placement}>
+        <LabelWrapper placement={placement} style={props.labelStyle}>
           <ToolTipLabel title={props.toolTip} label={props.label} />
         </LabelWrapper>
       )}
 
       {!props.radioButton && (
         <Tooltip title={!props.label ? props.toolTip : undefined}>
-          <DropdownContainer placement={placement}>
+          <DropdownContainer placement={placement} style={props.dropdownStyle}>
             <CustomSelect
               open={props.open}
               listHeight={props.lineHeight}
@@ -252,12 +255,30 @@ interface DropdownOptionLabelWithDescProps {
   description: string;
 }
 
+const DropdownOptionDesc = styled.div`
+  font-size: 12px;
+  max-width: 600px;
+  white-space: normal;
+  .markdown-body {
+    font-size: 12px;
+    background-color: transparent;
+    p {
+      margin-bottom: 4px;
+      color: ${GreyTextColor};
+    }
+  }
+`;
+
 export function DropdownOptionLabelWithDesc(props: DropdownOptionLabelWithDescProps) {
   const { label, description } = props;
   return (
     <div style={{ padding: 0 }}>
       <div style={{ fontWeight: 700, marginBottom: 4 }}>{label}</div>
-      {description && <div style={{ fontSize: 12, color: GreyTextColor }}>{description}</div>}
+      {description && (
+        <DropdownOptionDesc>
+          <TacoMarkDown>{description}</TacoMarkDown>
+        </DropdownOptionDesc>
+      )}
     </div>
   );
 }
