@@ -1,4 +1,5 @@
 import "comps/comps/layout/navLayout";
+import "comps/comps/layout/mobileTabLayout";
 import { ModalComp } from "comps/hooks/modalComp";
 import { ButtonComp } from "./comps/buttonComp/buttonComp";
 import { DropdownComp } from "./comps/buttonComp/dropdownComp";

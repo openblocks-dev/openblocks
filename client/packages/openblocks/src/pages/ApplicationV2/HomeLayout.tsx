@@ -16,7 +16,7 @@ import {
   Search,
 } from "openblocks-design";
 import { canEditApp, canManageApp } from "../../util/permissionUtils";
-import { HomeResKey, HomeResTypeEnum } from "../../types/homeRes";
+import { HomeResKey, HomeResTypeEnum, NavigationTypes } from "../../types/homeRes";
 import { HomeResInfo } from "../../util/homeResUtils";
 import { getUser } from "../../redux/selectors/usersSelectors";
 import { useLocation } from "react-use";
@@ -268,12 +268,19 @@ export function HomeLayout(props: HomeLayoutProps) {
           e.createBy.toLocaleLowerCase().includes(searchValue)
         : true
     )
-    .filter(
-      (e) =>
-        HomeResTypeEnum[filterBy].valueOf() === HomeResTypeEnum.All ||
-        (e.folder && HomeResTypeEnum[filterBy] === HomeResTypeEnum.Folder) ||
-        (!e.folder && HomeResTypeEnum[filterBy].valueOf() === e.applicationType)
-    )
+    .filter((e) => {
+      if (HomeResTypeEnum[filterBy].valueOf() === HomeResTypeEnum.All) {
+        return true;
+      }
+      if (e.folder) {
+        return HomeResTypeEnum[filterBy] === HomeResTypeEnum.Folder;
+      } else {
+        if (filterBy === "Navigation") {
+          return NavigationTypes.map((t) => t.valueOf()).includes(e.applicationType);
+        }
+        return HomeResTypeEnum[filterBy].valueOf() === e.applicationType;
+      }
+    })
     .map((e) =>
       e.folder
         ? {
@@ -344,7 +351,7 @@ export function HomeLayout(props: HomeLayoutProps) {
               getFilterMenuItem(HomeResTypeEnum.All),
               getFilterMenuItem(HomeResTypeEnum.Application),
               getFilterMenuItem(HomeResTypeEnum.Module),
-              getFilterMenuItem(HomeResTypeEnum.NavLayout),
+              getFilterMenuItem(HomeResTypeEnum.Navigation),
               ...(mode !== "trash" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
             ]}
             getPopupContainer={(node) => node}

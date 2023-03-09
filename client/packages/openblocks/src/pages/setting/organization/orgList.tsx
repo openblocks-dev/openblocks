@@ -1,12 +1,12 @@
 import { ADMIN_ROLE, Org } from "constants/orgConstants";
-import { AddIcon, CustomModal, EditPopover } from "openblocks-design";
+import { AddIcon, CustomModal, DangerIcon, EditPopover } from "openblocks-design";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { StaticContext } from "react-router";
 import { RouteComponentProps } from "react-router-dom";
 import { AppState } from "redux/reducers";
 import { createOrgAction, deleteOrgAction } from "redux/reduxActions/orgActions";
 import styled from "styled-components";
-import { trans } from "i18n";
+import { trans, transToNode } from "i18n";
 import { buildOrgId } from "constants/routesURL";
 import {
   CreateButton,
@@ -21,6 +21,7 @@ import { Level1SettingPageContentWithList, Level1SettingPageTitleWithBtn } from 
 import { timestampToHumanReadable } from "util/dateTimeUtils";
 import { isSaasMode } from "util/envUtils";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
+import { Form, Input } from "antd";
 
 const OrgName = styled.div`
   display: flex;
@@ -28,6 +29,7 @@ const OrgName = styled.div`
 
   > div {
     width: 34px;
+    min-width: 34px;
     height: 34px;
     margin-right: 12px;
     border: 1px solid rgba(0, 0, 0, 0.1);
@@ -51,6 +53,61 @@ const TableStyled = styled(Table)`
   }
 `;
 
+const Content = styled.div`
+  &,
+  .ant-form-item-label,
+  .ant-form-item-label label {
+    font-size: 13px;
+    line-height: 19px;
+  }
+  .ant-input {
+    font-size: 13px;
+    line-height: 20px;
+    padding: 5px 11px;
+    &::-webkit-input-placeholder {
+      color: #b8b9bf;
+    }
+  }
+  .ant-form-item-label {
+    margin-top: 13px;
+    padding-bottom: 5px;
+    label {
+      display: inline;
+      ::before {
+        vertical-align: bottom;
+      }
+    }
+  }
+  .ant-form-item {
+    margin-bottom: 12px;
+  }
+  .ant-form-item-explain-error {
+    font-size: 13px;
+    line-height: 12px;
+    margin-top: 4px;
+    position: absolute;
+  }
+`;
+
+const Tip = styled.div`
+  background: #fff3f1;
+  border-radius: 4px;
+  color: #333333;
+  padding: 8px 13px 8px 16px;
+  display: flex;
+  line-height: 20px;
+  margin-top: 8px;
+  span {
+    margin-left: 8px;
+  }
+  svg {
+    min-width: 16px;
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+  }
+`;
+
 type OrgSettingProp = {
   orgs: Org[];
   adminOrgs: Org[];
@@ -68,6 +125,7 @@ function OrganizationSetting(props: OrgSettingProp) {
   const { orgs, adminOrgs } = props;
   const dispatch = useDispatch();
   const sysConfig = useSelector(selectSystemConfig);
+  const [form] = Form.useForm();
 
   const dataSource = adminOrgs.map((org) => ({
     id: org.id,
@@ -139,11 +197,60 @@ function OrganizationSetting(props: OrgSettingProp) {
                   <EditPopover
                     del={() => {
                       CustomModal.confirm({
+                        width: "384px",
                         title: trans("orgSettings.deleteModalTitle"),
-                        content: trans("orgSettings.deleteModalContent"),
-                        onConfirm: () => dispatch(deleteOrgAction(item.id)),
+                        bodyStyle: { marginTop: 0 },
+                        content: (
+                          <Content>
+                            <Tip>
+                              <DangerIcon />
+                              <span>
+                                {transToNode("orgSettings.deleteModalContent", {
+                                  permanentlyDelete: (
+                                    <b>{trans("orgSettings.permanentlyDelete")}</b>
+                                  ),
+                                  notRestored: <b>{trans("orgSettings.notRestored")}</b>,
+                                })}
+                              </span>
+                            </Tip>
+                            <Form layout="vertical" form={form}>
+                              <Form.Item
+                                name="name"
+                                label={transToNode("orgSettings.deleteModalLabel", {
+                                  name: (
+                                    <span style={{ color: "#4965F2", margin: "0 5px" }}>
+                                      {item.orgName}
+                                    </span>
+                                  ),
+                                })}
+                                rules={[
+                                  { required: true, message: trans("orgSettings.deleteModalTip") },
+                                ]}
+                              >
+                                <Input placeholder={trans("orgSettings.orgName")} />
+                              </Form.Item>
+                            </Form>
+                          </Content>
+                        ),
+                        onConfirm: () => {
+                          form.submit();
+                          return form.validateFields().then(() => {
+                            const name = form.getFieldValue("name");
+                            if (name === item.orgName) {
+                              dispatch(deleteOrgAction(item.id));
+                            } else {
+                              form.setFields([
+                                { name: "name", errors: [trans("orgSettings.deleteModalErr")] },
+                              ]);
+                              throw new Error();
+                            }
+                          });
+                        },
+                        onCancel: () => {
+                          form.resetFields();
+                        },
                         confirmBtnType: "delete",
-                        okText: trans("delete"),
+                        okText: trans("orgSettings.deleteModalBtn"),
                       });
                     }}
                   >

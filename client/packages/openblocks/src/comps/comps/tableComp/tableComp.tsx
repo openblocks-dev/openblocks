@@ -7,6 +7,7 @@ import {
   ColumnsAggrData,
   COLUMN_CHILDREN_KEY,
   filterData,
+  genSelectionParams,
   getColumnsAggr,
   getOriDisplayData,
   OB_ROW_ORI_INDEX,
@@ -14,6 +15,7 @@ import {
   sortData,
   transformDispalyData,
   tranToTableRecord,
+  supportChildrenTree,
 } from "comps/comps/tableComp/tableUtils";
 import { isTriggerAction } from "comps/controls/actionSelector/actionSelectorControl";
 import { withPropertyViewFn, withViewFn } from "comps/generators";
@@ -28,6 +30,7 @@ import {
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
+import { NameGenerator } from "comps/utils";
 import { trans } from "i18n";
 import _ from "lodash";
 import {
@@ -45,14 +48,35 @@ import {
 import { saveDataAsFile } from "util/fileUtils";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { lastValueIfEqual, shallowEqual } from "util/objectUtils";
+import { IContainer } from "../containerBase";
 import { getSelectedRowKeys } from "./selectionControl";
 import { compTablePropertyView } from "./tablePropertyView";
 import { RowColorComp, TableChildrenView, TableInitComp } from "./tableTypes";
 
-export const TableImplComp = class extends TableInitComp {
+export class TableImplComp extends TableInitComp implements IContainer {
   private prevUnevaledValue?: string;
   readonly filterData: RecordType[] = [];
   readonly columnAggrData: ColumnsAggrData = {};
+
+  private getSlotContainer() {
+    return this.children.expansion.children.slot.getSelectedComp().getComp().children.container;
+  }
+
+  findContainer(key: string) {
+    return this.getSlotContainer().findContainer(key);
+  }
+
+  getCompTree() {
+    return this.getSlotContainer().getCompTree();
+  }
+
+  getPasteValue(nameGenerator: NameGenerator) {
+    return this.getSlotContainer().getPasteValue(nameGenerator);
+  }
+
+  realSimpleContainer(key?: string) {
+    return this.getSlotContainer().realSimpleContainer(key);
+  }
 
   downloadData(fileName: string) {
     saveDataAsFile({
@@ -141,21 +165,39 @@ export const TableImplComp = class extends TableInitComp {
   }
 
   override reduce(action: CompAction): this {
+    if (action.type === CompActionTypes.ONLY_EVAL) return this;
     let comp = super.reduce(action);
+    let needMoreEval = false;
+
     const thisSelection = getSelectedRowKeys(this.children.selection)[0] ?? 0;
     const newSelection = getSelectedRowKeys(comp.children.selection)[0] ?? 0;
+    const selectionChanged =
+      this.children.selection !== comp.children.selection && thisSelection !== newSelection;
     if (
       (action.type === CompActionTypes.CUSTOM &&
         comp.children.columns.getView().length !== this.children.columns.getView().length) ||
-      (this.children.selection !== comp.children.selection && thisSelection !== newSelection)
+      selectionChanged
     ) {
       comp = comp.setChild(
         "columns",
         comp.children.columns.reduce(comp.children.columns.setSelectionAction(newSelection))
       );
-      if (action.type === CompActionTypes.UPDATE_NODES_V2) {
-        setTimeout(() => comp.dispatch(onlyEvalAction()));
-      }
+      needMoreEval = true;
+    }
+
+    let params = comp.children.expansion.children.slot.getCachedParams(newSelection);
+    if (selectionChanged || _.isNil(params)) {
+      params = _.isNil(params) ? genSelectionParams(this.filterData, newSelection) : undefined;
+      comp = comp.setChild(
+        "expansion",
+        comp.children.expansion.reduce(
+          comp.children.expansion.setSelectionAction(newSelection, params)
+        )
+      );
+      needMoreEval = true;
+    }
+    if (action.type === CompActionTypes.UPDATE_NODES_V2 && needMoreEval) {
+      setTimeout(() => comp.dispatch(onlyEvalAction()));
     }
 
     if (action.type === CompActionTypes.UPDATE_NODES_V2) {
@@ -251,8 +293,11 @@ export const TableImplComp = class extends TableInitComp {
     const filteredDataNode = withFunction(fromRecord(nodes), (input) => {
       const { data, searchValue, filter, showFilter } = input;
       const filteredData = filterData(data, searchValue.value, filter, showFilter.value);
+      const supportChildren = supportChildrenTree(filteredData);
       // console.info("filterNode. data: ", data, " filter: ", filter, " filteredData: ", filteredData);
-      return filteredData.map((row) => tranToTableRecord(row, row[OB_ROW_ORI_INDEX]));
+      return filteredData.map((row) =>
+        tranToTableRecord(row, row[OB_ROW_ORI_INDEX], supportChildren)
+      );
     });
     return lastValueIfEqual(this, "filteredDataNode", [filteredDataNode, nodes] as const, (a, b) =>
       shallowEqual(a[1], b[1])
@@ -310,7 +355,7 @@ export const TableImplComp = class extends TableInitComp {
       shallowEqual(a[1], b[1])
     )[0];
   }
-};
+}
 
 let TableTmpComp = withViewFn(TableImplComp, (comp) => {
   return (
@@ -350,7 +395,7 @@ function _indexKeyToRecord(data: JSONObject[], key: string) {
   let res = undefined;
   for (let k of keyPath) {
     const index = Number(k);
-    if (index >= 0 && currentData && index < currentData.length) {
+    if (index >= 0 && Array.isArray(currentData) && index < currentData.length) {
       res = currentData[index];
       currentData = res[COLUMN_CHILDREN_KEY] as JSONObject[];
     }

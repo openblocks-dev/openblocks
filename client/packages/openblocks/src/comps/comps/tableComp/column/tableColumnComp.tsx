@@ -190,6 +190,7 @@ export function newCustomColumn(): ConstructorToDataType<typeof ColumnComp> {
  */
 export function newPrimaryColumn(
   key: string,
+  width: number,
   title?: string,
   isTag?: boolean
 ): ConstructorToDataType<typeof ColumnComp> {
@@ -197,6 +198,8 @@ export function newPrimaryColumn(
     title: title ?? key,
     dataIndex: key,
     isCustom: false,
+    autoWidth: "fixed",
+    width: width + "",
     render: { compType: isTag ? "tag" : "text", comp: { text: "{{currentCell}}" } },
   };
 }

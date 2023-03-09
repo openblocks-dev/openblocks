@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nodemon src/server.ts",
     "debug": "nodemon --inspect src/server.ts",
-    "start": "node ./build/src/server.js",
+    "start": "node ./build/server.js",
     "test": "jest",
     "copy": "copyfiles -u 1 src/**/*.!(ts|test.ts) build",
     "genOpenApiPlugin": "npx ts-node --files ./scripts/openApiDataSourceGen.ts",

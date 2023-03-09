@@ -16,11 +16,14 @@ import { EditableIcon } from "openblocks-design";
 import { tryToNumber } from "util/convertUtils";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { StatusType } from "./column/columnTypeComps/columnStatusComp";
-import { ColumnListComp } from "./column/tableColumnListComp";
+import { ColumnListComp, tableDataRowExample } from "./column/tableColumnListComp";
 
 export const COLUMN_CHILDREN_KEY = "children";
 export const OB_ROW_ORI_INDEX = "__ob_origin_index";
 export const OB_ROW_RECORD = "__ob_origin_record";
+
+export const COL_MIN_WIDTH = 55;
+export const COL_MAX_WIDTH = 500;
 
 /**
  * Add __originIndex__, mainly for the logic of the default key
@@ -110,14 +113,18 @@ export function buildOriginIndex(index: string, childIndex: string) {
   return index + "-" + childIndex;
 }
 
-export function tranToTableRecord(dataObj: JSONObject, index: string | number): RecordType {
+export function tranToTableRecord(
+  dataObj: JSONObject,
+  index: string | number,
+  supportChildren: boolean
+): RecordType {
   const indexString = index + "";
-  if (Array.isArray(dataObj[COLUMN_CHILDREN_KEY])) {
+  if (supportChildren && Array.isArray(dataObj[COLUMN_CHILDREN_KEY])) {
     return {
       ...dataObj,
       [OB_ROW_ORI_INDEX]: indexString,
       children: dataObj[COLUMN_CHILDREN_KEY].map((child: any, i: number) =>
-        tranToTableRecord(child, buildOriginIndex(indexString, i + ""))
+        tranToTableRecord(child, buildOriginIndex(indexString, i + ""), supportChildren)
       ),
     };
   }
@@ -132,6 +139,7 @@ export function getOriDisplayData(
   pageSize: number,
   columns: Array<{ dataIndex: string; render: NodeToValue<ReturnType<Render["node"]>> }>
 ) {
+  const supportChildren = supportChildrenTree(data);
   return data.map((row, idx) => {
     const displayData: JSONObject = {};
     columns.forEach((col) => {
@@ -142,7 +150,7 @@ export function getOriDisplayData(
         currentIndex: idx % pageSize,
         currentOriginalIndex: row[OB_ROW_ORI_INDEX],
       }) as any;
-      if (Array.isArray(row[COLUMN_CHILDREN_KEY])) {
+      if (supportChildren && Array.isArray(row[COLUMN_CHILDREN_KEY])) {
         displayData[COLUMN_CHILDREN_KEY] = getOriDisplayData(
           row[COLUMN_CHILDREN_KEY] as Array<RecordType>,
           pageSize,
@@ -171,6 +179,7 @@ export function transformDispalyData(
 }
 
 export type ColumnsAggrData = Record<string, Record<string, JSONValue> & { compType: string }>;
+
 export function getColumnsAggr(
   oriDisplayData: JSONObject[],
   dataIndexWithParamsDict: NodeToValue<
@@ -340,4 +349,44 @@ export function onTableChange(
     dispatch(changeChildAction("sort", sortValues));
     onEvent("sortChange");
   }
+}
+
+export function calcColumnWidth(columnKey: string, data: Array<JSONObject>) {
+  const getWidth = (str: string) => {
+    const byteLength = new Blob([str]).size;
+    return str.length === byteLength ? str.length * 10 : str.length * 20;
+  };
+  const cellWidth =
+    _.max(
+      data.map((d) => {
+        const cellValue = d[columnKey];
+        if (!cellValue) {
+          return COL_MIN_WIDTH;
+        }
+        return getWidth(cellValue.toString());
+      })
+    ) || 0;
+  const titleWidth = getWidth(columnKey);
+  return Math.max(Math.min(COL_MAX_WIDTH, Math.max(titleWidth, cellWidth) + 10), COL_MIN_WIDTH);
+}
+
+export function genSelectionParams(
+  filterData: RecordType[],
+  selection: string
+): Record<string, unknown> | undefined {
+  const idx = filterData.findIndex((row) => row[OB_ROW_ORI_INDEX] === selection);
+  if (idx < 0) {
+    return undefined;
+  }
+  const currentRow = filterData[idx];
+  return {
+    currentRow: _.omit(currentRow, OB_ROW_ORI_INDEX),
+    currentIndex: idx,
+    currentOriginalIndex: tryToNumber(currentRow[OB_ROW_ORI_INDEX]),
+  };
+}
+
+export function supportChildrenTree(data: Array<JSONObject>) {
+  const rowSample = tableDataRowExample(data) as any;
+  return rowSample && Array.isArray(rowSample[COLUMN_CHILDREN_KEY]);
 }

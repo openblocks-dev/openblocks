@@ -40,7 +40,7 @@ export const ButtonComp = (function () {
             onClick={props.onClick}
             loading={props.loading}
             disabled={props.disabled}
-            $buttonStyle={style}
+            $buttonStyle={props.buttonType === "primary" ? style : undefined}
           >
             {/* prevent the button from disappearing */}
             {!props.text ? " " : props.text}

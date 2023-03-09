@@ -92,10 +92,7 @@ export function useRootCompInstance(appInfo: AppSummaryInfo, readOnly: boolean, 
 
   useUnmount(() => {
     comp?.clearPreload();
-
-    Object.values(QueryApi.queryExecuteCancelTokenSource).forEach((s) => {
-      s.cancel();
-    });
+    QueryApi.cancelAllQuery();
   });
 
   return useMemo(() => {

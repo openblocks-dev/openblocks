@@ -4,11 +4,13 @@ import { TableCellContext, TableRowContext } from "comps/comps/tableComp/tableCo
 import { TableToolbar } from "comps/comps/tableComp/tableToolbarComp";
 import { RowColorViewType } from "comps/comps/tableComp/tableTypes";
 import {
-  columnsToAntdFormat,
+  COL_MIN_WIDTH,
   COLUMN_CHILDREN_KEY,
+  columnsToAntdFormat,
   CustomColumnType,
   onTableChange,
   RecordType,
+  supportChildrenTree,
 } from "comps/comps/tableComp/tableUtils";
 import {
   defaultTheme,
@@ -17,6 +19,8 @@ import {
   TableStyleType,
 } from "comps/controls/styleControlConstants";
 import { CompNameContext, EditorContext } from "comps/editorState";
+import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
+import { PrimaryColor } from "constants/style";
 import { trans } from "i18n";
 import _ from "lodash";
 import { darkenColor, isDarkColor } from "openblocks-design";
@@ -39,107 +43,114 @@ const getStyle = (style: TableStyleType) => {
   return css`
     border-color: ${style.border};
     border-radius: ${style.radius};
-
-    .ant-table > .ant-table-container > .ant-table-content > table {
-      thead tr th,
-      tbody tr td {
+    & > div > div > div > .ant-table > .ant-table-container > .ant-table-content > table {
+      > thead > tr > th,
+      > tbody > tr > td {
         border-color: ${style.border};
       }
 
-      .ant-table-thead > tr > th::before {
+      > .ant-table-thead > tr > th::before {
         background-color: ${style.border};
       }
-    }
+      > .ant-table-thead {
+        > tr > th {
+          background-color: ${style.headerBackground};
+          color: ${style.headerText};
 
-    .ant-table-thead {
-      tr th {
-        background-color: ${style.headerBackground};
-        color: ${style.headerText};
+          &.ant-table-column-has-sorters:hover {
+            background-color: ${darkenColor(style.headerBackground, 0.05)};
+          }
 
-        &.ant-table-column-has-sorters:hover {
-          background-color: ${darkenColor(style.headerBackground, 0.05)};
-        }
-
-        .ant-table-column-sorter {
-          color: ${style.headerText === defaultTheme.textDark ? "#bfbfbf" : style.headerText};
-        }
-      }
-    }
-
-    .ant-table-tbody {
-      tr:nth-of-type(2n + 1) {
-        &,
-        td {
-          background: ${background};
-          color: ${style.cellText};
-          // Column type view and edit color
-          p, span.ant-badge-status-text, input {
-            color: ${style.cellText};
+          > .ant-table-column-sorters > .ant-table-column-sorter {
+            color: ${style.headerText === defaultTheme.textDark ? "#bfbfbf" : style.headerText};
           }
         }
       }
-
-      tr:nth-of-type(2n) {
-        &,
-        td {
-          background: ${alternateBackground};
-          color: ${style.cellText};
-          // Column type view and edit color
-          p, span.ant-badge-status-text, input {
+      > .ant-table-tbody {
+        > tr:nth-of-type(2n + 1) {
+          &,
+          > td {
+            background: ${background};
             color: ${style.cellText};
+            // Column type view and edit color
+            > div > div {
+              &,
+              > .ant-badge > .ant-badge-status-text,
+              > div > .markdown-body {
+                color: ${style.cellText};
+              }
+              // dark link|links color
+              > a, > div > a {
+                color: ${isDark && "#A6FFFF"};
+                &:hover {
+                  color: ${isDark && "#2EE6E6"};
+                }
+              }
+            }
           }
         }
-      }
 
-      // selected row
-      tr:nth-of-type(2n + 1).ant-table-row-selected {
-        td {
-          background: ${selectedRowBackground}, ${background};
+        > tr:nth-of-type(2n) {
+          &,
+          > td {
+            background: ${alternateBackground};
+            color: ${style.cellText};
+            // Column type view and edit color
+            > div > div {
+              &,
+              > .ant-badge > .ant-badge-status-text,
+              > div > .markdown-body {
+                color: ${style.cellText};
+              }
+              // dark link|links color
+              > a, > div > a {
+                color: ${isDark && "#A6FFFF"};
+                &:hover {
+                  color: ${isDark && "#2EE6E6"};
+                }
+              }
+            }
+          }
         }
 
-        td.ant-table-cell-row-hover,
-        &:hover td {
-          background: ${hoverRowBackground}, ${selectedRowBackground}, ${background};
+        // selected row
+        > tr:nth-of-type(2n + 1).ant-table-row-selected {
+          > td {
+            background: ${selectedRowBackground}, ${background};
+          }
+
+          > td.ant-table-cell-row-hover,
+          &:hover > td {
+            background: ${hoverRowBackground}, ${selectedRowBackground}, ${background};
+          }
         }
-      }
 
-      tr:nth-of-type(2n).ant-table-row-selected {
-        td {
-          background: ${selectedRowBackground}, ${alternateBackground};
+        > tr:nth-of-type(2n).ant-table-row-selected {
+          > td {
+            background: ${selectedRowBackground}, ${alternateBackground};
+          }
+
+          > td.ant-table-cell-row-hover,
+          &:hover > td {
+            background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground};
+          }
         }
 
-        td.ant-table-cell-row-hover,
-        &:hover td {
-          background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground};
+        // hover row
+        > tr:nth-of-type(2n + 1) > td.ant-table-cell-row-hover {
+          &,
+          > div:nth-of-type(2) {
+            background: ${hoverRowBackground}, ${background};
+          }
         }
-      }
 
-      // hover row
-      > tr:nth-of-type(2n + 1) > td.ant-table-cell-row-hover {
-        &,
-        > div:nth-of-type(2) {
-          background: ${hoverRowBackground}, ${background};
+        > tr:nth-of-type(2n) > td.ant-table-cell-row-hover {
+          &,
+          > div:nth-of-type(2) {
+            background: ${hoverRowBackground}, ${alternateBackground};
+          }
         }
-      }
 
-      > tr:nth-of-type(2n) > td.ant-table-cell-row-hover {
-        &,
-        > div:nth-of-type(2) {
-          background: ${hoverRowBackground}, ${alternateBackground};
-        }
-      }
-
-      // link color
-      td a {
-        color: ${isDark && "#A6FFFF"};
-
-        &:hover {
-          color: ${isDark && "#2EE6E6"};
-        }
-      }
-
-      td div:has(a) {
-        color: ${isDark && "#A6FFFF"};
       }
     }
   `;
@@ -158,17 +169,21 @@ const TableWrapper = styled.div<{
     border-color: inherit;
   }
 
-  .ant-table .ant-table-row-expand-icon {
+  .ant-table-row-expand-icon {
+    color: ${PrimaryColor};
+  }
+
+  .ant-table .ant-table-cell-with-append .ant-table-row-expand-icon {
     margin: 0;
     top: 18px;
     left: 4px;
   }
 
-  .ant-table.ant-table-small .ant-table-row-expand-icon {
+  .ant-table.ant-table-small .ant-table-cell-with-append .ant-table-row-expand-icon {
     top: 10px;
   }
 
-  .ant-table.ant-table-middle .ant-table-row-expand-icon {
+  .ant-table.ant-table-middle .ant-table-cell-with-append .ant-table-row-expand-icon {
     top: 14px;
   }
 
@@ -229,6 +244,8 @@ const TableWrapper = styled.div<{
 `;
 
 const TableTh = styled.th<{ width?: number }>`
+  overflow: hidden;
+
   > div {
     overflow: hidden;
     white-space: pre;
@@ -250,8 +267,6 @@ const TableTd = styled.td<{ background: string; $isEditing: boolean }>`
       background: ${props.background} !important;
    `};
 `;
-
-const MinColumnWidth = 55;
 
 const ResizeableTitle = (props: any) => {
   const { onResize, onResizeStop, width, viewModeResizable, ...restProps } = props;
@@ -373,15 +388,29 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
     index: -1,
     width: -1,
   });
+  let allColumnFixed = true;
   const columns = props.columns.map((col, index) => {
     const { width, ...restCol } = col;
     const resizeWidth = (resizeData.index === index ? resizeData.width : col.width) ?? 0;
+    let colWidth: number | string = "auto";
+    let minWidth: number | string = COL_MIN_WIDTH;
+    if (resizeWidth > 0) {
+      minWidth = "unset";
+      colWidth = resizeWidth;
+    } else {
+      allColumnFixed = false;
+    }
+    if (allColumnFixed && index === props.columns.length - 1) {
+      // all column fixed, the last column fill extra space
+      colWidth = "auto";
+      minWidth = resizeWidth;
+    }
     return {
       ...restCol,
       RC_TABLE_INTERNAL_COL_DEFINE: {
         style: {
-          minWidth: resizeWidth > 0 ? "unset" : MinColumnWidth,
-          width: resizeWidth > 0 ? resizeWidth : "auto",
+          minWidth: minWidth,
+          width: colWidth,
         },
       },
       onCell: (record: RecordType, rowIndex: any) => ({
@@ -429,7 +458,7 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
       {...props}
       pagination={false}
       columns={columns}
-      scroll={{ x: MinColumnWidth * columns.length }}
+      scroll={{ x: COL_MIN_WIDTH * columns.length }}
     ></Table>
   );
 }
@@ -464,6 +493,7 @@ export function TableCompView(props: {
     [compChildren.dynamicColumnConfig]
   );
   const columnsAggrData = comp.columnAggrData;
+  const expansion = useMemo(() => compChildren.expansion.getView(), [compChildren.expansion]);
   const antdColumns = useMemo(
     () =>
       columnsToAntdFormat(
@@ -542,32 +572,43 @@ export function TableCompView(props: {
       onEvent={onEvent}
     />
   );
+  const supportChildren = supportChildrenTree(data);
 
   return (
-    <TableWrapper $style={style} toolbarPosition={toolbar.position}>
-      {toolbar.position === "above" && toolbarView}
-      <ResizeableTable<RecordType>
-        expandable={{ childrenColumnName: COLUMN_CHILDREN_KEY }}
-        rowColor={compChildren.rowColor.getView() as any}
-        {...compChildren.selection.getView()(onEvent)}
-        bordered={!compChildren.hideBordered.getView()}
-        onChange={(pagination, filters, sorter, extra) => {
-          onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
-        }}
-        showHeader={!compChildren.hideHeader.getView()}
-        columns={antdColumns}
-        viewModeResizable={compChildren.viewModeResizable.getView()}
-        dataSource={pageDataInfo.data}
-        size={compChildren.size.getView()}
-        tableLayout="fixed"
-        loading={
-          loading ||
-          // fixme isLoading type
-          (compChildren.showDataLoadSpinner.getView() && (compChildren.data as any).isLoading()) ||
-          compChildren.loading.getView()
-        }
-      />
-      {toolbar.position === "below" && toolbarView}
-    </TableWrapper>
+    <BackgroundColorContext.Provider value={style.background}>
+      <TableWrapper $style={style} toolbarPosition={toolbar.position}>
+        {toolbar.position === "above" && toolbarView}
+        <ResizeableTable<RecordType>
+          expandable={{
+            ...expansion.expandableConfig,
+            childrenColumnName: supportChildren
+              ? COLUMN_CHILDREN_KEY
+              : "OB_CHILDREN_KEY_PLACEHOLDER",
+            fixed: "left",
+          }}
+          rowColor={compChildren.rowColor.getView() as any}
+          {...compChildren.selection.getView()(onEvent)}
+          bordered={!compChildren.hideBordered.getView()}
+          onChange={(pagination, filters, sorter, extra) => {
+            onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
+          }}
+          showHeader={!compChildren.hideHeader.getView()}
+          columns={antdColumns}
+          viewModeResizable={compChildren.viewModeResizable.getView()}
+          dataSource={pageDataInfo.data}
+          size={compChildren.size.getView()}
+          tableLayout="fixed"
+          loading={
+            loading ||
+            // fixme isLoading type
+            (compChildren.showDataLoadSpinner.getView() &&
+              (compChildren.data as any).isLoading()) ||
+            compChildren.loading.getView()
+          }
+        />
+        {toolbar.position === "below" && toolbarView}
+        {expansion.expandModalView}
+      </TableWrapper>
+    </BackgroundColorContext.Provider>
   );
 }

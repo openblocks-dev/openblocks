@@ -36,7 +36,7 @@ const ExecButton = styled(TacoButton)`
   width: 52px;
   height: 24px;
   padding: 5px 12px;
-  margin-right: 44px;
+  margin-right: 24px;
   background: #fafbff;
   border: 1px solid #c9d1fc;
   border-radius: 4px;
@@ -105,6 +105,7 @@ const CardInfo = styled.div`
   flex-grow: 1;
   cursor: pointer;
   overflow: hidden;
+  padding-right: 12px;
 
   :hover {
     .ant-typography {

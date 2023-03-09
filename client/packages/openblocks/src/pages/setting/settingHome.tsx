@@ -5,7 +5,7 @@ import { AdvancedSetting } from "./advanced/AdvancedSetting";
 import { currentOrgAdmin } from "util/permissionUtils";
 import { trans } from "i18n";
 import AuditSetting from "@openblocks-ee/pages/setting/audit";
-import { developEnv, isEE, isEnterpriseMode, isSelfDomain, showAuditLog } from "util/envUtils";
+import { isEE, isEnterpriseMode, isSelfDomain, showAuditLog } from "util/envUtils";
 import { TwoColumnSettingPageContent } from "./styled";
 import SubSideBar from "components/layout/SubSideBar";
 import { Menu } from "openblocks-design";
@@ -17,6 +17,7 @@ import { BrandingSetting } from "@openblocks-ee/pages/setting/branding/BrandingS
 import { IdSourceHome } from "@openblocks-ee/pages/setting/idSource";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import { enableCustomBrand } from "util/featureFlagUtils";
+import FreeLimitTag from "pages/common/freeLimitTag";
 
 enum SettingPageEnum {
   Member = "permission",
@@ -42,38 +43,53 @@ export function SettingHome() {
       key: SettingPageEnum.Organization,
       label: trans("settings.organization"),
     },
-    ...(currentOrgAdmin(user) && (isSelfDomain(config) || isEnterpriseMode(config))
-      ? [
-          {
-            key: SettingPageEnum.IdSource,
-            label: trans("settings.idSource"),
-          },
-        ]
-      : []),
-    ...(showAuditLog(config) && currentOrgAdmin(user)
-      ? [
-          {
-            key: SettingPageEnum.Audit,
-            label: trans("settings.audit"),
-          },
-        ]
-      : []),
+    {
+      key: SettingPageEnum.IdSource,
+      label: (
+        <span>
+          <span className="text">{trans("settings.idSource")}</span>
+          {(!currentOrgAdmin(user) || (!isSelfDomain(config) && !isEnterpriseMode(config))) && (
+            <FreeLimitTag text={trans("settings.premium")} />
+          )}
+        </span>
+      ),
+      disabled: !currentOrgAdmin(user) || (!isSelfDomain(config) && !isEnterpriseMode(config)),
+    },
+    {
+      key: SettingPageEnum.Audit,
+      label: (
+        <span>
+          <span className="text">{trans("settings.audit")}</span>
+          {(!showAuditLog(config) || !currentOrgAdmin(user)) && (
+            <FreeLimitTag text={trans("settings.premium")} />
+          )}
+        </span>
+      ),
+      disabled: !showAuditLog(config) || !currentOrgAdmin(user),
+    },
     {
       key: SettingPageEnum.Theme,
       label: trans("settings.theme"),
     },
-    ...(developEnv() ||
-    (isEE() &&
-      currentOrgAdmin(user) &&
-      enableCustomBrand(config) &&
-      (isSelfDomain(config) || isEnterpriseMode(config)))
-      ? [
-          {
-            key: SettingPageEnum.Branding,
-            label: trans("settings.branding"),
-          },
-        ]
-      : []),
+    {
+      key: SettingPageEnum.Branding,
+      label: (
+        <span>
+          <span className="text">{trans("settings.branding")}</span>
+          {(!isEE() ||
+            !currentOrgAdmin(user) ||
+            !enableCustomBrand(config) ||
+            (!isSelfDomain(config) && !isEnterpriseMode(config))) && (
+            <FreeLimitTag text={trans("settings.premium")} />
+          )}
+        </span>
+      ),
+      disabled:
+        !isEE() ||
+        !currentOrgAdmin(user) ||
+        !enableCustomBrand(config) ||
+        (!isSelfDomain(config) && !isEnterpriseMode(config)),
+    },
     {
       key: SettingPageEnum.Advanced,
       label: trans("settings.advanced"),

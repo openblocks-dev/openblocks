@@ -158,7 +158,6 @@ export type DateCompViewProps = Pick<
   | "secondStep"
   | "viewRef"
 > & {
-  onPanelChange: () => void;
   onFocus: () => void;
   onBlur: () => void;
   $style: DateTimeStyleType;
@@ -282,10 +281,9 @@ export const dateRangeControl = (function () {
           );
           props.onEvent("change");
         }}
-        onPanelChange={() => {
-          // mode[0] !== "date" && handleDateChange("", props.start.onChange, noop);
-          handleDateChange("", props.start.onChange, noop);
-          handleDateChange("", props.end.onChange, noop);
+        onPanelChange={(_, mode) => {
+          mode[0] !== "date" && handleDateChange("", props.start.onChange, noop);
+          mode[1] !== "date" && handleDateChange("", props.end.onChange, noop);
         }}
         onFocus={() => props.onEvent("focus")}
         onBlur={() => props.onEvent("blur")}
