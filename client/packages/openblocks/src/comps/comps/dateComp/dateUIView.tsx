@@ -17,6 +17,7 @@ const DatePickerStyled = styled(DatePicker)<{ $style: DateTimeStyleType }>`
 export interface DataUIViewProps extends DateCompViewProps {
   value: moment.Moment | null;
   onChange: (value: moment.Moment | null) => void;
+  onPanelChange: () => void;
 }
 
 const DateMobileUIView = React.lazy(() =>

@@ -24,6 +24,7 @@ export interface DateRangeUIViewProps extends DateCompViewProps {
   start: moment.Moment | null;
   end: moment.Moment | null;
   onChange: (start?: moment.Moment | null, end?: moment.Moment | null) => void;
+  onPanelChange: (value: any, mode: [string, string]) => void;
 }
 
 export const DateRangeUIView = (props: DateRangeUIViewProps) => {
