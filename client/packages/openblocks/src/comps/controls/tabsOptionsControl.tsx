@@ -45,6 +45,17 @@ const OptionTypes = [
     value: "map",
   },
 ] as const;
+const shapeOptions = [
+  {
+    label: trans("circle"),
+    value: "circle",
+  },
+  {
+    label: trans("square"),
+    value: "square",
+  },
+] as const;
+
 // All options must contain label
 type OptionChildType = { label: Comp<string> };
 type OptionsControlType = new (params: CompParams<any>) => MultiBaseComp<
@@ -323,6 +334,7 @@ const SelectInputOption = new MultiCompBuilder(
     value: StringControl,
     label: StringControl,
     image: StringControl,
+    imageShape: dropdownControl(shapeOptions, "circle"),
     disabled: BoolCodeControl,
     hidden: BoolCodeControl,
   },
@@ -336,6 +348,7 @@ const SelectInputOption = new MultiCompBuilder(
       })}
       {children.value.propertyView({ label: trans("value") })}
       {children.image.propertyView({ label: trans("imageUrl") })}
+      {children.imageShape.propertyView({ label: trans("imageShape") })}
       {disabledPropertyView(children)}
       {hiddenPropertyView(children)}
     </>
