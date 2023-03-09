@@ -4,7 +4,7 @@ import { MultiSelectStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
 import styled from "styled-components";
 import { arrayStringExposingStateControl } from "../../controls/codeStateControl";
-import { UICompBuilder, withDefault } from "../../generators";
+import { UICompBuilder } from "../../generators";
 import { PaddingControl } from "../../controls/paddingControl";
 import { MarginControl } from "../../controls/marginControl";
 import {
@@ -13,6 +13,7 @@ import {
   withExposingConfigs,
 } from "../../generators/withExposing";
 import {
+  baseSelectRefMethods,
   SelectChildrenMap,
   SelectPropertyView,
   SelectUIView,
@@ -22,7 +23,7 @@ import {
   useSelectInputValidate,
 } from "./selectInputConstants";
 
-export const MultiSelectBasicComp = (function () {
+const MultiSelectBasicComp = (function () {
   const childrenMap = {
     ...SelectChildrenMap,
     value: arrayStringExposingStateControl("value", ["1", "2"]),
@@ -53,6 +54,7 @@ export const MultiSelectBasicComp = (function () {
     });
   })
     .setPropertyViewFn((children) => <SelectPropertyView {...children} />)
+    .setExposeMethodConfigs(baseSelectRefMethods)
     .build();
 })();
 

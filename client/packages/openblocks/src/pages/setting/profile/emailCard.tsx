@@ -8,15 +8,19 @@ import React, { useState } from "react";
 import UserApi from "api/userApi";
 import { message } from "antd";
 import { validateResponse } from "api/apiUtils";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchUserAction } from "redux/reduxActions/userActions";
 import { trans } from "i18n";
+import { selectSystemConfig } from "redux/selectors/configSelectors";
 
 function EmailCard() {
   const [email, setEmail] = useState("");
   const dispatch = useDispatch();
+  const config = useSelector(selectSystemConfig);
+  const authId = config?.form.id;
+
   const bindEmail = (email: string) => {
-    UserApi.bindEmail({ email: email })
+    UserApi.bindEmail({ email: email, authId })
       .then((resp) => {
         if (validateResponse(resp)) {
           message.success(trans("profile.bindEmailSuccess"));

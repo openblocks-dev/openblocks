@@ -1,10 +1,11 @@
 import http from "http";
+import "./common/logger";
 import "express-async-errors";
 import express, { Response, Request, NextFunction } from "express";
-import morgan from "morgan";
 import routes from "./routes";
 import { ServiceError } from "./common/error";
 import path from "node:path";
+import morgan from "morgan";
 
 const prefix = "/node-service";
 
@@ -70,5 +71,5 @@ router.use((req, res, next) => {
 
 /** Server */
 const httpServer = http.createServer(router);
-const PORT: any = process.env.PORT ?? 6060;
-httpServer.listen(PORT, () => console.log(`The server is running on port ${PORT}`));
+const PORT = process.env.NODE_SERVICE_PORT ?? 6060;
+httpServer.listen(PORT, () => logger.info(`The server is running on port: ${PORT}`));

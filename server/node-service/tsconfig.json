@@ -1,4 +1,8 @@
 {
+  "ts-node": {
+    "files": true
+  },
+  "include": ["./src"],
   "compilerOptions": {
     "target": "es6",
     "lib": ["dom", "dom.iterable", "esnext"],

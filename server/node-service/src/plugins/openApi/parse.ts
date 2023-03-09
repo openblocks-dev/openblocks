@@ -13,10 +13,13 @@ import _ from "lodash";
 // @ts-ignore
 import SwaggerClient from "swagger-client";
 import {
+  appendCategories,
+  getOperationId,
   isOas3HttpMethods,
   isOas3RefObject,
   isSwagger2HttpMethods,
   isValidHttpMethods,
+  mergeCategories,
   specVersion,
 } from "./util";
 
@@ -115,12 +118,13 @@ export async function authParamsConfig(spec: OpenAPI.Document): Promise<DataSour
         configs.push(title, ...apiKeyAuthConfig(authName, schema));
       }
       if (schema.type === "http") {
-        const title = { ...groupTitle, label: "HTTP Basic Auth" };
         if (/^basic$/i.test(schema.scheme)) {
-          configs.push(...basicAuthConfig(authName, schema));
+          const title = { ...groupTitle, label: "HTTP Basic Auth" };
+          configs.push(title, ...basicAuthConfig(authName, schema));
         }
         if (/^bearer$/i.test(schema.scheme)) {
-          configs.push(...bearerBasicAuthConfig(authName, schema));
+          const title = { ...groupTitle, label: "Api Token Auth" };
+          configs.push(title, ...bearerBasicAuthConfig(authName, schema));
         }
       }
       if (schema.type === "oauth2") {
@@ -167,15 +171,49 @@ export const defaultParseOpenApiOptions: Required<ParseOpenApiOptions> = {
   },
 };
 
+interface OpenAPIParseResult {
+  actions: ActionConfig[];
+  categories: ActionCategory[];
+}
+
+export type MultiOpenApiSpecItem = {
+  spec: OpenAPI.Document | string;
+  id: string;
+};
+
+export async function parseMultiOpenApi(
+  specList: MultiOpenApiSpecItem[],
+  options?: Omit<ParseOpenApiOptions, "specId">
+): Promise<OpenAPIParseResult> {
+  const results = await Promise.all(
+    specList.map(({ id, spec }) => parseOpenApi(spec, options, id))
+  );
+  const reducedResults = results.reduce(
+    (a, b) => {
+      return {
+        actions: a.actions.concat(b.actions),
+        categories: mergeCategories(a.categories, b.categories),
+      };
+    },
+    { actions: [], categories: [] }
+  );
+  return reducedResults;
+}
+
 export async function parseOpenApi(
-  specJsonOrObj: any,
-  options?: ParseOpenApiOptions
-): Promise<{ actions: ActionConfig[]; categories: ActionCategory[] }> {
+  specJsonOrObj: OpenAPI.Document | string,
+  options?: ParseOpenApiOptions,
+  /**
+   * when parse multi open api this field is required.
+   * This will be used to ensure operationId is unique among all operations in all specs.
+   */
+  specId?: string
+): Promise<OpenAPIParseResult> {
   let spec = specJsonOrObj;
   if (typeof specJsonOrObj === "string") {
     spec = JSON.parse(specJsonOrObj);
   }
-  const openApiDoc = await SwaggerParser.dereference(spec);
+  const openApiDoc = await SwaggerParser.dereference(spec, { dereference: { circular: "ignore" } });
   const actions: ActionConfig[] = [];
   const categories: ActionCategory[] = [];
   if (!openApiDoc.paths) {
@@ -215,25 +253,39 @@ export async function parseOpenApi(
         return;
       }
 
-      const operation = (pathSpec as any)[httpMethod];
+      const operation = (pathSpec as any)[httpMethod] as OpenAPI.Operation;
       if (!operation) {
         return;
       }
 
-      const operationId: string = SwaggerClient.helpers.opId(operation, path, httpMethod);
+      const operationId: string = getOperationId(operation, path, httpMethod, specId);
       if (!operationId) {
         console.warn("can not get operationId:", operation);
         return;
+      }
+
+      const { tags } = operation;
+      if (tags) {
+        appendCategories(
+          categories,
+          tags.map((i) => ({ label: _.upperFirst(i), value: i }))
+        );
       }
 
       // params
       let params: ActionParamConfig[] = [];
 
       if (main === 2) {
-        params = parseSwagger2Operation(operation as OpenAPIV2.OperationObject);
+        params = parseSwagger2Operation(
+          operation as OpenAPIV2.OperationObject,
+          pathSpec as OpenAPIV2.PathItemObject
+        );
       }
       if (main === 3) {
-        params = parseOas3Operation(operation as OpenAPIV3.OperationObject);
+        params = parseOas3Operation(
+          operation as OpenAPIV3.OperationObject,
+          pathSpec as OpenAPIV3.PathItemObject
+        );
       }
       const action: ActionConfig = {
         category: operation.tags || "",

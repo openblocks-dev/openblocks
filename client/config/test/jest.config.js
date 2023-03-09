@@ -6,7 +6,9 @@ const globals = {};
 buildVars.forEach(({ name, defaultValue }) => {
   globals[name] = process.env[name] || defaultValue;
 });
-const isEE = process.env.REACT_APP_EDITION === "enterprise";
+const edition = process.env.REACT_APP_EDITION;
+const isEEGlobal = edition === "enterprise-global";
+const isEE = edition === "enterprise" || isEEGlobal;
 const dirname = currentDirName(import.meta.url);
 
 export default {

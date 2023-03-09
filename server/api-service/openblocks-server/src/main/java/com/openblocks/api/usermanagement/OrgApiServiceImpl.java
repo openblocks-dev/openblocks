@@ -20,7 +20,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 
-import com.openblocks.api.authentication.config.EnvAuthConfig;
 import com.openblocks.api.authentication.dto.OrganizationDomainCheckResult;
 import com.openblocks.api.bizthreshold.AbstractBizThresholdChecker;
 import com.openblocks.api.config.ConfigView;
@@ -30,9 +29,10 @@ import com.openblocks.api.usermanagement.view.OrgMemberListView.OrgMemberView;
 import com.openblocks.api.usermanagement.view.OrgView;
 import com.openblocks.api.usermanagement.view.UpdateOrgRequest;
 import com.openblocks.api.usermanagement.view.UpdateRoleRequest;
+import com.openblocks.domain.authentication.AuthenticationService;
+import com.openblocks.domain.authentication.FindAuthConfig;
 import com.openblocks.domain.group.service.GroupService;
 import com.openblocks.domain.organization.event.OrgMemberLeftEvent;
-import com.openblocks.domain.organization.model.EnterpriseConnectionConfig;
 import com.openblocks.domain.organization.model.MemberRole;
 import com.openblocks.domain.organization.model.OrgMember;
 import com.openblocks.domain.organization.model.Organization;
@@ -43,11 +43,13 @@ import com.openblocks.domain.organization.service.OrganizationService;
 import com.openblocks.domain.user.model.Connection;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.service.UserService;
+import com.openblocks.sdk.auth.AbstractAuthConfig;
 import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.config.CommonConfig.Workspace;
 import com.openblocks.sdk.constants.WorkspaceMode;
 import com.openblocks.sdk.exception.BizError;
 import com.openblocks.sdk.exception.BizException;
+import com.openblocks.sdk.util.UriUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -71,9 +73,9 @@ public class OrgApiServiceImpl implements OrgApiService {
     @Autowired
     private CommonConfig commonConfig;
     @Autowired
-    private EnvAuthConfig envAuthConfig;
-    @Autowired
     private GroupService groupService;
+    @Autowired
+    private AuthenticationService authenticationService;
 
     @Override
     public Mono<OrgMemberListView> getOrganizationMembers(String orgId, int page, int count) {
@@ -85,6 +87,7 @@ public class OrgApiServiceImpl implements OrgApiService {
 
     private Mono<OrgMemberListView> getOrgMemberListView(String orgId, int page, int count) {
         return orgMemberService.getOrganizationMembers(orgId, page, count)
+                .collectList()
                 .flatMap(orgMembers -> {
                     List<String> userIds = orgMembers.stream()
                             .map(OrgMember::getUserId)
@@ -95,6 +98,7 @@ public class OrgApiServiceImpl implements OrgApiService {
                             .map(orgMember -> {
                                 User user = map.get(orgMember.getUserId());
                                 if (user == null) {
+                                    log.warn("user {} not exist and will be removed from the result.", orgMember.getUserId());
                                     return null;
                                 }
                                 return build(user, orgMember);
@@ -281,24 +285,27 @@ public class OrgApiServiceImpl implements OrgApiService {
     }
 
     @Override
-    public Mono<OrganizationDomainCheckResult> checkOrganizationDomain(String requestDomain) {
+    public Mono<OrganizationDomainCheckResult> checkOrganizationDomain() {
         if (!commonConfig.isCloud()) {
             return Mono.just(OrganizationDomainCheckResult.success());
         }
         return sessionUserService.getVisitor()
-                .flatMap(user -> doCheckOrganizationDomain(user, requestDomain));
+                .flatMap(this::doCheckOrganizationDomain);
 
     }
 
-    private Mono<OrganizationDomainCheckResult> doCheckOrganizationDomain(User user, String requestDomain) {
+    private Mono<OrganizationDomainCheckResult> doCheckOrganizationDomain(User user) {
         if (user.isAnonymous()) {
             return Mono.just(OrganizationDomainCheckResult.success());
         }
+
         return sessionUserService.getVisitorOrgMemberCache()
                 .zipWhen(orgMember -> organizationService.getById(orgMember.getOrgId()))
+                .zipWith(UriUtils.getRefererDomainFromContext())
                 .flatMap(tuple -> {
-                    String userId = tuple.getT1().getUserId();
-                    Organization userCurrentOrg = tuple.getT2();
+                    String userId = tuple.getT1().getT1().getUserId();
+                    Organization userCurrentOrg = tuple.getT1().getT2();
+                    String currentRequestDomain = tuple.getT2();
                     String currentOrgDomain = Optional.ofNullable(userCurrentOrg.getOrganizationDomain())
                             .map(OrganizationDomain::getDomain)
                             .orElse(commonConfig.getDomain().getDefaultValue());
@@ -306,17 +313,17 @@ public class OrgApiServiceImpl implements OrgApiService {
                         return Mono.just(OrganizationDomainCheckResult.success());
                     }
                     // domain matches with org
-                    if (requestDomain.equalsIgnoreCase(currentOrgDomain)) {
+                    if (currentRequestDomain.equalsIgnoreCase(currentOrgDomain)) {
                         return Mono.just(OrganizationDomainCheckResult.success());
                     }
                     // domain do not match with org
-                    return dealWithMismatchDomain(requestDomain, userId, currentOrgDomain);
+                    return dealWithMismatchDomain(currentRequestDomain, userId, currentOrgDomain);
                 })
                 .defaultIfEmpty(OrganizationDomainCheckResult.success());
     }
 
     private Mono<OrganizationDomainCheckResult> dealWithMismatchDomain(String requestDomain, String userId, String currentOrgDomain) {
-        return organizationService.getByDomain(requestDomain)
+        return organizationService.getByDomain()
                 .flatMap(requestDomainOrg -> dealWithOrganizationDomain(userId, currentOrgDomain, requestDomainOrg))
                 .defaultIfEmpty(OrganizationDomainCheckResult.redirect(currentOrgDomain));
     }
@@ -349,18 +356,22 @@ public class OrgApiServiceImpl implements OrgApiService {
     }
 
     @Override
-    public Mono<ConfigView> getOrganizationConfigs(String domain) {
-        return organizationService.getByDomain(domain)
-                .map(Organization::getOrganizationDomain)
-                .cast(EnterpriseConnectionConfig.class)
-                .defaultIfEmpty(envAuthConfig)
-                .map(authConfig -> ConfigView.builder()
-                        .authConfigs(authConfig.getAuthConfigs())
-                        .isCloudHosting(commonConfig.isCloud())
-                        .workspaceMode(commonConfig.getWorkspace().getMode())
-                        .selfDomain(authConfig instanceof OrganizationDomain)
-                        .build()
-                );
+    public Mono<ConfigView> getOrganizationConfigs() {
+        return authenticationService.findAllAuthConfigs(true)
+                .map(FindAuthConfig::authConfig)
+                .collectList()
+                .zipWith(organizationService.getByDomain().hasElement())
+                .map(tuple -> {
+                    List<AbstractAuthConfig> authConfigs = tuple.getT1();
+                    Boolean hasSelfDomain = tuple.getT2();
+                    return ConfigView.builder()
+                            .authConfigs(authConfigs)
+                            .isCloudHosting(commonConfig.isCloud())
+                            .workspaceMode(commonConfig.getWorkspace().getMode())
+                            .selfDomain(hasSelfDomain)
+                            .cookieName(commonConfig.getCookieName())
+                            .build();
+                });
     }
 
     private Mono<Void> checkIfSaasMode() {

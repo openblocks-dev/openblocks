@@ -34,6 +34,7 @@ export interface CodeEditorProps extends CodeEditorControlParams {
 
   // extension
   exposingData?: Record<string, unknown>;
+  boostExposingData?: Record<string, unknown>;
   enableClickCompName?: boolean;
   onChange?: (state: EditorState) => void;
 

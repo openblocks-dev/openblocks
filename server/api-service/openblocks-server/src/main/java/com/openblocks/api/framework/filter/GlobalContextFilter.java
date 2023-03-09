@@ -12,13 +12,13 @@ import static com.openblocks.sdk.constants.GlobalContext.REQUEST_METHOD;
 import static com.openblocks.sdk.constants.GlobalContext.REQUEST_PATH;
 import static com.openblocks.sdk.constants.GlobalContext.VISITOR_ID;
 import static com.openblocks.sdk.constants.GlobalContext.VISITOR_TOKEN;
+import static com.openblocks.sdk.util.IDUtils.generate;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.UUID;
 
 import javax.annotation.Nonnull;
 
@@ -111,14 +111,14 @@ public class GlobalContextFilter implements WebFilter, Ordered {
         contextMap.put(CLIENT_LOCALE, globalContextService.getClientLocale(request));
         contextMap.put(CURRENT_ORG_MEMBER, orgMemberService.getCurrentOrgMember(visitorId).cache());
         contextMap.put(VISITOR_TOKEN, cookieHelper.getCookieToken(serverWebExchange));
-        contextMap.put(DOMAIN, UriUtils.getRefererDomain(serverWebExchange));
+        contextMap.put(DOMAIN, UriUtils.getRefererDomainFromRequest(serverWebExchange));
         return contextMap;
     }
 
     @SuppressWarnings("ConstantConditions")
     private String getOrCreateRequestId(final ServerHttpRequest request) {
         if (!request.getHeaders().containsKey(REQUEST_ID_HEADER)) {
-            request.mutate().header(REQUEST_ID_HEADER, UUID.randomUUID().toString()).build();
+            request.mutate().header(REQUEST_ID_HEADER, generate()).build();
         }
 
         return request.getHeaders().get(REQUEST_ID_HEADER).get(0);

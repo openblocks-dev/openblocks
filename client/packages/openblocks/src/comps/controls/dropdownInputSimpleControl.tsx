@@ -3,28 +3,34 @@ import { MultiCompBuilder } from "comps/generators";
 import { OptionsType, ValueFromOption } from "openblocks-design";
 import { ControlPlacement } from "./controlParams";
 import { dropdownControl } from "./dropdownControl";
-import { stringSimpleControl } from "./stringSimpleControl";
+import { numberSimpleControl } from "./numberSimpleControl";
+import { ReactNode } from "react";
 
 interface DropdownInputControlParams {
   dropdownLabel?: string;
   inputLabel?: string;
   inputPlaceholder?: string;
   placement?: ControlPlacement;
+  min?: number;
+  lastNode?: ReactNode;
+  labelStyle?: React.CSSProperties;
+  dropdownStyle?: React.CSSProperties;
+  inputStyle?: React.CSSProperties;
 }
 
 export function dropdownInputSimpleControl(
   options: OptionsType,
   userDefineValue: string,
   dropdownDefaultValue: ValueFromOption<OptionsType>,
-  inputDefaultValue?: string
+  inputDefaultValue?: number
 ) {
   const childrenMap = {
     dropdown: dropdownControl(options, dropdownDefaultValue),
-    input: stringSimpleControl(inputDefaultValue),
+    input: numberSimpleControl(inputDefaultValue),
   };
   const DropdownInputAbstractControl = new MultiCompBuilder(childrenMap, (props) => {
     const dropdownValue = props.dropdown;
-    return dropdownValue === userDefineValue ? props.input : dropdownValue;
+    return dropdownValue === userDefineValue ? props.input?.toString() : dropdownValue;
   })
     .setPropertyViewFn(() => <></>)
     .build();

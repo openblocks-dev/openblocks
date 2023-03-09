@@ -1,50 +1,39 @@
-function getCache(obj: any, fnName: string) {
-  return obj?.__cache?.[fnName];
-}
+type Cache = {
+  id: Symbol;
+  args: any[];
+  time: number;
+  result?: { value: any };
+};
 
-function createCache(obj: any, fnName: string, args: any[]) {
-  if (!obj.__cache) {
-    obj.__cache = {};
-  }
-  obj.__cache[fnName] = {
-    id: Symbol("id"),
-    args: args,
-    isInProgress: true,
-    time: Date.now(),
-  };
-  return getCache(obj, fnName);
-}
-
-function genCache(fn: (...args: any[]) => any, args: any[], thisObj: any, fnName: string) {
-  const cache = createCache(thisObj, fnName, args);
-
-  const value = fn.apply(thisObj, args);
-  cache.isInProgress = false;
-  cache.value = value;
-}
-
-function read(thisObj: any, fnName: string) {
-  const cache = getCache(thisObj, fnName);
-  return cache && cache.value;
-}
-
-function hitCache(
+function isEqualArgs(
   args: any[],
-  thisObj: any,
-  fnName: string,
+  cacheArgs?: any[],
   equals?: Array<(i1: any, i2: any) => boolean>
 ) {
-  const cache = getCache(thisObj, fnName);
-  if (!cache || !cache.args) return false;
-  if (args.length === 0 && cache.args.length === 0) return true;
-  return cache.args.every(
-    (arg: any, index: number) => equals?.[index]?.(arg, args[index]) ?? arg === args[index]
+  if (!cacheArgs) {
+    return false;
+  }
+  if (args.length === 0 && cacheArgs.length === 0) {
+    return true;
+  }
+  return (
+    args.length === cacheArgs.length &&
+    cacheArgs.every(
+      (arg: any, index: number) => equals?.[index]?.(arg, args[index]) ?? arg === args[index]
+    )
   );
 }
 
-function isCyclic(thisObj: any, fnName: string) {
-  const cache = getCache(thisObj, fnName);
-  return cache && cache.isInProgress;
+function getCacheResult(
+  thisObj: any,
+  fnName: string,
+  args: any[],
+  equals?: Array<(i1: any, i2: any) => boolean>
+) {
+  const cache: Cache | undefined = thisObj?.__cache?.[fnName];
+  if (cache && isEqualArgs(args, cache.args, equals)) {
+    return cache.result;
+  }
 }
 
 function cache(
@@ -54,10 +43,22 @@ function cache(
   fnName: string,
   equals?: Array<(i1: any, i2: any) => boolean>
 ) {
-  if (!hitCache(args, thisObj, fnName, equals) && !isCyclic(thisObj, fnName)) {
-    genCache(fn, args, thisObj, fnName);
+  const result = getCacheResult(thisObj, fnName, args, equals);
+  if (result) {
+    return result.value;
   }
-  return read(thisObj, fnName);
+  const cache: Cache = {
+    id: Symbol("id"),
+    args: args,
+    time: Date.now(),
+  };
+  if (!thisObj.__cache) {
+    thisObj.__cache = {};
+  }
+  thisObj.__cache[fnName] = cache;
+  const value = fn.apply(thisObj, args);
+  cache.result = { value };
+  return value;
 }
 
 export function memoized(equals?: Array<(i1: any, i2: any) => boolean>) {

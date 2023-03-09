@@ -1,6 +1,7 @@
 import numbro from "numbro";
 import Papa from "papaparse";
 import * as uuid from "uuid";
+import "virtual:globals";
 
 import * as styledNameExports from "styled-components";
 import styledDefault from "styled-components";
@@ -50,7 +51,7 @@ export * from "comps/utils/idGenerator";
 export * from "comps/utils/propertyUtils";
 export * from "comps/utils/globalSettings";
 export * from "comps/utils";
-export * from 'comps/utils/themeContext';
+export * from "comps/utils/themeContext";
 
 // design
 export * from "openblocks-design";

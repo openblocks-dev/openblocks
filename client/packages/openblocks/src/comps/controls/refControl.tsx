@@ -39,20 +39,18 @@ abstract class DoNothingComp<ViewReturn> extends AbstractComp<
   }
 }
 
-type RefType = { focus: () => void };
-
 /**
  * Only one ref is stored, and the internal ref is mutable.
  */
-export class RefControl extends DoNothingComp<any> {
-  viewRef: RefType | null = null;
+export class RefControl<T> extends DoNothingComp<any> {
+  viewRef: T | null = null;
 
   constructor(params: CompParams<EmptyDataType>) {
     super(params);
     this.setViewRef = this.setViewRef.bind(this);
   }
 
-  private setViewRef(viewRef: RefType | null) {
+  private setViewRef(viewRef: T | null) {
     this.viewRef = viewRef;
   }
 

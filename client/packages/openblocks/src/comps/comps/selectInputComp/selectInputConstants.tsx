@@ -13,6 +13,8 @@ import { requiredPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { useRef, useState } from "react";
 import { SelectInputOptionControl } from "../../controls/optionsControl";
+import { refMethods } from "comps/generators/withMethodExposing";
+import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 
 export const SelectInputValidationChildren = {
   required: BoolControl,
@@ -108,3 +110,5 @@ export const SelectInputCommonConfig = [
     func: (input) => input.options.find?.((o: any) => o.value === input.value)?.label,
   }),
 ];
+
+export const selectDivRefMethods = refMethods<HTMLDivElement>([focusWithOptions, blurMethod]);

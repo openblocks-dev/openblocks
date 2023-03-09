@@ -72,8 +72,15 @@ public interface QueryExecutor<ConnectionConfig extends DatasourceConnectionConf
      * <p>
      * should not override this method!
      */
-    default Mono<DatasourceStructure> doGetStructure(Connection connection) {
-        return getStructure(connection)
+    @SuppressWarnings("unchecked")
+    default Mono<DatasourceStructure> doGetStructure(Connection connection, DatasourceConnectionConfig datasourceConnectionConfig) {
+        ConnectionConfig connectionConfig;
+        try {
+            connectionConfig = (ConnectionConfig) datasourceConnectionConfig;
+        } catch (ClassCastException e) {
+            throw ofPluginException(PluginCommonError.INVALID_QUERY_SETTINGS, "DATASOURCE_GET_STRUCTURE_ERROR", e.getMessage());
+        }
+        return getStructure(connection, connectionConfig)
                 .onErrorMap(e -> {
                     if (e instanceof PluginException) {
                         return e;
@@ -82,7 +89,7 @@ public interface QueryExecutor<ConnectionConfig extends DatasourceConnectionConf
                 });
     }
 
-    default Mono<DatasourceStructure> getStructure(Connection connection) {
+    default Mono<DatasourceStructure> getStructure(Connection connection, ConnectionConfig connectionConfig) {
         return Mono.empty();
     }
 

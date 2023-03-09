@@ -27,7 +27,7 @@ import { RecordConstructorToView } from "openblocks-core";
 import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
 import { UICompBuilder, withDefault } from "../../generators";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
-import { MethodConfigFocus, withMethodExposing } from "../../generators/withMethodExposing";
+import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { RefControl } from "../../controls/refControl";
 import { styleControl } from "comps/controls/styleControl";
 import { InputLikeStyle, InputLikeStyleType } from "comps/controls/styleControlConstants";
@@ -41,6 +41,14 @@ import {
 import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
+import {
+  blurMethod,
+  clickMethod,
+  focusWithOptions,
+  selectMethod,
+  setRangeTextMethod,
+  setSelectionRangeMethod,
+} from "comps/utils/methodUtils";
 
 const getStyle = (style: InputLikeStyleType) => {
   return css`
@@ -225,7 +233,7 @@ const childrenMap = {
   thousandsSeparator: BoolControl.DEFAULT_TRUE, // Whether to display the thousand separator
   allowNull: BoolControl,
   onEvent: InputEventHandlerControl,
-  viewRef: RefControl,
+  viewRef: RefControl<HTMLInputElement>,
   style: styleControl(InputLikeStyle),
   prefixIcon: IconControl,
 
@@ -381,7 +389,17 @@ const NumberInputTmpComp = (function () {
     .build();
 })();
 
-const NumberInputTmp2Comp = withMethodExposing(NumberInputTmpComp, MethodConfigFocus);
+const NumberInputTmp2Comp = withMethodExposing(
+  NumberInputTmpComp,
+  refMethods([
+    focusWithOptions,
+    blurMethod,
+    clickMethod,
+    selectMethod,
+    setSelectionRangeMethod,
+    setRangeTextMethod,
+  ])
+);
 
 export const NumberInputComp = withExposingConfigs(NumberInputTmp2Comp, [
   depsConfig({

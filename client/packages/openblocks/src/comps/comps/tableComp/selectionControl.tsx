@@ -4,7 +4,8 @@ import { stateComp } from "comps/generators";
 import { MultiCompBuilder } from "comps/generators/multi";
 import { trans } from "i18n";
 import { changeChildAction, ConstructorToComp } from "openblocks-core";
-import { RecordType, TableOnEventView } from "./tableTypes";
+import { TableOnEventView } from "./tableTypes";
+import { OB_ROW_ORI_INDEX, RecordType } from "comps/comps/tableComp/tableUtils";
 
 const modeOptions = [
   {
@@ -25,7 +26,7 @@ const modeOptions = [
  * Currently use index as key
  */
 function getKey(record: RecordType) {
-  return record.index + "";
+  return record[OB_ROW_ORI_INDEX];
 }
 
 export function getSelectedRowKeys(

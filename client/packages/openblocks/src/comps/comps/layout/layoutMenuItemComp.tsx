@@ -1,5 +1,4 @@
 import { MultiBaseComp } from "openblocks-core";
-import { ModuleComp } from "comps/comps/moduleComp/moduleComp";
 import { BoolPureControl } from "comps/controls/boolControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { keyValueListControl } from "comps/controls/keyValueControl";
@@ -11,74 +10,13 @@ import {
   ToViewReturn,
 } from "comps/generators/multi";
 import { genRandomKey } from "comps/utils/idGenerator";
-import { AppTypeEnum } from "constants/applicationConstants";
-import { BranchDiv, Dropdown } from "openblocks-design";
+import { BranchDiv, Treediv } from "openblocks-design";
 import _ from "lodash";
-import { ReactNode, useEffect, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { normalAppListSelector } from "redux/selectors/applicationSelector";
+import { ReactNode } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { fetchAllApplications } from "redux/reduxActions/applicationActions";
-
-function AppSelectorPropertyView(props: {
-  onChange: (label: string, value: string) => void;
-  appId: string;
-}) {
-  const { appId, onChange } = props;
-  const apps = useSelector(normalAppListSelector);
-  const dispatch = useDispatch();
-  useEffect(() => {
-    if (apps.length <= 0) dispatch(fetchAllApplications({}));
-  }, [apps]);
-  const options = useMemo(
-    () =>
-      apps
-        .filter((app) => app.applicationType === AppTypeEnum.Application)
-        .map((app) => ({
-          label: app.name,
-          value: app.applicationId,
-        })),
-    [apps]
-  );
-  const valueLabelMap = useMemo(() => {
-    return new Map(options.map((o) => [o.value, o.label]));
-  }, [options]);
-
-  return (
-    <Dropdown
-      showSearch={true}
-      value={appId}
-      options={options}
-      label={trans("aggregation.chooseApp")}
-      onChange={(value) => {
-        onChange(valueLabelMap.get(value) || "", value);
-      }}
-    />
-  );
-}
-
-// @ts-ignore
-class AppSelectorControl extends ModuleComp {
-  getAppId() {
-    return this.children.appId.getView();
-  }
-
-  propertyView(param: { onChange: (label: string) => void }) {
-    return (
-      <AppSelectorPropertyView
-        appId={this.children.appId.getView()}
-        onChange={(label, value) => {
-          this.dispatchChangeValueAction({
-            appId: value,
-          });
-          param.onChange(label);
-        }}
-      />
-    );
-  }
-}
+import { AppSelectComp } from "comps/comps/layout/appSelectComp";
 
 const QueryHashList = withDefault(keyValueListControl(false, [], "string"), [
   { key: "", value: "" },
@@ -87,7 +25,7 @@ const QueryHashList = withDefault(keyValueListControl(false, [], "string"), [
 const childrenMap = {
   label: StringControl,
   hidden: BoolCodeControl,
-  app: AppSelectorControl,
+  app: AppSelectComp,
   icon: IconControl,
   hideWhenNoPermission: withDefault(BoolPureControl, true),
   queryParam: QueryHashList,
@@ -130,7 +68,7 @@ export class LayoutMenuItemComp extends MultiBaseComp<ChildrenType> {
             label: trans("aggregation.hideWhenNoPermission"),
           })}
         {isLeaf && (
-          <>
+          <Treediv>
             <BranchDiv>
               {this.children.queryParam.propertyView({
                 label: trans("aggregation.queryParam"),
@@ -143,7 +81,7 @@ export class LayoutMenuItemComp extends MultiBaseComp<ChildrenType> {
                 layout: "vertical",
               })}
             </BranchDiv>
-          </>
+          </Treediv>
         )}
       </>
     );

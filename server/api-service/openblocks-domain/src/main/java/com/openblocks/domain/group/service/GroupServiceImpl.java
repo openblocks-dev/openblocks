@@ -17,6 +17,7 @@ import com.openblocks.domain.group.repository.GroupRepository;
 import com.openblocks.domain.group.util.SystemGroups;
 import com.openblocks.domain.organization.model.MemberRole;
 import com.openblocks.infra.mongo.MongoUpsertHelper;
+import com.openblocks.infra.mongo.MongoUpsertHelper.PartialResourceWithId;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -113,5 +114,20 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Mono<Group> createAllUserGroup(String orgId) {
         return createSystemGroup(orgId, ALL_USER);
+    }
+
+    @Override
+    public Mono<Boolean> bulkCreateSyncGroup(Collection<Group> groups) {
+        return repository.saveAll(groups).hasElements();
+    }
+
+    @Override
+    public Flux<Group> getAllGroupsBySource(String orgId, String source) {
+        return repository.findBySourceAndOrganizationId(source, orgId);
+    }
+
+    @Override
+    public Mono<Boolean> bulkUpdateGroup(Collection<PartialResourceWithId<Group>> groups) {
+        return mongoUpsertHelper.bulkUpdate(groups);
     }
 }

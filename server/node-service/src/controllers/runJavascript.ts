@@ -37,7 +37,7 @@ async function evalJs(req: EvalRequest, cookie?: string): Promise<EvalResult> {
       if (data.success) {
         return Promise.resolve(data.data);
       }
-      return Promise.reject(`API failed. code:${data.code} message:${data.message}`);
+      return Promise.reject(new Error(`API failed. code:${data.code} message:${data.message}`));
     });
   try {
     return { result: await evalFunc(req.jsCode || "", { ...req.context, runQueryLibrary }) };

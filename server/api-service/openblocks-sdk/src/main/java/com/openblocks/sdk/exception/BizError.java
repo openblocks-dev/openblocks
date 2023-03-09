@@ -96,6 +96,9 @@ public enum BizError {
     AUTH_ERROR(400, 5614),
     AUTH_REFRESH_ERROR(400, 5615),
     LOGIN_EXPIRED(401, 5616),
+    DISABLE_AUTH_CONFIG_FORBIDDEN(403, 5617),
+    USER_NOT_EXIST(400, 5618),
+    JWT_NOT_FIND(400, 5619),
 
 
     // asset related, code range 5700 - 5799

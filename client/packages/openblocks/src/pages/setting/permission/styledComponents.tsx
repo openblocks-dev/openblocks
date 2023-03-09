@@ -2,11 +2,13 @@ import { Popover, Table as AntdTable } from "antd";
 import {
   CustomModal,
   LockIcon,
+  ManualIcon,
   PointIcon,
   QuestionIcon,
   SuspensionBox,
   TacoButton,
   Tooltip,
+  WarnIcon,
   WhiteLoading,
 } from "openblocks-design";
 import styled from "styled-components";
@@ -32,7 +34,7 @@ export const StyledTable = styled(AntdTable)`
 
   .ant-table-thead > tr > th {
     padding: 8px 0;
-    height: 30px;
+    height: 36px;
 
     font-size: 14px;
     color: #8b8fa3;
@@ -131,7 +133,8 @@ export const UserTableCellWrapper = styled.div`
 
 export const PermissionHeaderWrapper = styled.div`
   display: flex;
-  margin: 0 12px 6px 12px;
+  margin: 0 12px 15px 12px;
+  height: 32px;
 
   .ant-typography {
     display: flex;
@@ -214,6 +217,8 @@ export function GroupNameView(props: {
   lock?: boolean;
   toolTip?: string | false;
   suffix?: React.ReactNode;
+  warn?: boolean;
+  syncGroup?: boolean;
 }) {
   return (
     <GroupNameWrapper>
@@ -221,6 +226,16 @@ export function GroupNameView(props: {
       {props.lock && <LockIcon />}
       {props.toolTip && <QuestionTooltip title={props.toolTip} />}
       {props.suffix}
+      {props.warn && (
+        <Tooltip title={trans("memberSettings.syncDeleteTip")}>
+          <WarnIcon />
+        </Tooltip>
+      )}
+      {props.syncGroup && !props.warn && (
+        <Tooltip title={trans("memberSettings.syncGroupTip")}>
+          <ManualIcon />
+        </Tooltip>
+      )}
     </GroupNameWrapper>
   );
 }
@@ -230,7 +245,7 @@ export const LAST_ADMIN_QUIT = trans("memberSettings.lastAdminQuit");
 export const QuestionTooltip = (props: { title: string }) => {
   return (
     <Tooltip title={props.title}>
-      <QuestionIcon />
+      <QuestionIcon style={{ marginLeft: "2px" }} />
     </Tooltip>
   );
 };
@@ -253,7 +268,7 @@ export const HeaderBack = styled.div`
     font-size: 20px;
   }
 
-  svg {
+  > svg {
     margin: 0 8px;
   }
 `;

@@ -1,17 +1,13 @@
 import { BoolControl } from "comps/controls/boolControl";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl, HorizontalAlignmentControl } from "comps/controls/dropdownControl";
-import {
-  MultiCompBuilder,
-  stateComp,
-  valueComp,
-  withDefault,
-  withParamsForMap,
-} from "comps/generators";
+import { MultiCompBuilder, stateComp, valueComp } from "comps/generators";
+import { withSelectedMultiContext } from "comps/generators/withSelectedMultiContext";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { trans } from "i18n";
 import _ from "lodash";
 import {
+  changeChildAction,
   changeValueAction,
   ConstructorToComp,
   ConstructorToDataType,
@@ -21,17 +17,13 @@ import {
   fromRecord,
   multiChangeAction,
   withFunction,
+  wrapChildAction,
 } from "openblocks-core";
 import { AlignClose, AlignLeft, AlignRight } from "openblocks-design";
 import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
 
 export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;
-export const RenderComp = withParamsForMap(ColumnTypeComp, [
-  "currentCell",
-  "currentRow",
-  "currentIndex",
-  "currentOriginalIndex",
-] as const);
+export const RenderComp = withSelectedMultiContext(ColumnTypeComp);
 
 const columnWidthOptions = [
   {
@@ -100,7 +92,7 @@ const ColumnInitComp = new MultiCompBuilder(columnChildrenMap, (props, dispatch)
 export class ColumnComp extends ColumnInitComp {
   override getView() {
     const superView = super.getView();
-    const columnType = this.children.render.getOriginalComp().getComp().children.compType.getView();
+    const columnType = this.children.render.getSelectedComp().getComp().children.compType.getView();
     return {
       ...superView,
       editable: ColumnTypeCompMap[columnType].canBeEditable() && superView.editable,
@@ -108,30 +100,27 @@ export class ColumnComp extends ColumnInitComp {
   }
 
   exposingNode() {
-    const titleNode = this.children.title.exposingNode();
     const dataIndexNode = this.children.dataIndex.exposingNode();
 
     const renderNode = withFunction(this.children.render.node(), (render) => ({
       wrap: render.__comp__.wrap,
       map: _.mapValues(render.__map__, (value) => value.comp),
-      length: _.size(this.children.render.getView()),
     }));
     return fromRecord({
-      title: titleNode,
       dataIndex: dataIndexNode,
       render: renderNode,
     });
   }
 
   propertyView(key: string) {
-    const columnType = this.children.render.getOriginalComp().getComp().children.compType.getView();
+    const columnType = this.children.render.getSelectedComp().getComp().children.compType.getView();
     return (
       <>
         {this.children.title.propertyView({
           label: trans("table.columnTitle"),
         })}
         {/* FIXME: cast type currently, return type of withContext should be corrected later */}
-        {this.children.render.propertyView(key)}
+        {this.children.render.getPropertyView()}
         {ColumnTypeCompMap[columnType].canBeEditable() &&
           this.children.editable.propertyView({ label: trans("table.editable") })}
         {this.children.sortable.propertyView({
@@ -160,17 +149,24 @@ export class ColumnComp extends ColumnInitComp {
 
   getChangeSet() {
     const dataIndex = this.children.dataIndex.getView();
-    const changeSet = _.mapValues(this.children.render.getView(), (value) =>
+    const changeSet = _.mapValues(this.children.render.getMap(), (value) =>
       value.getComp().children.comp.children.changeValue.getView()
     );
     return { [dataIndex]: changeSet };
   }
 
   dispatchClearChangeSet() {
-    this.children.render
-      .getOriginalComp()
-      .getComp()
-      .children.comp.children.changeValue.dispatch(deferAction(changeValueAction(null)));
+    this.children.render.dispatch(
+      deferAction(
+        RenderComp.forEachAction(
+          wrapChildAction("comp", wrapChildAction("comp", changeChildAction("changeValue", null)))
+        )
+      )
+    );
+  }
+
+  static setSelectionAction(key: string) {
+    return wrapChildAction("render", RenderComp.setSelectionAction(key));
   }
 }
 
@@ -194,6 +190,7 @@ export function newCustomColumn(): ConstructorToDataType<typeof ColumnComp> {
  */
 export function newPrimaryColumn(
   key: string,
+  width: number,
   title?: string,
   isTag?: boolean
 ): ConstructorToDataType<typeof ColumnComp> {
@@ -201,6 +198,8 @@ export function newPrimaryColumn(
     title: title ?? key,
     dataIndex: key,
     isCustom: false,
+    autoWidth: "fixed",
+    width: width + "",
     render: { compType: isTag ? "tag" : "text", comp: { text: "{{currentCell}}" } },
   };
 }

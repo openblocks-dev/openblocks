@@ -31,6 +31,8 @@ export type OrgGroup = {
   createTime?: string;
   visitorRole?: string;
   dynamicRule?: string;
+  syncDelete?: boolean;
+  syncGroup?: boolean;
 };
 
 // user info in group
@@ -48,9 +50,6 @@ export type Org = {
   id: string;
   name: string;
   logoUrl?: string;
-  contactName?: string;
-  contactEmail?: string;
-  contactPhoneNumber?: string;
   createdBy: string;
   commonSettings: CommonSettingResponseData;
   createTime?: string;

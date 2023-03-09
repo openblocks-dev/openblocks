@@ -9,16 +9,17 @@ const Wrapper = styled.div`
   border-right: 1px solid #f0f0f0;
   box-sizing: border-box;
   border-radius: 2px;
-  padding: 32px 16px 0 16px;
+  padding: 26px 16px 0 16px;
 
   h2 {
     font-weight: 500;
     font-size: 20px;
     color: #222222;
-    margin: 0 0 20px 12px;
+    margin: 0 0 20px 20px;
   }
   .ant-menu-inline .ant-menu-item {
     margin: 4px 0;
+    padding: 10px 20px !important;
   }
   .ant-menu-item:hover, .ant-menu-item-selected {
     border-radius: 4px;

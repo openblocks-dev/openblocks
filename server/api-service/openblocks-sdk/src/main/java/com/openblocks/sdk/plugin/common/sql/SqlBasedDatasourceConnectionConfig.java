@@ -2,21 +2,28 @@ package com.openblocks.sdk.plugin.common.sql;
 
 import static com.openblocks.sdk.exception.BizError.INVALID_DATASOURCE_CONFIG_TYPE;
 import static com.openblocks.sdk.util.ExceptionUtils.ofException;
+import static org.apache.commons.collections4.MapUtils.emptyIfNull;
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.openblocks.sdk.config.SerializeConfig.JsonViews;
+import com.openblocks.sdk.exception.ServerException;
 import com.openblocks.sdk.models.DatasourceConnectionConfig;
 
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Getter
+@SuperBuilder
 public abstract class SqlBasedDatasourceConnectionConfig implements DatasourceConnectionConfig {
 
     private final String database;
@@ -34,9 +41,12 @@ public abstract class SqlBasedDatasourceConnectionConfig implements DatasourceCo
 
     private final boolean enableTurnOffPreparedStatement;
 
+    private final Map<String, Object> extParams;
+
     protected SqlBasedDatasourceConnectionConfig(String database, String username, String password, String host, Long port,
             boolean usingSsl, String serverTimezone, boolean isReadonly,
-            boolean enableTurnOffPreparedStatement) {
+            boolean enableTurnOffPreparedStatement,
+            Map<String, Object> extParams) {
         this.database = database;
         this.username = username;
         this.password = password;
@@ -46,6 +56,7 @@ public abstract class SqlBasedDatasourceConnectionConfig implements DatasourceCo
         this.serverTimezone = serverTimezone;
         this.isReadonly = isReadonly;
         this.enableTurnOffPreparedStatement = enableTurnOffPreparedStatement;
+        this.extParams = extParams;
     }
 
     protected abstract long defaultPort();
@@ -86,8 +97,12 @@ public abstract class SqlBasedDatasourceConnectionConfig implements DatasourceCo
         return enableTurnOffPreparedStatement;
     }
 
+    public Map<String, Object> getExtParams() {
+        return emptyIfNull(extParams);
+    }
+
     @Override
-    public final DatasourceConnectionConfig mergeWithUpdatedConfig(DatasourceConnectionConfig updatedDatasourceConnectionConfig) {
+    public DatasourceConnectionConfig mergeWithUpdatedConfig(DatasourceConnectionConfig updatedDatasourceConnectionConfig) {
         if (!(updatedDatasourceConnectionConfig instanceof SqlBasedDatasourceConnectionConfig updatedConfig)) {
             throw ofException(INVALID_DATASOURCE_CONFIG_TYPE, "INVALID_DATASOURCE_CONFIG_TYPE",
                     updatedDatasourceConnectionConfig.getClass().getSimpleName());
@@ -102,13 +117,22 @@ public abstract class SqlBasedDatasourceConnectionConfig implements DatasourceCo
                 updatedConfig.isUsingSsl(),
                 updatedConfig.getServerTimezone(),
                 updatedConfig.isReadonly(),
-                updatedConfig.isEnableTurnOffPreparedStatement()
+                updatedConfig.isEnableTurnOffPreparedStatement(),
+                updatedConfig.getExtParams()
         );
     }
 
-    protected abstract DatasourceConnectionConfig createMergedConnectionConfig(String database, String username, String password, String host,
-            long port,
-            boolean usingSsl, String serverTimezone, boolean readonly, boolean enableTurnOffPreparedStatement);
+    private DatasourceConnectionConfig createMergedConnectionConfig(String database, String username, String password, String host,
+            long port, boolean usingSsl, String serverTimezone, boolean readonly, boolean enableTurnOffPreparedStatement,
+            Map<String, Object> extParams) {
+        Constructor<?>[] constructors = getClass().getConstructors();
+        try {
+            return (DatasourceConnectionConfig) constructors[0].newInstance(database, username, password,
+                    host, port, usingSsl, serverTimezone, readonly, enableTurnOffPreparedStatement, extParams);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new ServerException("fail to create SQL data source: {0}", e.getMessage());
+        }
+    }
 
     @Override
     public final DatasourceConnectionConfig doEncrypt(Function<String, String> encryptFunc) {

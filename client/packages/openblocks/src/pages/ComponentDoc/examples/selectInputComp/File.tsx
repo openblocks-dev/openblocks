@@ -1,4 +1,4 @@
-import { FileComp } from "comps/comps/fileComp";
+import { FileComp } from "comps/comps/fileComp/fileComp";
 import { trans } from "i18n";
 import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";

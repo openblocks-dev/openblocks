@@ -117,10 +117,13 @@ const Wrapper = styled.div`
   background: transparent !important;
 `;
 
-function formatDate(date: string, format: string) {
-  let mom = moment(date, DateParser);
+export function formatDate(date: string, format: string) {
+  let mom = moment(date);
   if (!mom.isValid()) {
-    mom = moment(0, DateParser);
+    mom = moment.utc(date, DateParser).local();
+    if (!mom.isValid()) {
+      mom = moment(0);
+    }
   }
   return mom.isValid() ? mom.format(format) : "";
 }
@@ -132,13 +135,14 @@ const childrenMap = {
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
 
-type DateTimeEditProps = {
+type DateEditProps = {
   value: string;
   onChange: (value: string) => void;
   onChangeEnd: () => void;
+  showTime: boolean;
 };
 
-const DateTimeEdit = (props: DateTimeEditProps) => {
+export const DateEdit = (props: DateEditProps) => {
   const [panelOpen, setPanelOpen] = useState(true);
   let value = moment(props.value, DateParser);
   if (!value.isValid()) {
@@ -163,7 +167,7 @@ const DateTimeEdit = (props: DateTimeEditProps) => {
         bordered={false}
         autoFocus
         defaultValue={value}
-        showTime
+        showTime={props.showTime}
         showNow={true}
         defaultOpen={true}
         panelRender={(panelNode) => <StylePanel>{panelNode}</StylePanel>}
@@ -180,7 +184,7 @@ const DateTimeEdit = (props: DateTimeEditProps) => {
   );
 };
 
-export const DateTimeComp = (function () {
+export const DateComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
@@ -191,7 +195,12 @@ export const DateTimeComp = (function () {
     getBaseValue
   )
     .setEditViewFn((props) => (
-      <DateTimeEdit value={props.value} onChange={props.onChange} onChangeEnd={props.onChangeEnd} />
+      <DateEdit
+        value={props.value}
+        onChange={props.onChange}
+        onChangeEnd={props.onChangeEnd}
+        showTime={false}
+      />
     ))
     .setPropertyViewFn((children) => (
       <>

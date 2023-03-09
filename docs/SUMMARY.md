@@ -40,6 +40,9 @@
   * [Custom component](build-apps/component-guides/custom-component.md)
   * [Use Markdown](build-apps/component-guides/use-markdown.md)
 * [Module](build-apps/module.md)
+* [Design app UI](build-apps/design-app-ui/README.md)
+  * [Style, theme, and usability](build-apps/design-app-ui/style-theme-and-usability.md)
+  * [Design an efficient and user-friendly form](build-apps/design-app-ui/design-an-efficient-and-user-friendly-form.md)
 * [Navigation](build-apps/navigation.md)
 * [Version and release management](build-apps/version-and-release-management.md)
 

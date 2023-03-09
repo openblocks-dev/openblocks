@@ -15,6 +15,7 @@ import org.springframework.data.redis.core.ReactiveValueOperations;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.openblocks.api.usermanagement.UserApiService;
 import com.openblocks.domain.organization.model.OrgMember;
 import com.openblocks.domain.organization.service.OrgMemberService;
 import com.openblocks.domain.user.model.User;
@@ -35,6 +36,8 @@ public class SessionUserServiceImpl implements SessionUserService {
     private UserService userService;
     @Autowired
     private OrgMemberService orgMemberService;
+    @Autowired
+    private UserApiService userApiService;
 
     @Autowired
     private ReactiveRedisTemplate<String, String> reactiveTemplate;
@@ -85,10 +88,11 @@ public class SessionUserServiceImpl implements SessionUserService {
     }
 
     @Override
-    public Mono<Void> saveUserSession(String token, User user) {
-        ReactiveValueOperations<String, String> ops = getRedisOps();
+    public Mono<Void> saveUserSession(String token, User user, String source) {
+        ReactiveValueOperations<String, String> ops = reactiveTemplate.opsForValue();
         return ops.set(token, Objects.requireNonNull(user.getId()), getTokenExpireTime())
-                .then();
+                .then(userApiService.removeInvalidTokens(user.getId()))
+                .then(userApiService.saveToken(user.getId(), source, token));
     }
 
     @Override
@@ -113,9 +117,10 @@ public class SessionUserServiceImpl implements SessionUserService {
         if (StringUtils.isBlank(token)) {
             return Mono.empty();
         }
-        ReactiveValueOperations<String, String> ops = getRedisOps();
-        return ops.delete(token)
-                .then();
+        ReactiveValueOperations<String, String> ops = reactiveTemplate.opsForValue();
+        return ops.get(token)
+                .delayUntil(__ -> ops.delete(token))
+                .flatMap(userId -> userApiService.removeToken(userId, token));
     }
 
     @Override
@@ -123,7 +128,7 @@ public class SessionUserServiceImpl implements SessionUserService {
         if (StringUtils.isBlank(token)) {
             return Mono.empty();
         }
-        return getRedisOps().get(token)
+        return reactiveTemplate.opsForValue().get(token)
                 .flatMap(value -> {
                     User user = fromJsonQuietly(value, User.class);
                     if (user == null) {
@@ -135,8 +140,9 @@ public class SessionUserServiceImpl implements SessionUserService {
                 .filter(user -> user.getState() != UserState.DELETED);
     }
 
-    private ReactiveValueOperations<String, String> getRedisOps() {
-        return reactiveTemplate.opsForValue();
+    @Override
+    public Mono<Boolean> tokenExist(String token) {
+        return reactiveTemplate.hasKey(token);
     }
 }
 

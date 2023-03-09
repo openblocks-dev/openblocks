@@ -6,12 +6,14 @@ import java.util.Map;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.server.ServerWebExchange;
 
-import com.openblocks.domain.user.model.AuthorizedUser;
+import com.openblocks.domain.user.model.AuthUser;
 import com.openblocks.domain.user.model.Connection;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.domain.user.model.UserDetail;
 import com.openblocks.infra.annotation.NonEmptyMono;
+import com.openblocks.infra.mongo.MongoUpsertHelper.PartialResourceWithId;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface UserService {
@@ -31,17 +33,15 @@ public interface UserService {
 
     Mono<Boolean> bindEmail(User user, String email);
 
-    Mono<User> findByAuthUser(AuthorizedUser authorizedUser);
+    Mono<User> findByAuthUser(AuthUser authUser);
 
-    Mono<User> createNewUserByAuthUser(AuthorizedUser authorizedUser);
+    Mono<User> createNewUserByAuthUser(AuthUser authUser);
 
     Mono<Void> getUserAvatar(ServerWebExchange exchange, String userId);
 
     Mono<Boolean> addNewConnection(String userId, Connection connection);
 
     Mono<Void> deleteProfilePhoto(User visitor);
-
-    Mono<User> register(String loginId, String password, String source);
 
     Mono<Boolean> updatePassword(String userId, String oldPassword, String newPassword);
 
@@ -52,5 +52,12 @@ public interface UserService {
     Mono<UserDetail> buildUserDetail(User user, boolean withoutDynamicGroups);
 
     Mono<Boolean> markUserDeletedAndInvalidConnectionsAtEnterpriseMode(String userId);
+
+    Flux<User> bulkCreateUser(Collection<User> users);
+
+    Mono<Void> bulkUpdateUser(Collection<PartialResourceWithId<User>> users);
+
+    Flux<User> findBySourceAndIds(String connectionSource, Collection<String> connectionSourceUuids);
+
 }
 

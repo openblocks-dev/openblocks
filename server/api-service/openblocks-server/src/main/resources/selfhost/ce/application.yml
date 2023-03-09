@@ -29,7 +29,7 @@ common:
   domain:
     default-value: openblocks.dev
   cloud: false
-  version: 1.1.4
+  version: 1.1.7
   block-hound-enable: false
   js-executor:
     host: ${JS_EXECUTOR_URI:http://127.0.0.1:6060}

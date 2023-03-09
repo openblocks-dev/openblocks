@@ -1,5 +1,8 @@
 import { Button } from "antd";
-import { ButtonCompWrapper } from "comps/comps/buttonComp/buttonCompConstants";
+import {
+  ButtonCompWrapper,
+  buttonRefMethods,
+} from "comps/comps/buttonComp/buttonCompConstants";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
@@ -9,7 +12,11 @@ import { migrateOldData } from "comps/generators/simpleGenerators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { Section, sectionNames } from "openblocks-design";
 import styled from "styled-components";
-import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
+import {
+  CommonNameConfig,
+  NameConfig,
+  withExposingConfigs,
+} from "../../generators/withExposing";
 import {
   hiddenPropertyView,
   disabledPropertyView,
@@ -20,8 +27,9 @@ import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { PaddingControl } from "../../controls/paddingControl";
 import { MarginControl } from "../../controls/marginControl";
+import { RefControl } from "comps/controls/refControl";
 
-const Link = styled(Button) <{ $style: LinkStyleType }>`
+const Link = styled(Button)<{ $style: LinkStyleType }>`
   ${(props) => `color: ${props.$style.text};`}
   &.ant-btn {
     display: inline-flex;
@@ -52,7 +60,7 @@ function fixOldData(oldData: any) {
   return oldData;
 }
 
-const LinkTmpComp = (function() {
+const LinkTmpComp = (function () {
   const childrenMap = {
     text: withDefault(StringControl, trans("link.link")),
     onEvent: ButtonEventHandlerControl,
@@ -63,13 +71,16 @@ const LinkTmpComp = (function() {
     suffixIcon: IconControl,
     margin: MarginControl,
     padding: PaddingControl,
+    viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => {
     // chrome86 bug: button children should not contain only empty span
-    const hasChildren = hasIcon(props.prefixIcon) || !!props.text || hasIcon(props.suffixIcon);
+    const hasChildren =
+      hasIcon(props.prefixIcon) || !!props.text || hasIcon(props.suffixIcon);
     return (
       <ButtonCompWrapper disabled={props.disabled}>
         <Link
+          ref={props.viewRef}
           $style={props.style}
           loading={props.loading}
           disabled={props.disabled}
@@ -88,9 +99,13 @@ const LinkTmpComp = (function() {
         >
           {hasChildren && (
             <span>
-              {hasIcon(props.prefixIcon) && <IconWrapper>{props.prefixIcon}</IconWrapper>}
+              {hasIcon(props.prefixIcon) && (
+                <IconWrapper>{props.prefixIcon}</IconWrapper>
+              )}
               {!!props.text && props.text}
-              {hasIcon(props.suffixIcon) && <IconWrapper>{props.suffixIcon}</IconWrapper>}
+              {hasIcon(props.suffixIcon) && (
+                <IconWrapper>{props.suffixIcon}</IconWrapper>
+              )}
             </span>
           )}
         </Link>
@@ -111,12 +126,18 @@ const LinkTmpComp = (function() {
           </Section>
 
           <Section name={sectionNames.layout}>
-            {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-            {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+            {children.prefixIcon.propertyView({
+              label: trans("button.prefixIcon"),
+            })}
+            {children.suffixIcon.propertyView({
+              label: trans("button.suffixIcon"),
+            })}
             {hiddenPropertyView(children)}
           </Section>
 
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
           <Section name={trans("style.margin")}>
             {children.margin.getPropertyView()}
           </Section>
@@ -126,6 +147,7 @@ const LinkTmpComp = (function() {
         </>
       );
     })
+    .setExposeMethodConfigs(buttonRefMethods)
     .build();
 })();
 

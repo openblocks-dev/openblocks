@@ -18,6 +18,7 @@ import { HomeRes } from "./HomeLayout";
 import { HomeResOptions } from "./HomeResOptions";
 import { MoveToFolderModal } from "./MoveToFolderModal";
 import { trans } from "../../i18n";
+import { useParams } from "react-router-dom";
 
 const OperationWrapper = styled.div`
   display: flex;
@@ -50,6 +51,8 @@ const TypographyText = styled(Typography.Text)`
 
 export const HomeTableView = (props: { resources: HomeRes[] }) => {
   const dispatch = useDispatch();
+
+  const { folderId } = useParams<{ folderId: string }>();
 
   const [needRenameRes, setNeedRenameRes] = useState<HomeRes | undefined>(undefined);
   const [needDuplicateRes, setNeedDuplicateRes] = useState<HomeRes | undefined>(undefined);
@@ -116,7 +119,13 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
                         if (item.type === HomeResTypeEnum.Folder) {
                           dispatch(updateFolder({ id: item.id, name: value }));
                         } else {
-                          dispatch(updateAppMetaAction(item.id, value));
+                          dispatch(
+                            updateAppMetaAction({
+                              applicationId: item.id,
+                              name: value,
+                              folderId: folderId,
+                            })
+                          );
                         }
                         setNeedRenameRes(undefined);
                       },

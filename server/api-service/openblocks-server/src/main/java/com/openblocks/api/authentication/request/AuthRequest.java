@@ -1,7 +1,8 @@
 package com.openblocks.api.authentication.request;
 
-import com.openblocks.domain.user.model.AuthorizedUser;
-import com.openblocks.domain.user.model.ConnectionAuthToken;
+import com.openblocks.domain.authentication.context.AuthRequestContext;
+import com.openblocks.domain.user.model.AuthToken;
+import com.openblocks.domain.user.model.AuthUser;
 
 import reactor.core.publisher.Mono;
 
@@ -10,9 +11,9 @@ import reactor.core.publisher.Mono;
  */
 public interface AuthRequest {
 
-    Mono<AuthorizedUser> auth(AuthRequestContext authRequestContext);
+    Mono<AuthUser> auth(AuthRequestContext authRequestContext);
 
-    default Mono<ConnectionAuthToken> refresh(ConnectionAuthToken old) {
+    default Mono<AuthToken> refresh(String refreshToken) {
         return Mono.error(new UnsupportedOperationException());
     }
 }

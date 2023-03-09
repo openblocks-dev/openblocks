@@ -1,4 +1,3 @@
-
 import {
   Comp,
   CompAction,
@@ -45,17 +44,6 @@ const OptionTypes = [
     value: "map",
   },
 ] as const;
-const shapeOptions = [
-  {
-    label: trans("circle"),
-    value: "circle",
-  },
-  {
-    label: trans("square"),
-    value: "square",
-  },
-] as const;
-
 // All options must contain label
 type OptionChildType = { label: Comp<string> };
 type OptionsControlType = new (params: CompParams<any>) => MultiBaseComp<
@@ -70,6 +58,16 @@ type OptionControlParam = {
   // The new option's label name
   newOptionLabel?: string;
 };
+const shapeOptions = [
+  {
+    label: trans("circle"),
+    value: "circle",
+  },
+  {
+    label: trans("square"),
+    value: "square",
+  },
+] as const;
 // Add dataIndex to each comp, required for drag and drop sorting
 function withDataIndex<T extends OptionsControlType>(VariantComp: T) {
   // @ts-ignore
@@ -348,7 +346,6 @@ const SelectInputOption = new MultiCompBuilder(
       })}
       {children.value.propertyView({ label: trans("value") })}
       {children.image.propertyView({ label: trans("imageUrl") })}
-      {children.imageShape.propertyView({ label: trans("imageShape") })}
       {disabledPropertyView(children)}
       {hiddenPropertyView(children)}
     </>
@@ -356,8 +353,8 @@ const SelectInputOption = new MultiCompBuilder(
   .build();
 export const SelectInputOptionControl = optionsControl(SelectInputOption, {
   initOptions: [
-    { label: trans("optionsControl.option1"), value: "1" },
-    { label: trans("optionsControl.option2"), value: "2" },
+    { label: trans("optionsControl.optionI", { i: 1 }), value: "1" },
+    { label: trans("optionsControl.optionI", { i: 2 }), value: "2" },
   ],
   uniqField: "value",
 });
@@ -384,8 +381,8 @@ const DropdownOption = new MultiCompBuilder(
   .build();
 export const DropdownOptionControl = optionsControl(DropdownOption, {
   initOptions: [
-    { label: trans("optionsControl.option1") },
-    { label: trans("optionsControl.option2") },
+    { label: trans("optionsControl.optionI", { i: 1 }) },
+    { label: trans("optionsControl.optionI", { i: 2 }) },
   ],
 });
 const TabsOption = new MultiCompBuilder(
@@ -413,4 +410,3 @@ export const TabsOptionControl = manualOptionsControl(TabsOption, {
   uniqField: "key",
   autoIncField: "id",
 });
-

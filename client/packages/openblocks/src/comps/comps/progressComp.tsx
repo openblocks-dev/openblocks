@@ -33,7 +33,7 @@ const getStyle = (style: ProgressStyleType) => {
   `;
 };
 
-const ProgressStyled = styled(Progress)<{ $style: ProgressStyleType }>`
+export const ProgressStyled = styled(Progress)<{ $style: ProgressStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
@@ -45,7 +45,11 @@ const ProgressBasicComp = (function () {
   };
   return new UICompBuilder(childrenMap, (props) => {
     return (
-      <ProgressStyled percent={props.value.value} showInfo={props.showInfo} $style={props.style} />
+      <ProgressStyled
+        percent={Math.round(props.value.value)}
+        showInfo={props.showInfo}
+        $style={props.style}
+      />
     );
   })
     .setPropertyViewFn((children) => {

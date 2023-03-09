@@ -41,7 +41,6 @@ import static com.openblocks.sdk.util.MustacheHelper.renderMustacheString;
 import static com.openblocks.sdk.util.StreamUtils.collectList;
 import static org.apache.commons.collections4.MapUtils.emptyIfNull;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-import static org.springframework.web.reactive.function.client.WebClient.builder;
 
 import java.io.IOException;
 import java.net.URI;
@@ -61,6 +60,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.internal.Base64;
@@ -88,6 +88,7 @@ import com.openblocks.plugin.restapi.helpers.BufferingFilter;
 import com.openblocks.plugin.restapi.model.QueryBody;
 import com.openblocks.plugin.restapi.model.RestApiQueryConfig;
 import com.openblocks.plugin.restapi.model.RestApiQueryExecutionContext;
+import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.models.Property;
 import com.openblocks.sdk.models.QueryExecutionResult;
@@ -101,7 +102,7 @@ import com.openblocks.sdk.plugin.restapi.auth.AuthConfig;
 import com.openblocks.sdk.plugin.restapi.auth.BasicAuthConfig;
 import com.openblocks.sdk.plugin.restapi.auth.RestApiAuthType;
 import com.openblocks.sdk.query.QueryVisitorContext;
-import com.openblocks.sdk.webclient.WebClients;
+import com.openblocks.sdk.webclient.WebClientBuildHelper;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -114,12 +115,17 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
     private static final String DEFAULT_REST_ERROR_CODE = "REST_API_EXECUTION_ERROR";
     private static final int MAX_REDIRECTS = 7;
     private final DataUtils dataUtils = DataUtils.getInstance();
+    private final CommonConfig commonConfig;
 
     // Set an unlimited buffer size, because query payload limit will be handled in webFilter
     private final ExchangeStrategies exchangeStrategies = ExchangeStrategies
             .builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(-1))
             .build();
+
+    public RestApiExecutor(CommonConfig commonConfig) {
+        this.commonConfig = commonConfig;
+    }
 
     @Override
     public RestApiQueryExecutionContext buildQueryExecutionContext(RestApiDatasourceConfig datasourceConfig,
@@ -231,7 +237,10 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
 
         return Mono.defer(() -> authByOauth2InheritFromLogin(context))
                 .then(Mono.defer(() -> {
-                    WebClient.Builder webClientBuilder = WebClients.withSafeHostAndSecure(builder(), context.getSslConfig());
+                    WebClient.Builder webClientBuilder = WebClientBuildHelper.builder()
+                            .disallowedHosts(commonConfig.getDisallowedHosts())
+                            .sslConfig(context.getSslConfig())
+                            .toWebClientBuilder();
 
                     Map<String, String> allHeaders = context.getHeaders();
                     String contentType = context.getContentType();
@@ -348,14 +357,19 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
             }
 
             if (request.isForwardAllCookies()) {
-                requestCookies.forEach(
-                        (cookieName, httpCookies) -> currentCookies.addAll(cookieName, collectList(httpCookies, HttpCookie::getValue)));
+                requestCookies.forEach((cookieName, httpCookies) -> {
+                    if (StringUtils.equals(cookieName, commonConfig.getCookieName())) {
+                        return;
+                    }
+                    currentCookies.addAll(cookieName, collectList(httpCookies, HttpCookie::getValue));
+                });
                 return;
             }
 
             requestCookies.entrySet()
                     .stream()
                     .filter(it -> forwardCookies.contains(it.getKey()))
+                    .filter(it -> ObjectUtils.notEqual(it.getKey(), commonConfig.getCookieName()))
                     .forEach(entry -> {
                         String cookieName = entry.getKey();
                         List<HttpCookie> httpCookies = entry.getValue();

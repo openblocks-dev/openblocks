@@ -22,7 +22,6 @@ import com.openblocks.sdk.config.CommonConfig;
 import com.openblocks.sdk.config.SerializeConfig.JsonViews;
 import com.openblocks.sdk.config.dynamic.Conf;
 import com.openblocks.sdk.config.dynamic.ConfigCenter;
-import com.openblocks.sdk.util.UriUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -72,8 +71,7 @@ public class ConfigController {
     @JsonView(JsonViews.Public.class)
     @GetMapping
     public Mono<ResponseView<ConfigView>> getConfig(ServerWebExchange exchange) {
-        String domain = UriUtils.getRefererDomain(exchange);
-        return orgApiService.getOrganizationConfigs(domain)
+        return orgApiService.getOrganizationConfigs()
                 .map(ResponseView::success);
     }
 

@@ -27,8 +27,9 @@ const UICompContainer = styled.div<{ maxWidth?: number; readOnly?: boolean }>`
 `;
 
 // modal/drawer container
-const CanvasContainer = styled.div<{ maxWidth: number }>`
+export const CanvasContainer = styled.div<{ maxWidth: number }>`
   max-width: ${(props) => props.maxWidth}px;
+  min-width: min(${(props) => props.maxWidth}px, 718px);
   margin: 0 auto;
   height: 100%;
   contain: paint;

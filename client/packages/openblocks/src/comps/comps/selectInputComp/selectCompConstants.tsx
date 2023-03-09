@@ -46,6 +46,10 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
+import { RefControl } from "comps/controls/refControl";
+import { BaseSelectRef } from "rc-select";
+import { refMethods } from "comps/generators/withMethodExposing";
+import { blurMethod, focusMethod } from "comps/utils/methodUtils";
 
 export const getStyle = (
   style:
@@ -85,18 +89,18 @@ export const getStyle = (
       .ant-select-clear {
         background-color: ${style.background};
         color: ${style.text === "#222222"
-      ? "#8B8FA3"
-      : isDarkColor(style.text)
-        ? lightenColor(style.text, 0.2)
-        : style.text};
+          ? "#8B8FA3"
+          : isDarkColor(style.text)
+          ? lightenColor(style.text, 0.2)
+          : style.text};
       }
 
       .ant-select-clear:hover {
         color: ${style.text === "#222222"
-      ? "#8B8FA3"
-      : isDarkColor(style.text)
-        ? lightenColor(style.text, 0.1)
-        : style.text};
+          ? "#8B8FA3"
+          : isDarkColor(style.text)
+          ? lightenColor(style.text, 0.1)
+          : style.text};
       }
 
       &.ant-select-multiple .ant-select-selection-item {
@@ -144,8 +148,7 @@ const getDropdownStyle = (style: MultiSelectStyleType) => {
   `;
 };
 
-
-const Select = styled(AntdSelect) <{
+const Select = styled(AntdSelect)<{
   $style: SelectStyleType & MultiSelectStyleType;
 }>`
   width: 100%;
@@ -181,6 +184,7 @@ export const SelectChildrenMap = {
   showSearch: BoolControl.DEFAULT_TRUE,
   margin: MarginControl,
   padding: PaddingControl,
+  viewRef: RefControl<BaseSelectRef>,
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -195,6 +199,7 @@ export const SelectUIView = (
   }
 ) => (
   <Select
+    ref={props.viewRef}
     mode={props.mode}
     $style={props.style as SelectStyleType & MultiSelectStyleType}
     disabled={props.disabled}
@@ -220,8 +225,8 @@ export const SelectUIView = (
     onSearch={
       props.showSearch
         ? (value) => {
-          props.dispatch(changeChildAction("inputValue", value));
-        }
+            props.dispatch(changeChildAction("inputValue", value));
+          }
         : undefined
     }
     style={{
@@ -297,3 +302,8 @@ export const SelectPropertyView = (
     </Section>
   </>
 );
+
+export const baseSelectRefMethods = refMethods<BaseSelectRef>([
+  focusMethod,
+  blurMethod,
+]);

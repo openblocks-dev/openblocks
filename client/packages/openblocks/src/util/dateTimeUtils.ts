@@ -1,11 +1,14 @@
 import moment from "moment";
 
 export const TIME_FORMAT = "HH:mm:ss";
+export const TIME_12_FORMAT = "HH:mm:ss:a";
 export const DATE_FORMAT = "YYYY-MM-DD";
+export const DATE_FORMAT_EN = "MM/DD/YYYY";
 export const DATE_TIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
+export const DATE_TIME_12_FORMAT = "YYYY-MM-DD HH:mm:ss:a";
 export const TIMESTAMP_FORMAT = "x";
-export const DateParser = [DATE_TIME_FORMAT, DATE_FORMAT, TIMESTAMP_FORMAT];
-export const TimeParser = [TIME_FORMAT, TIMESTAMP_FORMAT];
+export const DateParser = [DATE_TIME_FORMAT, DATE_TIME_12_FORMAT, DATE_FORMAT, TIMESTAMP_FORMAT, DATE_FORMAT_EN];
+export const TimeParser = [TIME_12_FORMAT, TIME_FORMAT, TIMESTAMP_FORMAT];
 export type PickerMode = "date" | "week" | "month" | "quarter" | "year";
 
 /**

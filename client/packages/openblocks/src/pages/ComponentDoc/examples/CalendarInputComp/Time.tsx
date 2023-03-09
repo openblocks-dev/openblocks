@@ -1,4 +1,4 @@
-import { TimePickerComp } from "comps/comps/timeComp";
+import { TimePickerComp } from "../../../../comps/comps/dateComp/timeComp";
 import { trans } from "i18n";
 import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";

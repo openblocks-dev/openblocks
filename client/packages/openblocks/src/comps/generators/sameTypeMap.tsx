@@ -103,10 +103,10 @@ export function sameTypeMap<ChildComp extends CompConstructor<any, any>>(
           };
           return this.setChildren(newChildren);
         case "addComp":
-          return this.setChildren({
-            ...this.children,
-            [action.key]: action.value,
-          });
+          return this.setChild(
+            action.key,
+            action.value.changeDispatch(wrapDispatch(this.dispatch, action.key))
+          );
         case "multi":
           let comp = this;
           action.actions.forEach((actionInner) => {

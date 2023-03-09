@@ -15,6 +15,7 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { Video } from "openblocks-design";
 import ReactPlayer from "react-player";
+import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 
 const EventOptions = [
   { label: trans("video.play"), value: "play", description: trans("video.playDesc") },
@@ -24,11 +25,10 @@ const EventOptions = [
 ] as const;
 
 const ContainerVideo = (props: RecordConstructorToView<typeof childrenMap>) => {
-  const videoRef = useRef<ReactPlayer>(null);
-  const conRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<ReactPlayer | null>(null);
   let [posterClicked, setPosterClicked] = useState(false);
   return (
-    <Container ref={conRef}>
+    <Container ref={props.containerRef}>
       <Video
         config={{
           file: {
@@ -36,7 +36,10 @@ const ContainerVideo = (props: RecordConstructorToView<typeof childrenMap>) => {
           },
         }}
         light={props.autoPlay ? "" : props.poster.value}
-        ref={videoRef}
+        ref={(t: ReactPlayer | null) => {
+          props.viewRef(t);
+          videoRef.current = t;
+        }}
         url={props.src.value}
         onPlay={() => props.onEvent("play")}
         onReady={() => {
@@ -79,6 +82,7 @@ const childrenMap = {
   playbackRate: RangeControl.closed(1, 2, 1),
   currentTimeStamp: numberExposingStateControl("currentTimeStamp", 0),
   duration: numberExposingStateControl("duration"),
+  ...mediaCommonChildren,
 };
 
 let VideoBasicComp = (function () {
@@ -123,6 +127,7 @@ let VideoBasicComp = (function () {
         </>
       );
     })
+    .setExposeMethodConfigs(mediaMethods())
     .build();
 })();
 

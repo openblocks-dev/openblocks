@@ -210,9 +210,9 @@ export class GridCompOperator {
       const hookIndex = hooksComp.getView().findIndex((comp) => comp === item);
       if (hookIndex > 0) {
         // hooks comp
-        hooksComp.dispatch(wrapActionExtraInfo(hooksComp.deleteAction(hookIndex), compInfos));
+        hooksComp.dispatch(wrapActionExtraInfo(hooksComp.deleteAction(hookIndex), { compInfos }));
       } else {
-        const action = deferAction(wrapActionExtraInfo(deleteCompAction(), compInfos));
+        const action = deferAction(wrapActionExtraInfo(deleteCompAction(), { compInfos }));
         item.dispatch(action);
       }
     });
@@ -264,7 +264,7 @@ export class GridCompOperator {
       deferAction(
         wrapActionExtraInfo(
           replaceCompAction(remoteComp({ ...compInfo, packageVersion: latestVersion.version })),
-          compInfos
+          { compInfos }
         )
       )
     );

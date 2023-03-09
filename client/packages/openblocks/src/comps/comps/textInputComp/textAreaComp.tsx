@@ -18,7 +18,7 @@ import {
   TextInputValidationSection,
   useTextInputProps,
 } from "./textInputConstants";
-import { MethodConfigFocus, withMethodExposing } from "../../generators/withMethodExposing";
+import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
 import { InputLikeStyle, InputLikeStyleType } from "comps/controls/styleControlConstants";
@@ -29,6 +29,9 @@ import {
   readOnlyPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { RefControl } from "comps/controls/refControl";
+import { TextAreaRef } from "antd/lib/input/TextArea";
+import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 
 const TextAreaStyled = styled(TextArea)<{
   $style: InputLikeStyleType;
@@ -56,6 +59,7 @@ const Wrapper = styled.div<{
 let TextAreaTmpComp = (function () {
   const childrenMap = {
     ...textInputChildren,
+    viewRef: RefControl<TextAreaRef>,
     allowClear: BoolControl,
     autoHeight: AutoHeightControl,
     style: styleControl(InputLikeStyle),
@@ -68,6 +72,7 @@ let TextAreaTmpComp = (function () {
         <Wrapper $style={props.style}>
           <TextAreaStyled
             {...inputProps}
+            ref={props.viewRef}
             allowClear={props.allowClear}
             autoSize={props.autoHeight}
             style={{ height: "100%", maxHeight: "100%", resize: "none" }}
@@ -111,7 +116,10 @@ TextAreaTmpComp = class extends TextAreaTmpComp {
   }
 };
 
-const TextareaTmp2Comp = withMethodExposing(TextAreaTmpComp, MethodConfigFocus);
+const TextareaTmp2Comp = withMethodExposing(
+  TextAreaTmpComp,
+  refMethods([focusWithOptions, blurMethod])
+);
 
 export const TextAreaComp = withExposingConfigs(TextareaTmp2Comp, [
   new NameConfig("value", trans("export.inputValueDesc")),

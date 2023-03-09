@@ -8,6 +8,7 @@ import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import styled, { css } from "styled-components";
 import {
+  selectDivRefMethods,
   SelectInputInvalidConfig,
   SelectInputValidationChildren,
   useSelectInputValidate,
@@ -20,9 +21,11 @@ import { dropdownControl } from "../../controls/dropdownControl";
 import { ValueFromOption } from "openblocks-design";
 import { EllipsisTextCss } from "openblocks-design";
 import { trans } from "i18n";
+import { RefControl } from "comps/controls/refControl";
 
-const getStyle = (style: CheckboxStyleType) => {
+export const getStyle = (style: CheckboxStyleType) => {
   return css`
+    &,
     .ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled) {
       color: ${style.staticText};
       height: 22px;
@@ -106,6 +109,7 @@ const CheckboxBasicComp = (function () {
     options: SelectInputOptionControl,
     style: styleControl(CheckboxStyle),
     layout: dropdownControl(RadioLayoutOptions, "horizontal"),
+    viewRef: RefControl<HTMLDivElement>,
 
     ...SelectInputValidationChildren,
     ...formDataChildren,
@@ -117,6 +121,7 @@ const CheckboxBasicComp = (function () {
       style: props.style,
       children: (
         <CheckboxGroup
+          ref={props.viewRef}
           disabled={props.disabled}
           value={props.value.value}
           $style={props.style}
@@ -139,6 +144,7 @@ const CheckboxBasicComp = (function () {
     });
   })
     .setPropertyViewFn((children) => <RadioPropertyView {...children} />)
+    .setExposeMethodConfigs(selectDivRefMethods)
     .build();
 })();
 

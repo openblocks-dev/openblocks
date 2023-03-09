@@ -1,6 +1,19 @@
-import { relaxedJSONToJSON } from "openblocks-core";
 import yaml from "yaml";
 import fs from "fs";
+
+export function kvToRecord(
+  kvs: { key: string; value: string }[],
+  trimEmpty: boolean = true
+): Record<string, string> {
+  const ret: Record<string, string> = {};
+  (kvs || []).forEach(({ key, value }) => {
+    if (trimEmpty && !value) {
+      return;
+    }
+    ret[key] = value;
+  });
+  return ret;
+}
 
 export function toString(value: any): string {
   if (value === undefined || value === null) {
@@ -40,35 +53,6 @@ export function toBoolean(value: any): boolean {
     return false;
   }
   return !!value;
-}
-
-export function toJsonValue(value: any): any {
-  if (typeof value !== "string") {
-    return value;
-  }
-  try {
-    const json = relaxedJSONToJSON(value, true);
-    return JSON.parse(json);
-  } catch (e) {
-    console.info("invalid json input:", value);
-    return {};
-  }
-}
-
-export function toStringOrJson(value: any): any {
-  if (typeof value !== "string") {
-    return value;
-  }
-  try {
-    const json = relaxedJSONToJSON(value, true);
-    return JSON.parse(json);
-  } catch (e) {
-    if (typeof value === "string") {
-      return value;
-    }
-    console.info("invalid json input:", value);
-    return {};
-  }
 }
 
 export function readYaml<T = any>(path: string): T {

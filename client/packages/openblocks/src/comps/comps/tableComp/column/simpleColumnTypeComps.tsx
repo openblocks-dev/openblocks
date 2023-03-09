@@ -1,25 +1,14 @@
-import { Button } from "antd";
 import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
 import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { disabledPropertyView, loadingPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import styled from "styled-components";
+import { useStyle } from "comps/controls/styleControl";
+import { ButtonStyle } from "comps/controls/styleControlConstants";
+import { Button100 } from "comps/comps/buttonComp/buttonCompConstants";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
-
-const Button100 = styled(Button)`
-  width: 100%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-`;
 
 const ButtonTypeOptions = [
   {
@@ -43,17 +32,22 @@ export const ButtonComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => {
-      return (
-        <Button100
-          type={props.buttonType}
-          onClick={props.onClick}
-          loading={props.loading}
-          disabled={props.disabled}
-        >
-          {/* prevent the button from disappearing */}
-          {!props.text ? " " : props.text}
-        </Button100>
-      );
+      const ButtonStyled = () => {
+        const style = useStyle(ButtonStyle);
+        return (
+          <Button100
+            type={props.buttonType}
+            onClick={props.onClick}
+            loading={props.loading}
+            disabled={props.disabled}
+            $buttonStyle={props.buttonType === "primary" ? style : undefined}
+          >
+            {/* prevent the button from disappearing */}
+            {!props.text ? " " : props.text}
+          </Button100>
+        );
+      };
+      return <ButtonStyled />;
     },
     (nodeValue) => nodeValue.text.value
   )

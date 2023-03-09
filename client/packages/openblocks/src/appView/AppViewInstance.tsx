@@ -10,7 +10,7 @@ import { ModuleDSL, ModuleDSLIoInput } from "types/dsl";
 import { AppView } from "./AppView";
 import { API_STATUS_CODES } from "constants/apiConstants";
 import { AUTH_LOGIN_URL } from "constants/routesURL";
-import { AuthSearchParams } from "@openblocks-ee/constants/authConstants";
+import { AuthSearchParams } from "constants/authConstants";
 
 export type OutputChangeHandler<O> = (output: O) => void;
 export type EventTriggerHandler = (eventName: string) => void;

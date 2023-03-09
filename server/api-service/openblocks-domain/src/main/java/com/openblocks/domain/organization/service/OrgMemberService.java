@@ -6,7 +6,6 @@ import java.util.Map;
 
 import com.openblocks.domain.organization.model.MemberRole;
 import com.openblocks.domain.organization.model.OrgMember;
-import com.openblocks.infra.annotation.NonEmptyMono;
 import com.openblocks.infra.annotation.PossibleEmptyMono;
 
 import reactor.core.publisher.Flux;
@@ -14,8 +13,9 @@ import reactor.core.publisher.Mono;
 
 public interface OrgMemberService {
 
-    @NonEmptyMono
-    Mono<List<OrgMember>> getOrganizationMembers(String orgId, int page, int count);
+    Flux<OrgMember> getOrganizationMembers(String orgId);
+
+    Flux<OrgMember> getOrganizationMembers(String orgId, int page, int count);
 
     Mono<OrgMember> getCurrentOrgMember(String userId);
 
@@ -47,6 +47,10 @@ public interface OrgMemberService {
     Mono<Boolean> removeCurrentOrgMark(String previousCurrentOrgId, String userId);
 
     Mono<List<OrgMember>> getAllOrgAdmins(String orgId);
+
+    Mono<Void> bulkAddMember(String orgId, Collection<String> userIds, MemberRole memberRole);
+
+    Mono<Boolean> bulkRemoveMember(String orgId, Collection<String> userIds);
 
     record UserOrgMemberInfo(OrgMember currentOrgMember, List<OrgMember> orgMembers) {
     }

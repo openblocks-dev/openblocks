@@ -2,6 +2,7 @@ package com.openblocks.infra.birelation;
 
 import java.util.Collection;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
 import reactor.core.publisher.Flux;
@@ -10,6 +11,8 @@ import reactor.core.publisher.Mono;
 public interface BiRelationRepository extends ReactiveMongoRepository<BiRelation, String> {
 
     Flux<BiRelation> findByBizTypeAndSourceId(BiRelationBizType bizType, String sourceId);
+
+    Flux<BiRelation> findByBizTypeAndSourceId(BiRelationBizType bizType, String sourceId, Pageable pageable);
 
     Flux<BiRelation> findByBizTypeAndSourceIdIn(BiRelationBizType bizType, Collection<String> sourceId);
 

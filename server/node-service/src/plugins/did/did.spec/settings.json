@@ -1,0 +1,130 @@
+{
+  "components": {
+    "examples": {},
+    "headers": {},
+    "parameters": {},
+    "requestBodies": {},
+    "responses": {},
+    "schemas": {
+      "JsonError": {
+        "properties": {
+          "kind": { "type": "string" },
+          "description": { "type": "string" },
+          "details": {}
+        },
+        "required": ["kind", "description"],
+        "type": "object",
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "basic": { "type": "http", "scheme": "basic" },
+      "bearer": { "type": "http", "scheme": "bearer" }
+    }
+  },
+  "info": {
+    "title": "settings",
+    "version": "0.0.1",
+    "description": "user related settings",
+    "license": { "name": "ISC" },
+    "contact": { "name": "D-ID" }
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/settings/logo": {
+      "post": {
+        "operationId": "UpdateLogo",
+        "responses": {
+          "201": { "description": "The image has been uploaded successfully" },
+          "400": {
+            "description": "BadRequestError | InvalidFileSizeError | InvalidImageResolutionError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "BadRequestError", "description": "invalid image" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "AuthorizationError", "description": "user unauthenticated" }
+                  }
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "The image being uploaded is not supported",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "kind": "UnsupportedMimeTypeError",
+                      "description": "The provided mime type is not supported",
+                      "details": { "received": "image/gif" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Updates user logo",
+        "summary": "Updates user logo",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "logo": { "type": "string", "format": "binary" },
+                  "top": { "type": "string" },
+                  "left": { "type": "string" }
+                },
+                "required": ["logo", "top", "left"]
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "DeleteLogo",
+        "responses": {
+          "204": { "description": "The image has been deleted successfully" },
+          "401": {
+            "description": "AuthorizationError",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JsonError" },
+                "examples": {
+                  "Example 1": {
+                    "value": { "kind": "AuthorizationError", "description": "user unauthenticated" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Deletes user logo",
+        "summary": "Deletes user logo",
+        "security": [{ "basic": [] }, { "bearer": [] }],
+        "parameters": []
+      }
+    }
+  },
+  "servers": [{ "url": "https://api.d-id.com/" }]
+}
