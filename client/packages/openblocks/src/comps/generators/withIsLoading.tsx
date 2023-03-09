@@ -55,7 +55,7 @@ export function withIsLoading<T extends MultiCompConstructor>(VariantComp: T): T
   return IS_LOADING_CLASS;
 }
 
-const __SUPER_NODE_KEY = "__LOADING_SUPER_NODE";
+export const __SUPER_NODE_KEY = "__LOADING_SUPER_NODE";
 
 /**
  * only add isLoading method to codeControl, without override getView

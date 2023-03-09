@@ -2,8 +2,16 @@ import { ColumnComp, newPrimaryColumn } from "comps/comps/tableComp/column/table
 import { list } from "comps/generators/list";
 import { getReduceContext } from "comps/utils/reduceContext";
 import _ from "lodash";
-import { CompAction, customAction, isMyCustomAction } from "openblocks-core";
+import {
+  CompAction,
+  customAction,
+  fromRecord,
+  isMyCustomAction,
+  RecordNode,
+} from "openblocks-core";
+import { shallowEqual } from "react-redux";
 import { JSONObject, JSONValue } from "util/jsonTypes";
+import { lastValueIfEqual } from "util/objectUtils";
 
 /**
  * column list
@@ -103,18 +111,16 @@ export class ColumnListComp extends ColumnListTmpComp {
   /**
    * If the table data changes, call this method to trigger the action
    */
-  dispatchDataChanged(param: {
+  dataChangedAction(param: {
     rowExample: JSONObject;
     doGeneColumn: boolean;
     dynamicColumn: boolean;
     data: Array<JSONObject>;
-  }): void {
-    this.dispatch(
-      customAction<ActionDataType>({
-        type: "dataChanged",
-        ...param,
-      })
-    );
+  }) {
+    return customAction<ActionDataType>({
+      type: "dataChanged",
+      ...param,
+    });
   }
 
   /**
@@ -154,5 +160,39 @@ export class ColumnListComp extends ColumnListTmpComp {
       return [];
     }
     return actions;
+  }
+
+  withParamsNode() {
+    const columns = this.getView();
+    const nodes = _(columns)
+      .map((col) => col.children.render.getOriginalComp().node())
+      .toPairs()
+      .fromPairs()
+      .value();
+    const result = lastValueIfEqual(
+      this,
+      "withParamsNode",
+      [fromRecord(nodes), nodes] as const,
+      (a, b) => shallowEqual(a[1], b[1])
+    )[0];
+    return result;
+  }
+
+  getColumnsNode<T extends keyof ColumnComp["children"]>(
+    field: T
+  ): RecordNode<Record<string, ReturnType<ColumnComp["children"][T]["node"]>>> {
+    const columns = this.getView();
+    const nodes = _(columns)
+      .map((col) => col.children[field].node() as ReturnType<ColumnComp["children"][T]["node"]>)
+      .toPairs()
+      .fromPairs()
+      .value();
+    const result = lastValueIfEqual(
+      this,
+      "col_nodes_" + field,
+      [fromRecord(nodes), nodes] as const,
+      (a, b) => shallowEqual(a[1], b[1])
+    )[0];
+    return result;
   }
 }

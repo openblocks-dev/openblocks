@@ -1,4 +1,4 @@
-import { BoolCodeControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { ToDataType } from "comps/generators/multi";
 import {
@@ -18,6 +18,7 @@ import {
 } from "../triContainerComp/triContainerCompBuilder";
 import { TriContainer } from "../triContainerComp/triFloatTextContainer";
 import { dropdownControl } from "comps/controls/dropdownControl";
+import { withDefault } from "@openblocks-ee/index.sdk";
 
 const typeOptions = [
   {
@@ -54,6 +55,7 @@ export const ContainerBaseComp = (function () {
     ),
     type: dropdownControl(typeOptions, "markdown"),
     float: dropdownControl(floatOptions, "none"),
+    width: withDefault(StringControl, "60"),
   };
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
     return <TriContainer {...props} />;
@@ -68,6 +70,9 @@ export const ContainerBaseComp = (function () {
               radioButton: true,
             })}
             {children.text.propertyView({})}
+            {children.width.propertyView({
+              label: trans("textShow.width"),
+            })}
           </Section>
           <Section name={sectionNames.layout}>
             {children.container.getPropertyView()}

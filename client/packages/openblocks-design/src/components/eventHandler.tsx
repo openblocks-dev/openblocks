@@ -1,10 +1,8 @@
 import styled from "styled-components";
-import { PointIcon } from "icons";
-import { EllipsisTextCss, labelCss } from "./Label";
-import { LinkButton, TacoButton } from "./button";
 import { BluePlusIcon } from "icons";
+import { EllipsisTextCss, labelCss } from "./Label";
+import { LinkButton } from "./button";
 import { ReactNode } from "react";
-import { ActiveTextColor, GreyTextColor } from "constants/style";
 import { trans } from "i18n/design";
 
 const InlineEventFormWrapper = styled.div`
@@ -50,14 +48,7 @@ const EventContent = styled.div`
   align-items: center;
   padding-left: 12px;
 `;
-const Icon = styled(PointIcon)`
-  cursor: pointer;
-  color: ${GreyTextColor};
 
-  &:hover {
-    color: ${ActiveTextColor};
-  }
-`;
 const EventTitle = styled.div`
   ${labelCss};
   flex: 0 0 30%;
@@ -125,7 +116,6 @@ const AddLine = (props: { title: ReactNode; add: () => void }) => {
   );
 };
 export {
-  Icon,
   BluePlusIcon as AddEventIcon,
   EventDiv,
   EventContent,

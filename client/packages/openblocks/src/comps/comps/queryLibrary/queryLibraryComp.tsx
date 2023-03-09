@@ -22,9 +22,9 @@ import { executeQueryAction, renameAction } from "openblocks-core";
 import { deleteQueryLibrary } from "../../../redux/reduxActions/queryLibraryActions";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
-import { QueryLibraryResultPanel } from "../../../components/ResultPanel";
 import { DataSourceStructureTree } from "../../../pages/editor/bottom/BottomMetaDrawer";
 import { trans } from "i18n";
+import { QueryLibraryResultPanel } from "../../../components/resultPanel/QueryLibraryResultPanel";
 
 const children = {
   query: withPropertyViewFn(QueryComp, (comp) => (

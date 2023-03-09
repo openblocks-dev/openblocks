@@ -190,7 +190,7 @@ function LibsTabPane(props: { libsComp: ChildrenInstance["libs"] }) {
             <div className="lib-item" key={idx}>
               <div className="lib-item-input">
                 {i.propertyView({
-                  placeholder: "https://cdn.xxx.com/example.min.js",
+                  placeholder: "https://cdn.example.com/example.min.js",
                 })}
               </div>
               <TacoButton

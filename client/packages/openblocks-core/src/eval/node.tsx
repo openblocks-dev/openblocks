@@ -29,25 +29,33 @@ export type RecordOptionalNodeToValue<T> = {
   [K in NonOptionalKeys<T>]: NodeToValue<T[K]>;
 };
 
+export interface FetchInfoOptions {
+  ignoreManualDepReadyStatus?: boolean; // ignore check manual query deps ready status
+}
+
 /**
  * the base structure for evaluate
  */
 export interface Node<T> {
   readonly type: string;
+
   /**
    * calculate evaluate result
    * @param exposingNodes other dependent Nodes
    */
   evaluate(exposingNodes?: Record<string, Node<unknown>>, methods?: EvalMethods): T;
+
   /**
    * whether the current or its dependencies have cyclic dependencies
    * this function only can be used after evaluate() has been called
    */
   hasCycle(): boolean;
+
   /**
    * only available after evaluate
    */
   dependNames(): string[];
+
   dependValues(): Record<string, unknown>;
 
   /**
@@ -59,7 +67,8 @@ export interface Node<T> {
    * FIXME: this should be a protected function.
    */
   filterNodes(exposingNodes: Record<string, Node<unknown>>): Map<Node<unknown>, Set<string>>;
-  fetchInfo(exposingNodes: Record<string, Node<unknown>>): FetchInfo;
+
+  fetchInfo(exposingNodes: Record<string, Node<unknown>>, options?: FetchInfoOptions): FetchInfo;
 }
 
 export abstract class AbstractNode<T> implements Node<T> {
@@ -100,6 +109,7 @@ export abstract class AbstractNode<T> implements Node<T> {
   dependNames(): string[] {
     return Object.keys(this.dependValues());
   }
+
   abstract dependValues(): Record<string, unknown>;
 
   isHitEvalCache(exposingNodes?: Record<string, Node<unknown>>): boolean {

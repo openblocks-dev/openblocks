@@ -258,6 +258,7 @@ export class IconControl extends AbstractComp<ReactNode, string, Node<ValueAndMs
     );
   }
 
+  readonly IGNORABLE_DEFAULT_VALUE = "";
   override toJsonValue(): string {
     if (this.useCodeEditor) {
       return this.codeControl.toJsonValue();

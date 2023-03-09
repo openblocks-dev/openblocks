@@ -111,7 +111,7 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
         <FormInputItem
           name={"url"}
           label="URL"
-          placeholder={"https://xxx.com"}
+          placeholder={"https://example.com"}
           initialValue={datasourceConfig?.url}
           rules={[...UrlRules, hostRule]}
           labelWidth={142}

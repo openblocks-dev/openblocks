@@ -12,9 +12,9 @@ import { GoogleSheetsQuery } from "../comps/queries/googleSheetsQuery";
 import { GraphqlQuery } from "../comps/queries/httpQuery/graphqlQuery";
 import { toPluginQuery } from "comps/queries/pluginQuery/pluginQuery";
 import { MultiCompConstructor } from "openblocks-core";
+import { DataSourcePluginMeta } from "openblocks-sdk/dataSource";
 
 export type DatasourceType =
-  | `plugin:${string}`
   | "mysql"
   | "mongodb"
   | "restApi"
@@ -31,7 +31,7 @@ export type DatasourceType =
 
 export type ResourceType = DatasourceType | "js" | "libraryQuery" | "view";
 
-const QueryMap = {
+export const QueryMap = {
   js: JSQuery,
   mysql: SQLQuery,
   restApi: HttpQuery,
@@ -50,14 +50,23 @@ const QueryMap = {
   graphql: GraphqlQuery,
 };
 
-export function registryDataSourcePlugin(name: string, dataSourcePlugin: any, target = QueryMap) {
-  const type = name as `plugin:${string}`;
-  (target as Record<DatasourceType, MultiCompConstructor>)[type] = toPluginQuery(
-    dataSourcePlugin.queryConfig
-  ) as MultiCompConstructor;
-}
+export const JsPluginQueryMap: Record<string, MultiCompConstructor> = {};
 
-export { QueryMap };
+export function registryDataSourcePlugin(
+  name: string,
+  dataSourceId: string,
+  dataSourcePlugin: DataSourcePluginMeta
+) {
+  const type = `${name}:${dataSourceId}` as `${string}:${string}`;
+  if (!dataSourcePlugin) {
+    return;
+  }
+  const { queryConfig } = dataSourcePlugin;
+  if (!queryConfig || queryConfig.type === "dynamic") {
+    return;
+  }
+  JsPluginQueryMap[type] = toPluginQuery(queryConfig) as MultiCompConstructor;
+}
 
 // Initialized as write mode, need to switch to the manually executed query when creating a new query or switching data sources
 export const manualTriggerResource: ResourceType[] = ["js", "smtp"];

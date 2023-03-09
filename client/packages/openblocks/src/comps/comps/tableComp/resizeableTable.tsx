@@ -111,6 +111,7 @@ const getStyle = (style: TableStyleType) => {
       // link color
       td a {
         color: ${isDark && "#A6FFFF"};
+
         &:hover {
           color: ${isDark && "#2EE6E6"};
         }
@@ -255,10 +256,16 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
     width: -1,
   });
   const columns = props.columns.map((col, index) => {
-    const width = resizeData.index === index ? resizeData.width : col.width;
+    const { width, ...restCol } = col;
+    const resizeWidth = (resizeData.index === index ? resizeData.width : col.width) ?? 0;
     return {
-      ...col,
-      width: width && width > 0 ? width : -1,
+      ...restCol,
+      RC_TABLE_INTERNAL_COL_DEFINE: {
+        style: {
+          minWidth: resizeWidth > 0 ? "unset" : MinColumnWidth,
+          width: resizeWidth > 0 ? resizeWidth : "auto",
+        },
+      },
       onCell: (record: RecordType, rowIndex: any) => ({
         record,
         title: col.title as any,
@@ -266,7 +273,7 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
         rowIndex: rowIndex,
       }),
       onHeaderCell: (column: any) => ({
-        width: column.width,
+        width: resizeWidth,
         title: column.title,
         viewModeResizable: props.viewModeResizable,
         onResize: (width: number) => {
@@ -335,10 +342,6 @@ export const TableWrapper = styled.div<{
 
           td {
             padding: 0px 0px;
-          }
-
-          colgroup col {
-            min-width: ${MinColumnWidth}px;
           }
 
           thead > tr:first-child {

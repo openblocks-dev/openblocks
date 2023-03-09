@@ -1,16 +1,21 @@
 import { ButtonProps, Modal as AntdModal } from "antd";
 import { ModalFuncProps, ModalProps as AntdModalProps } from "antd/lib/modal";
 import { ReactComponent as PackUpIcon } from "icons/icon-Pack-up.svg";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 import styled from "styled-components";
 import { TacoButtonType, TacoButton } from "components/button";
 import Draggable from "react-draggable";
 import { DarkActiveTextColor, GreyTextColor } from "constants/style";
-import { CloseIcon } from "icons";
+import { CloseIcon, ErrorIcon, SuccessIcon, WarningIcon, WarningWhiteIcon } from "icons";
 import { trans } from "i18n/design";
 
 type ModalWrapperProps = {
   width?: string | number;
+};
+
+type Model = {
+  destroy: () => void;
+  update: (configUpdate: ModalFuncProps | ((prevConfig: ModalFuncProps) => ModalFuncProps)) => void;
 };
 
 const ModalWrapper = styled.div<ModalWrapperProps>`
@@ -39,6 +44,14 @@ const ModalHeaderTitle = styled.div`
   color: #222222;
   flex-grow: 1;
   min-width: 0;
+  display: flex;
+  align-items: center;
+
+  > svg {
+    margin-right: 8px;
+    height: 14px;
+    width: 14px;
+  }
 `;
 
 const ModalCloseIcon = styled.div`
@@ -120,7 +133,8 @@ function ModalFooter(props: {
   showCancelButton?: boolean;
   showOkButton?: boolean;
   onCancel?: (e: React.MouseEvent<HTMLElement>) => void;
-  onOk?: (e: React.MouseEvent<HTMLElement>) => void;
+  onOk?: (e: React.MouseEvent<HTMLElement>) => Promise<any> | any;
+  model?: Model;
   okButtonType?: TacoButtonType;
   autoFocusButton?: null | "ok" | "cancel";
   okButtonProps?: ButtonProps;
@@ -137,13 +151,16 @@ function ModalFooter(props: {
     autoFocusButton,
     okButtonProps,
     cancelButtonProps,
+    model,
   } = props;
+
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   return (
     <>
       {showCancelButton && (
         <TacoButton
-          style={{ minWidth: "64px" }}
+          style={{ minWidth: "66px" }}
           onClick={onCancel}
           autoFocus={autoFocusButton === "cancel"}
           {...cancelButtonProps}
@@ -153,10 +170,19 @@ function ModalFooter(props: {
       )}
       {showOkButton && (
         <TacoButton
-          style={{ minWidth: "64px" }}
-          onClick={onOk}
+          style={{ minWidth: "66px" }}
+          onClick={(e: React.MouseEvent<HTMLElement>) => {
+            setConfirmLoading(true);
+            const result = onOk && onOk(e);
+            if (result && !!result.then) {
+              return result.then(model && model.destroy).finally(() => setConfirmLoading(false));
+            }
+            setConfirmLoading(false)
+            model && model.destroy();
+          }}
           autoFocus={autoFocusButton === "ok"}
           buttonType={okButtonType ?? "primary"}
+          loading={confirmLoading}
           {...okButtonProps}
         >
           {okText ?? trans("ok")}
@@ -174,6 +200,7 @@ export type CustomModalProps = {
   showCancelButton?: boolean;
   children?: JSX.Element | React.ReactNode;
   okButtonType?: TacoButtonType;
+  model?: Model;
 } & AntdModalProps;
 
 const DEFAULT_PROPS = {
@@ -198,7 +225,7 @@ function CustomModalRender(props: CustomModalProps & ModalFuncProps) {
 
         <div style={{ padding: "0 16px", ...props.bodyStyle }}>{props.children}</div>
 
-        {"footer" in props ? (
+        {props.footer ? (
           props.footer
         ) : (
           <ModalFooterWrapper>
@@ -223,15 +250,24 @@ function CustomModal(props: CustomModalProps) {
   );
 }
 
+const TitleIcon = {
+  error: <ErrorIcon />,
+  warn: <WarningIcon />,
+  info: <WarningWhiteIcon />,
+  success: <SuccessIcon />,
+};
+
 CustomModal.confirm = (props: {
   title?: string;
   content?: ReactNode;
-  onConfirm: (e: React.MouseEvent<HTMLElement>) => Promise<any> | any;
+  onConfirm?: (e: React.MouseEvent<HTMLElement>) => Promise<any> | any;
   onCancel?: () => void;
   confirmBtnType?: TacoButtonType;
   okText?: string;
   style?: React.CSSProperties;
   bodyStyle?: React.CSSProperties;
+  footer?: ReactNode;
+  type?: "info" | "warn" | "error" | "success";
 }): any => {
   const defaultConfirmProps: ModalFuncProps = {
     ...DEFAULT_PROPS,
@@ -250,13 +286,20 @@ CustomModal.confirm = (props: {
   const model = AntdModal.confirm({
     width: "fit-content",
     style: props.style,
-    zIndex: 2000,
     centered: true,
     onCancel: () => {
       model.destroy();
       props.onCancel?.();
     },
   });
+  const title = props.type ? (
+    <>
+      {TitleIcon[props.type]}
+      {props.title}
+    </>
+  ) : (
+    props.title
+  );
   model.update({
     maskClosable: true,
     modalRender: () => (
@@ -267,17 +310,13 @@ CustomModal.confirm = (props: {
           props.onCancel?.();
         }}
         children={props.content}
-        onOk={(e: React.MouseEvent<HTMLElement>) => {
-          const result = props.onConfirm(e);
-          if (result && !!result.then) {
-            return result.then(model.destroy);
-          }
-          model.destroy();
-        }}
-        title={props.title}
+        onOk={props.onConfirm}
+        model={model}
+        title={title}
         okButtonType={props.confirmBtnType}
         okText={props.okText}
         bodyStyle={{ ...defaultConfirmProps.bodyStyle, ...props.bodyStyle }}
+        footer={props.footer}
       />
     ),
   });

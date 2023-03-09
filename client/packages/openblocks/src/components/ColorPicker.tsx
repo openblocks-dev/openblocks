@@ -9,6 +9,7 @@ export type configChangeParams = {
   colorKey: string;
   color?: string;
   radius?: string;
+  chart?: string;
 };
 
 type ColorConfigProps = {

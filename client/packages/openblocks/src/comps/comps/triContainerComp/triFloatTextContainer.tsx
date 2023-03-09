@@ -68,6 +68,7 @@ export type TriContainerProps = TriContainerViewProps & {
   };
   type: string;
   float: string;
+  width: string;
 };
 
 export function TriContainer(props: TriContainerProps) {
@@ -109,7 +110,7 @@ export function TriContainer(props: TriContainerProps) {
         <BackgroundColorContext.Provider value={container.style.background}>
           <div
             style={{
-              overflow: "auto",
+              overflowY: "scroll",
               background: `${container.style.background}`,
             }}
           >
@@ -130,7 +131,7 @@ export function TriContainer(props: TriContainerProps) {
               borderColor={style?.border}
               style={{
                 float: `${props.float}`,
-                width: `${props.float === "none" ? "100%" : "60%"}`,
+                width: `${props.float === "none" ? "100%" : `${props.width}%`}`,
                 height: "100%",
                 margin: "10px",
               }}

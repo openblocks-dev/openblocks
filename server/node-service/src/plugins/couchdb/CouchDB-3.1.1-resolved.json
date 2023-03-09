@@ -1,0 +1,5297 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "*Note*\nThis is not a definitive implementation of the CouchDB API, it's missing a lot of the endpoints for server/database managment and everything for attachments all COPY operations and probably a few other parts.\n\nIt also targets golang, as such the '#/definitions/Document' is intentionally left empty to generate a go `interface`, which you can then cast to a `map[string]interface{}`.\n",
+    "version": "3.1.1",
+    "title": "CouchDB API",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host": "virtserver.swaggerhub.com",
+  "basePath": "/RossMerr/CouchDB/3.1.1",
+  "tags": [
+    {
+      "name": "Server",
+      "description": "The CouchDB server interface provides the basic interface to a CouchDB server for obtaining CouchDB information and getting and setting configuration information."
+    },
+    {
+      "name": "Database",
+      "description": "The Database endpoint provides an interface to an entire database with in CouchDB. These are database-level, rather than document-level requests."
+    },
+    {
+      "name": "Document",
+      "description": "Details on how to create, read, update and delete documents within a database."
+    },
+    {
+      "name": "Design Documents",
+      "description": "In CouchDB, design documents provide the main interface for building a CouchDB application. The design document defines the views used to extract information from CouchDB through one or more views. Design documents are created within your CouchDB instance in the same way as you create database documents, but the content and definition of the documents is different. Design Documents are named using an ID defined with the design document URL path, and this URL can then be used to access the database contents."
+    },
+    {
+      "name": "Partition",
+      "description": "Partitioned databases allow for data colocation in a cluster, which provides significant performance improvements for queries constrained to a single partition."
+    }
+  ],
+  "schemes": ["https", "http"],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["Server"],
+        "summary": "Accessing the root of a CouchDB instance returns meta information about the instance.",
+        "description": "The response is a JSON structure containing information about the server, including a welcome message and the version of the server.\n",
+        "operationId": "metaInformation",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Server"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/_active_tasks": {
+      "get": {
+        "tags": ["Server"],
+        "summary": "List of running tasks, including the task type, name, status and process ID.",
+        "description": "The result is a JSON array of the currently running tasks, with each task being described with a single object. Depending on operation type set of response object fields might be different.\n",
+        "operationId": "activeTasks",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Task"
+              }
+            }
+          },
+          "401": {
+            "description": "CouchDB Server Administrator privileges required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/_all_dbs": {
+      "get": {
+        "tags": ["Server"],
+        "summary": "Returns a list of all the databases in the CouchDB instance.",
+        "operationId": "allDBs",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "descending",
+            "in": "query",
+            "description": "Return the databases in descending order by key. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "endkey",
+            "in": "query",
+            "description": "Stop returning databases when the specified key is reached.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key",
+            "in": "query",
+            "description": "Alias for endkey param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of the returned databases to the specified number.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Skip this number of databases before starting to return the results. Default is 0.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "startkey",
+            "in": "query",
+            "description": "Return databases starting with the specified key.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key",
+            "in": "query",
+            "description": "Alias for startkey.",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/_dbs_info": {
+      "post": {
+        "tags": ["Server"],
+        "summary": "Returns information of a list of the specified databases in the CouchDB instance.",
+        "description": "This enables you to request information about multiple databases in a single request, in place of multiple GET /{db} requests.\n",
+        "operationId": "DBsInfo",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Keys"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/inline_response_200"
+              }
+            }
+          },
+          "400": {
+            "description": "Missing keys or exceeded keys in request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/_cluster_setup": {
+      "get": {
+        "tags": ["Server"],
+        "summary": "Returns the status of the node or cluster, per the cluster setup wizard.",
+        "operationId": "clusterSetupGet",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "$ref": "#/definitions/inline_response_200_1"
+            }
+          },
+          "400": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Server"],
+        "summary": "Configure a node as a single (standalone) node, as part of a cluster, or finalise a cluster.",
+        "operationId": "clusterSetupPost",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/body"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "$ref": "#/definitions/OK"
+            }
+          },
+          "201": {
+            "description": "Request completed successfully",
+            "schema": {
+              "$ref": "#/definitions/OK"
+            }
+          },
+          "400": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "JSON specification was invalid",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/_membership": {
+      "get": {
+        "tags": ["Server"],
+        "summary": "Displays the nodes that are part of the cluster as cluster_nodes.",
+        "description": "The field all_nodes displays all nodes this node knows about, including the ones that are part of the cluster. The endpoint is useful when setting up a cluster, see Node Management\n",
+        "operationId": "membership",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "$ref": "#/definitions/inline_response_200_2"
+            }
+          }
+        }
+      }
+    },
+    "/_replicate": {
+      "post": {
+        "tags": ["Server"],
+        "summary": "Request, configure, or stop, a replication operation.",
+        "operationId": "replication",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Replicate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Replication request successfully completed",
+            "schema": {
+              "$ref": "#/definitions/Replication"
+            }
+          },
+          "202": {
+            "description": "Continuous replication request has been accepted",
+            "schema": {
+              "$ref": "#/definitions/Replication"
+            }
+          },
+          "400": {
+            "description": "Invalid JSON data",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "CouchDB Server Administrator privileges required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Either the source or target DB is not found or attempt to cancel unknown replication task",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "JSON specification was invalid",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/_search_analyze": {
+      "post": {
+        "tags": ["Server"],
+        "summary": "Tests the results of Lucene analyzer tokenization on sample text.",
+        "description": "*Warning*\nSearch endpoints require a running search plugin connected to each cluster node. See Search Plugin Installation for details.\n",
+        "operationId": "searchAnalyze",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/body_1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "$ref": "#/definitions/inline_response_200_3"
+            }
+          },
+          "400": {
+            "description": "Request body is wrong (malformed or missing one of the mandatory fields)",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "A server error (or other kind of error) occurred",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/_up": {
+      "get": {
+        "tags": ["Server"],
+        "summary": "Confirms that the server is up, running, and ready to respond to requests.",
+        "description": "If maintenance_mode is true or nolb, the endpoint will return a 404 response.\n",
+        "operationId": "up",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "$ref": "#/definitions/inline_response_200_4"
+            }
+          },
+          "404": {
+            "description": "The server is unavailable for requests at this time.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/{db}": {
+      "get": {
+        "tags": ["Database"],
+        "summary": "Gets information about the specified database.",
+        "description": "By passing in the appropriate options, you can search for\navailable inventory in the system\n",
+        "operationId": "get",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "$ref": "#/definitions/Database"
+            }
+          },
+          "404": {
+            "description": "Requested database not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "head": {
+        "tags": ["Database"],
+        "summary": "Returns the HTTP Headers containing a minimal amount of information about the specified database.",
+        "description": "Since the response body is empty, using the HEAD method is a lightweight way to check if the database exists already or not.\n",
+        "operationId": "exists",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Database exists"
+          },
+          "404": {
+            "description": "Requested database not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Document"],
+        "summary": "Creates a new document in the specified database, using the supplied JSON document structure.",
+        "description": "If the JSON structure includes the _id field, then the document will be created with the \nspecified document ID.\n\nIf the _id field is not specified, a new unique ID will be generated, following whatever \nUUID algorithm is configured for that server.\n",
+        "operationId": "post",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "batch",
+            "in": "query",
+            "description": "Stores document in batch mode Possible values: ok. Optional\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Document created and stored on disk",
+            "schema": {
+              "$ref": "#/definitions/DocumentOK"
+            }
+          },
+          "202": {
+            "description": "Document data accepted, but not yet stored on disk",
+            "schema": {
+              "$ref": "#/definitions/DocumentOK"
+            }
+          },
+          "400": {
+            "description": "Invalid database name",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Write privileges required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Database doesn’t exist",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "409": {
+            "description": "A Conflicting Document with same ID already exists",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Database"],
+        "summary": "Creates a new database.",
+        "description": "The database name {db} must be composed by following next rules:\nName must begin with a lowercase letter (a-z)\n* Lowercase characters (a-z)\n* Digits (0-9)\n* Any of the characters _, $, (, ), +, -, and /.\n\nIf you’re familiar with Regular Expressions, the rules above could be written as \n",
+        "operationId": "put",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Shards, aka the number of range partitions. Default is 8, unless overridden in the cluster config.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "n",
+            "in": "query",
+            "description": "Replicas. The number of copies of the database in the cluster. The default is 3, unless overridden in the cluster config .",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "partitioned",
+            "in": "query",
+            "description": "Whether to create a partitioned database. Default is false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Database created successfully (quorum is met)",
+            "schema": {
+              "$ref": "#/definitions/OK"
+            }
+          },
+          "202": {
+            "description": "Accepted (at least by one node)",
+            "schema": {
+              "$ref": "#/definitions/OK"
+            }
+          },
+          "400": {
+            "description": "Invalid database name",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "CouchDB Server Administrator privileges required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "412": {
+            "description": "Database already exists",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Database"],
+        "summary": "Deletes the specified database, and all the documents and attachments contained within it.",
+        "description": "*Note*\nTo avoid deleting a database, CouchDB will respond with the HTTP status code 400 when the request \nURL includes a ?rev= parameter. This suggests that one wants to delete a document but forgot to add \nthe document id to the URL.\n",
+        "operationId": "delete",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Database removed successfully (quorum is met and database is deleted by at least one node)",
+            "schema": {
+              "$ref": "#/definitions/OK"
+            }
+          },
+          "202": {
+            "description": "Accepted (deleted by at least one of the nodes, quorum is not met yet)",
+            "schema": {
+              "$ref": "#/definitions/OK"
+            }
+          },
+          "400": {
+            "description": "Invalid database name or forgotten document id by accident",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "CouchDB Server Administrator privileges required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Database doesn’t exist or invalid database name",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/{db}/{docid}": {
+      "get": {
+        "tags": ["Document"],
+        "summary": "Returns document by the specified docid from the specified db. Unless you request a specific revision, the latest revision of the document will always be returned.",
+        "operationId": "docGet",
+        "consumes": ["application/json", "multipart/related", "multipart/mixed", "text/plain"],
+        "produces": ["application/json", "multipart/related", "multipart/mixed", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "docid",
+            "in": "path",
+            "description": "DDocument ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Double quoted document’s revision token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "attachments",
+            "in": "query",
+            "description": "Includes attachments bodies in response. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "att_encoding_info",
+            "in": "query",
+            "description": "Includes encoding information in attachment stubs if the particular attachment is compressed. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "atts_since",
+            "in": "query",
+            "description": "Includes attachments only since specified revisions. Doesn’t includes attachments for specified revisions. Optional",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "conflicts",
+            "in": "query",
+            "description": "Includes information about conflicts in document. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "deleted_conflicts",
+            "in": "query",
+            "description": "Includes information about deleted conflicted revisions. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "latest",
+            "in": "query",
+            "description": "Forces retrieving latest “leaf” revision, no matter what rev was requested. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "local_seq",
+            "in": "query",
+            "description": "Includes last update sequence for the document. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "meta",
+            "in": "query",
+            "description": "Acts same as specifying all conflicts, deleted_conflicts and revs_info query parameters. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "open_revs",
+            "in": "query",
+            "description": "Retrieves documents of specified leaf revisions. Additionally, it accepts value as all to return all leaf revisions. Optional",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "rev",
+            "in": "query",
+            "description": "Retrieves document of specified revision. Optional",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "revs",
+            "in": "query",
+            "description": "Includes list of all known document revisions. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "revs_info",
+            "in": "query",
+            "description": "Includes detailed information for all known document revisions. Default is false",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Double quoted document’s revision token"
+              },
+              "Transfer-Encoding": {
+                "type": "string",
+                "description": "chunked. Available if requested with query parameter open_revs"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          },
+          "304": {
+            "description": "Document wasn’t modified since specified revision"
+          },
+          "400": {
+            "description": "The format of the request or revision was invalid",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Read privilege required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Document not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "head": {
+        "tags": ["Document"],
+        "summary": "Returns the HTTP Headers containing a minimal amount of information about the specified document.",
+        "description": "The method supports the same query arguments as the GET /{db}/{docid} method, \nbut only the header information (including document size, and the revision as an ETag), is returned.\n\nThe ETag header shows the current revision for the requested document, and the Content-Length \nspecifies the length of the data, if the document were requested in full.\n\nAdding any of the query arguments (see GET /{db}/{docid}), then the resulting HTTP Headers \nwill correspond to what would be returned.\n",
+        "operationId": "docInfo",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "docid",
+            "in": "path",
+            "description": "DDocument ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document exists",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Double quoted document’s revision token"
+              },
+              "Content-Length": {
+                "type": "integer",
+                "description": "Document size"
+              }
+            }
+          },
+          "304": {
+            "description": "Document wasn’t modified since specified revision"
+          },
+          "401": {
+            "description": "Read privilege required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Document not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Document"],
+        "summary": "The PUT method creates a new named document, or creates a new revision of the existing document. Unlike the POST /{db}, you must specify the document ID in the request URL.",
+        "description": "When updating an existing document, the current document revision must be included in the document \n(i.e. the request body), as the rev query parameter, or in the If-Match request header.\n",
+        "operationId": "docPut",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "docid",
+            "in": "path",
+            "description": "DDocument ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "Document’s revision. Alternative to rev query parameter or document key. Optional",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "rev",
+            "in": "query",
+            "description": "Document’s revision if updating an existing document. Alternative to If-Match header or document key. Optional",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "batch",
+            "in": "query",
+            "description": "Stores document in batch mode. Possible values: ok. Optional\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "new_edits",
+            "in": "query",
+            "description": "Prevents insertion of a conflicting document. Possible values: true (default) and false. If false, \na well-formed _rev must be included in the document. new_edits=false is used by the replicator \nto insert documents into the target database even if that leads to the creation of conflicts. Optional\n",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Document created and stored on disk",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Double quoted document’s revision token"
+              },
+              "Location": {
+                "type": "string",
+                "format": "uri",
+                "description": "Document URI"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DocumentOK"
+            }
+          },
+          "202": {
+            "description": "Document data accepted, but not yet stored on disk",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Double quoted document’s revision token"
+              },
+              "Transfer-Encoding": {
+                "type": "string",
+                "description": "chunked. Available if requested with query parameter open_revs"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DocumentOK"
+            }
+          },
+          "400": {
+            "description": "Invalid request body or parameters",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Write privileges required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Specified database or document ID doesn’t exists",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "409": {
+            "description": "Document with the specified ID already exists or specified revision is not latest for target document",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Document"],
+        "summary": "Marks the specified document as deleted by adding a field _deleted with the value true.",
+        "description": "Documents with this field will not be returned within requests anymore, but stay in the database. \nYou must supply the current (latest) revision, either by using the rev parameter or by using the\nIf-Match header to specify the revision.\n\n*Notes*\nCouchDB doesn’t completely delete the specified document. Instead, it leaves a tombstone with very \nbasic information about the document. The tombstone is required so that the delete action can be \nreplicated across databases.\n",
+        "operationId": "docDelete",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "docid",
+            "in": "path",
+            "description": "DDocument ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "Document’s revision. Alternative to rev query parameter",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "rev",
+            "in": "query",
+            "description": "Actual document’s revision",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "batch",
+            "in": "query",
+            "description": "Stores document in batch mode Possible values: ok. Optional\n",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document successfully removed",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Double quoted document’s revision token"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DocumentOK"
+            }
+          },
+          "202": {
+            "description": "Request was accepted, but changes are not yet stored on disk",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Double quoted document’s revision token"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DocumentOK"
+            }
+          },
+          "400": {
+            "description": "Invalid request body or parameters",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Write privileges required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Specified database or document ID doesn’t exists",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "409": {
+            "description": "Specified revision is not the latest for target document",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/{db}/_all_docs": {
+      "get": {
+        "tags": ["Database"],
+        "summary": "Executes the built-in _all_docs view",
+        "description": "returning all of the documents in the database. With the exception of the URL parameters \n(described below), this endpoint works identically to any other view. Refer to the view endpoint \ndocumentation for a complete description of the available query parameters and the format of \nthe returned data.\n",
+        "operationId": "docGetAll",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "conflicts",
+            "in": "query",
+            "description": "Include conflicts information in response. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "description": "Return the documents in descending order by key. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "endkey",
+            "in": "query",
+            "description": "Stop returning records when the specified key is reached.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key",
+            "in": "query",
+            "description": "Alias for endkey param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "endkey_docid",
+            "in": "query",
+            "description": "Stop returning records when the specified document ID is reached. Ignored if endkey is not set.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key_doc_id",
+            "in": "query",
+            "description": "Alias for endkey_docid.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "group",
+            "in": "query",
+            "description": "Group the results using the reduce function to a group or single row. Implies reduce is true and the maximum group_level. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "group_level",
+            "in": "query",
+            "description": "Specify the group level to be used. Implies group is true.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "include_docs",
+            "in": "query",
+            "description": "Include the associated document with each row. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "attachments",
+            "in": "query",
+            "description": "Include the Base64-encoded content of attachments in the documents that are included if include_docs is true. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "att_encoding_info",
+            "in": "query",
+            "description": "Include encoding information in attachment stubs if include_docs is true and the particular attachment is compressed. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "inclusive_end",
+            "in": "query",
+            "description": "Specifies whether the specified end key should be included in the result. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "revs_info",
+            "in": "query",
+            "description": "Includes detailed information for all known document revisions. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "description": "eturn only documents that match the specified key.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "keys",
+            "in": "query",
+            "description": "Return only documents where the key matches one of the keys specified in the array.",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of the returned documents to the specified number.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "reduce",
+            "in": "query",
+            "description": "Use the reduction function. Default is true when a reduce function is defined.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Skip this number of records before starting to return the results. Default is 0.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "sorted",
+            "in": "query",
+            "description": "Sort returned rows (see Sorting Returned Rows). Setting this to false offers a performance boost. The total_rows and offset fields are not available when this is set to false. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stable",
+            "in": "query",
+            "description": "Whether or not the view results should be returned from a stable set of shards. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stale",
+            "in": "query",
+            "description": "Allow the results from a stale view to be used. Supported values: ok and update_after. ok is equivalent to stable=true&update=false. update_after is equivalent to stable=true&update=lazy. The default behavior is equivalent to stable=false&update=true. Note that this parameter is deprecated. Use stable and update instead. See Views Generation for more details.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey",
+            "in": "query",
+            "description": "Return records starting with the specified key.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key",
+            "in": "query",
+            "description": "Alias for startkey.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey_docid",
+            "in": "query",
+            "description": "Return records starting with the specified document ID. Ignored if startkey is not set.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key_doc_id",
+            "in": "query",
+            "description": "Alias for startkey_docid param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update",
+            "in": "query",
+            "description": "Whether or not the view in question should be updated prior to responding to the user. Supported values: true, false, lazy. Default is true.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update_seq",
+            "in": "query",
+            "description": "Whether to include in the response an update_seq value indicating the sequence id of the database the view reflects. Default is false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "$ref": "#/definitions/Pagination"
+            }
+          },
+          "404": {
+            "description": "Requested database not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Database"],
+        "summary": "Executes the built-in _all_docs view",
+        "description": "POST _all_docs functionality supports identical parameters and behavior as specified in the \nGET /{db}/_all_docs API but allows for the query string parameters to be supplied as keys in a \nJSON object in the body of the POST request.\n",
+        "operationId": "docPostAll",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Keys"
+            }
+          },
+          {
+            "name": "conflicts",
+            "in": "query",
+            "description": "Include conflicts information in response. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "description": "Return the documents in descending order by key. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "endkey",
+            "in": "query",
+            "description": "Stop returning records when the specified key is reached.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key",
+            "in": "query",
+            "description": "Alias for endkey param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "endkey_docid",
+            "in": "query",
+            "description": "Stop returning records when the specified document ID is reached. Ignored if endkey is not set.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key_doc_id",
+            "in": "query",
+            "description": "Alias for endkey_docid.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "group",
+            "in": "query",
+            "description": "Group the results using the reduce function to a group or single row. Implies reduce is true and the maximum group_level. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "group_level",
+            "in": "query",
+            "description": "Specify the group level to be used. Implies group is true.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "include_docs",
+            "in": "query",
+            "description": "Include the associated document with each row. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "attachments",
+            "in": "query",
+            "description": "Include the Base64-encoded content of attachments in the documents that are included if include_docs is true. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "att_encoding_info",
+            "in": "query",
+            "description": "Include encoding information in attachment stubs if include_docs is true and the particular attachment is compressed. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "inclusive_end",
+            "in": "query",
+            "description": "Specifies whether the specified end key should be included in the result. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "revs_info",
+            "in": "query",
+            "description": "Includes detailed information for all known document revisions. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "description": "eturn only documents that match the specified key.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "keys",
+            "in": "query",
+            "description": "Return only documents where the key matches one of the keys specified in the array.",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of the returned documents to the specified number.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "reduce",
+            "in": "query",
+            "description": "Use the reduction function. Default is true when a reduce function is defined.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Skip this number of records before starting to return the results. Default is 0.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "sorted",
+            "in": "query",
+            "description": "Sort returned rows (see Sorting Returned Rows). Setting this to false offers a performance boost. The total_rows and offset fields are not available when this is set to false. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stable",
+            "in": "query",
+            "description": "Whether or not the view results should be returned from a stable set of shards. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stale",
+            "in": "query",
+            "description": "Allow the results from a stale view to be used. Supported values: ok and update_after. ok is equivalent to stable=true&update=false. update_after is equivalent to stable=true&update=lazy. The default behavior is equivalent to stable=false&update=true. Note that this parameter is deprecated. Use stable and update instead. See Views Generation for more details.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey",
+            "in": "query",
+            "description": "Return records starting with the specified key.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key",
+            "in": "query",
+            "description": "Alias for startkey.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey_docid",
+            "in": "query",
+            "description": "Return records starting with the specified document ID. Ignored if startkey is not set.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key_doc_id",
+            "in": "query",
+            "description": "Alias for startkey_docid param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update",
+            "in": "query",
+            "description": "Whether or not the view in question should be updated prior to responding to the user. Supported values: true, false, lazy. Default is true.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update_seq",
+            "in": "query",
+            "description": "Whether to include in the response an update_seq value indicating the sequence id of the database the view reflects. Default is false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "$ref": "#/definitions/Pagination"
+            }
+          },
+          "404": {
+            "description": "Requested database not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/{db}/_bulk_get": {
+      "post": {
+        "tags": ["Database"],
+        "summary": "This method can be called to query several documents in bulk.",
+        "description": "It is well suited for fetching a specific revision of documents, as replicators do for example, or for getting revision history.\n",
+        "operationId": "bulkGet",
+        "consumes": ["application/json", "multipart/related", "multipart/mixed"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "List of document objects, with id, and optionally rev and atts_since",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/body_2"
+            }
+          },
+          {
+            "name": "revs",
+            "in": "query",
+            "description": "Give the revisions history",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "$ref": "#/definitions/Results"
+            }
+          },
+          "400": {
+            "description": "The request provided invalid JSON data or invalid query parameter",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Read permission required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Requested database not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "415": {
+            "description": "Bad Content-Type value",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/{db}/_bulk_docs": {
+      "post": {
+        "tags": ["Database"],
+        "summary": "The bulk document API allows you to create and update multiple documents at the same time within a single request.",
+        "description": "The basic operation is similar to creating or updating a single document, except that you batch the document structure and information.\n\nWhen creating new documents the document ID (_id) is optional.\n\nFor updating existing documents, you must provide the document ID, revision information (_rev), and new document values.\n\nIn case of batch deleting documents all fields as document ID, revision information and deletion status (_deleted) are required.\n",
+        "operationId": "bulkDocs",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/body_3"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Document(s) have been created or updated",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/BulkResponse"
+              }
+            }
+          },
+          "400": {
+            "description": "The request provided invalid JSON data",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Requested database not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/{db}/_design_docs": {
+      "get": {
+        "tags": ["Database"],
+        "summary": "Returns a JSON structure of all of the design documents in a given database.",
+        "description": "The information is returned as a JSON structure containing meta information about the return structure, including a list of all design documents and basic contents, consisting the ID, revision and key. The key is the design document’s _id.\n",
+        "operationId": "designDocAllGet",
+        "consumes": ["application/json", "text/plan"],
+        "produces": ["application/json", "text/plan"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "conflicts",
+            "in": "query",
+            "description": "Include conflicts information in response. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "description": "Return the documents in descending order by key. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "endkey",
+            "in": "query",
+            "description": "Stop returning records when the specified key is reached. Optional.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key",
+            "in": "query",
+            "description": "Alias for endkey param.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "endkey_docid",
+            "in": "query",
+            "description": "Stop returning records when the specified design document ID is reached. Optional.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key_doc_id",
+            "in": "query",
+            "description": "Alias for endkey_docid param.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "include_docs",
+            "in": "query",
+            "description": "Include the full content of the design documents in the return. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "inclusive_end",
+            "in": "query",
+            "description": "Specifies whether the specified end key should be included in the result. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "description": "Return only design documents that match the specified key. Optional.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "keys",
+            "in": "query",
+            "description": "Return only design documents that match the specified keys. Optional.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of the returned design documents to the specified number. Optional.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Skip this number of records before starting to return the results. Default is 0.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "startkey",
+            "in": "query",
+            "description": "Return records starting with the specified key. Optional.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key",
+            "in": "query",
+            "description": "Alias for startkey param.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey_docid",
+            "in": "query",
+            "description": "Return records starting with the specified design document ID. Optional.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key_doc_id",
+            "in": "query",
+            "description": "Alias for startkey_docid param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update_seq",
+            "in": "query",
+            "description": "Whether to include in the response an update_seq value indicating the sequence id of the database the view reflects. Default is false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Response signature"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Pagination"
+            }
+          },
+          "404": {
+            "description": "Requested database not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Database"],
+        "summary": "POST _design_docs functionality supports identical parameters and behavior as specified in the GET /{db}/_design_docs",
+        "description": "API but allows for the query string parameters to be supplied as keys in a JSON object in the body of the POST request.\n",
+        "operationId": "designDocAllPost",
+        "consumes": ["application/json", "text/plan"],
+        "produces": ["application/json", "text/plan"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/body_4"
+            }
+          },
+          {
+            "name": "conflicts",
+            "in": "query",
+            "description": "Include conflicts information in response. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "description": "Return the documents in descending order by key. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "endkey",
+            "in": "query",
+            "description": "Stop returning records when the specified key is reached. Optional.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key",
+            "in": "query",
+            "description": "Alias for endkey param.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "endkey_docid",
+            "in": "query",
+            "description": "Stop returning records when the specified design document ID is reached. Optional.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key_doc_id",
+            "in": "query",
+            "description": "Alias for endkey_docid param.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "include_docs",
+            "in": "query",
+            "description": "Include the full content of the design documents in the return. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "inclusive_end",
+            "in": "query",
+            "description": "Specifies whether the specified end key should be included in the result. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "description": "Return only design documents that match the specified key. Optional.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "keys",
+            "in": "query",
+            "description": "Return only design documents that match the specified keys. Optional.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of the returned design documents to the specified number. Optional.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Skip this number of records before starting to return the results. Default is 0.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "startkey",
+            "in": "query",
+            "description": "Return records starting with the specified key. Optional.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key",
+            "in": "query",
+            "description": "Alias for startkey param.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey_docid",
+            "in": "query",
+            "description": "Return records starting with the specified design document ID. Optional.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key_doc_id",
+            "in": "query",
+            "description": "Alias for startkey_docid param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update_seq",
+            "in": "query",
+            "description": "Whether to include in the response an update_seq value indicating the sequence id of the database the view reflects. Default is false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Response signature"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Pagination"
+            }
+          },
+          "404": {
+            "description": "Requested database not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/{db}/_security": {
+      "get": {
+        "tags": ["Database"],
+        "summary": "Returns the current security object from the specified database.",
+        "description": "The security object consists of two compulsory elements, admins and members, which are used to specify the list of users and/or roles that have admin and members rights to the database respectively:\n\n  - members: they can read all types of documents from the DB, and they can write (and edit) documents to the DB except for design documents.\n  - admins: they have all the privileges of members plus the privileges: write (and edit) design documents, add/remove database admins and members and set the database revisions limit. They can not create a database nor delete a database.\n\nBoth members and admins objects contain two array-typed fields:\n\n  - names: List of CouchDB user names\n  - roles: List of users roles\n\nAny additional fields in the security object are optional. The entire security object is made available to validation and other internal functions so that the database can control and limit functionality.\n\nIf both the names and roles fields of either the admins or members properties are empty arrays, or are not existent, it means the database has no admins or members.\n\nHaving no admins, only server admins (with the reserved _admin role) are able to update design document and make other admin level changes.\n\nHaving no members, any user can write regular documents (any non-design document) and read documents from the database.\n\nIf there are any member names or roles defined for a database, then only authenticated users having a matching name or role are allowed to read documents from the database (or do a GET /{db} call).\n\n*Note*\nIf the security object for a database has never been set, then the value returned will be empty.\n\nAlso note, that security objects are not regular versioned documents (that is, they are not under MVCC rules). This is a design choice to speed up authorization checks (avoids traversing a database’s documents B-Tree).\n",
+        "operationId": "dbSecurityGet",
+        "consumes": ["application/json", "text/plan"],
+        "produces": ["application/json", "text/plan"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "$ref": "#/definitions/inline_response_200_5"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Database"],
+        "summary": "Sets the security object for the given database.",
+        "operationId": "sbSecurityPut",
+        "consumes": ["application/json", "text/plan"],
+        "produces": ["application/json", "text/plan"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/body_5"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "$ref": "#/definitions/OK"
+            }
+          },
+          "401": {
+            "description": "CouchDB Server Administrator privileges required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/{db}/_partition/{partition}": {
+      "get": {
+        "tags": ["Partition"],
+        "summary": "This endpoint returns information describing the provided partition. It includes document and deleted document counts along with external and active data sizes.",
+        "operationId": "partitionInfo",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "partition",
+            "in": "path",
+            "description": "Partition name",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "$ref": "#/definitions/Partition"
+            }
+          }
+        }
+      }
+    },
+    "/{db}/_partition/{partition}/_all_docs": {
+      "get": {
+        "tags": ["Partition"],
+        "summary": "Executes the built-in _all_docs view",
+        "description": "This endpoint is a convenience endpoint for automatically setting bounds on the provided partition range. Similar results can be had by using the global /db/_all_docs endpoint with appropriately configured values for start_key and end_key.\n\nRefer to the view endpoint documentation for a complete description of the available query parameters and the format of the returned data.\n",
+        "operationId": "partitionDocGetAll",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "partition",
+            "in": "path",
+            "description": "Partition name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "conflicts",
+            "in": "query",
+            "description": "Include conflicts information in response. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "description": "Return the documents in descending order by key. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "group",
+            "in": "query",
+            "description": "Group the results using the reduce function to a group or single row. Implies reduce is true and the maximum group_level. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "group_level",
+            "in": "query",
+            "description": "Specify the group level to be used. Implies group is true.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "include_docs",
+            "in": "query",
+            "description": "Include the associated document with each row. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "attachments",
+            "in": "query",
+            "description": "Include the Base64-encoded content of attachments in the documents that are included if include_docs is true. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "att_encoding_info",
+            "in": "query",
+            "description": "Include encoding information in attachment stubs if include_docs is true and the particular attachment is compressed. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "inclusive_end",
+            "in": "query",
+            "description": "Specifies whether the specified end key should be included in the result. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of the returned documents to the specified number.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "reduce",
+            "in": "query",
+            "description": "Use the reduction function. Default is true when a reduce function is defined.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Skip this number of records before starting to return the results. Default is 0.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "sorted",
+            "in": "query",
+            "description": "Sort returned rows (see Sorting Returned Rows). Setting this to false offers a performance boost. The total_rows and offset fields are not available when this is set to false. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stable",
+            "in": "query",
+            "description": "Whether or not the view results should be returned from a stable set of shards. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stale",
+            "in": "query",
+            "description": "Allow the results from a stale view to be used. Supported values: ok and update_after. ok is equivalent to stable=true&update=false. update_after is equivalent to stable=true&update=lazy. The default behavior is equivalent to stable=false&update=true. Note that this parameter is deprecated. Use stable and update instead. See Views Generation for more details.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey_docid",
+            "in": "query",
+            "description": "Return records starting with the specified document ID. Ignored if startkey is not set.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key_doc_id",
+            "in": "query",
+            "description": "Alias for startkey_docid param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update",
+            "in": "query",
+            "description": "Whether or not the view in question should be updated prior to responding to the user. Supported values: true, false, lazy. Default is true.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update_seq",
+            "in": "query",
+            "description": "Whether to include in the response an update_seq value indicating the sequence id of the database the view reflects. Default is false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "schema": {
+              "$ref": "#/definitions/Pagination"
+            }
+          },
+          "404": {
+            "description": "Requested database not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/{db}/_partition/{partition}/_design/{ddoc}/_view/{view}": {
+      "get": {
+        "tags": ["Partition"],
+        "summary": "Executes the specified view function from the specified design document.",
+        "operationId": "partitionDesignDocView",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "partition",
+            "in": "path",
+            "description": "Partition name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "ddoc",
+            "in": "path",
+            "description": "Design document id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "view",
+            "in": "path",
+            "description": "View function name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "conflicts",
+            "in": "query",
+            "description": "Include conflicts information in response. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "description": "Return the documents in descending order by key. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "endkey",
+            "in": "query",
+            "description": "Stop returning records when the specified key is reached.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key",
+            "in": "query",
+            "description": "Alias for endkey param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "endkey_docid",
+            "in": "query",
+            "description": "Stop returning records when the specified document ID is reached. Ignored if endkey is not set.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key_doc_id",
+            "in": "query",
+            "description": "Alias for endkey_docid.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "group",
+            "in": "query",
+            "description": "Group the results using the reduce function to a group or single row. Implies reduce is true and the maximum group_level. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "group_level",
+            "in": "query",
+            "description": "Specify the group level to be used. Implies group is true.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "include_docs",
+            "in": "query",
+            "description": "Include the associated document with each row. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "attachments",
+            "in": "query",
+            "description": "Include the Base64-encoded content of attachments in the documents that are included if include_docs is true. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "att_encoding_info",
+            "in": "query",
+            "description": "Include encoding information in attachment stubs if include_docs is true and the particular attachment is compressed. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "inclusive_end",
+            "in": "query",
+            "description": "Specifies whether the specified end key should be included in the result. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "revs_info",
+            "in": "query",
+            "description": "Includes detailed information for all known document revisions. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "description": "eturn only documents that match the specified key.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "keys",
+            "in": "query",
+            "description": "Return only documents where the key matches one of the keys specified in the array.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of the returned documents to the specified number.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "reduce",
+            "in": "query",
+            "description": "Use the reduction function. Default is true when a reduce function is defined.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Skip this number of records before starting to return the results. Default is 0.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "sorted",
+            "in": "query",
+            "description": "Sort returned rows (see Sorting Returned Rows). Setting this to false offers a performance boost. The total_rows and offset fields are not available when this is set to false. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stable",
+            "in": "query",
+            "description": "Whether or not the view results should be returned from a stable set of shards. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stale",
+            "in": "query",
+            "description": "Allow the results from a stale view to be used. Supported values: ok and update_after. ok is equivalent to stable=true&update=false. update_after is equivalent to stable=true&update=lazy. The default behavior is equivalent to stable=false&update=true. Note that this parameter is deprecated. Use stable and update instead. See Views Generation for more details.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey",
+            "in": "query",
+            "description": "Return records starting with the specified key.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key",
+            "in": "query",
+            "description": "Alias for startkey.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey_docid",
+            "in": "query",
+            "description": "Return records starting with the specified document ID. Ignored if startkey is not set.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key_doc_id",
+            "in": "query",
+            "description": "Alias for startkey_docid param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update",
+            "in": "query",
+            "description": "Whether or not the view in question should be updated prior to responding to the user. Supported values: true, false, lazy. Default is true.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update_seq",
+            "in": "query",
+            "description": "Whether to include in the response an update_seq value indicating the sequence id of the database the view reflects. Default is false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Response signature"
+              },
+              "Transfer-Encoding": {
+                "type": "string",
+                "description": "chunked"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Pagination"
+            }
+          },
+          "304": {
+            "description": "Document wasn’t modified since specified revision"
+          },
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Read permission required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Specified database, design document or view is missed",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Partition"],
+        "summary": "Executes the specified view function from the specified design document.",
+        "operationId": "partitionDesignDocViewPost",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "partition",
+            "in": "path",
+            "description": "Partition name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "ddoc",
+            "in": "path",
+            "description": "Design document id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "view",
+            "in": "path",
+            "description": "View function name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Keys"
+            }
+          },
+          {
+            "name": "conflicts",
+            "in": "query",
+            "description": "Include conflicts information in response. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "description": "Return the documents in descending order by key. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "endkey",
+            "in": "query",
+            "description": "Stop returning records when the specified key is reached.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key",
+            "in": "query",
+            "description": "Alias for endkey param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "endkey_docid",
+            "in": "query",
+            "description": "Stop returning records when the specified document ID is reached. Ignored if endkey is not set.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key_doc_id",
+            "in": "query",
+            "description": "Alias for endkey_docid.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "group",
+            "in": "query",
+            "description": "Group the results using the reduce function to a group or single row. Implies reduce is true and the maximum group_level. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "group_level",
+            "in": "query",
+            "description": "Specify the group level to be used. Implies group is true.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "include_docs",
+            "in": "query",
+            "description": "Include the associated document with each row. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "attachments",
+            "in": "query",
+            "description": "Include the Base64-encoded content of attachments in the documents that are included if include_docs is true. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "att_encoding_info",
+            "in": "query",
+            "description": "Include encoding information in attachment stubs if include_docs is true and the particular attachment is compressed. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "inclusive_end",
+            "in": "query",
+            "description": "Specifies whether the specified end key should be included in the result. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "revs_info",
+            "in": "query",
+            "description": "Includes detailed information for all known document revisions. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "description": "eturn only documents that match the specified key.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "keys",
+            "in": "query",
+            "description": "Return only documents where the key matches one of the keys specified in the array.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of the returned documents to the specified number.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "reduce",
+            "in": "query",
+            "description": "Use the reduction function. Default is true when a reduce function is defined.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Skip this number of records before starting to return the results. Default is 0.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "sorted",
+            "in": "query",
+            "description": "Sort returned rows (see Sorting Returned Rows). Setting this to false offers a performance boost. The total_rows and offset fields are not available when this is set to false. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stable",
+            "in": "query",
+            "description": "Whether or not the view results should be returned from a stable set of shards. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stale",
+            "in": "query",
+            "description": "Allow the results from a stale view to be used. Supported values: ok and update_after. ok is equivalent to stable=true&update=false. update_after is equivalent to stable=true&update=lazy. The default behavior is equivalent to stable=false&update=true. Note that this parameter is deprecated. Use stable and update instead. See Views Generation for more details.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey",
+            "in": "query",
+            "description": "Return records starting with the specified key.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key",
+            "in": "query",
+            "description": "Alias for startkey.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey_docid",
+            "in": "query",
+            "description": "Return records starting with the specified document ID. Ignored if startkey is not set.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key_doc_id",
+            "in": "query",
+            "description": "Alias for startkey_docid param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update",
+            "in": "query",
+            "description": "Whether or not the view in question should be updated prior to responding to the user. Supported values: true, false, lazy. Default is true.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update_seq",
+            "in": "query",
+            "description": "Whether to include in the response an update_seq value indicating the sequence id of the database the view reflects. Default is false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Response signature"
+              },
+              "Transfer-Encoding": {
+                "type": "string",
+                "description": "chunked"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Pagination"
+            }
+          },
+          "304": {
+            "description": "Document wasn’t modified since specified revision"
+          },
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Read permission required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Specified database, design document or view is missed",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/{db}/_partition/{partition}/_design/{ddoc}/_search/{index}": {
+      "get": {
+        "tags": ["Partition"],
+        "summary": "Executes a search request against the named index in the specified design document.",
+        "description": "*Warning*\nSearch endpoints require a running search plugin connected to each cluster node. See Search Plugin Installation for details.\n\n*Note*\nYou must enable faceting before you can use the counts, drilldown, and ranges parameters.\n\n*Note*\nFaceting and grouping are not supported on partitioned searches, so the following query parameters should not be used on those requests: counts, drilldown, ranges, and group_field, group_limit, group_sort``.\n\n*Note*        \nDo not combine the bookmark and stale options. These options constrain the choice of shard replicas to use for the response. When used together, the options might cause problems when contact is attempted with replicas that are slow or not available.\n",
+        "operationId": "partitionDesignDocSearch",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "partition",
+            "in": "path",
+            "description": "Partition name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "ddoc",
+            "in": "path",
+            "description": "Design document id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "index",
+            "in": "path",
+            "description": "Search index name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "bookmark",
+            "in": "query",
+            "description": "A bookmark received from a previous search. This parameter enables paging through the results. If there are no more results after the bookmark, you get a response with an empty rows array and the same bookmark, confirming the end of the result list.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "counts",
+            "in": "query",
+            "description": "An array of names of string fields for which counts are requested. The response contains counts for each unique value of this field name among the documents that match the search query. Faceting must be enabled for this parameter to function.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "drilldown",
+            "in": "query",
+            "description": "This field can be used several times. Each use defines a pair with a field name and a value. The search matches only documents containing the value that was provided in the named field. It differs from using \"fieldname:value\" in the q parameter only in that the values are not analyzed. Faceting must be enabled for this parameter to function.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "group_field",
+            "in": "query",
+            "description": "Field by which to group search matches. :query number group_limit: Maximum group count. This field can be used only if group_field is specified.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "group_sort",
+            "in": "query",
+            "description": "This field defines the order of the groups in a search that uses group_field. The default sort order is relevance.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "highlight_fields",
+            "in": "query",
+            "description": "Specifies which fields to highlight. If specified, the result object contains a highlights field with an entry for each specified field.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "highlight_pre_tag",
+            "in": "query",
+            "description": "A string that is inserted before the highlighted word in the highlights output.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "highlight_post_tag",
+            "in": "query",
+            "description": "A string that is inserted after the highlighted word in the highlights output.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "highlight_number",
+            "in": "query",
+            "description": "Number of fragments that are returned in highlights. If the search term occurs less often than the number of fragments that are specified, longer fragments are returned.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "highlight_size",
+            "in": "query",
+            "description": "Number of characters in each fragment for highlights.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "include_docs",
+            "in": "query",
+            "description": "Include the full content of the documents in the response.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "include_fields",
+            "in": "query",
+            "description": "A JSON array of field names to include in search results. Any fields that are included must be indexed with the store:true option. limit (number) – Limit the number of the returned documents to the specified number. For a grouped search, this parameter limits the number of documents per group.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of the returned documents to the specified number. For a grouped search, this parameter limits the number of documents per group.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Alias for query.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Required. The Lucene query string.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "range",
+            "in": "query",
+            "description": "This field defines ranges for faceted, numeric search fields. The value is a JSON object where the fields names are faceted numeric search fields, and the values of the fields are JSON objects. The field names of the JSON objects are names for ranges. The values are strings that describe the range, for example “[0 TO 10]”.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Specifies the sort order of the results. In a grouped search (when group_field is used), this parameter specifies the sort order within a group. The default sort order is relevance. A JSON string of the form \"fieldname<type>\" or -fieldname<type> for descending order, where fieldname is the name of a string or number field, and type is either a number, a string, or a JSON array of strings. The type part is optional, and defaults to number. Some examples are \"foo\", \"-foo\", \"bar<string>\", \"-foo<number>\" and [\"-foo<number>\", \"bar<string>\"]. String fields that are used for sorting must not be analyzed fields. Fields that are used for sorting must be indexed by the same indexer that is used for the search query.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "stale",
+            "in": "query",
+            "description": "Set to ok to allow the use of an out-of-date index.",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Response signature"
+              },
+              "Transfer-Encoding": {
+                "type": "string",
+                "description": "chunked"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Pagination"
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Read permission required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Specified database, design document or view is missed",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/{db}/_design/{ddoc}": {
+      "get": {
+        "tags": ["Design Documents"],
+        "summary": "Returns the contents of the design document specified with the name of the design document and from the specified database from the URL.",
+        "description": "Unless you request a specific revision, the latest revision of the document will always be returned.\n",
+        "operationId": "designDocGet",
+        "consumes": ["application/json", "multipart/related", "multipart/mixed", "text/plain"],
+        "produces": ["application/json", "multipart/related", "multipart/mixed", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "ddoc",
+            "in": "path",
+            "description": "Design document id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Double quoted document’s revision token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "attachments",
+            "in": "query",
+            "description": "Includes attachments bodies in response. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "att_encoding_info",
+            "in": "query",
+            "description": "Includes encoding information in attachment stubs if the particular attachment is compressed. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "atts_since",
+            "in": "query",
+            "description": "Includes attachments only since specified revisions. Doesn’t includes attachments for specified revisions. Optional",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "conflicts",
+            "in": "query",
+            "description": "Includes information about conflicts in document. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "deleted_conflicts",
+            "in": "query",
+            "description": "Includes information about deleted conflicted revisions. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "latest",
+            "in": "query",
+            "description": "Forces retrieving latest “leaf” revision, no matter what rev was requested. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "local_seq",
+            "in": "query",
+            "description": "Includes last update sequence for the document. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "meta",
+            "in": "query",
+            "description": "Acts same as specifying all conflicts, deleted_conflicts and revs_info query parameters. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "open_revs",
+            "in": "query",
+            "description": "Retrieves documents of specified leaf revisions. Additionally, it accepts value as all to return all leaf revisions. Optional",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "rev",
+            "in": "query",
+            "description": "Retrieves document of specified revision. Optional",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "revs",
+            "in": "query",
+            "description": "Includes list of all known document revisions. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "revs_info",
+            "in": "query",
+            "description": "Includes detailed information for all known document revisions. Default is false",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Double quoted document’s revision token"
+              },
+              "Transfer-Encoding": {
+                "type": "string",
+                "description": "chunked. Available if requested with query parameter open_revs"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DesignDoc"
+            }
+          },
+          "304": {
+            "description": "Document wasn’t modified since specified revision"
+          },
+          "400": {
+            "description": "The format of the request or revision was invalid",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Read privilege required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Document not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "head": {
+        "tags": ["Design Documents"],
+        "summary": "Returns the HTTP Headers containing a minimal amount of information about the specified design document.",
+        "operationId": "designDocExists",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "ddoc",
+            "in": "path",
+            "description": "Design document id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document exists",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Double quoted document’s revision token"
+              },
+              "Content-Length": {
+                "type": "integer",
+                "description": "Document size"
+              }
+            }
+          },
+          "304": {
+            "description": "Document wasn’t modified since specified revision"
+          },
+          "401": {
+            "description": "Read privilege required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Document not found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Design Documents"],
+        "summary": "The PUT method creates a new named design document, or creates a new revision of the existing design document.",
+        "description": "*Note*\nthat for filters, lists, shows and updates fields objects are mapping of function name to string function source code. For views mapping is the same except that values are objects with map and reduce (optional) keys which also contains functions source code.\n",
+        "operationId": "designDocPut",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "ddoc",
+            "in": "path",
+            "description": "Design document id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DesignDoc"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "Document’s revision. Alternative to rev query parameter or document key. Optional",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "rev",
+            "in": "query",
+            "description": "Document’s revision if updating an existing document. Alternative to If-Match header or document key. Optional",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "conflicts",
+            "in": "query",
+            "description": "Include conflicts information in response. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "description": "Return the documents in descending order by key. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "group",
+            "in": "query",
+            "description": "Group the results using the reduce function to a group or single row. Implies reduce is true and the maximum group_level. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "group_level",
+            "in": "query",
+            "description": "Specify the group level to be used. Implies group is true.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "attachments",
+            "in": "query",
+            "description": "Include the Base64-encoded content of attachments in the documents that are included if include_docs is true. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "att_encoding_info",
+            "in": "query",
+            "description": "Include encoding information in attachment stubs if include_docs is true and the particular attachment is compressed. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "inclusive_end",
+            "in": "query",
+            "description": "Specifies whether the specified end key should be included in the result. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of the returned documents to the specified number.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "reduce",
+            "in": "query",
+            "description": "Use the reduction function. Default is true when a reduce function is defined.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Skip this number of records before starting to return the results. Default is 0.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "sorted",
+            "in": "query",
+            "description": "Sort returned rows (see Sorting Returned Rows). Setting this to false offers a performance boost. The total_rows and offset fields are not available when this is set to false. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stable",
+            "in": "query",
+            "description": "Whether or not the view results should be returned from a stable set of shards. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stale",
+            "in": "query",
+            "description": "Allow the results from a stale view to be used. Supported values: ok and update_after. ok is equivalent to stable=true&update=false. update_after is equivalent to stable=true&update=lazy. The default behavior is equivalent to stable=false&update=true. Note that this parameter is deprecated. Use stable and update instead. See Views Generation for more details.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey_docid",
+            "in": "query",
+            "description": "Return records starting with the specified document ID. Ignored if startkey is not set.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key_doc_id",
+            "in": "query",
+            "description": "Alias for startkey_docid param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update",
+            "in": "query",
+            "description": "Whether or not the view in question should be updated prior to responding to the user. Supported values: true, false, lazy. Default is true.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update_seq",
+            "in": "query",
+            "description": "Whether to include in the response an update_seq value indicating the sequence id of the database the view reflects. Default is false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Document created and stored on disk",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Double quoted document’s revision token"
+              },
+              "Location": {
+                "type": "string",
+                "format": "uri",
+                "description": "Document URI"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DocumentOK"
+            }
+          },
+          "202": {
+            "description": "Document data accepted, but not yet stored on disk",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Double quoted document’s revision token"
+              },
+              "Location": {
+                "type": "string",
+                "format": "uri",
+                "description": "Document URI"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DocumentOK"
+            }
+          },
+          "400": {
+            "description": "Invalid request body or parameters",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Write privileges required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Specified database or document ID doesn’t exists",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "409": {
+            "description": "Document with the specified ID already exists or specified revision is not latest for target document",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Design Documents"],
+        "summary": "Deletes the specified document from the database. You must supply the current (latest) revision, either by using the rev parameter to specify the revision.",
+        "operationId": "designDocDelete",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "ddoc",
+            "in": "path",
+            "description": "Design document id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "Document’s revision. Alternative to rev query parameter",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "rev",
+            "in": "query",
+            "description": "Actual document’s revision",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "batch",
+            "in": "query",
+            "description": "Stores document in batch mode Possible values: ok. Optional\n",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document successfully removed",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Double quoted document’s revision token"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DocumentOK"
+            }
+          },
+          "202": {
+            "description": "Request was accepted, but changes are not yet stored on disk",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Double quoted document’s revision token"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DocumentOK"
+            }
+          },
+          "400": {
+            "description": "Invalid request body or parameters",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Write privileges required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Specified database or document ID doesn’t exists",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "409": {
+            "description": "Specified revision is not the latest for target document",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/{db}/_design/{ddoc}/_info": {
+      "head": {
+        "tags": ["Design Documents"],
+        "summary": "Obtains information about the specified design document, including the index, index size and current status of the design document and associated index information.",
+        "operationId": "designDocInfo",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "ddoc",
+            "in": "path",
+            "description": "Design document id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "DRequest completed successfully",
+            "schema": {
+              "$ref": "#/definitions/inline_response_200_6"
+            }
+          }
+        }
+      }
+    },
+    "/{db}/_design/{ddoc}/_view/{view}": {
+      "get": {
+        "tags": ["Design Documents"],
+        "summary": "Executes the specified view function from the specified design document.",
+        "operationId": "designDocView",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "ddoc",
+            "in": "path",
+            "description": "Design document id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "view",
+            "in": "path",
+            "description": "View function name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "conflicts",
+            "in": "query",
+            "description": "Include conflicts information in response. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "description": "Return the documents in descending order by key. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "endkey",
+            "in": "query",
+            "description": "Stop returning records when the specified key is reached.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key",
+            "in": "query",
+            "description": "Alias for endkey param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "endkey_docid",
+            "in": "query",
+            "description": "Stop returning records when the specified document ID is reached. Ignored if endkey is not set.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key_doc_id",
+            "in": "query",
+            "description": "Alias for endkey_docid.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "group",
+            "in": "query",
+            "description": "Group the results using the reduce function to a group or single row. Implies reduce is true and the maximum group_level. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "group_level",
+            "in": "query",
+            "description": "Specify the group level to be used. Implies group is true.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "include_docs",
+            "in": "query",
+            "description": "Include the associated document with each row. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "attachments",
+            "in": "query",
+            "description": "Include the Base64-encoded content of attachments in the documents that are included if include_docs is true. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "att_encoding_info",
+            "in": "query",
+            "description": "Include encoding information in attachment stubs if include_docs is true and the particular attachment is compressed. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "inclusive_end",
+            "in": "query",
+            "description": "Specifies whether the specified end key should be included in the result. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "revs_info",
+            "in": "query",
+            "description": "Includes detailed information for all known document revisions. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "description": "eturn only documents that match the specified key.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "keys",
+            "in": "query",
+            "description": "Return only documents where the key matches one of the keys specified in the array.",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of the returned documents to the specified number.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "reduce",
+            "in": "query",
+            "description": "Use the reduction function. Default is true when a reduce function is defined.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Skip this number of records before starting to return the results. Default is 0.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "sorted",
+            "in": "query",
+            "description": "Sort returned rows (see Sorting Returned Rows). Setting this to false offers a performance boost. The total_rows and offset fields are not available when this is set to false. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stable",
+            "in": "query",
+            "description": "Whether or not the view results should be returned from a stable set of shards. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stale",
+            "in": "query",
+            "description": "Allow the results from a stale view to be used. Supported values: ok and update_after. ok is equivalent to stable=true&update=false. update_after is equivalent to stable=true&update=lazy. The default behavior is equivalent to stable=false&update=true. Note that this parameter is deprecated. Use stable and update instead. See Views Generation for more details.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey",
+            "in": "query",
+            "description": "Return records starting with the specified key.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key",
+            "in": "query",
+            "description": "Alias for startkey.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey_docid",
+            "in": "query",
+            "description": "Return records starting with the specified document ID. Ignored if startkey is not set.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key_doc_id",
+            "in": "query",
+            "description": "Alias for startkey_docid param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update",
+            "in": "query",
+            "description": "Whether or not the view in question should be updated prior to responding to the user. Supported values: true, false, lazy. Default is true.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update_seq",
+            "in": "query",
+            "description": "Whether to include in the response an update_seq value indicating the sequence id of the database the view reflects. Default is false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Response signature"
+              },
+              "Transfer-Encoding": {
+                "type": "string",
+                "description": "chunked"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Pagination"
+            }
+          },
+          "304": {
+            "description": "Document wasn’t modified since specified revision"
+          },
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Read permission required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Specified database, design document or view is missed",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Design Documents"],
+        "summary": "Executes the specified view function from the specified design document.",
+        "description": "POST view functionality supports identical parameters and behavior as specified in the GET /{db}/_design/{ddoc}/_view/{view} API but allows for the query string parameters to be supplied as keys in a JSON object in the body of the POST request.\n",
+        "operationId": "designDocViewPost",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "ddoc",
+            "in": "path",
+            "description": "Design document id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "view",
+            "in": "path",
+            "description": "View function name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Keys"
+            }
+          },
+          {
+            "name": "conflicts",
+            "in": "query",
+            "description": "Include conflicts information in response. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "descending",
+            "in": "query",
+            "description": "Return the documents in descending order by key. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "endkey",
+            "in": "query",
+            "description": "Stop returning records when the specified key is reached.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key",
+            "in": "query",
+            "description": "Alias for endkey param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "endkey_docid",
+            "in": "query",
+            "description": "Stop returning records when the specified document ID is reached. Ignored if endkey is not set.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_key_doc_id",
+            "in": "query",
+            "description": "Alias for endkey_docid.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "group",
+            "in": "query",
+            "description": "Group the results using the reduce function to a group or single row. Implies reduce is true and the maximum group_level. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "group_level",
+            "in": "query",
+            "description": "Specify the group level to be used. Implies group is true.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "include_docs",
+            "in": "query",
+            "description": "Include the associated document with each row. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "attachments",
+            "in": "query",
+            "description": "Include the Base64-encoded content of attachments in the documents that are included if include_docs is true. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "att_encoding_info",
+            "in": "query",
+            "description": "Include encoding information in attachment stubs if include_docs is true and the particular attachment is compressed. Ignored if include_docs isn’t true. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "inclusive_end",
+            "in": "query",
+            "description": "Specifies whether the specified end key should be included in the result. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "revs_info",
+            "in": "query",
+            "description": "Includes detailed information for all known document revisions. Default is false",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "description": "eturn only documents that match the specified key.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "keys",
+            "in": "query",
+            "description": "Return only documents where the key matches one of the keys specified in the array.",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of the returned documents to the specified number.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "reduce",
+            "in": "query",
+            "description": "Use the reduction function. Default is true when a reduce function is defined.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Skip this number of records before starting to return the results. Default is 0.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "sorted",
+            "in": "query",
+            "description": "Sort returned rows (see Sorting Returned Rows). Setting this to false offers a performance boost. The total_rows and offset fields are not available when this is set to false. Default is true.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stable",
+            "in": "query",
+            "description": "Whether or not the view results should be returned from a stable set of shards. Default is false.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "stale",
+            "in": "query",
+            "description": "Allow the results from a stale view to be used. Supported values: ok and update_after. ok is equivalent to stable=true&update=false. update_after is equivalent to stable=true&update=lazy. The default behavior is equivalent to stable=false&update=true. Note that this parameter is deprecated. Use stable and update instead. See Views Generation for more details.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey",
+            "in": "query",
+            "description": "Return records starting with the specified key.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key",
+            "in": "query",
+            "description": "Alias for startkey.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startkey_docid",
+            "in": "query",
+            "description": "Return records starting with the specified document ID. Ignored if startkey is not set.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start_key_doc_id",
+            "in": "query",
+            "description": "Alias for startkey_docid param",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update",
+            "in": "query",
+            "description": "Whether or not the view in question should be updated prior to responding to the user. Supported values: true, false, lazy. Default is true.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "update_seq",
+            "in": "query",
+            "description": "Whether to include in the response an update_seq value indicating the sequence id of the database the view reflects. Default is false.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Response signature"
+              },
+              "Transfer-Encoding": {
+                "type": "string",
+                "description": "chunked"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Pagination"
+            }
+          },
+          "304": {
+            "description": "Document wasn’t modified since specified revision"
+          },
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Read permission required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Specified database, design document or view is missed",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/{db}/_design/{ddoc}/_search/{index}": {
+      "get": {
+        "tags": ["Design Documents"],
+        "summary": "Executes a search request against the named index in the specified design document.",
+        "description": "*Warning*\nSearch endpoints require a running search plugin connected to each cluster node. See Search Plugin Installation for details.\n\n*Note*\nYou must enable faceting before you can use the counts, drilldown, and ranges parameters.\n\n*Note*\nFaceting and grouping are not supported on partitioned searches, so the following query parameters should not be used on those requests: counts, drilldown, ranges, and group_field, group_limit, group_sort``.\n\n*Note*        \nDo not combine the bookmark and stale options. These options constrain the choice of shard replicas to use for the response. When used together, the options might cause problems when contact is attempted with replicas that are slow or not available.\n",
+        "operationId": "designDocSearch",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "ddoc",
+            "in": "path",
+            "description": "Design document id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "index",
+            "in": "path",
+            "description": "Search index name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "bookmark",
+            "in": "query",
+            "description": "A bookmark received from a previous search. This parameter enables paging through the results. If there are no more results after the bookmark, you get a response with an empty rows array and the same bookmark, confirming the end of the result list.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "counts",
+            "in": "query",
+            "description": "An array of names of string fields for which counts are requested. The response contains counts for each unique value of this field name among the documents that match the search query. Faceting must be enabled for this parameter to function.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "drilldown",
+            "in": "query",
+            "description": "This field can be used several times. Each use defines a pair with a field name and a value. The search matches only documents containing the value that was provided in the named field. It differs from using \"fieldname:value\" in the q parameter only in that the values are not analyzed. Faceting must be enabled for this parameter to function.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "group_field",
+            "in": "query",
+            "description": "Field by which to group search matches. :query number group_limit: Maximum group count. This field can be used only if group_field is specified.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "group_sort",
+            "in": "query",
+            "description": "This field defines the order of the groups in a search that uses group_field. The default sort order is relevance.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "highlight_fields",
+            "in": "query",
+            "description": "Specifies which fields to highlight. If specified, the result object contains a highlights field with an entry for each specified field.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "highlight_pre_tag",
+            "in": "query",
+            "description": "A string that is inserted before the highlighted word in the highlights output.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "highlight_post_tag",
+            "in": "query",
+            "description": "A string that is inserted after the highlighted word in the highlights output.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "highlight_number",
+            "in": "query",
+            "description": "Number of fragments that are returned in highlights. If the search term occurs less often than the number of fragments that are specified, longer fragments are returned.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "highlight_size",
+            "in": "query",
+            "description": "Number of characters in each fragment for highlights.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "include_docs",
+            "in": "query",
+            "description": "Include the full content of the documents in the response.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "include_fields",
+            "in": "query",
+            "description": "A JSON array of field names to include in search results. Any fields that are included must be indexed with the store:true option. limit (number) – Limit the number of the returned documents to the specified number. For a grouped search, this parameter limits the number of documents per group.\n",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit the number of the returned documents to the specified number. For a grouped search, this parameter limits the number of documents per group.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Alias for query.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Required. The Lucene query string.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "range",
+            "in": "query",
+            "description": "This field defines ranges for faceted, numeric search fields. The value is a JSON object where the fields names are faceted numeric search fields, and the values of the fields are JSON objects. The field names of the JSON objects are names for ranges. The values are strings that describe the range, for example “[0 TO 10]”.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Specifies the sort order of the results. In a grouped search (when group_field is used), this parameter specifies the sort order within a group. The default sort order is relevance. A JSON string of the form \"fieldname<type>\" or -fieldname<type> for descending order, where fieldname is the name of a string or number field, and type is either a number, a string, or a JSON array of strings. The type part is optional, and defaults to number. Some examples are \"foo\", \"-foo\", \"bar<string>\", \"-foo<number>\" and [\"-foo<number>\", \"bar<string>\"]. String fields that are used for sorting must not be analyzed fields. Fields that are used for sorting must be indexed by the same indexer that is used for the search query.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "stale",
+            "in": "query",
+            "description": "Set to ok to allow the use of an out-of-date index.",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Response signature"
+              },
+              "Transfer-Encoding": {
+                "type": "string",
+                "description": "chunked"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Pagination"
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Read permission required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Specified database, design document or view is missed",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/{db}/_design/{ddoc}/_search_info/{index}": {
+      "get": {
+        "tags": ["Design Documents"],
+        "summary": "Executes a search request against the named index in the specified design document.",
+        "description": "*Warning*\nSearch endpoints require a running search plugin connected to each cluster node. See Search Plugin Installation for details.\n",
+        "operationId": "designDocSearchInfo",
+        "consumes": ["application/json", "text/plain"],
+        "produces": ["application/json", "text/plain"],
+        "parameters": [
+          {
+            "name": "db",
+            "in": "path",
+            "description": "Database name",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_$()+/-]*$"
+          },
+          {
+            "name": "ddoc",
+            "in": "path",
+            "description": "Design document id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "index",
+            "in": "path",
+            "description": "Search index name",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request completed successfully",
+            "headers": {
+              "ETag": {
+                "type": "string",
+                "description": "Response signature"
+              },
+              "Transfer-Encoding": {
+                "type": "string",
+                "description": "chunked"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/inline_response_200_7"
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Read permission required",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Specified database, design document or view is missed",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "BasicAuth": [],
+      "JwtAuth": []
+    }
+  ],
+  "securityDefinitions": {
+    "BasicAuth": {
+      "type": "basic"
+    },
+    "JwtAuth": {
+      "description": "JWT authentication enables CouchDB to use externally-generated JWT tokens instead of defining users or roles in the _users database.\n\nThe JWT authentication handler requires that all JWT tokens are signed by a key that CouchDB has been configured to trust (there is no support for JWT’s “NONE” algorithm).\n\nAdditionally, CouchDB can be configured to reject JWT tokens that are missing a configurable set of claims (e.g, a CouchDB administrator could insist on the exp claim).\n\nAll claims presented in a JWT token are validated if presented, regardless of whether they are required.\n\nTwo sections of config exist to configure JWT authentication;\n\nThe required_claims config setting is a comma-separated list of additional mandatory JWT claims that must be present in any presented JWT token. A :code 400:Bad Request is sent if any are missing.\n\nThe alg claim is mandatory as it used to lookup the correct key for verifying the signature.\n\nThe sub claim is mandatory and is used as the CouchDB user’s name if the JWT token is valid.\n\nA private claim called _couchdb.roles is optional. If presented, as a JSON array of strings, it is used as the CouchDB user’s roles list as long as the JWT token is valid.      \n",
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "definitions": {
+    "SearchIndex": {
+      "type": "object",
+      "properties": {
+        "pending_seq": {
+          "type": "integer"
+        },
+        "doc_del_count": {
+          "type": "integer"
+        },
+        "doc_count": {
+          "type": "integer"
+        },
+        "disk_size": {
+          "type": "integer"
+        },
+        "committed_seq": {
+          "type": "integer"
+        }
+      }
+    },
+    "ViewIndex": {
+      "type": "object",
+      "properties": {
+        "compact_running": {
+          "type": "boolean",
+          "description": "Indicates whether a compaction routine is currently running on the view"
+        },
+        "language": {
+          "type": "string",
+          "description": "Language for the defined views"
+        },
+        "purge_seq": {
+          "type": "integer",
+          "description": "The purge sequence that has been processed"
+        },
+        "signature": {
+          "type": "string",
+          "description": "MD5 signature of the views for the design document"
+        },
+        "sizes": {
+          "$ref": "#/definitions/ViewIndex_sizes"
+        },
+        "update_seq": {
+          "type": "string",
+          "description": "The update sequence of the corresponding database that has been indexed"
+        },
+        "updater_running": {
+          "type": "boolean",
+          "description": "Indicates if the view is currently being updated"
+        },
+        "waiting_clients": {
+          "type": "integer",
+          "description": "Number of clients waiting on views from this design document"
+        },
+        "waiting_commit": {
+          "type": "boolean",
+          "description": "Indicates if there are outstanding commits to the underlying database that need to processed"
+        }
+      }
+    },
+    "DesignDoc": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string",
+          "description": "Defines Query Server to process design document functions"
+        },
+        "options": {
+          "type": "object",
+          "description": "View’s default options",
+          "properties": {}
+        },
+        "filters": {
+          "type": "object",
+          "description": "Filter functions definition",
+          "properties": {}
+        },
+        "updates": {
+          "type": "object",
+          "description": "Update functions definition",
+          "properties": {}
+        },
+        "validate_doc_update": {
+          "type": "string",
+          "description": "Validate document update function source"
+        },
+        "views": {
+          "type": "object",
+          "description": "View functions definition.",
+          "properties": {}
+        },
+        "indexes": {
+          "type": "object",
+          "properties": {}
+        },
+        "autoupdate": {
+          "type": "boolean",
+          "description": "Indicates whether to automatically build indexes defined in this design document. Default is true."
+        }
+      }
+    },
+    "Partition": {
+      "type": "object",
+      "properties": {
+        "db_name": {
+          "type": "string"
+        },
+        "doc_count": {
+          "type": "integer"
+        },
+        "doc_del_count": {
+          "type": "integer"
+        },
+        "partition": {
+          "type": "string"
+        },
+        "sizes": {
+          "$ref": "#/definitions/Partition_sizes"
+        }
+      }
+    },
+    "All": {
+      "type": "object",
+      "properties": {
+        "docs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BasicDoc"
+          }
+        }
+      }
+    },
+    "Results": {
+      "type": "object",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Results_results"
+          }
+        }
+      }
+    },
+    "Keys": {
+      "type": "object",
+      "properties": {
+        "keys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Pagination": {
+      "type": "object",
+      "properties": {
+        "offset": {
+          "type": "integer",
+          "description": "Offset where the document list started."
+        },
+        "total_rows": {
+          "type": "integer",
+          "description": "Number of documents in the database/view."
+        },
+        "rows": {
+          "type": "array",
+          "description": "Array of view row objects. By default the information returned contains only the document ID and revision.",
+          "items": {
+            "$ref": "#/definitions/Row"
+          }
+        },
+        "update_seq": {
+          "type": "object",
+          "description": "Current update sequence for the database.",
+          "properties": {}
+        }
+      }
+    },
+    "Row": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Document ID"
+        },
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/definitions/Object"
+        },
+        "doc": {
+          "$ref": "#/definitions/Document"
+        }
+      }
+    },
+    "Object": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "Document": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "BulkResponse": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/DocumentOK"
+        },
+        {
+          "$ref": "#/definitions/ErrorResponse"
+        }
+      ]
+    },
+    "DocumentOK": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/OK"
+        },
+        {
+          "$ref": "#/definitions/BasicDoc"
+        }
+      ]
+    },
+    "OK": {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "type": "boolean",
+          "description": "Operation status"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "description": "Error type. Available if response code is 4xx"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Error description. Available if response code is 4xx"
+        }
+      }
+    },
+    "ErrorBulkGetResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "description": "Error type. Available if response code is 4xx"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Error description. Available if response code is 4xx"
+        },
+        "id": {
+          "type": "string"
+        },
+        "rev": {
+          "type": "string"
+        }
+      }
+    },
+    "Database": {
+      "type": "object",
+      "properties": {
+        "db_name": {
+          "type": "string",
+          "description": "The name of the database."
+        },
+        "cluster": {
+          "$ref": "#/definitions/Database_cluster"
+        },
+        "compact_running": {
+          "type": "boolean",
+          "description": "Set to true if the database compaction routine is operating on this database."
+        },
+        "disk_format_version": {
+          "type": "integer",
+          "description": "The version of the physical format used for the data when it is stored on disk."
+        },
+        "doc_count": {
+          "type": "integer",
+          "description": "A count of the documents in the specified database."
+        },
+        "doc_del_count": {
+          "type": "integer",
+          "description": "Number of deleted documents"
+        },
+        "instance_start_time": {
+          "type": "string",
+          "description": "Always \"0\". (Returned for legacy reasons.)"
+        },
+        "purge_seq": {
+          "type": "string",
+          "description": "An opaque string that describes the purge state of the database. Do not rely on this string for counting the number of purge operations."
+        },
+        "sizes": {
+          "$ref": "#/definitions/Database_sizes"
+        },
+        "update_seq": {
+          "type": "string",
+          "description": "Always \"0\". (Returned for legacy reasons.)"
+        },
+        "props": {
+          "$ref": "#/definitions/Database_props"
+        }
+      }
+    },
+    "Server": {
+      "type": "object",
+      "properties": {
+        "couchdb": {
+          "type": "string"
+        },
+        "uuid": {
+          "type": "string",
+          "format": "uuidl"
+        },
+        "vendor": {
+          "$ref": "#/definitions/Server_vendor"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "Task": {
+      "type": "object",
+      "properties": {
+        "changes_done": {
+          "type": "integer",
+          "description": "Processed changes"
+        },
+        "database": {
+          "type": "string",
+          "description": "Source database"
+        },
+        "pid": {
+          "type": "string",
+          "description": "Process ID"
+        },
+        "progress": {
+          "type": "integer",
+          "description": "Current percentage progress"
+        },
+        "started_on": {
+          "type": "integer",
+          "description": "ask start time as unix timestamp"
+        },
+        "status": {
+          "type": "string",
+          "description": "Task status message"
+        },
+        "task": {
+          "type": "string",
+          "description": "Task name"
+        },
+        "total_changes": {
+          "type": "integer",
+          "description": "Total changes to process"
+        },
+        "type": {
+          "type": "string",
+          "description": "Operation Type"
+        },
+        "updated_on": {
+          "type": "string",
+          "description": "Unix timestamp of last operation update"
+        }
+      }
+    },
+    "Cluster": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": ["enable_single_node", "enable_cluster", "add_node", "finish_cluster"]
+        },
+        "bind_address": {
+          "type": "string",
+          "description": "The IP address to which to bind the current node. The special value 0.0.0.0 may be specified to bind to all interfaces on the host. (enable_cluster and enable_single_node only)"
+        },
+        "username": {
+          "type": "string",
+          "description": "The username of the server-level administrator to create. (enable_cluster and enable_single_node only), or the remote server’s administrator username (add_node)"
+        },
+        "password": {
+          "type": "string",
+          "description": "The password for the server-level administrator to create. (enable_cluster and enable_single_node only), or the remote server’s administrator username (add_node)"
+        },
+        "port": {
+          "type": "integer",
+          "description": "The TCP port to which to bind this node (enable_cluster and enable_single_node only) or the TCP port to which to bind a remote node (add_node only)."
+        },
+        "node_count": {
+          "type": "integer",
+          "description": "The total number of nodes to be joined into the cluster, including this one. Used to determine the value of the cluster’s n, up to a maximum of 3. (enable_cluster only)"
+        },
+        "remote_node": {
+          "type": "string",
+          "description": "The IP address of the remote node to setup as part of this cluster’s list of nodes. (enable_cluster only)"
+        },
+        "remote_current_user": {
+          "type": "string",
+          "description": "The username of the server-level administrator authorized on the remote node. (enable_cluster only)"
+        },
+        "remote_current_password": {
+          "type": "string",
+          "description": "he password of the server-level administrator authorized on the remote node. (enable_cluster only)"
+        },
+        "host": {
+          "type": "string",
+          "description": "The remote node IP of the node to add to the cluster. (add_node only)"
+        },
+        "ensure_dbs_exist": {
+          "type": "array",
+          "description": "List of system databases to ensure exist on the node/cluster. Defaults to [\"_users\",\"_replicator\"].",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Replicate": {
+      "type": "object",
+      "properties": {
+        "cancel": {
+          "type": "boolean",
+          "description": "Cancels the replication"
+        },
+        "continuous": {
+          "type": "boolean",
+          "description": "Configure the replication to be continuous"
+        },
+        "create_target": {
+          "type": "boolean",
+          "description": "Creates the target database. Required administrator’s privileges on target server."
+        },
+        "create_target_params": {
+          "$ref": "#/definitions/Replicate_create_target_params"
+        },
+        "doc_ids": {
+          "type": "array",
+          "description": "Array of document IDs to be synchronized",
+          "items": {
+            "type": "string"
+          }
+        },
+        "filter": {
+          "type": "string",
+          "description": "The name of a filter function."
+        },
+        "source_proxy": {
+          "type": "string",
+          "description": "Address of a proxy server through which replication from the source should occur (protocol can be “http” or “socks5”)"
+        },
+        "target_proxy": {
+          "type": "string",
+          "description": "Address of a proxy server through which replication to the target should occur (protocol can be “http” or “socks5”)"
+        },
+        "source": {
+          "description": "Fully qualified source object which contains the full URL of the source database with additional parameters like headers. Eg: ‘http://example.com/source_db_name’ \n",
+          "$ref": "#/definitions/Request"
+        },
+        "target": {
+          "description": "Fully qualified target object which contains the full URL of the target database with additional parameters like headers. Eg: ‘http://example.com/target_db_name’ \n",
+          "$ref": "#/definitions/Request"
+        }
+      }
+    },
+    "Request": {
+      "type": "object",
+      "properties": {
+        "headers": {
+          "$ref": "#/definitions/Request_headers"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "Replication": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BasicDoc"
+        },
+        {
+          "$ref": "#/definitions/OK"
+        }
+      ]
+    },
+    "ReplicationHistory": {
+      "type": "object",
+      "properties": {
+        "doc_write_failures": {
+          "type": "integer",
+          "description": "Number of document write failures"
+        },
+        "docs_read": {
+          "type": "integer",
+          "description": "Number of documents read"
+        },
+        "docs_written": {
+          "type": "integer",
+          "description": "Number of documents written to target"
+        },
+        "end_last_seq": {
+          "type": "integer",
+          "description": "Last sequence number in changes stream"
+        },
+        "end_time": {
+          "type": "string",
+          "format": "RFC2822",
+          "description": "Date/Time replication operation completed in RFC 2822 format"
+        },
+        "missing_checked": {
+          "type": "integer",
+          "description": "Number of missing documents checked"
+        },
+        "missing_found": {
+          "type": "integer",
+          "description": "Number of missing documents found"
+        },
+        "recorded_seq": {
+          "type": "integer",
+          "description": "Last recorded sequence number"
+        },
+        "session_id": {
+          "type": "string",
+          "description": "Session ID for this replication operation"
+        },
+        "start_last_seq": {
+          "type": "integer",
+          "description": "First sequence number in changes stream"
+        },
+        "start_time": {
+          "type": "string",
+          "format": "RFC2822",
+          "description": "Date/Time replication operation started in RFC 2822 format"
+        }
+      }
+    },
+    "Admins": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "array",
+          "description": "List of CouchDB user names",
+          "items": {
+            "type": "string"
+          }
+        },
+        "roles": {
+          "type": "array",
+          "description": "List of users roles",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "they have all the privileges of members plus the privileges: write (and edit) design documents, add/remove database admins and members and set the database revisions limit. They can not create a database nor delete a database.\n"
+    },
+    "Members": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "array",
+          "description": "List of CouchDB user names",
+          "items": {
+            "type": "string"
+          }
+        },
+        "roles": {
+          "type": "array",
+          "description": "List of users roles",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "they can read all types of documents from the DB, and they can write (and edit) documents to the DB except for design documents."
+    },
+    "BasicDoc": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "rev": {
+          "type": "string"
+        }
+      }
+    },
+    "inline_response_200": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "info": {
+          "$ref": "#/definitions/Database"
+        }
+      }
+    },
+    "inline_response_200_1": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "type": "string",
+          "description": "Current state of the node and/or cluster (see below)",
+          "enum": [
+            "cluster_disabled",
+            "single_node_disabled",
+            "single_node_enabled",
+            "cluster_enabled",
+            "cluster_finished"
+          ]
+        }
+      }
+    },
+    "body": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": ["enable_single_node", "enable_cluster", "add_node", "finish_cluster"]
+        }
+      }
+    },
+    "inline_response_200_2": {
+      "type": "object",
+      "properties": {
+        "all_nodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cluster_nodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "body_1": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Type of analyzer"
+        },
+        "text": {
+          "type": "string",
+          "description": "Analyzer token you want to test"
+        }
+      }
+    },
+    "inline_response_200_3": {
+      "type": "object",
+      "properties": {
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "inline_response_200_4": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "body_2": {
+      "type": "object",
+      "properties": {
+        "docs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BasicDoc"
+          }
+        }
+      }
+    },
+    "body_3": {
+      "type": "object",
+      "properties": {
+        "docs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Document"
+          }
+        }
+      },
+      "description": "List of documents objects"
+    },
+    "body_4": {
+      "type": "object",
+      "properties": {
+        "docs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Keys"
+          }
+        }
+      }
+    },
+    "inline_response_200_5": {
+      "type": "object",
+      "properties": {
+        "admins": {
+          "$ref": "#/definitions/Admins"
+        },
+        "members": {
+          "$ref": "#/definitions/Members"
+        }
+      }
+    },
+    "body_5": {
+      "type": "object",
+      "properties": {
+        "admins": {
+          "$ref": "#/definitions/Admins"
+        },
+        "members": {
+          "$ref": "#/definitions/Members"
+        }
+      }
+    },
+    "inline_response_200_6": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "view_index": {
+          "$ref": "#/definitions/ViewIndex"
+        }
+      }
+    },
+    "inline_response_200_7": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "search_index": {
+          "$ref": "#/definitions/SearchIndex"
+        }
+      }
+    },
+    "ViewIndex_sizes": {
+      "type": "object",
+      "properties": {
+        "active": {
+          "type": "integer",
+          "description": "The size of live data inside the view, in bytes"
+        },
+        "disk": {
+          "type": "integer",
+          "description": "Size in bytes of the view as stored on disk"
+        },
+        "external": {
+          "type": "integer",
+          "description": "The uncompressed size of view contents in bytes"
+        }
+      }
+    },
+    "Partition_sizes": {
+      "type": "object",
+      "properties": {
+        "active": {
+          "type": "integer"
+        },
+        "external": {
+          "type": "integer"
+        }
+      }
+    },
+    "Results_docs": {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "$ref": "#/definitions/Document"
+        },
+        "error": {
+          "$ref": "#/definitions/ErrorBulkGetResponse"
+        }
+      }
+    },
+    "Results_results": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "docs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Results_docs"
+          }
+        }
+      }
+    },
+    "Database_cluster": {
+      "type": "object",
+      "properties": {
+        "n": {
+          "type": "integer",
+          "description": "Replicas. The number of copies of every document."
+        },
+        "q": {
+          "type": "integer",
+          "description": "Shards. The number of range partitions."
+        },
+        "r": {
+          "type": "integer",
+          "description": "Read quorum. The number of consistent copies of a document that need to be read before a successful reply."
+        },
+        "w": {
+          "type": "integer",
+          "description": "Write quorum. The number of copies of a document that need to be written before a successful reply."
+        }
+      }
+    },
+    "Database_sizes": {
+      "type": "object",
+      "properties": {
+        "active": {
+          "type": "integer",
+          "description": "The size of live data inside the database, in bytes."
+        },
+        "external": {
+          "type": "integer",
+          "description": "The uncompressed size of database contents in bytes. sizes.file (number) – The size of the database file on disk in bytes. Views indexes are not included in the calculation."
+        },
+        "file": {
+          "type": "integer",
+          "description": "An opaque string that describes the state of the database. Do not rely on this string for counting the number of updates."
+        }
+      }
+    },
+    "Database_props": {
+      "type": "object",
+      "properties": {
+        "partitioned": {
+          "type": "boolean",
+          "description": "If present and true, this indicates that the database is partitioned."
+        }
+      }
+    },
+    "Server_vendor": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "Replicate_create_target_params": {
+      "type": "object",
+      "properties": {
+        "partitioned": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Request_headers": {
+      "type": "object",
+      "properties": {
+        "Authorization": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

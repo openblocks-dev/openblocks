@@ -1,7 +1,13 @@
 import { BoolControl } from "comps/controls/boolControl";
-import { StringControl } from "comps/controls/codeControl";
+import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl, HorizontalAlignmentControl } from "comps/controls/dropdownControl";
-import { MultiCompBuilder, stateComp, valueComp, withParamsForMap } from "comps/generators";
+import {
+  MultiCompBuilder,
+  stateComp,
+  valueComp,
+  withDefault,
+  withParamsForMap,
+} from "comps/generators";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { trans } from "i18n";
 import _ from "lodash";
@@ -19,6 +25,7 @@ import {
 import { AlignClose, AlignLeft, AlignRight } from "openblocks-design";
 import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
 
+export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;
 export const RenderComp = withParamsForMap(ColumnTypeComp, [
   "currentCell",
   "currentRow",
@@ -61,7 +68,7 @@ export const columnChildrenMap = {
   dataIndex: valueComp<string>(""),
   hide: BoolControl,
   sortable: BoolControl,
-  width: valueComp<number>(-1),
+  width: NumberControl,
   autoWidth: dropdownControl(columnWidthOptions, "auto"),
   render: RenderComp,
   align: HorizontalAlignmentControl,
@@ -145,6 +152,8 @@ export class ColumnComp extends ColumnInitComp {
           label: trans("table.autoWidth"),
           radioButton: true,
         })}
+        {this.children.autoWidth.getView() === "fixed" &&
+          this.children.width.propertyView({ label: trans("prop.width") })}
       </>
     );
   }

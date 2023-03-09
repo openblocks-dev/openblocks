@@ -1,5 +1,6 @@
 import {
   ActionArrayParamConfig,
+  ActionConfig,
   ActionParamConfig,
   KeyedParamConfig,
   QueryConfig,
@@ -10,29 +11,35 @@ import {
   ParamsStringControl,
   ParamsControlType,
   ParamsBooleanControl,
+  ParamsJsonControl,
 } from "comps/controls/paramsControl";
 import { MultiCompBuilder, valueComp, withDefault } from "comps/generators";
 import { withTypeAndChildrenAbstract } from "comps/generators/withType";
 import {
   Dropdown,
+  DropdownOptionLabelWithDesc,
   QueryConfigItemWrapper,
   QueryConfigLabel,
   QueryConfigWrapper,
 } from "openblocks-design";
-import { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { FunctionProperty, toQueryView } from "../queryCompUtils";
 import { CompConstructor } from "openblocks-core";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { ControlType } from "comps/controls/controlParams";
+import { ControlParams, ControlType } from "comps/controls/controlParams";
 
-function wrapConfig(paramsControl: ControlType, config: KeyedParamConfig) {
+function wrapConfig(
+  paramsControl: ControlType,
+  config: KeyedParamConfig,
+  controlParams: ControlParams = {}
+) {
   return class extends paramsControl {
     getPropertyView(): ReactNode {
       return (
         <QueryConfigWrapper key={config.key}>
           <QueryConfigLabel tooltip={config.tooltip}>{config.label}</QueryConfigLabel>
           <QueryConfigItemWrapper>
-            {this.propertyView({ placeholder: config.placeholder })}
+            {this.propertyView({ placeholder: config.placeholder, ...controlParams })}
           </QueryConfigItemWrapper>
         </QueryConfigWrapper>
       );
@@ -46,6 +53,87 @@ function isReadOnlyArray(obj: any): obj is readonly any[] {
 
 function isParamsControl(comp: any): comp is ParamsControlType {
   return !!comp["isParamsControl"];
+}
+
+interface ActionSelectViewProps {
+  config: QueryConfig;
+  currentActionName: string;
+  onActionChange: (actionName: string) => void;
+}
+
+function ActionSelectView(props: ActionSelectViewProps) {
+  const { config, currentActionName, onActionChange } = props;
+  const [currentCategory, setCategory] = useState<string>("");
+
+  const filter = (category: string) => (i: ActionConfig) => {
+    if (!i.category) {
+      return !category;
+    }
+    return i.category.includes(category);
+  };
+
+  const categoryOptions =
+    config.categories?.items?.map((child) => {
+      return {
+        label: child.label,
+        value: child.value as string,
+      };
+    }) || [];
+
+  const isActionOptionHasDesc = config.actions.some((i) => !!i.description);
+  const actionOptions = config.actions.filter(filter(currentCategory)).map((child) => ({
+    rawLabel: child.label,
+    label: isActionOptionHasDesc ? (
+      <DropdownOptionLabelWithDesc label={child.label} description={child.description || ""} />
+    ) : (
+      child.label
+    ),
+    value: child.actionName,
+  }));
+
+  const handleCategoryChange = (category: string) => {
+    const firstAction = config.actions.find(filter(category));
+    if (!firstAction) {
+      return;
+    }
+    onActionChange(firstAction.actionName);
+  };
+
+  useEffect(() => {
+    const action = config.actions.find((i) => i.actionName === currentActionName);
+    if (action) {
+      if (Array.isArray(action.category)) {
+        setCategory(action.category[0]);
+      }
+    }
+  }, [config.actions, currentActionName]);
+
+  return (
+    <>
+      {config.categories && (
+        <Dropdown
+          placement="bottom"
+          label={config.categories.label}
+          options={categoryOptions}
+          value={currentCategory}
+          onChange={handleCategoryChange}
+          showSearch
+          optionFilterProp="rawLabel"
+        />
+      )}
+      <Dropdown
+        showSearch
+        optionFilterProp="rawLabel"
+        optionLabelProp="rawLabel"
+        placement="bottom"
+        label={config.label}
+        toolTip={config.tooltip}
+        options={actionOptions}
+        value={currentActionName}
+        onChange={onActionChange}
+      />
+    </>
+  );
 }
 
 function unionConfigToComp(config: QueryConfig): CompConstructor {
@@ -68,21 +156,12 @@ function unionConfigToComp(config: QueryConfig): CompConstructor {
     }
     override getPropertyView() {
       const currentActionName = this.children.actionName.getView();
-
-      const options = config.actions.map((child) => ({
-        label: child.label,
-        value: child.actionName,
-      }));
-
       return (
         <>
-          <Dropdown
-            placement="bottom"
-            label={config.label}
-            toolTip={config.tooltip}
-            options={options}
-            value={currentActionName}
-            onChange={(value) => this.dispatchChangeAndPreserveAction({ actionName: value })}
+          <ActionSelectView
+            config={config}
+            currentActionName={currentActionName}
+            onActionChange={(value) => this.dispatchChangeAndPreserveAction({ actionName: value })}
           />
           {this.children.action.getPropertyView()}
         </>
@@ -100,7 +179,13 @@ function arrayConfigToComp(config: ActionArrayParamConfig): CompConstructor {
 
   const TmpComp = new MultiCompBuilder(childrenMap, () => {})
     .setPropertyViewFn((children) => {
-      return <>{config.map((item) => children[item.key].getPropertyView())}</>;
+      return (
+        <>
+          {config.map((item) => (
+            <React.Fragment key={item.key}>{children[item.key].getPropertyView()}</React.Fragment>
+          ))}
+        </>
+      );
     })
     .build();
 
@@ -132,8 +217,24 @@ export function configToComp(
   }
 
   if (config.type === "select") {
+    const options = config.options.map((i) => {
+      const { value, label, description } = i;
+      let labelNode: ReactNode = label;
+      if (description) {
+        labelNode = (
+          <>
+            <div>{label}</div>
+            <div>{description}</div>
+          </>
+        );
+      }
+      return {
+        label: labelNode,
+        value,
+      };
+    });
     return wrapConfig(
-      dropdownControl(config.options, config.defaultValue ?? config.options?.[0].value),
+      dropdownControl(options, config.defaultValue ?? config.options?.[0].value),
       config
     );
   }
@@ -153,6 +254,14 @@ export function configToComp(
 
   if (config.type === "switch") {
     Comp = wrapConfig(ParamsBooleanControl, config);
+  }
+
+  if (config.type === "file") {
+    Comp = wrapConfig(ParamsStringControl, config);
+  }
+
+  if (config.type === "jsonInput") {
+    Comp = wrapConfig(ParamsJsonControl, config, { styleName: "medium" });
   }
 
   if (!Comp) {

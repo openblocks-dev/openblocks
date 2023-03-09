@@ -118,6 +118,10 @@ export class MultiCompBuilder<ViewReturn, ChildrenCompMap extends Record<string,
         return parseChildrenFromValueAndChildrenMap(params, builder.childrenMap);
       }
 
+      protected override ignoreChildDefaultValue() {
+        return true;
+      }
+
       override getView(): ViewReturn {
         return builder.viewFn(
           childrenToProps(this.children) as ToViewReturn<ChildrenCompMap>,

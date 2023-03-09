@@ -2,3 +2,4 @@
 logs/
 client/.yarn/cache/*.zip
 stacks/
+server/node-service/.yarn/cache/*.zip

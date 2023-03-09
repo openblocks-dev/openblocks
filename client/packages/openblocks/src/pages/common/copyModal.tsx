@@ -66,7 +66,7 @@ export function CopyModal(props: CopyModalProps) {
               }
             })
             .catch((e) => {
-              message.error(trans("home.copyErrorMessage"));
+              message.error(trans("copyError"));
             });
         }
       }}

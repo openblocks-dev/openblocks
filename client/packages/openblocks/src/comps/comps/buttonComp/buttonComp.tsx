@@ -2,6 +2,8 @@ import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { IconControl } from "comps/controls/iconControl";
+import { PaddingControl } from "../../controls/paddingControl";
+import { MarginControl } from "../../controls/marginControl";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
@@ -10,13 +12,26 @@ import {
   hiddenPropertyView,
   loadingPropertyView,
 } from "comps/utils/propertyUtils";
-import { CommonBlueLabel, Dropdown, Section, sectionNames } from "openblocks-design";
+import {
+  CommonBlueLabel,
+  Dropdown,
+  Section,
+  sectionNames,
+} from "openblocks-design";
 import { trans } from "i18n";
 import styled from "styled-components";
-import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
+import {
+  CommonNameConfig,
+  NameConfig,
+  withExposingConfigs,
+} from "../../generators/withExposing";
 import { IForm } from "../formComp/formDataConstants";
 import { SimpleNameComp } from "../simpleNameComp";
-import { Button100, ButtonCompWrapper, ButtonStyleControl } from "./buttonCompConstants";
+import {
+  Button100,
+  ButtonCompWrapper,
+  ButtonStyleControl,
+} from "./buttonCompConstants";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
@@ -44,7 +59,10 @@ function getForm(editorState: EditorState, formName: string) {
   }
 }
 
-function getFormEventHandlerPropertyView(editorState: EditorState, formName: string) {
+function getFormEventHandlerPropertyView(
+  editorState: EditorState,
+  formName: string
+) {
   const form = getForm(editorState, formName);
   if (!form) {
     return undefined;
@@ -54,7 +72,12 @@ function getFormEventHandlerPropertyView(editorState: EditorState, formName: str
       {form.onEventPropertyView(
         <>
           <FormLabel
-            onClick={() => editorState.setSelectedCompNames(new Set([formName]), "rightPanel")}
+            onClick={() =>
+              editorState.setSelectedCompNames(
+                new Set([formName]),
+                "rightPanel"
+              )
+            }
           >
             {formName}
           </FormLabel>
@@ -119,6 +142,8 @@ const ButtonTmpComp = (function () {
     prefixIcon: IconControl,
     suffixIcon: IconControl,
     style: ButtonStyleControl,
+    margin: MarginControl,
+    padding: PaddingControl,
   };
   return new UICompBuilder(childrenMap, (props) => (
     <ButtonCompWrapper disabled={props.disabled}>
@@ -129,15 +154,29 @@ const ButtonTmpComp = (function () {
             loading={props.loading}
             disabled={
               props.disabled ||
-              (!isDefault(props.type) && getForm(editorState, props.form)?.disableSubmit())
+              (!isDefault(props.type) &&
+                getForm(editorState, props.form)?.disableSubmit())
             }
             onClick={() =>
-              isDefault(props.type) ? props.onEvent("click") : submitForm(editorState, props.form)
+              isDefault(props.type)
+                ? props.onEvent("click")
+                : submitForm(editorState, props.form)
             }
+            style={{
+              marginTop: props.margin.top ? props.margin.top : 0,
+              marginRight: props.margin.right ? props.margin.right : 0,
+              marginBottom: props.margin.bottom ? props.margin.bottom : 0,
+              marginLeft: props.margin.left ? props.margin.left : 0,
+              paddingTop: props.padding.top ? props.padding.top : 0,
+              paddingRight: props.padding.right ? props.padding.right : 0,
+              paddingBottom: props.padding.bottom ? props.padding.bottom : 0,
+              paddingLeft: props.padding.left ? props.padding.left : 0,
+            }}
           >
             {props.prefixIcon && <IconWrapper>{props.prefixIcon}</IconWrapper>}
             {
-              props.text || (props.prefixIcon || props.suffixIcon ? undefined : " ") // Avoid button disappearing
+              props.text ||
+                (props.prefixIcon || props.suffixIcon ? undefined : " ") // Avoid button disappearing
             }
             {props.suffixIcon && <IconWrapper>{props.suffixIcon}</IconWrapper>}
           </Button100>
@@ -152,7 +191,10 @@ const ButtonTmpComp = (function () {
         </Section>
 
         <Section name={sectionNames.interaction}>
-          {children.type.propertyView({ label: trans("prop.type"), radioButton: true })}
+          {children.type.propertyView({
+            label: trans("prop.type"),
+            radioButton: true,
+          })}
           {isDefault(children.type.getView()) ? (
             <>
               {children.onEvent.getPropertyView()}
@@ -165,12 +207,24 @@ const ButtonTmpComp = (function () {
         </Section>
 
         <Section name={sectionNames.layout}>
-          {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+          {children.prefixIcon.propertyView({
+            label: trans("button.prefixIcon"),
+          })}
+          {children.suffixIcon.propertyView({
+            label: trans("button.suffixIcon"),
+          })}
           {hiddenPropertyView(children)}
         </Section>
 
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+        </Section>
+        <Section name={trans("style.margin")}>
+          {children.margin.getPropertyView()}
+        </Section>
+        <Section name={trans("style.padding")}>
+          {children.padding.getPropertyView()}
+        </Section>
       </>
     ))
     .build();

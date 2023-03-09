@@ -13,6 +13,9 @@ interface EventHandlerMap<O = any> {
 
 export interface AppViewInstanceOptions<I = any> {
   moduleInputs?: I;
+  appDsl?: any;
+  moduleDslMap?: any;
+  baseUrl?: string;
 }
 
 export interface OpenblocksAppViewProps<I, O> extends AppViewInstanceOptions<I> {
@@ -25,7 +28,7 @@ export interface OpenblocksAppViewProps<I, O> extends AppViewInstanceOptions<I> 
 export interface AppViewInstance<I, O> {
   on<K extends keyof EventHandlerMap<O>>(event: K, handler?: EventHandlerMap<O>[K]): Off;
   setModuleInputs(inputs: I): void;
-  invokeMethod(methodName: string): void;
+  invokeMethod(methodName: string, params?: any[]): void;
 }
 
 export declare const OpenblocksAppView: React.ForwardRefExoticComponent<

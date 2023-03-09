@@ -6,6 +6,7 @@ import { ParamsJsonControl } from "../controls/paramsControl";
 import { ControlPropertyViewWrapper, Input, KeyValueList } from "openblocks-design";
 import { list } from "../generators/list";
 import { ControlParams } from "../controls/controlParams";
+import { ChangeSetTypeDropdown } from "./sqlQuery/changeSetComp";
 
 const SingleField = class extends buildQueryCommand({
   column: valueComp<string>(""),
@@ -53,10 +54,28 @@ const Record = class extends list(SingleField) {
   }
 };
 
-export const InputChangeSet = withType(
+export const InputChangeSet = class extends withType(
   {
     KEY_VALUE_PAIRS: withDefault(Record, [{ column: "", value: "" }]),
     OBJECT: ParamsJsonControl,
   },
   "KEY_VALUE_PAIRS"
-);
+) {
+  propertyView(params: ControlParams & { label: string }) {
+    return (
+      <>
+        <ChangeSetTypeDropdown
+          label={params.label}
+          value={this.children.compType.getView()}
+          comp={this}
+        />
+        {this.children.comp.propertyView({
+          styleName: "medium" as const,
+          placeholder: `{{ form.data }}`,
+          label: " ",
+          placement: "bottom" as const,
+        })}
+      </>
+    );
+  }
+};

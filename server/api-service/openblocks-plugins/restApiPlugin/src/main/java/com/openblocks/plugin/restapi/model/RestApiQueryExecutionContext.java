@@ -32,7 +32,7 @@ public class RestApiQueryExecutionContext extends QueryExecutionContext {
     @Setter
     private Map<String, String> urlParams;
     private List<Property> bodyParams;
-    private String queryBody;
+    private QueryBody queryBody;
     private String contentType;
     private boolean encodeParams;
 
@@ -49,7 +49,7 @@ public class RestApiQueryExecutionContext extends QueryExecutionContext {
         return uri;
     }
 
-    public String getQueryBody() {
+    public QueryBody getQueryBody() {
         return queryBody;
     }
 

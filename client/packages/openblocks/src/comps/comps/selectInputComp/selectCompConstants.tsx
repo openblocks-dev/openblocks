@@ -7,6 +7,8 @@ import {
 import { BoolControl } from "../../controls/boolControl";
 import { LabelControl } from "../../controls/labelControl";
 import { BoolCodeControl, StringControl } from "../../controls/codeControl";
+import { PaddingControl } from "../../controls/paddingControl";
+import { MarginControl } from "../../controls/marginControl";
 import {
   isDarkColor,
   lightenColor,
@@ -24,14 +26,17 @@ import {
   SelectInputValidationChildren,
   SelectInputValidationSection,
 } from "./selectInputConstants";
-import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
+import {
+  formDataChildren,
+  FormDataPropertyView,
+} from "../formComp/formDataConstants";
 import {
   CascaderStyleType,
   MultiSelectStyleType,
   SelectStyleType,
   TreeSelectStyleType,
 } from "comps/controls/styleControlConstants";
-import { stateComp } from "../../generators";
+import { stateComp, withDefault } from "../../generators";
 import {
   allowClearPropertyView,
   disabledPropertyView,
@@ -43,7 +48,11 @@ import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
 
 export const getStyle = (
-  style: SelectStyleType | MultiSelectStyleType | CascaderStyleType | TreeSelectStyleType
+  style:
+    | SelectStyleType
+    | MultiSelectStyleType
+    | CascaderStyleType
+    | TreeSelectStyleType
 ) => {
   return css`
     &.ant-select .ant-select-selector,
@@ -76,18 +85,18 @@ export const getStyle = (
       .ant-select-clear {
         background-color: ${style.background};
         color: ${style.text === "#222222"
-          ? "#8B8FA3"
-          : isDarkColor(style.text)
-          ? lightenColor(style.text, 0.2)
-          : style.text};
+      ? "#8B8FA3"
+      : isDarkColor(style.text)
+        ? lightenColor(style.text, 0.2)
+        : style.text};
       }
 
       .ant-select-clear:hover {
         color: ${style.text === "#222222"
-          ? "#8B8FA3"
-          : isDarkColor(style.text)
-          ? lightenColor(style.text, 0.1)
-          : style.text};
+      ? "#8B8FA3"
+      : isDarkColor(style.text)
+        ? lightenColor(style.text, 0.1)
+        : style.text};
       }
 
       &.ant-select-multiple .ant-select-selection-item {
@@ -135,7 +144,10 @@ const getDropdownStyle = (style: MultiSelectStyleType) => {
   `;
 };
 
-const Select = styled(AntdSelect)<{ $style: SelectStyleType & MultiSelectStyleType }>`
+
+const Select = styled(AntdSelect) <{
+  $style: SelectStyleType & MultiSelectStyleType;
+}>`
   width: 100%;
   ${(props) => props.$style && getStyle(props.$style)}
 `;
@@ -167,6 +179,8 @@ export const SelectChildrenMap = {
   allowClear: BoolControl,
   inputValue: stateComp<string>(""), // user's input value when search
   showSearch: BoolControl.DEFAULT_TRUE,
+  margin: MarginControl,
+  padding: PaddingControl,
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -188,9 +202,13 @@ export const SelectUIView = (
     placeholder={props.placeholder}
     value={props.value}
     showSearch={props.showSearch}
-    filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase())}
+    filterOption={(input, option) =>
+      option?.label.toLowerCase().includes(input.toLowerCase())
+    }
     dropdownRender={(originNode: ReactNode) => (
-      <DropdownStyled $style={props.style as MultiSelectStyleType}>{originNode}</DropdownStyled>
+      <DropdownStyled $style={props.style as MultiSelectStyleType}>
+        {originNode}
+      </DropdownStyled>
     )}
     dropdownStyle={{
       padding: 0,
@@ -202,10 +220,20 @@ export const SelectUIView = (
     onSearch={
       props.showSearch
         ? (value) => {
-            props.dispatch(changeChildAction("inputValue", value));
-          }
+          props.dispatch(changeChildAction("inputValue", value));
+        }
         : undefined
     }
+    style={{
+      marginTop: props.margin.top ? props.margin.top : 0,
+      marginRight: props.margin.right ? props.margin.right : 0,
+      marginBottom: props.margin.bottom ? props.margin.bottom : 0,
+      marginLeft: props.margin.left ? props.margin.left : 0,
+      paddingTop: props.padding.top ? props.padding.top : 0,
+      paddingRight: props.padding.right ? props.padding.right : 0,
+      paddingBottom: props.padding.bottom ? props.padding.bottom : 0,
+      paddingLeft: props.padding.left ? props.padding.left : 0,
+    }}
   >
     {props.options
       .filter((option) => option.value !== undefined && !option.hidden)
@@ -217,8 +245,8 @@ export const SelectUIView = (
           key={option.value}
         >
           <Wrapper className="option-label">
-            {props.options.findIndex((option) => hasIcon(option.prefixIcon)) > -1 &&
-              option.prefixIcon}
+            {props.options.findIndex((option) => hasIcon(option.prefixIcon)) >
+              -1 && option.prefixIcon}
             {<span>{option.label}</span>}
           </Wrapper>
         </Select.Option>
@@ -258,6 +286,14 @@ export const SelectPropertyView = (
     <SelectInputValidationSection {...children} />
 
     <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-    <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+    <Section name={sectionNames.style}>
+      {children.style.getPropertyView()}
+    </Section>
+    <Section name={trans("style.margin")}>
+      {children.margin.getPropertyView()}
+    </Section>
+    <Section name={trans("style.padding")}>
+      {children.padding.getPropertyView()}
+    </Section>
   </>
 );

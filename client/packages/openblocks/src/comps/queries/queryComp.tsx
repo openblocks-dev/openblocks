@@ -53,9 +53,20 @@ import { QueryContext } from "../../util/context/QueryContext";
 import { perfMark, perfMeasure } from "util/perfUtils";
 import { trans } from "i18n";
 import { undoKey } from "util/keyUtils";
-import { manualTriggerResource, QueryMap } from "@openblocks-ee/constants/queryConstants";
-import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "../../constants/queryConstants";
+import {
+  manualTriggerResource,
+  QueryMap,
+  ResourceType,
+} from "@openblocks-ee/constants/queryConstants";
+import {
+  QUERY_EXECUTION_ERROR,
+  QUERY_EXECUTION_OK,
+  JsPluginQueryMap,
+} from "../../constants/queryConstants";
 import DataSourceIcon from "components/DataSourceIcon";
+import { setFieldsNoTypeCheck } from "util/objectUtils";
+import { ToInstanceType } from "comps/generators/multi";
+import { HttpQuery } from "./httpQuery/httpQuery";
 
 export type QueryResultExtra = Omit<
   QueryExecuteResponse,
@@ -82,7 +93,7 @@ const EventOptions = [
   { label: trans("query.fail"), value: "fail", description: trans("query.failDesc") },
 ] as const;
 
-let QueryCompTmp = withTypeAndChildren(QueryMap, "js", {
+const childrenMap = {
   id: valueComp<string>(""),
   name: SimpleNameComp,
   order: valueComp<number>(0),
@@ -124,7 +135,24 @@ let QueryCompTmp = withTypeAndChildren(QueryMap, "js", {
       return unit === "s" ? value * 1000 : value;
     },
   }),
-});
+};
+
+let QueryCompTmp = withTypeAndChildren<typeof QueryMap, ToInstanceType<typeof childrenMap>>(
+  (type, value) => {
+    const resourceType = type as ResourceType;
+    const Comp = QueryMap[resourceType];
+    if (Comp) {
+      return Comp;
+    }
+    if (!value?.datasourceId) {
+      return;
+    }
+    const typeWithDataSourceId = `${type}:${value.datasourceId}` as `${string}:${string}`;
+    return JsPluginQueryMap[typeWithDataSourceId];
+  },
+  "js",
+  childrenMap
+);
 
 export type QueryChildrenType = InstanceType<typeof QueryCompTmp> extends MultiBaseComp<infer X>
   ? X
@@ -140,15 +168,14 @@ QueryCompTmp = class extends QueryCompTmp {
     this.dispatch(executeQueryAction({}));
   }
 
-  execute() {
-    const target = this as any;
+  execute(target: any) {
     if (!target["debounceExecute"]) {
       target["debounceExecute"] = _.debounce(
         () => {
           setTimeout(() => this.dispatchExecuteAction());
         },
         750,
-        { leading: true, maxWait: 2000, trailing: true }
+        { leading: false, maxWait: 2000, trailing: true }
       );
     }
     target["debounceExecute"]();
@@ -162,7 +189,10 @@ QueryCompTmp = class extends QueryCompTmp {
   override extraNode() {
     return {
       node: {
-        queryDepFetchInfo: new FetchCheckNode(this.runningDependNodes()),
+        queryDepFetchInfo: new FetchCheckNode(this.runningDependNodes(), {
+          ignoreManualDepReadyStatus:
+            this.children.compType.getView() === "js" && getTriggerType(this) === "automatic",
+        }),
       },
       updateNodeFields: (value: any) => {
         const fetchInfo = value.queryDepFetchInfo as FetchInfo;
@@ -172,24 +202,49 @@ QueryCompTmp = class extends QueryCompTmp {
   }
 
   override reduce(action: CompAction): this {
+    const isJsQuery = this.children.compType.getView() === "js";
+    const notExecuted = this.children.lastQueryStartTime.getView() === -1;
+    const isAutomatic = getTriggerType(this) === "automatic";
+
     if (
       action.type === CompActionTypes.UPDATE_NODES_V2 &&
-      getTriggerType(this) === "automatic" &&
-      (this.children.compType.getView() !== "js" ||
-        (this.children.compType.getView() === "js" &&
-          this.children.lastQueryStartTime.getView() === -1)) // query which has deps can be executed on page load(first time)
+      isAutomatic &&
+      (!isJsQuery || (isJsQuery && notExecuted)) // query which has deps can be executed on page load(first time)
     ) {
-      const dependValues = this.children.comp.node()?.dependValues();
+      const next = super.reduce(action);
+      const depends = this.children.comp.node()?.dependValues();
+      const dsl = this.children.comp.toJsonValue();
+      const lastDependsKey = "__query_comp_last_depends";
+      const lastDslKey = "__query_comp_last_node";
+
+      // isDepReady is set after finishing UPDATE_NODES_V2 action reducing.
+      if (!next.isDepReady) {
+        return setFieldsNoTypeCheck(next, {
+          [lastDependsKey]: depends,
+          [lastDslKey]: dsl,
+        });
+      }
+
       const target = this as any;
+
+      const preDepends = target[lastDependsKey];
+      const preDsl = target[lastDslKey];
+
+      const dependsChanged = !_.isEqual(preDepends, depends);
+      const dslNotChanged = _.isEqual(preDsl, dsl);
+
       // If the dsl has not changed, but the dependent node value has changed, then trigger the query execution
       // FIXME, this should be changed to a reference judgement, but for unknown reasons if the reference is modified once, it will change twice.
-      if (!_.isEqual(target["__query_comp_last_depends"], dependValues)) {
-        if (_.isEqual(target["__query_comp_last_node"], this.children.comp.toJsonValue())) {
-          this.execute();
+      if (dependsChanged) {
+        if (dslNotChanged) {
+          this.execute(next);
         }
-        target["__query_comp_last_depends"] = dependValues;
-        target["__query_comp_last_node"] = this.children.comp.toJsonValue();
+        return setFieldsNoTypeCheck(next, {
+          [lastDependsKey]: depends,
+          [lastDslKey]: dsl,
+        });
       }
+      return next;
     }
     return super.reduce(action);
   }
@@ -454,7 +509,12 @@ QueryCompTmp = class extends QueryCompTmp implements BottomResComp {
 
   icon(): ReactNode {
     const type = this.children.compType.getView();
-    return <DataSourceIcon dataSourceType={type} />;
+    let method = undefined;
+    if (type === "restApi") {
+      const childComp = this.children.comp as HttpQuery;
+      method = childComp.getHttpMethod();
+    }
+    return <DataSourceIcon dataSourceType={type} httpMethod={method} />;
   }
 
   order(): number {
@@ -488,6 +548,7 @@ export const QueryComp = withExposingConfigs(QueryCompTmp, [
   new NameConfig("isFetching", trans("query.isFetchingExportDesc")),
   new NameConfig("runTime", trans("query.runTimeExportDesc")),
   new NameConfig("latestEndTime", trans("query.latestEndTimeExportDesc")),
+  new NameConfig("triggerType", trans("query.triggerTypeExportDesc")),
 ]);
 
 const QueryListTmpComp = list(QueryComp);

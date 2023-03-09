@@ -4,15 +4,48 @@ import {
   ColumnTypeViewFn,
 } from "comps/comps/tableComp/column/columnTypeCompBuilder";
 import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
-import { StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
+import { disabledPropertyView } from "comps/utils/propertyUtils";
+import styled, { css } from "styled-components";
+import { ActiveTextColor, LightActiveTextColor, PrimaryColor } from "constants/style";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
 const childrenMap = {
   text: StringControl,
   onClick: ActionSelectorControlInContext,
+  disabled: BoolCodeControl,
 };
+
+const disableCss = css`
+  &,
+  :hover {
+    cursor: not-allowed;
+    color: rgba(0, 0, 0, 0.25) !important;
+  }
+`;
+
+const StyledLink = styled.a<{ $disabled: boolean }>`
+  color: ${PrimaryColor} !important;
+
+  :hover {
+    color: ${LightActiveTextColor} !important;
+  }
+
+  ${(props) => props.$disabled && disableCss};
+`;
+
+export const ColumnLink = (props: { disabled: boolean; label: string; onClick?: () => void }) => (
+  <StyledLink
+    $disabled={props.disabled}
+    onClick={() => {
+      !props.disabled && props.onClick && props.onClick();
+    }}
+  >
+    {props.label}
+  </StyledLink>
+);
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
 
@@ -21,7 +54,7 @@ export const LinkComp = (function () {
     childrenMap,
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      return <a onClick={props.onClick}>{value}</a>;
+      return <ColumnLink disabled={props.disabled} label={value} onClick={props.onClick} />;
     },
     (nodeValue) => nodeValue.text.value,
     getBaseValue
@@ -45,6 +78,7 @@ export const LinkComp = (function () {
           label: trans("table.columnValue"),
           tooltip: ColumnValueTooltip,
         })}
+        {disabledPropertyView(children)}
         {children.onClick.propertyView({
           label: trans("table.action"),
           placement: "table",

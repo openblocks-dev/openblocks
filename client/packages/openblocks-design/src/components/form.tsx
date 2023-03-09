@@ -34,19 +34,25 @@ const FormItem = styled(Form.Item)`
   }
 `;
 const FormInput = styled(Input)`
-  background: #ffffff;
+  &:not(.ant-input-affix-wrapper-disabled) {
+    background: #ffffff;
+  }
   border: 1px solid #d7d9e0;
   border-radius: 4px;
 `;
 
 const FormNumberInput = styled(InputNumber)`
-  background: #ffffff;
+  &:not(.ant-input-number-affix-wrapper-disabled)&:not(.ant-input-number-disabled) {
+    background: #ffffff;
+  }
   border: 1px solid #d7d9e0;
   border-radius: 4px;
 `;
 
 const FormInputPassword = styled(Input)`
-  background: #ffffff;
+  &:not(.ant-input-affix-wrapper-disabled) {
+    background: #ffffff;
+  }
   border: 1px solid #d7d9e0;
   border-radius: 4px;
 `;

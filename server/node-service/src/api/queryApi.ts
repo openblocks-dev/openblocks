@@ -7,7 +7,7 @@ const DEFAULT_EXECUTE_ACTION_TIMEOUT_MS = 15000;
 
 type QueryExecuteRequest = {
   libraryQueryName: string;
-  params?: { key: string; value: string }[];
+  params?: { key: string; value: any }[];
 };
 
 export class QueryApi extends Api {

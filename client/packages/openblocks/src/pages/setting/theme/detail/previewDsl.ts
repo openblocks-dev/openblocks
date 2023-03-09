@@ -19,7 +19,7 @@ const dsl = {
       "19427536": {
         compType: "text",
         comp: {
-          text: `## ${trans("theme.previewTitle")}`,
+          text: `### ${trans("theme.previewTitle")}`,
           autoHeight: "auto",
           type: "markdown",
           horizontalAlignment: "left",
@@ -34,18 +34,66 @@ const dsl = {
         comp: {
           hideBordered: false,
           hideHeader: false,
-          data: `[\n  {\n    key: 1,\n    date: \"${trans("theme.previewDate")}\",\n    email: \"${trans("theme.previewEmail1")}\",\n    phone: \"${trans("theme.previewPhone1")}\",\n  },
-                  \n  {\n    key: 2,\n    date: \"${trans("theme.previewDate")}\",\n    email: \"${trans("theme.previewEmail2")}\",\n    phone: \"${trans("theme.previewPhone2")}\",\n   },
-                  \n  {\n    key: 3,\n    date: \"${trans("theme.previewDate")}\",\n    email: \"${trans("theme.previewEmail3")}\",\n    phone: \"${trans("theme.previewPhone3")}\",\n  },
-                  \n  {\n    key: 1,\n    date: \"${trans("theme.previewDate")}\",\n    email: \"${trans("theme.previewEmail4")}\",\n    phone: \"${trans("theme.previewPhone4")}\",\n   },
-                  \n  {\n    key: 2,\n    date: \"${trans("theme.previewDate")}\",\n    email: \"${trans("theme.previewEmail1")}\",\n    phone: \"${trans("theme.previewPhone1")}\",\n  },
-                  \n  {\n    key: 3,\n    date: \"${trans("theme.previewDate")}\",\n    email: \"${trans("theme.previewEmail2")}\",\n    phone: \"${trans("theme.previewPhone2")}\",\n  },
-                  \n  {\n    key: 1,\n    date: \"${trans("theme.previewDate")}\",\n    email: \"${trans("theme.previewEmail3")}\",\n    phone: \"${trans("theme.previewPhone3")}\",\n   },
-                  \n  {\n    key: 2,\n    date: \"${trans("theme.previewDate")}\",\n    email: \"${trans("theme.previewEmail4")}\",\n    phone: \"${trans("theme.previewPhone4")}\",\n  },
-                  \n  {\n    key: 3,\n    date: \"${trans("theme.previewDate")}\",\n    email: \"${trans("theme.previewEmail1")}\",\n    phone: \"${trans("theme.previewPhone1")}\",\n  },
-                  \n  {\n    key: 1,\n    date: \"${trans("theme.previewDate")}\",\n    email: \"${trans("theme.previewEmail2")}\",\n    phone: \"${trans("theme.previewPhone2")}\",\n   },
-                  \n  {\n    key: 2,\n    date: \"${trans("theme.previewDate")}\",\n    email: \"${trans("theme.previewEmail3")}\",\n    phone: \"${trans("theme.previewPhone3")}\",\n  },
-                  \n  {\n    key: 3,\n    date: \"${trans("theme.previewDate")}\",\n    email: \"${trans("theme.previewEmail4")}\",\n    phone: \"${trans("theme.previewPhone4")}\",\n  },
+          data: `[\n  {\n    key: 1,\n    date: \"${trans(
+            "theme.previewDate"
+          )}\",\n    email: \"${trans("theme.previewEmail1")}\",\n    phone: \"${trans(
+            "theme.previewPhone1"
+          )}\",\n  },
+                  \n  {\n    key: 2,\n    date: \"${trans(
+                    "theme.previewDate"
+                  )}\",\n    email: \"${trans("theme.previewEmail2")}\",\n    phone: \"${trans(
+            "theme.previewPhone2"
+          )}\",\n   },
+                  \n  {\n    key: 3,\n    date: \"${trans(
+                    "theme.previewDate"
+                  )}\",\n    email: \"${trans("theme.previewEmail3")}\",\n    phone: \"${trans(
+            "theme.previewPhone3"
+          )}\",\n  },
+                  \n  {\n    key: 1,\n    date: \"${trans(
+                    "theme.previewDate"
+                  )}\",\n    email: \"${trans("theme.previewEmail4")}\",\n    phone: \"${trans(
+            "theme.previewPhone4"
+          )}\",\n   },
+                  \n  {\n    key: 2,\n    date: \"${trans(
+                    "theme.previewDate"
+                  )}\",\n    email: \"${trans("theme.previewEmail1")}\",\n    phone: \"${trans(
+            "theme.previewPhone1"
+          )}\",\n  },
+                  \n  {\n    key: 3,\n    date: \"${trans(
+                    "theme.previewDate"
+                  )}\",\n    email: \"${trans("theme.previewEmail2")}\",\n    phone: \"${trans(
+            "theme.previewPhone2"
+          )}\",\n  },
+                  \n  {\n    key: 1,\n    date: \"${trans(
+                    "theme.previewDate"
+                  )}\",\n    email: \"${trans("theme.previewEmail3")}\",\n    phone: \"${trans(
+            "theme.previewPhone3"
+          )}\",\n   },
+                  \n  {\n    key: 2,\n    date: \"${trans(
+                    "theme.previewDate"
+                  )}\",\n    email: \"${trans("theme.previewEmail4")}\",\n    phone: \"${trans(
+            "theme.previewPhone4"
+          )}\",\n  },
+                  \n  {\n    key: 3,\n    date: \"${trans(
+                    "theme.previewDate"
+                  )}\",\n    email: \"${trans("theme.previewEmail1")}\",\n    phone: \"${trans(
+            "theme.previewPhone1"
+          )}\",\n  },
+                  \n  {\n    key: 1,\n    date: \"${trans(
+                    "theme.previewDate"
+                  )}\",\n    email: \"${trans("theme.previewEmail2")}\",\n    phone: \"${trans(
+            "theme.previewPhone2"
+          )}\",\n   },
+                  \n  {\n    key: 2,\n    date: \"${trans(
+                    "theme.previewDate"
+                  )}\",\n    email: \"${trans("theme.previewEmail3")}\",\n    phone: \"${trans(
+            "theme.previewPhone3"
+          )}\",\n  },
+                  \n  {\n    key: 3,\n    date: \"${trans(
+                    "theme.previewDate"
+                  )}\",\n    email: \"${trans("theme.previewEmail4")}\",\n    phone: \"${trans(
+            "theme.previewPhone4"
+          )}\",\n  },
                   \n]`,
           columns: [
             {
@@ -249,76 +297,61 @@ const dsl = {
               "0": {
                 view: {
                   layout: {
-                    d83769f0: {
-                      i: "d83769f0",
-                      h: 5,
-                      w: 17,
-                      x: 7,
-                      y: 0,
-                    },
-                    "563d79e": {
-                      i: "563d79e",
+                    "42997154": {
+                      i: "42997154",
                       h: 5,
                       w: 6,
                       x: 0,
-                      y: 0,
+                      y: 15,
                     },
                     "2c7d3f7f": {
                       i: "2c7d3f7f",
                       h: 5,
                       w: 17,
                       x: 7,
-                      y: 5,
+                      y: 0,
                     },
                     f2577a09: {
                       i: "f2577a09",
                       h: 5,
                       w: 6,
                       x: 0,
-                      y: 5,
+                      y: 0,
                     },
                     bd5263ca: {
                       i: "bd5263ca",
                       h: 5,
                       w: 17,
                       x: 7,
-                      y: 10,
+                      y: 5,
                     },
                     "47533d59": {
                       i: "47533d59",
                       h: 5,
                       w: 7,
                       x: 0,
-                      y: 10,
+                      y: 5,
                     },
                     ea117cf2: {
                       i: "ea117cf2",
                       h: 5,
                       w: 22,
                       x: 0,
+                      y: 10,
+                    },
+                    a7f2eb5e: {
+                      i: "a7f2eb5e",
+                      h: 5,
+                      w: 16,
+                      x: 6,
                       y: 15,
                     },
                   },
                   items: {
-                    d83769f0: {
-                      compType: "progress",
-                      comp: {
-                        value: "60",
-                        showInfo: true,
-                        style: {
-                          text: "",
-                          track: "",
-                          fill: "",
-                          success: "",
-                        },
-                        hidden: "",
-                      },
-                      name: "progress1",
-                    },
-                    "563d79e": {
+                    "42997154": {
                       compType: "text",
                       comp: {
-                        text: trans("theme.progressLabel"),
+                        text: trans("theme.linkLabel"),
                         autoHeight: "auto",
                         type: "markdown",
                         horizontalAlignment: "left",
@@ -330,7 +363,7 @@ const dsl = {
                         },
                         hidden: "",
                       },
-                      name: "text3",
+                      name: "text6",
                     },
                     "2c7d3f7f": {
                       compType: "radio",
@@ -518,6 +551,34 @@ const dsl = {
                         hidden: "",
                       },
                       name: "text5",
+                    },
+                    a7f2eb5e: {
+                      compType: "link",
+                      comp: {
+                        text: trans("theme.linkUrl"),
+                        onEvent: [
+                          {
+                            name: "click",
+                            handler: {
+                              compType: "goToURL",
+                              comp: {
+                                url: "https://" + trans("theme.linkUrl"),
+                                inNewTab: true,
+                              },
+                              condition: "",
+                              slowdown: "debounce",
+                              delay: "",
+                            },
+                          },
+                        ],
+                        disabled: "",
+                        loading: "",
+                        style: { text: "" },
+                        prefixIcon: "",
+                        suffixIcon: "",
+                        hidden: "",
+                      },
+                      name: "link1",
                     },
                   },
                 },

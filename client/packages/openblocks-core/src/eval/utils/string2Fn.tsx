@@ -165,7 +165,7 @@ export function evalFunction(
       evalFunc(
         unevaledValue.startsWith("return")
           ? unevaledValue + "\n"
-          : "return function(){'use strict'; " + unevaledValue + "\n}()",
+          : `return ${isAsync ? "async " : ""}function(){'use strict'; ${unevaledValue}\n}()`,
         args ? { ...context, ...args } : context,
         methods,
         { disableLimit: runInHost },

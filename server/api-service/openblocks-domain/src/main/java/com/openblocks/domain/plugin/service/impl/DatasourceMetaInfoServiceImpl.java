@@ -171,7 +171,7 @@ public class DatasourceMetaInfoServiceImpl implements DatasourceMetaInfoService 
 
     @Override
     public Flux<DatasourceMetaInfo> getAllSupportedDatasourceMetaInfos() {
-        Flux<DatasourceMetaInfo> datasourceMetaInfoFlux = datasourcePluginClient.getDatasourcePlugins()
+        Flux<DatasourceMetaInfo> datasourceMetaInfoFlux = datasourcePluginClient.getDatasourcePluginDefinitions()
                 .map(datasourcePluginDTO -> DatasourceMetaInfo.builder()
                         .type(datasourcePluginDTO.getId())
                         .displayName(datasourcePluginDTO.getName())

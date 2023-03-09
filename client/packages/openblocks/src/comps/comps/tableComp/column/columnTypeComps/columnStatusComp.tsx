@@ -6,7 +6,7 @@ import {
 import { trans } from "i18n";
 import { StringControl, stringUnionControl } from "comps/controls/codeControl";
 import { DropdownStyled, Wrapper } from "./columnTagsComp";
-import { ReactNode, useContext } from "react";
+import { ReactNode, useContext, useState } from "react";
 import { StatusContext } from "components/table/EditableCell";
 import { CustomSelect, PackUpIcon, ScrollBar } from "openblocks-design";
 import { PresetStatusColorType } from "antd/lib/_util/colors";
@@ -45,7 +45,8 @@ type StatusEditPropsType = {
 };
 
 const StatusEdit = (props: StatusEditPropsType) => {
-  let status = useContext(StatusContext);
+  const defaultStatus = useContext(StatusContext);
+  const [status, setStatus] = useState(defaultStatus);
   return (
     <Wrapper>
       <CustomSelect
@@ -57,6 +58,20 @@ const StatusEdit = (props: StatusEditPropsType) => {
         defaultValue={props.value.value}
         style={{ width: "100%" }}
         suffixIcon={<PackUpIcon />}
+        showSearch
+        onSearch={(value) => {
+          if (defaultStatus.findIndex((item) => item.text.includes(value)) < 0) {
+            setStatus([
+              ...defaultStatus,
+              {
+                text: value,
+                status: "none",
+              },
+            ]);
+          } else {
+            setStatus(defaultStatus);
+          }
+        }}
         onChange={(value) => {
           props.onChange({
             value,
@@ -103,11 +118,7 @@ export const BadgeStatusComp = (function () {
   )
     .setEditViewFn((props) => {
       return (
-        <StatusEdit
-          value={props.value}
-          onChange={props.onChange}
-          onChangeEnd={props.onChangeEnd}
-        />
+        <StatusEdit value={props.value} onChange={props.onChange} onChangeEnd={props.onChangeEnd} />
       );
     })
     .setPropertyViewFn((children) => {

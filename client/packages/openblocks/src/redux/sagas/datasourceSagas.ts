@@ -17,7 +17,7 @@ import { message } from "antd";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
 
 export function* fetchDatasourceSaga(action: EvaluationReduxAction<FetchDatasourcePayload>) {
-  const { organizationId } = action.payload;
+  const { organizationId, onSuccess } = action.payload;
   try {
     const response: AxiosResponse<GenericApiResponse<DatasourceInfo[]>> =
       yield DatasourceApi.fetchDatasourceByOrg(organizationId);
@@ -27,6 +27,7 @@ export function* fetchDatasourceSaga(action: EvaluationReduxAction<FetchDatasour
         type: ReduxActionTypes.FETCH_DATASOURCE_SUCCESS,
         payload: response.data.data,
       });
+      onSuccess?.(response.data.data);
     }
   } catch (error: any) {
     log.error("fetch datasource error: ", error);

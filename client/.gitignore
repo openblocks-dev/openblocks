@@ -4,6 +4,7 @@
 /node_modules
 /packages/*/node_modules
 /packages/*/dist
+!/packages/openblocks-sdk/dist
 /packages/*/tsdoc-metadata.json
 /.pnp
 .pnp.js

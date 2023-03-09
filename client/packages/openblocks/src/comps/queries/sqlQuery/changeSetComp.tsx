@@ -1,14 +1,10 @@
-import { DispatchType } from "openblocks-core";
-import { Dropdown } from "openblocks-design";
-import { changeValueAction } from "openblocks-core";
+import { ControlPropertyViewWrapper, Dropdown, KeyValueList } from "openblocks-design";
 import { buildQueryCommand } from "../queryCompUtils";
 import { valueComp, withDefault, withType } from "../../generators";
 import { ParamsJsonControl } from "../../controls/paramsControl";
 import { ColumnNameDropdown } from "./columnNameDropdown";
 import { list } from "../../generators/list";
 import { ControlParams } from "../../controls/controlParams";
-import { ControlPropertyViewWrapper } from "openblocks-design";
-import { KeyValueList } from "openblocks-design";
 import React from "react";
 import { trans } from "i18n";
 
@@ -16,7 +12,7 @@ export const ChangeSetTypeDropdown = (props: {
   label: string;
   tooltip?: string;
   value: "KEY_VALUE_PAIRS" | "OBJECT";
-  dispatch: DispatchType;
+  comp: InstanceType<ReturnType<typeof withType>>;
 }) => {
   return (
     <Dropdown
@@ -31,7 +27,7 @@ export const ChangeSetTypeDropdown = (props: {
         ] as const
       }
       value={props.value}
-      onChange={(value) => props.dispatch(changeValueAction({ compType: value }))}
+      onChange={(value) => props.comp.dispatchChangeAndPreserveAction({ compType: value })}
     />
   );
 };
@@ -80,10 +76,36 @@ const ChangeSet = class extends list(SingleChange) {
   }
 };
 
-export const ChangeSetComp = withType(
+export const ChangeSetComp = class extends withType(
   {
     KEY_VALUE_PAIRS: withDefault(ChangeSet, [{ column: "", value: "" }]),
     OBJECT: ParamsJsonControl,
   },
   "KEY_VALUE_PAIRS"
-);
+) {
+  propertyView(
+    params: ControlParams & {
+      table: string;
+      label: string;
+      tooltip?: string;
+    }
+  ) {
+    return (
+      <>
+        <ChangeSetTypeDropdown
+          label={params.label}
+          tooltip={params.tooltip}
+          value={this.children.compType.getView()}
+          comp={this}
+        />
+        {this.children.comp.propertyView({
+          table: params.table,
+          styleName: "medium" as const,
+          placeholder: `{{ form.data }}`,
+          label: " ",
+          placement: "bottom" as const,
+        })}
+      </>
+    );
+  }
+};

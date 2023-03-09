@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import history from "../../util/history";
 import { Button } from "antd";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { CopyTextButton, DocIcon, PackUpIcon, TacoButton } from "openblocks-design";
 import { useDatasourceForm } from "./form/useDatasourceForm";
 import { useParams } from "react-router-dom";
@@ -155,6 +155,7 @@ export const DatasourceEditPage = () => {
   const { datasourceId, datasourceType } = useParams<DatasourcePathParams>();
   const datasourceList = useSelector(getDataSource);
   const datasourceTypes = useSelector(getDataSourceTypes);
+  const [isReady, setIsReady] = useState(true);
 
   const datasourceInfo = useMemo(() => {
     if (!datasourceId) {
@@ -174,6 +175,10 @@ export const DatasourceEditPage = () => {
 
   const { testLoading, createLoading, form, genRequest, resolveTest, resolveCreate } =
     useDatasourceForm();
+
+  const handleFormReadyStatusChange = useCallback((isReady) => {
+    setIsReady(isReady);
+  }, []);
 
   if (!finalDataSourceType) {
     return null;
@@ -215,6 +220,7 @@ export const DatasourceEditPage = () => {
             {DatasourceForm && (
               <DatasourceForm
                 form={form}
+                onFormReadyStatusChange={handleFormReadyStatusChange}
                 dataSourceTypeInfo={dataSourceTypeInfo}
                 datasource={datasourceInfo?.datasource!}
                 size={"middle"}
@@ -243,6 +249,7 @@ export const DatasourceEditPage = () => {
                   style={{ width: "84px" }}
                   buttonType="primary"
                   loading={createLoading}
+                  disabled={!isReady}
                   onClick={() =>
                     resolveCreate({
                       datasourceId: datasourceId,

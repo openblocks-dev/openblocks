@@ -27,7 +27,7 @@ export function authRespValidate(
   infoCompleteCheck: boolean,
   redirectUrl: string | null
 ) {
-  let replaceUrl = getSafeAuthRedirectURL(redirectUrl);
+  let replaceUrl = redirectUrl || BASE_URL;
   if (infoCompleteCheck) {
     // need complete info
     replaceUrl = redirectUrl

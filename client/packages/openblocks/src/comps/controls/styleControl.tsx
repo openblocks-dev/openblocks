@@ -287,19 +287,19 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                 <div key={index}>
                   {name === "radius" || name === "gap" || name === "cardRadius"
                     ? (
-                        children[name] as InstanceType<typeof RadiusControl>
-                      ).propertyView({
-                        label: config.label,
-                        preInputNode: <RadiusIcon title="" />,
-                        placeholder: props[name],
-                      })
+                      children[name] as InstanceType<typeof RadiusControl>
+                    ).propertyView({
+                      label: config.label,
+                      preInputNode: <RadiusIcon title="" />,
+                      placeholder: props[name],
+                    })
                     : children[name].propertyView({
-                        label: config.label,
-                        panelDefaultColor: props[name],
-                        // isDep: isDepColorConfig(config),
-                        isDep: true,
-                        depMsg: depMsg,
-                      })}
+                      label: config.label,
+                      panelDefaultColor: props[name],
+                      // isDep: isDepColorConfig(config),
+                      isDep: true,
+                      depMsg: depMsg,
+                    })}
                 </div>
               );
             })}

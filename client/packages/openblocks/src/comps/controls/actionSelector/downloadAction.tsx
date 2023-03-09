@@ -13,6 +13,7 @@ export const DownloadAction = (function () {
     { label: "CSV", value: "csv" },
     { label: "Excel", value: "xlsx" },
     { label: "URL", value: "url" },
+    { label: "Base64", value: "base64" },
   ] as const;
 
   const childrenMap = {
@@ -21,11 +22,18 @@ export const DownloadAction = (function () {
     filetype: dropdownControl(filetypeOptions, "txt"),
   };
   return new MultiCompBuilder(childrenMap, (props) => () => {
+    let dataType: "url" | "base64" | undefined = undefined;
+    if (props.filetype === "url") {
+      dataType = "url";
+    }
+    if (props.filetype === "base64") {
+      dataType = "base64";
+    }
     saveDataAsFile({
       data: props.data,
       filename: props.filename,
       fileType: props.filetype,
-      dataType: props.filetype === "url" ? "url" : undefined,
+      dataType: dataType,
     });
   })
     .setPropertyViewFn((children) => {

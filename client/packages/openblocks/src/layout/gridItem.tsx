@@ -86,6 +86,7 @@ const ResizableStyled = styled(Resizable)`
     z-index: 1;
   }
 `;
+
 /**
  * An individual item within a ReactGridLayout.
  */
@@ -336,6 +337,8 @@ export function GridItem(props: GridItemProps) {
       resizeHandles,
     } = props;
     // log.debug("GridItem. name: ", name, " filpNameDiv: ", flipNameDiv, " position.top: ", position.top);
+    const nameBottom = showName.bottom - position.top - position.height;
+    const nameTop = showName.top + position.top;
     return (
       <CompSelectionWrapper
         compType={compType}
@@ -343,21 +346,21 @@ export function GridItem(props: GridItemProps) {
         onClick={(e) => {
           name && clickItem?.(e, name);
         }}
-        name={name}
-        height={props.h}
+        resizeIconSize={props.h >= 4 ? "normal" : "small"}
         autoHeight={!!autoHeight}
         isSelected={!!isSelected}
-        selectedSize={selectedSize}
         hidden={!!hidden}
-        showName={{
-          top: showName.top + position.top,
-          bottom: showName.bottom - position.top - position.height,
+        nameConfig={{
+          // module container is not draggable and not show name
+          show: !!(isDraggable && name),
+          name: name,
+          pos: nameTop > 16 ? "top" : nameBottom > 16 ? "bottom" : "bottomInside",
         }}
         placeholder={placeholder}
         onInnerResize={onInnerSizeChange}
         onWrapperResize={onWrapperSizeChange}
         isSelectable={isSelectable}
-        isResizable={isResizable}
+        isResizable={isResizable && selectedSize === 1}
         isDraggable={isDraggable}
         resizeHandles={resizeHandles}
       >

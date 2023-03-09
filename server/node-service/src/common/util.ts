@@ -1,3 +1,7 @@
+import { relaxedJSONToJSON } from "openblocks-core";
+import yaml from "yaml";
+import fs from "fs";
+
 export function toString(value: any): string {
   if (value === undefined || value === null) {
     return "";
@@ -36,4 +40,64 @@ export function toBoolean(value: any): boolean {
     return false;
   }
   return !!value;
+}
+
+export function toJsonValue(value: any): any {
+  if (typeof value !== "string") {
+    return value;
+  }
+  try {
+    const json = relaxedJSONToJSON(value, true);
+    return JSON.parse(json);
+  } catch (e) {
+    console.info("invalid json input:", value);
+    return {};
+  }
+}
+
+export function toStringOrJson(value: any): any {
+  if (typeof value !== "string") {
+    return value;
+  }
+  try {
+    const json = relaxedJSONToJSON(value, true);
+    return JSON.parse(json);
+  } catch (e) {
+    if (typeof value === "string") {
+      return value;
+    }
+    console.info("invalid json input:", value);
+    return {};
+  }
+}
+
+export function readYaml<T = any>(path: string): T {
+  try {
+    const yamlContent = fs.readFileSync(path, "utf-8");
+    return yaml.parse(yamlContent) as T;
+  } catch (e) {
+    console.info("invalid yaml:", e);
+    return {} as T;
+  }
+}
+
+export function safeJsonParse(json: string) {
+  try {
+    return JSON.parse(json);
+  } catch (e) {
+    console.warn("can not json parse:", json);
+    return {};
+  }
+}
+
+export function safeJsonStringify(data: any) {
+  if (data === null || data === undefined) {
+    return data;
+  }
+  try {
+    return JSON.stringify(data, null, 4);
+  } catch (e) {
+    console.warn("can not json stringify:", data, e);
+    return null;
+  }
 }

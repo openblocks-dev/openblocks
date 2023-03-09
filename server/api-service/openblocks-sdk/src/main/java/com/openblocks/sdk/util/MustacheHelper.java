@@ -38,7 +38,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -64,14 +63,6 @@ public final class MustacheHelper {
 
     private MustacheHelper() {
     }
-
-    /**
-     * find ? with quotes around '?' or "?"
-     */
-    private static final String REGEX_QUOTES_TRIMMING = "([\"']\\?[\"'])";
-    private static final Pattern QUOTE_QUESTION_PATTERN = Pattern.compile(REGEX_QUOTES_TRIMMING);
-    // The final replacement string of ? for replacing '?' or "?"
-    private static final String POST_QUOTE_TRIMMING_QUESTION_MARK = "\\?";
 
     private static final char SPECIAL_CHAR_4_PREPARED_STATEMENT = 16;
     private static final String SPECIAL_STRING_4_PREPARED_STATEMENT = SPECIAL_CHAR_4_PREPARED_STATEMENT + "";
@@ -337,28 +328,6 @@ public final class MustacheHelper {
         return StringEscapeUtils.unescapeHtml4(rendered.toString());
     }
 
-
-    public static String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings) {
-        Map<String, String> replaceParamsMap = mustacheBindings
-                .stream()
-                .collect(Collectors.toMap(Function.identity(), v -> "?", (a, b) -> b));
-        String result = renderMustacheString(query, replaceParamsMap);
-        result = QUOTE_QUESTION_PATTERN.matcher(result).replaceAll(POST_QUOTE_TRIMMING_QUESTION_MARK);
-        return result;
-    }
-
-    public static String replaceQuestionMarkWithDollarIndex(String query) {
-        AtomicInteger counter = new AtomicInteger();
-        return query.chars()
-                .mapToObj(c -> {
-                    if (c == '?') {
-                        return "$" + counter.incrementAndGet();
-                    }
-
-                    return Character.toString(c);
-                })
-                .collect(Collectors.joining());
-    }
 
     public static String replaceMustacheWithQuestionMarkMore(String query, List<String> mustacheBindings, Map<String, Object> param) {
         Map<String, String> replaceParamsMap =

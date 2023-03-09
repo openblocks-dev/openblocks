@@ -1,9 +1,10 @@
-import { SelectEventHandlerControl } from "../../controls/eventHandlerControl";
-import { Section, sectionNames } from "openblocks-design";
-import { RecordConstructorToComp } from "openblocks-core";
-import { BoolCodeControl, JSONObjectArrayControl, StringControl } from "comps/controls/codeControl";
-import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
+import {
+  BoolCodeControl,
+  JSONObjectArrayControl,
+  StringControl,
+} from "comps/controls/codeControl";
+import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { styleControl } from "comps/controls/styleControl";
 import { CascaderStyle } from "comps/controls/styleControlConstants";
@@ -15,6 +16,11 @@ import {
   showSearchPropertyView,
 } from "comps/utils/propertyUtils";
 import { i18nObjs, trans } from "i18n";
+import { RecordConstructorToComp } from "openblocks-core";
+import { Section, sectionNames } from "openblocks-design";
+import { SelectEventHandlerControl } from "../../controls/eventHandlerControl";
+import { MarginControl } from "../../controls/marginControl";
+import { PaddingControl } from "../../controls/paddingControl";
 
 export const defaultDataSource = JSON.stringify(i18nObjs.cascader, null, " ");
 
@@ -28,10 +34,14 @@ export const CascaderChildren = {
   options: JSONObjectArrayControl,
   style: styleControl(CascaderStyle),
   showSearch: BoolControl.DEFAULT_TRUE,
+  margin: MarginControl,
+  padding: PaddingControl,
 };
 
 export const CascaderPropertyView = (
-  children: RecordConstructorToComp<typeof CascaderChildren & { hidden: typeof BoolCodeControl }>
+  children: RecordConstructorToComp<
+    typeof CascaderChildren & { hidden: typeof BoolCodeControl }
+  >
 ) => (
   <>
     <Section name={sectionNames.basic}>
@@ -54,6 +64,14 @@ export const CascaderPropertyView = (
 
     <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
 
-    <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+    <Section name={sectionNames.style}>
+      {children.style.getPropertyView()}
+    </Section>
+    <Section name={trans("style.margin")}>
+      {children.margin.getPropertyView()}
+    </Section>
+    <Section name={trans("style.padding")}>
+      {children.padding.getPropertyView()}
+    </Section>
   </>
 );
