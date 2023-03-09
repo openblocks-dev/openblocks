@@ -37,7 +37,7 @@ Navigate back to to [Google Sheets](https://docs.google.com/spreadsheets), and f
 1. Open the JSON file of the key.
 2.  Copy the value of `client_email`, which is an identity used for access management of your sheet.
 
-    <figure><img src="../../.gitbook/assets/Google-sheets-key-client-email.jpeg" alt=""><figcaption></figcaption></figure>
+    <figure><img src="../../.gitbook/assets/Google-sheets-key-client-email (1).jpeg" alt=""><figcaption></figcaption></figure>
 3.  Click **Share** at the top right and paste the copied `client_email` value to add a member with access.
 
     <figure><img src="../../.gitbook/assets/Google-sheets-share.jpg" alt=""><figcaption></figcaption></figure>
