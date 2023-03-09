@@ -439,7 +439,6 @@ export const en = {
     cancelPrevious: "Ignore the results of previous uncompleted executions.",
     cancelPreviousTooltip: "",
 
-    // "如果新的执行被触发时，如果之前的执行没有完成，则会忽略之前未完成的执行的结果，被忽略的执行不会触发查询的事件列表",
     dataSourceStatusError:
       "If a new execution is triggered, the result of the previous uncompleted executions will be ignored if the previous executions did not complete, and the ignored executions will not trigger the event list of the query.",
     success: "Success",
@@ -1377,8 +1376,8 @@ export const en = {
       "You are about to delete this workspace {permanentlyDelete}. Once deleted, the workspace {notRestored}.",
     permanentlyDelete: "permanently",
     notRestored: "cannot be restored",
-    deleteModalLabel: "Please enter a workspace name{name}to confirm the operation:",
-    deleteModalTip: "Please enter a workspace name",
+    deleteModalLabel: "Please enter workspace name{name}to confirm the operation:",
+    deleteModalTip: "Please enter workspace name",
     deleteModalErr: "Workspace name is incorrect",
     deleteModalBtn: "Delete",
     editOrgTitle: "Edit workspace information",
@@ -2334,16 +2333,17 @@ export const en = {
     formSelectPlaceholder: "Please select the {form}",
     saveSuccess: "Saved successfully",
     dangerLabel: "Danger Zone",
-    dangerTip: "Disabling will cause some users to be unable to log in.",
+    dangerTip:
+      "Disabling this ID provider may result in some users being unable to log in. Proceed with caution.",
     disable: "Disable",
     disableSuccess: "Disabled successfully",
     encryptedServer: "-------- Encrypted on the server side --------",
     disableTip: "Tips",
     disableContent:
-      "Disabling will cause some users to be unable to log in. Are you sure to proceed?",
+      "Disabling this ID provider may result in some users being unable to log in. Are you sure to proceed?",
     manualTip: "",
   },
   slotControl: {
-    configSlotView: "Config slot view",
+    configSlotView: "Configure expanded view",
   },
 };
