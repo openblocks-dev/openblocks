@@ -134,7 +134,9 @@ export const SegmentedControlBasicComp = (function () {
             .map((option) => ({
               label: (
                 <div style={{ padding: "4px" }}>
-                  {option.image && <Avatar shape={option.imageShape} src={option.image} />}
+                  {option.image && (
+                    <Avatar shape={option.imageShape} src={option.image} />
+                  )}
                   <div>{option.label}</div>
                 </div>
               ),
