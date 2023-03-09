@@ -17,6 +17,7 @@ import { BrandingSetting } from "@openblocks-ee/pages/setting/branding/BrandingS
 import { IdSourceHome } from "@openblocks-ee/pages/setting/idSource";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import { enableCustomBrand } from "util/featureFlagUtils";
+import FreeLimitTag from "pages/common/freeLimitTag";
 
 enum SettingPageEnum {
   Member = "permission",
@@ -44,12 +45,26 @@ export function SettingHome() {
     },
     {
       key: SettingPageEnum.IdSource,
-      label: trans("settings.idSource"),
+      label: (
+        <span>
+          <span className="text">{trans("settings.idSource")}</span>
+          {(!currentOrgAdmin(user) || (!isSelfDomain(config) && !isEnterpriseMode(config))) && (
+            <FreeLimitTag text={trans("settings.premium")} />
+          )}
+        </span>
+      ),
       disabled: !currentOrgAdmin(user) || (!isSelfDomain(config) && !isEnterpriseMode(config)),
     },
     {
       key: SettingPageEnum.Audit,
-      label: trans("settings.audit"),
+      label: (
+        <span>
+          <span className="text">{trans("settings.audit")}</span>
+          {(!showAuditLog(config) || !currentOrgAdmin(user)) && (
+            <FreeLimitTag text={trans("settings.premium")} />
+          )}
+        </span>
+      ),
       disabled: !showAuditLog(config) || !currentOrgAdmin(user),
     },
     {
@@ -58,7 +73,17 @@ export function SettingHome() {
     },
     {
       key: SettingPageEnum.Branding,
-      label: trans("settings.branding"),
+      label: (
+        <span>
+          <span className="text">{trans("settings.branding")}</span>
+          {(!isEE() ||
+            !currentOrgAdmin(user) ||
+            !enableCustomBrand(config) ||
+            (!isSelfDomain(config) && !isEnterpriseMode(config))) && (
+            <FreeLimitTag text={trans("settings.premium")} />
+          )}
+        </span>
+      ),
       disabled:
         !isEE() ||
         !currentOrgAdmin(user) ||

@@ -43,111 +43,114 @@ const getStyle = (style: TableStyleType) => {
   return css`
     border-color: ${style.border};
     border-radius: ${style.radius};
-
-    .ant-table > .ant-table-container > .ant-table-content > table {
-      thead tr th,
-      tbody tr td {
+    & > div > div > div > .ant-table > .ant-table-container > .ant-table-content > table {
+      > thead > tr > th,
+      > tbody > tr > td {
         border-color: ${style.border};
       }
 
-      .ant-table-thead > tr > th::before {
+      > .ant-table-thead > tr > th::before {
         background-color: ${style.border};
       }
-    }
+      > .ant-table-thead {
+        > tr > th {
+          background-color: ${style.headerBackground};
+          color: ${style.headerText};
 
-    .ant-table-thead {
-      tr th {
-        background-color: ${style.headerBackground};
-        color: ${style.headerText};
+          &.ant-table-column-has-sorters:hover {
+            background-color: ${darkenColor(style.headerBackground, 0.05)};
+          }
 
-        &.ant-table-column-has-sorters:hover {
-          background-color: ${darkenColor(style.headerBackground, 0.05)};
-        }
-
-        .ant-table-column-sorter {
-          color: ${style.headerText === defaultTheme.textDark ? "#bfbfbf" : style.headerText};
-        }
-      }
-    }
-
-    .ant-table-tbody {
-      tr:nth-of-type(2n + 1) {
-        &,
-        td {
-          background: ${background};
-          color: ${style.cellText};
-          // Column type view and edit color
-          p,
-          span.ant-badge-status-text,
-          input {
-            color: ${style.cellText};
+          > .ant-table-column-sorters > .ant-table-column-sorter {
+            color: ${style.headerText === defaultTheme.textDark ? "#bfbfbf" : style.headerText};
           }
         }
       }
-
-      tr:nth-of-type(2n) {
-        &,
-        td {
-          background: ${alternateBackground};
-          color: ${style.cellText};
-          // Column type view and edit color
-          p,
-          span.ant-badge-status-text,
-          input {
+      > .ant-table-tbody {
+        > tr:nth-of-type(2n + 1) {
+          &,
+          > td {
+            background: ${background};
             color: ${style.cellText};
+            // Column type view and edit color
+            > div > div {
+              &,
+              > .ant-badge > .ant-badge-status-text,
+              > div > .markdown-body {
+                color: ${style.cellText};
+              }
+              // dark link|links color
+              > a, > div > a {
+                color: ${isDark && "#A6FFFF"};
+                &:hover {
+                  color: ${isDark && "#2EE6E6"};
+                }
+              }
+            }
           }
         }
-      }
 
-      // selected row
-      tr:nth-of-type(2n + 1).ant-table-row-selected {
-        td {
-          background: ${selectedRowBackground}, ${background};
+        > tr:nth-of-type(2n) {
+          &,
+          > td {
+            background: ${alternateBackground};
+            color: ${style.cellText};
+            // Column type view and edit color
+            > div > div {
+              &,
+              > .ant-badge > .ant-badge-status-text,
+              > div > .markdown-body {
+                color: ${style.cellText};
+              }
+              // dark link|links color
+              > a, > div > a {
+                color: ${isDark && "#A6FFFF"};
+                &:hover {
+                  color: ${isDark && "#2EE6E6"};
+                }
+              }
+            }
+          }
         }
 
-        td.ant-table-cell-row-hover,
-        &:hover td {
-          background: ${hoverRowBackground}, ${selectedRowBackground}, ${background};
+        // selected row
+        > tr:nth-of-type(2n + 1).ant-table-row-selected {
+          > td {
+            background: ${selectedRowBackground}, ${background};
+          }
+
+          > td.ant-table-cell-row-hover,
+          &:hover > td {
+            background: ${hoverRowBackground}, ${selectedRowBackground}, ${background};
+          }
         }
-      }
 
-      tr:nth-of-type(2n).ant-table-row-selected {
-        td {
-          background: ${selectedRowBackground}, ${alternateBackground};
+        > tr:nth-of-type(2n).ant-table-row-selected {
+          > td {
+            background: ${selectedRowBackground}, ${alternateBackground};
+          }
+
+          > td.ant-table-cell-row-hover,
+          &:hover > td {
+            background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground};
+          }
         }
 
-        td.ant-table-cell-row-hover,
-        &:hover td {
-          background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground};
+        // hover row
+        > tr:nth-of-type(2n + 1) > td.ant-table-cell-row-hover {
+          &,
+          > div:nth-of-type(2) {
+            background: ${hoverRowBackground}, ${background};
+          }
         }
-      }
 
-      // hover row
-      > tr:nth-of-type(2n + 1) > td.ant-table-cell-row-hover {
-        &,
-        > div:nth-of-type(2) {
-          background: ${hoverRowBackground}, ${background};
+        > tr:nth-of-type(2n) > td.ant-table-cell-row-hover {
+          &,
+          > div:nth-of-type(2) {
+            background: ${hoverRowBackground}, ${alternateBackground};
+          }
         }
-      }
 
-      > tr:nth-of-type(2n) > td.ant-table-cell-row-hover {
-        &,
-        > div:nth-of-type(2) {
-          background: ${hoverRowBackground}, ${alternateBackground};
-        }
-      }
-
-      // link color
-      td :not(li) > a {
-        color: ${isDark && "#A6FFFF"};
-
-        &:hover {
-          color: ${isDark && "#2EE6E6"};
-        }
-      }
-
-      td div:has(a) {
-        color: ${isDark && "#A6FFFF"};
       }
     }
   `;

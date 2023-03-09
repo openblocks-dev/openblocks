@@ -617,7 +617,7 @@ export const en = {
     extraBodyTooltip:
       "Key values in Extra body will be appended in body with JSON or Form Data types",
     forwardCookies: "Forward cookies",
-    forwardAllCookies: "Forward all cookie",
+    forwardAllCookies: "Forward all cookies",
   },
   smtpQuery: {
     attachment: "Attachment",
@@ -1325,6 +1325,7 @@ export const en = {
     lab: "Lab",
     branding: "Branding",
     idSource: "ID Providers",
+    premium: "Premium",
   },
   memberSettings: {
     admin: "Admin",

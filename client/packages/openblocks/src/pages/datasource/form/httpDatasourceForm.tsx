@@ -155,6 +155,7 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
         <AdvancedSettingFormSectionLabel />
         <CertValidationFormItem datasource={props.datasource} />
         <FormSelectItem
+          open={false}
           mode={"tags"}
           name={"forwardCookies"}
           label={trans("httpQuery.forwardCookies")}

@@ -78,8 +78,11 @@ const StyledAntdMenu = styled(AntdMenu)`
     box-shadow: unset;
   }
 
-  .ant-menu-item-disabled span {
-    color: #B8B9BF;
+  .ant-menu-item-disabled .text {
+    color: #b8b9bf;
+    & + span {
+      opacity: 0.4;
+    }
   }
 `;
 

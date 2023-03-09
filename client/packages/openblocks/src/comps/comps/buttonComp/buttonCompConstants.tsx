@@ -40,8 +40,8 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
   `;
 }
 
-export const Button100 = styled(Button)<{ $buttonStyle: ButtonStyleType }>`
-  ${(props) => getButtonStyle(props.$buttonStyle)}
+export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
+  ${(props) => props.$buttonStyle && getButtonStyle(props.$buttonStyle)}
   width: 100%;
   display: inline-flex;
   justify-content: center;

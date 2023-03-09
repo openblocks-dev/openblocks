@@ -321,6 +321,7 @@ const FormSelect = (props: any) => {
   return (
     <SelectWrapper>
       <CustomSelect
+        open={props.open}
         mode={props.mode}
         value={value}
         style={{
@@ -352,7 +353,7 @@ const FormSelect = (props: any) => {
 
 export interface FormSelectItemProps<T extends OptionsType>
   extends FormItemProps,
-    Pick<SelectProps, "mode"> {
+    Pick<SelectProps, "mode" | "open"> {
   options: T;
   afterChange?: (value: ValueFromOption<T>) => void;
 }
