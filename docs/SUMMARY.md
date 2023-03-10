@@ -37,6 +37,7 @@
   * [List View](build-apps/component-guides/list-view.md)
   * [Drawer](build-apps/component-guides/drawer.md)
   * [Image](build-apps/component-guides/image.md)
+  * [File upload](build-apps/component-guides/file-upload.md)
   * [Custom component](build-apps/component-guides/custom-component.md)
   * [Use Markdown](build-apps/component-guides/use-markdown.md)
 * [Module](build-apps/module.md)
