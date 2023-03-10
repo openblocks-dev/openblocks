@@ -44,6 +44,7 @@
   * [Style, theme, and usability](build-apps/design-app-ui/style-theme-and-usability.md)
   * [Design an efficient and user-friendly form](build-apps/design-app-ui/design-an-efficient-and-user-friendly-form.md)
 * [Navigation](build-apps/navigation.md)
+* [Keyboard shortcuts](build-apps/keyboard-shortcuts.md)
 * [Version and release management](build-apps/version-and-release-management.md)
 
 ## Build plugins
