@@ -2,7 +2,7 @@ import { MultiCompBuilder } from "comps/generators";
 import { childrenToProps, ToConstructor } from "comps/generators/multi";
 import _ from "lodash";
 import styled from "styled-components";
-import { RadiusControl } from "./codeControl";
+import { RadiusControl, StringControl } from "./codeControl";
 import { ColorControl } from "./colorControl";
 import { IconRadius, IconReset } from "openblocks-design";
 import { changeValueAction } from "openblocks-core";
@@ -16,6 +16,8 @@ import {
   RadiusConfig,
   SimpleColorConfig,
   SingleColorConfig,
+  MarginConfig,
+  PaddingConfig,
 } from "./styleControlConstants";
 import {
   getThemeDetailName,
@@ -40,6 +42,14 @@ function isRadiusConfig(config: SingleColorConfig): config is RadiusConfig {
   return config.hasOwnProperty("radius");
 }
 
+function isMarginConfig(config: SingleColorConfig): config is MarginConfig {
+  return config.hasOwnProperty("margin");
+}
+
+function isPaddingConfig(config: SingleColorConfig): config is PaddingConfig {
+  return config.hasOwnProperty("padding");
+}
+
 // function styleControl(colorConfig: Array<SingleColorConfig>) {
 type Names<T extends readonly SingleColorConfig[]> = T[number]["name"];
 export type StyleConfigType<T extends readonly SingleColorConfig[]> = {
@@ -53,6 +63,14 @@ function isEmptyColor(color: string) {
 
 function isEmptyRadius(radius: string) {
   return _.isEmpty(radius);
+}
+
+function isEmptyMargin(margin: string) {
+  return _.isEmpty(margin);
+}
+
+function isEmptyPadding(padding: string) {
+  return _.isEmpty(padding);
 }
 
 /**
@@ -82,6 +100,15 @@ function calcColors<ColorMap extends Record<string, string>>(
       }
       return;
     }
+    if (!isEmptyMargin(props[name]) && isMarginConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
+
+    if (!isEmptyPadding(props[name]) && isPaddingConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
     if (!isEmptyColor(props[name])) {
       if (isThemeColorKey(props[name])) {
         res[name] = themeWithDefault[props[name]];
@@ -95,6 +122,12 @@ function calcColors<ColorMap extends Record<string, string>>(
     }
     if (isRadiusConfig(config)) {
       res[name] = themeWithDefault[config.radius];
+    }
+    if (isMarginConfig(config)) {
+      res[name] = themeWithDefault[config.margin];
+    }
+    if (isPaddingConfig(config)) {
+      res[name] = themeWithDefault[config.padding];
     }
   });
   // The second pass calculates dep
@@ -224,6 +257,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
     const name: Names<T> = config.name;
     if (name === "radius" || name === "gap" || name === "cardRadius") {
       childrenMap[name] = RadiusControl;
+    } else if (name === "margin" || name === "padding") {
+      childrenMap[name] = StringControl;
     } else {
       childrenMap[name] = ColorControl;
     }
@@ -260,7 +295,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                 onClick={() => {
                   colorConfigs.map((item) => {
                     const name: Names<T> = item.name;
-                    if (name === "radius") {
+                    if (
+                      name === "radius" ||
+                      name === "margin" ||
+                      name === "padding"
+                    ) {
                       children[name]?.dispatchChangeValueAction("");
                     } else {
                       children[name]?.dispatch(changeValueAction(""));
@@ -301,25 +340,29 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                   }
                 }
                 return (
-                  <div key={index}>
-                    {name === "radius" ||
-                    name === "gap" ||
-                    name === "cardRadius"
-                      ? (
+                  <>
+                    <div key={index}>
+                      {name === "radius" ||
+                        name === "margin" ||
+                        name === "padding" ||
+                        name === "gap" ||
+                        name === "cardRadius"
+                        ? (
                           children[name] as InstanceType<typeof RadiusControl>
                         ).propertyView({
                           label: config.label,
                           preInputNode: <RadiusIcon title="" />,
                           placeholder: props[name],
                         })
-                      : children[name].propertyView({
+                        : children[name].propertyView({
                           label: config.label,
                           panelDefaultColor: props[name],
                           // isDep: isDepColorConfig(config),
                           isDep: true,
                           depMsg: depMsg,
                         })}
-                  </div>
+                    </div>
+                  </>
                 );
               })}
           </StyleContent>

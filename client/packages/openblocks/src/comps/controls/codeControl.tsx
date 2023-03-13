@@ -26,7 +26,11 @@ import {
   ValueAndMsg,
   withFunction,
 } from "openblocks-core";
-import { ControlPropertyViewWrapper, isValidColor, toHex } from "openblocks-design";
+import {
+  ControlPropertyViewWrapper,
+  isValidColor,
+  toHex,
+} from "openblocks-design";
 import { ReactNode } from "react";
 import {
   showTransform,
@@ -61,8 +65,16 @@ interface CodeControlParams<T> extends CodeNodeOptions {
 
 export function codeControl<
   T extends JSONValue | RegExp | undefined | Function | Record<string, unknown>
->(transformFn: (value: unknown) => T, codeControlParams?: CodeControlParams<T>) {
-  const { defaultValue, defaultCode, codeType, evalWithMethods = false } = codeControlParams || {};
+>(
+  transformFn: (value: unknown) => T,
+  codeControlParams?: CodeControlParams<T>
+) {
+  const {
+    defaultValue,
+    defaultCode,
+    codeType,
+    evalWithMethods = false,
+  } = codeControlParams || {};
   const transform = transformWrapper(transformFn, defaultValue);
 
   class CodeControl extends AbstractComp<T, string, Node<ValueAndMsg<T>>> {
@@ -70,7 +82,9 @@ export function codeControl<
      * Open to paramsControl,
      */
     readonly unevaledValue: string = "";
-    private readonly valueAndMsg: ValueAndMsg<T> = transform(new ValueAndMsg(""));
+    private readonly valueAndMsg: ValueAndMsg<T> = transform(
+      new ValueAndMsg("")
+    );
     private readonly _node: Node<ValueAndMsg<T>>;
     private readonly _exposingNode: Node<T>;
     private readonly handleChange: (editorState: EditorState) => void;
@@ -153,7 +167,10 @@ export function codeControl<
         if (params.placement === "bottom") {
           return "horizontal";
         }
-        return params.layout ?? (lineFeed(this.unevaledValue) ? "vertical" : "horizontal");
+        return (
+          params.layout ??
+          (lineFeed(this.unevaledValue) ? "vertical" : "horizontal")
+        );
       })();
       return (
         <ControlPropertyViewWrapper
@@ -178,7 +195,11 @@ export function codeControl<
     codeEditor(params: ControlParams) {
       const cardContent = params.disableCard
         ? ""
-        : getCardContent(this.unevaledValue, this.valueAndMsg, codeControlParams);
+        : getCardContent(
+            this.unevaledValue,
+            this.valueAndMsg,
+            codeControlParams
+          );
       return (
         <EditorContext.Consumer>
           {(editorState) => (
@@ -190,7 +211,10 @@ export function codeControl<
                     bordered
                     value={this.unevaledValue}
                     codeType={codeType}
-                    cardTitle={toCardTitle(codeControlParams?.expectedType, this.valueAndMsg.value)}
+                    cardTitle={toCardTitle(
+                      codeControlParams?.expectedType,
+                      this.valueAndMsg.value
+                    )}
                     cardContent={cardContent}
                     onChange={this.handleChange}
                     hasError={this.valueAndMsg?.hasError()}
@@ -245,7 +269,13 @@ function getCardContent<T>(
   if (valueAndMsg.hasError()) {
     return content;
   }
-  if (showTransform(midValue, params?.displayValueFn ? content : value, unevaledValue)) {
+  if (
+    showTransform(
+      midValue,
+      params?.displayValueFn ? content : value,
+      unevaledValue
+    )
+  ) {
     return toReadableString(midValue).trim() + " → " + content;
   }
   return content;
@@ -308,13 +338,16 @@ export type CodeControlJSONType = ReturnType<typeof tmpFuncForJson>;
 
 export const StringControl = codeControl<string>(toString);
 export const NumberControl = codeControl<number>(toNumber);
-export const StringOrNumberControl = codeControl<string | number>(toStringOrNumber);
+export const StringOrNumberControl = codeControl<string | number>(
+  toStringOrNumber
+);
 
 // rangeCheck, don't support Infinity temporarily
 export class RangeControl {
   static closed(left: number, right: number, defaultValue: number = 0) {
     return codeControl<number>(
-      (value) => checkRange(value, left, "closed", right, "closed", defaultValue),
+      (value) =>
+        checkRange(value, left, "closed", right, "closed", defaultValue),
       {
         expectedType: `number[${left}, ${right}]`,
       }
@@ -350,36 +383,53 @@ export function jsonControl<T extends JSONValue | Record<string, unknown>>(
   expectedType?: string
 ) {
   const c = jsonBaseControl<T>(expectedType, transformer);
-  return defaultValue === undefined ? c : withDefault(c, JSON.stringify(defaultValue, null, 2));
+  return defaultValue === undefined
+    ? c
+    : withDefault(c, JSON.stringify(defaultValue, null, 2));
 }
 
-export const ArrayStringControl = jsonBaseControl<Array<string>>("Array<string>", toStringArray);
-export const ArrayStringOrNumberControl = jsonBaseControl<Array<string | number>>(
-  "Array<string | number>",
-  toStringNumberArray
+export const ArrayStringControl = jsonBaseControl<Array<string>>(
+  "Array<string>",
+  toStringArray
 );
-export const ArrayNumberControl = jsonBaseControl<Array<number>>("Array<number>", toNumberArray);
+export const ArrayStringOrNumberControl = jsonBaseControl<
+  Array<string | number>
+>("Array<string | number>", toStringNumberArray);
+export const ArrayNumberControl = jsonBaseControl<Array<number>>(
+  "Array<number>",
+  toNumberArray
+);
 export const JSONObjectArrayControl = jsonBaseControl<Array<JSONObject>>(
   "Array<JSON>",
   toJSONObjectArray
 );
-export const NumberOrJSONObjectArrayControl = jsonBaseControl<number | Array<JSONObject>>(
-  "number | Array<JSON>",
-  toNumberOrJSONObjectArray
-);
+export const NumberOrJSONObjectArrayControl = jsonBaseControl<
+  number | Array<JSONObject>
+>("number | Array<JSON>", toNumberOrJSONObjectArray);
 export const StringOrJSONObjectControl = jsonBaseControl<string | JSONObject>(
   "string | JSON",
   toStringOrJSONObject
 );
-export const ArrayControl = jsonBaseControl<Array<JSONValue>>("Array", toJSONArray);
-export const JSONObjectControl = jsonBaseControl<JSONObject>("JSON", toJSONObject);
-export const JSONValueControl = jsonBaseControl<JSONValue>(undefined, toJSONValue);
-// the main difference between Object and JSON is that Object's value can be function
-export const ObjectControl = jsonBaseControl<Record<string, unknown>>("Object", toObject);
-export const ArrayOrJSONObjectControl = jsonBaseControl<JSONObject | Array<JSONValue>>(
-  "JSON",
-  toArrayJSONObject
+export const ArrayControl = jsonBaseControl<Array<JSONValue>>(
+  "Array",
+  toJSONArray
 );
+export const JSONObjectControl = jsonBaseControl<JSONObject>(
+  "JSON",
+  toJSONObject
+);
+export const JSONValueControl = jsonBaseControl<JSONValue>(
+  undefined,
+  toJSONValue
+);
+// the main difference between Object and JSON is that Object's value can be function
+export const ObjectControl = jsonBaseControl<Record<string, unknown>>(
+  "Object",
+  toObject
+);
+export const ArrayOrJSONObjectControl = jsonBaseControl<
+  JSONObject | Array<JSONValue>
+>("JSON", toArrayJSONObject);
 export const jsonObjectControl = (defaultValue?: JSONObject) =>
   defaultValue === undefined
     ? JSONObjectControl
@@ -467,6 +517,7 @@ export const RadiusControl = codeControl<string>(
   }
 );
 
+
 export const FunctionControl = codeControl<CodeFunction>(
   (value) => {
     if (typeof value === "function") {
@@ -487,13 +538,17 @@ export const TransformerCodeControl = codeControl<JSONValue>(
   { codeType: "Function" }
 );
 
-export const CSSCodeControl = codeControl<string>(toString, { language: "css" });
+export const CSSCodeControl = codeControl<string>(toString, {
+  language: "css",
+});
 
 export const CustomRuleControl = class extends StringControl {
   propertyView(params: ControlParams) {
     return super.propertyView({
       label: trans("prop.customRule"),
-      tooltip: trans("prop.customRuleTooltip") + "{{Number(input1.value) < 0 ? 'error' : ''}}",
+      tooltip:
+        trans("prop.customRuleTooltip") +
+        "{{Number(input1.value) < 0 ? 'error' : ''}}",
       ...params,
     });
   }
