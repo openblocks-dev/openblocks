@@ -16,7 +16,7 @@ Openblocks provides an Amazon Machine Image (AMI) for your self-hosting on [Amaz
     <figure><img src="../.gitbook/assets/aws-ami-3.png" alt=""><figcaption></figcaption></figure>
 5.  Configure the following settings:
 
-    1. Choose your desired **Instance type**. We'd recommend a system spec with 1 core CPU and 2 GB RAM or the above.
+    1. Choose your desired **Instance type**. We'd recommend a system spec with <mark style="background-color:yellow;">**1 core CPU and 2 GB RAM**</mark> or the above.
     2. Select the **key pair** created in step 2.
     3. **Enable** auto-assigning public IP.
     4. Select the **security group** created in step 3.
