@@ -9,7 +9,7 @@ Follow these steps to connect to REST APIs.
 3.  Select **APIs** > **REST API**.
 
     <figure><img src="../../.gitbook/assets/rest-api-1.png" alt=""><figcaption></figcaption></figure>
-4. Configure general settings. At a minimum, input **Name** and the base **URL** of the API to connect to. **Headers** and **Parameters** are optional. These are all common parameters that consist of URL query prefixes. For more information, see Make API requests.
+4. Configure general settings. At a minimum, input **Name** and the base **URL** of the API to connect to. **Headers** and **Parameters** are optional. These are all common parameters that consist of URL query prefixes.
 5. Configure **Authentication Type**.
 6.  Click **Save**.
 
@@ -23,7 +23,7 @@ The default authentication type is **None**. Other options are **Basic** and **D
 
 <figure><img src="../../.gitbook/assets/rest-api-3.png" alt=""><figcaption></figcaption></figure>
 
-If you need other customized authentication methods, contact our customer service on the homepage.
+If you need other customized authentication methods, contact our customer service on the [homepage](https://openblocks.dev).
 
 ## SSL Cert Verification
 
