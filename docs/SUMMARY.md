@@ -37,6 +37,8 @@
   * [List View](build-apps/component-guides/list-view.md)
   * [Drawer](build-apps/component-guides/drawer.md)
   * [Image](build-apps/component-guides/image.md)
+  * [Charts and graphs](build-apps/component-guides/charts-and-graphs.md)
+  * [File upload](build-apps/component-guides/file-upload.md)
   * [Custom component](build-apps/component-guides/custom-component.md)
   * [Use Markdown](build-apps/component-guides/use-markdown.md)
 * [Module](build-apps/module.md)
@@ -44,6 +46,7 @@
   * [Style, theme, and usability](build-apps/design-app-ui/style-theme-and-usability.md)
   * [Design an efficient and user-friendly form](build-apps/design-app-ui/design-an-efficient-and-user-friendly-form.md)
 * [Navigation](build-apps/navigation.md)
+* [Keyboard shortcuts](build-apps/keyboard-shortcuts.md)
 * [Version and release management](build-apps/version-and-release-management.md)
 
 ## Build plugins
@@ -54,3 +57,4 @@
 
 * [Members and groups](workspace-management/members-and-groups.md)
 * [Permissions for resources](workspace-management/permissions-for-resources.md)
+* [Customize branding](workspace-management/customize-branding.md)
