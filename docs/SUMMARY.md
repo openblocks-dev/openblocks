@@ -13,6 +13,7 @@
 * [Data source basics](data-sources/data-source-basics.md)
 * [Configure IP allowlists](data-sources/configure-ip-allowlists.md)
 * [Connect to APIs](data-sources/connect-to-databases/README.md)
+  * [REST APIs](data-sources/connect-to-databases/rest-apis.md)
   * [Google Sheets](data-sources/connect-to-databases/google-sheets.md)
 
 ## Queries
