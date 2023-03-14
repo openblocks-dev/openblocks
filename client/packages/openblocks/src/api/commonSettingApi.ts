@@ -44,8 +44,8 @@ export interface ThemeDetail {
   primarySurface: string; // comp bg-color
   borderRadius: string;
   chart?: string;
-  margin: string;
-  padding: string;
+  margin?: string;
+  padding?: string;
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {
