@@ -14,6 +14,7 @@
 * [Configure IP allowlists](data-sources/configure-ip-allowlists.md)
 * [Connect to APIs](data-sources/connect-to-databases/README.md)
   * [REST APIs](data-sources/connect-to-databases/rest-apis.md)
+  * [GraphQL](data-sources/connect-to-databases/graphql.md)
   * [Google Sheets](data-sources/connect-to-databases/google-sheets.md)
 
 ## Queries
