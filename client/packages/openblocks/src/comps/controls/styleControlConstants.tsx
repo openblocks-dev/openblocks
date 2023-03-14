@@ -26,6 +26,10 @@ export type MarginConfig = CommonColorConfig & {
   readonly margin: string;
 };
 
+export type PaddingConfig = CommonColorConfig & {
+  readonly padding: string;
+};
+
 export type DepColorConfig = CommonColorConfig & {
   readonly depName?: string;
   readonly depTheme?: keyof ThemeDetail;
@@ -36,6 +40,7 @@ export type SingleColorConfig =
   | SimpleColorConfig
   | DepColorConfig
   | MarginConfig
+  | PaddingConfig
   | RadiusConfig;
 
 export const defaultTheme: ThemeDetail = {
@@ -45,6 +50,8 @@ export const defaultTheme: ThemeDetail = {
   canvas: "#F5F5F6",
   primarySurface: "#FFFFFF",
   borderRadius: "4px",
+  margin: "0px",
+  padding: "0px",
 };
 
 export const SURFACE_COLOR = "#FFFFFF";
@@ -206,6 +213,18 @@ const RADIUS = {
   radius: "borderRadius",
 } as const;
 
+const MARGIN = {
+  name: "margin",
+  label: trans("style.margin"),
+  margin: "margin",
+} as const;
+
+const PADDING = {
+  name: "padding",
+  label: trans("style.padding"),
+  padding: "padding",
+} as const;
+
 const GAP = {
   name: "gap",
   label: "Column Space",
@@ -274,7 +293,10 @@ const SUCCESS = {
   color: SUCCESS_COLOR,
 } as const;
 
-function getStaticBgBorderRadiusByBg(background: string, platform?: SupportPlatform) {
+function getStaticBgBorderRadiusByBg(
+  background: string,
+  platform?: SupportPlatform
+) {
   return [
     getStaticBackground(background),
     platform ? { ...BORDER, platform } : BORDER,
@@ -306,7 +328,12 @@ function getStaticBackground(color: string) {
   } as const;
 }
 
-export const ButtonStyle = [...getBgBorderRadiusByBg("primary"), TEXT] as const;
+export const ButtonStyle = [
+  ...getBgBorderRadiusByBg("primary"),
+  TEXT,
+  MARGIN,
+  PADDING,
+] as const;
 
 export const ToggleButtonStyle = [
   getBackground("canvas"),
@@ -319,6 +346,8 @@ export const ToggleButtonStyle = [
     transformer: toSelf,
   },
   RADIUS,
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const TextStyle = [
@@ -655,6 +684,8 @@ export const LinkStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
+  MARGIN,
+  PADDING
 ] as const;
 
 export const DividerStyle = [
