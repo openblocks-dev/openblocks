@@ -106,7 +106,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                             return Mono.empty();
                         }
                         OrganizationDomain organizationDomain = new OrganizationDomain();
-                        organizationDomain.setAuthConfigs(List.of(DEFAULT_AUTH_CONFIG));
+                        organizationDomain.setConfigs(List.of(DEFAULT_AUTH_CONFIG));
                         organization.setOrganizationDomain(organizationDomain);
                         return create(organization, user.getId());
                     });

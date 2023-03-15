@@ -6,5 +6,5 @@ import com.openblocks.sdk.auth.AbstractAuthConfig;
 
 public interface EnterpriseConnectionConfig {
 
-    List<AbstractAuthConfig> getAuthConfigs();
+    List<AbstractAuthConfig> getConfigs();
 }

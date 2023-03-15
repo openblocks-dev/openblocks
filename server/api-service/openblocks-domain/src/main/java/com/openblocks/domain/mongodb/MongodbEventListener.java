@@ -1,30 +1,31 @@
-package com.openblocks.domain.encryption;
+package com.openblocks.domain.mongodb;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.AfterConvertEvent;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
+import org.springframework.stereotype.Component;
 
+import com.openblocks.domain.encryption.EncryptionService;
 import com.openblocks.infra.mongo.MongoUpsertHelper;
 import com.openblocks.sdk.event.BeforeSaveEvent;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ModelEncryptionEventListener<E> extends AbstractMongoEventListener<E> {
+@Component
+public class MongodbEventListener<E> extends AbstractMongoEventListener<E> {
 
-    private final EncryptionService encryptionService;
-
-    public ModelEncryptionEventListener(EncryptionService encryptionService) {
-        this.encryptionService = encryptionService;
-    }
+    @Autowired
+    private EncryptionService encryptionService;
 
     @Override
     public void onBeforeConvert(BeforeConvertEvent<E> event) {
         E source = event.getSource();
 
-        if (source instanceof EncryptRequired encryptRequired) {
-            encryptRequired.encrypt(encryptionService);
+        if (source instanceof BeforeMongodbWrite beforeMongodbWrite) {
+            beforeMongodbWrite.beforeMongodbWrite(new MongodbInterceptorContext(encryptionService));
         }
     }
 
@@ -32,8 +33,8 @@ public class ModelEncryptionEventListener<E> extends AbstractMongoEventListener<
     public void onAfterConvert(AfterConvertEvent<E> event) {
         E source = event.getSource();
 
-        if (source instanceof DecryptRequired decryptRequired) {
-            decryptRequired.decrypt(encryptionService);
+        if (source instanceof AfterMongodbRead afterMongodbRead) {
+            afterMongodbRead.afterMongodbRead(new MongodbInterceptorContext(encryptionService));
         }
     }
 
@@ -44,8 +45,8 @@ public class ModelEncryptionEventListener<E> extends AbstractMongoEventListener<
     public <T> void onBeforeSaveEvent(BeforeSaveEvent<T> beforeSaveEvent) {
         T source = beforeSaveEvent.source();
 
-        if (source instanceof EncryptRequired encryptRequired) {
-            encryptRequired.encrypt(encryptionService);
+        if (source instanceof BeforeMongodbWrite beforeMongodbWrite) {
+            beforeMongodbWrite.beforeMongodbWrite(new MongodbInterceptorContext(encryptionService));
         }
     }
 }
