@@ -26,6 +26,7 @@ services:
   ##
   openblocks-api-service:
     image: openblocksdev/openblocks-ce-api-service:latest
+    platform: linux/amd64
     container_name: openblocks-api-service
     # Enabled ports to be able to access backend from host
     # ports:
@@ -47,6 +48,7 @@ services:
 
   openblocks-node-service:
     image: openblocksdev/openblocks-ce-node-service:latest
+    platform: linux/amd64
     container_name: openblocks-node-service
     # Enabled ports to be able to access backend from host
     # ports:
@@ -64,6 +66,7 @@ services:
   ##
   openblocks-frontend:
     image: openblocksdev/openblocks-ce-frontend:latest
+    platform: linux/amd64
     container_name: openblocks-frontend
     ports:
       - "3000:3000"
