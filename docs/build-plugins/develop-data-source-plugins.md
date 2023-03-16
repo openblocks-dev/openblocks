@@ -12,9 +12,7 @@ A data source plugin is described by a **JavaScript Object** which mainly consis
 * Definition of the **Action list** for data source queries and the configuration form for each Action.
 * Definition of the **execution logic** for Actions.
 
-Currently, all data source plugins are maintained in the `src/plugins` directory of the `node-service` project. Click to view [the project](https://github.com/openblocks-dev/openblocks/tree/develop/server/node-service), and you might take a quick look at the [S3 plugin](https://github.com/openblocks-dev/openblocks/tree/develop/server/node-service/src/plugins/s3) here:
-
-<figure><img src="../.gitbook/assets/datasource-plugins-1.png" alt=""><figcaption></figcaption></figure>
+Currently, all data source plugins are maintained in the `src/plugins` directory of the `node-service` project. Click to view [the project](https://github.com/openblocks-dev/openblocks/tree/develop/server/node-service), and you might take a quick look at the [S3 plugin](https://github.com/openblocks-dev/openblocks/tree/develop/server/node-service/src/plugins/s3).
 
 ## Overall definition of a plugin
 
@@ -110,7 +108,7 @@ interface DataSourceConfig {
     interface DataSourceExtraConfig {
       data?: any;
       extraParams?: DataSourceParamConfig[];
-    }ty
+    }
     ```
 
     * `data`: additional data source data that will be saved in the backend together with data source configurations that users fill out. Can be obtained when executing a query using the `extra` field of the data source data.
