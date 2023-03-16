@@ -53,7 +53,8 @@
 
 ## Build plugins
 
-* [Develop your first plugin](build-plugins/develop-your-first-plugin.md)
+* [Develop UI component plugins](build-plugins/develop-your-first-plugin.md)
+* [Develop data source plugins](build-plugins/develop-data-source-plugins.md)
 
 ## Workspace management
 
