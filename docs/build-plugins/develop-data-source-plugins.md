@@ -299,6 +299,6 @@ Necessary testing should be done before publishing the plugin. Testing a data so
 
 You can then use the data source plugin just developed in this environment.
 
-## What's after
+## What's next
 
 Congrats! After testing the data source plugin, you can submit a [Pull Request](https://github.com/openblocks-dev/openblocks/pulls) now.
