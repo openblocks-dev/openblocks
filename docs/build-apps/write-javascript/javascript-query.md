@@ -52,9 +52,7 @@ Use a JS query to left join `query1` and `query2` on the same `tid` in the follo
 
     <figure><img src="../../.gitbook/assets/js-query-2.PNG" alt=""><figcaption></figcaption></figure>
 
-## How to use JS query
-
-### Return data
+## Return data
 
 Use `return` syntax to return result. For example, the following code returns `3`.
 
@@ -72,7 +70,7 @@ return query2.run()
 The `return` statement is not necessary for scenarios where you want to omit results.
 {% endhint %}
 
-### Access data
+## Access data
 
 Use JS queries to access data in your app. Notice that there's no need to use `{{ }}` notation.
 
@@ -80,7 +78,7 @@ Use JS queries to access data in your app. Notice that there's no need to use `{
 var data = [input1.value, query1.data, fileUpload.files[0].name];
 ```
 
-### Control component
+## Control component
 
 In JS queries, you can use methods exposed by components to interact with UI components in your app. Such operation is not supported by the inline JS code in `{{}}`.
 
@@ -93,9 +91,9 @@ input1.setValue("Hello");
 The `input1.setValue()` method (or other component methods) is asynchronous and returns a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global\_Objects/Promise) object. Accessing `input1.value` immediately after setting the value of `input1` does not return the updated value.
 {% endhint %}
 
-### Run query
+## Run query
 
-#### `run()` method and callbacks
+### `run()` method and callbacks
 
 Call `run()` method to run other queries, for example:
 
@@ -117,7 +115,7 @@ return queryByName.run().then(
 );
 ```
 
-#### Pass in parameters
+### Pass in parameters
 
 You can pass parametes in the `run()` method to decouple query implementation from its parameters.
 
@@ -184,7 +182,7 @@ Then trigger this query in **Run JavaScript** of event handlers in each of the i
 
 You can find another demo for using passed-in paramter queries [here](https://cloud.openblocks.dev/apps/637f38daa899fe1ffcb17f0b/view).
 
-### Declare a function
+## Declare a function
 
 You can declare functions inside a JS query for better readability.
 
