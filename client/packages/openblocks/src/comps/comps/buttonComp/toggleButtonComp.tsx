@@ -29,8 +29,6 @@ import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { ToggleButtonStyle } from "comps/controls/styleControlConstants";
 import { styleControl } from "comps/controls/styleControl";
 import { BoolControl } from "comps/controls/boolControl";
-import { PaddingControl } from "../../controls/paddingControl";
-import { MarginControl } from "../../controls/marginControl";
 import { RefControl } from "comps/controls/refControl";
 
 const IconWrapper = styled.div`
@@ -70,8 +68,6 @@ const ToggleTmpComp = (function () {
     alignment: AlignWithStretchControl,
     style: styleControl(ToggleButtonStyle),
     showBorder: withDefault(BoolControl, true),
-    margin: MarginControl,
-    padding: PaddingControl,
     viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => {
@@ -92,16 +88,6 @@ const ToggleTmpComp = (function () {
           onClick={() => {
             props.onEvent("change");
             props.value.onChange(!props.value.value);
-          }}
-          style={{
-            marginTop: props.margin.top ? props.margin.top : 0,
-            marginRight: props.margin.right ? props.margin.right : 0,
-            marginBottom: props.margin.bottom ? props.margin.bottom : 0,
-            marginLeft: props.margin.left ? props.margin.left : 0,
-            paddingTop: props.padding.top ? props.padding.top : 0,
-            paddingRight: props.padding.right ? props.padding.right : 0,
-            paddingBottom: props.padding.bottom ? props.padding.bottom : 0,
-            paddingLeft: props.padding.left ? props.padding.left : 0,
           }}
         >
           {props.iconPosition === "right" && text}
@@ -165,12 +151,6 @@ const ToggleTmpComp = (function () {
             label: trans("toggleButton.showBorder"),
           })}
           {children.style.getPropertyView()}
-        </Section>
-        <Section name={trans("style.margin")}>
-          {children.margin.getPropertyView()}
-        </Section>
-        <Section name={trans("style.padding")}>
-          {children.padding.getPropertyView()}
         </Section>
       </>
     ))

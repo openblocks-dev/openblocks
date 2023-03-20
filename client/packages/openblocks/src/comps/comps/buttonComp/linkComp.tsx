@@ -25,12 +25,11 @@ import {
 import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
-import { PaddingControl } from "../../controls/paddingControl";
-import { MarginControl } from "../../controls/marginControl";
 import { RefControl } from "comps/controls/refControl";
 
 const Link = styled(Button)<{ $style: LinkStyleType }>`
-  ${(props) => `color: ${props.$style.text};`}
+  ${(props) =>
+    `color: ${props.$style.text}; margin: ${props.$style.margin}; padding: ${props.$style.padding};`}
   &.ant-btn {
     display: inline-flex;
     align-items: center;
@@ -69,8 +68,6 @@ const LinkTmpComp = (function () {
     style: migrateOldData(styleControl(LinkStyle), fixOldData),
     prefixIcon: IconControl,
     suffixIcon: IconControl,
-    margin: MarginControl,
-    padding: PaddingControl,
     viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => {
@@ -85,16 +82,6 @@ const LinkTmpComp = (function () {
           loading={props.loading}
           disabled={props.disabled}
           onClick={() => props.onEvent("click")}
-          style={{
-            marginTop: props.margin.top ? props.margin.top : 0,
-            marginRight: props.margin.right ? props.margin.right : 0,
-            marginBottom: props.margin.bottom ? props.margin.bottom : 0,
-            marginLeft: props.margin.left ? props.margin.left : 0,
-            paddingTop: props.padding.top ? props.padding.top : 0,
-            paddingRight: props.padding.right ? props.padding.right : 0,
-            paddingBottom: props.padding.bottom ? props.padding.bottom : 0,
-            paddingLeft: props.padding.left ? props.padding.left : 0,
-          }}
           type={"link"}
         >
           {hasChildren && (
@@ -137,12 +124,6 @@ const LinkTmpComp = (function () {
 
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
-          </Section>
-          <Section name={trans("style.margin")}>
-            {children.margin.getPropertyView()}
-          </Section>
-          <Section name={trans("style.padding")}>
-            {children.padding.getPropertyView()}
           </Section>
         </>
       );

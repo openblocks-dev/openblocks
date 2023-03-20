@@ -2,8 +2,6 @@ import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { IconControl } from "comps/controls/iconControl";
-import { PaddingControl } from "../../controls/paddingControl";
-import { MarginControl } from "../../controls/marginControl";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
@@ -144,8 +142,6 @@ const ButtonTmpComp = (function () {
     prefixIcon: IconControl,
     suffixIcon: IconControl,
     style: ButtonStyleControl,
-    margin: MarginControl,
-    padding: PaddingControl,
     viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => (
@@ -166,16 +162,6 @@ const ButtonTmpComp = (function () {
                 ? props.onEvent("click")
                 : submitForm(editorState, props.form)
             }
-            style={{
-              marginTop: props.margin.top ? props.margin.top : 0,
-              marginRight: props.margin.right ? props.margin.right : 0,
-              marginBottom: props.margin.bottom ? props.margin.bottom : 0,
-              marginLeft: props.margin.left ? props.margin.left : 0,
-              paddingTop: props.padding.top ? props.padding.top : 0,
-              paddingRight: props.padding.right ? props.padding.right : 0,
-              paddingBottom: props.padding.bottom ? props.padding.bottom : 0,
-              paddingLeft: props.padding.left ? props.padding.left : 0,
-            }}
           >
             {props.prefixIcon && <IconWrapper>{props.prefixIcon}</IconWrapper>}
             {
@@ -222,12 +208,6 @@ const ButtonTmpComp = (function () {
 
         <Section name={sectionNames.style}>
           {children.style.getPropertyView()}
-        </Section>
-        <Section name={trans("style.margin")}>
-          {children.margin.getPropertyView()}
-        </Section>
-        <Section name={trans("style.padding")}>
-          {children.padding.getPropertyView()}
         </Section>
       </>
     ))

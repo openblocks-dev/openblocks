@@ -73,7 +73,7 @@ const orientationOptions = [
   },
 ] as const;
 
-const Segmented = styled(AntdSegmented)<{
+const Segmented = styled(AntdSegmented) <{
   $style: SegmentStyleType;
   $orientation: string;
 }>`
@@ -92,7 +92,7 @@ export const SegmentChildrenMap = {
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
-export const SegmentedControlBasicComp = (function () {
+export const SegmentedControlBasicComp = (function() {
   return new UICompBuilder(SegmentChildrenMap, (props) => {
     const [validateState, handleValidate] = useSelectInputValidate(props);
     useEffect(() => {
@@ -106,10 +106,9 @@ export const SegmentedControlBasicComp = (function () {
           const element = elements[i] as HTMLElement;
           if (props.orientation === "vertical") {
             element.style.removeProperty("transform");
-            element.style.removeProperty("width");
           }
         }
-      }, 10);
+      }, 0);
     }, [props.value.onChange]);
     return props.label({
       required: props.required,
@@ -120,6 +119,7 @@ export const SegmentedControlBasicComp = (function () {
           disabled={props.disabled}
           value={props.value.value}
           $style={props.style}
+          className="my-segmented"
           onChange={(value) => {
             handleValidate(value.toString());
             props.value.onChange(value.toString());

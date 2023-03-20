@@ -1,17 +1,26 @@
 import { Button } from "antd";
 import { styleControl } from "comps/controls/styleControl";
-import { ButtonStyleType, ButtonStyle } from "comps/controls/styleControlConstants";
+import {
+  ButtonStyleType,
+  ButtonStyle,
+} from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import styled, { css } from "styled-components";
 import { genActiveColor, genHoverColor } from "openblocks-design";
 import { refMethods } from "comps/generators/withMethodExposing";
-import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
+import {
+  blurMethod,
+  clickMethod,
+  focusWithOptions,
+} from "comps/utils/methodUtils";
 
 export function getButtonStyle(buttonStyle: ButtonStyleType) {
   const hoverColor = genHoverColor(buttonStyle.background);
   const activeColor = genActiveColor(buttonStyle.background);
   return css`
     border-radius: ${buttonStyle.radius};
+    margin: ${buttonStyle.margin};
+    padding: ${buttonStyle.padding};
     &:not(:disabled) {
       // click animation color
       --antd-wave-shadow-color: ${buttonStyle.border};
@@ -19,6 +28,8 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
       color: ${buttonStyle.text};
       background-color: ${buttonStyle.background};
       border-radius: ${buttonStyle.radius};
+      margin: ${buttonStyle.margin};
+      padding: ${buttonStyle.padding};
 
       :hover,
       :focus {
@@ -85,7 +96,10 @@ function fixOldData(oldData: any) {
   return oldData;
 }
 const ButtonTmpStyleControl = styleControl(ButtonStyle);
-export const ButtonStyleControl = migrateOldData(ButtonTmpStyleControl, fixOldData);
+export const ButtonStyleControl = migrateOldData(
+  ButtonTmpStyleControl,
+  fixOldData
+);
 
 export const buttonRefMethods = refMethods<HTMLElement>([
   focusWithOptions,
