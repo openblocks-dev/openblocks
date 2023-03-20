@@ -1,6 +1,8 @@
 import { ControlParams } from "comps/controls/controlParams";
 import { getReduceContext } from "comps/utils/reduceContext";
 import {
+  changeValueAction,
+  ChangeValueAction,
   Comp,
   CompAction,
   CompConstructor,
@@ -61,6 +63,9 @@ export function stateComp<ViewReturn extends JSONValue>(defaultValue: ViewReturn
         return this;
       }
       return super.reduce(action);
+    }
+    override changeValueAction(value: ViewReturn): ChangeValueAction {
+      return changeValueAction(value, false);
     }
   }
   return StateComp;

@@ -57,6 +57,7 @@ const SwitchStyle: any = styled.input`
 const SwitchDiv = styled.div<{
   placement?: ControlPlacement;
 }>`
+  min-height: 21px;
   display: flex;
   align-items: center;
   ${(props) => {

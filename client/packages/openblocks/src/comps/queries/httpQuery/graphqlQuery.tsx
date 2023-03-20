@@ -1,20 +1,20 @@
+import { ControlPropertyViewWrapper } from "components/control";
+import { Input } from "components/Input";
+import { KeyValueList } from "components/keyValueList";
 import { QueryConfigItemWrapper, QueryConfigLabel, QueryConfigWrapper } from "components/query";
+import { simpleMultiComp } from "comps/generators/multi";
+import { ReactNode } from "react";
+import { JSONValue } from "../../../util/jsonTypes";
+import { keyValueListControl } from "../../controls/keyValueControl";
+import { ParamsJsonControl, ParamsStringControl } from "../../controls/paramsControl";
+import { list } from "../../generators/list";
+import { valueComp, withDefault } from "../../generators/simpleGenerators";
 import { FunctionProperty, toQueryView } from "../queryCompUtils";
 import {
   HttpHeaderPropertyView,
   HttpParametersPropertyView,
   HttpPathPropertyView,
 } from "./httpQueryConstants";
-import { ReactNode } from "react";
-import { simpleMultiComp } from "comps/generators/multi";
-import { valueComp, withDefault } from "../../generators/simpleGenerators";
-import { ParamsJsonControl, ParamsStringControl } from "../../controls/paramsControl";
-import { Input } from "components/Input";
-import { list } from "../../generators/list";
-import { ControlPropertyViewWrapper } from "components/control";
-import { KeyValueList } from "components/keyValueList";
-import { keyValueListControl } from "../../controls/keyValueControl";
-import { JSONValue } from "../../../util/jsonTypes";
 
 interface VariablesControlParams {
   // variables: string[]; todo support parse variables

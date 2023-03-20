@@ -18,7 +18,7 @@ import { ReactComponent as Star } from "icons/icon-star.svg";
 import { FormItemProps as AntdFormItemProps } from "antd/lib/form/FormItem";
 import _ from "lodash";
 import { KeyValueList } from "./keyValueList";
-import { DropdownIcon, OptionsType, ValueFromOption } from "./Dropdown";
+import { OptionsType, ValueFromOption } from "./Dropdown";
 import { RadioGroupProps } from "antd/lib/radio/interface";
 import { TextAreaProps } from "antd/lib/input";
 
@@ -334,7 +334,6 @@ const FormSelect = (props: any) => {
           onChange(x);
           props.afterChange && props.afterChange(x);
         }}
-        suffixIcon={<DropdownIcon />}
         dropdownMatchSelectWidth={false}
         placeholder={props.placeholder}
         dropdownRender={props.dropdownRender}

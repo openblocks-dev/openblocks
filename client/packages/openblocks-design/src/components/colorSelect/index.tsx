@@ -25,7 +25,7 @@ export const ColorSelect = (props: ColorSelectProps) => {
   const [visible, setVisible] = useState(false);
   const throttleChange = useCallback(
     throttle((rgbaColor: string) => {
-      dispatch && dispatch(changeValueAction(toHex(rgbaColor)));
+      dispatch && dispatch(changeValueAction(toHex(rgbaColor), true));
       changeColor && changeColor(toHex(rgbaColor));
     }, 200),
     [dispatch]

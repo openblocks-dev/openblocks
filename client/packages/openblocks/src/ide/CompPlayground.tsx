@@ -191,11 +191,14 @@ export function CompPlayground(props: IProps) {
                         // size="small"
                         onClick={() => {
                           comp.dispatch(
-                            customAction({
-                              type: "execute",
-                              methodName: i,
-                              params: methodParams,
-                            })
+                            customAction(
+                              {
+                                type: "execute",
+                                methodName: i,
+                                params: methodParams,
+                              },
+                              false
+                            )
                           );
                         }}
                       >

@@ -1,6 +1,5 @@
 package com.openblocks.plugin.snowflake;
 
-import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
 
 import com.openblocks.plugin.sql.SqlBasedConnector;
@@ -30,13 +29,5 @@ public class SnowflakeConnector extends SqlBasedConnector<SnowflakeDatasourceCon
         config.addDataSourceProperty("db", database);
         config.addDataSourceProperty("user", datasourceConfig.getUsername());
         config.addDataSourceProperty("password", datasourceConfig.getPassword());
-
-        datasourceConfig.getExtParams()
-                .forEach((key, value) -> {
-                    if (StringUtils.isBlank(key) || value == null || StringUtils.isBlank(String.valueOf(value))) {
-                        return;
-                    }
-                    config.addDataSourceProperty(key, value);
-                });
     }
 }

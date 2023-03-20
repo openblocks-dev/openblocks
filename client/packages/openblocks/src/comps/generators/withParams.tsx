@@ -15,6 +15,7 @@ import {
   Node,
   NodeToValue,
   RecordNode,
+  updateActionContextAction,
   updateNodesV2Action,
   wrapChildAction,
   wrapContext,
@@ -28,6 +29,13 @@ import { depthEqual, lastValueIfEqual, setFieldsNoTypeCheck } from "util/objectU
 import { CompExposingContext } from "./withContext";
 
 type ParamValues = Record<string, unknown>;
+
+export const paramsEqual = (
+  params1: Record<string, unknown> | undefined,
+  params2: Record<string, unknown> | undefined
+) => {
+  return depthEqual(params1, params2, 3);
+};
 
 export function withParams<TCtor extends MultiCompConstructor>(
   VariantCompCtor: TCtor,
@@ -84,24 +92,33 @@ export function withParamsWithDefault<TCtor extends MultiCompConstructor>(
      * this action requires eval to be valid, don't use it directly with reduce
      */
     static setPartialParamDataAction(paramData: Partial<ParamValues>) {
-      return customAction({
-        type: "setPartialParamData",
-        data: paramData,
-      });
+      return customAction(
+        {
+          type: "setPartialParamData",
+          data: paramData,
+        },
+        false
+      );
     }
 
     static setParamDataAction(paramData: ParamValues) {
-      return customAction({
-        type: "setParamData",
-        data: paramData,
-      });
+      return customAction(
+        {
+          type: "setParamData",
+          data: paramData,
+        },
+        false
+      );
     }
 
     static setCompAction(comp: ConstructorToComp<TCtor>) {
-      return customAction({
-        type: "setComp",
-        comp,
-      });
+      return customAction(
+        {
+          type: "setComp",
+          comp,
+        },
+        true
+      );
     }
 
     constructor(params: CompParams) {
@@ -175,13 +192,15 @@ export function withParamsWithDefault<TCtor extends MultiCompConstructor>(
     }
 
     setParams(params: ParamValues): this {
-      if (this.params && depthEqual(this.params, params, 3)) {
+      if (this.params && paramsEqual(this.params, params)) {
         return this;
       }
       let comp = setFieldsNoTypeCheck(this, { params });
       const wrapValue = this.getWrapValue(params);
       if (wrapValue) {
-        comp = comp.reduce(wrapChildAction("comp", updateNodesV2Action(wrapValue)));
+        comp = comp
+          .reduce(wrapChildAction("comp", updateNodesV2Action(wrapValue)))
+          .reduce(updateActionContextAction(params));
       }
       return comp;
     }

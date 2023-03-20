@@ -1,10 +1,9 @@
-import { changeChildAction, customAction } from "openblocks-core";
 import { ExecuteAction } from "comps/controls/actionSelector/executeCompTypes";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import { numberExposingStateControl } from "comps/controls/codeStateControl";
 import { evalAndReduce } from "comps/utils";
-import { Node, RecordNode } from "openblocks-core";
+import { customAction, Node, RecordNode } from "openblocks-core";
 import { shallowEqual } from "util/objectUtils";
 import { MultiCompBuilder, valueComp } from ".";
 import { depsConfig, NameConfig, withExposingConfigs } from "./withExposing";
@@ -35,11 +34,11 @@ test("exposing data and methods", () => {
   let comp = new TestExposingComp({});
   comp = evalAndReduce(comp);
   const oldNode = comp.extraNode()!.node;
-  comp = evalAndReduce(comp.reduce(changeChildAction("v2", "ppp")));
+  comp = evalAndReduce(comp.reduce(comp.changeChildAction("v2", "ppp")));
   expect(comp.children.v2.getView()).toBe("ppp");
   const newNode = comp.extraNode()!.node;
   expect(shallowEqual(oldNode, newNode)).toBe(true);
-  comp = evalAndReduce(comp.reduce(changeChildAction("v1", "v1_value")));
+  comp = evalAndReduce(comp.reduce(comp.changeChildAction("v1", "v1_value")));
   expect(evalAndReduce(comp)).toBe(comp);
   expect(comp.exposingValues.v1).toBe("v1_value");
   expect(comp.exposingValues.visible).toBe(false);
@@ -54,11 +53,14 @@ test("run exposing method", () => {
   });
   comp = evalAndReduce(comp);
   comp.reduce(
-    customAction<ExecuteAction>({
-      type: "execute",
-      methodName: "setNum",
-      params: [100],
-    })
+    customAction<ExecuteAction>(
+      {
+        type: "execute",
+        methodName: "setNum",
+        params: [100],
+      },
+      false
+    )
   );
   expect(comp.getView().num.value).toEqual(100);
 });
@@ -80,7 +82,7 @@ test("exposing deps", () => {
   const oldNode = comp.exposingInfo().property;
   expect(comp.exposingValues.X).toBe("abc false");
   // Modifying v2 will not affect the reference of xx node
-  comp = evalAndReduce(comp.reduce(changeChildAction("v2", "ppp")));
+  comp = evalAndReduce(comp.reduce(comp.changeChildAction("v2", "ppp")));
   const newNode = comp.exposingInfo().property;
 
   function toX(node: RecordNode<Record<string, Node<unknown>>>) {

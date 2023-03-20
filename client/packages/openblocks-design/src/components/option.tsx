@@ -4,11 +4,9 @@ import { EllipsisTextCss, labelCss } from "./Label";
 import { EditPopover, SimplePopover } from "./popover";
 import { ToolTipLabel } from "./toolTip";
 import { AddLine } from "./eventHandler";
-import { useState } from "react";
+import React, { useState } from "react";
 import { CSS } from "@dnd-kit/utilities";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { ReactComponent as CloseEye } from "icons/icon-closeEye.svg";
-import { ReactComponent as OpenEye } from "icons/icon-openEye.svg";
 import { ConstructorToComp, MultiCompConstructor } from "openblocks-core";
 import { ReactComponent as WarnIcon } from "icons/icon-warning-white.svg";
 import { DndContext } from "@dnd-kit/core";
@@ -26,12 +24,12 @@ const OptionDiv = styled.div`
 const RowText = styled.span`
   ${labelCss};
   ${EllipsisTextCss};
-  max-width: calc(100% - 56px);
   line-height: 32px;
   color: #333333;
   display: inline-block;
   vertical-align: top;
   margin-left: 4px;
+  max-width: calc(100% - 56px);
 
   :hover {
     cursor: pointer;
@@ -43,6 +41,7 @@ const OptionRow = styled.div<{ selected?: boolean }>`
   width: 100%;
   height: 32px;
   border-bottom: 1px solid #d7d9e0;
+  display: flex;
 
   :hover {
     background-color: #fafafa;
@@ -66,10 +65,16 @@ const OptionRow = styled.div<{ selected?: boolean }>`
   }
 `;
 
+const OptionHeaderRowWrapper = styled.div`
+  > ${OptionRow}, .ant-select .ant-select-selector {
+    background-color: #fafafa;
+    color: ${GreyTextColor};
+  }
+`;
+
 const IconCss = css`
   height: 16px;
   width: 16px;
-  margin-top: 8px;
 
   :hover {
     cursor: pointer;
@@ -100,6 +105,7 @@ const EmptyOptionSpan = styled.span`
 
 const StyledDragIcon = styled(DragIcon)`
   ${IconCss};
+  margin-top: 8px;
   margin-left: 8px;
   color: #8b8fa3;
 
@@ -116,8 +122,6 @@ const StyledDragIcon = styled(DragIcon)`
 
 const StyledPointIcon = styled(PointIcon)`
   ${IconCss};
-  float: right;
-  margin-right: 8px;
   color: ${GreyTextColor};
 
   &:hover {
@@ -131,55 +135,26 @@ const StyledWarnIcon = styled(WarnIcon)`
   margin-right: 12px;
 `;
 
-const HideIcon = ({
-  hide,
-  setHide,
-  className,
-}: {
-  hide: boolean;
-  setHide: (hide: boolean) => void;
-  className?: string;
-}) => {
-  const Eye = hide ? CloseEye : OpenEye;
-  return (
-    <Eye
-      className={className}
-      onClick={(e) => {
-        e.stopPropagation();
-        setHide(!hide);
-      }}
-    />
-  );
-};
+const OptionItemExtraWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  height: 100%;
+  margin-left: auto;
 
-const StyledHideIcon = styled(HideIcon)`
-  height: 16px;
-  width: 16px;
-  margin-top: 8px;
-  float: right;
-  margin-right: 8px;
-  display: inline-block;
-
-  :hover {
-    cursor: pointer;
-  }
-
-  &:hover path {
-    fill: #315efb;
+  > * {
+    margin-right: 8px;
   }
 `;
+
 const OptionItem = (props: {
-  content: JSX.Element | React.ReactNode;
-  title: string;
+  content?: React.ReactNode;
+  title: string | JSX.Element;
   config: { dataIndex: string };
-  hide?: boolean;
-  onHide?: (hide: boolean) => void;
-  onDel?: () => void;
-  onCopy?: () => void;
-  errorMsg?: string | false;
-  popoverTitle: string;
+  popoverTitle?: string;
+  draggable?: boolean;
+  optionExtra?: React.ReactNode;
 }) => {
-  const { content, config, title, hide, onHide, onDel, onCopy, popoverTitle } = props;
+  const { content, config, title, popoverTitle, draggable = true, optionExtra } = props;
   const [visible, setVisible] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: config.dataIndex,
@@ -188,43 +163,27 @@ const OptionItem = (props: {
     transform: CSS.Transform.toString(transform),
     transition,
   };
+  const optionRow = (
+    <OptionRow ref={setNodeRef} style={style} selected={visible}>
+      {draggable && <StyledDragIcon {...attributes} {...listeners} />}
+      <RowText>{title}</RowText>
+      <OptionItemExtraWrapper>{optionExtra}</OptionItemExtraWrapper>
+    </OptionRow>
+  );
+  if (!content) {
+    return optionRow;
+  }
   return (
     <SimplePopover
       content={content}
-      title={popoverTitle}
+      title={popoverTitle || ""}
       key={config.dataIndex}
       visible={visible}
       setVisible={(vis) => {
         setVisible(vis);
       }}
     >
-      <OptionRow ref={setNodeRef} style={style} selected={visible}>
-        <StyledDragIcon {...attributes} {...listeners} />
-        <RowText>{title}</RowText>
-        {onHide ? (
-          <StyledHideIcon
-            hide={!!hide}
-            setHide={(hide) => {
-              onHide(hide);
-            }}
-          />
-        ) : (
-          <>
-            <EditPopover copy={onCopy} del={onDel}>
-              <StyledPointIcon
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              />
-            </EditPopover>
-          </>
-        )}
-        {props.errorMsg && (
-          <ToolTipLabel title={props.errorMsg}>
-            <StyledWarnIcon />
-          </ToolTipLabel>
-        )}
-      </OptionRow>
+      {optionRow}
     </SimplePopover>
   );
 };
@@ -242,11 +201,11 @@ function Option<T extends ConstructorToComp<MultiCompConstructor>>(props: {
   // unique value for deduplication
   uniqVal?: (comp: T) => string;
   title?: string;
-  hide?: (comp: T) => boolean;
-  onHide?: (comp: T, hide: boolean) => void;
-  optionHeader?: React.ReactNode;
+  optionToolbar?: React.ReactNode;
+  headerItem?: React.ReactNode;
+  itemExtra?: (comp: T) => React.ReactNode;
 }) {
-  const { items, uniqVal } = props;
+  const { items, uniqVal, headerItem, optionToolbar, itemExtra } = props;
   const itemsDistinctValCount = uniqVal
     ? items.reduce((prev, cur) => {
         const val = uniqVal(cur);
@@ -277,13 +236,14 @@ function Option<T extends ConstructorToComp<MultiCompConstructor>>(props: {
 
   return (
     <>
-      {props.optionHeader ? (
-        props.optionHeader
+      {optionToolbar ? (
+        optionToolbar
       ) : (
         <AddLine title={props.title || trans("optionsControl.optionList")} add={props.onAdd} />
       )}
-      {items.length > 0 ? (
+      {items.length > 0 || headerItem ? (
         <OptionDiv>
+          <OptionHeaderRowWrapper>{headerItem}</OptionHeaderRowWrapper>
           <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={handleDragEnd}>
             <SortableContext
               strategy={verticalListSortingStrategy}
@@ -292,6 +252,32 @@ function Option<T extends ConstructorToComp<MultiCompConstructor>>(props: {
               {items.map((item, index: number) => {
                 const dataIndex = props.dataIndex(item);
                 const value = uniqVal && uniqVal(item);
+                const errorMsg =
+                  itemsDistinctValCount.get(value) > 1 &&
+                  trans("optionsControl.optionItemErrorMSg", { value: value ?? "" });
+                const optionExtra = (
+                  <>
+                    {errorMsg && (
+                      <ToolTipLabel title={errorMsg}>
+                        <StyledWarnIcon />
+                      </ToolTipLabel>
+                    )}
+                    {itemExtra ? (
+                      itemExtra(item)
+                    ) : (
+                      <EditPopover
+                        copy={props.onCopy ? () => props.onCopy!(item) : undefined}
+                        del={props.onDel ? () => props.onDel!(index) : undefined}
+                      >
+                        <StyledPointIcon
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                        />
+                      </EditPopover>
+                    )}
+                  </>
+                );
                 return (
                   <OptionItem
                     key={dataIndex}
@@ -299,14 +285,7 @@ function Option<T extends ConstructorToComp<MultiCompConstructor>>(props: {
                     content={props.content(item, index)}
                     title={props.itemTitle(item)}
                     config={{ dataIndex: dataIndex }}
-                    onDel={props.onDel ? () => props.onDel!(index) : undefined}
-                    onCopy={props.onCopy ? () => props.onCopy!(item) : undefined}
-                    hide={props.hide && props.hide(item)}
-                    onHide={props.onHide ? (hide) => props.onHide!(item, hide) : undefined}
-                    errorMsg={
-                      itemsDistinctValCount.get(value) > 1 &&
-                      trans("optionsControl.optionItemErrorMSg", { value: value ?? "" })
-                    }
+                    optionExtra={optionExtra}
                   />
                 );
               })}

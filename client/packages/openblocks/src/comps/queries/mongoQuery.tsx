@@ -1,6 +1,7 @@
 import { withPropertyViewFn, withTypeAndChildren } from "comps/generators";
+import { includes } from "lodash";
+import { CompAction, CompConstructor } from "openblocks-core";
 import { Dropdown, ValueFromOption } from "openblocks-design";
-import { changeValueAction, CompAction, CompConstructor } from "openblocks-core";
 import { dropdownControl } from "../controls/dropdownControl";
 import {
   ParamsJsonControl,
@@ -9,7 +10,6 @@ import {
   ValueFunction,
 } from "../controls/paramsControl";
 import { buildQueryCommand, FunctionProperty, toQueryView } from "./queryCompUtils";
-import { includes } from "lodash";
 
 const CommandOptions = [
   { label: "Find Document(s)", value: "FIND" },
@@ -198,7 +198,7 @@ export class MongoQuery extends MongoQueryTmp {
           placement={"bottom"}
           options={CommandOptions}
           value={this.children.compType.getView()}
-          onChange={(value) => this.dispatch(changeValueAction({ compType: value, comp: {} }))}
+          onChange={(value) => this.dispatch(this.changeValueAction({ compType: value, comp: {} }))}
         />
 
         {this.children.compType.getView() !== "RAW" && (

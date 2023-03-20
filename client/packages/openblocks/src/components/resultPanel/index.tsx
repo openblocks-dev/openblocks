@@ -62,6 +62,7 @@ const CloseIconWrapper = styled.div`
   }
 `;
 const BodyWrapper = styled.div`
+  height: 100%;
   overflow-x: hidden;
   overflow-y: scroll;
   scrollbar-gutter: stable;

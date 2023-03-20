@@ -77,7 +77,7 @@ export const millisecondsControl = (props: MillisecondsControlProps) => {
         }
         // const h = Math.floor(value / (60 * 60 * 1000));
         // const m = Math.floor((value % (60 * 60 * 1000)) / (60 * 1000));
-        // const s = Math.floor(((value % (60 * 60 * 1000)) % (60 * 1000)) / 1000);Ï
+        // const s = Math.floor(((value % (60 * 60 * 1000)) % (60 * 1000)) / 1000);
         // const ms = Math.floor(((value % (60 * 60 * 1000)) % (60 * 1000)) % 1000);
         const s = Math.floor(value / 1000);
         const ms = Math.floor(value % 1000);

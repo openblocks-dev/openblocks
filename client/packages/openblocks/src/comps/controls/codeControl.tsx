@@ -11,7 +11,6 @@ import _ from "lodash";
 import {
   AbstractComp,
   changeDependName,
-  changeValueAction,
   CodeFunction,
   CodeNode,
   CodeNodeOptions,
@@ -142,7 +141,7 @@ export function codeControl<
               codeType === "Function"
             );
             if (newValue !== this.unevaledValue) {
-              return this.reduce(changeValueAction(newValue));
+              return this.reduce(this.changeValueAction(newValue));
             }
             return this;
           }
@@ -516,7 +515,6 @@ export const RadiusControl = codeControl<string>(
     expectedType: "CSS",
   }
 );
-
 
 export const FunctionControl = codeControl<CodeFunction>(
   (value) => {

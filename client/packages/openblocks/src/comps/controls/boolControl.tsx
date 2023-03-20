@@ -102,7 +102,7 @@ class BoolControl extends AbstractComp<boolean, DataType, Node<ValueAndMsg<boole
   }
 
   changeModeAction() {
-    return customAction<ChangeModeAction>({ useCodeEditor: !this.useCodeEditor });
+    return customAction<ChangeModeAction>({ useCodeEditor: !this.useCodeEditor }, true);
   }
 
   propertyView(params: ControlParams): ReactNode {

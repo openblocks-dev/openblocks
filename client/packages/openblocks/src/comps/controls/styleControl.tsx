@@ -1,32 +1,31 @@
+import { Tooltip } from "antd";
+import {
+  getThemeDetailName,
+  isThemeColorKey,
+  ThemeDetail,
+} from "api/commonSettingApi";
 import { MultiCompBuilder } from "comps/generators";
 import { childrenToProps, ToConstructor } from "comps/generators/multi";
+import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
+import { ThemeContext } from "comps/utils/themeContext";
+import { trans } from "i18n";
 import _ from "lodash";
+import { IconRadius, IconReset } from "openblocks-design";
+import { useContext } from "react";
 import styled from "styled-components";
+import { useIsMobile } from "util/hooks";
 import { RadiusControl, StringControl } from "./codeControl";
 import { ColorControl } from "./colorControl";
-import { IconRadius, IconReset } from "openblocks-design";
-import { changeValueAction } from "openblocks-core";
-import { Tooltip } from "antd";
-import { useContext } from "react";
-import { ThemeContext } from "comps/utils/themeContext";
 import {
   defaultTheme,
-  DEP_TYPE,
   DepColorConfig,
+  DEP_TYPE,
   RadiusConfig,
   SimpleColorConfig,
   SingleColorConfig,
   MarginConfig,
   PaddingConfig,
 } from "./styleControlConstants";
-import {
-  getThemeDetailName,
-  isThemeColorKey,
-  ThemeDetail,
-} from "api/commonSettingApi";
-import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
-import { trans } from "i18n";
-import { useIsMobile } from "util/hooks";
 
 function isSimpleColorConfig(
   config: SingleColorConfig
@@ -302,7 +301,10 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                     ) {
                       children[name]?.dispatchChangeValueAction("");
                     } else {
-                      children[name]?.dispatch(changeValueAction(""));
+                      children[name] &&
+                        children[name].dispatch(
+                          children[name].changeValueAction("")
+                        );
                     }
                   });
                 }}
@@ -343,24 +345,24 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                   <>
                     <div key={index}>
                       {name === "radius" ||
-                        name === "margin" ||
-                        name === "padding" ||
-                        name === "gap" ||
-                        name === "cardRadius"
+                      name === "margin" ||
+                      name === "padding" ||
+                      name === "gap" ||
+                      name === "cardRadius"
                         ? (
-                          children[name] as InstanceType<typeof RadiusControl>
-                        ).propertyView({
-                          label: config.label,
-                          preInputNode: <RadiusIcon title="" />,
-                          placeholder: props[name],
-                        })
+                            children[name] as InstanceType<typeof RadiusControl>
+                          ).propertyView({
+                            label: config.label,
+                            preInputNode: <RadiusIcon title="" />,
+                            placeholder: props[name],
+                          })
                         : children[name].propertyView({
-                          label: config.label,
-                          panelDefaultColor: props[name],
-                          // isDep: isDepColorConfig(config),
-                          isDep: true,
-                          depMsg: depMsg,
-                        })}
+                            label: config.label,
+                            panelDefaultColor: props[name],
+                            // isDep: isDepColorConfig(config),
+                            isDep: true,
+                            depMsg: depMsg,
+                          })}
                     </div>
                   </>
                 );

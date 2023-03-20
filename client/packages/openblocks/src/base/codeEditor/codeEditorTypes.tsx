@@ -5,7 +5,7 @@ import { EditorState, EditorView } from "./codeMirror";
 // if new style needed, pls contact @libin
 export type StyleName = "medium" | "higher" | "window";
 
-export type Language = "sql" | "javascript" | "css" | "html";
+export type Language = "sql" | "javascript" | "css" | "html" | "json";
 
 export interface CodeEditorControlParams {
   placeholder?: string;

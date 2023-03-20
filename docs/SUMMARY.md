@@ -2,6 +2,7 @@
 
 * [Openblocks overview](README.md)
 * [Self-hosting](self-hosting/README.md)
+  * [Enterprise Edition](self-hosting/enterprise-edition.md)
   * [Access local database or API](self-hosting/access-local-database-or-api.md)
   * [DigitalOcean](self-hosting/digitalocean.md)
   * [AWS AMI](self-hosting/aws-ami.md)
@@ -12,8 +13,17 @@
 
 * [Data source basics](data-sources/data-source-basics.md)
 * [Configure IP allowlists](data-sources/configure-ip-allowlists.md)
-* [Connect to APIs](data-sources/connect-to-databases/README.md)
-  * [Google Sheets](data-sources/connect-to-databases/google-sheets.md)
+* [Connect to databases](data-sources/connect-to-databases/README.md)
+  * [Elasticsearch](data-sources/connect-to-databases/elasticsearch.md)
+  * [Microsoft SQL Server](data-sources/connect-to-databases/microsoft-sql-server.md)
+  * [MongoDB](data-sources/connect-to-databases/mongodb.md)
+  * [MySQL](data-sources/connect-to-databases/mysql.md)
+  * [PostgreSQL](data-sources/connect-to-databases/postgresql.md)
+  * [Redis](data-sources/connect-to-databases/redis.md)
+* [Connect to APIs](data-sources/connect-to-databases-1/README.md)
+  * [REST APIs](data-sources/connect-to-databases-1/rest-apis.md)
+  * [GraphQL](data-sources/connect-to-databases-1/graphql.md)
+  * [Google Sheets](data-sources/connect-to-databases-1/google-sheets.md)
 
 ## Queries
 
@@ -51,7 +61,8 @@
 
 ## Build plugins
 
-* [Develop your first plugin](build-plugins/develop-your-first-plugin.md)
+* [Develop UI component plugins](build-plugins/develop-your-first-plugin.md)
+* [Develop data source plugins](build-plugins/develop-data-source-plugins.md)
 
 ## Workspace management
 

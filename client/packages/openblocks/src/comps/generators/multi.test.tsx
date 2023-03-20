@@ -53,11 +53,11 @@ test("test object create", () => {
 });
 
 test("test action and reduce", () => {
-  let comp: Comp = new TestComp({});
+  let comp = new TestComp({});
   expect(serialize(comp)).toEqual('{"v1":"abc"}');
-  comp = comp.reduce(changeChildAction("v1", "changed"));
+  comp = comp.reduce(comp.changeChildAction("v1", "changed"));
   expect(serialize(comp)).toEqual('{"v1":"changed"}');
-  comp = comp.reduce(changeChildAction("v1", "changedXXXX"));
+  comp = comp.reduce(comp.changeChildAction("v1", "changedXXXX"));
   expect(serialize(comp)).toEqual('{"v1":"changedXXXX"}');
 });
 
@@ -79,11 +79,11 @@ const Test2Comp = (function () {
 })();
 
 test("test multi2 toJson", () => {
-  let comp: Comp = new Test2Comp({});
+  let comp = new Test2Comp({});
   const strValue = JSON.stringify(comp.toJsonValue());
   expect(strValue).toEqual('{"v1":"abc","v2":{"v1":"abc"}}');
 
-  comp = comp.reduce(wrapChildAction("v2", changeChildAction("v1", "changed")));
+  comp = comp.reduce(wrapChildAction("v2", comp.children.v2.changeChildAction("v1", "changed")));
   expect(serialize(comp)).toEqual('{"v1":"abc","v2":{"v1":"changed"}}');
 
   let comp2: Comp = new Test2Comp({ value: JSON.parse(serialize(comp)) });
@@ -95,8 +95,8 @@ test("test multi change action", () => {
   expect(comp.getView().v1).toEqual("abc");
   expect(comp.getView().v2).toEqual("abc");
   const action = multiChangeAction({
-    v1: changeValueAction("v1_value"),
-    v2: changeChildAction("v1", "xxxy"),
+    v1: changeValueAction("v1_value", true),
+    v2: changeChildAction("v1", "xxxy", true),
   });
   comp = comp.reduce(action);
   expect(comp.getView().v1).toEqual("v1_value");
@@ -130,7 +130,7 @@ test("test cache", () => {
   let comp = evalAndReduce(new Test3Comp({}));
   const v1 = comp.children.v1;
   const v2 = comp.children.v2;
-  comp = comp.reduce(changeChildAction("v1", "XXX"));
+  comp = comp.reduce(comp.changeChildAction("v1", "XXX"));
   // v1 changed
   expect(comp.children.v1.getView()).toEqual("XXX");
   expect(comp.children.v1).not.toBe(v1);

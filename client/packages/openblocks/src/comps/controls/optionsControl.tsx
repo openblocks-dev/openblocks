@@ -1,3 +1,29 @@
+import { ViewDocIcon } from "assets/icons";
+import {
+  ArrayControl,
+  BoolCodeControl,
+  StringControl,
+} from "comps/controls/codeControl";
+import {
+  dropdownControl,
+  LeftRightControl,
+} from "comps/controls/dropdownControl";
+import { IconControl } from "comps/controls/iconControl";
+import {
+  MultiCompBuilder,
+  valueComp,
+  withContext,
+  withDefault,
+} from "comps/generators";
+import { list } from "comps/generators/list";
+import { ToViewReturn } from "comps/generators/multi";
+import { genRandomKey } from "comps/utils/idGenerator";
+import {
+  disabledPropertyView,
+  hiddenPropertyView,
+} from "comps/utils/propertyUtils";
+import { trans } from "i18n";
+import _, { mapValues } from "lodash";
 import {
   Comp,
   CompAction,
@@ -9,38 +35,12 @@ import {
   MultiBaseComp,
   withFunction,
 } from "openblocks-core";
-import {
-  ArrayControl,
-  BoolCodeControl,
-  StringControl,
-} from "comps/controls/codeControl";
-import {
-  dropdownControl,
-  LeftRightControl,
-} from "comps/controls/dropdownControl";
-import {
-  MultiCompBuilder,
-  valueComp,
-  withContext,
-  withDefault,
-} from "comps/generators";
-import { list } from "comps/generators/list";
-import { ToViewReturn } from "comps/generators/multi";
-import { genRandomKey } from "comps/utils/idGenerator";
 import { AutoArea, Option } from "openblocks-design";
-import { getNextEntityName } from "util/stringUtils";
-import { ButtonEventHandlerControl } from "./eventHandlerControl";
-import _, { mapValues } from "lodash";
-import {
-  disabledPropertyView,
-  hiddenPropertyView,
-} from "comps/utils/propertyUtils";
-import { trans } from "i18n";
 import styled from "styled-components";
-import { ViewDocIcon } from "assets/icons";
-import { IconControl } from "comps/controls/iconControl";
-import { JSONValue } from "../../util/jsonTypes";
 import { lastValueIfEqual } from "util/objectUtils";
+import { getNextEntityName } from "util/stringUtils";
+import { JSONValue } from "../../util/jsonTypes";
+import { ButtonEventHandlerControl } from "./eventHandlerControl";
 
 const OptionTypes = [
   {
@@ -524,8 +524,8 @@ const TabsOption = new MultiCompBuilder(
 )
   .setPropertyViewFn((children) => (
     <>
-      {children.key.propertyView({ label: trans("value") })}
       {children.label.propertyView({ label: trans("label") })}
+      {children.key.propertyView({ label: trans("value") })}
       {children.icon.propertyView({ label: trans("icon") })}
       {children.iconPosition.propertyView({
         label: trans("tabbedContainer.iconPosition"),

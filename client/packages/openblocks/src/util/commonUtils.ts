@@ -28,15 +28,8 @@ export const isMac = (() => {
 
 const BASE64_STRING_REGEX = /^([A-Za-z\d+/]{4})*([A-Za-z\d+/]{3}=|[A-Za-z\d+/]{2}==)?$/;
 
-const URL_STRING_REGEX =
-  /^((blob:)?https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/;
-
 export const isBase64String = (data: any) => {
   return typeof data === "string" && BASE64_STRING_REGEX.test(data);
-};
-
-export const isUrlString = (data: any) => {
-  return typeof data === "string" && new RegExp(URL_STRING_REGEX, "i").test(data);
 };
 
 // minimum transparant base64 image

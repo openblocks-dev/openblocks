@@ -1,35 +1,27 @@
 import { MultiBaseComp } from "openblocks-core";
-import { BoolPureControl } from "comps/controls/boolControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
-import { keyValueListControl } from "comps/controls/keyValueControl";
-import { withDefault } from "comps/generators";
+import { valueComp } from "comps/generators";
 import { list } from "comps/generators/list";
 import {
   parseChildrenFromValueAndChildrenMap,
   ToInstanceType,
   ToViewReturn,
 } from "comps/generators/multi";
-import { genRandomKey } from "comps/utils/idGenerator";
-import { BranchDiv, Treediv } from "openblocks-design";
 import _ from "lodash";
 import { ReactNode } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { AppSelectComp } from "comps/comps/layout/appSelectComp";
-
-const QueryHashList = withDefault(keyValueListControl(false, [], "string"), [
-  { key: "", value: "" },
-]);
+import { genRandomKey } from "comps/utils/idGenerator";
+import { LayoutActionComp } from "comps/comps/layout/layoutActionComp";
+import { migrateOldData } from "comps/generators/simpleGenerators";
 
 const childrenMap = {
   label: StringControl,
   hidden: BoolCodeControl,
-  app: AppSelectComp,
+  action: LayoutActionComp,
+  itemKey: valueComp<string>(""),
   icon: IconControl,
-  hideWhenNoPermission: withDefault(BoolPureControl, true),
-  queryParam: QueryHashList,
-  hashParam: QueryHashList,
 };
 
 type ChildrenType = ToInstanceType<typeof childrenMap> & {
@@ -41,8 +33,6 @@ type ChildrenType = ToInstanceType<typeof childrenMap> & {
  * FIXME: refactor it more general
  */
 export class LayoutMenuItemComp extends MultiBaseComp<ChildrenType> {
-  private itemKey?: string;
-
   override getView() {
     return _.mapValues(this.children, (c) => c.getView()) as ToViewReturn<ChildrenType>;
   }
@@ -52,8 +42,8 @@ export class LayoutMenuItemComp extends MultiBaseComp<ChildrenType> {
     return (
       <>
         {isLeaf &&
-          this.children.app.propertyView({
-            onChange: (label) => {
+          this.children.action.propertyView({
+            onAppChange: (label) => {
               label && this.children.label.dispatchChangeValueAction(label);
             },
           })}
@@ -63,26 +53,6 @@ export class LayoutMenuItemComp extends MultiBaseComp<ChildrenType> {
           tooltip: trans("aggregation.iconTooltip"),
         })}
         {hiddenPropertyView(this.children)}
-        {isLeaf &&
-          this.children.hideWhenNoPermission.propertyView({
-            label: trans("aggregation.hideWhenNoPermission"),
-          })}
-        {isLeaf && (
-          <Treediv>
-            <BranchDiv>
-              {this.children.queryParam.propertyView({
-                label: trans("aggregation.queryParam"),
-                layout: "vertical",
-              })}
-            </BranchDiv>
-            <BranchDiv>
-              {this.children.hashParam.propertyView({
-                label: trans("aggregation.hashParam"),
-                layout: "vertical",
-              })}
-            </BranchDiv>
-          </Treediv>
-        )}
       </>
     );
   }
@@ -103,20 +73,36 @@ export class LayoutMenuItemComp extends MultiBaseComp<ChildrenType> {
   }
 
   getItemKey() {
-    if (!this.itemKey) {
-      this.itemKey = genRandomKey();
-    }
-    return this.itemKey;
+    return this.children.itemKey.getView();
   }
 }
 
-export class LayoutMenuItemListComp extends list(LayoutMenuItemComp) {
+const LayoutMenuItemCompMigrate = migrateOldData(LayoutMenuItemComp, (oldData: any) => {
+  if (oldData && oldData.hasOwnProperty("app")) {
+    const migrateKeys = ["app", "queryParam", "hashParam", "hideWhenNoPermission"];
+    const notChangeData = _.omit(oldData, migrateKeys);
+    const oldAppData = _.pick(oldData, migrateKeys);
+    return {
+      ...notChangeData,
+      action: {
+        compType: "openApp",
+        comp: oldAppData,
+      },
+      itemKey: oldData.app?.appId || genRandomKey(),
+    };
+  } else {
+    return oldData;
+  }
+});
+
+export class LayoutMenuItemListComp extends list(LayoutMenuItemCompMigrate) {
   addItem(value?: any) {
     const data = this.getView();
     this.dispatch(
       this.pushAction(
         value || {
           label: trans("menuItem") + " " + (data.length + 1),
+          itemKey: genRandomKey(),
         }
       )
     );

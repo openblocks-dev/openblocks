@@ -1,10 +1,9 @@
+import { InputNumber } from "antd";
 import { SimpleComp } from "openblocks-core";
 import { ControlPropertyViewWrapper } from "openblocks-design";
 import React, { ReactNode } from "react";
-import { changeValueAction } from "openblocks-core";
-import { ControlParams } from "./controlParams";
-import { InputNumber } from "antd";
 import styled from "styled-components";
+import { ControlParams } from "./controlParams";
 
 type SimpleNumberParams = {
   min?: number;
@@ -48,7 +47,7 @@ export function numberSimpleControl(defaultValue?: number) {
         const wrapperEl = ref.current!;
         const value = currentValue ?? Number(target.value);
         if (params.min && value >= params.min) {
-          this.dispatch(changeValueAction(value));
+          this.dispatchChangeValueAction(value);
           wrapperEl.classList.remove("error");
         } else {
           wrapperEl.classList.add("error");

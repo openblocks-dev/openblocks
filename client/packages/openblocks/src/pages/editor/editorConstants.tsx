@@ -102,5 +102,6 @@ export const CompStateIcon: {
   imageEditor: <LeftImage />,
   collapsibleContainer: <LeftContainer />,
   npmPlugin: <LeftCommon />,
+  calendar: <LeftDate />,
   signature: <LeftSignature />,
 };

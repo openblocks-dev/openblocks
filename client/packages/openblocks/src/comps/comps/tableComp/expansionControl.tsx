@@ -15,6 +15,8 @@ import { useContext } from "react";
 import { tryToNumber } from "util/convertUtils";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { OB_ROW_ORI_INDEX, RecordType } from "./tableUtils";
+import { NameGenerator } from "comps/utils";
+import { JSONValue } from "util/jsonTypes";
 
 const ContextSlotControl = withSelectedMultiContext(SlotControl);
 
@@ -54,7 +56,11 @@ let ExpansionControlTmp = (function () {
           {children.expandable.propertyView({
             label: trans("table.expandable"),
           })}
-          {children.expandable.getView() && children.slot.getSelectedComp().getPropertyView()}
+          {children.expandable.getView() &&
+            children.slot
+              .getSelectedComp()
+              .getComp()
+              .propertyView({ buttonText: trans("table.configExpandedView") })}
         </>
       );
     })
@@ -85,9 +91,18 @@ export class ExpansionControl extends ExpansionControlTmp {
       expandModalView: selectedContainer.getView(),
     };
   }
+
   setSelectionAction(selection: string, params?: Record<string, unknown>) {
     return wrapChildAction("slot", ContextSlotControl.setSelectionAction(selection, params));
   }
+
+  getPasteValue(nameGenerator: NameGenerator): JSONValue {
+    return {
+      ...this.toJsonValue(),
+      slot: this.children.slot.getSelectedComp().getComp().getPasteValue(nameGenerator),
+    };
+  }
+
   reduce(action: any) {
     const comp = super.reduce(action);
     // console.info("ExpansionControl reduce. action: ", action, "\nthis: ", this, "\ncomp: ", comp);

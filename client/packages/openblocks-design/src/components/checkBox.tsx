@@ -10,7 +10,7 @@ const CheckBox = styled(AntdCheckBox)`
     top: 0;
   }
 
-  &:hover .ant-checkbox .ant-checkbox-inner {
+  &:hover:enabled .ant-checkbox .ant-checkbox-inner {
     border-color: #4965f2 !important;
   }
 

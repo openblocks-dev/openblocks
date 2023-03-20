@@ -51,7 +51,7 @@ export const SelectionControl = (function () {
   return new MultiCompBuilder(childrenMap, (props, dispatch) => {
     const changeSelectedRowKey = (record: RecordType) => {
       if (getKey(record) !== props.selectedRowKey) {
-        dispatch(changeChildAction("selectedRowKey", getKey(record)));
+        dispatch(changeChildAction("selectedRowKey", getKey(record), false));
       }
     };
     return (onEvent: TableOnEventView) => {
@@ -83,7 +83,7 @@ export const SelectionControl = (function () {
         selectedRowKeys: props.selectedRowKeys,
         preserveSelectedRowKeys: true,
         onChange: (selectedRowKeys) => {
-          dispatch(changeChildAction("selectedRowKeys", selectedRowKeys));
+          dispatch(changeChildAction("selectedRowKeys", selectedRowKeys, false));
           onEvent("rowSelectChange");
         },
         // click checkbox also trigger row click event

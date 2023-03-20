@@ -103,6 +103,14 @@ export function backgroundToBorder(color: string) {
   return darkenColor(color, 0.03);
 }
 
+// calendar background color to boder
+export function calendarBackgroundToBorder(color: string) {
+  if (toHex(color) === SURFACE_COLOR) {
+    return SECOND_SURFACE_COLOR;
+  }
+  return darkenColor(color, 0.12);
+}
+
 // return switch unchecked color
 function handleToUnchecked(color: string) {
   if (toHex(color) === SURFACE_COLOR) {
@@ -157,6 +165,38 @@ export function handleToHeadBg(color: string) {
 // return divider text color
 function handleToDividerText(color: string) {
   return darkenColor(color, 0.4);
+}
+
+// return calendar select background color
+function handleCalendarSelectColor(color: string) {
+  return lightenColor(color, 0.3) + "4C";
+}
+
+// return lighten color
+function handlelightenColor(color: string) {
+  return lightenColor(color, 0.1);
+}
+
+// return calendar head button select background
+export function handleToCalendarHeadSelectBg(color: string) {
+  if (toHex(color) === SURFACE_COLOR) {
+    return "#E1E3EB";
+  }
+  return contrastBackground(color, 0.15);
+}
+
+// return calendar today background
+export function handleToCalendarToday(color: string) {
+  if (isDarkColor(color)) {
+    return "#FFFFFF33";
+  } else {
+    return "#0000000c";
+  }
+}
+
+// return calendar text
+function handleCalendarText(color: string, textDark: string, textLight: string) {
+  return isDarkColor(color) ? textLight : lightenColor(textDark, 0.1);
 }
 
 const TEXT = {
@@ -777,6 +817,50 @@ export const DrawerStyle = [getBackground()] as const;
 
 export const JsonEditorStyle = [LABEL] as const;
 
+export const CalendarStyle = [
+  getBackground("primarySurface"),
+  {
+    name: "border",
+    label: trans("style.border"),
+    depName: "background",
+    transformer: calendarBackgroundToBorder,
+  },
+  RADIUS,
+  {
+    name: "text",
+    label: trans("text"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: handleCalendarText,
+  },
+  {
+    name: "headerBtnBackground",
+    label: trans("calendar.headerBtnBackground"),
+    depName: "background",
+    transformer: handlelightenColor,
+  },
+  {
+    name: "btnText",
+    label: trans("calendar.btnText"),
+    depName: "headerBtnBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "title",
+    label: trans("calendar.title"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  {
+    name: "selectBackground",
+    label: trans("calendar.selectBackground"),
+    depTheme: "primary",
+    transformer: handleCalendarSelectColor,
+  },
+] as const;
+
 export const SignatureStyle = [
   LABEL,
   ...getBgBorderRadiusByBg(),
@@ -796,6 +880,10 @@ export const SignatureStyle = [
     color: "#222222",
   },
 ] as const;
+
+export const CarouselStyle = [getBackground("canvas")] as const;
+
+export const RichTextEditorStyle = [getStaticBorder(), RADIUS] as const;
 
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
@@ -831,4 +919,7 @@ export type JsonSchemaFormStyleType = StyleConfigType<
 export type TreeSelectStyleType = StyleConfigType<typeof TreeSelectStyle>;
 export type DrawerStyleType = StyleConfigType<typeof DrawerStyle>;
 export type JsonEditorStyleType = StyleConfigType<typeof JsonEditorStyle>;
+export type CalendarStyleType = StyleConfigType<typeof CalendarStyle>;
 export type SignatureStyleType = StyleConfigType<typeof SignatureStyle>;
+export type CarouselStyleType = StyleConfigType<typeof CarouselStyle>;
+export type RichTextEditorStyleType = StyleConfigType<typeof RichTextEditorStyle>;

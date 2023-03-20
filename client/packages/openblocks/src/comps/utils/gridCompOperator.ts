@@ -1,20 +1,10 @@
 import { message } from "antd";
-import {
-  ActionExtraInfo,
-  changeValueAction,
-  CustomAction,
-  deferAction,
-  deleteCompAction,
-  multiChangeAction,
-  replaceCompAction,
-  wrapActionExtraInfo,
-} from "openblocks-core";
-import { Comp } from "openblocks-core";
 import { isContainer } from "comps/comps/containerBase";
 import { SimpleContainerComp } from "comps/comps/containerBase/simpleContainerComp";
 import { GridItemComp } from "comps/comps/gridItemComp";
+import { remoteComp } from "comps/comps/remoteComp/remoteComp";
 import { EditorState } from "comps/editorState";
-import { CustomModal } from "openblocks-design";
+import { trans } from "i18n";
 import {
   calcPasteBaseXY,
   Layout,
@@ -24,11 +14,20 @@ import {
   switchLayoutWH,
 } from "layout";
 import _ from "lodash";
-import { genRandomKey } from "./idGenerator";
-import { trans } from "i18n";
+import {
+  ActionExtraInfo,
+  Comp,
+  CustomAction,
+  deferAction,
+  deleteCompAction,
+  multiChangeAction,
+  replaceCompAction,
+  wrapActionExtraInfo,
+} from "openblocks-core";
+import { CustomModal } from "openblocks-design";
 import { pasteKey, undoKey } from "util/keyUtils";
+import { genRandomKey } from "./idGenerator";
 import { getLatestVersion, getRemoteCompType, parseCompType } from "./remote";
-import { remoteComp } from "comps/comps/remoteComp/remoteComp";
 
 export type CopyCompType = {
   layout: LayoutItem;
@@ -151,7 +150,7 @@ export class GridCompOperator {
     });
     selectedSimpleContainer.dispatch(
       multiChangeAction({
-        layout: changeValueAction({
+        layout: selectedSimpleContainer.children.layout.changeValueAction({
           ...currentLayout,
           ...copyLayouts,
         }),
@@ -259,7 +258,7 @@ export class GridCompOperator {
         compType: selectedComp.children.compType.getView(),
       },
     ];
-    selectedComp.children.compType.dispatch(deferAction(changeValueAction(nextCompType)));
+    selectedComp.dispatch(deferAction(selectedComp.changeChildAction("compType", nextCompType)));
     selectedComp.children.comp.dispatch(
       deferAction(
         wrapActionExtraInfo(

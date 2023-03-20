@@ -1,14 +1,13 @@
-import { evalAndReduce } from "../utils";
-import { changeValueAction } from "openblocks-core";
-import { millisecondsControl } from "./millisecondControl";
 import { trans } from "../../i18n";
+import { evalAndReduce } from "../utils";
+import { millisecondsControl } from "./millisecondControl";
 
 function changeAndExpect(
   comp: InstanceType<ReturnType<typeof millisecondsControl>>,
   value: string,
   expected: number
 ) {
-  const newComp = evalAndReduce(comp.reduce(changeValueAction(value)));
+  const newComp = evalAndReduce(comp.reduce(comp.changeValueAction(value)));
   expect(newComp.getView()).toEqual(expected);
   return newComp;
 }

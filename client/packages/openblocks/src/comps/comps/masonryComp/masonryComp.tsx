@@ -217,7 +217,7 @@ class MasonryViewImplComp extends MasonryViewTmpComp implements IContainer {
   override reduce(action: CompAction): this {
     switch (action.type) {
       case CompActionTypes.UPDATE_NODES_V2:
-        return this.updateContext(0).reduce(customAction(action));
+        return this.updateContext(0).reduce(customAction(action, false));
       case CompActionTypes.CUSTOM:
         const cAction = action.value as CompAction;
         if (cAction.type === CompActionTypes.UPDATE_NODES_V2) {

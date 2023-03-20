@@ -74,6 +74,7 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
       required={true}
       rules={[{ required: !datasourceConfig, message: trans("query.passwordRequiredMessage") }]}
       labelWidth={142}
+      // eslint-disable-next-line only-ascii/only-ascii
       placeholder={props.datasource ? encryptedPlaceholder : "••••••••••••"}
     />
   );

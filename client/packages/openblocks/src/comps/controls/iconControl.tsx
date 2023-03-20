@@ -1,34 +1,35 @@
+import { CodeEditorTooltipContainer } from "base/codeEditor/codeEditor";
+import { EditorState, EditorView } from "base/codeEditor/codeMirror";
+import { iconRegexp, iconWidgetClass } from "base/codeEditor/extensions/iconExtension";
+import { i18nObjs, trans } from "i18n";
 import {
   AbstractComp,
   CompAction,
   CompActionTypes,
   CompParams,
-  changeValueAction,
   customAction,
+  DispatchType,
   Node,
   ValueAndMsg,
-  DispatchType,
 } from "openblocks-core";
-import { setFieldsNoTypeCheck } from "util/objectUtils";
-import styled from "styled-components";
-import { ReactNode, useCallback, useState } from "react";
-import { BlockGrayLabel, TacoButton } from "openblocks-design";
-import { ControlParams } from "./controlParams";
-import { StringControl } from "./codeControl";
-import { SwitchJsIcon, SwitchWrapper } from "openblocks-design";
-import { ControlPropertyViewWrapper } from "openblocks-design";
 import {
+  BlockGrayLabel,
+  ControlPropertyViewWrapper,
   DeleteInputIcon,
-  useIcon,
   iconPrefix,
   IconSelect,
   IconSelectBase,
   removeQuote,
+  SwitchJsIcon,
+  SwitchWrapper,
+  TacoButton,
+  useIcon,
 } from "openblocks-design";
-import { EditorState, EditorView } from "base/codeEditor/codeMirror";
-import { CodeEditorTooltipContainer } from "base/codeEditor/codeEditor";
-import { iconRegexp, iconWidgetClass } from "base/codeEditor/extensions/iconExtension";
-import { i18nObjs, trans } from "i18n";
+import { ReactNode, useCallback, useState } from "react";
+import styled from "styled-components";
+import { setFieldsNoTypeCheck } from "util/objectUtils";
+import { StringControl } from "./codeControl";
+import { ControlParams } from "./controlParams";
 
 const ButtonWrapper = styled.div`
   width: 100%;
@@ -66,7 +67,7 @@ const Wrapper = styled.div`
   > div:nth-of-type(1) {
     margin-bottom: 4px;
   }
-`
+`;
 
 const IconPicker = (props: {
   value: string;
@@ -233,7 +234,7 @@ export class IconControl extends AbstractComp<ReactNode, string, Node<ValueAndMs
   }
 
   changeModeAction() {
-    return customAction<ChangeModeAction>({ useCodeEditor: !this.useCodeEditor });
+    return customAction<ChangeModeAction>({ useCodeEditor: !this.useCodeEditor }, true);
   }
 
   propertyView(params: ControlParams): ReactNode {
@@ -283,7 +284,7 @@ export class IconControl extends AbstractComp<ReactNode, string, Node<ValueAndMs
           // value should be transformed when switching to editor from select mode
           const value = this.codeControl.toJsonValue();
           if (value && isSelectValue(value)) {
-            codeControl = codeControl.reduce(changeValueAction(`{{ "${value}" }}`));
+            codeControl = codeControl.reduce(codeControl.changeValueAction(`{{ "${value}" }}`));
           }
         }
         return setFieldsNoTypeCheck(this, { useCodeEditor, codeControl });

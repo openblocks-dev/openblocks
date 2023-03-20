@@ -15,9 +15,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.openblocks.domain.encryption.DecryptRequired;
-import com.openblocks.domain.encryption.EncryptRequired;
-import com.openblocks.domain.encryption.EncryptionService;
+import com.openblocks.domain.mongodb.AfterMongodbRead;
+import com.openblocks.domain.mongodb.BeforeMongodbWrite;
+import com.openblocks.domain.mongodb.MongodbInterceptorContext;
 import com.openblocks.sdk.auth.AbstractAuthConfig;
 import com.openblocks.sdk.models.HasIdAndAuditing;
 
@@ -30,7 +30,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Document
-public class Organization extends HasIdAndAuditing implements EncryptRequired, DecryptRequired {
+public class Organization extends HasIdAndAuditing implements BeforeMongodbWrite, AfterMongodbRead {
 
     private static final OrganizationCommonSettings EMPTY_SETTINGS = new OrganizationCommonSettings();
 
@@ -68,17 +68,15 @@ public class Organization extends HasIdAndAuditing implements EncryptRequired, D
     }
 
     @Override
-    public void decrypt(EncryptionService encryptionService) {
+    public void afterMongodbRead(MongodbInterceptorContext context) {
         ofNullable(getOrganizationDomain())
-                .map(domain -> domain.doDecrypt(encryptionService::decryptString))
-                .ifPresent(this::setOrganizationDomain);
+                .ifPresent(domain -> domain.afterMongodbRead(context));
     }
 
     @Override
-    public void encrypt(EncryptionService encryptionService) {
+    public void beforeMongodbWrite(MongodbInterceptorContext context) {
         ofNullable(getOrganizationDomain())
-                .map(domain -> domain.doEncrypt(encryptionService::encryptString))
-                .ifPresent(this::setOrganizationDomain);
+                .ifPresent(domain -> domain.beforeMongodbWrite(context));
     }
 
     public OrganizationCommonSettings getCommonSettings() {
@@ -99,7 +97,7 @@ public class Organization extends HasIdAndAuditing implements EncryptRequired, D
 
     public List<AbstractAuthConfig> getAuthConfigs() {
         return Optional.ofNullable(organizationDomain)
-                .map(OrganizationDomain::getAuthConfigs)
+                .map(OrganizationDomain::getConfigs)
                 .orElse(Collections.emptyList());
     }
 }

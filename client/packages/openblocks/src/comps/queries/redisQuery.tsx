@@ -1,4 +1,7 @@
 import { withTypeAndChildrenAbstract } from "comps/generators/withType";
+import { trans } from "i18n";
+import { includes } from "lodash";
+import { CompAction, CompConstructor } from "openblocks-core";
 import {
   Dropdown,
   QueryConfigWrapper,
@@ -6,17 +9,14 @@ import {
   ValueFromOption,
 } from "openblocks-design";
 import { QueryTutorials } from "util/tutorialUtils";
-import { changeValueAction, CompAction, CompConstructor } from "openblocks-core";
 import {
   ParamsNumberControl,
   ParamsPositiveNumberControl,
   ParamsStringControl,
 } from "../controls/paramsControl";
 import { withPropertyViewFn } from "../generators";
-import { buildQueryCommand, FunctionProperty, toQueryView } from "./queryCompUtils";
-import { includes } from "lodash";
 import { QueryConfigLabelMethod } from "./query";
-import { trans } from "i18n";
+import { buildQueryCommand, FunctionProperty, toQueryView } from "./queryCompUtils";
 
 const RedisCommands = [
   "GET",
@@ -289,7 +289,9 @@ export class RedisQuery extends RedisTmpQuery {
               showSearch={true}
               options={CommandOptions}
               value={this.children.compType.getView()}
-              onChange={(value) => this.dispatch(changeValueAction({ compType: value, comp: {} }))}
+              onChange={(value) =>
+                this.dispatch(this.changeValueAction({ compType: value, comp: {} } as any))
+              }
             />
           </div>
           <QueryTutorialButton

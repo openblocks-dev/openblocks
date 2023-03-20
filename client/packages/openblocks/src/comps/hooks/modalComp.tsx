@@ -94,9 +94,9 @@ let TmpModalComp = (function () {
           handle: ResizeHandle
         ) => {
           if (["w", "e"].includes(handle)) {
-            dispatch(changeChildAction("width", size.width));
+            dispatch(changeChildAction("width", size.width, true));
           } else if (["n", "s"].includes(handle)) {
-            dispatch(changeChildAction("height", size.height));
+            dispatch(changeChildAction("height", size.height, true));
           }
         },
         [dispatch]

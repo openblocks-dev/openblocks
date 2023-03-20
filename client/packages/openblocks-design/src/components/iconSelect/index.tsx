@@ -27,7 +27,6 @@ const TitleDiv = styled.div`
   user-select: none;
 `;
 const TitleText = styled.span`
-  font-family: PingFangSC-Medium;
   font-size: 16px;
   color: #222222;
   line-height: 16px;
