@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.openblocks.api.authentication.dto.AuthConfigRequest;
 import com.openblocks.api.authentication.service.AuthenticationApiService;
 import com.openblocks.api.framework.view.ResponseView;
@@ -24,6 +25,7 @@ import com.openblocks.domain.authentication.AuthenticationService;
 import com.openblocks.domain.authentication.FindAuthConfig;
 import com.openblocks.infra.constant.NewUrl;
 import com.openblocks.sdk.auth.AbstractAuthConfig;
+import com.openblocks.sdk.config.SerializeConfig.JsonViews;
 import com.openblocks.sdk.constants.AuthSourceConstants;
 import com.openblocks.sdk.util.CookieHelper;
 
@@ -97,6 +99,7 @@ public class AuthenticationController {
                 .thenReturn(ResponseView.success(null));
     }
 
+    @JsonView(JsonViews.Public.class)
     @GetMapping("/configs")
     public Mono<ResponseView<List<AbstractAuthConfig>>> getAllConfigs() {
         return authenticationService.findAllAuthConfigs(false)

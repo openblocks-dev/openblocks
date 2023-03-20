@@ -58,6 +58,6 @@ public class MigrateAuthConfigJobImpl implements MigrateAuthConfigJob {
             organization.setOrganizationDomain(domain);
         }
         authConfigs.forEach(abstractAuthConfig -> abstractAuthConfig.setId(IDUtils.generate()));
-        domain.setAuthConfigs(authConfigs);
+        domain.setConfigs(authConfigs);
     }
 }

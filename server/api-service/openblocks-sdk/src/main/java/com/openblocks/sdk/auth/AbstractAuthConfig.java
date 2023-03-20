@@ -7,11 +7,15 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@JsonTypeInfo(use = Id.NAME, property = "authType", visible = true)
 public abstract class AbstractAuthConfig {
 
     protected String id;
@@ -24,12 +28,15 @@ public abstract class AbstractAuthConfig {
     protected Boolean enable;
     protected Boolean enableRegister;
 
-    protected AbstractAuthConfig(@Nullable String id, String source, String sourceName, Boolean enable, Boolean enableRegister) {
+    protected String authType;
+
+    protected AbstractAuthConfig(@Nullable String id, String source, String sourceName, Boolean enable, Boolean enableRegister, String authType) {
         this.id = id;
         this.source = source;
         this.sourceName = sourceName;
         this.enable = enable;
         this.enableRegister = enableRegister;
+        this.authType = authType;
     }
 
     /**
@@ -48,17 +55,16 @@ public abstract class AbstractAuthConfig {
         this.source = source;
     }
 
-    /**
-     * @see com.openblocks.sdk.auth.constants.AuthTypeConstants
-     */
-    public abstract String getAuthType();
-
     public final boolean isEnable() {
         return BooleanUtils.isTrue(enable);
     }
 
     public final boolean isEnableRegister() {
         return BooleanUtils.isTrue(enableRegister);
+    }
+
+    public final String getAuthType() {
+        return this.authType;
     }
 
     public void doEncrypt(Function<String, String> encryptFunc) {
