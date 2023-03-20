@@ -198,7 +198,7 @@ function getCurrentDate() {
 }
 ```
 
-## Customized scripting
+## Add preloaded scripts
 
 Openblocks supports importing third-party JS libraries and adding predefined JS code, such as adding global methods or variables for reuse either at **app-level** or **workspace-level**. You can find the app-level settings in ⚙️ > **Other** > **Scripts and style**.
 
@@ -208,20 +208,12 @@ For workspace-level, go to ⚙️ **Settings** > **Advanced**.
 
 <figure><img src="../../.gitbook/assets/js-query-5.png" alt=""><figcaption></figcaption></figure>
 
-### Import JS library
-
-Openblocks supports setting up preloaded JS libraries. For detailed information, see [use-third-party-libraries.md](../use-third-party-libraries.md "mention").
-
-<figure><img src="../../.gitbook/assets/js-query-6.png" alt=""><figcaption></figcaption></figure>
-
-### Define global methods and variables
-
-In **JavaScript** tab, you can add preloaded JavaScript code to define global methods and variables and then reuse them in your app.
+In **JavaScript** tab, you can add preloaded JavaScript code to define global methods and variables and then reuse them in your app. For importing libraries, see [use-third-party-libraries.md](../use-third-party-libraries.md "mention").
 
 <figure><img src="../../.gitbook/assets/js-query-7.png" alt=""><figcaption></figcaption></figure>
 
 <figure><img src="../../.gitbook/assets/js-query-8.png" alt=""><figcaption></figcaption></figure>
 
-## Restrictions
+## &#x20;Restrictions
 
 For security reasons, several global variables and functions of **window** are disabled in Openblocks. Please report to our [GitHub](https://github.com/openblocks-dev/openblocks) or [Discord](https://discord.com/invite/z5W2YHXdtt) if you encounter any issues.
