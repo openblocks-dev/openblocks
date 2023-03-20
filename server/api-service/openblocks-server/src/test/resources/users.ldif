@@ -1,15 +1,15 @@
 version: 1
-dn: dc=baeldung,dc=com
+dn: dc=openblocks,dc=dev
 objectClass: domain
 objectClass: top
-dc: baeldung
+dc: openblocks
 
-dn: ou=Users,dc=baeldung,dc=com
+dn: ou=Users,dc=openblocks,dc=dev
 objectClass: organizationalUnit
 objectClass: top
 ou: Users
 
-dn: cn=Joe Simms,ou=Users,dc=baeldung,dc=com
+dn: cn=Joe Simms,ou=Users,dc=openblocks,dc=dev
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
 objectClass: person
@@ -18,3 +18,23 @@ cn: Joe Simms
 sn: Simms
 uid: user1
 userPassword: 12345
+
+dn: cn=lv,ou=Users,dc=openblocks,dc=dev
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: lv
+sn: lv
+uid: 1
+userPassword: 1111qqqq
+
+dn: cn=yu,ou=Users,dc=openblocks,dc=dev
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: yu
+sn: yu
+uid: 2
+userPassword: 1111qqqq
