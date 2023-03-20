@@ -124,7 +124,7 @@ export function dropdownControl<T extends OptionsType>(
   };
 }
 
-const alignOptions = [
+export const alignOptions = [
   { label: <AlignLeft />, value: "left" },
   { label: <AlignCenter />, value: "center" },
   { label: <AlignRight />, value: "right" },

@@ -9,6 +9,7 @@ export function modKeyPressed(
   return isMac ? e.metaKey : e.ctrlKey;
 }
 
+// eslint-disable-next-line only-ascii/only-ascii
 const modKey = isMac ? "⌘" : "Ctrl";
 export const undoKey = `${modKey} Z`;
 export const pasteKey = `${modKey} V`;
@@ -146,6 +147,7 @@ export function shortcutToKeyString(shortcut: string) {
     .join(" ");
 }
 
+/* eslint-disable only-ascii/only-ascii */
 const displayKey: Record<string, string> = {
   Mod: "Mod ",
   Meta: isMac ? "⌘" : "Meta ",
@@ -161,6 +163,7 @@ const displayKey: Record<string, string> = {
   ArrowUp: "↑",
   ArrowDown: "↓",
 };
+/* eslint-enable only-ascii/only-ascii */
 
 export function readableShortcut(shortcut: string) {
   return shortcut

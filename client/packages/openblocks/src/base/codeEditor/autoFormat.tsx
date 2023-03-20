@@ -138,6 +138,7 @@ export function getFormatter(
   if (codeType) {
     switch (codeType) {
       case "JSON":
+      case "PureJSON":
         return formatJsonWithJsSnippets;
       case "Function":
         return (text: string) => getJavascriptFormatter().then((f) => f(text));

@@ -76,10 +76,13 @@ export function withContext<ParamNames extends readonly string[], T extends Mult
     }
 
     static changeContextDataAction(contextData: ContextDataType) {
-      return customAction({
-        type: "setContextData",
-        data: contextData,
-      });
+      return customAction(
+        {
+          type: "setContextData",
+          data: contextData,
+        },
+        false
+      );
     }
 
     private getContextValue(input: ContextDataType) {

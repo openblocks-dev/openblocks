@@ -1,12 +1,11 @@
-import { ControlPropertyViewWrapper, Dropdown, KeyValueList } from "openblocks-design";
-import { buildQueryCommand } from "../queryCompUtils";
-import { valueComp, withDefault, withType } from "../../generators";
-import { ParamsJsonControl } from "../../controls/paramsControl";
-import { ColumnNameDropdown } from "./columnNameDropdown";
-import { list } from "../../generators/list";
-import { ControlParams } from "../../controls/controlParams";
-import React from "react";
 import { trans } from "i18n";
+import { ControlPropertyViewWrapper, Dropdown, KeyValueList } from "openblocks-design";
+import { ControlParams } from "../../controls/controlParams";
+import { ParamsJsonControl } from "../../controls/paramsControl";
+import { valueComp, withDefault, withType } from "../../generators";
+import { list } from "../../generators/list";
+import { buildQueryCommand } from "../queryCompUtils";
+import { ColumnNameDropdown } from "./columnNameDropdown";
 
 export const ChangeSetTypeDropdown = (props: {
   label: string;

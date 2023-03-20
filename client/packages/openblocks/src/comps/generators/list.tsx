@@ -210,46 +210,64 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
       }
     }
     pushAction(value: ConstructorToDataType<ChildCompCtor>) {
-      return customAction<ListAction<ChildCompCtor>>({
-        type: "push",
-        value: value,
-      });
+      return customAction<ListAction<ChildCompCtor>>(
+        {
+          type: "push",
+          value: value,
+        },
+        true
+      );
     }
 
     pushCompAction(comp: ConstructorToComp<ChildCompCtor>) {
-      return customAction<ListAction<ChildCompCtor>>({
-        type: "pushComp",
-        value: comp,
-      });
+      return customAction<ListAction<ChildCompCtor>>(
+        {
+          type: "pushComp",
+          value: comp,
+        },
+        true
+      );
     }
 
     deleteAction(index: number) {
-      return customAction<ListAction<ChildCompCtor>>({
-        type: "delete",
-        index: index,
-      });
+      return customAction<ListAction<ChildCompCtor>>(
+        {
+          type: "delete",
+          index: index,
+        },
+        true
+      );
     }
 
     insertAction(index: number, value: ConstructorToDataType<ChildCompCtor>) {
-      return customAction<ListAction<ChildCompCtor>>({
-        type: "insert",
-        index: index,
-        value,
-      });
+      return customAction<ListAction<ChildCompCtor>>(
+        {
+          type: "insert",
+          index: index,
+          value,
+        },
+        true
+      );
     }
 
     arrayMoveAction(fromIndex: number, toIndex: number) {
-      return customAction<ListAction<ChildCompCtor>>({
-        type: "arrayMove",
-        fromIndex: fromIndex,
-        toIndex: toIndex,
-      });
+      return customAction<ListAction<ChildCompCtor>>(
+        {
+          type: "arrayMove",
+          fromIndex: fromIndex,
+          toIndex: toIndex,
+        },
+        true
+      );
     }
 
     clearAction() {
-      return customAction<ListAction<ChildCompCtor>>({
-        type: "clear",
-      });
+      return customAction<ListAction<ChildCompCtor>>(
+        {
+          type: "clear",
+        },
+        true
+      );
     }
 
     exposingNode() {
@@ -271,25 +289,40 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
      * Multiple actions are executed by order
      */
     multiAction(actions: Array<CustomListAction<ChildCompCtor>>) {
-      return customAction<ListAction<ChildCompCtor>>({
-        type: "multi",
-        actions,
-      });
+      const editDSL = actions.some((action) => !!action.editDSL);
+      console.assert(
+        actions.every((action) => !_.isNil(action.editDSL) && action.editDSL === editDSL),
+        `list's multiAction: all actions should have the same editDSL. editDSL: ${editDSL}, actions:`,
+        actions
+      );
+      return customAction<ListAction<ChildCompCtor>>(
+        {
+          type: "multi",
+          actions,
+        },
+        editDSL
+      );
     }
 
     forEachAction(action: CompAction) {
-      return customAction<ListAction<ChildCompCtor>>({
-        type: "forEach",
-        action,
-      });
+      return customAction<ListAction<ChildCompCtor>>(
+        {
+          type: "forEach",
+          action,
+        },
+        action.editDSL!
+      );
     }
   }
   return LIST_CLASS;
 }
 
 export function pushAction(value: JSONValue) {
-  return customAction<ListAction>({
-    type: "push",
-    value: value,
-  });
+  return customAction<ListAction>(
+    {
+      type: "push",
+      value: value,
+    },
+    true
+  );
 }

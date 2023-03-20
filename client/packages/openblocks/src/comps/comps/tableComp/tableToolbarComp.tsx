@@ -2,8 +2,10 @@ import { Button, Pagination, Popover } from "antd";
 import { PaginationProps } from "antd/lib/pagination/Pagination";
 import { ThemeDetail } from "api/commonSettingApi";
 import { ColumnCompType } from "comps/comps/tableComp/column/tableColumnComp";
+import { TableOnEventView } from "comps/comps/tableComp/tableTypes";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
+import { dropdownControl } from "comps/controls/dropdownControl";
 import { defaultTheme, TableStyleType } from "comps/controls/styleControlConstants";
 import { MultiCompBuilder, stateComp } from "comps/generators";
 import { genRandomKey } from "comps/utils/idGenerator";
@@ -34,8 +36,6 @@ import {
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { JSONValue } from "util/jsonTypes";
-import { TableOnEventView } from "comps/comps/tableComp/tableTypes";
-import { dropdownControl } from "comps/controls/dropdownControl";
 
 const SaveChangeButtons = styled.div`
   display: flex;
@@ -548,10 +548,14 @@ export const TableToolbarComp = (function () {
       ...props,
       onFilterChange: (filters: TableFilterDataType[], stackType: TableFilter["stackType"]) => {
         dispatch(
-          changeChildAction("filter", {
-            stackType: stackType,
-            filters: filters,
-          })
+          changeChildAction(
+            "filter",
+            {
+              stackType: stackType,
+              filters: filters,
+            },
+            false
+          )
         );
       },
     };
@@ -730,7 +734,15 @@ export function TableToolbar(props: {
     >
       <ToolbarWrapper2>
         <ToolbarIcons className="toolbar-icons">
-          {toolbar.showRefresh && <RefreshIcon className="refresh" onClick={onRefresh} />}
+          {toolbar.showRefresh && (
+            <RefreshIcon
+              className="refresh"
+              onClick={() => {
+                onRefresh();
+                onEvent("refresh");
+              }}
+            />
+          )}
           {toolbar.showFilter && (
             <ToolbarPopover
               visible={filterVisible}
@@ -766,7 +778,17 @@ export function TableToolbar(props: {
             />
           )}
         </ToolbarIcons>
-        <Pagination size="small" itemRender={pageItemRender} {...pagination} />
+        <Pagination
+          size="small"
+          itemRender={pageItemRender}
+          {...pagination}
+          onChange={(page, pageSize) => {
+            pagination.onChange && pagination.onChange(page, pageSize);
+            if (page !== pagination.current) {
+              onEvent("pageChange");
+            }
+          }}
+        />
         {hasChange && (
           <SaveChangeButtons>
             <Button onClick={onCancelChanges}>{trans("cancel")}</Button>

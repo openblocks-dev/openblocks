@@ -8,6 +8,7 @@ import {
   COLUMN_CHILDREN_KEY,
   columnsToAntdFormat,
   CustomColumnType,
+  OB_ROW_ORI_INDEX,
   onTableChange,
   RecordType,
   supportChildrenTree,
@@ -29,6 +30,9 @@ import { Resizable } from "react-resizable";
 import styled, { css } from "styled-components";
 import { useUserViewMode } from "util/hooks";
 import { TableImplComp } from "./tableComp";
+import { useResizeDetector } from "react-resize-detector";
+import { SlotConfigContext } from "comps/controls/slotControl";
+import { EmptyContent } from "pages/common/styledComponent";
 
 function genLinerGradient(color: string) {
   return `linear-gradient(${color}, ${color})`;
@@ -43,6 +47,7 @@ const getStyle = (style: TableStyleType) => {
   return css`
     border-color: ${style.border};
     border-radius: ${style.radius};
+
     & > div > div > div > .ant-table > .ant-table-container > .ant-table-content > table {
       > thead > tr > th,
       > tbody > tr > td {
@@ -52,6 +57,7 @@ const getStyle = (style: TableStyleType) => {
       > .ant-table-thead > tr > th::before {
         background-color: ${style.border};
       }
+
       > .ant-table-thead {
         > tr > th {
           background-color: ${style.headerBackground};
@@ -66,6 +72,7 @@ const getStyle = (style: TableStyleType) => {
           }
         }
       }
+
       > .ant-table-tbody {
         > tr:nth-of-type(2n + 1) {
           &,
@@ -79,9 +86,16 @@ const getStyle = (style: TableStyleType) => {
               > div > .markdown-body {
                 color: ${style.cellText};
               }
+
+              > div > svg g {
+                stroke: ${style.cellText};
+              }
+
               // dark link|links color
-              > a, > div > a {
+              > a,
+              > div > a {
                 color: ${isDark && "#A6FFFF"};
+
                 &:hover {
                   color: ${isDark && "#2EE6E6"};
                 }
@@ -102,9 +116,16 @@ const getStyle = (style: TableStyleType) => {
               > div > .markdown-body {
                 color: ${style.cellText};
               }
+
+              > div > svg g {
+                stroke: ${style.cellText};
+              }
+
               // dark link|links color
-              > a, > div > a {
+              > a,
+              > div > a {
                 color: ${isDark && "#A6FFFF"};
+
                 &:hover {
                   color: ${isDark && "#2EE6E6"};
                 }
@@ -150,7 +171,6 @@ const getStyle = (style: TableStyleType) => {
             background: ${hoverRowBackground}, ${alternateBackground};
           }
         }
-
       }
     }
   `;
@@ -192,6 +212,11 @@ const TableWrapper = styled.div<{
       border-left: unset;
 
       .ant-table-content {
+        // A table expand row contains table
+        .ant-table-tbody .ant-table-wrapper:only-child .ant-table {
+          margin: 0;
+        }
+
         table {
           border-top: unset;
 
@@ -320,7 +345,7 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
 };
 
 function TableCellView(props: {
-  record: any;
+  record: RecordType;
   title: string;
   rowColor: RowColorViewType;
   rowIndex: number;
@@ -334,9 +359,9 @@ function TableCellView(props: {
     tdView = <td {...restProps}>{children}</td>;
   } else {
     const color = rowColor({
-      currentRow: record.record,
+      currentRow: record,
       currentIndex: rowIndex,
-      currentOriginalIndex: record.index,
+      currentOriginalIndex: record[OB_ROW_ORI_INDEX],
       columnTitle: title,
     });
     let background = "";
@@ -471,6 +496,11 @@ export function TableCompView(props: {
   onDownload: (fileName: string) => void;
 }) {
   const editorState = useContext(EditorContext);
+  const { width, ref } = useResizeDetector({
+    refreshMode: "debounce",
+    refreshRate: 600,
+    handleHeight: false,
+  });
   const viewMode = useUserViewMode();
   const compName = useContext(CompNameContext);
   const [loading, setLoading] = useState(false);
@@ -514,6 +544,10 @@ export function TableCompView(props: {
       dynamicColumnConfig,
       columnsAggrData,
     ]
+  );
+  const supportChildren = useMemo(
+    () => supportChildrenTree(compChildren.data.getView()),
+    [compChildren.data]
   );
 
   const pageDataInfo = useMemo(() => {
@@ -572,11 +606,14 @@ export function TableCompView(props: {
       onEvent={onEvent}
     />
   );
-  const supportChildren = supportChildrenTree(data);
+
+  if (antdColumns.length === 0) {
+    return <EmptyContent text={trans("table.emptyColumns")} />;
+  }
 
   return (
     <BackgroundColorContext.Provider value={style.background}>
-      <TableWrapper $style={style} toolbarPosition={toolbar.position}>
+      <TableWrapper ref={ref} $style={style} toolbarPosition={toolbar.position}>
         {toolbar.position === "above" && toolbarView}
         <ResizeableTable<RecordType>
           expandable={{
@@ -607,7 +644,9 @@ export function TableCompView(props: {
           }
         />
         {toolbar.position === "below" && toolbarView}
-        {expansion.expandModalView}
+        <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>
+          {expansion.expandModalView}
+        </SlotConfigContext.Provider>
       </TableWrapper>
     </BackgroundColorContext.Provider>
   );

@@ -38,7 +38,7 @@ export class ModuleMethodListItemComp extends ModuleMethodListItemBase {
     );
     return getPromiseAfterDispatch(
       this.dispatch,
-      customAction<ExecuteMethodAction>({ type: "execute_module_method" }),
+      customAction<ExecuteMethodAction>({ type: "execute_module_method" }, false),
       { autoHandleAfterReduce: true }
     );
   }

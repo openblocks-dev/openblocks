@@ -58,22 +58,6 @@ export const COLOR_PALETTE = [
   "#3377FF",
 ] as const;
 
-export const PHONE_NUMBER_PATTERN = /^1\d{10}$/;
-export const EMAIL_PATTERN = /^\S+@\S+\.\S+$/;
-export const URL_PATTERN = /^\w+\S+(\.\S+){1,}$/;
-
-export const checkOtpValid = (value: string): boolean => {
-  return /^\d{6}$/.test(value);
-};
-
-export const checkPhoneValid = (value: string): boolean => {
-  return PHONE_NUMBER_PATTERN.test(value);
-};
-
-export const checkEmailValid = (value: string): boolean => {
-  return EMAIL_PATTERN.test(value);
-};
-
 export const getNextEntityName = (
   prefix: string,
   existingNames: string[],

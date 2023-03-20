@@ -5,8 +5,6 @@
  * Context will break the simple nature of pure functions and complicate things, try to avoid using.
  */
 
-import { JSONValue } from "util/jsonTypes";
-
 type ReduceContext = {
   readOnly: boolean;
   applicationId: string;
@@ -15,7 +13,7 @@ type ReduceContext = {
   /**
    * Whether in withContext.
    * currently eventSelectorControl depends on it.
-   * list currently is using withContext。
+   * list currently is using withContext.
    *
    * FIXME: After stabilization, let the table also use this method
    */

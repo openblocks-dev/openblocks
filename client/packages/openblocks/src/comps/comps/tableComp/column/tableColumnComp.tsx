@@ -79,8 +79,8 @@ const ColumnInitComp = new MultiCompBuilder(columnChildrenMap, (props, dispatch)
     onWidthResize: (width: number) => {
       dispatch(
         multiChangeAction({
-          width: changeValueAction(width),
-          autoWidth: changeValueAction("fixed"),
+          width: changeValueAction(width, true),
+          autoWidth: changeValueAction("fixed", true),
         })
       );
     },
@@ -159,7 +159,10 @@ export class ColumnComp extends ColumnInitComp {
     this.children.render.dispatch(
       deferAction(
         RenderComp.forEachAction(
-          wrapChildAction("comp", wrapChildAction("comp", changeChildAction("changeValue", null)))
+          wrapChildAction(
+            "comp",
+            wrapChildAction("comp", changeChildAction("changeValue", null, false))
+          )
         )
       )
     );

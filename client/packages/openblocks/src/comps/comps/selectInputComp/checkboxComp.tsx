@@ -28,7 +28,6 @@ export const getStyle = (style: CheckboxStyleType) => {
     &,
     .ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled) {
       color: ${style.staticText};
-      height: 22px;
       max-width: calc(100% - 8px);
 
       span:not(.ant-checkbox) {

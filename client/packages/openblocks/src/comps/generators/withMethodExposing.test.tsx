@@ -46,28 +46,37 @@ test("test exec method", async () => {
   });
   comp = evalAndReduce(comp);
   comp.reduce(
-    customAction<ExecuteAction>({
-      type: "execute",
-      methodName: "setText",
-      // @ts-ignore
-      params: ["testText"],
-    })
+    customAction<ExecuteAction>(
+      {
+        type: "execute",
+        methodName: "setText",
+        // @ts-ignore
+        params: ["testText"],
+      },
+      false
+    )
   );
   comp.reduce(
-    customAction<ExecuteAction>({
-      type: "execute",
-      methodName: "setStatus",
-      // @ts-ignore
-      params: [true],
-    })
+    customAction<ExecuteAction>(
+      {
+        type: "execute",
+        methodName: "setStatus",
+        // @ts-ignore
+        params: [true],
+      },
+      false
+    )
   );
   comp.reduce(
-    customAction<ExecuteAction>({
-      type: "execute",
-      methodName: "doAdd",
-      // @ts-ignore
-      params: [10],
-    })
+    customAction<ExecuteAction>(
+      {
+        type: "execute",
+        methodName: "doAdd",
+        // @ts-ignore
+        params: [10],
+      },
+      false
+    )
   );
   await new Promise((r) => setTimeout(r, 20));
   expect(comp.getView().textChild.value).toEqual("testText");

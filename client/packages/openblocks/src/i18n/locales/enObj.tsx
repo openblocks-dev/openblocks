@@ -124,7 +124,7 @@ export const enObj: I18nObjects = {
         When the component is selected, its properties are displayed on the right
         {code("{{query1.data}}")}. Reference the data just queried, you can use in the input box
         {code("{{ }}")}
-        write JavaScript。
+        write JavaScript.
       </>
     ),
   },

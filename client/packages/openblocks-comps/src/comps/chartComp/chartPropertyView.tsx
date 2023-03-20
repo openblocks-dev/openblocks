@@ -132,11 +132,11 @@ export function chartPropertyView(
           styleName: "higher",
           tooltip: (
             <div>
-              <a href={optionUrl} target="_blank">
+              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
                 {trans("chart.echartsOptionTooltip")}
               </a>
               <br />
-              <a href={examplesUrl} target="_blank">
+              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
                 {trans("chart.echartsOptionExamples")}
               </a>
             </div>

@@ -238,6 +238,7 @@ function OrganizationSetting(props: OrgSettingProp) {
                             const name = form.getFieldValue("name");
                             if (name === item.orgName) {
                               dispatch(deleteOrgAction(item.id));
+                              form.resetFields();
                             } else {
                               form.setFields([
                                 { name: "name", errors: [trans("orgSettings.deleteModalErr")] },

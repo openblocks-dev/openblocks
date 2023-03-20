@@ -7,6 +7,7 @@ import {
   moveCompletionSelection,
 } from "@codemirror/autocomplete";
 import { esLint, javascript } from "@codemirror/lang-javascript";
+import { json, jsonParseLinter } from "@codemirror/lang-json";
 import { sql } from "@codemirror/lang-sql";
 import { css } from "@codemirror/lang-css";
 import { html } from "@codemirror/lang-html";
@@ -96,7 +97,6 @@ const basicSetup = [
 ];
 
 const textStyle = {
-  "font-family": "PingFangSC-Regular",
   "word-wrap": "break-word",
   "word-break": "break-all",
   "white-space": "pre-wrap",
@@ -241,6 +241,7 @@ const languageSupports: Record<Language, Extension> = {
   sql: sql(),
   css: css(),
   html: html(),
+  json: json(),
 };
 
 const keyMapExtensions = Prec.highest(
@@ -441,6 +442,9 @@ function getLintExtension(
   codeType: CodeType | undefined,
   exposingDataRef: MutableRefObject<Record<string, unknown>>
 ) {
+  if (codeType === "PureJSON") {
+    return [linter(jsonParseLinter())];
+  }
   if (codeType !== "Function") {
     return [];
   }

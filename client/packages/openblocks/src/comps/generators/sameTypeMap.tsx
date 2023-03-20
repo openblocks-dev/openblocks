@@ -24,26 +24,41 @@ type MapAction<ChildDataType extends JSONValue = JSONValue> =
 
 // add action without type checking
 export function addMapChildAction(key: string, value: JSONValue) {
-  return customAction<MapAction>({
-    type: "add",
-    key: key,
-    value: value,
-  });
+  return customAction<MapAction>(
+    {
+      type: "add",
+      key: key,
+      value: value,
+    },
+    true
+  );
 }
 
 export function addMapCompChildAction(key: string, value: Comp) {
-  return customAction<MapAction>({
-    type: "addComp",
-    key: key,
-    value: value,
-  });
+  return customAction<MapAction>(
+    {
+      type: "addComp",
+      key: key,
+      value: value,
+    },
+    true
+  );
 }
 
 export function multiMapAction(actions: Array<CustomAction>) {
-  return customAction<MapAction>({
-    type: "multi",
-    actions: actions,
-  });
+  const editDSL = actions.some((action) => !!action.editDSL);
+  console.assert(
+    actions.every((action) => !_.isNil(action.editDSL) && action.editDSL === editDSL),
+    `sameTypeMap's multiMapAction: all actions should have the same editDSL. editDSL: ${editDSL} actions:`,
+    actions
+  );
+  return customAction<MapAction>(
+    {
+      type: "multi",
+      actions: actions,
+    },
+    editDSL
+  );
 }
 
 /**
@@ -118,18 +133,30 @@ export function sameTypeMap<ChildComp extends CompConstructor<any, any>>(
 
     // with type checking
     addAction(key: string, value: ConstructorToDataType<ChildComp>) {
-      return customAction<MapAction>({
-        type: "add",
-        key: key,
-        value: value,
-      });
+      return customAction<MapAction>(
+        {
+          type: "add",
+          key: key,
+          value: value,
+        },
+        true
+      );
     }
 
     multiAction(actions: Array<CustomAction>) {
-      return customAction<MapAction>({
-        type: "multi",
-        actions: actions,
-      });
+      const editDSL = actions.some((action) => !!action.editDSL);
+      console.assert(
+        actions.every((action) => !_.isNil(action.editDSL) && action.editDSL === editDSL),
+        `sameTypeMap's multiMapAction: all actions should have the same editDSL. editDSL: ${editDSL} actions:`,
+        actions
+      );
+      return customAction<MapAction>(
+        {
+          type: "multi",
+          actions: actions,
+        },
+        editDSL
+      );
     }
   }
 

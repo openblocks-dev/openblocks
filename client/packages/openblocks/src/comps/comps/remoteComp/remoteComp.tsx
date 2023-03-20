@@ -10,6 +10,7 @@ import { useMount } from "react-use";
 import styled from "styled-components";
 import { RemoteCompInfo, RemoteCompLoader } from "types/remoteComp";
 import { loaders } from "./loaders";
+import { withErrorBoundary } from "comps/generators/withErrorBoundary";
 
 const ViewError = styled.div`
   display: flex;
@@ -37,6 +38,7 @@ function ViewLoading(props: { padding?: number }) {
     </ViewLoadingWrapper>
   );
 }
+
 interface RemoteCompReadyAction {
   type: "RemoteCompReady";
   comp: Comp;
@@ -118,12 +120,15 @@ export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
       if (this.compValue) {
         params.value = this.compValue;
       }
-
+      const RemoteCompWithErrorBound = withErrorBoundary(RemoteExportedComp);
       this.dispatch(
-        customAction<RemoteCompReadyAction>({
-          type: "RemoteCompReady",
-          comp: new RemoteExportedComp(params),
-        })
+        customAction<RemoteCompReadyAction>(
+          {
+            type: "RemoteCompReady",
+            comp: new RemoteCompWithErrorBound(params),
+          },
+          false
+        )
       );
     }
 
@@ -154,5 +159,6 @@ export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
       return this.compValue;
     }
   }
+
   return withExposingConfigs(RemoteComp, []);
 }

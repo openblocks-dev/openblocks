@@ -1,8 +1,8 @@
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { evalAndReduce } from "comps/utils";
-import { changeChildAction, wrapDispatch } from "openblocks-core";
+import { wrapDispatch } from "openblocks-core";
 import { MultiCompBuilder } from "./multi";
-import { MAP_KEY, VIRTUAL_NAME, withMultiContext } from "./withMultiContext";
+import { MAP_KEY, withMultiContext } from "./withMultiContext";
 
 const TestComp = new MultiCompBuilder(
   {
@@ -37,18 +37,18 @@ describe("withMultiContext", () => {
     expect(a0.v1 === "v1: 12").toBeTruthy();
     expect(a0.v2 === 13).toBeTruthy();
     // interaction
-    comp
+    let tmpComp = comp
       .getOriginalComp()
-      .changeDispatch(wrapDispatch(wrapDispatch(comp.dispatch, VIRTUAL_NAME), key1))
-      .getComp()
-      .dispatch(changeChildAction("v2", "{{a + 3}}"));
+      .changeDispatch(wrapDispatch(wrapDispatch(comp.dispatch, MAP_KEY), key1))
+      .getComp();
+    tmpComp.dispatch(tmpComp.changeChildAction("v2", "{{a + 3}}"));
     expect(comp.children[MAP_KEY].getView()[key1].getView().v2).toEqual(14);
     const notExistKey = "not-exist";
-    comp
+    tmpComp = comp
       .getOriginalComp()
-      .changeDispatch(wrapDispatch(wrapDispatch(comp.dispatch, VIRTUAL_NAME), notExistKey))
-      .getComp()
-      .dispatch(changeChildAction("v2", "{{a + 3}}"));
+      .changeDispatch(wrapDispatch(wrapDispatch(comp.dispatch, MAP_KEY), notExistKey))
+      .getComp();
+    tmpComp.dispatch(tmpComp.changeChildAction("v2", "{{a + 3}}"));
     expect(comp.children[MAP_KEY].getView().hasOwnProperty(notExistKey)).toBeFalsy();
   });
 });

@@ -1,7 +1,6 @@
 import numbro from "numbro";
 import Papa from "papaparse";
 import * as uuid from "uuid";
-import "virtual:globals";
 
 import * as styledNameExports from "styled-components";
 import styledDefault from "styled-components";

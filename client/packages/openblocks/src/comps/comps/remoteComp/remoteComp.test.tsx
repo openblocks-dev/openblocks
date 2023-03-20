@@ -3,7 +3,7 @@ import { simpleMultiComp, valueComp } from "comps/generators";
 import { withSimpleExposing } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { evalAndReduce } from "comps/utils";
-import { changeValueAction, customAction } from "openblocks-core";
+import { customAction } from "openblocks-core";
 import { RemoteCompInfo } from "types/remoteComp";
 import { remoteComp } from "./remoteComp";
 
@@ -32,7 +32,7 @@ test("remote comp", async () => {
   await c.load();
   expect(c.toJsonValue()).toBe(123);
 
-  c.dispatch(changeValueAction(345));
+  c.dispatchChangeValueAction(345);
   expect(c.toJsonValue()).toBe(345);
 });
 
@@ -102,11 +102,14 @@ test("remote comp execute method", async () => {
 
   await c.load();
   c.reduce(
-    customAction<ExecuteAction>({
-      type: "execute",
-      methodName: "add",
-      params: [10],
-    })
+    customAction<ExecuteAction>(
+      {
+        type: "execute",
+        methodName: "add",
+        params: [10],
+      },
+      false
+    )
   );
   await new Promise((r) => setTimeout(r, 20));
   expect(c.children.hello.getView()).toEqual(133);

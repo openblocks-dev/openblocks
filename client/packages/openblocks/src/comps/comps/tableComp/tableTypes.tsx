@@ -78,6 +78,16 @@ export const TableEventOptions = [
     value: "sortChange",
     description: trans("table.sortChange"),
   },
+  {
+    label: trans("table.pageChange"),
+    value: "pageChange",
+    description: trans("table.pageChange"),
+  },
+  {
+    label: trans("table.refresh"),
+    value: "refresh",
+    description: trans("table.refresh"),
+  },
 ] as const;
 
 export type SortValue = {
@@ -103,7 +113,7 @@ export const RowColorComp = withContext(
 export type RowColorViewType = (param: {
   currentRow: any;
   currentIndex: number;
-  currentOriginalIndex: number;
+  currentOriginalIndex: number | string;
   columnTitle: string;
 }) => string;
 

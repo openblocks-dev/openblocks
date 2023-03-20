@@ -30,11 +30,14 @@ function getFunction(comp: Comp, methodName: string) {
   return (...params: any[]) =>
     getPromiseAfterDispatch(
       comp.dispatch,
-      customAction<ExecuteAction>({
-        type: "execute",
-        methodName: methodName,
-        params: params,
-      }),
+      customAction<ExecuteAction>(
+        {
+          type: "execute",
+          methodName: methodName,
+          params: params,
+        },
+        false
+      ),
       {
         notHandledError: trans("globalErrorMessage.notHandledError", { method: methodName }),
       }

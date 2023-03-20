@@ -1,10 +1,10 @@
-import { CompAction, changeChildAction, CompActionTypes } from "openblocks-core";
 import { MultiCompBuilder } from "comps/generators";
+import { CompAction, CompActionTypes } from "openblocks-core";
 import { OptionsType, ValueFromOption } from "openblocks-design";
+import { ReactNode } from "react";
 import { ControlPlacement } from "./controlParams";
 import { dropdownControl } from "./dropdownControl";
 import { numberSimpleControl } from "./numberSimpleControl";
-import { ReactNode } from "react";
 
 interface DropdownInputControlParams {
   dropdownLabel?: string;
@@ -65,7 +65,7 @@ export function dropdownInputSimpleControl(
         action.value !== userDefineValue
       ) {
         // change input and dropdown synchronously
-        comp = comp.reduce(changeChildAction("input", action.value));
+        comp = comp.reduce(comp.changeChildAction("input", action.value));
       }
       return comp;
     }
