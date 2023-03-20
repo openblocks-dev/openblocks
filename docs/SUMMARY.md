@@ -13,10 +13,17 @@
 
 * [Data source basics](data-sources/data-source-basics.md)
 * [Configure IP allowlists](data-sources/configure-ip-allowlists.md)
-* [Connect to APIs](data-sources/connect-to-databases/README.md)
-  * [REST APIs](data-sources/connect-to-databases/rest-apis.md)
-  * [GraphQL](data-sources/connect-to-databases/graphql.md)
-  * [Google Sheets](data-sources/connect-to-databases/google-sheets.md)
+* [Connect to databases](data-sources/connect-to-databases/README.md)
+  * [MySQL](data-sources/connect-to-databases/mysql.md)
+  * [MongoDB](data-sources/connect-to-databases/mongodb.md)
+  * [PostgreSQL](data-sources/connect-to-databases/postgresql.md)
+  * [Microsoft SQL Server](data-sources/connect-to-databases/microsoft-sql-server.md)
+  * [Elasticsearch](data-sources/connect-to-databases/elasticsearch.md)
+  * [Redis](data-sources/connect-to-databases/redis.md)
+* [Connect to APIs](data-sources/connect-to-databases-1/README.md)
+  * [REST APIs](data-sources/connect-to-databases-1/rest-apis.md)
+  * [GraphQL](data-sources/connect-to-databases-1/graphql.md)
+  * [Google Sheets](data-sources/connect-to-databases-1/google-sheets.md)
 
 ## Queries
 
