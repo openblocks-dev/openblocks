@@ -2,6 +2,7 @@
 
 * [Openblocks overview](README.md)
 * [Self-hosting](self-hosting/README.md)
+  * [Enterprise Edition](self-hosting/enterprise-edition.md)
   * [Access local database or API](self-hosting/access-local-database-or-api.md)
   * [DigitalOcean](self-hosting/digitalocean.md)
   * [AWS AMI](self-hosting/aws-ami.md)
@@ -12,8 +13,17 @@
 
 * [Data source basics](data-sources/data-source-basics.md)
 * [Configure IP allowlists](data-sources/configure-ip-allowlists.md)
-* [Connect to APIs](data-sources/connect-to-databases/README.md)
-  * [Google Sheets](data-sources/connect-to-databases/google-sheets.md)
+* [Connect to databases](data-sources/connect-to-databases/README.md)
+  * [Elasticsearch](data-sources/connect-to-databases/elasticsearch.md)
+  * [Microsoft SQL Server](data-sources/connect-to-databases/microsoft-sql-server.md)
+  * [MongoDB](data-sources/connect-to-databases/mongodb.md)
+  * [MySQL](data-sources/connect-to-databases/mysql.md)
+  * [PostgreSQL](data-sources/connect-to-databases/postgresql.md)
+  * [Redis](data-sources/connect-to-databases/redis.md)
+* [Connect to APIs](data-sources/connect-to-databases-1/README.md)
+  * [REST APIs](data-sources/connect-to-databases-1/rest-apis.md)
+  * [GraphQL](data-sources/connect-to-databases-1/graphql.md)
+  * [Google Sheets](data-sources/connect-to-databases-1/google-sheets.md)
 
 ## Queries
 
@@ -37,17 +47,25 @@
   * [List View](build-apps/component-guides/list-view.md)
   * [Drawer](build-apps/component-guides/drawer.md)
   * [Image](build-apps/component-guides/image.md)
+  * [Charts and graphs](build-apps/component-guides/charts-and-graphs.md)
+  * [File upload](build-apps/component-guides/file-upload.md)
   * [Custom component](build-apps/component-guides/custom-component.md)
   * [Use Markdown](build-apps/component-guides/use-markdown.md)
 * [Module](build-apps/module.md)
+* [Design app UI](build-apps/design-app-ui/README.md)
+  * [Style, theme, and usability](build-apps/design-app-ui/style-theme-and-usability.md)
+  * [Design an efficient and user-friendly form](build-apps/design-app-ui/design-an-efficient-and-user-friendly-form.md)
 * [Navigation](build-apps/navigation.md)
+* [Keyboard shortcuts](build-apps/keyboard-shortcuts.md)
 * [Version and release management](build-apps/version-and-release-management.md)
 
 ## Build plugins
 
-* [Develop your first plugin](build-plugins/develop-your-first-plugin.md)
+* [Develop UI component plugins](build-plugins/develop-your-first-plugin.md)
+* [Develop data source plugins](build-plugins/develop-data-source-plugins.md)
 
 ## Workspace management
 
 * [Members and groups](workspace-management/members-and-groups.md)
 * [Permissions for resources](workspace-management/permissions-for-resources.md)
+* [Customize branding](workspace-management/customize-branding.md)

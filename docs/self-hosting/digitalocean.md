@@ -16,7 +16,7 @@ You can deploy Openblocks on DigitalOcean using our [Openblocks docker image](ht
     <figure><img src="../.gitbook/assets/DigitalOcean-3.png" alt=""><figcaption></figcaption></figure>
 5.  Choose a plan and size for your Droplet, which determines its RAM, disk space, and vCPUs as well as its price. We'd recommend a system spec with **1 core CPU and 2 GB RAM** or the above.
 
-    <figure><img src="../.gitbook/assets/DigitalOcean-4.png" alt=""><figcaption></figcaption></figure>
+    <figure><img src="../.gitbook/assets/droplet-cpu-option.png" alt=""><figcaption></figcaption></figure>
 
     Note that the **Basic** shared CPU with **Regular with SSD (1 GB CPU / 25GB SSD Disk / 1000GB transfer)** CPU option is more than capable of hosting an Openblocks instance.
 6.  Choose an [SSH key](https://docs.digitalocean.com/products/droplets/how-to/add-ssh-keys/) if you've added one, or create a root password for the Droplet.
@@ -24,7 +24,7 @@ You can deploy Openblocks on DigitalOcean using our [Openblocks docker image](ht
     <figure><img src="../.gitbook/assets/DigitalOcean-5.png" alt=""><figcaption></figcaption></figure>
 7.  Set the droplet name, add tags, and click **Create Droplet** to finish the deployment.
 
-    <figure><img src="../.gitbook/assets/DigitalOcean-6.png" alt=""><figcaption></figcaption></figure>
+    <figure><img src="../.gitbook/assets/finalize-details.png" alt=""><figcaption></figcaption></figure>
 
     It usually takes around a minute to start the droplet.
 
