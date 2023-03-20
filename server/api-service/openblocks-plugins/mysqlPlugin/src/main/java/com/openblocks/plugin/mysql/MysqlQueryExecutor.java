@@ -17,8 +17,8 @@ import javax.annotation.Nonnull;
 
 import org.pf4j.Extension;
 
-import com.openblocks.plugin.sql.HikariSqlExecutor;
-import com.openblocks.plugin.sql.SqlBasedQueryExecutor;
+import com.openblocks.plugin.sql.HikariBasedQueryExecutor;
+import com.openblocks.plugin.sql.SqlExecutor;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.models.DatasourceStructure;
 import com.openblocks.sdk.models.DatasourceStructure.Table;
@@ -35,10 +35,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Extension
-public class MysqlQueryExecutor extends SqlBasedQueryExecutor {
+public class MysqlQueryExecutor extends HikariBasedQueryExecutor {
 
     public MysqlQueryExecutor() {
-        super(new HikariSqlExecutor());
+        super(new SqlExecutor());
     }
 
     @Nonnull

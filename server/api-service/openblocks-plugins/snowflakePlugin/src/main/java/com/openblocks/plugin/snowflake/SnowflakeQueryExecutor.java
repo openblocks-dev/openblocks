@@ -15,8 +15,8 @@ import javax.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
 
-import com.openblocks.plugin.sql.HikariSqlExecutor;
-import com.openblocks.plugin.sql.SqlBasedQueryExecutor;
+import com.openblocks.plugin.sql.HikariBasedQueryExecutor;
+import com.openblocks.plugin.sql.SqlExecutor;
 import com.openblocks.sdk.models.DatasourceStructure;
 import com.openblocks.sdk.models.DatasourceStructure.Column;
 import com.openblocks.sdk.models.DatasourceStructure.Table;
@@ -32,10 +32,10 @@ import lombok.extern.slf4j.Slf4j;
 @SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 @Slf4j
 @Extension
-public class SnowflakeQueryExecutor extends SqlBasedQueryExecutor {
+public class SnowflakeQueryExecutor extends HikariBasedQueryExecutor {
 
     public SnowflakeQueryExecutor() {
-        super(new HikariSqlExecutor(false));
+        super(new SqlExecutor(false));
     }
 
     @SuppressWarnings("SqlDialectInspection")
