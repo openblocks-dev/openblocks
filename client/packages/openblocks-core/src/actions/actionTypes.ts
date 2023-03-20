@@ -5,12 +5,9 @@ export enum CompActionTypes {
   CHANGE_VALUE = "CHANGE_VALUE",
   RENAME = "RENAME",
   MULTI_CHANGE = "MULTI_CHANGE",
-  ADD_CHILD = "ADD_CHILD",
   DELETE_COMP = "DELETE_COMP",
   REPLACE_COMP = "REPLACE_COMP",
   ONLY_EVAL = "NEED_EVAL",
-  ASYNC = "ASYNC",
-  ASYNC_END = "ASYNC_END",
 
   // UPDATE_NODES = "UPDATE_NODES",
   UPDATE_NODES_V2 = "UPDATE_NODES_V2",
@@ -63,6 +60,7 @@ export type ActionPriority = "sync" | "defer";
 
 interface ActionCommon {
   path: Array<string>;
+  editDSL: boolean; // FIXME: remove the "?" mark
   skipHistory?: boolean;
   extraInfo?: ActionExtraInfo;
   priority?: ActionPriority;
@@ -97,12 +95,6 @@ export interface BroadcastAction<Action extends ActionCommon = ActionCommon> ext
 export interface MultiChangeAction extends ActionCommon {
   type: CompActionTypes.MULTI_CHANGE;
   changes: Record<string, CompAction>;
-}
-
-export interface AddChildAction extends ActionCommon {
-  type: CompActionTypes.ADD_CHILD;
-  key: string;
-  value: JSONValue;
 }
 
 export interface SimpleCompAction extends ActionCommon {
@@ -152,7 +144,6 @@ export type CompAction<DataType extends JSONValue = JSONValue> =
   | BroadcastAction
   | RenameAction
   | ReplaceCompAction
-  | AddChildAction
   | MultiChangeAction
   | SimpleCompAction
   | ExecuteQueryAction

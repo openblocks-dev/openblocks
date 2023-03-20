@@ -60,8 +60,8 @@ export const COLOR_PALETTE = [
 ] as const;
 
 export const PHONE_NUMBER_PATTERN = /^1\d{10}$/;
-export const EMAIL_PATTERN = /^\S+@\S+\.\S+$/;
-export const URL_PATTERN = /^\w+\S+(\.\S+){1,}$/;
+export const EMAIL_PATTERN = /^[\w-+.]+@([\w-]+\.)+[\w-]{2,}$/;
+export const URL_PATTERN = /^(https?:\/\/)?([\w-])+\.{1}([a-zA-Z]{2,63})([/\w-]*)*\/?\??([^#\n\r]*)?#?([^\n\r]*)$/; // prettier-ignore
 
 export const checkOtpValid = (value: string): boolean => {
   return /^\d{6}$/.test(value);
@@ -149,14 +149,11 @@ export function toReadableString(value: unknown): string {
   return ret;
 }
 
-export function isNumeric(obj: JSONValue | undefined | null) {
-  if (obj instanceof Number || typeof obj === "number") {
-    return true;
+export function isNumeric(obj: any) {
+  if (Array.isArray(obj)) {
+    return false;
   }
-  if (obj instanceof String || typeof obj === "string") {
-    return obj !== "" && !isNaN(Number(obj));
-  }
-  return false;
+  return !isNaN(parseFloat(obj)) && isFinite(obj);
 }
 
 export function hashToNum(str: string) {

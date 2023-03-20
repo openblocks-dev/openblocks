@@ -14,6 +14,7 @@ export const ColumnNameDropdown = (props: {
   dispatch: DispatchType;
   label?: string;
   placement?: ControlPlacement;
+  changeEditDSL?: boolean;
 }) => {
   const context = useContext(QueryContext);
   const datasourceId = context?.datasourceId ?? "";
@@ -29,7 +30,7 @@ export const ColumnNameDropdown = (props: {
       options={columns}
       placeholder={"column"}
       value={isEmpty(props.value) ? undefined : props.value}
-      onChange={(value) => props.dispatch(changeValueAction(value))}
+      onChange={(value) => props.dispatch(changeValueAction(value, props.changeEditDSL ?? true))}
       allowClear={true}
       placement={props.placement}
       label={props.label}

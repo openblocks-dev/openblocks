@@ -1,4 +1,4 @@
-import { codeControl } from "comps/controls/codeControl";
+import { BoolCodeControl } from "comps/controls/codeControl";
 import { EditorContext } from "comps/editorState";
 import { withTypeAndChildren } from "comps/generators";
 import { MultiCompBuilder } from "comps/generators/multi";
@@ -40,21 +40,7 @@ const SlowdownOptions = [
 ] as const;
 
 const AdvanceChildren = {
-  condition: codeControl<boolean>(
-    (value) => {
-      if (typeof value === "boolean") {
-        return value;
-      }
-      if (value === "" || value === "true" || value === "1" || value === 1) {
-        return true;
-      }
-      if (value === "false" || value === "0" || value === 0) {
-        return false;
-      }
-      throw new TypeError(`Type "boolean" is required, but find type: ${typeof value}`);
-    },
-    { defaultValue: true }
-  ),
+  condition: BoolCodeControl,
   slowdown: dropdownControl(SlowdownOptions, "debounce"),
   delay: millisecondsControl({}),
 };
@@ -259,12 +245,15 @@ function actionSelectorControl(needContext: boolean) {
 
     override reduce(action: CompAction): this {
       if (isMyCustomAction<ActionTriggered>(action, ACTION_TRIGGERED_TYPE_STRING)) {
-        if (getReduceContext().disableUpdateState) return this;
+        const isConditionSet = !!this.children.condition.unevaledValue;
+        const condition = this.children.condition.getView();
+        const ignored = getReduceContext().disableUpdateState || (isConditionSet && !condition);
+        const ignorePromise = Promise.resolve();
         const realNeedContext = needContext || getReduceContext().inEventContext;
-        handlePromiseAfterResult(
-          action,
-          realNeedContext ? action.value.func() : this.children.comp.getView()()
-        );
+        const actionPromise = () => {
+          return realNeedContext ? action.value.func() : this.children.comp.getView()();
+        };
+        handlePromiseAfterResult(action, ignored ? ignorePromise : actionPromise());
         return this;
       }
       if (
@@ -276,10 +265,6 @@ function actionSelectorControl(needContext: boolean) {
     }
 
     override getView() {
-      if (!this.children.condition.getView()) {
-        return;
-      }
-
       let executor = (x: Function) => x();
 
       const limitEnabled = !!this.children.delay.unevaledValue;
@@ -296,11 +281,14 @@ function actionSelectorControl(needContext: boolean) {
         getPromiseAfterExecuteDispatch(
           executor,
           this.dispatch,
-          customAction<ActionTriggered>({
-            type: ACTION_TRIGGERED_TYPE_STRING,
-            context: this.context,
-            func: this.children.comp.getView(),
-          }),
+          customAction<ActionTriggered>(
+            {
+              type: ACTION_TRIGGERED_TYPE_STRING,
+              context: this.context,
+              func: this.children.comp.getView(),
+            },
+            false
+          ),
           {
             notHandledError: trans("eventHandler.notHandledError"),
           }

@@ -300,7 +300,7 @@ export const closeEvent: EventConfigType = {
 export const successEvent: EventConfigType = {
   label: trans("event.success"),
   value: "success",
-  description: trans("event.closeDesc"),
+  description: trans("event.successDesc"),
 };
 
 export const InputEventHandlerControl = eventHandlerControl([
@@ -325,3 +325,4 @@ export const ScannerEventHandlerControl = eventHandlerControl([
   successEvent,
   closeEvent,
 ] as const);
+

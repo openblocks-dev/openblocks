@@ -49,8 +49,8 @@ export const PaginationTmpControl = (function () {
       onChange: (page: number, pageSize: number) => {
         props.showSizeChanger &&
           pageSize !== props.changeablePageSize &&
-          dispatch(changeChildAction("changeablePageSize", pageSize));
-        page !== props.pageNo && dispatch(changeChildAction("pageNo", page));
+          dispatch(changeChildAction("changeablePageSize", pageSize, true));
+        page !== props.pageNo && dispatch(changeChildAction("pageNo", page, false));
       },
     };
   })

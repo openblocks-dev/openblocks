@@ -1,14 +1,3 @@
-import { JSONObject, JSONValue } from "util/jsonTypes";
-import {
-  AbstractComp,
-  AbstractNode,
-  changeChildAction,
-  CompAction,
-  CompActionTypes,
-  ConstructorToView,
-  evalNodeOrMinor,
-  updateNodesV2Action,
-} from "openblocks-core";
 import {
   ArrayStringControl,
   BoolCodeControl,
@@ -20,13 +9,23 @@ import {
   StringControl,
 } from "comps/controls/codeControl";
 import { ControlParams } from "comps/controls/controlParams";
-import { MultiCompBuilder, stateComp, valueInstance, withDefault } from "comps/generators";
+import { MultiCompBuilder, stateComp, stateInstance, withDefault } from "comps/generators";
 import { changeDataType } from "comps/generators/changeDataType";
 import {
   ExposeMethodCompConstructor,
   withMethodExposingBase,
 } from "comps/generators/withMethodExposing";
+import { trans } from "i18n";
 import _ from "lodash";
+import {
+  AbstractComp,
+  AbstractNode,
+  CompAction,
+  CompActionTypes,
+  ConstructorToView,
+  evalNodeOrMinor,
+  updateNodesV2Action,
+} from "openblocks-core";
 import { ReactNode } from "react";
 import { memo } from "util/cacheUtils";
 import {
@@ -38,9 +37,9 @@ import {
   toStringArray,
   toStringNumberArray,
 } from "util/convertUtils";
-import { EvalParamType, ParamConfig, ParamType } from "./actionSelector/executeCompTypes";
-import { trans } from "i18n";
+import { JSONObject, JSONValue } from "util/jsonTypes";
 import { getPromiseAfterDispatch } from "../../util/promiseUtils";
+import { EvalParamType, ParamConfig, ParamType } from "./actionSelector/executeCompTypes";
 
 export const __TMP_STATE_FIELD_NAME = "__TMP_STATE_FIELD_NAME";
 
@@ -92,7 +91,7 @@ function withTmpState<T extends CodeControlJSONType>(
     }
 
     change(value: ConstructorToView<T>) {
-      return getPromiseAfterDispatch(this.dispatch, changeChildAction("value", value), {
+      return getPromiseAfterDispatch(this.dispatch, this.changeChildAction("value", value), {
         autoHandleAfterReduce: true,
       });
     }
@@ -108,7 +107,7 @@ function withTmpState<T extends CodeControlJSONType>(
         // log.log("TmpStateTmp reduce. value: ", value, " evaledMultiValue: ", evaledMultiValue);
         if (evaledMultiValue !== this.children.value.getView()) {
           return this.setChildren({
-            value: valueInstance(evaledMultiValue),
+            value: stateInstance(evaledMultiValue),
             defaultValue: this.children.defaultValue.reduce(
               updateNodesV2Action(value["defaultValue"])
             ),

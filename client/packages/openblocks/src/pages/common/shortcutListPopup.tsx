@@ -47,7 +47,6 @@ const HeadLine = styled.div`
   height: 34px;
   display: flex;
   align-items: center;
-  font-family: PingFangSC-Medium;
   font-size: 16px;
   color: #ffffff;
   line-height: 16px;
@@ -72,7 +71,6 @@ const ShortcutGroup = styled.div`
 const ShortcutHead = styled.div`
   padding-top: 7px;
   height: 25px;
-  font-family: PingFangSC-Medium;
   font-size: 13px;
   color: #7a7c80;
   line-height: 13px;
@@ -126,7 +124,7 @@ const ShortcutTextItem = styled.div`
 function getKeyItemString(key: string) {
   switch (key) {
     case "Enter":
-      return "⏎";
+      return "⏎"; // eslint-disable-line only-ascii/only-ascii
     case "Backspace":
       return "Backspace";
     case "Escape":
@@ -159,6 +157,7 @@ export function ShortcutListPopup(props: { setShowShortcutList: (v: boolean) => 
                   <ShortcutLine key={"shortcut" + shortcutIndex}>
                     {s.name}
                     <ShortcutKeys>
+                      {/* eslint-disable only-ascii/only-ascii */}
                       {s.keys.map((k, keyIndex) => (
                         <ShortcutKey key={"key" + keyIndex}>
                           {keyIndex > 0 && <ShortcutTextItem>,</ShortcutTextItem>}
@@ -185,6 +184,7 @@ export function ShortcutListPopup(props: { setShowShortcutList: (v: boolean) => 
                           )}
                         </ShortcutKey>
                       ))}
+                      {/* eslint-disable only-ascii/only-ascii */}
                     </ShortcutKeys>
                   </ShortcutLine>
                 ))}

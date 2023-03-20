@@ -47,7 +47,8 @@ export type ForEachAction = {
 };
 
 export function map<ChildCompCtor extends CompConstructor<any, any>>(
-  childConstructor: ChildCompCtor
+  childConstructor: ChildCompCtor,
+  inDSL: boolean
 ) {
   type Comp = ConstructorToComp<ChildCompCtor>;
   type DataType = ConstructorToDataType<ChildCompCtor>;
@@ -113,28 +114,34 @@ export function map<ChildCompCtor extends CompConstructor<any, any>>(
       return fromRecord(childrenExposingNodes);
     }
     static batchSetAction(value: Record<string, DataType>) {
-      return customAction<BatchSetAction<DataType>>({
-        type: "batchSet",
-        value,
-      });
+      return customAction<BatchSetAction<DataType>>(
+        {
+          type: "batchSet",
+          value,
+        },
+        inDSL
+      );
     }
     static batchSetCompAction(value: Record<string, Comp>) {
-      return customAction<BatchSetCompAction<Comp>>({
-        type: "batchSetComp",
-        value,
-      });
+      return customAction<BatchSetCompAction<Comp>>(
+        {
+          type: "batchSetComp",
+          value,
+        },
+        inDSL
+      );
     }
     static clearAction() {
-      return customAction<ClearAction>({ type: "clear" });
+      return customAction<ClearAction>({ type: "clear" }, inDSL);
     }
     static batchDeleteAction(keys: Array<string>) {
-      return customAction<BatchDeleteAction>({ type: "batchDelete", keys });
+      return customAction<BatchDeleteAction>({ type: "batchDelete", keys }, inDSL);
     }
     static filterAction(keys: Array<string>) {
-      return customAction<FilterAction>({ type: "filter", keys });
+      return customAction<FilterAction>({ type: "filter", keys }, inDSL);
     }
     static forEachAction(action: CompAction) {
-      return customAction<ForEachAction>({ type: "forEach", action });
+      return customAction<ForEachAction>({ type: "forEach", action }, action.editDSL!);
     }
   }
 

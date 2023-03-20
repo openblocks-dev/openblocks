@@ -4,6 +4,13 @@
   "type": "module",
   "license": "MIT",
   "dependencies": {
+    "@fullcalendar/core": "^6.0.3",
+    "@fullcalendar/daygrid": "^6.0.3",
+    "@fullcalendar/interaction": "^6.0.3",
+    "@fullcalendar/list": "^6.0.3",
+    "@fullcalendar/moment": "^6.1.4",
+    "@fullcalendar/react": "^6.0.3",
+    "@fullcalendar/timegrid": "^6.0.3",
     "@types/react": "17",
     "@types/react-dom": "17",
     "big.js": "^6.2.1",
@@ -32,12 +39,21 @@
           "w": 15,
           "h": 60
         }
+      },
+      "calendar": {
+        "name": "Calendar",
+        "icon": "./icons/icon-comp-calendar.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 60
+        }
       }
     }
   },
   "scripts": {
     "start": "vite",
     "build": "yarn test && openblocks-cli build",
+    "build_only": "openblocks-cli build",
     "test": "jest"
   },
   "devDependencies": {

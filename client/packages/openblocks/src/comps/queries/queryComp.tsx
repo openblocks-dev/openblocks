@@ -4,6 +4,7 @@ import {
   ResourceType,
 } from "@openblocks-ee/constants/queryConstants";
 import { message } from "antd";
+import axios from "axios";
 import DataSourceIcon from "components/DataSourceIcon";
 import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { StringControl } from "comps/controls/codeControl";
@@ -20,24 +21,24 @@ import { list } from "comps/generators/list";
 import { ToInstanceType } from "comps/generators/multi";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
-import { genQueryId } from "comps/utils/idGenerator";
+import { genQueryId, genRandomKey } from "comps/utils/idGenerator";
 import { getReduceContext } from "comps/utils/reduceContext";
 import { trans } from "i18n";
 import _ from "lodash";
 import {
-  changeChildAction,
   ChangeValueAction,
-  changeValueAction,
   CompAction,
   CompActionTypes,
   CompParams,
   ConstructorToDataType,
+  customAction,
   deferAction,
   ExecuteQueryAction,
   executeQueryAction,
   FetchCheckNode,
   FetchInfo,
   fromRecord,
+  isCustomAction,
   MultiBaseComp,
   multiChangeAction,
   wrapActionExtraInfo,
@@ -73,9 +74,8 @@ import { QueryConfirmationModal } from "./queryComp/queryConfirmationModal";
 import { QueryNotificationControl } from "./queryComp/queryNotificationControl";
 import { QueryPropertyView } from "./queryComp/queryPropertyView";
 import { getTriggerType, onlyManualTrigger } from "./queryCompUtils";
-import axios from "axios";
 
-const latestExecution: Record<string, number> = {};
+const latestExecution: Record<string, string> = {};
 
 export type QueryResultExtra = Omit<
   QueryExecuteResponse,
@@ -89,6 +89,11 @@ export interface QueryResult {
   data: JSONValue;
   runTime?: number;
   extra?: QueryResultExtra;
+}
+
+interface AfterExecuteQueryAction {
+  type: "afterExecQuery";
+  result: QueryResult;
 }
 
 const TriggerTypeOptions = [
@@ -299,16 +304,20 @@ QueryCompTmp = withViewFn(QueryCompTmp, (comp) => {
 
 QueryCompTmp = class extends QueryCompTmp {
   override reduce(action: CompAction): this {
+    if (isCustomAction<AfterExecuteQueryAction>(action, "afterExecQuery")) {
+      return this.processEvents(action.value.result);
+    }
     if (action.type === CompActionTypes.EXECUTE_QUERY) {
       if (getReduceContext().disableUpdateState) return this;
       return this.executeQuery(action);
-    } else if (action.type === CompActionTypes.CHANGE_VALUE) {
+    }
+    if (action.type === CompActionTypes.CHANGE_VALUE) {
       const value: any = (action as ChangeValueAction).value;
 
       // when processing switches to manual mode, turn on error message notification
       if (action.path[0] === "triggerType" && value === "manual") {
         return super.reduce(action).reduce(
-          changeChildAction("notification", {
+          this.changeChildAction("notification", {
             ...this.children.notification.toJsonValue(),
             showFail: true, //
           })
@@ -323,10 +332,24 @@ QueryCompTmp = class extends QueryCompTmp {
     ) {
       const comp = super.reduce(action);
       const isWrite = "isWrite" in comp.children.comp && comp.children.comp.isWrite(action);
-      return isWrite ? comp.reduce(changeChildAction("triggerType", "manual")) : comp;
+      return isWrite ? comp.reduce(comp.changeChildAction("triggerType", "manual")) : comp;
     }
 
     return super.reduce(action);
+  }
+
+  private processEvents(result: QueryResult) {
+    const onEvent = this.children.onEvent.getView();
+    const name = this.children.name.getView();
+    const triggerType = this.children.triggerType.getView();
+    const success = result.success && this.children.notification.getQueryCustomResult();
+    onEvent(success ? "success" : "fail");
+    this.children.notification.getView()(name, triggerType, {
+      ...result,
+      code: result.code ?? QUERY_EXECUTION_OK,
+      success: result.success ?? true,
+    });
+    return this;
   }
 
   /**
@@ -340,29 +363,28 @@ QueryCompTmp = class extends QueryCompTmp {
       return;
     }
     const changeAction = multiChangeAction({
-      code: changeValueAction(result.code ?? QUERY_EXECUTION_OK),
-      success: changeValueAction(result.success ?? true),
-      message: changeValueAction(result.message ?? ""),
-      data: changeValueAction(result.data),
-      extra: changeValueAction(result.extra ?? {}),
-      isFetching: changeValueAction(false),
-      latestEndTime: changeValueAction(Date.now()),
-      runTime: changeValueAction(result.runTime ?? 0),
+      code: this.children.code.changeValueAction(result.code ?? QUERY_EXECUTION_OK),
+      success: this.children.success.changeValueAction(result.success ?? true),
+      message: this.children.message.changeValueAction(result.message ?? ""),
+      data: this.children.data.changeValueAction(result.data),
+      extra: this.children.extra.changeValueAction(result.extra ?? {}),
+      isFetching: this.children.isFetching.changeValueAction(false),
+      latestEndTime: this.children.latestEndTime.changeValueAction(Date.now()),
+      runTime: this.children.runTime.changeValueAction(result.runTime ?? 0),
     });
-    getPromiseAfterDispatch(this.dispatch, deferAction(changeAction), {
+    getPromiseAfterDispatch(this.dispatch, changeAction, {
       autoHandleAfterReduce: true,
     }).then(() => {
-      const queryId = this.children.id.getView();
-      if (result.success && this.children.notification.getQueryCustomResult()) {
-        this.children.onEvent.getView()("success");
-      } else {
-        this.children.onEvent.getView()("fail");
-      }
-      this.children.notification.getView()(
-        this.children.name.getView(),
-        this.children.triggerType.getView(),
-        { ...result, code: result.code ?? QUERY_EXECUTION_OK, success: result.success ?? true }
+      this.dispatch(
+        customAction(
+          {
+            type: "afterExecQuery",
+            result,
+          },
+          false
+        )
       );
+      const queryId = this.children.id.getView();
       const afterExecFunc = action.afterExecFunc;
       afterExecFunc && afterExecFunc();
       perfMark(`query-${queryId}-end`);
@@ -381,14 +403,14 @@ QueryCompTmp = class extends QueryCompTmp {
     const promiseParams = getPromiseParams(action);
     const { applicationId, parentApplicationPath } = getReduceContext();
     const cancelPrevious = this.children.cancelPrevious.getView();
-    const executeId = performance.now();
+    const executeId = genRandomKey();
     latestExecution[queryId] = executeId;
     this.children.confirmationModal
       .getView()(() => {
         this.dispatch(
           multiChangeAction({
-            isFetching: changeValueAction(true),
-            lastQueryStartTime: changeValueAction(startTime),
+            isFetching: this.children.isFetching.changeValueAction(true),
+            lastQueryStartTime: this.children.lastQueryStartTime.changeValueAction(startTime),
           })
         );
         return queryFunc({

@@ -1,4 +1,4 @@
-import { changeValueAction, CompAction } from "actions";
+import { changeValueAction, ChangeValueAction, CompAction, CompActionTypes } from "actions";
 import { Node } from "eval";
 import { ReactNode } from "react";
 import { memo } from "util/cacheUtils";
@@ -32,6 +32,8 @@ export interface Comp<
    * used when the comp is moved across the tree structure.
    */
   changeDispatch(dispatch: DispatchType): this;
+
+  changeValueAction(value: DataType): ChangeValueAction;
 }
 
 export abstract class AbstractComp<
@@ -64,7 +66,11 @@ export abstract class AbstractComp<
    * trigger changeValueAction, type safe
    */
   dispatchChangeValueAction(value: DataType) {
-    this.dispatch(changeValueAction(value));
+    this.dispatch(this.changeValueAction(value));
+  }
+
+  changeValueAction(value: DataType): ChangeValueAction {
+    return changeValueAction(value, true);
   }
 
   /**

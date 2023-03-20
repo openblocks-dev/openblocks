@@ -1,4 +1,13 @@
 import { Tag } from "antd";
+import { trans } from "i18n";
+import _, { includes, isEmpty, pick } from "lodash";
+import {
+  changeValueAction,
+  CompAction,
+  DispatchType,
+  MultiBaseComp,
+  multiChangeAction,
+} from "openblocks-core";
 import {
   Dropdown,
   EllipsisTextCss,
@@ -8,25 +17,16 @@ import {
   QueryTutorialButton,
   ValueFromOption,
 } from "openblocks-design";
-import _, { includes, isEmpty, pick } from "lodash";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
+import { QueryTutorials } from "util/tutorialUtils";
 import { EsConfig } from "../../api/datasourceApi";
 import { getDataSource } from "../../redux/selectors/datasourceSelectors";
-import { QueryTutorials } from "util/tutorialUtils";
-import {
-  changeValueAction,
-  CompAction,
-  DispatchType,
-  MultiBaseComp,
-  multiChangeAction,
-} from "openblocks-core";
 import { dropdownControl } from "../controls/dropdownControl";
 import { ParamsJsonControl, ParamsStringControl } from "../controls/paramsControl";
 import { MultiCompBuilder, valueComp, withDefault } from "../generators";
-import { toQueryView } from "./queryCompUtils";
 import { QueryConfigLabelMethod } from "./query";
-import { trans } from "i18n";
+import { toQueryView } from "./queryCompUtils";
 
 const HttpMethodOptions = [
   { label: "GET", value: "GET", color: "magenta" },
@@ -172,13 +172,14 @@ const EsQueryPropertyView = (props: {
             onChange={(value) => {
               dispatch(
                 multiChangeAction({
-                  esMethod: changeValueAction(value),
+                  esMethod: changeValueAction(value, true),
                   httpMethod: changeValueAction(
-                    esMethodInfoMap[value].apis?.[0]?.httpMethod ?? "GET"
+                    esMethodInfoMap[value].apis?.[0]?.httpMethod ?? "GET",
+                    true
                   ),
-                  path: changeValueAction(esMethodInfoMap[value].apis?.[0]?.path ?? ""),
-                  prefix: changeValueAction(""),
-                  suffix: changeValueAction(""),
+                  path: changeValueAction(esMethodInfoMap[value].apis?.[0]?.path ?? "", true),
+                  prefix: changeValueAction("", true),
+                  suffix: changeValueAction("", true),
                 })
               );
             }}
@@ -213,10 +214,10 @@ const EsQueryPropertyView = (props: {
             const api = JSON.parse(value);
             dispatch(
               multiChangeAction({
-                httpMethod: changeValueAction(api.httpMethod),
-                path: changeValueAction(api.path),
-                prefix: changeValueAction(""),
-                suffix: changeValueAction(""),
+                httpMethod: changeValueAction(api.httpMethod, true),
+                path: changeValueAction(api.path, true),
+                prefix: changeValueAction("", true),
+                suffix: changeValueAction("", true),
               })
             );
           }}

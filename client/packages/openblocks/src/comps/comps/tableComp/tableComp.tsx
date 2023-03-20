@@ -15,7 +15,6 @@ import {
   sortData,
   transformDispalyData,
   tranToTableRecord,
-  supportChildrenTree,
 } from "comps/comps/tableComp/tableUtils";
 import { isTriggerAction } from "comps/controls/actionSelector/actionSelectorControl";
 import { withPropertyViewFn, withViewFn } from "comps/generators";
@@ -30,6 +29,7 @@ import {
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
+import { MAP_KEY } from "comps/generators/withMultiContext";
 import { NameGenerator } from "comps/utils";
 import { trans } from "i18n";
 import _ from "lodash";
@@ -71,7 +71,10 @@ export class TableImplComp extends TableInitComp implements IContainer {
   }
 
   getPasteValue(nameGenerator: NameGenerator) {
-    return this.getSlotContainer().getPasteValue(nameGenerator);
+    return {
+      ...this.toJsonValue(),
+      expansion: this.children.expansion.getPasteValue(nameGenerator),
+    };
   }
 
   realSimpleContainer(key?: string) {
@@ -165,12 +168,11 @@ export class TableImplComp extends TableInitComp implements IContainer {
   }
 
   override reduce(action: CompAction): this {
-    if (action.type === CompActionTypes.ONLY_EVAL) return this;
     let comp = super.reduce(action);
     let needMoreEval = false;
 
-    const thisSelection = getSelectedRowKeys(this.children.selection)[0] ?? 0;
-    const newSelection = getSelectedRowKeys(comp.children.selection)[0] ?? 0;
+    const thisSelection = getSelectedRowKeys(this.children.selection)[0] ?? "0";
+    const newSelection = getSelectedRowKeys(comp.children.selection)[0] ?? "0";
     const selectionChanged =
       this.children.selection !== comp.children.selection && thisSelection !== newSelection;
     if (
@@ -234,12 +236,13 @@ export class TableImplComp extends TableInitComp implements IContainer {
             })
           )
         );
-        doGene && actions.push(changeChildAction("dataRowExample", null));
+        doGene && actions.push(comp.changeChildAction("dataRowExample", null));
         setTimeout(() => {
           actions.forEach((action) => comp.dispatch(deferAction(action)));
         }, 0);
       }
     }
+    // console.info("exit tableComp reduce. action: ", action, "\nthis: ", this, "\ncomp: ", comp);
     return comp;
   }
 
@@ -293,11 +296,8 @@ export class TableImplComp extends TableInitComp implements IContainer {
     const filteredDataNode = withFunction(fromRecord(nodes), (input) => {
       const { data, searchValue, filter, showFilter } = input;
       const filteredData = filterData(data, searchValue.value, filter, showFilter.value);
-      const supportChildren = supportChildrenTree(filteredData);
       // console.info("filterNode. data: ", data, " filter: ", filter, " filteredData: ", filteredData);
-      return filteredData.map((row) =>
-        tranToTableRecord(row, row[OB_ROW_ORI_INDEX], supportChildren)
-      );
+      return filteredData.map((row) => tranToTableRecord(row, row[OB_ROW_ORI_INDEX]));
     });
     return lastValueIfEqual(this, "filteredDataNode", [filteredDataNode, nodes] as const, (a, b) =>
       shallowEqual(a[1], b[1])
@@ -332,6 +332,71 @@ export class TableImplComp extends TableInitComp implements IContainer {
       return getOriDisplayData(input.data, pageSize, Object.values(columns));
     });
     return lastValueIfEqual(this, "oriDisplayDataNode", [resNode, nodes] as const, (a, b) =>
+      shallowEqual(a[1], b[1])
+    )[0];
+  }
+
+  displayDataIndexesNode() {
+    const nodes = {
+      oriDisplayData: this.oriDisplayDataNode(),
+    };
+    const resNode = withFunction(fromRecord(nodes), (input) => {
+      return _(input.oriDisplayData)
+        .map((row, idx) => [row[OB_ROW_ORI_INDEX], idx] as [string, number])
+        .fromPairs()
+        .value();
+    });
+    return lastValueIfEqual(this, "displayDataIndexesNode", [resNode, nodes] as const, (a, b) =>
+      shallowEqual(a[1], b[1])
+    )[0];
+  }
+
+  changeSetNode() {
+    const nodes = {
+      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
+      renders: this.children.columns.getColumnsNode("render"),
+    };
+    const resNode = withFunction(fromRecord(nodes), (input) => {
+      // merge input.dataIndexes and input.withParams into one structure
+      const dataIndexRenderDict = _(input.dataIndexes)
+        .mapValues((dataIndex, idx) => input.renders[idx])
+        .mapKeys((render, idx) => input.dataIndexes[idx])
+        .value();
+      const record: Record<string, Record<string, JSONValue>> = {};
+      _.forEach(dataIndexRenderDict, (render, dataIndex) => {
+        _.forEach(render[MAP_KEY], (value, key) => {
+          const changeValue = (value.comp as any).comp.changeValue;
+          if (!_.isNil(changeValue)) {
+            if (!record[key]) record[key] = {};
+            record[key][dataIndex] = changeValue;
+          }
+        });
+      });
+      return record;
+    });
+    return lastValueIfEqual(this, "changeSetNode", [resNode, nodes] as const, (a, b) =>
+      shallowEqual(a[1], b[1])
+    )[0];
+  }
+
+  toUpdateRowsNode() {
+    const nodes = {
+      oriDisplayData: this.oriDisplayDataNode(),
+      indexes: this.displayDataIndexesNode(),
+      changeSet: this.changeSetNode(),
+    };
+    const resNode = withFunction(fromRecord(nodes), (input) => {
+      const res = _(input.changeSet)
+        .map((changeValues, oriIndex) => {
+          const idx = input.indexes[oriIndex];
+          const oriRow = _.omit(input.oriDisplayData[idx], OB_ROW_ORI_INDEX);
+          return { ...oriRow, ...changeValues };
+        })
+        .value();
+      // console.info("toUpdateRowsNode. input: ", input, " res: ", res);
+      return res;
+    });
+    return lastValueIfEqual(this, "toUpdateRowsNode", [resNode, nodes] as const, (a, b) =>
       shallowEqual(a[1], b[1])
     )[0];
   }
@@ -380,9 +445,9 @@ TableTmpComp = withDispatchHook(TableTmpComp, (dispatch) => (action) => {
   }
   if (isTriggerAction(action)) {
     const context = action.value.context;
-    if (context && context["currentOriginalIndex"]) {
+    if (context && !_.isNil(context["currentOriginalIndex"])) {
       const key = context["currentOriginalIndex"] + "";
-      dispatch(wrapChildAction("selection", changeChildAction("selectedRowKey", key)));
+      dispatch(wrapChildAction("selection", changeChildAction("selectedRowKey", key, false)));
     }
     // action.context;
   }
@@ -401,6 +466,24 @@ function _indexKeyToRecord(data: JSONObject[], key: string) {
     }
   }
   return res;
+}
+
+function toDisplayIndex(displayData: JSONObject[], selectRowKey: string) {
+  const keyPath = selectRowKey.split("-");
+  const originSelectKey = keyPath[0];
+  if (!originSelectKey) {
+    return "";
+  }
+  let displayIndex;
+  displayData.forEach((data, index) => {
+    if (data[OB_ROW_ORI_INDEX] === originSelectKey) {
+      displayIndex = index;
+    }
+  });
+  if (displayIndex && keyPath.length > 1) {
+    return [displayIndex, ...keyPath.slice(1)].join("-");
+  }
+  return displayIndex;
 }
 
 TableTmpComp = withMethodExposing(TableTmpComp, [
@@ -504,26 +587,53 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     },
     trans("table.selectedRowsDesc")
   ),
-  depsConfig({
-    name: "changeSet",
-    desc: trans("table.changeSetDesc"),
-    depKeys: ["columns"],
-    func: (input) => {
-      const record: Record<string, Record<string, JSONValue>> = {};
-      Object.values(input.columns).forEach((column: any) => {
-        const dataIndex: string = column.dataIndex;
-        const render = column.render; // {comp, map: [0].comp.changeValue, length}
-        _.forEach(render.map, (value, key) => {
-          const changeValue = value.comp?.changeValue;
-          if (!_.isNil(changeValue)) {
-            if (!record[key]) record[key] = {};
-            record[key][dataIndex] = changeValue;
-          }
-        });
-      });
-      return record;
+  new CompDepsConfig(
+    "selectedIndex",
+    (comp) => {
+      return {
+        oriDisplayData: comp.oriDisplayDataNode(),
+        selectedRowKey: comp.children.selection.children.selectedRowKey.node(),
+      };
     },
-  }),
+    (input) => {
+      return toDisplayIndex(input.oriDisplayData, input.selectedRowKey);
+    },
+    trans("table.selectedIndexDesc")
+  ),
+  new CompDepsConfig(
+    "selectedIndexes",
+    (comp) => {
+      return {
+        oriDisplayData: comp.oriDisplayDataNode(),
+        selectedRowKeys: comp.children.selection.children.selectedRowKeys.node(),
+      };
+    },
+    (input) => {
+      return input.selectedRowKeys.flatMap((key: string) => {
+        const result = toDisplayIndex(input.oriDisplayData, key);
+        return result === undefined ? [] : [result];
+      });
+    },
+    trans("table.selectedIndexDesc")
+  ),
+  new CompDepsConfig(
+    "changeSet",
+    (comp) => ({
+      changeSet: comp.changeSetNode(),
+    }),
+    (input) => input.changeSet,
+    trans("table.changeSetDesc")
+  ),
+  new CompDepsConfig(
+    "toUpdateRows",
+    (comp) => ({
+      toUpdateRows: comp.toUpdateRowsNode(),
+    }),
+    (input) => {
+      return input.toUpdateRows;
+    },
+    trans("table.toUpdateRowsDesc")
+  ),
   new DepsConfig(
     "pageNo",
     (children) => {

@@ -1,7 +1,7 @@
 import { ColumnComp } from "comps/comps/tableComp/column/tableColumnComp";
 import { evalAndReduce } from "comps/utils";
 import _ from "lodash";
-import { changeChildAction, fromValue } from "openblocks-core";
+import { fromValue } from "openblocks-core";
 import { MemoryRouter } from "react-router-dom";
 import { MockTableComp } from "./mockTableComp";
 import { TableComp } from "./tableComp";
@@ -82,7 +82,7 @@ test("test table", async () => {
   comp = evalAndReduce(comp);
   let columns = comp.children.columns.getView();
   expect(columns.length).toEqual(2);
-  comp = evalAndReduce(comp.reduce(changeChildAction("data", '[{"a":1, "c":2, "d":3}]')));
+  comp = evalAndReduce(comp.reduce(comp.changeChildAction("data", '[{"a":1, "c":2, "d":3}]')));
   await new Promise((r) => setTimeout(r, 20));
   columns = comp.children.columns.getView();
   expect(columns.length).toEqual(4);
@@ -167,7 +167,7 @@ test("test table data transform", () => {
   // id sort
   comp = evalAndReduce(
     comp.reduce(
-      changeChildAction("sort", [
+      comp.changeChildAction("sort", [
         {
           column: "id",
           desc: true,
@@ -180,7 +180,7 @@ test("test table data transform", () => {
   // search
   comp = evalAndReduce(
     comp.reduce(
-      changeChildAction("toolbar", {
+      comp.changeChildAction("toolbar", {
         searchText: "gg",
       })
     )
@@ -189,7 +189,7 @@ test("test table data transform", () => {
   // filter
   comp = evalAndReduce(
     comp.reduce(
-      changeChildAction("toolbar", {
+      comp.changeChildAction("toolbar", {
         showFilter: true,
         filter: {
           stackType: "and",

@@ -167,7 +167,7 @@ const DragRightIcon = styled(WidthDragIcon)<DragHandleProps>`
   transform: translate(0px, -50%);
 `;
 
-//（height changable）
+// (height changable)
 const dragCss = (props: DragHandleProps, handle: ResizeHandleAxis) => css`
   position: absolute;
   height: 8px;

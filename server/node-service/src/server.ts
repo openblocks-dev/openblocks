@@ -2,10 +2,13 @@ import http from "http";
 import "./common/logger";
 import "express-async-errors";
 import express, { Response, Request, NextFunction } from "express";
-import routes from "./routes";
 import { ServiceError } from "./common/error";
 import path from "node:path";
 import morgan from "morgan";
+import { collectDefaultMetrics } from "prom-client";
+import apiRouter from "./routes/apiRouter";
+import systemRouter from "./routes/systemRouter";
+collectDefaultMetrics();
 
 const prefix = "/node-service";
 
@@ -45,7 +48,8 @@ router.use((req, res, next) => {
 });
 
 /** Routes */
-router.use(`${prefix}/api`, routes);
+router.use(`${prefix}/api`, apiRouter);
+router.use(`${prefix}/system`, systemRouter);
 
 // service err
 router.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

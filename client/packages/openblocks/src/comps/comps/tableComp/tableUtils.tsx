@@ -79,7 +79,10 @@ export function sortData(
   columns: Record<string, { sortable: boolean }>, // key: dataIndex
   sorter: Array<SortValue>
 ): Array<RecordType> {
-  let resultData = data.map((row, index) => ({ ...row, [OB_ROW_ORI_INDEX]: index + "" }));
+  let resultData: Array<RecordType> = data.map((row, index) => ({
+    ...row,
+    [OB_ROW_ORI_INDEX]: index + "",
+  }));
   if (sorter.length > 0) {
     const [sortColumns, sortMethods] = _(sorter)
       .filter((s) => {
@@ -88,7 +91,20 @@ export function sortData(
       .map((s) => [s.column, s.desc ? "desc" : "asc"] as const)
       .unzip()
       .value() as [string[], ("desc" | "asc")[]];
-    resultData = _.orderBy(resultData, sortColumns, sortMethods);
+    resultData = _.orderBy(
+      resultData,
+      sortColumns.map((colName) => {
+        return (obj) => {
+          const val = obj[colName];
+          if (typeof val === "string") {
+            return val.toLowerCase();
+          } else {
+            return val;
+          }
+        };
+      }),
+      sortMethods
+    );
   }
   return resultData;
 }
@@ -113,18 +129,14 @@ export function buildOriginIndex(index: string, childIndex: string) {
   return index + "-" + childIndex;
 }
 
-export function tranToTableRecord(
-  dataObj: JSONObject,
-  index: string | number,
-  supportChildren: boolean
-): RecordType {
+export function tranToTableRecord(dataObj: JSONObject, index: string | number): RecordType {
   const indexString = index + "";
-  if (supportChildren && Array.isArray(dataObj[COLUMN_CHILDREN_KEY])) {
+  if (Array.isArray(dataObj[COLUMN_CHILDREN_KEY])) {
     return {
       ...dataObj,
       [OB_ROW_ORI_INDEX]: indexString,
       children: dataObj[COLUMN_CHILDREN_KEY].map((child: any, i: number) =>
-        tranToTableRecord(child, buildOriginIndex(indexString, i + ""), supportChildren)
+        tranToTableRecord(child, buildOriginIndex(indexString, i + ""))
       ),
     };
   }
@@ -139,9 +151,8 @@ export function getOriDisplayData(
   pageSize: number,
   columns: Array<{ dataIndex: string; render: NodeToValue<ReturnType<Render["node"]>> }>
 ) {
-  const supportChildren = supportChildrenTree(data);
   return data.map((row, idx) => {
-    const displayData: JSONObject = {};
+    const displayData: RecordType = { [OB_ROW_ORI_INDEX]: row[OB_ROW_ORI_INDEX] };
     columns.forEach((col) => {
       // if (!row.hasOwnProperty(col.dataIndex)) return;
       const node = col.render.wrap({
@@ -150,7 +161,7 @@ export function getOriDisplayData(
         currentIndex: idx % pageSize,
         currentOriginalIndex: row[OB_ROW_ORI_INDEX],
       }) as any;
-      if (supportChildren && Array.isArray(row[COLUMN_CHILDREN_KEY])) {
+      if (Array.isArray(row[COLUMN_CHILDREN_KEY])) {
         displayData[COLUMN_CHILDREN_KEY] = getOriDisplayData(
           row[COLUMN_CHILDREN_KEY] as Array<RecordType>,
           pageSize,
@@ -170,12 +181,23 @@ export function getOriDisplayData(
 export function transformDispalyData(
   oriDisplayData: JSONObject[],
   dataIndexTitleDict: _.Dictionary<string>
-) {
-  return oriDisplayData.map((row) =>
-    _(row)
+): JSONObject[] {
+  return oriDisplayData.map((row) => {
+    const transData = _(row)
+      .omit(OB_ROW_ORI_INDEX)
       .mapKeys((value, key) => dataIndexTitleDict[key] || key)
-      .value()
-  );
+      .value();
+    if (Array.isArray(row[COLUMN_CHILDREN_KEY])) {
+      return {
+        ...transData,
+        [COLUMN_CHILDREN_KEY]: transformDispalyData(
+          row[COLUMN_CHILDREN_KEY] as JSONObject[],
+          dataIndexTitleDict
+        ),
+      };
+    }
+    return transData;
+  });
 }
 
 export type ColumnsAggrData = Record<string, Record<string, JSONValue> & { compType: string }>;
@@ -346,7 +368,7 @@ export function onTableChange(
       const v = getSortValue(sorter);
       v && sortValues.push(v);
     }
-    dispatch(changeChildAction("sort", sortValues));
+    dispatch(changeChildAction("sort", sortValues, true));
     onEvent("sortChange");
   }
 }

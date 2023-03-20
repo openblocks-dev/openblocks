@@ -21,7 +21,7 @@ import { exposingInfoToNodes, exposingMethods } from "comps/utils/exposingTypes"
 import { getReduceContext, PartialReduceContext, reduceInContext } from "comps/utils/reduceContext";
 import { API_STATUS_CODES } from "constants/apiConstants";
 import { AppTypeEnum } from "constants/applicationConstants";
-import { BackgroundColor, GreyTextColor } from "constants/style";
+import { GreyTextColor } from "constants/style";
 import { Section, sectionNames } from "openblocks-design";
 import { ReactNode, useEffect, useMemo } from "react";
 import styled from "styled-components";
@@ -41,7 +41,6 @@ import { ParamsConfig, ParamType } from "comps/controls/actionSelector/executeCo
 
 const Wrapper = styled.div`
   height: 100%;
-  background-color: ${BackgroundColor};
 
   & > div {
     height: 100%;
@@ -229,10 +228,13 @@ class ModuleTmpComp extends ModuleCompBase {
     return (action: CompAction<any>) => {
       // log.info("dispatch from module:", action);
       this.dispatch(
-        customAction({
-          type: "delegated",
-          action,
-        })
+        customAction(
+          {
+            type: "delegated",
+            action,
+          },
+          false
+        )
       );
     };
   }
@@ -243,11 +245,14 @@ class ModuleTmpComp extends ModuleCompBase {
 
   updateDSL(dsl: DSLType, moduleDsl?: DSLType) {
     this.dispatch(
-      customAction<UpdateDslAction>({
-        type: "updateDsl",
-        dsl,
-        moduleDsl,
-      })
+      customAction<UpdateDslAction>(
+        {
+          type: "updateDsl",
+          dsl,
+          moduleDsl,
+        },
+        false
+      )
     );
   }
 
@@ -296,7 +301,7 @@ class ModuleTmpComp extends ModuleCompBase {
       });
       moduleRootComp.setModuleRoot(true);
       moduleRootComp.preload(`module-${this.loadedAppId}`).then((comp) => {
-        this.dispatch(customAction<ModuleReadyAction>({ type: "moduleReady", comp }));
+        this.dispatch(customAction<ModuleReadyAction>({ type: "moduleReady", comp }, false));
       });
 
       return setFieldsNoTypeCheck(this, { moduleDsl });
@@ -508,7 +513,7 @@ const ModuleCompWithView = withViewFn(ModuleTmpComp, (comp) => {
 
   useEffect(() => {
     if (appId !== comp.loadedAppId) {
-      comp.dispatch(customAction<InitAction>({ type: "init" }));
+      comp.dispatch(customAction<InitAction>({ type: "init" }, false));
     }
   }, [comp, appId]);
 

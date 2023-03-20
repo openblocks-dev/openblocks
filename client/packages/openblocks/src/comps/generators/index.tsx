@@ -5,6 +5,7 @@ export {
   stateComp,
   withDefault,
   valueInstance,
+  stateInstance,
   withViewFn,
   withPropertyViewFn,
 } from "./simpleGenerators";

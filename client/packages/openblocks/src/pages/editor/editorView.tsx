@@ -2,15 +2,13 @@ import { Divider, Menu } from "antd";
 import Sider from "antd/lib/layout/Sider";
 import { PreloadComp } from "comps/comps/preLoadComp";
 import UIComp from "comps/comps/uiComp";
-import { defaultTheme } from "comps/controls/styleControlConstants";
 import { EditorContext } from "comps/editorState";
-import { ThemeContext } from "comps/utils/themeContext";
 import { AppUILayoutType } from "constants/applicationConstants";
 import { Layers } from "constants/Layers";
 import { TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
 import { draggingUtils } from "layout";
-import { LeftPreloadIcon, LeftSettingIcon, LeftStateIcon } from "openblocks-design";
+import { LeftPreloadIcon, LeftSettingIcon, LeftStateIcon, ScrollBar } from "openblocks-design";
 import { useTemplateViewMode } from "util/hooks";
 import Header, { PanelStatus, TogglePanel } from "pages/common/header";
 import { HelpDropdown } from "pages/common/help";
@@ -31,7 +29,7 @@ import {
 import RightPanel from "pages/editor/right/RightPanel";
 import EditorTutorials from "pages/tutorials/editorTutorials";
 import { editorContentClassName, UserGuideLocationState } from "pages/tutorials/tutorialsConstant";
-import { useCallback, useContext, useMemo, useState } from "react";
+import { useCallback, useContext, useLayoutEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
@@ -56,10 +54,12 @@ const HookCompContainer = styled.div`
   z-index: ${Layers.hooksCompContainer};
 `;
 
-const ViewBody = styled.div<{ bgColor: string; hideBodyHeader?: boolean }>`
-  background-color: ${(props) =>
-    props.bgColor}; // the same as the editting region's default bg-color
-  min-height: calc(100vh - ${(props) => (props.hideBodyHeader ? "0px" : TopHeaderHeight)});
+const ViewBody = styled.div<{ hideBodyHeader?: boolean; height?: number }>`
+  height: ${(props) => `calc(${
+    props.height ? props.height + "px" : "100vh"
+  } - env(safe-area-inset-bottom) -
+      ${props.hideBodyHeader ? "0px" : TopHeaderHeight}
+  )`};
 `;
 
 const SiderWrapper = styled.div`
@@ -189,7 +189,7 @@ const items = [
 ];
 
 function EditorView(props: EditorViewProps) {
-  const { uiComp, preloadComp } = props;
+  const { uiComp } = props;
   const editorState = useContext(EditorContext);
   const { readOnly, hideHeader } = useContext(ExternalEditorContext);
   const application = useSelector(currentApplication);
@@ -197,12 +197,12 @@ function EditorView(props: EditorViewProps) {
   const showNewUserGuide = locationState?.showNewUserGuide;
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
   const [showShortcutList, setShowShortcutList] = useState(false);
-  const bgColor = (useContext(ThemeContext)?.theme || defaultTheme).canvas;
   const toggleShortcutList = useCallback(
     () => setShowShortcutList(!showShortcutList),
     [showShortcutList]
   );
   const [menuKey, setMenuKey] = useState<string>(SiderKey.State);
+  const [height, setHeight] = useState<number>();
   const dispatch = useDispatch();
 
   const [panelStatus, setPanelStatus] = useState(() => {
@@ -252,6 +252,17 @@ function EditorView(props: EditorViewProps) {
     ));
   }, [editorState]);
 
+  useLayoutEffect(() => {
+    function updateSize() {
+      setHeight(window.innerHeight);
+    }
+
+    const eventType = "orientationchange" in window ? "orientationchange" : "resize";
+    window.addEventListener(eventType, updateSize);
+    updateSize();
+    return () => window.removeEventListener(eventType, updateSize);
+  }, []);
+
   const hideBodyHeader = useTemplateViewMode();
 
   if (readOnly && hideHeader) {
@@ -269,7 +280,7 @@ function EditorView(props: EditorViewProps) {
         <Helmet>{application && <title>{application.name}</title>}</Helmet>
         {!hideBodyHeader && <PreviewHeader />}
         <EditorContainerWithViewMode>
-          <ViewBody bgColor={bgColor} hideBodyHeader={hideBodyHeader}>
+          <ViewBody hideBodyHeader={hideBodyHeader} height={height}>
             {uiComp.getView()}
           </ViewBody>
           <div style={{ zIndex: Layers.hooksCompContainer }}>{hookCompViews}</div>
@@ -281,7 +292,11 @@ function EditorView(props: EditorViewProps) {
   const showRight = panelStatus.right || showAppSnapshot;
   let uiCompView;
   if (showAppSnapshot) {
-    uiCompView = <EditorContainer>{uiComp.getView()}</EditorContainer>;
+    uiCompView = (
+      <ViewBody hideBodyHeader={hideBodyHeader} height={height}>
+        <EditorContainer>{uiComp.getView()}</EditorContainer>
+      </ViewBody>
+    );
   } else {
     uiCompView = uiComp.getView();
   }
@@ -342,24 +357,27 @@ function EditorView(props: EditorViewProps) {
             <LeftPanel>
               {menuKey === SiderKey.State && <LeftContent uiComp={uiComp} />}
               {menuKey === SiderKey.Setting && (
-                <SettingsDiv>
-                  {application && !isAggregationApp(AppUILayoutType[application.applicationType]) && (
-                    <>
-                      {appSettingsComp.getPropertyView()}
-                      <Divider />
-                    </>
-                  )}
-                  <TitleDiv>{trans("leftPanel.toolbarTitle")}</TitleDiv>
-                  {props.preloadComp.getPropertyView()}
-                  <PreloadDiv
-                    onClick={() =>
-                      dispatch(setEditorExternalStateAction({ showScriptsAndStyleModal: true }))
-                    }
-                  >
-                    <LeftPreloadIcon />
-                    {trans("leftPanel.toolbarPreload")}
-                  </PreloadDiv>
-                </SettingsDiv>
+                <ScrollBar>
+                  <SettingsDiv>
+                    {application &&
+                      !isAggregationApp(AppUILayoutType[application.applicationType]) && (
+                        <>
+                          {appSettingsComp.getPropertyView()}
+                          <Divider />
+                        </>
+                      )}
+                    <TitleDiv>{trans("leftPanel.toolbarTitle")}</TitleDiv>
+                    {props.preloadComp.getPropertyView()}
+                    <PreloadDiv
+                      onClick={() =>
+                        dispatch(setEditorExternalStateAction({ showScriptsAndStyleModal: true }))
+                      }
+                    >
+                      <LeftPreloadIcon />
+                      {trans("leftPanel.toolbarPreload")}
+                    </PreloadDiv>
+                  </SettingsDiv>
+                </ScrollBar>
               )}
             </LeftPanel>
           )}

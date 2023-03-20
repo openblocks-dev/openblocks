@@ -3,19 +3,18 @@ import { DateTimeComp } from "comps/comps/tableComp/column/columnTypeComps/colum
 import { ButtonComp } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 import { withType } from "comps/generators";
 import { trans } from "i18n";
-import { changeValueAction } from "openblocks-core";
 import { Dropdown } from "openblocks-design";
+import { BooleanComp } from "./columnTypeComps/columnBooleanComp";
+import { DateComp } from "./columnTypeComps/columnDateComp";
 import { ImageComp } from "./columnTypeComps/columnImgComp";
 import { LinkComp } from "./columnTypeComps/columnLinkComp";
 import { ColumnLinksComp } from "./columnTypeComps/columnLinksComp";
 import { ColumnMarkdownComp } from "./columnTypeComps/columnMarkdownComp";
+import { ProgressComp } from "./columnTypeComps/columnProgressComp";
+import { RatingComp } from "./columnTypeComps/columnRatingComp";
+import { BadgeStatusComp } from "./columnTypeComps/columnStatusComp";
 import { ColumnTagsComp } from "./columnTypeComps/columnTagsComp";
 import { SimpleTextComp } from "./columnTypeComps/simpleTextComp";
-import { BadgeStatusComp } from "./columnTypeComps/columnStatusComp";
-import { BooleanComp } from "./columnTypeComps/columnBooleanComp";
-import { RatingComp } from "./columnTypeComps/columnRatingComp";
-import { ProgressComp } from "./columnTypeComps/columnProgressComp";
-import { DateComp } from "./columnTypeComps/columnDateComp";
 
 const actionOptions = [
   {
@@ -118,12 +117,10 @@ export class ColumnTypeComp extends TypedColumnTypeComp {
             if (this.children.comp.children.hasOwnProperty("text")) {
               textRawData = (this.children.comp.children as any).text.toJsonValue();
             }
-            this.dispatch(
-              changeValueAction({
-                compType: value,
-                comp: { text: textRawData },
-              })
-            );
+            this.dispatchChangeValueAction({
+              compType: value,
+              comp: { text: textRawData },
+            } as any);
           }}
         />
         {this.children.comp.getPropertyView()}

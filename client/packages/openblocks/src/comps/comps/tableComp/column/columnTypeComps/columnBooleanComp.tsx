@@ -7,6 +7,8 @@ import { getStyle } from "comps/comps/selectInputComp/checkboxComp";
 import styled from "styled-components";
 import { CheckboxStyle, CheckboxStyleType } from "comps/controls/styleControlConstants";
 import { useStyle } from "comps/controls/styleControl";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import { TableCheckedIcon, TableUnCheckedIcon } from "openblocks-design";
 
 const CheckboxStyled = styled(Checkbox)<{ $style: CheckboxStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
@@ -17,8 +19,35 @@ const Wrapper = styled.div`
   padding: 0 8px;
 `;
 
+const IconWrapper = styled.div<{ $style: CheckboxStyleType; ifChecked: boolean }>`
+  height: 22px;
+  svg {
+    width: 14px;
+    height: 22px;
+    g {
+      stroke: ${(props) => props.ifChecked && props.$style.checkedBackground} !important;
+    }
+  }
+`;
+
+const falseValuesOptions = [
+  {
+    label: trans("table.empty"),
+    value: "",
+  },
+  {
+    label: "-",
+    value: "-",
+  },
+  {
+    label: <TableUnCheckedIcon width={10} height={10} />,
+    value: "x",
+  },
+] as const;
+
 const childrenMap = {
   text: BoolCodeControl,
+  falseValues: dropdownControl(falseValuesOptions, ""),
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, boolean, boolean> = (props) => props.text;
@@ -57,7 +86,17 @@ export const BooleanComp = (function () {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
       const CheckBoxComp = () => {
         const style = useStyle(CheckboxStyle);
-        return <CheckboxStyled checked={!!value} $style={style} />;
+        return (
+          <IconWrapper $style={style} ifChecked={value}>
+            {value ? (
+              <TableCheckedIcon />
+            ) : props.falseValues === "x" ? (
+              <TableUnCheckedIcon />
+            ) : (
+              props.falseValues
+            )}
+          </IconWrapper>
+        );
       };
       return <CheckBoxComp />;
     },
@@ -79,6 +118,10 @@ export const BooleanComp = (function () {
           {children.text.propertyView({
             label: trans("table.columnValue"),
             tooltip: ColumnValueTooltip,
+          })}
+          {children.falseValues.propertyView({
+            label: trans("table.falseValues"),
+            radioButton: true,
           })}
         </>
       );

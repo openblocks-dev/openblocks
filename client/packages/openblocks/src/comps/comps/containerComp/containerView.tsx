@@ -37,7 +37,6 @@ import {
   RecordConstructorToView,
   wrapActionExtraInfo,
   wrapChildAction,
-  wrapDispatch,
 } from "openblocks-core";
 import React, {
   DragEvent,
@@ -164,7 +163,7 @@ const onLayoutChange = (
   onLayoutChange?.(newLayout);
   // Purely changing the layout does not need to eval
   // log.debug("layout: onLayoutChange. currentLayout: ", currentLayout, " newLayout: ", newLayout);
-  dispatch(wrapActionExtraInfo(changeChildAction("layout", newLayout), { compInfos }));
+  dispatch(wrapActionExtraInfo(changeChildAction("layout", newLayout, true), { compInfos }));
 };
 
 const onFlyDrop = (layout: Layout, items: Layout, dispatch: DispatchType) => {
@@ -176,7 +175,7 @@ const onFlyDrop = (layout: Layout, items: Layout, dispatch: DispatchType) => {
     const sourceLayoutFn = dragStartInfo.sourceLayoutFn;
 
     // 1. Delete old Comp
-    sourceDispatch(deferAction(changeChildAction("layout", _.omit(sourceLayoutFn(), keys))));
+    sourceDispatch(deferAction(changeChildAction("layout", _.omit(sourceLayoutFn(), keys), true)));
     keys.forEach((key) =>
       sourceDispatch(
         deferAction(wrapChildAction("items", wrapChildAction(key, deleteCompAction())))
@@ -188,7 +187,7 @@ const onFlyDrop = (layout: Layout, items: Layout, dispatch: DispatchType) => {
         dispatch(deferAction(wrapChildAction("items", addMapCompChildAction(key, item.comp))));
       }
     }
-    dispatch(deferAction(changeChildAction("layout", layout)));
+    dispatch(deferAction(changeChildAction("layout", layout, true)));
   }
 };
 
@@ -233,10 +232,13 @@ const onDrop = (
     dispatch(
       wrapActionExtraInfo(
         multiChangeAction({
-          layout: changeValueAction({
-            ...layout,
-            [key]: { ...layoutItem, i: key, placeholder: undefined },
-          }),
+          layout: changeValueAction(
+            {
+              ...layout,
+              [key]: { ...layoutItem, i: key, placeholder: undefined },
+            },
+            true
+          ),
           items: addMapChildAction(key, widgetValue),
         }),
         { compInfos: [{ compName: compName, compType: compType, type: "add" }] }
@@ -360,7 +362,9 @@ export function InnerGrid(props: ViewPropsWithSelect) {
           // log.log("onResize. position: ", newPositionParams, " lastPosition: ", positionParams);
           window.clearTimeout(dispatchPositionParamsTimerRef.current);
           dispatchPositionParamsTimerRef.current = window.setTimeout(() => {
-            props.dispatch(deferAction(changeChildAction("positionParams", newPositionParams)));
+            props.dispatch(
+              deferAction(changeChildAction("positionParams", newPositionParams, false))
+            );
             onPositionParamsChange?.(newPositionParams);
           }, 1000);
         }

@@ -3,7 +3,7 @@ import { map } from "./map";
 import { valueComp } from "./simpleGenerators";
 
 const TestComp = valueComp<string>("");
-const MapComp = map(TestComp);
+const MapComp = map(TestComp, true);
 
 describe("mapComp", () => {
   it("map actions", () => {

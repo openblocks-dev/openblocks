@@ -21,6 +21,12 @@ import { ModuleLoading } from "components/ModuleLoading";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { getCurrentTheme } from "comps/utils/themeUtil";
 import { DataChangeResponderListComp } from "./dataChangeResponderComp";
+import {
+  PropertySectionContext,
+  PropertySectionContextType,
+  PropertySectionState,
+  Section,
+} from "openblocks-design";
 
 interface RootViewProps extends HTMLAttributes<HTMLDivElement> {
   comp: InstanceType<typeof RootComp>;
@@ -42,6 +48,7 @@ function RootView(props: RootViewProps) {
   const previewTheme = useContext(ThemeContext);
   const { comp, isModuleRoot, ...divProps } = props;
   const [editorState, setEditorState] = useState<EditorState>();
+  const [propertySectionState, setPropertySectionState] = useState<PropertySectionState>({});
   const appThemeId = comp.children.settings.getView().themeId;
   const { orgCommonSettings } = getGlobalSettings();
   const themeList = orgCommonSettings?.themeList || [];
@@ -74,6 +81,23 @@ function RootView(props: RootViewProps) {
     [theme]
   );
 
+  const propertySectionContextValue = useMemo<PropertySectionContextType>(() => {
+    const compName = Object.keys(editorState?.selectedComps() || {})[0];
+    return {
+      compName,
+      state: propertySectionState,
+      toggle: (compName: string, sectionName: string) => {
+        setPropertySectionState((oldState) => {
+          const nextSectionState: PropertySectionState = { ...oldState };
+          const compState = nextSectionState[compName] || {};
+          compState[sectionName] = compState[sectionName] === false;
+          nextSectionState[compName] = compState;
+          return nextSectionState;
+        });
+      },
+    };
+  }, [editorState, propertySectionState]);
+
   if (!editorState) {
     if (isModuleRoot) {
       return <ModuleLoading />;
@@ -83,14 +107,16 @@ function RootView(props: RootViewProps) {
 
   return (
     <div {...divProps}>
-      <ThemeContext.Provider value={themeContextValue}>
-        <EditorContext.Provider value={editorState}>
-          {Object.keys(comp.children.queries.children).map((key) => (
-            <div key={key}>{comp.children.queries.children[key].getView()}</div>
-          ))}
-          <EditorView uiComp={comp.children.ui} preloadComp={comp.children.preload} />
-        </EditorContext.Provider>
-      </ThemeContext.Provider>
+      <PropertySectionContext.Provider value={propertySectionContextValue}>
+        <ThemeContext.Provider value={themeContextValue}>
+          <EditorContext.Provider value={editorState}>
+            {Object.keys(comp.children.queries.children).map((key) => (
+              <div key={key}>{comp.children.queries.children[key].getView()}</div>
+            ))}
+            <EditorView uiComp={comp.children.ui} preloadComp={comp.children.preload} />
+          </EditorContext.Provider>
+        </ThemeContext.Provider>
+      </PropertySectionContext.Provider>
     </div>
   );
 }

@@ -64,12 +64,16 @@ class ShortcutItemComp extends ShortcutItemBase {
               label: trans("customShortcut.shortcut"),
               tooltip: (
                 <>
+                  {/* eslint-disable-next-line only-ascii/only-ascii */}
                   {"⌃: Ctrl"}
                   <br />
+                  {/* eslint-disable-next-line only-ascii/only-ascii */}
                   {"⌥: Alt"}
                   <br />
+                  {/* eslint-disable-next-line only-ascii/only-ascii */}
                   {`Mod: ⌘ (Mac), Ctrl (${trans("customShortcut.otherPlatform")})`}
                   <br />
+                  {/* eslint-disable-next-line only-ascii/only-ascii */}
                   {"⇧: Shift"}
                 </>
               ),

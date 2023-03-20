@@ -112,6 +112,7 @@ export const formatPropertyView = (params: {
             language === "zh" ? "http://momentjs.cn" : "http://momentjs.com"
           }/docs/#/displaying/format/`}
           target={"_blank"}
+          rel="noreferrer"
         >
           momentjs format
         </a>

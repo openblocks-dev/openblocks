@@ -30,7 +30,7 @@ Workspace admins have access to theme settings. On Openblocks homepage, go to **
 
 Preview the real-time theme effect on the right.
 
-<figure><img src="../../.gitbook/assets/style-theme-usability-6 (1).PNG" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/style-theme-usability-6.PNG" alt=""><figcaption></figcaption></figure>
 
 ### Apply a theme
 

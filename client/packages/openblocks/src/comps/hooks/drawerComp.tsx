@@ -3,27 +3,27 @@ import { Button } from "antd";
 import { ContainerCompBuilder } from "comps/comps/containerBase/containerCompBuilder";
 import { gridItemCompToGridItems, InnerGrid } from "comps/comps/containerComp/containerView";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
+import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { PositionControl } from "comps/controls/dropdownControl";
 import { closeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
 import { DrawerStyle } from "comps/controls/styleControlConstants";
+import { withDefault } from "comps/generators";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { CanvasContainerID } from "constants/domLocators";
 import { Layers } from "constants/Layers";
-import { Drawer, HintPlaceHolder, Section, sectionNames } from "openblocks-design";
 import { trans } from "i18n";
 import { changeChildAction } from "openblocks-core";
+import { Drawer, HintPlaceHolder, Section, sectionNames } from "openblocks-design";
 import { useCallback } from "react";
 import { ResizeHandle } from "react-resizable";
 import styled from "styled-components";
 import { useUserViewMode } from "util/hooks";
 import { isNumeric } from "util/stringUtils";
 import { NameConfig, withExposingConfigs } from "../generators/withExposing";
-import { BoolControl } from "comps/controls/boolControl";
-import { withDefault } from "comps/generators";
 
 const EventOptions = [closeEvent] as const;
 
@@ -114,8 +114,8 @@ let TmpDrawerComp = (function () {
           handle: ResizeHandle
         ) => {
           isTopBom
-            ? dispatch(changeChildAction("height", size.height))
-            : dispatch(changeChildAction("width", size.width));
+            ? dispatch(changeChildAction("height", size.height, true))
+            : dispatch(changeChildAction("width", size.width, true));
         },
         [dispatch, isTopBom]
       );

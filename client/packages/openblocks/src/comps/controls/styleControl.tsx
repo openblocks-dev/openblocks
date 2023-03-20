@@ -1,30 +1,29 @@
-import { MultiCompBuilder } from "comps/generators";
-import { childrenToProps, ToConstructor } from "comps/generators/multi";
-import _ from "lodash";
-import styled from "styled-components";
-import { RadiusControl } from "./codeControl";
-import { ColorControl } from "./colorControl";
-import { IconRadius, IconReset } from "openblocks-design";
-import { changeValueAction } from "openblocks-core";
 import { Tooltip } from "antd";
-import { useContext } from "react";
-import { ThemeContext } from "comps/utils/themeContext";
-import {
-  defaultTheme,
-  DEP_TYPE,
-  DepColorConfig,
-  RadiusConfig,
-  SimpleColorConfig,
-  SingleColorConfig,
-} from "./styleControlConstants";
 import {
   getThemeDetailName,
   isThemeColorKey,
   ThemeDetail,
 } from "api/commonSettingApi";
+import { MultiCompBuilder } from "comps/generators";
+import { childrenToProps, ToConstructor } from "comps/generators/multi";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
+import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
+import _ from "lodash";
+import { IconRadius, IconReset } from "openblocks-design";
+import { useContext } from "react";
+import styled from "styled-components";
 import { useIsMobile } from "util/hooks";
+import { RadiusControl } from "./codeControl";
+import { ColorControl } from "./colorControl";
+import {
+  defaultTheme,
+  DepColorConfig,
+  DEP_TYPE,
+  RadiusConfig,
+  SimpleColorConfig,
+  SingleColorConfig,
+} from "./styleControlConstants";
 
 function isSimpleColorConfig(
   config: SingleColorConfig
@@ -263,7 +262,10 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                     if (name === "radius") {
                       children[name]?.dispatchChangeValueAction("");
                     } else {
-                      children[name]?.dispatch(changeValueAction(""));
+                      children[name] &&
+                        children[name].dispatch(
+                          children[name].changeValueAction("")
+                        );
                     }
                   });
                 }}

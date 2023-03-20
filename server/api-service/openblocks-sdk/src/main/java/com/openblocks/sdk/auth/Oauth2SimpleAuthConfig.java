@@ -7,10 +7,10 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.openblocks.sdk.auth.constants.AuthTypeConstants;
 import com.openblocks.sdk.auth.constants.Oauth2Constants;
+import com.openblocks.sdk.config.SerializeConfig.JsonViews;
 
 import lombok.Getter;
 
@@ -21,9 +21,8 @@ import lombok.Getter;
 public class Oauth2SimpleAuthConfig extends AbstractAuthConfig {
 
     protected String clientId;
-    @JsonProperty(access = Access.WRITE_ONLY)
+    @JsonView(JsonViews.Internal.class)
     protected String clientSecret;
-    protected String authType;
 
     @JsonCreator
     public Oauth2SimpleAuthConfig(
@@ -35,10 +34,9 @@ public class Oauth2SimpleAuthConfig extends AbstractAuthConfig {
             String clientId,
             String clientSecret,
             String authType) {
-        super(id, source, sourceName, enable, enableRegister);
+        super(id, source, sourceName, enable, enableRegister, authType);
         this.clientId = clientId;
         this.clientSecret = clientSecret;
-        this.authType = authType;
     }
 
     /**
@@ -47,6 +45,7 @@ public class Oauth2SimpleAuthConfig extends AbstractAuthConfig {
      * we only render client-id, leaving redirect-url and state rendered by fe.
      */
     @SuppressWarnings("unused")
+    @JsonView(JsonViews.Public.class)
     public String getAuthorizeUrl() {
         return switch (authType) {
             case AuthTypeConstants.GOOGLE -> Oauth2Constants.GOOGLE_AUTHORIZE_URL;

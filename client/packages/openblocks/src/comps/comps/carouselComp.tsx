@@ -12,16 +12,19 @@ import { PositionControl } from "comps/controls/dropdownControl";
 import { useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import { ArrayStringControl } from "comps/controls/codeControl";
+import { styleControl } from "comps/controls/styleControl";
+import { CarouselStyle } from "comps/controls/styleControlConstants";
 
 const CarouselItem = styled.div<{ src: string }>`
   background: ${(props) => props.src && `url(${props.src})`} no-repeat 50% 50%;
   background-size: contain;
 `;
 
-const Container = styled.div`
+const Container = styled.div<{ bg: string }>`
   &,
   .ant-carousel {
     height: 100%;
+    background-color: ${(props) => props.bg};
   }
 `;
 
@@ -35,6 +38,7 @@ let CarouselBasicComp = (function () {
     onEvent: ChangeEventHandlerControl,
     showDots: withDefault(BoolControl, true),
     dotPosition: withDefault(PositionControl, "bottom"),
+    style: styleControl(CarouselStyle),
 
     ...formDataChildren,
   };
@@ -47,7 +51,7 @@ let CarouselBasicComp = (function () {
       }
     };
     return (
-      <Container ref={containerRef}>
+      <Container ref={containerRef} bg={props.style.background}>
         <ReactResizeDetector onResize={onResize}>
           <Carousel
             dots={props.showDots}
@@ -82,6 +86,7 @@ let CarouselBasicComp = (function () {
             })}
             {hiddenPropertyView(children)}
           </Section>
+          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
         </>
       );
     })

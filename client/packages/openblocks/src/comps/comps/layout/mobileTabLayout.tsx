@@ -15,7 +15,6 @@ import { CanvasContainerID } from "constants/domLocators";
 import { EditorContainer, EmptyContent } from "pages/common/styledComponent";
 import { Layers } from "constants/Layers";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
-import { TopHeaderHeight } from "constants/style";
 import { Skeleton } from "antd";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 
@@ -34,13 +33,14 @@ const AppViewContainer = styled.div`
   top: 0;
   max-width: inherit;
   overflow: auto;
-  height: calc(100vh - ${TopHeaderHeight} - ${TabBarHeight}px);
+  height: 100%;
 `;
 
-const TabLayoutViewWrapper = styled.div`
+const TabLayoutViewContainer = styled.div`
   margin: 0 auto;
   max-width: ${MaxWidth}px;
   position: relative;
+  height: calc(100% - ${TabBarHeight}px);
 `;
 
 const TabBarWrapper = styled.div<{ readOnly: boolean }>`
@@ -53,6 +53,7 @@ const TabBarWrapper = styled.div<{ readOnly: boolean }>`
   right: 0;
   width: ${(props) => (props.readOnly ? "100%" : "418px")};
   z-index: ${Layers.tabBar};
+  padding-bottom: env(safe-area-inset-bottom, 0);
 
   .adm-tab-bar-wrap {
     overflow: auto;
@@ -146,12 +147,12 @@ let MobileTabLayoutTmp = (function () {
 
 MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   const [tabIndex, setTabIndex] = useState(0);
+  const { readOnly } = useContext(ExternalEditorContext);
   const tabViews = (
     comp.children.tabs.children.manual.getView() as unknown as Array<
       ConstructorToComp<typeof TabOptionComp>
     >
   ).filter((tab) => !tab.children.hidden.getView());
-  const { readOnly } = useContext(ExternalEditorContext);
   const currentTab = tabViews[tabIndex];
   const appView = (currentTab &&
     currentTab.children.app.getAppId() &&
@@ -177,10 +178,10 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
 
   if (readOnly) {
     return (
-      <TabLayoutViewWrapper>
+      <TabLayoutViewContainer>
         <AppViewContainer>{appView}</AppViewContainer>
         {tabBarView}
-      </TabLayoutViewWrapper>
+      </TabLayoutViewContainer>
     );
   }
 

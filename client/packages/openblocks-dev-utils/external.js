@@ -14,11 +14,14 @@ export const libs = [
   "lodash",
   "history",
   "antd",
-  "moment",
   "@dnd-kit/core",
   "@dnd-kit/modifiers",
   "@dnd-kit/sortable",
   "@dnd-kit/utilities",
+  {
+    name: "moment",
+    extractDefault: true,
+  },
   {
     name: "openblocks-sdk",
     from: "./src/index.sdk.ts",
@@ -66,11 +69,13 @@ export const libsImportCode = (exclude = []) => {
     let name = i;
     let merge = false;
     let from = name;
+    let extractDefault = false;
 
     if (typeof i === "object") {
       name = i.name;
       merge = i.mergeDefaultAndNameExports ?? false;
       from = i.from ?? name;
+      extractDefault = i.extractDefault ?? false;
     }
 
     if (exclude.includes(name)) {
@@ -82,6 +87,8 @@ export const libsImportCode = (exclude = []) => {
       importLines.push(`import * as ${varName}_named_exports from '${from}';`);
       importLines.push(`import ${varName} from '${from}';`);
       assignLines.push(`Object.assign(${varName}, ${varName}_named_exports);`);
+    } else if (extractDefault) {
+      importLines.push(`import ${varName} from '${from}';`);
     } else {
       importLines.push(`import * as ${varName} from '${from}';`);
     }

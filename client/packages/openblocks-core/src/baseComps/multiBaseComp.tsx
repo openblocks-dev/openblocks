@@ -12,7 +12,14 @@ import log from "loglevel";
 import { CACHE_PREFIX } from "util/cacheUtils";
 import { JSONValue } from "util/jsonTypes";
 import { containFields, setFieldsNoTypeCheck, shallowEqual } from "util/objectUtils";
-import { AbstractComp, Comp, CompParams, DispatchType, OptionalNodeType } from "./comp";
+import {
+  AbstractComp,
+  Comp,
+  CompParams,
+  ConstructorToDataType,
+  DispatchType,
+  OptionalNodeType,
+} from "./comp";
 
 /**
  * MultiBaseCompConstructor with abstract function implemented
@@ -178,6 +185,9 @@ export abstract class MultiBaseComp<
           })
         );
       }
+      case CompActionTypes.ONLY_EVAL: {
+        return this;
+      }
     }
   }
 
@@ -262,6 +272,13 @@ export abstract class MultiBaseComp<
   // FIXME: autoHeight should be encapsulated in UIComp/UICompBuilder
   autoHeight(): boolean {
     return true;
+  }
+
+  changeChildAction(
+    childName: string & keyof ChildrenType,
+    value: ConstructorToDataType<new (...params: any) => ChildrenType[typeof childName]>
+  ) {
+    return wrapChildAction(childName, this.children[childName].changeValueAction(value));
   }
 }
 

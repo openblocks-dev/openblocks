@@ -108,10 +108,13 @@ export function simpleContainerAddAction(
 ) {
   const data = toSimpleContainerData(infos);
   return multiChangeAction({
-    layout: changeValueAction({
-      ...currentLayout,
-      ...data.layout,
-    }),
+    layout: changeValueAction(
+      {
+        ...currentLayout,
+        ...data.layout,
+      },
+      true
+    ),
     items: multiMapAction(
       Object.entries(data.items ?? {}).map(
         ([key, value]) => addMapChildAction(key, value) as CustomAction

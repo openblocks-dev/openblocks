@@ -101,10 +101,13 @@ export class ColumnListComp extends ColumnListTmpComp {
     dynamicColumn: boolean;
     data: Array<JSONObject>;
   }) {
-    return customAction<ActionDataType>({
-      type: "dataChanged",
-      ...param,
-    });
+    return customAction<ActionDataType>(
+      {
+        type: "dataChanged",
+        ...param,
+      },
+      false
+    );
   }
 
   /**

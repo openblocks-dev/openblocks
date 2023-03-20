@@ -1,9 +1,8 @@
-import { changeChildAction } from "openblocks-core";
 import { MultiCompBuilder } from "comps/generators";
 import { evalAndReduce } from "comps/utils";
 import { fromValue } from "openblocks-core";
-import { arrayStringStateControl, StringStateControl } from "./codeStateControl";
 import { NameConfig, withExposingConfigs } from "../generators/withExposing";
+import { arrayStringStateControl, StringStateControl } from "./codeStateControl";
 
 test("test string state control", () => {
   const exposingNodes = {
@@ -24,7 +23,7 @@ test("test string state control", () => {
   // expect(comp.children.defaultValue).toBe(oldCode);
   expect(comp.getView().value).toBe("3s1Value");
   // trigger change when modify value
-  comp = evalAndReduce(comp.reduce(changeChildAction("value", "newx")), exposingNodes);
+  comp = evalAndReduce(comp.reduce(comp.changeChildAction("value", "newx")), exposingNodes);
   expect(comp.getView().value).toBe("newx");
   // get stable value from multi eval
   comp = evalAndReduce(comp, exposingNodesAdded);

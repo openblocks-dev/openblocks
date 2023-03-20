@@ -110,6 +110,8 @@ export const en = {
     globals: "Globals",
     propTipsArr: "{num} items",
     propTips: "{num} keys",
+    propTipArr: "{num} item",
+    propTip: "{num} key",
     stateTab: "State",
     settingsTab: "Settings",
     toolbarTitle: "Other",
@@ -564,7 +566,7 @@ export const en = {
     save: "Save",
     whitelist: "Allowlist",
     whitelistTooltip:
-      "Add the code maker's IP address to the network whitelist where your database resides, as required.",
+      "Add the following IP addresses of Openblocks to your data source allowlist when needed.",
     address: "Address: ",
     nameExists: "Name {name} already exist",
     jsQueryDocLink: "About JavaScript query",
@@ -872,6 +874,9 @@ export const en = {
     imageEditorCompName: "Image Editor",
     imageEditorCompDesc: "Image Editor component",
     imageEditorCompKeywords: "",
+    calendarCompName: "Calendar",
+    calendarCompDesc: "Calendar component",
+    calendarCompKeywords: "",
     signatureCompName: "Signature",
     signatureCompDesc: "Signature component",
     signatureCompKeywords: "",
@@ -1114,6 +1119,7 @@ export const en = {
     textDesc: "Text currently displayed on button",
   },
   textShow: {
+    // eslint-disable-next-line only-ascii/only-ascii
     text: "### 👋 hello, {name}",
     valueTooltip:
       "Markdown supports most HTML tags and attributes. iframe, script, and other tags are disabled for security reasons.",
@@ -1173,7 +1179,7 @@ export const en = {
     sortable: "Sortable",
     align: "Alignment",
     fixedColumn: "Fixed column", // draft
-    autoWidth: "Column width",
+    autoWidth: "Auto width",
     customColumn: "Custom column",
     auto: "Auto",
     fixed: "Fixed",
@@ -1195,7 +1201,7 @@ export const en = {
     option1: "Operation 1",
     status: "Status",
     statusTooltip:
-      "Optional values: success、error、default、warning、processing",
+      "Optional values: success, error, default, warning, processing",
     primaryButton: "Primary",
     defaultButton: "Default",
     type: "Type",
@@ -1221,6 +1227,7 @@ export const en = {
     pageOffsetDesc:
       "The current start of paging, used for paging to get data. Example: select * from users limit '{{table1.pageSize}}' offset '{{table1.pageOffset}}'",
     displayDataDesc: "Data displayed in the current table",
+    selectedIndexDesc: "Selected index in display data",
     filterDesc: "Table Filtering Parameters",
     dataDesc: "The raw data used in the current table",
     saveChanges: "Save changes",
@@ -1229,6 +1236,8 @@ export const en = {
     rowClick: "Row click",
     filterChange: "Filter change",
     sortChange: "Sort change",
+    pageChange: "Page change",
+    refresh: "Refresh",
     rowColor: "Row color",
     rowColorDesc:
       "Conditionally set the row color based on the optional variables:\n" +
@@ -1246,6 +1255,14 @@ export const en = {
     showDataLoadSpinner: "Show spinner during data loading",
     showValue: "Show Value",
     expandable: "Expandable",
+    configExpandedView: "Configure expanded view",
+    toUpdateRowsDesc:
+      "An array of objects for rows to be updated in editable tables.",
+    empty: "Empty",
+    falseValues: "Text when false",
+    allColumn: "All",
+    visibleColumn: "Visible",
+    emptyColumns: "No columns are currently visible",
   },
   image: {
     src: "Image source",
@@ -1337,7 +1354,7 @@ export const en = {
     playbackRate: "Playback rate",
     posterTooltip: "The default value is the first frame of the video",
     autoPlayTooltip:
-      "After the video is loaded, it will play automatically.  Changing this value from true to false will pause the video. (If a poster is set, it will be played by the poster button)",
+      "After the video is loaded, it will play automatically. Changing this value from true to false will pause the video. (If a poster is set, it will be played by the poster button)",
     controlsTooltip:
       "Hide video playback controls. May not be fully supported by every video source.",
     volumeTooltip: "Set the volume of the player, between 0 and 1",
@@ -1834,7 +1851,7 @@ export const en = {
     authenticationFail: "User authentication failed, please sign in again",
     verifyAccount: "Need to verify account",
     functionNotSupported:
-      "The current version does not support this function. Please contact the code maker business team to upgrade your account",
+      "The current version does not support this function. Please contact the Openblocks business team to upgrade your account",
   },
   globalErrorMessage: {
     createCompFail: "Create component {comp} failed",
@@ -1844,7 +1861,7 @@ export const en = {
     navLayout: " Navigation bar",
     chooseApp: "Choose app",
     iconTooltip: "Support image link or Base64",
-    hideWhenNoPermission: "Hidden for users without app permission",
+    hideWhenNoPermission: "Hidden for unauthorized users",
     queryParam: "URL Query params",
     hashParam: "URL Hash params",
     tabBar: "Tab bar",
@@ -1952,8 +1969,8 @@ export const en = {
   help: {
     videoText: "Overview",
     onBtnText: "OK",
-    permissionDenyTitle:
-      "💡 Unable to create a new application or data source?",
+    // eslint-disable-next-line only-ascii/only-ascii
+    permissionDenyTitle: "Unable to create a new application or data source?",
     permissionDenyContent:
       "You don't have permission to create the application and data source. Please contact the administrator to join the developer group.",
     appName: "Tutorial application",
@@ -1996,6 +2013,7 @@ export const en = {
     passwordCheckLength: "At least {min} characters",
     passwordCheckContainsNumberAndLetter: "Must contain letters and numbers",
     passwordCheckSpace: "Cannot contain whitespace characters",
+    // eslint-disable-next-line only-ascii/only-ascii
     welcomeTitle: "🎉 Welcome to {productName} 🎉",
     inviteWelcomeTitle: "{username} invite you to login {productName}",
     terms: "Terms",
@@ -2040,6 +2058,7 @@ export const en = {
     compProperties: "Component properties",
   },
   homeTutorials: {
+    // eslint-disable-next-line only-ascii/only-ascii
     createAppContent: `🎉 Welcome to {productName}, click "App" and start to create your first application.`,
     createAppTitle: "Create app",
   },
@@ -2294,11 +2313,13 @@ export const en = {
     pleaseSelectCity: "Please select a city",
     advanced: "Advanced",
     showClearIcon: "Show clear icon",
+    /* eslint-disable only-ascii/only-ascii */
     appleOptionLabel: "🍎 Apple",
     waterMelonOptionLabel: "🍉 Watermelon",
     berryOptionLabel: "🍓 Strawberry",
     lemonOptionLabel: "🍋 Lemon",
     coconutOptionLabel: "🥥 Coconut",
+    /* eslint-enable only-ascii/only-ascii */
     likedFruits: "Favorites",
     option: "option",
     singleFileUpload: "Single file upload",
@@ -2443,6 +2464,12 @@ export const en = {
     methodParamsHelp:
       "Input method params use JSON, for example, you can set setValue's params with: [1] or 1",
   },
+  calendar: {
+    headerBtnBackground: "Button background",
+    btnText: "Button text",
+    title: "Title",
+    selectBackground: "Selected background",
+  },
   componentDocExtra: {
     table,
   },
@@ -2477,6 +2504,6 @@ export const en = {
     manualTip: "",
   },
   slotControl: {
-    configSlotView: "Configure expanded view",
+    configSlotView: "Configure slot view",
   },
 };

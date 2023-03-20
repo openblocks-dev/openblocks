@@ -34,10 +34,10 @@ const FooterWrapper = styled.div`
   padding: 3px;
 `;
 
-const BodyWrapper = styled.div`
+const BodyWrapper = styled.div<{ $autoHeight: boolean }>`
   overflow: auto;
   overflow: overlay;
-  height: 100%;
+  height: ${(props) => (props.$autoHeight ? "100%" : "calc(100% - 32px)")};
 `;
 
 const FlexWrapper = styled.div`
@@ -71,10 +71,13 @@ type ListItemProps = {
 function ListItem(props: ListItemProps) {
   const { itemIdx, offset, containerProps, autoHeight, scrollContainerRef, minHeight } = props;
 
-  useEffect(() => {
-    return props.unMountFn;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // disable the unmount function to save user's state with pagination
+  // useEffect(() => {
+  //   return () => {
+  //     props.unMountFn?.();
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   return (
     <ContainerInListView
@@ -207,7 +210,7 @@ export function ListView(props: Props) {
   return (
     <BackgroundColorContext.Provider value={style.background}>
       <ListViewWrapper $style={style} $paddingWidth={paddingWidth}>
-        <BodyWrapper ref={ref}>
+        <BodyWrapper ref={ref} $autoHeight={autoHeight}>
           <ReactResizeDetector
             onResize={(width?: number, height?: number) => {
               if (height) setListHeight(height);

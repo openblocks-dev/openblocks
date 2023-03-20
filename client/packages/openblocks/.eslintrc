@@ -1,6 +1,8 @@
 {
   "extends": ["react-app"],
+  "plugins": ["only-ascii"],
   "rules": {
     // "react-hooks/exhaustive-deps": "off"
+    "only-ascii/only-ascii": "error"
   }
 }

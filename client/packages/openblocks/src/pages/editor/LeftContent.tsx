@@ -36,6 +36,7 @@ import { isAggregationApp } from "util/appUtils";
 const CollapseTitleWrapper = styled.div`
   display: flex;
   width: fit-content;
+  max-width: calc(100% - 8px);
 `;
 
 function getLen(config: string | boolean | number) {
@@ -137,6 +138,7 @@ const CollapseView = React.memo(
     isOpen?: boolean;
   }) => {
     const { data = {} } = props;
+    const onlyOne = Object.keys(data).length === 1;
     return (
       <Collapse
         isSelected={props.isSelected}
@@ -164,7 +166,13 @@ const CollapseView = React.memo(
                     style={{ flexShrink: 0 }}
                     color="#8B8FA3"
                     label={`${props.isArray ? "[]" : "{}"} ${trans(
-                      props.isArray ? "leftPanel.propTipsArr" : "leftPanel.propTips",
+                      props.isArray
+                        ? onlyOne
+                          ? "leftPanel.propTipArr"
+                          : "leftPanel.propTipsArr"
+                        : onlyOne
+                        ? "leftPanel.propTip"
+                        : "leftPanel.propTips",
                       {
                         num: Object.keys(data).length,
                       }
