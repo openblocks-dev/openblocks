@@ -56,6 +56,14 @@ public abstract class SqlBasedConnector<T extends SqlBasedDatasourceConnectionCo
 
         setUpConfigs(connectionConfig, config);
 
+        connectionConfig.getExtParams()
+                .forEach((key, value) -> {
+                    if (StringUtils.isBlank(key) || value == null || StringUtils.isBlank(String.valueOf(value))) {
+                        return;
+                    }
+                    config.addDataSourceProperty(key, value);
+                });
+
         HikariDataSource hikariDataSource = new HikariDataSource(config);
         return HikariPerfWrapper.wrap(hikariDataSource,
                 () -> hikariDataSource.getHikariPoolMXBean().getTotalConnections(),
