@@ -275,6 +275,7 @@ function getCardContent<T>(
       unevaledValue
     )
   ) {
+    // eslint-disable-next-line only-ascii/only-ascii
     return toReadableString(midValue).trim() + " → " + content;
   }
   return content;
