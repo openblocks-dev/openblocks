@@ -3,6 +3,7 @@ package com.openblocks.sdk.plugin.common;
 import static com.openblocks.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 import static com.openblocks.sdk.util.ExceptionUtils.ofPluginError;
 import static com.openblocks.sdk.util.ExceptionUtils.ofPluginException;
+import static com.openblocks.sdk.util.ExceptionUtils.propagateError;
 
 import java.util.Map;
 
@@ -27,8 +28,9 @@ public interface QueryExecutor<ConnectionConfig extends DatasourceConnectionConf
         extends ExtensionPoint {
 
     /**
-     * should not override this method!
+     * should use {@link #buildQueryExecutionContextMono} instead
      */
+    @Deprecated(forRemoval = true)
     @SuppressWarnings("unchecked")
     default QueryContext doBuildQueryExecutionContext(DatasourceConnectionConfig datasourceConnectionConfig, Map<String, Object> queryConfig,
             Map<String, Object> requestParams, QueryVisitorContext queryVisitorContext) {
@@ -44,6 +46,32 @@ public interface QueryExecutor<ConnectionConfig extends DatasourceConnectionConf
         } catch (Exception e) {
             throw ExceptionUtils.wrapException(PluginCommonError.INVALID_QUERY_SETTINGS, "QUERY_ARGUMENT_ERROR", e);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    default Mono<QueryContext> buildQueryExecutionContextMono(DatasourceConnectionConfig datasourceConnectionConfig,
+            Map<String, Object> queryConfig,
+            Map<String, Object> requestParams, QueryVisitorContext queryVisitorContext) {
+        ConnectionConfig connectionConfig;
+        try {
+            connectionConfig = (ConnectionConfig) datasourceConnectionConfig;
+        } catch (ClassCastException e) {
+            return propagateError(PluginCommonError.INVALID_QUERY_SETTINGS, "INVALID_QUERY_SETTINGS", e);
+        }
+
+        return doBuildQueryExecutionContextMono(connectionConfig, queryConfig, requestParams, queryVisitorContext);
+    }
+
+    /**
+     * We'll call JS to do server-side parsing and mustache {{ }} handling in the future,
+     * plugins should override this method to return a Mono<QueryContext>
+     */
+    @SuppressWarnings("unchecked")
+    default Mono<QueryContext> doBuildQueryExecutionContextMono(ConnectionConfig connectionConfig,
+            Map<String, Object> queryConfig,
+            Map<String, Object> requestParams, QueryVisitorContext queryVisitorContext) {
+        return Mono.fromSupplier(() -> buildQueryExecutionContext(connectionConfig, queryConfig, requestParams, queryVisitorContext))
+                .onErrorMap(e -> ExceptionUtils.wrapException(PluginCommonError.INVALID_QUERY_SETTINGS, "QUERY_ARGUMENT_ERROR", e));
     }
 
     /**
@@ -97,6 +125,10 @@ public interface QueryExecutor<ConnectionConfig extends DatasourceConnectionConf
         return queryConfig;
     }
 
+    /**
+     * We'll call JS to do server-side parsing and mustache {{ }} handling in the future, so this blocking call should be removed
+     */
+    @Deprecated(forRemoval = true)
     QueryContext buildQueryExecutionContext(ConnectionConfig datasourceConfig, Map<String, Object> queryConfig,
             Map<String, Object> requestParams, QueryVisitorContext queryVisitorContext);
 
