@@ -104,7 +104,7 @@ function convertData(schema?: JSONSchema7, data?: any) {
 }
 
 // FIXME: translate more other errors
-// refer to ajv-i18n，https://github.com/ajv-validator/ajv-i18n/blob/master/messages/index.js
+// refer to ajv-i18n, https://github.com/ajv-validator/ajv-i18n/blob/master/messages/index.js
 // https://github.com/ajv-validator/ajv/tree/6a671057ea6aae690b5967ee26a0ddf8452c6297#Validation-keywords
 // JSON schema refer to https://json-schema.org/understanding-json-schema/reference/
 function getErrorMessage(error: AjvError): string {

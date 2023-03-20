@@ -1,6 +1,5 @@
-import { changeValueAction } from "openblocks-core";
-import { Comp } from "openblocks-core";
 import { evalAndReduce } from "comps/utils";
+import { Comp } from "openblocks-core";
 import { NumberControl, StringControl } from "./codeControl";
 
 function serialize(comp: Comp) {
@@ -10,7 +9,7 @@ function serialize(comp: Comp) {
 test("test code editor", () => {
   let comp = new StringControl({});
   expect(serialize(comp)).toEqual('""');
-  const action = changeValueAction("valueCode");
+  const action = comp.changeValueAction("valueCode");
   comp = comp.reduce(action);
   expect(serialize(comp)).toEqual('"valueCode"');
 });

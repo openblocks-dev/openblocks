@@ -48,13 +48,20 @@ export function createBlackHole(): any {
   );
 }
 
-function createMockWindow(base?: object, blacklist: Set<PropertyKey> = expressionBlacklist) {
+function createMockWindow(
+  base?: object,
+  blacklist: Set<PropertyKey> = expressionBlacklist,
+  onSet?: (name: string) => void,
+  disableLimit?: boolean
+) {
   const win: any = new Proxy(Object.assign({}, base), {
     has() {
       return true;
     },
     set(target, p, newValue) {
-      console.info("set:", p, newValue);
+      if (typeof p === "string") {
+        onSet?.(p);
+      }
       return Reflect.set(target, p, newValue);
     },
     get(target, p) {
@@ -64,7 +71,7 @@ function createMockWindow(base?: object, blacklist: Set<PropertyKey> = expressio
       if (globalVarNames.has(p)) {
         return win;
       }
-      if (typeof p === "string" && blacklist?.has(p)) {
+      if (typeof p === "string" && blacklist?.has(p) && !disableLimit) {
         log.log(`[Sandbox] access ${String(p)} on mock window, return mock object`);
         return createBlackHole();
       }
@@ -74,7 +81,8 @@ function createMockWindow(base?: object, blacklist: Set<PropertyKey> = expressio
   return win;
 }
 
-let mockWindow: any = createMockWindow();
+let mockWindow: any;
+let currentDisableLimit: boolean = false;
 
 export function clearMockWindow() {
   mockWindow = createMockWindow();
@@ -82,7 +90,7 @@ export function clearMockWindow() {
 
 export type SandboxScope = "function" | "expression";
 
-interface SandBoxOption {
+export interface SandBoxOption {
   /**
    * disable all limit, like running in host
    */
@@ -92,6 +100,11 @@ interface SandBoxOption {
    * the scope this sandbox works in, which will use different blacklist
    */
   scope?: SandboxScope;
+
+  /**
+   * handler when set global variables to sandbox, only be called when scope is function
+   */
+  onSetGlobalVars?: (name: string) => void;
 }
 
 function isDomElement(obj: any): boolean {
@@ -111,14 +124,20 @@ function getPropertyFromNativeWindow(prop: PropertyKey) {
 }
 
 function proxySandbox(context: any, methods?: EvalMethods, options?: SandBoxOption) {
-  const { disableLimit = false, scope = "expression" } = options || {};
+  const { disableLimit = false, scope = "expression", onSetGlobalVars } = options || {};
+
   const isProtectedVar = (key: PropertyKey) => {
     return key in context || key in (methods || {}) || globalVarNames.has(key);
   };
+
   const cache = {};
-  if (scope === "function") {
-    mockWindow = createMockWindow(mockWindow, functionBlacklist);
+  const blacklist = scope === "function" ? functionBlacklist : expressionBlacklist;
+
+  if (scope === "function" || !mockWindow || disableLimit !== currentDisableLimit) {
+    mockWindow = createMockWindow(mockWindow, blacklist, onSetGlobalVars, disableLimit);
   }
+  currentDisableLimit = disableLimit;
+
   return new Proxy(mockWindow, {
     has(target, p) {
       // proxy all variables
@@ -134,7 +153,7 @@ function proxySandbox(context: any, methods?: EvalMethods, options?: SandBoxOpti
       }
 
       if (globalVarNames.has(p)) {
-        return disableLimit ? window : target;
+        return target;
       }
 
       if (p in context) {

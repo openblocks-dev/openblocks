@@ -5,7 +5,7 @@ import { actionHandlerGenerator, nestDispatchHandlerGenerator } from "./useCompI
 it("test action handler", (done) => {
   const [actionHandler] = actionHandlerGenerator();
   let cnt = 0;
-  const dumAction = changeValueAction(0);
+  const dumAction = changeValueAction(0, true);
   const addOne = {
     action: dumAction,
     reduceFn: () => {
@@ -73,23 +73,23 @@ test("nestDispatchHandler", () => {
       }
       result.push("start" + a.value);
       if (a.value === 1) {
-        dispatch(changeValueAction(2));
-        dispatch(changeValueAction(4));
+        dispatch(changeValueAction(2, true));
+        dispatch(changeValueAction(4, true));
       }
       if (a.value === 2) {
-        dispatch(changeValueAction(3));
+        dispatch(changeValueAction(3, true));
       }
       if (a.value === 4) {
-        dispatch(changeValueAction(5));
+        dispatch(changeValueAction(5, true));
       }
       if (a.value === 6) {
-        dispatch(changeValueAction(7));
+        dispatch(changeValueAction(7, true));
       }
       result.push("end" + a.value);
     });
   };
-  dispatch(changeValueAction(1));
-  dispatch(changeValueAction(6));
+  dispatch(changeValueAction(1, true));
+  dispatch(changeValueAction(6, true));
   expect(result).toStrictEqual([
     "start1",
     "end1",

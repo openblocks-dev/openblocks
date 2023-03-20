@@ -1,20 +1,19 @@
 import "comps";
+import { loadComps } from "comps";
+import { ExecuteAction } from "comps/controls/actionSelector/executeCompTypes";
+import { getCompContainer } from "comps/utils/useCompInstance";
+import { ModuleLayoutCompName } from "constants/compConstants";
 import {
-  changeValueAction,
   customAction,
   executeQueryAction,
+  Node,
   routeByNameAction,
   triggerModuleEventAction,
 } from "openblocks-core";
-import { getCompContainer } from "comps/utils/useCompInstance";
-import { Node } from "openblocks-core";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { RootComp } from "../rootComp";
 import { TextComp } from "../textComp";
 import { InputComp } from "../textInputComp/inputComp";
-import { ExecuteAction } from "comps/controls/actionSelector/executeCompTypes";
-import { ModuleLayoutCompName } from "constants/compConstants";
-import { loadComps } from "comps";
 
 const appDSL = {
   ui: {
@@ -280,7 +279,7 @@ function afterInitModule(callback: (ret: InitModuleReturn) => void) {
   };
 
   container.init().then(() => {
-    moduleComp().dispatch(customAction({ type: "init" }));
+    moduleComp().dispatch(customAction({ type: "init" }, false));
     setTimeout(() => {
       callback({
         root: () => container.comp as RootComp,
@@ -312,13 +311,13 @@ describe("module comp", () => {
       // inputs
       expect(Object.keys(module().children.inputs.getInputNodes())).toStrictEqual([]);
       expect(text1().children.text.getView().value).toBe("inNum:");
-      module().children.inputs.children.inNum.dispatch(changeValueAction(1));
+      module().children.inputs.children.inNum.dispatchChangeValueAction(1);
       expect(text1().children.text.getView().value).toBe("inNum:1");
       expect(Object.keys(module().children.inputs.getInputNodes())).toStrictEqual(["inNum"]);
 
       // inputs with default
       expect(text2().children.text.getView().value).toBe("inString:default_value");
-      module().children.inputs.children.inString.dispatch(changeValueAction("hello"));
+      module().children.inputs.children.inString.dispatchChangeValueAction("hello");
       expect(text2().children.text.getView().value).toBe("inString:hello");
       expect(Object.keys(module().children.inputs.getInputNodes())).toStrictEqual([
         "inNum",
@@ -334,13 +333,13 @@ describe("module comp", () => {
       expect(inputValue()).toBe("hello");
 
       // sync change value
-      input().children.value.dispatch(changeValueAction("world"));
+      input().children.value.dispatchChangeValueAction("world" as any);
       expect(inputValue()).toBe("world");
 
       // change value with promise
       const promiseAction = getPromiseAfterDispatch(
         input().children.value.dispatch,
-        changeValueAction("hello world"),
+        input().children.value.changeValueAction("hello world"),
         {
           autoHandleAfterReduce: true,
         }
@@ -373,7 +372,7 @@ describe("module comp", () => {
       expect(text3().children.text.getView().value).toBe("inQueryData:");
 
       // select input query
-      module().children.inputs.children.inQuery.dispatch(changeValueAction({ value: "jsQuery3" }));
+      module().children.inputs.children.inQuery.dispatchChangeValueAction({ value: "jsQuery3" });
       expect(Object.keys(module().children.inputs.getInputNodes())).toStrictEqual(["inQuery"]);
       expect(text3().children.text.getView().value).toBe("inQueryData:");
 
@@ -392,7 +391,7 @@ describe("module comp", () => {
       expect(text3().children.text.getView().value).toBe("inQueryData:");
 
       // select input query
-      module().children.inputs.children.inQuery.dispatch(changeValueAction({ value: "jsQuery4" }));
+      module().children.inputs.children.inQuery.dispatchChangeValueAction({ value: "jsQuery4" });
       expect(Object.keys(module().children.inputs.getInputNodes())).toStrictEqual(["inQuery"]);
       expect(text3().children.text.getView().value).toBe("inQueryData:");
 
@@ -414,11 +413,14 @@ describe("module comp", () => {
       root().dispatch(
         routeByNameAction(
           "module1",
-          customAction<ExecuteAction>({
-            type: "execute",
-            methodName: "method1",
-            params: [],
-          })
+          customAction<ExecuteAction>(
+            {
+              type: "execute",
+              methodName: "method1",
+              params: [],
+            },
+            false
+          )
         )
       );
       setTimeout(() => {
@@ -435,11 +437,14 @@ describe("module comp", () => {
       root().dispatch(
         routeByNameAction(
           "module1",
-          customAction<ExecuteAction>({
-            type: "execute",
-            methodName: "method2",
-            params: ["Lucy"],
-          })
+          customAction<ExecuteAction>(
+            {
+              type: "execute",
+              methodName: "method2",
+              params: ["Lucy"],
+            },
+            false
+          )
         )
       );
       setTimeout(() => {

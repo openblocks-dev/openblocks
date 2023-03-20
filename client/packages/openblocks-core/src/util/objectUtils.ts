@@ -28,8 +28,8 @@ export function lastValueIfEqual<T>(
 
 /**
  * return an executor to debounce or throttle
- * 1、the counter will be stored in the target
- * 2、the change of mode or delay will cause the debounce and throttle re-count
+ * 1. the counter will be stored in the target
+ * 2. the change of mode or delay will cause the debounce and throttle re-count
  *
  * @param target the object to store the cache
  * @param key the key of the cache

@@ -5,8 +5,10 @@ import shell from "shelljs";
 import chalk from "chalk";
 import axios from "axios";
 import { buildVars } from "openblocks-dev-utils/buildVars.js";
+import { currentDirName, readJson } from "openblocks-dev-utils/util.js";
 
 const builtinPlugins = ["openblocks-comps"];
+const curDirName = currentDirName(import.meta.url);
 
 async function downloadFile(url, dest) {
   const file = fs.createWriteStream(dest);
@@ -46,6 +48,23 @@ async function downloadBuiltinPlugin(name) {
   shell.rm(tarballFileName);
 }
 
+async function buildBuiltinPlugin(name) {
+  console.log();
+  console.log(chalk.cyan`plugin ${name} building...`);
+
+  const targetDir = `./packages/openblocks/build/${name}/latest`;
+  shell.mkdir("-p", targetDir);
+
+  shell.exec(`yarn workspace ${name} build_only`, { fatal: true });
+
+  const packageJsonFile = path.join(curDirName, `../packages/${name}/package.json`);
+  const packageJSON = readJson(packageJsonFile);
+  const tarballFileName = `./packages/${name}/${name}-${packageJSON.version}.tgz`;
+
+  shell.exec(`tar -zxf ${tarballFileName} -C ${targetDir} --strip-components 1`, { fatal: true });
+  shell.rm(tarballFileName);
+}
+
 shell.set("-e");
 
 const start = Date.now();
@@ -69,7 +88,7 @@ shell.exec(`yarn workspace openblocks build`, { fatal: true });
 
 if (process.env.REACT_APP_BUNDLE_BUILTIN_PLUGIN) {
   for (const pluginName of builtinPlugins) {
-    await downloadBuiltinPlugin(pluginName);
+    await buildBuiltinPlugin(pluginName);
   }
 }
 

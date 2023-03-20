@@ -129,14 +129,18 @@ function addTable(editorState: EditorState) {
   editorState.getUIComp().children.comp.dispatch(
     wrapActionExtraInfo(
       multiChangeAction({
-        layout: changeChildAction("layout", {
-          [key]: {
-            i: key,
-            x: 0,
-            y: 0,
-            ...defaultLayout(compType),
+        layout: changeChildAction(
+          "layout",
+          {
+            [key]: {
+              i: key,
+              x: 0,
+              y: 0,
+              ...defaultLayout(compType),
+            },
           },
-        }),
+          true
+        ),
         items: addMapChildAction(key, widgetValue),
       }),
       { compInfos: [{ compName: tableCompName, compType: compType, type: "add" }] }
@@ -213,7 +217,7 @@ export default function EditorTutorials() {
           editorState.selectedBottomResType === BottomResTypeEnum.Query
       );
     setTimeout(() => {
-      query?.dispatch(changeChildAction("triggerType", "automatic"));
+      query && query.children.triggerType.dispatchChangeValueAction("automatic");
     }, 0);
     // auto execute new query
     setTimeout(() => {
@@ -262,7 +266,8 @@ export default function EditorTutorials() {
       // change data
       openTableData();
       const tableComp = editorState.getUICompByName("table1");
-      tableComp?.children.comp.dispatch(changeChildAction("data", "{{query1.data}}"));
+      tableComp &&
+        tableComp.children.comp.children.data.dispatchChangeValueAction("{{query1.data}}");
       setStepIndex(nextIndex);
     } else if (index === 1 && action === ACTIONS.PREV) {
       // cancel select

@@ -1,18 +1,18 @@
 import { KeyValueItem, KeyValueItemListWithNewCreateState } from "components/KeyValueItemList";
-import { changeValueAction, multiChangeAction } from "openblocks-core";
 import { StringControl } from "comps/controls/codeControl";
 import CompNameControl from "comps/controls/compNameControl";
+import { ControlParams } from "comps/controls/controlParams";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { list } from "comps/generators/list";
+import { NameGenerator } from "comps/utils/nameGenerator";
+import { trans } from "i18n";
+import { multiChangeAction } from "openblocks-core";
 import { ControlPropertyViewWrapper } from "openblocks-design";
+import { useEffect } from "react";
 import ParamListItemComp, {
   getParamOptionLabel,
   ModuleMethodParamType,
 } from "./moduleMethodParamListItemComp";
-import { trans } from "i18n";
-import { ControlParams } from "comps/controls/controlParams";
-import { NameGenerator } from "comps/utils/nameGenerator";
-import { useEffect } from "react";
 
 const ParamListCompBase = list(ParamListItemComp);
 
@@ -38,9 +38,9 @@ class ModuleMethodParamListComp extends ParamListCompBase {
     const item = this.getView()[idx];
     item.dispatch(
       multiChangeAction({
-        defaultValue: changeValueAction({ compType: type }),
-        test: changeValueAction({ compType: type }),
-        type: changeValueAction(type),
+        defaultValue: item.children.defaultValue.changeValueAction({ compType: type }),
+        test: item.children.test.changeValueAction({ compType: type }),
+        type: item.children.type.changeValueAction(type),
       })
     );
   }

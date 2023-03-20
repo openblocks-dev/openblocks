@@ -41,7 +41,7 @@ export type QueryExecuteResponse = {
   runTime: number;
   queryCode: string;
 
-  // body: Record<string, JSONValue> | string; // db query ｜ http response ｜ error message
+  // body: Record<string, JSONValue> | string; // db query | http response | error message
   // headers: Record<string, string[]>; // api backend header
 };
 

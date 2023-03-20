@@ -18,3 +18,12 @@ export function getEchartsLocale() {
     }
   });
 }
+
+export function getCalendarLocale() {
+  switch (language) {
+    case "zh":
+      return "zh-cn";
+    default:
+      return "en-gb";
+  }
+}

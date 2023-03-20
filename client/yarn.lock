@@ -2798,6 +2798,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@codemirror/lang-json@npm:0.20.0":
+  version: 0.20.0
+  resolution: "@codemirror/lang-json@npm:0.20.0"
+  dependencies:
+    "@codemirror/language": ^0.20.0
+    "@lezer/json": ^0.16.0
+  checksum: 20bbf0a480852fd11b0904561d4c7fe151f7a5cbe49b36516890ce7d729b4fd51e7c0443fb27463fd25e69e5ed693c3ce5e346ba60669a012f313cf8b06db13e
+  languageName: node
+  linkType: hard
+
 "@codemirror/lang-sql@npm:^0.20.4":
   version: 0.20.4
   resolution: "@codemirror/lang-sql@npm:0.20.4"
@@ -3109,6 +3119,74 @@ __metadata:
     "@fortawesome/fontawesome-svg-core": ~1 || ~6
     react: ">=16.3"
   checksum: f652a0c2172e7b209e2d9e7e511f9b8c17abad85f55e0bd09bb1175ea1927693215da47eb6cd95b1f3a23bd124368553c677907fa76cb17c5093afc1fcffe338
+  languageName: node
+  linkType: hard
+
+"@fullcalendar/core@npm:^6.0.3":
+  version: 6.0.3
+  resolution: "@fullcalendar/core@npm:6.0.3"
+  dependencies:
+    preact: ^10.0.5
+  checksum: aacbdf2eae995d27aa518bdb793b41ad05dd7d99b7d1b7611ca7e5f089ed4b5dbbe2dbbe5b003359db069a180eec1e8499744361029b5120c6ac5369a19b9207
+  languageName: node
+  linkType: hard
+
+"@fullcalendar/daygrid@npm:^6.0.3, @fullcalendar/daygrid@npm:~6.0.3":
+  version: 6.0.3
+  resolution: "@fullcalendar/daygrid@npm:6.0.3"
+  peerDependencies:
+    "@fullcalendar/core": ~6.0.3
+  checksum: 584ba2c671fb41d69cb6ca56ceedf79a65523cd333ddc2223ddfc2996b8c59c3738767292e155fd3e022a70a91a9be4436ec5fd87ddb57ad4f0eea6b874aa58e
+  languageName: node
+  linkType: hard
+
+"@fullcalendar/interaction@npm:^6.0.3":
+  version: 6.0.3
+  resolution: "@fullcalendar/interaction@npm:6.0.3"
+  peerDependencies:
+    "@fullcalendar/core": ~6.0.3
+  checksum: 07c3405e2367ec76c3462a7e8c3faf5699e156c615752c419bf7e4ed9cd9acdadc35e965e7794ed30e140c647bc62bb66e1a604e54f5d747716a2f41048859ab
+  languageName: node
+  linkType: hard
+
+"@fullcalendar/list@npm:^6.0.3":
+  version: 6.0.3
+  resolution: "@fullcalendar/list@npm:6.0.3"
+  peerDependencies:
+    "@fullcalendar/core": ~6.0.3
+  checksum: 75165592cfd2395acb961f9ce97d45b8db3da7df630efdb80f2036e4c4e5fe4edbbfc2393e44cd8016dafbb7f1c50ad6200035dc58d6bae433ece5e1cd701706
+  languageName: node
+  linkType: hard
+
+"@fullcalendar/moment@npm:^6.1.4":
+  version: 6.1.4
+  resolution: "@fullcalendar/moment@npm:6.1.4"
+  peerDependencies:
+    "@fullcalendar/core": ~6.1.4
+    moment: ^2.29.1
+  checksum: 92c34acf5c818055e3c1a47792dd87a92d99d1e49711b182e54b3459d3a5cb3ded9adb41ef69f47476f67d57ae72d6c009e2a2abc7995b813a9ac758647db3ce
+  languageName: node
+  linkType: hard
+
+"@fullcalendar/react@npm:^6.0.3":
+  version: 6.0.3
+  resolution: "@fullcalendar/react@npm:6.0.3"
+  peerDependencies:
+    "@fullcalendar/core": ~6.0.3
+    react: ^16.7.0 || ^17 || ^18
+    react-dom: ^16.7.0 || ^17 || ^18
+  checksum: e39d69e9c385bad3f975878dc9e70e2a58e4856bd977b2eb28044a63a07c4cd8705fe7fe0aea903ddea6d18cca7b2bfb4cbfcb14f63a7d0e404578c5dcda4972
+  languageName: node
+  linkType: hard
+
+"@fullcalendar/timegrid@npm:^6.0.3":
+  version: 6.0.3
+  resolution: "@fullcalendar/timegrid@npm:6.0.3"
+  dependencies:
+    "@fullcalendar/daygrid": ~6.0.3
+  peerDependencies:
+    "@fullcalendar/core": ~6.0.3
+  checksum: ffb1cd1ade75448db4a30802085cdcdc6b3332172e2b1db065da6ef4041483717a9a92d0f965111993f062142919806464f5af2929441fef50a7696c0039af32
   languageName: node
   linkType: hard
 
@@ -3619,6 +3697,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@lezer/json@npm:^0.16.0":
+  version: 0.16.0
+  resolution: "@lezer/json@npm:0.16.0"
+  dependencies:
+    "@lezer/highlight": ^0.16.0
+    "@lezer/lr": ^0.16.0
+  checksum: 3fe14dcd8879c9318dc74e77c3543fff21e2f7b45b344b93e58e67eae48ea0c603c6b602129967d85a8ade1fa88b2c6abe43b3772b57829890fd91b111676f13
+  languageName: node
+  linkType: hard
+
 "@lezer/lr@npm:^0.16.0":
   version: 0.16.3
   resolution: "@lezer/lr@npm:0.16.3"
@@ -3634,31 +3722,6 @@ __metadata:
   peerDependencies:
     redux: "*"
   checksum: 589287378fbba77774020efb34a9dd0a810887933c66c218cdb0d8a2e1af5cd394b63642342b793e5424613a6ab950d6ecf956f7a91d7239d1247455e682ffad
-  languageName: node
-  linkType: hard
-
-"@monaco-editor/loader@npm:^1.3.2":
-  version: 1.3.2
-  resolution: "@monaco-editor/loader@npm:1.3.2"
-  dependencies:
-    state-local: ^1.0.6
-  peerDependencies:
-    monaco-editor: ">= 0.21.0 < 1"
-  checksum: 7a1b65052bbaf4ef826392687bd7cfaf839509611034d2d616783b5d3fee91ed304d9086517c3b5f9099707828c57c855ff43407b3c2f5ae480faebb104d4343
-  languageName: node
-  linkType: hard
-
-"@monaco-editor/react@npm:^4.4.6":
-  version: 4.4.6
-  resolution: "@monaco-editor/react@npm:4.4.6"
-  dependencies:
-    "@monaco-editor/loader": ^1.3.2
-    prop-types: ^15.7.2
-  peerDependencies:
-    monaco-editor: ">= 0.25.0 < 1"
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: cb25b5ce153608c2a4291390456488e100c5e3ac48a913875c98182836e2a9f315d4f96e85cf6f7d4b1eadff8d08d13356e38891b472894155bcb2c4aeaf3b1c
   languageName: node
   linkType: hard
 
@@ -9181,6 +9244,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-plugin-only-ascii@npm:0.0.0":
+  version: 0.0.0
+  resolution: "eslint-plugin-only-ascii@npm:0.0.0"
+  dependencies:
+    requireindex: ~1.1.0
+  checksum: 714a3622a74d2071b8fd6237ab47fda06ebeb85cdb899801bc43029133fdc1b6883a822a3d1d8e45f7d5fdd5b8b98a4631c8b9896e6ff2c9ac37c9d02a8a45cf
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-only-ascii@patch:eslint-plugin-only-ascii@npm%3A0.0.0#./.yarn/patches/eslint-plugin-only-ascii-npm-0.0.0-29e3417685.patch::locator=taco-fe%40workspace%3A.":
+  version: 0.0.0
+  resolution: "eslint-plugin-only-ascii@patch:eslint-plugin-only-ascii@npm%3A0.0.0#./.yarn/patches/eslint-plugin-only-ascii-npm-0.0.0-29e3417685.patch::version=0.0.0&hash=2893de&locator=taco-fe%40workspace%3A."
+  dependencies:
+    requireindex: ~1.1.0
+  checksum: 681f936c1933b0bc01e2b360df9f05a4cdb0a545a026e0311da0105a60eb3cf6f2f81145e12e5bfefd16eeff9272acfb7e41cc78a587c0487c49f311cd176a2e
+  languageName: node
+  linkType: hard
+
 "eslint-plugin-react-hooks@npm:^4.3.0":
   version: 4.6.0
   resolution: "eslint-plugin-react-hooks@npm:4.6.0"
@@ -14230,6 +14311,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "openblocks-comps@workspace:packages/openblocks-comps"
   dependencies:
+    "@fullcalendar/core": ^6.0.3
+    "@fullcalendar/daygrid": ^6.0.3
+    "@fullcalendar/interaction": ^6.0.3
+    "@fullcalendar/list": ^6.0.3
+    "@fullcalendar/moment": ^6.1.4
+    "@fullcalendar/react": ^6.0.3
+    "@fullcalendar/timegrid": ^6.0.3
     "@types/react": 17
     "@types/react-dom": 17
     big.js: ^6.2.1
@@ -14364,6 +14452,7 @@ __metadata:
     "@codemirror/lang-css": 0.20
     "@codemirror/lang-html": 0.20
     "@codemirror/lang-javascript": ^0.20.1
+    "@codemirror/lang-json": 0.20.0
     "@codemirror/lang-sql": ^0.20.4
     "@dnd-kit/core": ^5.0.1
     "@dnd-kit/modifiers": ^5.0.0
@@ -14374,7 +14463,6 @@ __metadata:
     "@fortawesome/free-solid-svg-icons": ^6.2.0
     "@fortawesome/react-fontawesome": latest
     "@manaflair/redux-batch": ^1.0.0
-    "@monaco-editor/react": ^4.4.6
     "@rjsf/antd": ^4.1.1
     "@rjsf/core": ^4.2.0
     "@types/core-js": ^2.5.5
@@ -14402,6 +14490,7 @@ __metadata:
     echarts: ^5.3.3
     eslint: ^8.0.0
     eslint-config-react-app: ^7.0.1
+    eslint-plugin-only-ascii: ^0.0.0
     eslint4b-prebuilt-2: ^7.32.0
     file-saver: ^2.0.5
     github-markdown-css: ^5.1.0
@@ -14875,6 +14964,13 @@ __metadata:
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
   checksum: 9349fd99849b2e3d2e134ff949b7770ecb12375f352723ce2bcc06167eba3850ea7844c1b191a85cd915d6a396b4e8ee9a5267e6cc5d8d003d0cbc7a97555d39
+  languageName: node
+  linkType: hard
+
+"preact@npm:^10.0.5":
+  version: 10.11.3
+  resolution: "preact@npm:10.11.3"
+  checksum: 9387115aa0581e8226309e6456e9856f17dfc0e3d3e63f774de80f3d462a882ba7c60914c05942cb51d51e23e120dcfe904b8d392d46f29ad15802941fe7a367
   languageName: node
   linkType: hard
 
@@ -16823,6 +16919,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"requireindex@npm:~1.1.0":
+  version: 1.1.0
+  resolution: "requireindex@npm:1.1.0"
+  checksum: 397057d97d7f753a3851abf0d6db94c295bd8254536f71f622b896ba08ea8c0d3e3771c8b009a557e6ce602f4245c0588836cdf59c4ce588fff721a7b855d323
+  languageName: node
+  linkType: hard
+
 "requires-port@npm:^1.0.0":
   version: 1.0.0
   resolution: "requires-port@npm:1.0.0"
@@ -17822,13 +17925,6 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
   checksum: 5562914c0a0279b785c8aa22d4f3fd4bfdfbe3a08fa8e3a904ba3a2987dbcbdc2ad26ae01a08ff78bba4e2304f0401648b615a203d16a9bada430e6384b90067
-  languageName: node
-  linkType: hard
-
-"state-local@npm:^1.0.6":
-  version: 1.0.7
-  resolution: "state-local@npm:1.0.7"
-  checksum: d1afcf1429e7e6eb08685b3a94be8797db847369316d4776fd51f3962b15b984dacc7f8e401ad20968e5798c9565b4b377afedf4e4c4d60fe7495e1cbe14a251
   languageName: node
   linkType: hard
 

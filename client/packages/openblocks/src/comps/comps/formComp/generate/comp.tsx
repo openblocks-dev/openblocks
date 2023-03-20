@@ -148,7 +148,7 @@ export function numberCompSelection(withMore?: boolean): CompSelection {
   // support number radio
   let comps = [...numberComps, ...singleSelectComps(toNumber)];
   if (withMore) {
-    // tinyint may be bool，bigint may be timestamp
+    // tinyint may be bool, bigint may be timestamp
     comps = [...comps, ...booleanComps, dateTimeComp(true)];
   }
   return {

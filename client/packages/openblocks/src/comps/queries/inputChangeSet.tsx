@@ -1,11 +1,9 @@
-import React from "react";
-import { changeChildAction } from "openblocks-core";
-import { buildQueryCommand } from "./queryCompUtils";
-import { valueComp, withDefault, withType } from "../generators";
-import { ParamsJsonControl } from "../controls/paramsControl";
 import { ControlPropertyViewWrapper, Input, KeyValueList } from "openblocks-design";
-import { list } from "../generators/list";
 import { ControlParams } from "../controls/controlParams";
+import { ParamsJsonControl } from "../controls/paramsControl";
+import { valueComp, withDefault, withType } from "../generators";
+import { list } from "../generators/list";
+import { buildQueryCommand } from "./queryCompUtils";
 import { ChangeSetTypeDropdown } from "./sqlQuery/changeSetComp";
 
 const SingleField = class extends buildQueryCommand({
@@ -21,7 +19,7 @@ const SingleField = class extends buildQueryCommand({
             allowClear
             autoComplete="off"
             placeholder={"field"}
-            onChange={(e) => this.dispatch(changeChildAction("column", e.target.value))}
+            onChange={(e) => this.dispatch(this.changeChildAction("column", e.target.value))}
           />
         </div>
         <div style={{ width: "232px", flexGrow: 1 }}>

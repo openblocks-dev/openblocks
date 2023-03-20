@@ -1,13 +1,12 @@
-import { DispatchType } from "openblocks-core";
-import React, { useContext } from "react";
+import { trans } from "i18n";
+import { isEmpty } from "lodash";
+import { changeValueAction, DispatchType } from "openblocks-core";
 import { Dropdown, OptionsType } from "openblocks-design";
+import { useContext } from "react";
 import { useSelector } from "react-redux";
 import { getDataSourceStructures } from "../../../redux/selectors/datasourceSelectors";
-import { isEmpty } from "lodash";
-import { changeValueAction } from "openblocks-core";
-import { valueComp } from "../../generators";
 import { QueryContext } from "../../../util/context/QueryContext";
-import { trans } from "i18n";
+import { valueComp } from "../../generators";
 
 const PropertyView = (props: { value: string; dispatch: DispatchType }) => {
   const context = useContext(QueryContext);
@@ -26,7 +25,7 @@ const PropertyView = (props: { value: string; dispatch: DispatchType }) => {
       options={tables}
       value={isEmpty(props.value) ? undefined : props.value}
       allowClear={true}
-      onChange={(value) => props.dispatch(changeValueAction(value))}
+      onChange={(value) => props.dispatch(changeValueAction(value, true))}
     />
   );
 };

@@ -1,15 +1,18 @@
-import { reduceInContext } from "comps/utils/reduceContext";
 import _ from "lodash";
 import {
   CompAction,
-  CompActionTypes,
   customAction,
   isMyCustomAction,
   MultiCompConstructor,
+  wrapChildAction,
+  wrapDispatch,
 } from "openblocks-core";
 import { ReactNode } from "react";
-import { depthEqual, setFieldsNoTypeCheck } from "util/objectUtils";
+import { lastValueIfEqual, setFieldsNoTypeCheck } from "util/objectUtils";
 import { COMP_KEY, MAP_KEY, withMultiContext } from "./withMultiContext";
+import { paramsEqual } from "./withParams";
+
+const SELECTED_KEY = "SELECTED";
 
 /**
  * Provide an upgraded withContext tool to generate multiple interactive comps or views.
@@ -23,69 +26,65 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
   class WithSelectedMultiContextComp extends WithMultiContextComp {
     private readonly selection: string = "0";
 
+    protected override getComp(key: string) {
+      let comp = super.getComp(key);
+      if (!_.isNil(comp) && key === this.selection) {
+        const dispatch = lastValueIfEqual(
+          this,
+          "selectedDispatch",
+          [
+            wrapDispatch(wrapDispatch(this.dispatch, MAP_KEY), SELECTED_KEY),
+            this.dispatch,
+          ] as const,
+          (a, b) => a[1] === b[1]
+        )[0];
+        if (dispatch !== comp.dispatch) {
+          comp = comp.changeDispatch(dispatch);
+        }
+      }
+      return comp;
+    }
+
     override getPropertyView(): ReactNode {
       return this.getSelectedComp().getPropertyView();
     }
 
     override reduce(action: CompAction): this {
+      // console.info("enter withSelectedMultiContext reduce. action: ", action, "\nthis: ", this);
       let comp = this;
-      const thisCompMap = this.getMap();
       if (isMyCustomAction<SetSelectionAction>(action, "setSelection")) {
         const { selection, params } = action.value;
         const selectedComp = this.getSelectedComp();
-        if (
-          selection === this.selection &&
-          (_.isNil(params) || depthEqual(params, selectedComp.getParams(), 3))
-        ) {
-          return this;
+        // set selection
+        if (selection !== this.selection) {
+          comp = setFieldsNoTypeCheck(comp, { selection });
         }
-        if (!_.isNil(params)) {
+        if (!_.isNil(params) && !paramsEqual(params, selectedComp.getParams())) {
           comp = comp.reduce(WithMultiContextComp.setCacheParamsAction({ [selection]: params }));
         }
-        comp = setFieldsNoTypeCheck(comp, { selection });
-        if (comp.cacheParamsMap.hasOwnProperty(selection)) {
+        if (!_.isNil(comp.cacheParamsMap.get(selection))) {
           // sync params of selection and original comp
           comp = comp.setChild(
             COMP_KEY,
-            comp.getOriginalComp().setParams(comp.cacheParamsMap[selection])
+            comp.getOriginalComp().setParams(comp.cacheParamsMap.get(selection)!)
           );
         }
-      } else {
+      } else if (!action.editDSL || action.path[0] !== MAP_KEY || _.isNil(action.path[1])) {
+        if (action.path[0] === MAP_KEY && action.path[1] === SELECTED_KEY) {
+          action.path[1] = this.selection;
+        }
         comp = super.reduce(action);
+      } else if (action.editDSL && action.path[1] === SELECTED_KEY) {
+        // broadcast
+        const newAction = {
+          ...action,
+          path: action.path.slice(2),
+        };
+        comp = comp.reduce(WithMultiContextComp.forEachAction(newAction));
+        comp = comp.reduce(wrapChildAction(COMP_KEY, newAction));
       }
 
-      if (this.selection && this.selection === comp.selection) {
-        const selection = this.selection;
-        const newCompMap = comp.getMap();
-        if (
-          action.type !== CompActionTypes.UPDATE_NODES_V2 &&
-          action.path[1] === selection &&
-          thisCompMap[selection] !== newCompMap[selection]
-        ) {
-          // broadcast
-          _.forEach(newCompMap, (subComp, key) => {
-            if (key !== selection) {
-              const newAction = {
-                ...action,
-                path: [MAP_KEY, key, ...action.path.slice(2)],
-              };
-              comp = reduceInContext({ disableUpdateState: true }, () => comp.reduce(newAction));
-            }
-          });
-          // try set the original comp as 0-th comp
-          const selectedComp = this.getSelectedComp();
-          const tryOriginalComp = reduceInContext({ disableUpdateState: true }, () =>
-            selectedComp.reduce({ ...action, path: action.path.slice(2) })
-          );
-          if (tryOriginalComp !== selectedComp) {
-            comp = comp.setChild(
-              COMP_KEY,
-              tryOriginalComp.changeDispatch(comp.getOriginalComp().dispatch)
-            );
-          }
-        }
-      }
-      // console.info("withMultiContext reduce. action: ", action, "\nthis:", this, "\ncomp:", comp);
+      // console.info("exit withSelectedMultiContext reduce. action: ", action, "\nthis:", this, "\ncomp:", comp);
       return comp;
     }
 
@@ -98,11 +97,14 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
     }
 
     static setSelectionAction(selection: string, params?: Record<string, unknown>) {
-      return customAction<SetSelectionAction>({
-        type: "setSelection",
-        selection,
-        params,
-      });
+      return customAction<SetSelectionAction>(
+        {
+          type: "setSelection",
+          selection,
+          params,
+        },
+        false
+      );
     }
   }
 

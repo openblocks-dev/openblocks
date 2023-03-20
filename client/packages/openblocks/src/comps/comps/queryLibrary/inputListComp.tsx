@@ -2,8 +2,7 @@ import { JSONValueControl } from "comps/controls/codeControl";
 import CompNameControl from "comps/controls/compNameControl";
 import { simpleMultiComp, valueComp, withPropertyViewFn } from "comps/generators";
 import { withExposingRaw } from "comps/generators/withExposing";
-import { list, pushAction } from "../../generators/list";
-import { EmptyContent } from "../../../components/EmptyContent";
+import { trans } from "i18n";
 import {
   ControlPropertyViewWrapper,
   EditPopover,
@@ -12,10 +11,11 @@ import {
   SimplePopover,
   TacoButton,
 } from "openblocks-design";
-import styled from "styled-components";
 import { Fragment, useContext, useEffect, useState } from "react";
+import styled from "styled-components";
+import { EmptyContent } from "../../../components/EmptyContent";
 import { QueryLibraryContext } from "../../../util/context/QueryLibraryContext";
-import { trans } from "i18n";
+import { list } from "../../generators/list";
 
 const childrenMap = {
   name: CompNameControl,
@@ -158,7 +158,7 @@ export const InputListComp = withPropertyViewFn(list(InputListItemComp), (comp) 
 
   const handleAdd = () => {
     comp.dispatch(
-      pushAction({
+      comp.pushAction({
         name: queryLibraryState.getNameGenerator().genItemName("queryInput"),
       })
     );

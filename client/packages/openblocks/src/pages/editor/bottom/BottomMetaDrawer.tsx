@@ -10,7 +10,7 @@ import {
   getDataSourceStructures,
   getDataSourceTypesMap,
 } from "redux/selectors/datasourceSelectors";
-import { EmptyContent } from "../../../components/EmptyContent";
+import { EmptyContent } from "components/EmptyContent";
 import { trans } from "i18n";
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 
@@ -200,7 +200,7 @@ export const DataSourceStructureTree = (props: {
           onChange={(e) => {
             const value = e.target.value.toLowerCase();
             if (value.length > 0) {
-              const newStructure = structure
+              const newStructure = originStructure
                 .map((item) => {
                   const children = item.children?.filter(
                     (child) => child.key.toString().toLowerCase().indexOf(value) !== -1
@@ -216,11 +216,7 @@ export const DataSourceStructureTree = (props: {
                 .filter((item) => item !== null) as DataNode[];
 
               setStructure(newStructure);
-              setExpandedKeys(
-                newStructure.map((item) => {
-                  return item.key;
-                })
-              );
+              setExpandedKeys(newStructure.map((item) => item.key));
             } else {
               setStructure(originStructure);
               setExpandedKeys([]);

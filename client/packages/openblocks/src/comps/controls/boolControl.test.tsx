@@ -1,9 +1,8 @@
-import { changeValueAction } from "openblocks-core";
 import { evalAndReduce } from "comps/utils";
 import { BoolControl } from "./boolControl";
 
 function changeAndExpect(comp: BoolControl, value: boolean | string, expected: boolean) {
-  const newComp = evalAndReduce(comp.reduce(changeValueAction(value)));
+  const newComp = evalAndReduce(comp.reduce(comp.changeValueAction(value)));
   expect(newComp.getView()).toEqual(expected);
   return newComp;
 }

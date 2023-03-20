@@ -54,6 +54,7 @@ export type UICompType =
   | "textArea"
   | "chart"
   | "imageEditor"
+  | "calendar"
   | "password"
   | "richTextEditor"
   | "numberInput"
@@ -107,6 +108,7 @@ export type UICompType =
   | "imageEditor"
   | "npmPlugin"
   | "collapsibleContainer"
+  | "calendar"
   | "signature";
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;

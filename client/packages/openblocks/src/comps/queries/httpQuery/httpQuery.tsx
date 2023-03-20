@@ -1,18 +1,18 @@
+import { Dropdown, ValueFromOption } from "components/Dropdown";
+import { QueryConfigItemWrapper, QueryConfigLabel, QueryConfigWrapper } from "components/query";
 import { valueComp, withDefault } from "comps/generators";
-import { changeValueAction, CompAction, MultiBaseComp } from "openblocks-core";
+import { trans } from "i18n";
+import { includes } from "lodash";
+import { CompAction, MultiBaseComp } from "openblocks-core";
 import { keyValueListControl } from "../../controls/keyValueControl";
 import { ParamsJsonControl, ParamsStringControl } from "../../controls/paramsControl";
 import { withTypeAndChildrenAbstract } from "../../generators/withType";
 import { toQueryView } from "../queryCompUtils";
-import { includes } from "lodash";
-import { trans } from "i18n";
 import {
   HttpHeaderPropertyView,
   HttpParametersPropertyView,
   HttpPathPropertyView,
 } from "./httpQueryConstants";
-import { Dropdown, ValueFromOption } from "components/Dropdown";
-import { QueryConfigItemWrapper, QueryConfigLabel, QueryConfigWrapper } from "components/query";
 
 const BodyTypeOptions = [
   { label: "JSON", value: "application/json" },
@@ -193,7 +193,9 @@ const HttpQueryPropertyView = (props: {
             ];
           }
 
-          dispatch(changeValueAction({ ...comp.toJsonValue(), bodyType: value, headers: headers }));
+          dispatch(
+            comp.changeValueAction({ ...comp.toJsonValue(), bodyType: value, headers: headers })
+          );
         }}
       />
 

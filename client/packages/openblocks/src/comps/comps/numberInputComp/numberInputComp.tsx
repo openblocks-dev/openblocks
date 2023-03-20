@@ -292,6 +292,7 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
         props.onEvent("submit");
       }}
       onChangeCapture={(e: any) => {
+        // eslint-disable-next-line only-ascii/only-ascii
         setTmpValue((e.target.value?.toString() ?? "").replace("。", "."));
       }}
       onStep={(_, info) => {
@@ -325,6 +326,7 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
         if (
           cursor !== 0 &&
           props.precision > 0 &&
+          // eslint-disable-next-line only-ascii/only-ascii
           (event.key === "." || event.key === "。") &&
           !/[.]/.test(value)
         ) {

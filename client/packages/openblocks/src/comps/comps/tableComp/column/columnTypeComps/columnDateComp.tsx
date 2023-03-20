@@ -8,6 +8,7 @@ import { StringControl } from "comps/controls/codeControl";
 import { withDefault } from "comps/generators";
 import { formatPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { isNumber } from "lodash";
 import moment from "moment";
 import { CalendarIcon, PrevIcon, SuperPrevIcon } from "openblocks-design";
 import { useState } from "react";
@@ -119,12 +120,13 @@ const Wrapper = styled.div`
 
 export function formatDate(date: string, format: string) {
   let mom = moment(date);
+  if (isNumber(Number(date)) && date !== "") {
+    mom = moment(Number(date));
+  }
   if (!mom.isValid()) {
     mom = moment.utc(date, DateParser).local();
-    if (!mom.isValid()) {
-      mom = moment(0);
-    }
   }
+
   return mom.isValid() ? mom.format(format) : "";
 }
 

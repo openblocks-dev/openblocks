@@ -1,15 +1,15 @@
 import { EmptyContent } from "components/EmptyContent";
 import { KeyValueItem, KeyValueItemListWithNewCreateState } from "components/KeyValueItemList";
-import { changeValueAction, multiChangeAction } from "openblocks-core";
 import { StringControl } from "comps/controls/codeControl";
 import CompNameControl from "comps/controls/compNameControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { EditorContext } from "comps/editorState";
 import { list } from "comps/generators/list";
+import { trans } from "i18n";
+import { multiChangeAction } from "openblocks-core";
 import { Section } from "openblocks-design";
 import { useContext } from "react";
 import InputListItemComp, { getInputOptionLabel, InputTypeEnum } from "./inputListItemComp";
-import { trans } from "i18n";
 
 const InputListCompBase = list(InputListItemComp);
 
@@ -31,9 +31,9 @@ class InputListComp extends InputListCompBase {
     const item = this.getView()[idx];
     item.dispatch(
       multiChangeAction({
-        defaultValue: changeValueAction({ compType: type }),
-        test: changeValueAction({ compType: type }),
-        type: changeValueAction(type),
+        defaultValue: item.children.defaultValue.changeValueAction({ compType: type }),
+        test: item.children.test.changeValueAction({ compType: type }),
+        type: item.children.type.changeValueAction(type),
       })
     );
   }

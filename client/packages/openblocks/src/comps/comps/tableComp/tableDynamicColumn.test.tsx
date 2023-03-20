@@ -116,7 +116,7 @@ test("test table dynamic columns: Change unEvalValue", async () => {
   /** 1. Change unEvalValue data, change column whatever **/
   // 1.1 add column c & d
   comp = evalAndReduce(
-    comp.reduce(changeChildAction("data", JSON.stringify([{ a: 1, c: 2, d: 3 }])))
+    comp.reduce(comp.changeChildAction("data", JSON.stringify([{ a: 1, c: 2, d: 3 }])))
   );
   await sleep();
   const columnsAfterAdd = [
@@ -133,7 +133,9 @@ test("test table dynamic columns: Change unEvalValue", async () => {
   ];
   expectColumn(comp, columnsAfterAdd);
   // 1.2 del column a
-  comp = evalAndReduce(comp.reduce(changeChildAction("data", JSON.stringify([{ c: 2, d: 3 }]))));
+  comp = evalAndReduce(
+    comp.reduce(comp.changeChildAction("data", JSON.stringify([{ c: 2, d: 3 }])))
+  );
   await sleep();
   expectColumn(
     comp,
@@ -168,7 +170,10 @@ async function dynamicColumnsTest(
   comp = evalAndReduce(comp);
 
   const updateTableComp = async () => {
-    comp = evalAndReduce(comp.reduce(changeChildAction("data", "{{query1.data}}")), exposingInfo);
+    comp = evalAndReduce(
+      comp.reduce(comp.changeChildAction("data", "{{query1.data}}")),
+      exposingInfo
+    );
     await sleep();
   };
   // change data to query1

@@ -106,11 +106,14 @@ export function executeCompAction(params: ExecuteCompActionOptions) {
           this.dispatch,
           routeByNameAction(
             name,
-            customAction<ExecuteAction>({
-              type: "execute",
-              methodName: this.children.methodName.getView(),
-              params: this.children.params.getView().map((x) => x.getView()),
-            })
+            customAction<ExecuteAction>(
+              {
+                type: "execute",
+                methodName: this.children.methodName.getView(),
+                params: this.children.params.getView().map((x) => x.getView()),
+              },
+              false
+            )
           ),
           {
             notHandledError: trans("eventHandler.notHandledError"),

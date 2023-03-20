@@ -1,20 +1,19 @@
 import { withTypeAndChildrenAbstract } from "comps/generators/withType";
-import _, { includes } from "lodash";
-import React from "react";
 import { trans } from "i18n";
-import { withPropertyViewFn } from "../generators";
-import { ParamsStringControl } from "../controls/paramsControl";
-import { buildQueryCommand, toQueryView } from "./queryCompUtils";
-import { QueryConfigLabelMethod } from "./query";
-import { QueryTutorials } from "util/tutorialUtils";
+import _, { includes } from "lodash";
+import { CompAction } from "openblocks-core";
 import {
   Dropdown,
   QueryConfigWrapper,
   QueryTutorialButton,
   ValueFromOption,
 } from "openblocks-design";
-import { changeValueAction, CompAction } from "openblocks-core";
+import { QueryTutorials } from "util/tutorialUtils";
+import { ParamsStringControl } from "../controls/paramsControl";
+import { withPropertyViewFn } from "../generators";
 import { InputChangeSet } from "./inputChangeSet";
+import { QueryConfigLabelMethod } from "./query";
+import { buildQueryCommand, toQueryView } from "./queryCompUtils";
 
 const CommandOptions = [
   { label: trans("googleSheets.readData"), value: "readData" },
@@ -116,7 +115,7 @@ export const GoogleSheetsQuery = class extends GoogleSheetsTmpQuery {
               value={currentCommand}
               onChange={(value: ValueFromOption<typeof CommandOptions>) =>
                 this.dispatch(
-                  changeValueAction({
+                  this.changeValueAction({
                     commandType: value,
                     command: this.children.command.toJsonValue(),
                   })

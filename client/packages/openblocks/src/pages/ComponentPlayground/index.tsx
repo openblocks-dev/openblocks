@@ -4,6 +4,8 @@ import "comps";
 import { UICompType, UICompManifest, uiCompRegistry, UICompCategory } from "comps/uiCompRegistry";
 import { CompPlayground } from "ide/CompPlayground";
 import { Comp } from "openblocks-core";
+import { EditorContext, EditorState } from "comps/editorState";
+import { RootComp } from "comps/comps/rootComp";
 
 type CompInfo = UICompManifest & { key: string };
 const groups: Partial<Record<UICompCategory, CompInfo[]>> = {};
@@ -45,6 +47,8 @@ const Wrapper = styled.div`
   }
 `;
 
+const editorState = new EditorState(new RootComp({ value: {} }), () => {});
+
 export default function ComponentPlayground() {
   window.__OPENBLOCKS_DEV__ = {};
 
@@ -55,11 +59,13 @@ export default function ComponentPlayground() {
   return (
     <Wrapper>
       <div className="content">
-        <CompPlayground
-          initialValue={dsl}
-          compFactory={compManifest.comp as unknown as Comp<any>}
-          layoutInfo={compManifest.layoutInfo || { h: 5, w: 5 }}
-        />
+        <EditorContext.Provider value={editorState}>
+          <CompPlayground
+            initialValue={dsl}
+            compFactory={compManifest.comp as unknown as Comp<any>}
+            layoutInfo={compManifest.layoutInfo || { h: 5, w: 5 }}
+          />
+        </EditorContext.Provider>
       </div>
     </Wrapper>
   );

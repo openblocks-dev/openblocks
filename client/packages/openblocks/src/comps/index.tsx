@@ -37,6 +37,7 @@ import { TimePickerComp, TimeRangeComp } from "./comps/dateComp/timeComp";
 import {
   AudioCompIcon,
   ButtonCompIcon,
+  CalendarCompIcon,
   CarouselCompIcon,
   CascaderCompIcon,
   ChartCompIcon,
@@ -663,8 +664,8 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.jsonEditorCompKeywords"),
     comp: JsonEditorComp,
     layoutInfo: {
-      w: 9,
-      h: 35,
+      w: 10,
+      h: 42,
     },
   },
   tree: {
@@ -794,6 +795,19 @@ const uiCompMap: Registry = {
     icon: ScannerIcon,
     keywords: trans("uiComp.scannerCompKeywords"),
     comp: ScannerComp,
+  },
+  calendar: {
+    name: trans("uiComp.calendarCompName"),
+    enName: "Calendar",
+    description: trans("uiComp.calendarCompDesc"),
+    categories: ["dataInputDate"],
+    icon: CalendarCompIcon,
+    keywords: trans("uiComp.calendarCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "calendar" }),
+    layoutInfo: {
+      w: 23,
+      h: 60,
+    }
   },
   signature: {
     name: trans("uiComp.signatureCompName"),

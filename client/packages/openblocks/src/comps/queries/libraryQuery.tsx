@@ -1,6 +1,9 @@
-import { simpleMultiComp, stateComp, valueComp } from "../generators";
+import { LoadingOutlined } from "@ant-design/icons";
+import { Spin } from "antd";
+import DataSourceIcon from "components/DataSourceIcon";
+import { ContextControlType, ContextJsonControl } from "comps/controls/contextCodeControl";
+import { trans } from "i18n";
 import {
-  changeChildAction,
   CompAction,
   CompParams,
   customAction,
@@ -8,33 +11,29 @@ import {
   MultiBaseComp,
   wrapChildAction,
 } from "openblocks-core";
-import { Fragment, useEffect } from "react";
-import {
-  parseChildrenFromValueAndChildrenMap,
-  ToDataType,
-  ToInstanceType,
-} from "../generators/multi";
-import { setFieldsNoTypeCheck } from "../../util/objectUtils";
 import {
   Dropdown,
   QueryConfigLabel,
   QueryConfigWrapper,
   QueryTutorialButton,
 } from "openblocks-design";
+import { Fragment, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
+import { GreyTextColor } from "../../constants/style";
+import { fetchQueryLibraryRecordDSL } from "../../redux/reduxActions/queryLibraryActions";
 import {
   getQueryLibraryDropdownInfo,
   getQueryLibraryRecordsDSL,
 } from "../../redux/selectors/queryLibrarySelectors";
-import { fetchQueryLibraryRecordDSL } from "../../redux/reduxActions/queryLibraryActions";
+import { setFieldsNoTypeCheck } from "../../util/objectUtils";
+import { simpleMultiComp, stateComp, valueComp } from "../generators";
+import {
+  parseChildrenFromValueAndChildrenMap,
+  ToDataType,
+  ToInstanceType,
+} from "../generators/multi";
 import { toQueryView } from "./queryCompUtils";
-import styled from "styled-components";
-import { GreyTextColor } from "../../constants/style";
-import { Spin } from "antd";
-import { LoadingOutlined } from "@ant-design/icons";
-import { trans } from "i18n";
-import { ContextControlType, ContextJsonControl } from "comps/controls/contextCodeControl";
-import DataSourceIcon from "components/DataSourceIcon";
 
 const NoInputsWrapper = styled.div`
   color: ${GreyTextColor};
@@ -184,7 +183,9 @@ const PropertyView = (props: { comp: InstanceType<typeof LibraryQuery> }) => {
   const info = queryLibraryRecord[queryId]?.[recordId];
 
   useEffect(() => {
-    dispatch(customAction<QueryLibraryUpdateAction>({ type: "queryLibraryUpdate", dsl: info }));
+    dispatch(
+      customAction<QueryLibraryUpdateAction>({ type: "queryLibraryUpdate", dsl: info }, true)
+    );
   }, [info]);
 
   useEffect(() => {
@@ -202,7 +203,7 @@ const PropertyView = (props: { comp: InstanceType<typeof LibraryQuery> }) => {
   useEffect(() => {
     const firstLibraryQueryId = Object.values(queryLibraryMeta)[0]?.libraryQueryMetaView.id;
     if (!queryId && firstLibraryQueryId) {
-      dispatch(changeChildAction("libraryQueryId", firstLibraryQueryId));
+      dispatch(props.comp.changeChildAction("libraryQueryId", firstLibraryQueryId));
     }
   }, []);
 
@@ -251,7 +252,7 @@ const PropertyView = (props: { comp: InstanceType<typeof LibraryQuery> }) => {
               value: meta.libraryQueryMetaView.id,
             }))}
             value={queryId ?? queryLibraryMeta[0]?.libraryQueryMetaView.id}
-            onChange={(value) => dispatch(changeChildAction("libraryQueryId", value))}
+            onChange={(value) => dispatch(props.comp.changeChildAction("libraryQueryId", value))}
           />
         </div>
         <QueryTutorialButton
@@ -272,7 +273,7 @@ const PropertyView = (props: { comp: InstanceType<typeof LibraryQuery> }) => {
           })) ?? []),
         ]}
         value={recordId}
-        onChange={(value) => dispatch(changeChildAction("libraryQueryRecordId", value))}
+        onChange={(value) => dispatch(props.comp.changeChildAction("libraryQueryRecordId", value))}
       />
 
       {getInputsView()}

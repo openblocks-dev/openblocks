@@ -1,6 +1,5 @@
 import { Segmented as AntdSegmented, SelectProps } from "antd";
 import { GreyTextColor } from "constants/style";
-import { ReactComponent as Packup } from "icons/icon-Pack-up.svg";
 import _ from "lodash";
 import { ReactNode } from "react";
 import styled from "styled-components";
@@ -52,11 +51,6 @@ export const DropdownContainer = styled.div<{ placement: ControlPlacement }>`
       width: 264px;
       flex-grow: 1;
     }`}
-`;
-
-export const DropdownIcon = styled(Packup)`
-  margin-bottom: 2px;
-  margin-right: 2px;
 `;
 
 const DropDownItemLabel = styled.div`
@@ -155,13 +149,15 @@ interface DropdownProps<T extends OptionsType> extends Omit<SelectProps, "placem
   lineHeight?: number;
   labelStyle?: React.CSSProperties;
   dropdownStyle?: React.CSSProperties;
+  style?: React.CSSProperties;
+  className?: string;
 }
 
 export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
   const { placement = "right" } = props;
   const valueInfoMap = _.fromPairs(props.options.map((option) => [option.value, option]));
   return (
-    <FlexDiv>
+    <FlexDiv style={props.style} className={props.className}>
       {props.label && (
         <LabelWrapper placement={placement} style={props.labelStyle}>
           <ToolTipLabel title={props.toolTip} label={props.label} />
@@ -202,7 +198,6 @@ export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
               value={props.value}
               style={{ width: "100%" }}
               onChange={(x) => props.onChange(x)}
-              suffixIcon={<DropdownIcon />}
               disabled={props.disabled}
               allowClear={props.allowClear}
               placeholder={props.placeholder}
@@ -259,9 +254,11 @@ const DropdownOptionDesc = styled.div`
   font-size: 12px;
   max-width: 600px;
   white-space: normal;
+
   .markdown-body {
     font-size: 12px;
     background-color: transparent;
+
     p {
       margin-bottom: 4px;
       color: ${GreyTextColor};

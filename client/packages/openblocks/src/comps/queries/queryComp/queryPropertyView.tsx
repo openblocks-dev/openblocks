@@ -1,14 +1,16 @@
 import { OLD_OPENBLOCKS_DATASOURCE } from "@openblocks-ee/constants/datasourceConstants";
 import { manualTriggerResource, ResourceType } from "@openblocks-ee/constants/queryConstants";
+import { PreparedStatementConfig } from "api/datasourceApi";
 import { isCompWithPropertyView } from "comps/utils/propertyUtils";
+import {
+  OPENBLOCKS_API_ID,
+  QUICK_GRAPHQL_ID,
+  QUICK_REST_API_ID,
+} from "constants/datasourceConstants";
+import { PageType } from "constants/pageConstants";
 import { trans } from "i18n";
 import { includes, mapValues } from "lodash";
-import {
-  changeValueAction,
-  deferAction,
-  executeQueryAction,
-  wrapActionExtraInfo,
-} from "openblocks-core";
+import { deferAction, executeQueryAction, wrapActionExtraInfo } from "openblocks-core";
 import {
   CustomModal,
   Dropdown,
@@ -24,13 +26,6 @@ import { useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { getDataSource, getDataSourceTypes } from "redux/selectors/datasourceSelectors";
 import { BottomResTypeEnum } from "types/bottomRes";
-import { PreparedStatementConfig } from "api/datasourceApi";
-import {
-  OPENBLOCKS_API_ID,
-  QUICK_GRAPHQL_ID,
-  QUICK_REST_API_ID,
-} from "constants/datasourceConstants";
-import { PageType } from "constants/pageConstants";
 import { EditorContext } from "../../editorState";
 import { QueryComp } from "../queryComp";
 import { ResourceDropdown } from "../resourceDropdown";
@@ -193,11 +188,11 @@ export const QueryGeneralPropertyView = (props: {
     datasourceId = OPENBLOCKS_API_ID;
     datasourceType = "openblocksApi";
     dispatch(
-      changeValueAction({
+      comp.changeValueAction({
         ...comp.toJsonValue(),
         datasourceId: OPENBLOCKS_API_ID,
         compType: "openblocksApi",
-      })
+      } as any)
     );
   }
 
@@ -213,7 +208,7 @@ export const QueryGeneralPropertyView = (props: {
                 // brute-force modify json
                 dispatch(
                   wrapActionExtraInfo(
-                    changeValueAction({
+                    comp.changeValueAction({
                       ...comp.toJsonValue(),
                       triggerType:
                         newDatasourceType === children.compType.getView()
@@ -228,7 +223,7 @@ export const QueryGeneralPropertyView = (props: {
                         newDatasourceType === children.compType.getView()
                           ? children.comp.toJsonValue() // The data source type remains unchanged, and the query information is retained
                           : {},
-                    }),
+                    } as any),
                     {
                       compInfos: [
                         {
@@ -267,11 +262,11 @@ export const QueryGeneralPropertyView = (props: {
                           q.dispatch(
                             deferAction(
                               wrapActionExtraInfo(
-                                changeValueAction({
+                                q.changeValueAction({
                                   ...mapValues(q.children, (c) => c.toJsonValue()),
                                   datasourceId: newDatasourceId,
                                   compType: newDatasourceType,
-                                }),
+                                } as any),
                                 {
                                   compInfos: [
                                     {

@@ -102,7 +102,8 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
     dispatch(
       changeChildAction(
         "changeValue",
-        _.isNil(tmpValue) || _.isEqual(tmpValue, baseValue) ? null : tmpValue
+        _.isNil(tmpValue) || _.isEqual(tmpValue, baseValue) ? null : tmpValue,
+        false
       )
     );
   }, [dispatch, baseValue, tmpValue]);

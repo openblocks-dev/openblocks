@@ -1,9 +1,7 @@
 import { withTypeAndChildrenAbstract } from "comps/generators/withType";
-import { Dropdown } from "openblocks-design";
-import { ValueFromOption } from "openblocks-design";
 import { trans } from "i18n";
-import { changeValueAction } from "openblocks-core";
 import { CompConstructor } from "openblocks-core";
+import { Dropdown, ValueFromOption } from "openblocks-design";
 import { buildQueryCommand, FunctionProperty, toQueryView } from "./queryCompUtils";
 
 const CommandOptions = [
@@ -33,7 +31,7 @@ export class OpenBlocksQuery extends OpenBlocksTmpQuery {
           placement={"bottom"}
           options={CommandOptions}
           value={this.children.compType.getView()}
-          onChange={(value) => this.dispatch(changeValueAction({ compType: value, comp: {} }))}
+          onChange={(value) => this.dispatch(this.changeValueAction({ compType: value, comp: {} }))}
         />
         {this.children.comp.getPropertyView()}
       </>

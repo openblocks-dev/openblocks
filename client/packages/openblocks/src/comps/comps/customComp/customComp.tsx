@@ -149,7 +149,7 @@ function InnerCustomComponent(props: IProps) {
       const { method, data, id } = payload;
       if (type === EventTypeEnum.Invoke) {
         const fn = methodsRef.current[method];
-        if (!fn) {
+        if (!fn || typeof fn !== "function") {
           // TODO: response error
           return;
         }
