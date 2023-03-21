@@ -1,6 +1,11 @@
 package com.openblocks.api.application;
 
 import static com.openblocks.domain.permission.model.ResourceAction.READ_APPLICATIONS;
+import static com.openblocks.sdk.constants.DslConstants.CompoundAppDslConstants.ACTION;
+import static com.openblocks.sdk.constants.DslConstants.CompoundAppDslConstants.APP;
+import static com.openblocks.sdk.constants.DslConstants.CompoundAppDslConstants.APP_ID;
+import static com.openblocks.sdk.constants.DslConstants.CompoundAppDslConstants.COMP;
+import static com.openblocks.sdk.constants.DslConstants.CompoundAppDslConstants.HIDE_WHEN_NO_PERMISSION;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,9 +25,9 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 import com.openblocks.api.home.SessionUserService;
-import com.openblocks.sdk.util.MoreMapUtils;
 import com.openblocks.domain.permission.service.ResourcePermissionService;
 import com.openblocks.sdk.constants.DslConstants.CompoundAppDslConstants;
+import com.openblocks.sdk.util.MoreMapUtils;
 
 import reactor.core.publisher.Mono;
 
@@ -50,7 +56,6 @@ public class CompoundApplicationDslFilter {
                 .then();
     }
 
-    @SuppressWarnings("unchecked")
     private void removeSubAppsFromCompoundDsl(Map<String, Object> dsl, Set<String> appIdsNeedRemoved) {
 
         List<Map<String, Object>> items = MoreMapUtils.getList(dsl, CompoundAppDslConstants.ITEMS, new ArrayList<>());
@@ -59,13 +64,11 @@ public class CompoundApplicationDslFilter {
             Map<String, Object> item = iterator.next();
             // for leaf node which has empty items.
             if (isLeaf(item)) {
-                boolean hideWhenNoPermission = MapUtils.getBoolean(item, CompoundAppDslConstants.HIDE_WHEN_NO_PERMISSION, true);
-                if (!hideWhenNoPermission) {
+                if (!hideWhenNoPermission(item)) {
                     continue;
                 }
 
-                Map<String, Object> app = (Map<String, Object>) MapUtils.getMap(item, CompoundAppDslConstants.APP, new HashMap<>());
-                String appId = MapUtils.getString(app, CompoundAppDslConstants.APP_ID);
+                String appId = getAppId(item);
                 if (StringUtils.isNotBlank(appId) && appIdsNeedRemoved.contains(appId)) {
                     iterator.remove();
                     continue;
@@ -92,15 +95,13 @@ public class CompoundApplicationDslFilter {
     /**
      * Recursively find all sub-application ids from the DSL of the compound application.
      */
-    @SuppressWarnings("unchecked")
     public Set<String> getAllSubAppIdsFromCompoundAppDsl(Map<String, Object> dsl) {
         List<Map<String, Object>> items = MoreMapUtils.getList(dsl, CompoundAppDslConstants.ITEMS, new ArrayList<>());
         return items.stream()
                 .map(item -> {
                     // If the item is a leaf node, find its id and return it.
                     if (isLeaf(item)) {
-                        Map<String, Object> app = (Map<String, Object>) MapUtils.getMap(item, CompoundAppDslConstants.APP, new HashMap<>());
-                        String appId = MapUtils.getString(app, CompoundAppDslConstants.APP_ID);
+                        String appId = getAppId(item);
                         if (StringUtils.isBlank(appId)) {
                             return Collections.<String> emptySet();
                         }
@@ -111,5 +112,24 @@ public class CompoundApplicationDslFilter {
                 })
                 .flatMap(Set::stream)
                 .collect(Collectors.toSet());
+    }
+
+    @SuppressWarnings("unchecked")
+    private String getAppId(Map<String, Object> item) {
+        return Optional.ofNullable((Map<String, Object>) MapUtils.getMap(item, ACTION))
+                .map(action -> (Map<String, Object>) MapUtils.getMap(action, COMP))
+                .or(() -> Optional.of(item)) // compatible code
+                .map(i -> (Map<String, Object>) MapUtils.getMap(i, APP))
+                .map(app -> MapUtils.getString(app, APP_ID))
+                .orElse(null);
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean hideWhenNoPermission(Map<String, Object> item) {
+        return Optional.ofNullable((Map<String, Object>) MapUtils.getMap(item, ACTION))
+                .map(action -> (Map<String, Object>) MapUtils.getMap(action, COMP))
+                .or(() -> Optional.of(item)) // compatible code
+                .map(i -> MapUtils.getBoolean(i, HIDE_WHEN_NO_PERMISSION))
+                .orElse(true);
     }
 }

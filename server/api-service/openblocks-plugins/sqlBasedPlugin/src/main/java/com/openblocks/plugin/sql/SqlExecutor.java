@@ -37,15 +37,15 @@ import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand.GuiSqlCommandRenderRes
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class HikariSqlExecutor {
+public class SqlExecutor {
 
     private final boolean supportGenerateKeys;
 
-    public HikariSqlExecutor(boolean supportGenerateKeys) {
+    public SqlExecutor(boolean supportGenerateKeys) {
         this.supportGenerateKeys = supportGenerateKeys;
     }
 
-    public HikariSqlExecutor() {
+    public SqlExecutor() {
         this(true);
     }
 
