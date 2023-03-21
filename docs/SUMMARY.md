@@ -68,4 +68,4 @@
 
 * [Members and groups](workspace-management/members-and-groups.md)
 * [Permissions for resources](workspace-management/permissions-for-resources.md)
-* [Customize branding](workspace-management/customize-branding.md)
+* [Custom branding](workspace-management/customize-branding.md)
