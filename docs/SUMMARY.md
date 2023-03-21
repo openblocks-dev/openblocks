@@ -21,7 +21,7 @@
   * [PostgreSQL](data-sources/connect-to-databases/postgresql.md)
   * [Redis](data-sources/connect-to-databases/redis.md)
 * [Connect to APIs](data-sources/connect-to-databases-1/README.md)
-  * [REST APIs](data-sources/connect-to-databases-1/rest-apis.md)
+  * [REST API](data-sources/connect-to-databases-1/rest-apis.md)
   * [GraphQL](data-sources/connect-to-databases-1/graphql.md)
   * [Google Sheets](data-sources/connect-to-databases-1/google-sheets.md)
 
