@@ -1,0 +1,18 @@
+[
+  {
+    "name": "jspdf",
+    "downloadUrl": "https://unpkg.com/jspdf/dist/jspdf.umd.min.js"
+  },
+  {
+    "name": "jmespath",
+    "downloadUrl": "https://unpkg.com/jmespath/jmespath.js"
+  },
+  {
+    "name": "jsonpath",
+    "downloadUrl": "https://unpkg.com/jsonpath/jsonpath.js"
+  },
+  {
+    "name": "i18next",
+    "downloadUrl": "https://unpkg.com/i18next/dist/umd/i18next.min.js"
+  }
+]
