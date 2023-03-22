@@ -59,7 +59,12 @@ export const IdSourceList = () => {
             } else {
               const form: { [key: string]: string | undefined } = {};
               Object.keys(authConfig[item].form).forEach((key: string) => {
-                form[key] = key === "source" || key === "sourceName" ? item : undefined;
+                form[key] =
+                  key === "source" || key === "sourceName"
+                    ? item
+                    : key === "authServerId"
+                    ? "default"
+                    : undefined;
               });
               return {
                 authType: item,
@@ -122,7 +127,13 @@ export const IdSourceList = () => {
                 />
               }
               <span>{authConfig[value as AuthType].sourceName}</span>
-              {!FreeTypes.includes(value) && <FreeLimitTag text={trans("idSource.pay")} />}
+              {!FreeTypes.includes(value) && (
+                <FreeLimitTag
+                  text={
+                    enableEnterpriseLogin ? trans("idSource.payUserTag") : trans("idSource.pay")
+                  }
+                />
+              )}
             </SpanStyled>
           )}
         />

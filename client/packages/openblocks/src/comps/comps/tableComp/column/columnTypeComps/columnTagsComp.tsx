@@ -148,17 +148,22 @@ export const DropdownStyled = styled.div`
     align-items: center;
   }
   .ant-tag {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    word-break: keep-all;
     margin-right: 0;
   }
 `;
 
 const TagEdit = (props: TagEditPropsType) => {
   const defaultTags = useContext(TagsContext);
-  const [tags, setTags] = useState(defaultTags);
+  const [tags, setTags] = useState(() => {
+    const result: string[] = [];
+    defaultTags.forEach((item) => {
+      if (item.split(",")[1]) {
+        item.split(",").forEach((tag) => result.push(tag));
+      }
+      result.push(item);
+    });
+    return result;
+  });
   const [open, setOpen] = useState(true);
   return (
     <Wrapper>
@@ -199,9 +204,17 @@ const TagEdit = (props: TagEditPropsType) => {
       >
         {tags.map((value, index) => (
           <CustomSelect.Option value={value} key={index}>
-            <Tag color={getTagColor(value)} key={index}>
-              {value}
-            </Tag>
+            {value.split(",")[1] ? (
+              value.split(",").map((item, i) => (
+                <Tag color={getTagColor(item)} key={i} style={{ marginRight: "8px" }}>
+                  {item}
+                </Tag>
+              ))
+            ) : (
+              <Tag color={getTagColor(value)} key={index}>
+                {value}
+              </Tag>
+            )}
           </CustomSelect.Option>
         ))}
       </CustomSelect>
@@ -213,7 +226,8 @@ export const ColumnTagsComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
-      const value = props.changeValue ?? getBaseValue(props, dispatch);
+      let value = props.changeValue ?? getBaseValue(props, dispatch);
+      value = typeof value === "string" && value.split(",")[1] ? value.split(",") : value;
       const tags = _.isArray(value) ? value : [value];
       const view = tags.map((tag, index) => {
         // The actual eval value is of type number or boolean
@@ -232,9 +246,11 @@ export const ColumnTagsComp = (function () {
     },
     getBaseValue
   )
-    .setEditViewFn((props) => (
-      <TagEdit value={props.value} onChange={props.onChange} onChangeEnd={props.onChangeEnd} />
-    ))
+    .setEditViewFn((props) => {
+      const text = props.value;
+      const value = _.isArray(text) ? text.join(",") : text;
+      return <TagEdit value={value} onChange={props.onChange} onChangeEnd={props.onChangeEnd} />;
+    })
     .setPropertyViewFn((children) => (
       <>
         {children.text.propertyView({

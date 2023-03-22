@@ -7,7 +7,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { defaultTheme, TableStyleType } from "comps/controls/styleControlConstants";
-import { MultiCompBuilder, stateComp } from "comps/generators";
+import { stateComp } from "comps/generators";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
@@ -36,6 +36,7 @@ import {
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { JSONValue } from "util/jsonTypes";
+import { ControlNodeCompBuilder } from "comps/generators/controlCompBuilder";
 
 const SaveChangeButtons = styled.div`
   display: flex;
@@ -543,7 +544,7 @@ export const TableToolbarComp = (function () {
     position: dropdownControl(positionOptions, "below"),
   };
 
-  return new MultiCompBuilder(childrenMap, (props, dispatch) => {
+  return new ControlNodeCompBuilder(childrenMap, (props, dispatch) => {
     return {
       ...props,
       onFilterChange: (filters: TableFilterDataType[], stackType: TableFilter["stackType"]) => {
@@ -560,22 +561,18 @@ export const TableToolbarComp = (function () {
       },
     };
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          {children.position.propertyView({ label: trans("table.position"), radioButton: true })}
-          {children.showFilter.propertyView({ label: trans("table.showFilter") })}
-          {children.showRefresh.propertyView({ label: trans("table.showRefresh") })}
-          {children.showDownload.propertyView({ label: trans("table.showDownload") })}
-          {children.columnSetting.propertyView({ label: trans("table.columnSetting") })}
-          {children.searchText.propertyView({
-            label: trans("table.searchText"),
-            tooltip: trans("table.searchTextTooltip"),
-            placeholder: "{{input1.value}}",
-          })}
-        </>
-      );
-    })
+    .setPropertyViewFn((children) => [
+      children.position.propertyView({ label: trans("table.position"), radioButton: true }),
+      children.showFilter.propertyView({ label: trans("table.showFilter") }),
+      children.showRefresh.propertyView({ label: trans("table.showRefresh") }),
+      children.showDownload.propertyView({ label: trans("table.showDownload") }),
+      children.columnSetting.propertyView({ label: trans("table.columnSetting") }),
+      children.searchText.propertyView({
+        label: trans("table.searchText"),
+        tooltip: trans("table.searchTextTooltip"),
+        placeholder: "{{input1.value}}",
+      }),
+    ])
     .build();
 })();
 

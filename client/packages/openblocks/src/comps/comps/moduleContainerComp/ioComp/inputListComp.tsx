@@ -7,7 +7,7 @@ import { EditorContext } from "comps/editorState";
 import { list } from "comps/generators/list";
 import { trans } from "i18n";
 import { multiChangeAction } from "openblocks-core";
-import { Section } from "openblocks-design";
+import { controlItem, Section } from "openblocks-design";
 import { useContext } from "react";
 import InputListItemComp, { getInputOptionLabel, InputTypeEnum } from "./inputListItemComp";
 
@@ -52,10 +52,12 @@ class InputListComp extends InputListCompBase {
 
   getTestView() {
     const children = this.getView();
-    const fields = children.map((i: any) => i.getTestView());
+    const fields = children.map((i) => i.getTestView());
     return (
       <Section name={trans("moduleContainer.inputTest")}>
-        {fields.length > 0 ? fields : <EmptyContent text={trans("module.emptyTestInput")} />}
+        {fields.length > 0
+          ? fields
+          : controlItem({}, <EmptyContent text={trans("module.emptyTestInput")} />)}
       </Section>
     );
   }

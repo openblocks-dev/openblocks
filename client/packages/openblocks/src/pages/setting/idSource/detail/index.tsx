@@ -1,9 +1,16 @@
 import React, { useState } from "react";
-import { trans } from "i18n";
+import { trans, transToNode } from "i18n";
 import IdSourceApi, { ConfigItem } from "api/idSourceApi";
 import { DetailContainer } from "pages/setting/theme/styledComponents";
 import { HeaderBack } from "pages/setting/permission/styledComponents";
-import { ArrowIcon, CustomSelect, LockIcon } from "openblocks-design";
+import {
+  ArrowIcon,
+  CustomModal,
+  CustomSelect,
+  LockIcon,
+  UnLockIcon,
+  CloseEyeIcon,
+} from "openblocks-design";
 import history from "util/history";
 import { IDSOURCE_SETTING } from "constants/routesURL";
 import {
@@ -13,7 +20,7 @@ import {
 } from "@openblocks-ee/pages/setting/idSource/idSourceConstants";
 import { Manual } from "pages/setting/idSource/detail/manual";
 import { DeleteConfig } from "pages/setting/idSource/detail/deleteConfig";
-import { Divider, Form, Input, message } from "antd";
+import { Divider, Form, Input, message, Tooltip } from "antd";
 import {
   SaveButton,
   CheckboxStyled,
@@ -23,14 +30,20 @@ import {
   Header,
 } from "pages/setting/idSource/styledComponents";
 import { validateResponse } from "api/apiUtils";
-import { cloneDeep } from "lodash";
-import { validatorOptions } from "pages/setting/idSource/idSourceConstants";
+import { ItemType } from "pages/setting/idSource/idSourceConstants";
+import { useForm } from "antd/es/form/Form";
+import _ from "lodash";
 
 type IdSourceDetailProps = {
   location: Location & { state: ConfigItem };
 };
 
 export const IdSourceDetail = (props: IdSourceDetailProps) => {
+  const [form] = useForm();
+  const [lock, setLock] = useState(() => {
+    const config = props.location.state;
+    return !config.ifLocal;
+  });
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveDisable, setSaveDisable] = useState(() => {
     const config = props.location.state;
@@ -76,9 +89,12 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
         ifChange = true;
       }
     }
-    const requiredValues = cloneDeep(allValues);
-    requiredValues.source !== undefined && delete requiredValues.source;
-    requiredValues.sourceName !== undefined && delete requiredValues.sourceName;
+    const requiredValues = {} as { [key: string]: string };
+    Object.entries(authConfig[configDetail.authType].form).forEach(([key, value]) => {
+      if (typeof value === "string" || value.isRequire !== false) {
+        key in allValues && (requiredValues[key] = allValues[key]);
+      }
+    });
     if (configDetail.ifLocal) {
       ifError =
         Object.values(requiredValues).findIndex((item) => item === "" || item === undefined) >= 0;
@@ -88,7 +104,7 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
         if (
           key !== "clientSecret" &&
           key !== "publicKey" &&
-          (value === "" || value === undefined)
+          (value === "" || value === undefined || value === null)
         ) {
           ifError = true;
         }
@@ -104,6 +120,14 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
       setSaveDisable(true);
     }
   };
+
+  const handleLockClick = () => {
+    CustomModal.confirm({
+      title: trans("idSource.disableTip"),
+      content: trans("idSource.lockModalContent"),
+      onConfirm: () => setLock(false),
+    });
+  };
   return (
     <DetailContainer>
       <Header>
@@ -115,6 +139,7 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
       </Header>
       <Content>
         <FormStyled
+          form={form}
           name="basic"
           layout="vertical"
           style={{ maxWidth: 440 }}
@@ -125,66 +150,84 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
             handleChange(allValues as { [key: string]: string })
           }
         >
-          {Object.keys(authConfig[configDetail.authType].form).map((item) => {
-            const label = authConfig[configDetail.authType].form[item];
+          {Object.entries(authConfig[configDetail.authType].form).map(([key, value]) => {
+            const valueObject = _.isObject(value) ? (value as ItemType) : false;
+            let required = configDetail.ifLocal || (key !== "clientSecret" && key !== "publicKey");
+            required = valueObject ? valueObject.isRequire ?? required : required;
+            const hasLock = valueObject && valueObject?.hasLock;
+            const tip = valueObject && valueObject.tip;
+            const label = valueObject ? valueObject.label : value;
+            const isList = valueObject && valueObject.isList;
+            const isPassword = valueObject && valueObject.isPassword;
             return (
-              <Form.Item
-                key={item}
-                name={item}
-                rules={[
-                  {
-                    required:
-                      item !== "source" &&
-                      item !== "sourceName" &&
-                      (configDetail.ifLocal || (item !== "clientSecret" && item !== "publicKey")),
-                    message:
-                      item === "validator"
+              <div key={key}>
+                <Form.Item
+                  key={key}
+                  name={key}
+                  className={hasLock && lock ? "lock" : ""}
+                  rules={[
+                    {
+                      required,
+                      message: isList
                         ? trans("idSource.formSelectPlaceholder", {
-                            form: label,
+                            label,
                           })
                         : trans("idSource.formPlaceholder", {
-                            form: label,
+                            label,
                           }),
-                  },
-                ]}
-                label={
-                  item === "clientSecret" || item === "publicKey" ? (
-                    <PasswordLabel>
-                      <span>{label}:</span>
-                      <LockIcon />
-                    </PasswordLabel>
+                    },
+                  ]}
+                  label={
+                    isPassword ? (
+                      <PasswordLabel>
+                        <span>{label}:</span>
+                        <CloseEyeIcon />
+                      </PasswordLabel>
+                    ) : (
+                      <Tooltip title={tip}>
+                        <span className={tip ? "has-tip" : ""}>{label}</span>:
+                      </Tooltip>
+                    )
+                  }
+                >
+                  {isPassword ? (
+                    <Input
+                      type={"password"}
+                      placeholder={
+                        configDetail.ifLocal
+                          ? trans("idSource.formPlaceholder", {
+                              label,
+                            })
+                          : trans("idSource.encryptedServer")
+                      }
+                      autoComplete={"one-time-code"}
+                    />
+                  ) : !isPassword && !isList ? (
+                    <Input
+                      placeholder={trans("idSource.formPlaceholder", {
+                        label,
+                      })}
+                      disabled={hasLock && lock}
+                      prefix={
+                        hasLock &&
+                        (lock ? <LockIcon onClick={() => handleLockClick()} /> : <UnLockIcon />)
+                      }
+                    />
                   ) : (
-                    <span>{label}:</span>
-                  )
-                }
-              >
-                {item === "clientSecret" || item === "publicKey" ? (
-                  <Input
-                    type={"password"}
-                    placeholder={
-                      configDetail.ifLocal
-                        ? trans("idSource.formPlaceholder", {
-                            form: label,
-                          })
-                        : trans("idSource.encryptedServer")
-                    }
-                    autoComplete={"one-time-code"}
-                  />
-                ) : item === "validator" ? (
-                  <CustomSelect
-                    options={validatorOptions}
-                    placeholder={trans("idSource.formSelectPlaceholder", {
-                      form: label,
-                    })}
-                  />
-                ) : (
-                  <Input
-                    placeholder={trans("idSource.formPlaceholder", {
-                      form: label,
-                    })}
-                  />
+                    <CustomSelect
+                      options={(value as ItemType).options}
+                      placeholder={trans("idSource.formSelectPlaceholder", {
+                        label,
+                      })}
+                    />
+                  )}
+                </Form.Item>
+                {hasLock && lock && (
+                  <span className="lock-tip">
+                    {transToNode("idSource.lockTip", { icon: <LockIcon /> })}
+                  </span>
                 )}
-              </Form.Item>
+              </div>
             );
           })}
           <Form.Item className="register" name="enableRegister" valuePropName="checked">

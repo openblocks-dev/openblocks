@@ -128,10 +128,15 @@ export const en = {
     editEvent: "Edit event",
     eventName: "Event name",
     eventColor: "Event color",
-    eventGroupId: "Group id",
+    eventGroupId: "Group ID",
     groupIdTooltip:
-      "The group ID that this calendar event belongs to. Events that share a group ID will be dragged and resized together automatically.",
+      "Group ID is used to group different events, and events in the same group can be dragged and resized together.",
     more: "more",
     allDay: "All day",
+    eventNameRequire: "Please enter Event name",
+    eventId: "Event ID",
+    eventIdRequire: "Please enter Event ID",
+    eventIdTooltip: "Unique ID for each event",
+    eventIdExist: "ID already exists",
   },
 };

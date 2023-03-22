@@ -200,7 +200,7 @@ export class EditorState {
 
   getBottomResItemFromList(listComp: BottomResListComp) {
     return listComp.items().find((i) => {
-      return i.name() === this.selectedBottomResName;
+      return i.id() === this.selectedBottomResName;
     });
   }
 
@@ -392,6 +392,8 @@ export class EditorState {
         return this.getTransformersComp();
       case BottomResTypeEnum.DateResponder:
         return this.getDataRespondersComp();
+      case BottomResTypeEnum.Folder:
+        return this.getFoldersComp();
     }
   }
 
@@ -418,6 +420,10 @@ export class EditorState {
 
   getDataRespondersComp() {
     return this.rootComp.children.dataResponders;
+  }
+
+  getFoldersComp() {
+    return this.rootComp.children.folders;
   }
 
   getHooksComp() {

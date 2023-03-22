@@ -3,7 +3,7 @@ import { ReactComponent as UnFold } from "icons/icon-unfold.svg";
 import { ReactComponent as Folded } from "icons/icon-folded.svg";
 import { ReactComponent as Omit } from "icons/icon-omit.svg";
 import styled, { css } from "styled-components";
-import React, { ReactNode, useMemo } from "react";
+import React, { ReactNode } from "react";
 
 const Panel = styled(AntdCollapse.Panel)`
   .ant-collapse-header-text {
@@ -72,6 +72,7 @@ interface Iprops {
   isSelected?: boolean;
   simple?: boolean; // no nested
   isOpen?: boolean;
+  className?: string;
 }
 
 export const PadDiv = styled.div`
@@ -99,7 +100,7 @@ export const Collapse = (props: Iprops) => {
   // };
   return (
     // <Contain $color={props.isSelected || Color!==""}>
-    <Container optColor={props.isSelected} simple={props.simple}>
+    <Container optColor={props.isSelected} simple={props.simple} className={props.className}>
       <AntdCollapse
         ghost
         expandIcon={getExpandIcon}

@@ -5,7 +5,7 @@ import { list } from "comps/generators/list";
 import { NameGenerator } from "comps/utils";
 import { GreyTextColor } from "constants/style";
 import { trans } from "i18n";
-import { Section, TacoButton } from "openblocks-design";
+import { controlItem, Section, TacoButton } from "openblocks-design";
 import styled from "styled-components";
 import { ModuleMethodListItemComp, WithParamsActionControl } from "./moduleMethodListItemComp";
 import ModuleMethodParamListComp from "./moduleMethodParamListComp";
@@ -54,7 +54,8 @@ class ModuleMethodListComp extends ModuleMethodListCompBase {
         this.executeMethodByName(name, params);
       };
 
-      return (
+      return controlItem(
+        { filterText: name },
         <>
           <MethodName>{name}</MethodName>
           {i.children.params.getTestView()}
@@ -66,11 +67,9 @@ class ModuleMethodListComp extends ModuleMethodListCompBase {
     });
     return (
       <Section name={trans("moduleContainer.methodTest")}>
-        {methodTriggers.length > 0 ? (
-          methodTriggers
-        ) : (
-          <EmptyContent text={trans("module.emptyTestMethod")} />
-        )}
+        {methodTriggers.length > 0
+          ? methodTriggers
+          : controlItem({}, <EmptyContent text={trans("module.emptyTestMethod")} />)}
       </Section>
     );
   }

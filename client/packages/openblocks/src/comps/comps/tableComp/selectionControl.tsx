@@ -1,11 +1,11 @@
 import { TableRowSelection } from "antd/lib/table/interface";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { stateComp } from "comps/generators";
-import { MultiCompBuilder } from "comps/generators/multi";
 import { trans } from "i18n";
 import { changeChildAction, ConstructorToComp } from "openblocks-core";
 import { TableOnEventView } from "./tableTypes";
 import { OB_ROW_ORI_INDEX, RecordType } from "comps/comps/tableComp/tableUtils";
+import { ControlNodeCompBuilder } from "comps/generators/controlCompBuilder";
 
 const modeOptions = [
   {
@@ -48,7 +48,7 @@ export const SelectionControl = (function () {
     selectedRowKey: stateComp<string>("0"),
     selectedRowKeys: stateComp<Array<string>>([]),
   };
-  return new MultiCompBuilder(childrenMap, (props, dispatch) => {
+  return new ControlNodeCompBuilder(childrenMap, (props, dispatch) => {
     const changeSelectedRowKey = (record: RecordType) => {
       if (getKey(record) !== props.selectedRowKey) {
         dispatch(changeChildAction("selectedRowKey", getKey(record), false));
@@ -106,15 +106,11 @@ export const SelectionControl = (function () {
       };
     };
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          {children.mode.propertyView({
-            label: trans("selectionControl.mode"),
-            radioButton: true,
-          })}
-        </>
-      );
-    })
+    .setPropertyViewFn((children) =>
+      children.mode.propertyView({
+        label: trans("selectionControl.mode"),
+        radioButton: true,
+      })
+    )
     .build();
 })();

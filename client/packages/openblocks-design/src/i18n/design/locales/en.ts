@@ -50,7 +50,6 @@ export const en = {
     batchDelete: "Batch delete",
   },
   optionsControl: {
-    optionList: "Options",
     optionItemErrorMSg: `Found duplicate option value "{value}". Only the first item will be displayed. Please change to a unique value.`,
     emptyList: "No options",
   },

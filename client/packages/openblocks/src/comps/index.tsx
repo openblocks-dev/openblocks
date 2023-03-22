@@ -805,7 +805,7 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.calendarCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "calendar" }),
     layoutInfo: {
-      w: 23,
+      w: 24,
       h: 60,
     }
   },

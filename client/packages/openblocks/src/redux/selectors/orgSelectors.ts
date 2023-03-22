@@ -11,3 +11,7 @@ export const getOrgGroups = (state: AppState) => {
 export const getFetchOrgGroupsFinished = (state: AppState) => {
   return state.ui.org.fetchOrgGroupsFinished;
 };
+
+export const getOrgCreateStatus = (state: AppState) => {
+  return state.ui.org.orgCreateStatus;
+};

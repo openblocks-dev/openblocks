@@ -5,6 +5,7 @@ import {
   DataResponderIcon,
   DeleteApiIcon,
   EsIcon,
+  FileFolderIcon,
   GetApiIcon,
   GoogleSheetsIcon,
   GraphqlIcon,
@@ -72,6 +73,7 @@ export type BottomResType =
   | ResourceType
   | BottomResTypeEnum.TempState
   | BottomResTypeEnum.Transformer
+  | BottomResTypeEnum.Folder
   | BottomResTypeEnum.DateResponder;
 
 const HttpMethodIcon = {
@@ -99,6 +101,8 @@ export const getBottomResIcon = (
         return <TransformerIcon />;
       case BottomResTypeEnum.DateResponder:
         return <DataResponderIcon />;
+      case BottomResTypeEnum.Folder:
+        return <FileFolderIcon />;
       case "mysql":
         return <MysqlIcon />;
       case "mongodb":

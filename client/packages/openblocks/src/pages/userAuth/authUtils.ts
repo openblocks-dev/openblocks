@@ -5,13 +5,13 @@ import {
   OAUTH_REDIRECT,
   USER_INFO_COMPLETION,
 } from "constants/routesURL";
-import { AxiosResponse } from "axios";
+import { AxiosPromise, AxiosResponse } from "axios";
 import { ApiResponse } from "api/apiResponses";
 import { doValidResponse } from "api/apiUtils";
 import { SERVER_ERROR_CODES } from "constants/apiConstants";
 import { message } from "antd";
 import { trans } from "i18n";
-import { createContext } from "react";
+import { createContext, useState } from "react";
 import { SystemConfig } from "constants/configConstants";
 import {
   AuthInviteInfo,
@@ -34,6 +34,26 @@ export const getSafeAuthRedirectURL = (redirectUrl: string | null) => {
     return BASE_URL;
   }
 };
+
+export function useAuthSubmit(
+  requestFunc: () => AxiosPromise<ApiResponse>,
+  infoCompleteCheck: boolean,
+  redirectUrl: string | null
+) {
+  const [loading, setLoading] = useState(false);
+  return {
+    loading: loading,
+    onSubmit: () => {
+      setLoading(true);
+      requestFunc()
+        .then((resp) => authRespValidate(resp, infoCompleteCheck, redirectUrl))
+        .catch((e) => {
+          message.error(e.message);
+        })
+        .finally(() => setLoading(false));
+    },
+  };
+}
 
 /**
  * validate auth status

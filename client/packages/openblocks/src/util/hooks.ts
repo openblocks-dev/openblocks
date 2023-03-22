@@ -137,7 +137,7 @@ export function useCurrentPage(): PageType {
 
 export function useIsMobile() {
   const editorState = useContext(EditorContext);
-  return checkIsMobile(editorState.getAppSettings().maxWidth);
+  return checkIsMobile(editorState?.getAppSettings().maxWidth);
 }
 
 function getMetaData(

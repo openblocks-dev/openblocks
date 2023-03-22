@@ -3,24 +3,28 @@ import { EditorState } from "comps/editorState";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { trans } from "i18n";
 import { CompParams, MultiBaseComp, wrapActionExtraInfo } from "openblocks-core";
-import { BottomResComp, BottomResTypeEnum } from "types/bottomRes";
+import { BottomResComp, BottomResListComp, BottomResTypeEnum } from "types/bottomRes";
 import { undoKey } from "util/keyUtils";
 import { list } from "./list";
 import { IExposingComp } from "./withExposing";
 
 type BottomResListItemCompConstr = new (param: CompParams<any>) => MultiBaseComp<any, any, any> &
-  IExposingComp;
+  BottomResComp &
+  Partial<IExposingComp>;
 
 export function bottomResListComp<T extends BottomResListItemCompConstr>(
   comp: T,
-  compType: string,
+  compType: BottomResTypeEnum,
   initialValue: any,
   namePrefix?: string
 ) {
-  return class BottomResListComp extends list(comp) implements BottomResListComp {
+  return class extends list(comp) implements BottomResListComp {
     nameAndExposingInfo(): NameAndExposingInfo {
       const result: NameAndExposingInfo = {};
       Object.values(this.children).forEach((comp) => {
+        if (!comp.exposingInfo) {
+          return;
+        }
         result[comp.children.name.getView()] = comp.exposingInfo();
       });
       return result;
@@ -30,15 +34,61 @@ export function bottomResListComp<T extends BottomResListItemCompConstr>(
       return this.getView() as unknown as BottomResComp[];
     }
 
-    add(editorState: EditorState) {
+    genNewName(editorState: EditorState) {
       const name = editorState.getNameGenerator().genItemName(namePrefix || compType);
+      return name;
+    }
+
+    autoSelectAfterCreate(): boolean {
+      return true;
+    }
+
+    select(editorState: EditorState, id: string) {
+      editorState.setSelectedBottomRes(id, compType);
+    }
+
+    add(editorState: EditorState, extraInfo?: any) {
+      const name = this.genNewName(editorState);
+      const values = typeof initialValue === "function" ? initialValue() : initialValue;
+      const id = values?.id ?? name;
       this.dispatch(
         wrapActionExtraInfo(
           this.pushAction({
             name,
-            order: Date.now(),
-            ...initialValue,
+            ...values,
           }),
+          {
+            compInfos: [
+              {
+                type: "add",
+                compName: name,
+                compType: compType,
+              },
+            ],
+          }
+        )
+      );
+      if (this.autoSelectAfterCreate()) {
+        this.select(editorState, id);
+      }
+      return id;
+    }
+
+    copy(editorState: EditorState, id: string) {
+      const comps = this.getView();
+      const index = comps.findIndex((i) => i.id() === id);
+      const originState = comps[index];
+      if (!originState) {
+        return;
+      }
+      const name = this.genNewName(editorState);
+      this.dispatch(
+        wrapActionExtraInfo(
+          this.pushAction({
+            ...(originState.toJsonValue() as object),
+            name,
+            order: Date.now(),
+          } as any),
           {
             compInfos: [
               {
@@ -53,38 +103,9 @@ export function bottomResListComp<T extends BottomResListItemCompConstr>(
       editorState.setSelectedBottomRes(name, BottomResTypeEnum.DateResponder);
     }
 
-    copy(editorState: EditorState, name: string) {
-      const comps = this.getView();
-      const index = comps.findIndex((i) => i.children.name.getView() === name);
-      const originState = comps[index];
-      if (!originState) {
-        return;
-      }
-      const newStateName = editorState.getNameGenerator().genItemName(namePrefix || compType);
-      this.dispatch(
-        wrapActionExtraInfo(
-          this.pushAction({
-            ...(originState.toJsonValue() as object),
-            name: newStateName,
-            order: Date.now(),
-          } as any),
-          {
-            compInfos: [
-              {
-                type: "add",
-                compName: name,
-                compType: compType,
-              },
-            ],
-          }
-        )
-      );
-      editorState.setSelectedBottomRes(newStateName, BottomResTypeEnum.DateResponder);
-    }
-
-    delete(name: string) {
+    delete(id: string) {
       const stateComps = this.getView();
-      const index = stateComps.findIndex((i) => i.children.name.getView() === name);
+      const index = stateComps.findIndex((i) => i.id() === id);
       const toDelete = this.getView()[index];
       if (!toDelete) {
         return;
@@ -94,7 +115,7 @@ export function bottomResListComp<T extends BottomResListItemCompConstr>(
           compInfos: [
             {
               type: "delete",
-              compName: toDelete.children.name.getView(),
+              compName: toDelete.name(),
               compType: compType,
             },
           ],

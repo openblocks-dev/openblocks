@@ -81,6 +81,7 @@ export interface EditTextProps {
   prefixIcon?: ReactNode;
   text: string;
   disabled?: boolean;
+  forceClickIcon?: boolean;
   onFinish: (value: any) => void;
   onChange?: (value: any) => void;
   onEditStateChange?: (editing: boolean) => void;
@@ -107,6 +108,7 @@ export const EditText = (props: EditTextProps) => {
           $hasPrefix={!!props.prefixIcon}
           ref={inputRef}
           defaultValue={props.text}
+          onClick={(e) => e.stopPropagation()}
           onChange={(e) => props.onChange?.((e.target as HTMLInputElement).value)}
           onBlur={(e) => {
             props.onFinish(e.target.value);
@@ -123,12 +125,15 @@ export const EditText = (props: EditTextProps) => {
           disabled={props.disabled}
           hasPrefix={!!props.prefixIcon}
           className="taco-edit-text-wrapper"
-          onClick={() => !props.disabled && setEditing(true)}
+          onClick={() => !props.disabled && !props.forceClickIcon && setEditing(true)}
         >
           <TextWrapper className={"taco-edit-text-body"} title={props.text}>
             {props.text}
           </TextWrapper>
-          <EditIcon className={"taco-edit-text-icon"} />
+          <EditIcon
+            onClick={() => !props.disabled && setEditing(true)}
+            className={"taco-edit-text-icon"}
+          />
         </EditTextWrapper>
       )}
       {props.prefixIcon && <Prefix>{props.prefixIcon}</Prefix>}

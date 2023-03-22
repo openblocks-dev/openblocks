@@ -10,7 +10,7 @@ import {
 } from "constants/reduxActionConstants";
 import { BASE_URL } from "constants/routesURL";
 import log from "loglevel";
-import { all, call, put, takeLatest, select } from "redux-saga/effects";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import {
   AddGroupUserPayload,
   DeleteOrgUserPayload,
@@ -23,10 +23,10 @@ import {
   UpdateUserGroupRolePayload,
   UpdateUserOrgRolePayload,
 } from "redux/reduxActions/orgActions";
-import { fetchUserAction } from "redux/reduxActions/userActions";
 import { getUser } from "redux/selectors/usersSelectors";
 import { validateResponse } from "api/apiUtils";
 import { User } from "constants/userConstants";
+import { getUserSaga } from "redux/sagas/userSagas";
 
 export function* updateGroupSaga(action: ReduxAction<UpdateGroupActionPayload>) {
   try {
@@ -234,16 +234,15 @@ export function* createOrgSaga(action: ReduxAction<{ orgName: string }>) {
     const isValidResponse: boolean = validateResponse(response);
     if (isValidResponse) {
       // update org list
-      yield put(fetchUserAction());
+      yield call(getUserSaga);
       yield put({
         type: ReduxActionTypes.CREATE_ORG_SUCCESS,
-        payload: {
-          orgId: response.data.data.orgId,
-          orgName: action.payload.orgName,
-        },
       });
     }
   } catch (error: any) {
+    yield put({
+      type: ReduxActionErrorTypes.CREATE_ORG_ERROR,
+    });
     message.error(error.message);
     log.error(error);
   }

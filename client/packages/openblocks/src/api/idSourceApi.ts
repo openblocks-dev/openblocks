@@ -22,6 +22,12 @@ export interface ConfigItem {
   url?: string;
   distinguishedNameTemplate?: string;
   ifLocal?: boolean;
+  searchBase?: string;
+  filter?: string;
+  bindDn?: string;
+  password?: string;
+  idAttribute?: string;
+  subType?: string;
 }
 
 class IdSourceApi extends Api {

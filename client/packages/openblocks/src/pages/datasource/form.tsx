@@ -212,3 +212,27 @@ export const CertValidationFormItem = (props: { datasource: Datasource }) => {
     </>
   );
 };
+
+export const ForwardCookiesFormItem = (props: { datasource: Datasource }) => {
+  const datasourceConfig = props.datasource?.datasourceConfig as HttpConfig;
+
+  return (
+    <>
+      <FormSelectItem
+        open={false}
+        mode={"tags"}
+        name={"forwardCookies"}
+        label={trans("httpQuery.forwardCookies")}
+        options={[]}
+        initialValue={datasourceConfig?.forwardCookies}
+        labelWidth={142}
+      />
+      <FormCheckboxItem
+        name={"forwardAllCookies"}
+        label={trans("httpQuery.forwardAllCookies")}
+        initialValue={datasourceConfig?.forwardAllCookies}
+        labelWidth={142}
+      />
+    </>
+  );
+};

@@ -10,7 +10,7 @@ import {
   SimpleComp,
   ValueAndMsg,
 } from "openblocks-core";
-import { CheckBox, Switch, SwitchJsIcon, SwitchWrapper } from "openblocks-design";
+import { CheckBox, controlItem, Switch, SwitchJsIcon, SwitchWrapper } from "openblocks-design";
 import { ReactNode } from "react";
 import styled from "styled-components";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
@@ -30,8 +30,9 @@ export class BoolPureControl extends SimpleComp<boolean> {
     return <Switch value={this.value} onChange={(x) => this.dispatchChangeValueAction(x)} />;
   }
 
-  propertyView(params: ControlParams & { type?: "switch" | "checkbox" }): ReactNode {
-    return (
+  propertyView(params: ControlParams & { type?: "switch" | "checkbox" }) {
+    return controlItem(
+      { filterText: params.label },
       <SwitchWrapper {...params}>
         {params.type === "checkbox" ? (
           <CheckBox
@@ -105,7 +106,7 @@ class BoolControl extends AbstractComp<boolean, DataType, Node<ValueAndMsg<boole
     return customAction<ChangeModeAction>({ useCodeEditor: !this.useCodeEditor }, true);
   }
 
-  propertyView(params: ControlParams): ReactNode {
+  propertyView(params: ControlParams) {
     const changeModeIcon = (
       <SwitchJsIcon
         checked={this.useCodeEditor}
@@ -115,7 +116,8 @@ class BoolControl extends AbstractComp<boolean, DataType, Node<ValueAndMsg<boole
       />
     );
     const hasLabel = !!params.label;
-    return (
+    return controlItem(
+      { filterText: params.label },
       <Wrapper hasLabel={hasLabel}>
         <SwitchWrapper
           label={params.label}

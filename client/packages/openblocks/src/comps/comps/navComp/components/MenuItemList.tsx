@@ -1,6 +1,6 @@
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from "@dnd-kit/core";
 import LinkPlusButton from "components/LinkPlusButton";
-import { BluePlusIcon } from "openblocks-design";
+import { BluePlusIcon, controlItem } from "openblocks-design";
 import { trans } from "i18n";
 import _ from "lodash";
 import { useState } from "react";
@@ -35,6 +35,8 @@ interface IMenuItemListProps {
   onAddSubItem: (path: number[], value: any, unshift?: boolean) => number;
   onMoveItem: (path: number[], from: number, to: number) => void;
 }
+
+const menuItemLabel = trans("menuItem");
 
 function MenuItemList(props: IMenuItemListProps) {
   const { items, onAddItem, onDeleteItem, onMoveItem, onAddSubItem } = props;
@@ -93,7 +95,7 @@ function MenuItemList(props: IMenuItemListProps) {
     <Wrapper>
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="menu-title">
-          <div>{trans("menuItem")}</div>
+          <div>{menuItemLabel}</div>
           <LinkPlusButton onClick={() => onAddItem([0])} icon={<BluePlusIcon />}>
             {trans("newItem")}
           </LinkPlusButton>
@@ -148,7 +150,8 @@ export function menuPropertyView(itemsComp: NavListCompType) {
     return getItemListByPath(path.slice(1), root.getView()[path[0]].children.items);
   };
 
-  return (
+  return controlItem(
+    { filterText: menuItemLabel },
     <MenuItemList
       items={items}
       onAddItem={(path: number[], value: any) => {
