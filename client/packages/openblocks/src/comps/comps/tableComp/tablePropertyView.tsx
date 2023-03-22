@@ -346,7 +346,13 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
         }}
         items={columnOptionItems}
         optionToolbar={columnOptionToolbar}
-        itemTitle={(column) => column.getView().title}
+        itemTitle={(column) => {
+          const columnView = column.getView();
+          if (columnView.hide) {
+            return <span style={{ color: GreyTextColor }}>{columnView.title}</span>;
+          }
+          return columnView.title;
+        }}
         popoverTitle={(column) => {
           const columnView = column.getView();
           return columnView.isCustom ? trans("table.customColumn") : columnView.dataIndex;

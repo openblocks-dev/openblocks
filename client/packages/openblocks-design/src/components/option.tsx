@@ -195,7 +195,7 @@ function Option<T extends ConstructorToComp<MultiCompConstructor>>(props: {
   onCopy?: (comp: T) => void;
   onMove: (fromIndex: number, toIndex: number) => void;
   content: (comp: T, index: number) => React.ReactNode | JSX.Element;
-  itemTitle: (comp: T) => string;
+  itemTitle: (comp: T) => JSX.Element | string;
   popoverTitle: (comp: T) => string;
   dataIndex: (comp: T) => string;
   // unique value for deduplication
