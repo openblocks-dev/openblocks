@@ -1,13 +1,13 @@
-# Big Query
+# Oracle
 
-Big Query is a fully managed cloud-based data warehouse offered by Google Cloud Platform that provides high-speed querying and interactive analysis of large datasets using SQL-like queries.
+Oracle is a leading provider of enterprise software and database management systems, offering a wide range of solutions for businesses of all sizes.
 
 ## Prerequisites
 
-* Get Big Query database connection parameters from the database owner.
+* Get Oracle database connection parameters from the database owner.
 * Refer to [IP allowlist](../configure-ip-allowlists.md) to add IP addresses of Openblocks to your allowlist (if needed).
 
-## Connect to Big Query data source
+## Connect to Oracle data source
 
 Follow the steps below:
 
@@ -18,11 +18,11 @@ Follow the steps below:
    *   When creating a new query in the app editor, click **+ New** > **+ New data source**.&#x20;
 
        <figure><img src="../../.gitbook/assets/db-2.PNG" alt=""><figcaption></figcaption></figure>
-2.  Select **Database** > **Big Query** as the data source type.&#x20;
+2.  Select **Database** > **Oracle** as the data source type. &#x20;
 
-    <figure><img src="../../.gitbook/assets/bigquery-1.png" alt=""><figcaption></figcaption></figure>
-3.  Set its name and service account.
+    <figure><img src="../../.gitbook/assets/oracle-1.png" alt=""><figcaption></figcaption></figure>
+3.  Set its name and configure general settings, including host, port, and service name. You can also set the user name and a password.&#x20;
 
-    <figure><img src="../../.gitbook/assets/bigquery-2.png" alt=""><figcaption></figcaption></figure>
+    <figure><img src="../../.gitbook/assets/oracle-2.png" alt=""><figcaption></figcaption></figure>
 4. (Optional) Click **Test connection** to check whether the new data source is successfully connected.
 5. Click **Save**, and it will be saved to your data source library.
