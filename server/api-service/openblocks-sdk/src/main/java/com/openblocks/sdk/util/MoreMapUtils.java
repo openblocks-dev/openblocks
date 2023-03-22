@@ -1,8 +1,13 @@
 package com.openblocks.sdk.util;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.annotation.Nullable;
+
+import com.google.common.collect.Maps;
 
 /**
  * add more methods in addition to {@link org.apache.commons.collections4.MapUtils}
@@ -39,5 +44,11 @@ public class MoreMapUtils {
             }
         }
         return false;
+    }
+
+    public static <K, V> Map<K, V> ofMap(K key, @Nullable V value) {
+        HashMap<K, V> result = Maps.newHashMapWithExpectedSize(1);
+        result.put(key, value);
+        return result;
     }
 }

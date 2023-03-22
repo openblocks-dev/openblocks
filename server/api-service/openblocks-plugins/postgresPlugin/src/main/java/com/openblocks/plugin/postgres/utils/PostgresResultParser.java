@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
@@ -132,7 +131,7 @@ public class PostgresResultParser {
                             List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()),
                             Stream.of((String[]) constraintsResultSet.getArray("foreign_columns").getArray())
                                     .map(name -> prefix + name)
-                                    .collect(Collectors.toList())
+                                    .toList()
                     );
 
                     table.getKeys().add(key);
@@ -174,7 +173,19 @@ public class PostgresResultParser {
         }
     }
 
-    public static Map<String, Object> parseRowValue(ResultSet resultSet, ResultSetMetaData metaData, int colCount)
+    public static List<Map<String, Object>> parseRows(ResultSet resultSet) throws SQLException, JsonProcessingException {
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        List<Map<String, Object>> result = new ArrayList<>();
+        while (resultSet.next()) {
+            Map<String, Object> row = parseRowValue(resultSet, metaData, columnCount);
+            result.add(row);
+        }
+        return result;
+    }
+
+
+    private static Map<String, Object> parseRowValue(ResultSet resultSet, ResultSetMetaData metaData, int colCount)
             throws SQLException, JsonProcessingException {
         Map<String, Object> row = new LinkedHashMap<>(colCount);
         for (int i = 1; i <= colCount; i++) {
@@ -229,10 +240,9 @@ public class PostgresResultParser {
           Reference: https://jdbc.postgresql.org/documentation/publicapi/org/postgresql/util/PGobject.html
          */
         Object value = resultSet.getObject(i);
-        if (value instanceof PGobject) {
-            return ((PGobject) value).getValue();
+        if (value instanceof PGobject pgObject) {
+            return pgObject.getValue();
         }
         return value;
-        //        return value;
     }
 }
