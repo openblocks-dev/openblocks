@@ -1,5 +1,5 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
-import { Fragment, useContext, useState } from "react";
+import { Fragment, useContext } from "react";
 import styled from "styled-components";
 import DraggableItem from "./DraggableItem";
 import { DraggableTreeContext } from "./DraggableTreeContext";
@@ -14,10 +14,12 @@ const DraggableMenuItemWrapper = styled.div`
 interface IDraggableMenuItemProps {
   path: number[];
   item: DraggableTreeNode;
-  defaultFold?: boolean;
+  forceFold?: boolean;
   dropInAsSub?: boolean;
   activeNode?: DraggableTreeNode;
   disabled?: boolean;
+  // current item is used as overlay or not
+  isOverlay?: boolean;
   disableDropIn?: boolean;
   parentDragging?: boolean;
   onDelete?: (path: number[]) => void;
@@ -33,17 +35,18 @@ export default function DraggableMenuItem(props: IDraggableMenuItemProps) {
     disabled,
     parentDragging,
     disableDropIn,
-    defaultFold = false,
+    forceFold = false,
     dropInAsSub = true,
+    isOverlay = false,
     // onAddSubMenu,
     onDelete,
     renderContent,
   } = props;
 
-  const id = path.join("_");
+  const id = item.id ?? path.join("_");
   const items = item.items;
-  const [isFold, setIsFold] = useState(defaultFold);
   const context = useContext(DraggableTreeContext);
+  const isFold = (forceFold || context.foldedStatus[id]) && !context.unfoldAll;
 
   const dragData: IDragData = {
     path,
@@ -87,7 +90,7 @@ export default function DraggableMenuItem(props: IDraggableMenuItemProps) {
         )}
         <DraggableItem
           path={path}
-          id={path.join("_")}
+          id={id}
           dropInAsSub={dropInAsSub && canDropIn !== false}
           isOver={isOver}
           ref={(node) => {
@@ -100,11 +103,12 @@ export default function DraggableMenuItem(props: IDraggableMenuItemProps) {
             node: item,
             isOver,
             path,
+            isOverlay,
             hasChildren: items.length > 0,
             dragging: !!(isDragging || parentDragging),
             isFolded: isFold,
             onDelete: () => onDelete?.(path),
-            onToggleFold: () => setIsFold(!isFold),
+            onToggleFold: () => context.toggleFold(id),
           }) || null}
         </DraggableItem>
       </DraggableMenuItemWrapper>

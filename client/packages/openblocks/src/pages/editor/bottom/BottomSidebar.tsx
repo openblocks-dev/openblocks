@@ -149,6 +149,7 @@ export function BottomSidebar(props: BottomSidebarProps) {
       .map((i) => convertRefTree(i as InstanceType<typeof RefTreeComp>))
       .filter((i): i is DraggableTreeNode<BottomResComp> => !!i);
     const node: DraggableTreeNode<BottomResComp> = {
+      id: bottomResComp?.id(),
       canDropBefore: (source) => {
         if (currentNodeType === BottomResTypeEnum.Folder) {
           return source?.type() === BottomResTypeEnum.Folder;
@@ -262,10 +263,11 @@ export function BottomSidebar(props: BottomSidebarProps) {
       )}
       <ScrollBar>
         {items.length > 0 && node ? (
-          <div style={{ paddingTop: 4, paddingBottom: 16 }}>
+          <div style={{ paddingTop: 4, paddingBottom: 100, overflow: "hidden" }}>
             <DraggableTree<BottomResComp>
               node={node}
               disable={!!search}
+              unfoldAll={!!search}
               showSubInDragOverlay={false}
               showPositionLineDot
               positionLineDotDiameter={4}
@@ -314,7 +316,12 @@ export function BottomSidebar(props: BottomSidebarProps) {
   );
 }
 
-const ColumnDiv = styled.div<{ $color?: boolean; level: number; foldable: boolean }>`
+const ColumnDiv = styled.div<{
+  $color?: boolean;
+  level: number;
+  foldable: boolean;
+  isOverlay: boolean;
+}>`
   width: 100%;
   height: 25px;
   display: flex;
@@ -323,11 +330,12 @@ const ColumnDiv = styled.div<{ $color?: boolean; level: number; foldable: boolea
   justify-content: center;
   padding: 0 15px 0 2px;
   padding-left: ${(props) => 2 + props.level * 20 + (props.foldable ? 0 : 14)}px;
-  background-color: #ffffff;
+  /* background-color: #ffffff; */
   /* margin: 2px 0; */
+  background-color: ${(props) => (props.isOverlay ? "rgba(255, 255, 255, 0.11)" : "")};
 
   &&& {
-    background-color: ${(props) => (props.$color ? "#f2f7fc" : null)};
+    background-color: ${(props) => (props.$color && !props.isOverlay ? "#f2f7fc" : null)};
   }
 
   :hover {
@@ -342,6 +350,7 @@ const ColumnDiv = styled.div<{ $color?: boolean; level: number; foldable: boolea
     color: #222222;
     margin-left: 0;
     font-size: 13px;
+    padding-left: 0;
 
     :hover {
       background-color: transparent;
@@ -394,7 +403,8 @@ interface BottomSidebarItemProps extends DraggableTreeNodeItemRenderProps {
 }
 
 function BottomSidebarItem(props: BottomSidebarItemProps) {
-  const { id, resComp, path, isFolded, onDelete, onCopy, onSelect, onToggleFold } = props;
+  const { id, resComp, isOverlay, path, isFolded, onDelete, onCopy, onSelect, onToggleFold } =
+    props;
   const [error, setError] = useState<string | undefined>(undefined);
   const [editing, setEditing] = useState(false);
   const editorState = useContext(EditorContext);
@@ -441,14 +451,20 @@ function BottomSidebarItem(props: BottomSidebarItemProps) {
   };
 
   return (
-    <ColumnDiv level={level} foldable={isFolder} onClick={handleClickItem} $color={isSelected}>
+    <ColumnDiv
+      level={level}
+      foldable={isFolder}
+      onClick={handleClickItem}
+      $color={isSelected}
+      isOverlay={isOverlay}
+    >
       {isFolder && <FoldIconBtn>{!isFolded ? <FoldedIcon /> : <UnfoldIcon />}</FoldIconBtn>}
       {icon}
       <div style={{ flexGrow: 1, marginRight: "8px", width: "calc(100% - 62px)" }}>
         <EditText
           text={name}
           forceClickIcon={isFolder}
-          disabled={!isSelected || readOnly}
+          disabled={!isSelected || readOnly || isOverlay}
           onFinish={handleFinishRename}
           onChange={handleNameChange}
           onEditStateChange={(editing) => setEditing(editing)}
@@ -460,7 +476,7 @@ function BottomSidebarItem(props: BottomSidebarItemProps) {
           hasError={!!error}
         />
       </div>
-      {!readOnly && (
+      {!readOnly && !isOverlay && (
         <EditPopover copy={!isFolder ? onCopy : undefined} del={onDelete}>
           <Icon tabIndex={-1} />
         </EditPopover>

@@ -8,7 +8,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import _ from "lodash";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 import { DraggableTreeContext, DraggableTreeContextValue } from "./DraggableTreeContext";
 import DraggableMenuItem from "./DroppableMenuItem";
@@ -130,7 +130,8 @@ function MenuItemList(props: IMenuItemListProps) {
         <DragOverlay dropAnimation={null}>
           {active && (
             <DraggableMenuItem
-              defaultFold={contextValue.showSubInDragOverlay === false}
+              isOverlay
+              forceFold={contextValue.showSubInDragOverlay === false}
               path={[]}
               item={active.node}
               renderContent={renderItemContent}
@@ -142,13 +143,15 @@ function MenuItemList(props: IMenuItemListProps) {
   );
 }
 
-interface DraggableTreeProps<T = any> extends DraggableTreeContextValue {
+interface DraggableTreeProps<T = any>
+  extends Omit<DraggableTreeContextValue, "foldedStatus" | "toggleFold"> {
   node: DraggableTreeNode<T>;
   renderItemContent: (params: DraggableTreeNodeItemRenderProps<T>) => React.ReactNode;
 }
 
 export function DraggableTree<T = any>(props: DraggableTreeProps<T>) {
-  const { node, renderItemContent, ...contextValue } = props;
+  const { node, renderItemContent, ...otherProps } = props;
+  const [foldedStatus, setFoldedState] = useState<Record<string, boolean>>({});
 
   const getItemByPath = (path: number[], scope?: DraggableTreeNode[]): DraggableTreeNode => {
     if (!scope) {
@@ -169,6 +172,24 @@ export function DraggableTree<T = any>(props: DraggableTreeProps<T>) {
     }
     return getItemListByPath(path.slice(1), root.items[path[0]]);
   };
+
+  const toggleFold = (id: string) => {
+    // toggle setFoldedState by id in foldedStatus
+    setFoldedState((prev) => {
+      const newFoldedStatus: Record<string, boolean> = { ...prev };
+      newFoldedStatus[id] = !newFoldedStatus[id];
+      return newFoldedStatus;
+    });
+  };
+
+  const contextValue = useMemo<DraggableTreeContextValue>(
+    () => ({
+      ...otherProps,
+      toggleFold,
+      foldedStatus,
+    }),
+    [foldedStatus, otherProps]
+  );
 
   return (
     <DraggableTreeContext.Provider value={contextValue}>

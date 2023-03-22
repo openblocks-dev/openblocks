@@ -21,7 +21,6 @@ const Wrapper = styled.div<{
   margin-bottom: ${(props) => props.positionLineHeight ?? 4}px;
   display: flex;
   /* padding: 0 8px; */
-  background-color: #ffffff;
   align-items: center;
   opacity: ${(props) => (props.dragging ? "0.5" : 1)};
 

@@ -19,6 +19,7 @@ import {
   type EditorView as EditorViewType,
 } from "base/codeEditor/codeMirror";
 import { useExtensions } from "base/codeEditor/extensions";
+import { getJsonFormatter } from "base/codeEditor/autoFormat";
 
 /**
  * JsonEditor Comp

@@ -4,11 +4,14 @@ export interface DraggableTreeNodeItemRenderProps<T = any> {
   dragging: boolean;
   isOver: boolean;
   isFolded: boolean;
+  isOverlay: boolean;
   hasChildren: boolean;
   onDelete: () => void;
   onToggleFold: () => void;
 }
 export interface DraggableTreeNode<T = any> {
+  // identity a node, will be used to save fold status
+  id?: string;
   data?: T;
   canDropIn?: boolean | ((source: T) => boolean);
   canDropBefore?: boolean | ((source?: T) => boolean);
