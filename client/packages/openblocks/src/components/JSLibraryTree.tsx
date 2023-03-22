@@ -172,49 +172,50 @@ export const JSLibraryTree = (props: {
       .filter(({ name }) => !metas[name])
       .map(({ name }) => name);
     !!notExistMetas.length && dispatch(fetchJSLibraryMetasAction(notExistMetas));
-  }, [nameAndVersions, metas, dispatch]);
+  }, []);
 
   return (
     <JSLibraryCollapse
       mode={props.mode}
       isSelected={false}
       isOpen={false}
-      config={finalMetas.map((meta, idx) => ({
-        key: idx,
-        title: (
-          <div className={"lib-label"}>
-            <JSLibraryLabel name={meta.name} version={meta.latestVersion} />
-            <EditPopover
-              items={[
-                ...(meta.homepage
-                  ? [
-                      {
-                        text: trans("preLoad.viewJSLibraryDocument"),
-                        onClick: () => window.open(meta.homepage, "_blank"),
-                      },
-                    ]
-                  : []),
-                ...(meta.deletable
-                  ? ([
-                      {
-                        text: trans("delete"),
-                        onClick: () => {
-                          props.onDelete(idx);
-                        },
-                        type: "delete",
-                      },
-                    ] as const)
-                  : []),
-              ]}
-            >
-              <Icon tabIndex={-1} />
-            </EditPopover>
-          </div>
-        ),
-        data: (
-          <JSLibraryInfo description={meta.description ?? meta.url} exportedAs={meta.exportedAs} />
-        ),
-      }))}
+      config={finalMetas.map((meta, idx) => {
+        const options = [];
+        if (meta.homepage) {
+          options.push({
+            text: trans("preLoad.viewJSLibraryDocument"),
+            onClick: () => window.open(meta.homepage, "_blank"),
+          });
+        }
+        if (meta.deletable) {
+          options.push({
+            text: trans("delete"),
+            onClick: () => {
+              props.onDelete(idx);
+            },
+            type: "delete",
+          } as const);
+        }
+        return {
+          key: idx,
+          title: (
+            <div className={"lib-label"}>
+              <JSLibraryLabel name={meta.name} version={meta.latestVersion} />
+              {!!options.length && (
+                <EditPopover items={options}>
+                  <Icon tabIndex={-1} />
+                </EditPopover>
+              )}
+            </div>
+          ),
+          data: (
+            <JSLibraryInfo
+              description={meta.description ?? meta.url}
+              exportedAs={meta.exportedAs}
+            />
+          ),
+        };
+      })}
     />
   );
 };
