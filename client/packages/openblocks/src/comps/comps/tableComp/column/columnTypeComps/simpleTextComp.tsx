@@ -10,7 +10,7 @@ const childrenMap = {
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string | number, string | number> = (
   props
-) => props.text;
+) => props.text + "";
 
 export const SimpleTextComp = (function () {
   return new ColumnTypeCompBuilder(

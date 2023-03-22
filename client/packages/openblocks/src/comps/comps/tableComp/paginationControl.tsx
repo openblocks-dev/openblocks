@@ -1,7 +1,7 @@
 import { BoolControl } from "comps/controls/boolControl";
 import { ArrayNumberControl, NumberControl } from "comps/controls/codeControl";
 import { stateComp, valueComp, withDefault } from "comps/generators";
-import { MultiCompBuilder } from "comps/generators/multi";
+import { ControlNodeCompBuilder } from "comps/generators/controlCompBuilder";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { trans } from "i18n";
 import { changeChildAction, ConstructorToNodeType } from "openblocks-core";
@@ -32,7 +32,7 @@ export const PaginationTmpControl = (function () {
     pageNo: stateComp<number>(1),
     pageSizeOptions: withDefault(ArrayNumberControl, "[5, 10, 20, 50]"),
   };
-  return new MultiCompBuilder(childrenMap, (props, dispatch) => {
+  return new ControlNodeCompBuilder(childrenMap, (props, dispatch) => {
     return {
       showQuickJumper: props.showQuickJumper,
       showSizeChanger: props.showSizeChanger,
@@ -54,33 +54,29 @@ export const PaginationTmpControl = (function () {
       },
     };
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          {children.showQuickJumper.propertyView({
-            label: trans("table.showQuickJumper"),
-          })}
-          {children.hideOnSinglePage.propertyView({
-            label: trans("table.hideOnSinglePage"),
-          })}
-          {children.showSizeChanger.propertyView({
-            label: trans("table.showSizeChanger"),
-          })}
-          {children.showSizeChanger.getView()
-            ? children.pageSizeOptions.propertyView({
-                label: trans("table.pageSizeOptions"),
-              })
-            : children.pageSize.propertyView({
-                label: trans("table.pageSize"),
-                placeholder: String(DEFAULT_PAGE_SIZE),
-              })}
-          {children.total.propertyView({
-            label: trans("table.total"),
-            tooltip: trans("table.totalTooltip"),
-          })}
-        </>
-      );
-    })
+    .setPropertyViewFn((children) => [
+      children.showQuickJumper.propertyView({
+        label: trans("table.showQuickJumper"),
+      }),
+      children.hideOnSinglePage.propertyView({
+        label: trans("table.hideOnSinglePage"),
+      }),
+      children.showSizeChanger.propertyView({
+        label: trans("table.showSizeChanger"),
+      }),
+      children.showSizeChanger.getView()
+        ? children.pageSizeOptions.propertyView({
+            label: trans("table.pageSizeOptions"),
+          })
+        : children.pageSize.propertyView({
+            label: trans("table.pageSize"),
+            placeholder: String(DEFAULT_PAGE_SIZE),
+          }),
+      children.total.propertyView({
+        label: trans("table.total"),
+        tooltip: trans("table.totalTooltip"),
+      }),
+    ])
     .build();
 })();
 

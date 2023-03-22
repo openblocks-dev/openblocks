@@ -239,7 +239,7 @@ function Option<T extends ConstructorToComp<MultiCompConstructor>>(props: {
       {optionToolbar ? (
         optionToolbar
       ) : (
-        <AddLine title={props.title || trans("optionsControl.optionList")} add={props.onAdd} />
+        <AddLine title={props.title} add={props.onAdd} />
       )}
       {items.length > 0 || headerItem ? (
         <OptionDiv>

@@ -17,7 +17,8 @@ import { ExposingInfo } from "comps/utils/exposingTypes";
 import { getReduceContext, WithParamsContext } from "comps/utils/reduceContext";
 import { parseCompType } from "comps/utils/remote";
 import { Comp, CompAction, ConstructorToDataType } from "openblocks-core";
-import React, { Profiler, useContext, useMemo } from "react";
+import { ScrollBar, SearchTextContext } from "openblocks-design";
+import React, { Profiler, useContext, useEffect, useMemo, useState } from "react";
 import { profilerCallback } from "util/cacheUtils";
 import { setFieldsNoTypeCheck, shallowEqual } from "util/objectUtils";
 import { remoteComp } from "./remoteComp/remoteComp";
@@ -80,19 +81,26 @@ function CachedPropertyView(props: {
     }),
     [prevHints, withParamsContext.params]
   );
-
+  const [searchText, setSearchText] = useState("");
+  useEffect(() => {
+    setSearchText("");
+  }, [props.name]);
   return useMemo(() => {
     return (
       <>
-        <CompName name={props.name} />
+        <CompName name={props.name} search={{ searchText, setSearchText }} />
         <CompNameContext.Provider value={props.name}>
           <CompExposingContext.Provider value={hints}>
-            {props.comp.getPropertyView()}
+            <SearchTextContext.Provider value={searchText}>
+              <ScrollBar>
+                <div style={{ paddingBottom: "80px" }}>{props.comp.getPropertyView()}</div>
+              </ScrollBar>
+            </SearchTextContext.Provider>
           </CompExposingContext.Provider>
         </CompNameContext.Provider>
       </>
     );
-  }, [props.comp, props.name, hints]);
+  }, [props.comp, props.name, hints, searchText, setSearchText]);
 }
 
 export class GridItemComp extends TmpComp {

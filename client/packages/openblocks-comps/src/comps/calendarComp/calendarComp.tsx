@@ -20,10 +20,11 @@ import {
   CustomModal,
   jsonValueExposingStateControl,
   CalendarDeleteIcon,
+  Tooltip,
 } from "openblocks-sdk";
 import { Input, Form } from "antd";
 import { trans, getCalendarLocale } from "../../i18n/comps";
-import { createRef, useContext, useRef } from "react";
+import { createRef, useContext, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -46,6 +47,7 @@ import {
   views,
   slotLabelFormat,
   viewClassNames,
+  FormWrapper,
 } from "./calendarConstants";
 import moment from "moment";
 
@@ -71,6 +73,7 @@ let CalendarBasicComp = (function () {
     const ref = createRef<HTMLDivElement>();
     const editEvent = useRef<EventType>();
     const [form] = Form.useForm();
+    const [left, setLeft] = useState<number | undefined>(undefined);
 
     const events = props.events.value.map((item: EventType) => {
       return {
@@ -154,11 +157,12 @@ let CalendarBasicComp = (function () {
         return;
       }
       if (event) {
-        const { title, groupId, color } = event;
+        const { title, groupId, color, id } = event;
         const eventInfo = {
           title,
           groupId,
           color,
+          id,
         };
         showModal(eventInfo, true);
       } else {
@@ -171,7 +175,6 @@ let CalendarBasicComp = (function () {
         allDay: info.allDay,
         start: info.startStr,
         end: info.endStr,
-        id: events.length + 1 + "",
       };
       const view = info.view.type as ViewType;
       const duration = moment(info.end).diff(moment(info.start), "minutes");
@@ -181,6 +184,9 @@ let CalendarBasicComp = (function () {
         (info.allDay && duration === 1440);
       if (singleClick) {
         editEvent.current = event;
+        setTimeout(() => {
+          editEvent.current = undefined;
+        }, 500);
         return;
       }
       showModal(event, false);
@@ -189,56 +195,86 @@ let CalendarBasicComp = (function () {
     const showModal = (event: EventType, ifEdit: boolean) => {
       const modalTitle = ifEdit ? trans("calendar.editEvent") : trans("calendar.creatEvent");
       form && form.setFieldsValue(event);
+      const eventId = editEvent.current?.id;
       CustomModal.confirm({
         title: modalTitle,
         content: (
-          <Form form={form}>
-            <Form.Item label={trans("calendar.eventName")} name="title">
+          <FormWrapper form={form}>
+            <Form.Item
+              label={
+                <Tooltip title={trans("calendar.eventIdTooltip")}>
+                  {trans("calendar.eventId")}
+                </Tooltip>
+              }
+              name="id"
+              rules={[{ required: true, message: trans("calendar.eventIdRequire") }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label={trans("calendar.eventName")}
+              name="title"
+              rules={[{ required: true, message: trans("calendar.eventNameRequire") }]}
+            >
               <Input />
             </Form.Item>
             <Form.Item label={trans("calendar.eventColor")} name="color">
               <Input />
             </Form.Item>
-            <Form.Item label={trans("calendar.eventGroupId")} name="groupId">
+            <Form.Item
+              label={
+                <Tooltip title={trans("calendar.groupIdTooltip")}>
+                  {trans("calendar.eventGroupId")}
+                </Tooltip>
+              }
+              name="groupId"
+            >
               <Input />
             </Form.Item>
-          </Form>
+          </FormWrapper>
         ),
         onConfirm: () => {
-          const { groupId, color, title = "" } = form.getFieldsValue();
-          if (ifEdit) {
-            const changeEvents = props.events.value.map((item: EventType) => {
-              if (item.id === editEvent.current?.id) {
-                return {
-                  ...item,
-                  title,
-                  ...(groupId !== undefined ? { groupId } : null),
-                  ...(color !== undefined ? { color } : null),
-                };
-              } else {
-                return item;
-              }
-            });
-            props.events.onChange(changeEvents);
-          } else {
-            const createInfo = {
-              allDay: event.allDay,
-              start: event.start,
-              end: event.end,
-              id: event.id,
-              title,
-              ...(groupId !== undefined ? { groupId } : null),
-              ...(color !== undefined ? { color } : null),
-            };
-            props.events.onChange([...props.events.value, createInfo]);
-          }
-          props.onEvent("change");
-          form.resetFields();
-          editEvent.current = undefined;
+          form.submit();
+          return form.validateFields().then(() => {
+            const { id, groupId, color, title = "" } = form.getFieldsValue();
+            const idExist = props.events.value.findIndex((item: EventType) => item.id === id);
+            if (idExist > -1 && id !== eventId) {
+              form.setFields([{ name: "id", errors: [trans("calendar.eventIdExist")] }]);
+              throw new Error();
+            }
+            if (ifEdit) {
+              const changeEvents = props.events.value.map((item: EventType) => {
+                if (item.id === eventId) {
+                  return {
+                    ...item,
+                    title,
+                    id,
+                    ...(groupId !== undefined ? { groupId } : null),
+                    ...(color !== undefined ? { color } : null),
+                  };
+                } else {
+                  return item;
+                }
+              });
+              props.events.onChange(changeEvents);
+            } else {
+              const createInfo = {
+                allDay: event.allDay,
+                start: event.start,
+                end: event.end,
+                id,
+                title,
+                ...(groupId !== undefined ? { groupId } : null),
+                ...(color !== undefined ? { color } : null),
+              };
+              props.events.onChange([...props.events.value, createInfo]);
+            }
+            props.onEvent("change");
+            form.resetFields();
+          });
         },
         onCancel: () => {
           form.resetFields();
-          editEvent.current = undefined;
         },
       });
     };
@@ -250,6 +286,7 @@ let CalendarBasicComp = (function () {
         $style={style}
         theme={theme?.theme}
         onDoubleClick={handleDbClick}
+        left={left}
       >
         <FullCalendar
           slotEventOverlap={false}
@@ -261,8 +298,28 @@ let CalendarBasicComp = (function () {
           firstDay={Number(firstDay)}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin, momentPlugin]}
           headerToolbar={headerToolbar}
+          moreLinkClick={(info) => {
+            let left = 0;
+            const ele = info.jsEvent.target as HTMLElement;
+            if (info.view.type === ViewType.DAY) {
+              if (info.allDay) {
+                left = ele.offsetParent?.parentElement?.offsetLeft || 0;
+              } else {
+                left = ele.parentElement?.offsetLeft || 0;
+              }
+            } else {
+              if (info.allDay) {
+                left = ele.offsetParent?.parentElement?.parentElement?.offsetLeft || 0;
+              } else {
+                left =
+                  ele.offsetParent?.parentElement?.parentElement?.parentElement?.offsetLeft || 0;
+              }
+            }
+            setLeft(left);
+          }}
           buttonText={buttonText}
           views={views}
+          eventClassNames={() => (!showEventTime ? "no-time" : "")}
           slotLabelFormat={slotLabelFormat}
           viewClassNames={viewClassNames}
           moreLinkText={trans("calendar.more")}
@@ -281,6 +338,9 @@ let CalendarBasicComp = (function () {
           eventClick={(info) => {
             const event = events.find((item: EventType) => item.id === info.event.id);
             editEvent.current = event;
+            setTimeout(() => {
+              editEvent.current = undefined;
+            }, 500);
           }}
           eventsSet={(info) => {
             let needChange = false;

@@ -10,6 +10,7 @@ import {
   BluePlusIcon,
   CheckBox,
   CloseEyeIcon,
+  controlItem,
   CustomModal,
   Dropdown,
   labelCss,
@@ -243,7 +244,10 @@ const ColumnBatchView: Record<
   },
 };
 
-function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: { comp: T }) {
+function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
+  comp: T;
+  columnLabel: string;
+}) {
   const { comp } = props;
   const selection = getSelectedRowKeys(comp.children.selection)[0] ?? "0";
   const [columnFilterType, setColumnFilterType] = useState<ColumnFilterOptionValueType>("all");
@@ -260,7 +264,7 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
   const columnOptionToolbar = (
     <InsertDiv>
       <div style={{ display: "flex", alignItems: "center", marginRight: "auto" }}>
-        <TextLabel label={trans("table.columnNum")} />
+        <TextLabel label={props.columnLabel} />
         <Graylabel>{"(" + columns.length + ")"}</Graylabel>
       </div>
       {rowExample && (
@@ -387,29 +391,42 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
         }}
         dataIndex={(column) => column.getView().dataIndex}
       />
-      {comp.children.dynamicColumn.propertyView({ label: trans("table.dynamicColumn") })}
-      {dynamicColumn &&
-        comp.children.dynamicColumnConfig.propertyView({
-          label: trans("table.dynamicColumnConfig"),
-          tooltip: trans("table.dynamicColumnConfigDesc"),
-        })}
     </>
   );
 }
 
+function columnPropertyView<T extends MultiBaseComp<TableChildrenType>>(comp: T) {
+  const columnLabel = trans("table.columnNum");
+  const dynamicColumn = comp.children.dynamicColumn.getView();
+  return [
+    controlItem(
+      { filterText: columnLabel },
+      <ColumnPropertyView comp={comp} columnLabel={columnLabel} />
+    ),
+    comp.children.dynamicColumn.propertyView({ label: trans("table.dynamicColumn") }),
+    dynamicColumn &&
+      comp.children.dynamicColumnConfig.propertyView({
+        label: trans("table.dynamicColumnConfig"),
+        tooltip: trans("table.dynamicColumnConfigDesc"),
+      }),
+  ];
+}
+
 export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>>(comp: T) {
+  const dataLabel = trans("data");
   return (
     <>
       <Section name={trans("data")}>
-        <div className={tableDataDivClassName}>
-          {comp.children.data.propertyView({
-            label: trans("data"),
-          })}
-        </div>
+        {controlItem(
+          { filterText: dataLabel },
+          <div className={tableDataDivClassName}>
+            {comp.children.data.propertyView({
+              label: dataLabel,
+            })}
+          </div>
+        )}
       </Section>
-      <Section name={trans("prop.columns")}>
-        <ColumnPropertyView comp={comp} />
-      </Section>
+      <Section name={trans("prop.columns")}>{columnPropertyView(comp)}</Section>
       <Section name={sectionNames.layout}>
         {comp.children.expansion.getPropertyView()}
         {hiddenPropertyView(comp.children)}
@@ -417,7 +434,7 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
       <Section name={trans("prop.rowSelection")}>
         {comp.children.selection.getPropertyView()}
       </Section>
-      <Section name={trans("prop.toolbar")}> {comp.children.toolbar.getPropertyView()}</Section>
+      <Section name={trans("prop.toolbar")}>{comp.children.toolbar.getPropertyView()}</Section>
       <Section name={trans("prop.pagination")}>
         {comp.children.pagination.getPropertyView()}
       </Section>

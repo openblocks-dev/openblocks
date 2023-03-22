@@ -78,20 +78,16 @@ const commonChildren = {
 const timePickerComps = (props: RecordConstructorToView<typeof commonChildren>) =>
   _.pick(props, "format", "use12Hours", "hourStep", "minuteStep", "secondStep");
 
-const commonBasicSection = (children: RecordConstructorToComp<typeof commonChildren>) => (
-  <>
-    {formatPropertyView({ children })}
-    {children.use12Hours.propertyView({ label: trans("prop.use12Hours") })}
-  </>
-);
+const commonBasicSection = (children: RecordConstructorToComp<typeof commonChildren>) => [
+  formatPropertyView({ children }),
+  children.use12Hours.propertyView({ label: trans("prop.use12Hours") }),
+];
 
-const commonAdvanceSection = (children: RecordConstructorToComp<typeof commonChildren>) => (
-  <>
-    {hourStepPropertyView(children)}
-    {minuteStepPropertyView(children)}
-    {SecondStepPropertyView(children)}
-  </>
-);
+const commonAdvanceSection = (children: RecordConstructorToComp<typeof commonChildren>) => [
+  hourStepPropertyView(children),
+  minuteStepPropertyView(children),
+  SecondStepPropertyView(children),
+];
 
 function validate(
   props: RecordConstructorToView<typeof validationChildren> & {

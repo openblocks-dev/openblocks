@@ -34,6 +34,16 @@ import { useResizeDetector } from "react-resize-detector";
 import { SlotConfigContext } from "comps/controls/slotControl";
 import { EmptyContent } from "pages/common/styledComponent";
 
+const TitleResizeHandle = styled.span`
+  position: absolute;
+  top: 0;
+  right: -5px;
+  width: 10px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 1;
+`;
+
 function genLinerGradient(color: string) {
   return `linear-gradient(${color}, ${color})`;
 }
@@ -314,7 +324,9 @@ const ResizeableTitle = (props: any) => {
     setChildWidth();
   }, []);
 
-  if (isUserViewMode && !viewModeResizable) {
+  // the multi select column and expand column should not be resizable
+  const isNotDataColumn = _.isNil(restProps.title);
+  if ((isUserViewMode && !viewModeResizable) || isNotDataColumn) {
     return <TableTh ref={elementRef} {...restProps} width={width} />;
   }
 
@@ -332,6 +344,14 @@ const ResizeableTitle = (props: any) => {
       }}
       onResizeStop={onResizeStop}
       draggableOpts={{ enableUserSelectHack: false }}
+      handle={() => (
+        <TitleResizeHandle
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        />
+      )}
     >
       <TableTh ref={elementRef} {...restProps} />
     </Resizable>

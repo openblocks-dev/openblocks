@@ -1,12 +1,12 @@
 import { Tooltip } from "antd";
 import { getThemeDetailName, isThemeColorKey, ThemeDetail } from "api/commonSettingApi";
-import { MultiCompBuilder } from "comps/generators";
+import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
 import { childrenToProps, ToConstructor } from "comps/generators/multi";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
 import _ from "lodash";
-import { IconRadius, IconReset } from "openblocks-design";
+import { controlItem, IconRadius, IconReset } from "openblocks-design";
 import { useContext } from "react";
 import styled from "styled-components";
 import { useIsMobile } from "util/hooks";
@@ -209,7 +209,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
     }
   });
   // [K in Names<T>]: new (params: CompParams<any>) => ColorControl;
-  return new MultiCompBuilder(
+  const label = trans("prop.style");
+  return new ControlItemCompBuilder(
     childrenMap as ToConstructor<{ [K in Names<T>]: ColorControl }>,
     (props) => {
       // const x = useContext(CompNameContext);
@@ -218,6 +219,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       return calcColors(props as ColorMap, colorConfigs, theme?.theme, bgColor);
     }
   )
+    .setControlItemData({ filterText: label, searchChild: true })
     .setPropertyViewFn((children) => {
       const theme = useContext(ThemeContext);
       const bgColor = useContext(BackgroundColorContext);
@@ -233,7 +235,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       return (
         <>
           <TitleDiv>
-            <span>{trans("prop.style")}</span>
+            <span>{label}</span>
             {showReset && (
               <span
                 onClick={() => {
@@ -274,7 +276,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                     depMsg = trans("style.generated");
                   }
                 }
-                return (
+                return controlItem(
+                  { filterText: config.label },
                   <div key={index}>
                     {name === "radius"
                       ? (children[name] as InstanceType<typeof RadiusControl>).propertyView({

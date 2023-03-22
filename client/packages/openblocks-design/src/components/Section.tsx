@@ -1,9 +1,9 @@
 import { trans } from "i18n/design";
-import { useContext, useState } from "react";
+import React, { ReactNode, useContext } from "react";
 import styled from "styled-components";
 import { ReactComponent as Packup } from "icons/icon-Pack-up.svg";
 import { labelCss } from "./Label";
-import React from "react";
+import { controlItem, ControlNode } from "./control";
 
 const SectionItem = styled.div<{ width?: number }>`
   width: ${(props) => (props.width ? props.width : 312)}px;
@@ -62,12 +62,12 @@ const ShowChildren = styled.div<{ show?: string; noMargin?: boolean }>`
   padding-right: ${(props) => (props.noMargin ? 0 : "16px")};
 `;
 
-interface ISectionConfig {
+interface ISectionConfig<T> {
   name?: string;
   width?: number;
   noMargin?: boolean;
   style?: React.CSSProperties;
-  children: any;
+  children: T;
 }
 
 export interface PropertySectionState {
@@ -88,7 +88,7 @@ export const PropertySectionContext = React.createContext<PropertySectionContext
   state: {},
 });
 
-export const Section = (props: ISectionConfig) => {
+export const BaseSection = (props: ISectionConfig<ReactNode>) => {
   const { name } = props;
   const { compName, state, toggle } = useContext(PropertySectionContext);
   const open = name ? state[compName]?.[name] !== false : true;
@@ -114,6 +114,10 @@ export const Section = (props: ISectionConfig) => {
     </SectionItem>
   );
 };
+
+export function Section(props: ISectionConfig<ControlNode>) {
+  return controlItem({ filterText: props.name, searchChild: true }, <BaseSection {...props} />);
+}
 
 // common section names
 export const sectionNames = {

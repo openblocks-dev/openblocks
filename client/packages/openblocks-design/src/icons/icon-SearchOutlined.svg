@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <line x1="14.9410793" y1="12.6738235" x2="15.0408782" y2="17.2181824" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" transform="translate(14.990979, 14.946003) rotate(-44.161511) translate(-14.990979, -14.946003) "/>
+    <circle stroke="currentColor" stroke-width="1.5" cx="9.375" cy="9.375" r="5.625"/>
+  </g>
+</svg>

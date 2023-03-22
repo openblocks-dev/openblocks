@@ -154,13 +154,10 @@ let TreeBasicComp = (function () {
         {children.label.getPropertyView()}
         {expandSection(children)}
         {intersectSection(children, children.onEvent.getPropertyView())}
-        {advancedSection(
-          children,
-          <>
-            {allowClearPropertyView(children)}
-            {showSearchPropertyView(children)}
-          </>
-        )}
+        {advancedSection(children, [
+          allowClearPropertyView(children),
+          showSearchPropertyView(children),
+        ])}
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>
     ))

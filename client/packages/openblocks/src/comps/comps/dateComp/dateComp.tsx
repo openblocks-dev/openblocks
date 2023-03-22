@@ -78,12 +78,10 @@ type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 const datePickerProps = (props: RecordConstructorToView<typeof commonChildren>) =>
   _.pick(props, "format", "showTime", "use12Hours", "hourStep", "minuteStep", "secondStep");
 
-const timeFields = (children: CommonChildrenType, isMobile?: boolean) => (
-  <>
-    {children.showTime.propertyView({ label: trans("date.showTime") })}
-    {!isMobile && children.use12Hours.propertyView({ label: trans("prop.use12Hours") })}
-  </>
-);
+const timeFields = (children: CommonChildrenType, isMobile?: boolean) => [
+  children.showTime.propertyView({ label: trans("date.showTime") }),
+  !isMobile && children.use12Hours.propertyView({ label: trans("prop.use12Hours") }),
+];
 const commonAdvanceSection = (children: CommonChildrenType, isDate: boolean = true) => {
   if (isDate && children.showTime.getView()) {
     return (
@@ -98,23 +96,13 @@ const commonAdvanceSection = (children: CommonChildrenType, isDate: boolean = tr
 
 const dateValidationFields = (children: CommonChildrenType, dateType: PickerMode = "date") => {
   if (dateType === "date") {
-    return (
-      <>
-        {minDatePropertyView(children)}
-        {maxDatePropertyView(children)}
-      </>
-    );
+    return [minDatePropertyView(children), maxDatePropertyView(children)];
   }
 };
 
 const timeValidationFields = (children: CommonChildrenType, dateType: PickerMode = "date") => {
   if (dateType === "date" && children.showTime.getView()) {
-    return (
-      <>
-        {minTimePropertyView(children)}
-        {maxTimePropertyView(children)}
-      </>
-    );
+    return [minTimePropertyView(children), maxTimePropertyView(children)];
   }
 };
 
@@ -212,8 +200,6 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
             tooltip: trans("date.formatTip"),
           })}
           {formatPropertyView({ children })}
-          {/*{children.dateType.propertyView({ label: "date type" })}*/}
-          {/*{timeFields(children, children.dateType.value === "date")}*/}
           {timeFields(children, isMobile)}
         </Section>
 

@@ -828,6 +828,7 @@ export const en = {
     needNotUpgrade: "Current version is already latest.",
     compNotFoundInLatestVersion: "Current component not found in the latest version.",
     upgradeSuccess: "Successfully upgraded to latest version.",
+    searchProp: "Search",
   },
   jsonSchemaForm: {
     retry: "Retry",
@@ -937,6 +938,7 @@ export const en = {
     allowHalf: "Allow half",
   },
   optionsControl: {
+    optionList: "Options",
     option: "Option",
     optionI: "Option {i}",
     viewDocs: "View docs",
@@ -1333,7 +1335,7 @@ export const en = {
     title: "Settings",
     member: "Members",
     organization: "Workspaces",
-    audit: "Audit logs",
+    audit: "Audit Logs",
     theme: "Themes",
     plugin: "Plugins",
     advanced: "Advanced",
@@ -1779,7 +1781,6 @@ export const en = {
     switchOrg: "Switch workspace",
     joinedOrg: "My workspaces",
     createOrg: "Create workspace",
-    auditLogs: "Audit logs",
     logout: "Log out",
     personalInfo: "My profile",
     bindingSuccess: "Binding {sourceName} success",
@@ -2356,8 +2357,8 @@ export const en = {
     saveBtn: "Save and enable",
     save: "Save",
     none: "None",
-    formPlaceholder: "Please enter {form}",
-    formSelectPlaceholder: "Please select the {form}",
+    formPlaceholder: "Please enter {label}",
+    formSelectPlaceholder: "Please select the {label}",
     saveSuccess: "Saved successfully",
     dangerLabel: "Danger Zone",
     dangerTip:
@@ -2369,6 +2370,9 @@ export const en = {
     disableContent:
       "Disabling this ID provider may result in some users being unable to log in. Are you sure to proceed?",
     manualTip: "",
+    lockTip: "The content is locked. To make changes, please click the{icon}to unlock.",
+    lockModalContent: "Changing the 'ID attribute' field can have significant impacts on user identification. Please confirm that you understand the implications of this change before proceeding.",
+    payUserTag: "Premium",
   },
   slotControl: {
     configSlotView: "Configure slot view",
