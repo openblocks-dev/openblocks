@@ -299,6 +299,7 @@ const SelectWrapper = styled.div`
 
   .ant-select .ant-select-selector {
     padding: 0 0 0 8px;
+    margin: 0;
   }
 
   .ant-select:not(.ant-select-customize-input) .ant-select-selector {

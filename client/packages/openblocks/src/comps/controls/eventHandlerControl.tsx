@@ -7,6 +7,7 @@ import { DispatchType } from "openblocks-core";
 import {
   AddEventIcon,
   AddLine,
+  controlItem,
   CustomPopover,
   EditPopover,
   EventAction,
@@ -203,7 +204,7 @@ const EventHandlerControlPropertyView = (props: {
   }
   return (
     <>
-      <AddLine title={props.title ?? trans("eventHandler.eventHandlers")} add={handleAdd} />
+      <AddLine title={props.title} add={handleAdd} />
       {renderItems()}
     </>
   );
@@ -226,7 +227,7 @@ class EventHandlerControl<T extends EventConfigsType> extends list(SingleEventHa
   }
 
   isBind(eventName: ValueFromOption<T>) {
-    return super.getView().some((child) => child.getView()(eventName));
+    return super.getView().some((child) => child.children.name.getView() === eventName);
   }
 
   override getPropertyView() {
@@ -234,7 +235,9 @@ class EventHandlerControl<T extends EventConfigsType> extends list(SingleEventHa
   }
 
   propertyView(options?: { inline?: boolean; title?: ReactNode; type?: "query"; eventConfigs: T }) {
-    return (
+    const title = options?.title ?? trans("eventHandler.eventHandlers");
+    return controlItem(
+      { filterText: title },
       <EventHandlerControlPropertyView
         type={options?.type}
         eventConfigs={options?.eventConfigs || []}
@@ -243,7 +246,7 @@ class EventHandlerControl<T extends EventConfigsType> extends list(SingleEventHa
         deleteAction={this.deleteAction}
         items={super.getView() as any}
         inline={options?.inline}
-        title={options?.title}
+        title={title}
       />
     );
   }
@@ -325,4 +328,3 @@ export const ScannerEventHandlerControl = eventHandlerControl([
   successEvent,
   closeEvent,
 ] as const);
-

@@ -10,7 +10,7 @@ import {
   hiddenPropertyView,
   loadingPropertyView,
 } from "comps/utils/propertyUtils";
-import { CommonBlueLabel, Dropdown, Section, sectionNames } from "openblocks-design";
+import { CommonBlueLabel, controlItem, Dropdown, Section, sectionNames } from "openblocks-design";
 import { trans } from "i18n";
 import styled from "styled-components";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
@@ -73,12 +73,14 @@ function getFormEventHandlerPropertyView(editorState: EditorState, formName: str
 
 class SelectFormControl extends SimpleNameComp {
   override getPropertyView() {
-    return (
+    const label = trans("button.formToSubmit");
+    return controlItem(
+      { filterText: label },
       <EditorContext.Consumer>
         {(editorState) => (
           <>
             <Dropdown
-              label={trans("button.formToSubmit")}
+              label={label}
               value={this.value}
               options={getFormOptions(editorState)}
               onChange={(value) => this.dispatchChangeValueAction(value)}
@@ -161,15 +163,13 @@ const ButtonTmpComp = (function () {
 
         <Section name={sectionNames.interaction}>
           {children.type.propertyView({ label: trans("prop.type"), radioButton: true })}
-          {isDefault(children.type.getView()) ? (
-            <>
-              {children.onEvent.getPropertyView()}
-              {disabledPropertyView(children)}
-              {loadingPropertyView(children)}
-            </>
-          ) : (
-            children.form.getPropertyView()
-          )}
+          {isDefault(children.type.getView())
+            ? [
+                children.onEvent.getPropertyView(),
+                disabledPropertyView(children),
+                loadingPropertyView(children),
+              ]
+            : children.form.getPropertyView()}
         </Section>
 
         <Section name={sectionNames.layout}>

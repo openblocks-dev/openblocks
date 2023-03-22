@@ -43,6 +43,7 @@ const SearchDiv = styled.div<{ error?: boolean }>`
   }
 `;
 const SearchIcon = styled(Icon)`
+  color: #9195a3;
   margin: 6px 0 6px 8px;
 `;
 

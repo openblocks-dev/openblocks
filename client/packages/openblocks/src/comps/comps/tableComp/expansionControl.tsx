@@ -6,7 +6,7 @@ import {
 import { BoolControl } from "comps/controls/boolControl";
 import { SlotControl } from "comps/controls/slotControl";
 import { withSelectedMultiContext } from "comps/generators";
-import { MultiCompBuilder } from "comps/generators/multi";
+import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { trans } from "i18n";
 import _ from "lodash";
@@ -43,19 +43,19 @@ function ExpandView(props: { containerProps: ConstructorToView<typeof SimpleCont
 }
 
 let ExpansionControlTmp = (function () {
-  return new MultiCompBuilder(
+  const label = trans("table.expandable");
+  return new ControlItemCompBuilder(
     {
       expandable: BoolControl,
       slot: ContextSlotControl,
     },
     () => ({ expandableConfig: {}, expandModalView: null })
   )
+    .setControlItemData({ filterText: label })
     .setPropertyViewFn((children, dispatch) => {
       return (
         <>
-          {children.expandable.propertyView({
-            label: trans("table.expandable"),
-          })}
+          {children.expandable.propertyView({ label })}
           {children.expandable.getView() &&
             children.slot
               .getSelectedComp()

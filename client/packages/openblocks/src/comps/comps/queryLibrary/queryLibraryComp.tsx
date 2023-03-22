@@ -1,19 +1,19 @@
 import { QueryComp } from "../../queries";
 import { simpleMultiComp, withPropertyViewFn } from "../../generators";
 import { exposingDataForAutoComplete, NameAndExposingInfo } from "../../utils/exposingTypes";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { QueryGeneralPropertyView } from "../../queries/queryComp/queryPropertyView";
 import { InputListComp } from "./inputListComp";
 import { CompExposingContext } from "comps/generators/withContext";
 import { QueryContext } from "util/context/QueryContext";
 import { QueryLibraryEditorView } from "pages/queryLibrary/queryLibraryEditorView";
 import {
+  BaseSection,
   CustomModal,
   EditPopover,
   EditText,
   PointIcon,
   ScrollBar,
-  Section,
   TacoButton,
   UnfoldWhiteIcon,
 } from "openblocks-design";
@@ -60,17 +60,17 @@ export const QueryLibraryComp = class extends QueryLibraryCompBase {
   getRightPropertyView() {
     return (
       <>
-        <Section key={"inputs"} name={trans("prop.inputs")} width={296} noMargin>
+        <BaseSection key={"inputs"} name={trans("prop.inputs")} width={296} noMargin>
           {this.children.inputs.getPropertyView()}
-        </Section>
-        <Section key={"meta"} name={trans("prop.meta")} width={296} noMargin>
+        </BaseSection>
+        <BaseSection key={"meta"} name={trans("prop.meta")} width={296} noMargin>
           <div style={{ padding: " 0 8px" }}>
             <DataSourceStructureTree
               dataSourceId={this.children.query.children.datasourceId.getView()}
               datasourceType={this.children.query.children.compType.getView()}
             />
           </div>
-        </Section>
+        </BaseSection>
       </>
     );
   }

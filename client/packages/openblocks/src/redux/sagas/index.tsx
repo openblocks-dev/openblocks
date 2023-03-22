@@ -11,6 +11,7 @@ import { folderSagas } from "./folderSagas";
 import { all, call, spawn } from "redux-saga/effects";
 import log from "loglevel";
 import { datasourcePermissionSagas } from "./datasourcePermissionSagas";
+import { jsLibrarySagas } from "redux/sagas/jsLibrarySagas";
 
 export const sagas = [
   applicationSagas,
@@ -24,6 +25,7 @@ export const sagas = [
   configSagas,
   appSnapshotSagas,
   commonSettingsSagas,
+  jsLibrarySagas,
 ];
 
 export function* rootSaga(sagasToRun = sagas) {

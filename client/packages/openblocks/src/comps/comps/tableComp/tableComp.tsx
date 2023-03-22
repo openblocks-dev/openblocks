@@ -169,42 +169,11 @@ export class TableImplComp extends TableInitComp implements IContainer {
 
   override reduce(action: CompAction): this {
     let comp = super.reduce(action);
-    let needMoreEval = false;
 
-    const thisSelection = getSelectedRowKeys(this.children.selection)[0] ?? "0";
-    const newSelection = getSelectedRowKeys(comp.children.selection)[0] ?? "0";
-    const selectionChanged =
-      this.children.selection !== comp.children.selection && thisSelection !== newSelection;
-    if (
-      (action.type === CompActionTypes.CUSTOM &&
-        comp.children.columns.getView().length !== this.children.columns.getView().length) ||
-      selectionChanged
-    ) {
-      comp = comp.setChild(
-        "columns",
-        comp.children.columns.reduce(comp.children.columns.setSelectionAction(newSelection))
-      );
-      needMoreEval = true;
-    }
-
-    let params = comp.children.expansion.children.slot.getCachedParams(newSelection);
-    if (selectionChanged || _.isNil(params)) {
-      params = _.isNil(params) ? genSelectionParams(this.filterData, newSelection) : undefined;
-      comp = comp.setChild(
-        "expansion",
-        comp.children.expansion.reduce(
-          comp.children.expansion.setSelectionAction(newSelection, params)
-        )
-      );
-      needMoreEval = true;
-    }
-    if (action.type === CompActionTypes.UPDATE_NODES_V2 && needMoreEval) {
-      setTimeout(() => comp.dispatch(onlyEvalAction()));
-    }
-
+    let dataChanged = false;
     if (action.type === CompActionTypes.UPDATE_NODES_V2) {
       const nextRowExample = tableDataRowExample(comp.children.data.getView());
-      const dataChanged =
+      dataChanged =
         comp.children.data !== this.children.data &&
         !_.isEqual(this.children.data.getView(), comp.children.data.getView());
       if (dataChanged) {
@@ -241,6 +210,42 @@ export class TableImplComp extends TableInitComp implements IContainer {
           actions.forEach((action) => comp.dispatch(deferAction(action)));
         }, 0);
       }
+    }
+
+    let needMoreEval = false;
+
+    const thisSelection = getSelectedRowKeys(this.children.selection)[0] ?? "0";
+    const newSelection = getSelectedRowKeys(comp.children.selection)[0] ?? "0";
+    const selectionChanged =
+      this.children.selection !== comp.children.selection && thisSelection !== newSelection;
+    if (
+      (action.type === CompActionTypes.CUSTOM &&
+        comp.children.columns.getView().length !== this.children.columns.getView().length) ||
+      selectionChanged
+    ) {
+      comp = comp.setChild(
+        "columns",
+        comp.children.columns.reduce(comp.children.columns.setSelectionAction(newSelection))
+      );
+      needMoreEval = true;
+    }
+
+    let params = comp.children.expansion.children.slot.getCachedParams(newSelection);
+    if (selectionChanged || _.isNil(params) || dataChanged) {
+      params =
+        _.isNil(params) || dataChanged
+          ? genSelectionParams(comp.filterData, newSelection)
+          : undefined;
+      comp = comp.setChild(
+        "expansion",
+        comp.children.expansion.reduce(
+          comp.children.expansion.setSelectionAction(newSelection, params)
+        )
+      );
+      needMoreEval = true;
+    }
+    if (action.type === CompActionTypes.UPDATE_NODES_V2 && needMoreEval) {
+      setTimeout(() => comp.dispatch(onlyEvalAction()));
     }
     // console.info("exit tableComp reduce. action: ", action, "\nthis: ", this, "\ncomp: ", comp);
     return comp;

@@ -3,6 +3,7 @@ import {
   backgroundToBorder,
   CalendarStyleType,
   contrastText,
+  contrastColor,
   handleToCalendarHeadSelectBg,
   handleToCalendarToday,
   genHoverColor,
@@ -12,7 +13,8 @@ import {
   isDarkColor,
   darkenColor,
   lightenColor,
-  toHex
+  toHex,
+  UnderlineCss,
 } from "openblocks-sdk";
 import styled from "styled-components";
 import moment from "moment";
@@ -22,11 +24,13 @@ import {
   SlotLabelContentArg,
   ViewContentArg,
 } from "@fullcalendar/core";
+import { Form } from "antd";
 
 export const Wrapper = styled.div<{
   editable: boolean;
   $style: CalendarStyleType;
   theme?: ThemeDetail;
+  left?: number;
 }>`
   position: relative;
   height: 100%;
@@ -64,7 +68,7 @@ export const Wrapper = styled.div<{
     .fc-list-table {
       table-layout: fixed;
       th {
-        background-color: ${props => props.$style.background};
+        background-color: ${(props) => props.$style.background};
       }
     }
     .fc-list-event-graphic {
@@ -88,7 +92,11 @@ export const Wrapper = styled.div<{
         border: none;
       }
       &:not(:nth-of-type(1)) .fc-list-day-cushion {
-        border-top: 1px solid ${(props) => props.$style.border};
+        border-top: 1px solid
+          ${(props) =>
+            toHex(props.$style.border) === "#D7D9E0"
+              ? "#E1E3EB"
+              : lightenColor(props.$style.border, 0.03)};
       }
     }
     .fc-event + .fc-list-day th {
@@ -116,10 +124,13 @@ export const Wrapper = styled.div<{
       }
     }
     .fc-event {
-      font-size: 14px;
+      font-size: 13px;
       line-height: 20px;
       display: flex;
       align-items: center;
+      &.no-time {
+        padding-left: 19px;
+      }
     }
     .fc-list-event-time {
       padding: 0px 16px 0 24px;
@@ -134,8 +145,9 @@ export const Wrapper = styled.div<{
       text-overflow: ellipsis;
       white-space: nowrap;
       padding: 0 14px 0 0;
+      cursor: pointer;
       .event {
-        font-size: 14px;
+        font-size: 13px;
         height: 18px;
         line-height: 18px;
         margin: 3px 5px;
@@ -151,7 +163,6 @@ export const Wrapper = styled.div<{
         }
         .event-title {
           margin-left: 16px;
-          font-weight: 400;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
@@ -208,7 +219,7 @@ export const Wrapper = styled.div<{
           padding-right: 20px;
         }
         .event {
-          font-size: 14px;
+          font-size: 13px;
           line-height: 18px;
           padding-right: 0;
           .event-time {
@@ -216,7 +227,6 @@ export const Wrapper = styled.div<{
           }
           .event-title {
             margin-left: 15px;
-            font-weight: 400;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -227,7 +237,7 @@ export const Wrapper = styled.div<{
         }
       }
       .fc-daygrid-day-bottom {
-        padding: 2px 0 0 8px;
+        padding: 2px 2px 0 10px;
       }
     }
     .fc-day-other {
@@ -251,12 +261,24 @@ export const Wrapper = styled.div<{
     border-radius: 4px;
     box-shadow: 0 0px 10px 4px rgba(0, 0, 0, 0.25);
     overflow: hidden;
+    left: ${(props) => `min(${props.left}px, calc(100% - 210px)) !important`};
     .fc-popover-body {
       padding: 4px 0;
+      min-width: 200px;
+      width: 200px;
       .fc-daygrid-event-harness {
         margin: 4px;
         .fc-event {
           margin: 0;
+          .event {
+            height: fit-content;
+            .event-title {
+              white-space: pre-wrap;
+            }
+            .event-time {
+              margin-top: 0;
+            }
+          }
         }
       }
     }
@@ -264,9 +286,31 @@ export const Wrapper = styled.div<{
     .fc-popover-body {
       background-color: ${(props) => props.$style.background};
     }
+    .fc-popover-header .fc-popover-close {
+      color: #8b8fa3;
+      &:hover {
+        color: #222;
+      }
+    }
   }
 
-  // all day
+  .fc-direction-ltr .fc-timegrid-more-link {
+    border: 1px solid ${(props) => props.$style.border};
+    border-radius: 4px;
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.15);
+    font-size: 13px;
+    display: inline-block;
+    font-weight: 500;
+    background-color: ${(props) => lightenColor(props.$style.background, 0.1)};
+  }
+
+  .fc-dayGridMonth-view .fc-more-link {
+    margin: 0 2px 2px 2px !important;
+  }
+  .fc-timeGridWeek-view .fc-more-link,
+  .fc-timeGridDay-view .fc-more-link {
+    margin: 2px !important;
+  }
   .fc-daygrid-day-events {
     margin: 0 !important;
     padding: 2px 0;
@@ -276,17 +320,17 @@ export const Wrapper = styled.div<{
     .fc-daygrid-day-bottom {
       line-height: 16px;
       padding: 0;
-      margin: 2px 4px;
       .fc-more-link {
+        width: calc(100% - 4px);
         border: 1px solid ${(props) => props.$style.border};
         border-radius: 4px;
         box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.15);
         font-size: 13px;
         display: inline-block;
         height: 20px;
-        width: 100%;
         padding-left: 15px;
         font-weight: 500;
+        background-color: ${(props) => lightenColor(props.$style.background, 0.1)};
       }
     }
   }
@@ -347,12 +391,19 @@ export const Wrapper = styled.div<{
       display: none;
     }
   }
+  .fc .fc-timegrid-slot-label-cushion {
+    padding: 0 15px;
+  }
 
   // border-radius, bg
   .fc-theme-standard .fc-list {
     background-color: ${(props) => props.$style.background};
     border-radius: ${(props) => `0 0 ${props.$style.radius} ${props.$style.radius}`};
     border-color: ${(props) => props.$style.border};
+    border-top-color: ${(props) =>
+      toHex(props.$style.border) === "#D7D9E0"
+        ? "#E1E3EB"
+        : lightenColor(props.$style.border, 0.03)};
   }
   .fc-scrollgrid-liquid {
     border-radius: ${(props) => `0 0 ${props.$style.radius} ${props.$style.radius}`};
@@ -374,7 +425,10 @@ export const Wrapper = styled.div<{
     border-right: none;
   }
   .fc-theme-standard .fc-scrollgrid {
-    border-color: ${props => props.$style.border};
+    border-color: ${(props) =>
+      toHex(props.$style.border) === "#D7D9E0"
+        ? "#E1E3EB"
+        : lightenColor(props.$style.border, 0.03)};
   }
   .fc .fc-scrollgrid {
     border-bottom-width: 1px;
@@ -393,7 +447,10 @@ export const Wrapper = styled.div<{
   }
   .fc-theme-standard td,
   .fc-theme-standard th {
-    border-color: ${(props) => props.$style.border};
+    border-color: ${(props) =>
+      toHex(props.$style.border) === "#D7D9E0"
+        ? "#E1E3EB"
+        : lightenColor(props.$style.border, 0.03)};
   }
 
   // header
@@ -420,10 +477,19 @@ export const Wrapper = styled.div<{
     display: flex;
     align-items: center;
     justify-content: center;
-    &:not(:disabled):hover {
-      background-color: ${(props) => genHoverColor(props.$style.headerBtnBackground)};
-      border-color: ${(props) =>
-        backgroundToBorder(genHoverColor(props.$style.headerBtnBackground))};
+    &:not(:disabled):not(.fc-button-active) {
+      &:hover,
+      &:active {
+        color: ${(props) => props.$style.btnText};
+        background-color: ${(props) =>
+          toHex(props.$style.headerBtnBackground) === "#FFFFFF"
+            ? "#F5F5F6"
+            : genHoverColor(props.$style.headerBtnBackground)};
+        border-color: ${(props) =>
+          toHex(props.$style.headerBtnBackground) === "#FFFFFF"
+            ? "#D7D9E0"
+            : backgroundToBorder(genHoverColor(props.$style.headerBtnBackground))};
+      }
     }
     &:not(:disabled):focus {
       box-shadow: none;
@@ -435,7 +501,10 @@ export const Wrapper = styled.div<{
       &:hover {
         background-color: ${(props) => props.$style.headerBtnBackground};
         border-color: ${(props) => backgroundToBorder(props.$style.headerBtnBackground)};
-        color: ${(props) => props.$style.btnText};
+        color: ${(props) =>
+          toHex(props.$style.btnText) === "#222222"
+            ? "#B8B9BF"
+            : contrastColor(props.$style.btnText)};
       }
     }
   }
@@ -443,7 +512,7 @@ export const Wrapper = styled.div<{
   .fc .fc-button-primary:not(:disabled):active:focus {
     box-shadow: none;
   }
-  .fc-toolbar-chunk:nth-of-type(1) .fc-button-primary {
+  .fc-toolbar-chunk:nth-of-type(3) .fc-button-primary {
     height: 28px;
     display: inline-flex;
     font-size: 14px;
@@ -461,22 +530,28 @@ export const Wrapper = styled.div<{
       color: ${(props) => lightenColor(props.$style.btnText, 0.4)};
     }
     &.fc-prev-button {
-      margin-left: 16px;
+      margin-left: 12px;
     }
   }
   .fc-toolbar-chunk:nth-of-type(3) .fc-button-group {
     background-color: ${(props) =>
-      isDarkColor(props.$style.headerBtnBackground)
+      toHex(props.$style.headerBtnBackground) === "#FFFFFF"
+        ? "#EFEFF1"
+        : isDarkColor(props.$style.headerBtnBackground)
         ? props.$style.headerBtnBackground
         : darkenColor(props.$style.headerBtnBackground, 0.1)};
     border-radius: 4px;
+    margin-left: 16px;
     .fc-button-primary {
       background-color: transparent;
       min-width: 60px;
       border-radius: 4px;
       margin: 2px;
       border: none;
-      color: ${(props) => lightenColor(props.$style.btnText, 0.4)};
+      color: ${(props) =>
+        toHex(props.$style.btnText) === "#222222"
+          ? "#8B8FA3"
+          : lightenColor(props.$style.btnText, 0.4)};
       font-weight: 500;
 
       &.fc-button-active {
@@ -552,8 +627,11 @@ export const Remove = styled.div<{ isList: boolean }>`
   display: flex;
   padding: 5px;
   opacity: 0;
+  cursor: pointer;
   &:hover {
-    transform: scale(1.1);
+    g {
+      stroke: #315efb;
+    }
   }
 `;
 
@@ -602,6 +680,7 @@ export const Event = styled.div<{
     font-weight: 500;
     margin-left: 15px;
     white-space: pre-wrap;
+    word-break: break-word;
   }
 
   &.small {
@@ -633,12 +712,30 @@ export const Event = styled.div<{
     background-color: ${(props) => isDarkColor(props.$style.background) && props.$style.background};
     &::before {
       background-color: ${(props) =>
-        isDarkColor(props.$style.text) ? lightenColor(props.$style.text, 0.2) : props.$style.text};
+        toHex(props.$style.text) === "#3C3C3C"
+          ? "#8B8FA3"
+          : isDarkColor(props.$style.text)
+          ? lightenColor(props.$style.text, 0.3)
+          : props.$style.text};
     }
     &::before,
     .event-title,
     .event-time {
       opacity: 0.35;
+    }
+  }
+`;
+
+export const FormWrapper = styled(Form)`
+  .ant-form-item-label {
+    width: 100px;
+    text-align: left;
+    line-height: 18px;
+    label:not(.ant-form-item-required) {
+      margin-left: 11px;
+    }
+    label span {
+      ${UnderlineCss}
     }
   }
 `;
@@ -738,8 +835,8 @@ export const buttonText = {
 };
 
 export const headerToolbar = {
-  left: "title prev today next",
-  right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+  left: "title",
+  right: "prev today next dayGridMonth,timeGridWeek,timeGridDay,listWeek",
 };
 
 const weekHeadContent = (info: DayHeaderContentArg) => {

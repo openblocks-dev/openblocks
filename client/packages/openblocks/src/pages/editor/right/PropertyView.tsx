@@ -4,16 +4,14 @@ import { EditorContext } from "comps/editorState";
 import { GridCompOperator } from "comps/utils/gridCompOperator";
 import { SelectedComps } from "openblocks-design";
 import { ScrollBar } from "openblocks-design";
-import { useContext } from "react";
-import styled from "styled-components";
+import { ReactNode, useContext } from "react";
 import { trans } from "i18n";
 
-const PropertyViewWrapper = styled(ScrollBar)`
-  .simplebar-track.simplebar-vertical .simplebar-scrollbar:before {
-    top: 48px; // preserve for comp name
-    bottom: 10px;
-  }
-`;
+const ScrollWrapper = (props: { children: ReactNode }) => (
+  <ScrollBar>
+    <div style={{ paddingBottom: "10px" }}>{props.children}</div>
+  </ScrollBar>
+);
 
 interface PropertyViewProps {
   uiComp?: InstanceType<typeof UIComp>;
@@ -28,7 +26,7 @@ export default function PropertyView(props: PropertyViewProps) {
 
   let propertyView;
   if (selectedComp) {
-    propertyView = <div style={{ paddingBottom: "80px" }}> {selectedComp.getPropertyView()}</div>;
+    return <>{selectedComp.getPropertyView()}</>;
   } else if (selectedCompNames.size > 1) {
     propertyView = (
       <SelectedComps
@@ -49,5 +47,5 @@ export default function PropertyView(props: PropertyViewProps) {
     );
   }
 
-  return <PropertyViewWrapper>{propertyView}</PropertyViewWrapper>;
+  return <ScrollWrapper>{propertyView}</ScrollWrapper>;
 }

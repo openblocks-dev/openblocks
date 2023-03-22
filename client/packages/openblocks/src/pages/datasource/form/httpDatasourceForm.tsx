@@ -2,7 +2,6 @@ import { Rule } from "antd/lib/form";
 import { HttpConfig } from "api/datasourceApi";
 import {
   DatasourceForm,
-  FormCheckboxItem,
   FormInputItem,
   FormKeyValueItem,
   FormSection,
@@ -17,6 +16,7 @@ import {
   CertValidationFormItem,
   DatasourceNameFormInputItem,
   encryptedPlaceholder,
+  ForwardCookiesFormItem,
   GeneralSettingFormSectionLabel,
 } from "../form";
 import { DatasourceFormProps } from "./datasourceFormRegistry";
@@ -155,21 +155,7 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
       <FormSection size={props.size}>
         <AdvancedSettingFormSectionLabel />
         <CertValidationFormItem datasource={props.datasource} />
-        <FormSelectItem
-          open={false}
-          mode={"tags"}
-          name={"forwardCookies"}
-          label={trans("httpQuery.forwardCookies")}
-          options={[]}
-          initialValue={datasourceConfig?.forwardCookies}
-          labelWidth={142}
-        />
-        <FormCheckboxItem
-          name={"forwardAllCookies"}
-          label={trans("httpQuery.forwardAllCookies")}
-          initialValue={datasourceConfig?.forwardAllCookies}
-          labelWidth={142}
-        />
+        <ForwardCookiesFormItem datasource={props.datasource} />
       </FormSection>
 
       {/*<KeyValueFormItem label={"Extra body values"} />*/}

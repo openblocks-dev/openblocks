@@ -25,7 +25,12 @@ import {
   ValueAndMsg,
   withFunction,
 } from "openblocks-core";
-import { ControlPropertyViewWrapper, isValidColor, toHex } from "openblocks-design";
+import {
+  ControlPropertyViewWrapper,
+  isValidColor,
+  toHex,
+  wrapperToControlItem,
+} from "openblocks-design";
 import { ReactNode } from "react";
 import {
   showTransform,
@@ -147,14 +152,14 @@ export function codeControl<
       return this.unevaledValue;
     }
 
-    propertyView(params: ControlParams): ReactNode {
+    propertyView(params: ControlParams) {
       const layout: ControlLayout = (() => {
         if (params.placement === "bottom") {
           return "horizontal";
         }
         return params.layout ?? (lineFeed(this.unevaledValue) ? "vertical" : "horizontal");
       })();
-      return (
+      return wrapperToControlItem(
         <ControlPropertyViewWrapper
           key={typeof params.label === "string" ? params.label : params.key}
           placement={params.placement}
