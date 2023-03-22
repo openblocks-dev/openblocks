@@ -14,7 +14,7 @@ The lack of License Key will not hinder the process of starting and maintaining 
 ## Premium features
 
 * Enterprise ID providers: Google, GitHub, Azure AD, Okta, Keycloak, CAS, LDAP, JWT and more
-* White labeling ([Customize branding](../workspace-management/customize-branding.md))
+* White labeling ([Custom branding](../workspace-management/customize-branding.md))
 * Air-gapped deployment
 * Audit logs
 * Priority support
