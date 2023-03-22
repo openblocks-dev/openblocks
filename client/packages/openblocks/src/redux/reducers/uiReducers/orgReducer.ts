@@ -1,4 +1,4 @@
-import { GroupUser, Org, OrgGroup, OrgUser } from "constants/orgConstants";
+import { GroupUser, OrgGroup, OrgUser } from "constants/orgConstants";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -13,6 +13,7 @@ import {
 } from "redux/reduxActions/orgActions";
 import { createImmerReducer } from "util/reducerUtils";
 import { currentOrgAdmin } from "util/permissionUtils";
+import { ApiRequestStatus } from "constants/apiConstants";
 
 const initialState: OrgReduxState = {
   orgUsers: [],
@@ -22,6 +23,7 @@ const initialState: OrgReduxState = {
   currentUserGroupRole: "",
   groupUsersFetching: true,
   fetchOrgGroupsFinished: false,
+  orgCreateStatus: "init",
 };
 
 const orgReducer = createImmerReducer(initialState, {
@@ -90,15 +92,17 @@ const orgReducer = createImmerReducer(initialState, {
     }),
     groupUsers: state.groupUsers.filter((user) => user.userId !== action.payload.userId),
   }),
-  [ReduxActionTypes.CREATE_ORG_SUCCESS]: (
-    state: OrgReduxState,
-    action: ReduxAction<{ orgId: string; orgName: string }>
-  ): OrgReduxState => ({
+  [ReduxActionTypes.CREATE_ORG]: (state: OrgReduxState): OrgReduxState => ({
     ...state,
-    newCreatedOrg: {
-      id: action.payload.orgId,
-      name: action.payload.orgName,
-    },
+    orgCreateStatus: "requesting",
+  }),
+  [ReduxActionTypes.CREATE_ORG_SUCCESS]: (state: OrgReduxState): OrgReduxState => ({
+    ...state,
+    orgCreateStatus: "success",
+  }),
+  [ReduxActionErrorTypes.CREATE_ORG_ERROR]: (state: OrgReduxState): OrgReduxState => ({
+    ...state,
+    orgCreateStatus: "error",
   }),
 });
 
@@ -110,7 +114,7 @@ export interface OrgReduxState {
   orgUsersFetching: boolean;
   groupUsersFetching: boolean;
   fetchOrgGroupsFinished: boolean;
-  newCreatedOrg?: Partial<Org>;
+  orgCreateStatus: ApiRequestStatus;
 }
 
 export default orgReducer;

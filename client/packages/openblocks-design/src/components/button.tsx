@@ -134,7 +134,7 @@ const buttonStyleConfig = {
 };
 export type TacoButtonType = keyof typeof buttonStyleConfig;
 
-const StyledAntdButton = styled(Button)<{ $buttonType: TacoButtonType }>`
+const StyledAntdButton = styled(Button)<{ $buttonType: TacoButtonType; $loading: boolean }>`
   ${(props) => buttonStyleConfig[props.$buttonType]};
   display: flex;
   align-items: center;
@@ -148,18 +148,24 @@ const StyledAntdButton = styled(Button)<{ $buttonType: TacoButtonType }>`
     box-shadow: none;
   }
 
-  &.ant-btn-loading {
-    span {
-      display: none;
-    }
+  .ant-btn-loading-icon {
+    display: none;
   }
 
   & > svg {
+    ${(props) => props.$loading && "display: none;"}
     width: 12px;
     height: 12px;
     margin-right: 4px;
   }
 `;
+
+const loadingStyle: CSSProperties = {
+  position: "absolute",
+  left: "50%",
+  top: "50%",
+  transform: "translate(-50%, -50%)",
+};
 
 /**
  * antd button style adjustment when loading
@@ -172,15 +178,34 @@ const TacoButton = forwardRef(
     ref: React.Ref<HTMLElement>
   ) => {
     const { buttonType, ...restProps } = props;
-    const LoadingComp = !buttonType || buttonType === "link" ? LightLoading : Loading;
+    let loadingBackground;
+    let loadingColor;
+    if (buttonType === "link") {
+      loadingBackground = "#fafbff";
+      loadingColor = "#3377FF";
+    } else if (buttonType === "delete") {
+      loadingBackground = "#fef4f4";
+      loadingColor = "#f73131";
+    }
     return (
-      <StyledAntdButton {...restProps} $buttonType={props.buttonType ?? "normal"} ref={ref}>
+      <StyledAntdButton
+        {...restProps}
+        $buttonType={props.buttonType ?? "normal"}
+        $loading={!!props.loading}
+        ref={ref}
+      >
         {props.loading ? (
-          buttonType === "delete" ? (
-            <LoadingComp backgroundColor={"#fef4f4"} color={"#f73131"} />
-          ) : (
-            <LoadingComp />
-          )
+          <>
+            <span style={{ visibility: "hidden" }}>
+              {props.icon}
+              {props.children}
+            </span>
+            <Loading
+              style={loadingStyle}
+              backgroundColor={loadingBackground}
+              color={loadingColor}
+            />
+          </>
         ) : (
           props.children
         )}

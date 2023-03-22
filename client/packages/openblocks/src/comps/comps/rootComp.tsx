@@ -21,12 +21,13 @@ import { ModuleLoading } from "components/ModuleLoading";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { getCurrentTheme } from "comps/utils/themeUtil";
 import { DataChangeResponderListComp } from "./dataChangeResponderComp";
+import { FolderListComp } from "./folderListComp";
 import {
   PropertySectionContext,
   PropertySectionContextType,
   PropertySectionState,
-  Section,
 } from "openblocks-design";
+import RefTreeComp from "./refTreeComp";
 
 interface RootViewProps extends HTMLAttributes<HTMLDivElement> {
   comp: InstanceType<typeof RootComp>;
@@ -39,6 +40,8 @@ const childrenMap = {
   tempStates: TemporaryStateListComp,
   transformers: TransformerListComp,
   dataResponders: DataChangeResponderListComp,
+  folders: FolderListComp,
+  refTree: RefTreeComp,
   hooks: HookListComp,
   settings: AppSettingsComp,
   preload: PreloadComp,

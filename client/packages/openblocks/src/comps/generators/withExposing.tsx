@@ -45,7 +45,7 @@ function getFunction(comp: Comp, methodName: string) {
 }
 
 export interface IExposingComp {
-  extraNode(): ExtraNodeType;
+  extraNode(): ExtraNodeType | undefined;
   exposingNode(): Node<any>;
   exposingInfo(): ExposingInfo;
   exposingMethods(): Record<string, MethodInfo>;

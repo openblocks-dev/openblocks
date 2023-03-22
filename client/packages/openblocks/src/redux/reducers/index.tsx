@@ -12,6 +12,7 @@ import { QueryLibraryState } from "./entitiyReducers/queryLibraryReducer";
 import { FolderReduxState } from "./uiReducers/folderReducer";
 import { combineReducers } from "redux";
 import npmPluginReducer, { NPMPluginState } from "./npmPluginReducers";
+import jsLibraryReducers, { JSLibraryState } from "redux/reducers/jsLibraryReducers";
 
 export interface AppState {
   ui: {
@@ -29,12 +30,14 @@ export interface AppState {
     queryLibrary: QueryLibraryState;
   };
   npmPlugin: NPMPluginState;
+  jsLibrary: JSLibraryState;
 }
 
 export const reducerObject = {
   ui: uiReducer,
   entities: entityReducer,
   npmPlugin: npmPluginReducer,
+  jsLibrary: jsLibraryReducers,
 };
 
 export const appReducer = combineReducers(reducerObject);

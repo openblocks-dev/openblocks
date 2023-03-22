@@ -400,7 +400,10 @@ export const en = {
     confirmationMessageLabel: "Confirmation message",
     confirmationMessage: "Are you sure you want to run this query?",
     newQuery: "New query",
+    newFolder: "New Folder",
     recentlyUsed: "Recently used",
+    folder: "Folder",
+    folderNotEmpty: "Folder is not empty",
     dataResponder: "Data responder",
     tempState: "Temporary state",
     transformer: "Transformer",
@@ -1040,6 +1043,7 @@ export const en = {
     continuous: "Continuous scanning",
     uniqueData: "Ignore duplicate data",
     maskClosable: "Click the mask to close",
+    errTip: "Please use this component under https or localhost",
   },
   dropdown: {
     onlyMenu: "Only menu",
@@ -1916,8 +1920,18 @@ export const en = {
   preLoad: {
     jsLibraryHelpText:
       "Add JavaScript libraries to your current application via URL addresses. lodash, moment, uuid, numbro are built into the system for immediate use.  JavaScript libraries are loaded before the application is initialized, which can have an impact on application performance.",
+    exportedAs: "Exported as",
+    recommended: "Recommended",
+    viewJSLibraryDocument: "Document",
+    jsLibraryURLError: "Invalid URL",
+    jsLibraryExist: "JavaScript library already exists",
     jsLibraryEmptyContent: "No JavaScript libraries added",
-    add: "Add a library",
+    jsLibraryDownloadError: "JavaScript library download error",
+    jsLibraryInstallSuccess: "JavaScript library installed successfully",
+    jsLibraryInstallFailedCloud:
+      "JavaScript library installation failed\nPerhaps the library is not available in the sandbox, [Documentation](https://docs.openblocks.dev/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+    jsLibraryInstallFailedHost: "JavaScript library installation failed\n{message}",
+    add: "Add New",
     jsHelpText: "Add a global method or variable to the current application.",
     cssHelpText:
       "Add styles to the current application. The DOM structure may change as the system iterates. Try to modify styles through component properties.",
@@ -2371,7 +2385,8 @@ export const en = {
       "Disabling this ID provider may result in some users being unable to log in. Are you sure to proceed?",
     manualTip: "",
     lockTip: "The content is locked. To make changes, please click the{icon}to unlock.",
-    lockModalContent: "Changing the 'ID attribute' field can have significant impacts on user identification. Please confirm that you understand the implications of this change before proceeding.",
+    lockModalContent:
+      "Changing the 'ID attribute' field can have significant impacts on user identification. Please confirm that you understand the implications of this change before proceeding.",
     payUserTag: "Premium",
   },
   slotControl: {

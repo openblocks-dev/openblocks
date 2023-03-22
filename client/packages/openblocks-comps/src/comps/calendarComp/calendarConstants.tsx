@@ -261,7 +261,7 @@ export const Wrapper = styled.div<{
     border-radius: 4px;
     box-shadow: 0 0px 10px 4px rgba(0, 0, 0, 0.25);
     overflow: hidden;
-    left: ${(props) => `min(${props.left}px, calc(100% - 202px)) !important`};
+    left: ${(props) => `min(${props.left}px, calc(100% - 210px)) !important`};
     .fc-popover-body {
       padding: 4px 0;
       min-width: 200px;
@@ -307,7 +307,8 @@ export const Wrapper = styled.div<{
   .fc-dayGridMonth-view .fc-more-link {
     margin: 0 2px 2px 2px !important;
   }
-  .fc-timeGridWeek-view .fc-more-link {
+  .fc-timeGridWeek-view .fc-more-link,
+  .fc-timeGridDay-view .fc-more-link {
     margin: 2px !important;
   }
   .fc-daygrid-day-events {
