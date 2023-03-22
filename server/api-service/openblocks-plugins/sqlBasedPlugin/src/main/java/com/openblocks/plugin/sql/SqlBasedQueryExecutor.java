@@ -33,13 +33,13 @@ import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class HikariBasedQueryExecutor extends BlockingQueryExecutor<SqlBasedDatasourceConnectionConfig,
+public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBasedDatasourceConnectionConfig,
         HikariPerfWrapper, SqlBasedQueryExecutionContext> {
 
-    private final SqlExecutor sqlExecutor;
+    private final GeneralSqlExecutor generalSqlExecutor;
 
-    protected HikariBasedQueryExecutor(SqlExecutor sqlExecutor) {
-        this.sqlExecutor = sqlExecutor;
+    protected SqlBasedQueryExecutor(GeneralSqlExecutor generalSqlExecutor) {
+        this.generalSqlExecutor = generalSqlExecutor;
     }
 
     @Override
@@ -96,7 +96,7 @@ public abstract class HikariBasedQueryExecutor extends BlockingQueryExecutor<Sql
         );
 
         try (Connection connection = getConnection(dataSource)) {
-            return sqlExecutor.execute(connection, context);
+            return generalSqlExecutor.execute(connection, context);
         } catch (SQLException e) {
             throw wrapException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e);
         }

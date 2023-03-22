@@ -20,8 +20,8 @@ import com.openblocks.plugin.oracle.gui.OracleBulkUpdateCommand;
 import com.openblocks.plugin.oracle.gui.OracleDeleteCommand;
 import com.openblocks.plugin.oracle.gui.OracleInsertCommand;
 import com.openblocks.plugin.oracle.gui.OracleUpdateCommand;
-import com.openblocks.plugin.sql.HikariBasedQueryExecutor;
-import com.openblocks.plugin.sql.SqlExecutor;
+import com.openblocks.plugin.sql.GeneralSqlExecutor;
+import com.openblocks.plugin.sql.SqlBasedQueryExecutor;
 import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.models.DatasourceStructure;
 import com.openblocks.sdk.models.DatasourceStructure.Table;
@@ -33,10 +33,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Extension
-public class OracleQueryExecutor extends HikariBasedQueryExecutor {
+public class OracleQueryExecutor extends SqlBasedQueryExecutor {
 
     public OracleQueryExecutor() {
-        super(new SqlExecutor());
+        super(new GeneralSqlExecutor());
     }
 
     @Nonnull
