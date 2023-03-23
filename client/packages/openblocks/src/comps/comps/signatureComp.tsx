@@ -1,12 +1,19 @@
 import { Section, sectionNames, UndoIcon } from "openblocks-design";
 import { UICompBuilder } from "../generators";
-import { NameConfigHidden, NameConfig, withExposingConfigs } from "../generators/withExposing";
+import {
+  NameConfigHidden,
+  NameConfig,
+  withExposingConfigs,
+} from "../generators/withExposing";
 import styled from "styled-components";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { LabelControl } from "comps/controls/labelControl";
-import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
+import {
+  formDataChildren,
+  FormDataPropertyView,
+} from "./formComp/formDataConstants";
 import {
   contrastColor,
   SignatureStyle,
@@ -33,6 +40,8 @@ const Wrapper = styled.div<{ $style: SignatureStyleType; isEmpty: boolean }>`
   overflow: hidden;
   width: 100%;
   height: 100%;
+  margin: ${(props)=>props.$style.margin};
+  padding: ${(props)=>props.$style.padding};
 
   .signature {
     background-color: ${(props) => props.$style.background};
@@ -177,7 +186,9 @@ let SignatureTmpComp = (function () {
                 )}
               </div>
             )}
-            {!(isBegin || props.value) && <div className="empty">{props.tips}</div>}
+            {!(isBegin || props.value) && (
+              <div className="empty">{props.tips}</div>
+            )}
           </Wrapper>
         </ReactResizeDetector>
       ),
@@ -191,13 +202,21 @@ let SignatureTmpComp = (function () {
           </Section>
           <FormDataPropertyView {...children} />
           {children.label.getPropertyView()}
-          <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+          </Section>
           <Section name={sectionNames.layout}>
-            {children.showUndo.propertyView({ label: trans("signature.showUndo") })}
-            {children.showClear.propertyView({ label: trans("signature.showClear") })}
+            {children.showUndo.propertyView({
+              label: trans("signature.showUndo"),
+            })}
+            {children.showClear.propertyView({
+              label: trans("signature.showClear"),
+            })}
             {hiddenPropertyView(children)}
           </Section>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
         </>
       );
     })

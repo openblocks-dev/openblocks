@@ -678,18 +678,24 @@ export const FileStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
   ACCENT,
+  MARGIN,
+  PADDING
 ] as const;
 
 export const FileViewerStyle = [
   getStaticBackground("#FFFFFF"),
   getStaticBorder("#00000000"),
   RADIUS,
+  MARGIN,
+  PADDING
 ] as const;
 
 export const IframeStyle = [
   getBackground(),
   getStaticBorder("#00000000"),
   RADIUS,
+  MARGIN,
+  PADDING
 ] as const;
 
 export const DateTimeStyle = [
@@ -697,6 +703,8 @@ export const DateTimeStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
   ...ACCENT_VALIDATE,
+  MARGIN,
+  PADDING
 ] as const;
 
 export const LinkStyle = [
@@ -803,6 +811,8 @@ export const JsonEditorStyle = [LABEL] as const;
 export const SignatureStyle = [
   LABEL,
   ...getBgBorderRadiusByBg(),
+  MARGIN,
+  PADDING,
   {
     name: "pen",
     label: trans("style.pen"),

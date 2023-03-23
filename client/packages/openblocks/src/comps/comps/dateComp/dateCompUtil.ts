@@ -50,10 +50,18 @@ export const disabledTime = (min: string, max: string) => {
       return [];
     },
     disabledSeconds: (hour: number, minute: number) => {
-      if (minTime.isValid() && minTime.hour() === hour && minTime.minute() === minute) {
+      if (
+        minTime.isValid() &&
+        minTime.hour() === hour &&
+        minTime.minute() === minute
+      ) {
         return range(0, minTime.seconds());
       }
-      if (maxTime.isValid() && maxTime.hours() === hour && maxTime.minute() === minute) {
+      if (
+        maxTime.isValid() &&
+        maxTime.hours() === hour &&
+        maxTime.minute() === minute
+      ) {
         return range(maxTime.seconds() + 1, 60);
       }
       return [];
@@ -63,6 +71,9 @@ export const disabledTime = (min: string, max: string) => {
 export const getStyle = (style: DateTimeStyleType) => {
   return css`
     border-radius: ${style.radius};
+
+    margin: ${style.margin};
+    padding: ${style.padding};
 
     &:not(.ant-picker-disabled) {
       border-color: ${style.border};
@@ -116,4 +127,7 @@ export const getMobileStyle = (style: DateTimeStyleType) =>
     border-color: ${style.border};
   `;
 
-export const dateRefMethods = refMethods<CommonPickerMethods>([focusMethod, blurMethod]);
+export const dateRefMethods = refMethods<CommonPickerMethods>([
+  focusMethod,
+  blurMethod,
+]);
