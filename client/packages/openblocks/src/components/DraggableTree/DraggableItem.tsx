@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { DraggableTreeContext } from "./DraggableTreeContext";
 
 const Wrapper = styled.div<{
+  showPositionLine: boolean;
   dragging: boolean;
   isOver: boolean;
   dropInAsSub: boolean;
@@ -27,7 +28,9 @@ const Wrapper = styled.div<{
   &::before {
     content: "";
     display: ${(props) =>
-      (props.showPositionLineDot ?? false) && props.isOver ? "block" : "none"};
+      (props.showPositionLineDot ?? false) && props.isOver && props.showPositionLine
+        ? "block"
+        : "none"};
     position: absolute;
     background-color: #315efb;
     height: ${(props) => props.positionLineDotDiameter}px;
@@ -43,7 +46,7 @@ const Wrapper = styled.div<{
 
   &::after {
     content: "";
-    display: ${(props) => (props.isOver ? "block" : "none")};
+    display: ${(props) => (props.isOver && props.showPositionLine ? "block" : "none")};
     height: ${(props) => props.positionLineHeight ?? 4}px;
     border-radius: 4px;
     position: absolute;
@@ -76,8 +79,10 @@ function DraggableItem(props: IProps, ref: Ref<HTMLDivElement>) {
   } = props;
   const context = useContext(DraggableTreeContext);
   const positionLineIndent = context.positionLineIndent?.(path, dropInAsSub);
+  const showPositionLine = (context.showDropInPositionLine ?? true) || !dropInAsSub;
   return (
     <Wrapper
+      showPositionLine={showPositionLine}
       positionLineIndent={positionLineIndent}
       positionLineDotDiameter={context.positionLineDotDiameter}
       showPositionLineDot={context.showPositionLineDot}
