@@ -20,6 +20,8 @@ import {
 import _ from "lodash";
 import { trans } from "i18n";
 import { Skeleton } from "antd";
+import { styleControl } from "comps/controls/styleControl";
+import { RichTextEditorStyle, RichTextEditorStyleType } from "comps/controls/styleControlConstants";
 
 const localizeStyle = css`
   & .ql-snow {
@@ -73,11 +75,8 @@ const localizeStyle = css`
   }
 `;
 
-const commonStyle = css`
+const commonStyle = (style: RichTextEditorStyleType) => css`
   height: 100%;
-  & .quill {
-    background-color: #ffffff;
-  }
 
   & .ql-editor {
     min-height: 85px;
@@ -90,54 +89,61 @@ const commonStyle = css`
   & .ql-snow {
     &.ql-container,
     &.ql-toolbar {
-      border-color: #d9d9d9;
+      border-color: ${style.border};
+      background-color: #ffffff;
     }
+  }
+  & .ql-toolbar {
+    border-radius: ${style.radius} ${style.radius} 0 0;
+  }
+  & .ql-container {
+    border-radius: 0 0 ${style.radius} ${style.radius};
   }
 `;
 
-const hideToolbarStyle = css`
+const hideToolbarStyle = (style: RichTextEditorStyleType) => css`
   .ql-snow.ql-toolbar {
     height: 0;
     overflow: hidden;
     padding: 0;
     border-bottom: 0;
+    border: none;
+  }
+  .quill .ql-snow.ql-container {
+    border-radius: ${style.radius};
+    border: 1px solid ${style.border};
   }
 `;
 
 interface Props {
   hideToolbar: boolean;
+  $style: RichTextEditorStyleType;
 }
 
 const AutoHeightReactQuill = styled.div<Props>`
   ${localizeStyle}
-  ${commonStyle}
+  ${(props) => commonStyle(props.$style)}
   & .ql-container .ql-editor {
     min-height: 125px;
   }
-  ${(props) => (props.hideToolbar ? hideToolbarStyle : "")};
+  ${(props) => (props.hideToolbar ? hideToolbarStyle(props.$style) : "")};
 `;
 
 const FixHeightReactQuill = styled.div<Props>`
   ${localizeStyle}
-  ${commonStyle}
+  ${(props) => commonStyle(props.$style)}
   & .quill {
     display: flex;
     flex-direction: column;
     height: 100%;
-    border: 1px solid #d9d9d9;
   }
   & .ql-snow {
     &.ql-container {
       flex: 1;
       overflow: auto;
-      border: 0;
-    }
-    &.ql-toolbar {
-      border: 0;
-      border-bottom: 1px solid #d9d9d9;
     }
   }
-  ${(props) => (props.hideToolbar ? hideToolbarStyle : "")};
+  ${(props) => (props.hideToolbar ? hideToolbarStyle(props.$style) : "")};
 `;
 
 const childrenMap = {
@@ -147,6 +153,7 @@ const childrenMap = {
   autoHeight: AutoHeightControl,
   placeholder: withDefault(StringControl, trans("richTextEditor.placeholder")),
   onEvent: ChangeEventHandlerControl,
+  style: styleControl(RichTextEditorStyle),
 
   ...formDataChildren,
 };
@@ -168,6 +175,7 @@ interface IProps {
   readOnly: boolean;
   autoHeight: boolean;
   onChange: (value: string) => void;
+  $style: RichTextEditorStyleType;
 }
 
 const ReactQuillEditor = React.lazy(() => import("react-quill"));
@@ -244,7 +252,13 @@ function RichTextEditor(props: IProps) {
   const id = "rtf-editor";
   const Wrapper = props.autoHeight ? AutoHeightReactQuill : FixHeightReactQuill;
   return (
-    <Wrapper id={id} onClick={handleClickWrapper} ref={wrapperRef} hideToolbar={props.hideToolbar}>
+    <Wrapper
+      id={id}
+      onClick={handleClickWrapper}
+      ref={wrapperRef}
+      hideToolbar={props.hideToolbar}
+      $style={props.$style}
+    >
       <Suspense fallback={<Skeleton />}>
         <ReactQuillEditor
           key={key}
@@ -278,6 +292,7 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
       value={props.value.value}
       placeholder={props.placeholder}
       onChange={handleChange}
+      $style={props.style}
     />
   );
 })
@@ -298,6 +313,7 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
           {children.autoHeight.getPropertyView()}
           {hiddenPropertyView(children)}
         </Section>
+        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>
     );
   })

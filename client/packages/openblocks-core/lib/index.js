@@ -1071,14 +1071,16 @@ function createBlackHole() {
         },
     });
 }
-function createMockWindow(base, blacklist) {
+function createMockWindow(base, blacklist, onSet, disableLimit) {
     if (blacklist === void 0) { blacklist = expressionBlacklist; }
     var win = new Proxy(Object.assign({}, base), {
         has: function () {
             return true;
         },
         set: function (target, p, newValue) {
-            console.info("set:", p, newValue);
+            if (typeof p === "string") {
+                onSet === null || onSet === void 0 ? void 0 : onSet(p);
+            }
             return Reflect.set(target, p, newValue);
         },
         get: function (target, p) {
@@ -1088,7 +1090,7 @@ function createMockWindow(base, blacklist) {
             if (globalVarNames.has(p)) {
                 return win;
             }
-            if (typeof p === "string" && (blacklist === null || blacklist === void 0 ? void 0 : blacklist.has(p))) {
+            if (typeof p === "string" && (blacklist === null || blacklist === void 0 ? void 0 : blacklist.has(p)) && !disableLimit) {
                 log.log("[Sandbox] access ".concat(String(p), " on mock window, return mock object"));
                 return createBlackHole();
             }
@@ -1097,7 +1099,8 @@ function createMockWindow(base, blacklist) {
     });
     return win;
 }
-var mockWindow = createMockWindow();
+var mockWindow;
+var currentDisableLimit = false;
 function clearMockWindow() {
     mockWindow = createMockWindow();
 }
@@ -1116,14 +1119,16 @@ function getPropertyFromNativeWindow(prop) {
     return ret;
 }
 function proxySandbox(context, methods, options) {
-    var _a = options || {}, _b = _a.disableLimit, disableLimit = _b === void 0 ? false : _b, _c = _a.scope, scope = _c === void 0 ? "expression" : _c;
+    var _a = options || {}, _b = _a.disableLimit, disableLimit = _b === void 0 ? false : _b, _c = _a.scope, scope = _c === void 0 ? "expression" : _c, onSetGlobalVars = _a.onSetGlobalVars;
     var isProtectedVar = function (key) {
         return key in context || key in (methods || {}) || globalVarNames.has(key);
     };
     var cache = {};
-    if (scope === "function") {
-        mockWindow = createMockWindow(mockWindow, functionBlacklist);
+    var blacklist = scope === "function" ? functionBlacklist : expressionBlacklist;
+    if (scope === "function" || !mockWindow || disableLimit !== currentDisableLimit) {
+        mockWindow = createMockWindow(mockWindow, blacklist, onSetGlobalVars, disableLimit);
     }
+    currentDisableLimit = disableLimit;
     return new Proxy(mockWindow, {
         has: function (target, p) {
             // proxy all variables
@@ -1137,7 +1142,7 @@ function proxySandbox(context, methods, options) {
                 return target;
             }
             if (globalVarNames.has(p)) {
-                return disableLimit ? window : target;
+                return target;
             }
             if (p in context) {
                 if (p in cache) {
@@ -3040,12 +3045,9 @@ var CompActionTypes;
     CompActionTypes["CHANGE_VALUE"] = "CHANGE_VALUE";
     CompActionTypes["RENAME"] = "RENAME";
     CompActionTypes["MULTI_CHANGE"] = "MULTI_CHANGE";
-    CompActionTypes["ADD_CHILD"] = "ADD_CHILD";
     CompActionTypes["DELETE_COMP"] = "DELETE_COMP";
     CompActionTypes["REPLACE_COMP"] = "REPLACE_COMP";
     CompActionTypes["ONLY_EVAL"] = "NEED_EVAL";
-    CompActionTypes["ASYNC"] = "ASYNC";
-    CompActionTypes["ASYNC_END"] = "ASYNC_END";
     // UPDATE_NODES = "UPDATE_NODES",
     CompActionTypes["UPDATE_NODES_V2"] = "UPDATE_NODES_V2";
     CompActionTypes["EXECUTE_QUERY"] = "EXECUTE_QUERY";
@@ -3071,22 +3073,25 @@ var CompActionTypes;
     CompActionTypes["BROADCAST"] = "BROADCAST";
 })(CompActionTypes || (CompActionTypes = {}));
 
-function customAction(value) {
+function customAction(value, editDSL) {
     return {
         type: CompActionTypes.CUSTOM,
         path: [],
         value: value,
+        editDSL: editDSL,
     };
 }
 function updateActionContextAction(context) {
     var value = {
         type: CompActionTypes.UPDATE_ACTION_CONTEXT,
         path: [],
+        editDSL: false,
         context: context,
     };
     return {
         type: CompActionTypes.BROADCAST,
         path: [],
+        editDSL: false,
         action: value,
     };
 }
@@ -3106,22 +3111,24 @@ function isCustomAction(action, type) {
  * RootComp will change the path correctly when queryName is passed.
  */
 function executeQueryAction(props) {
-    return __assign({ type: CompActionTypes.EXECUTE_QUERY, path: [] }, props);
+    return __assign({ type: CompActionTypes.EXECUTE_QUERY, path: [], editDSL: false }, props);
 }
 function triggerModuleEventAction(name) {
     return {
         type: CompActionTypes.TRIGGER_MODULE_EVENT,
         path: [],
+        editDSL: false,
         name: name,
     };
 }
 /**
  * better to use comp.dispatchChangeValueAction to keep type safe
  */
-function changeValueAction(value) {
+function changeValueAction(value, editDSL) {
     return {
         type: CompActionTypes.CHANGE_VALUE,
         path: [],
+        editDSL: editDSL,
         value: value,
     };
 }
@@ -3132,12 +3139,14 @@ function renameAction(oldName, name) {
     var value = {
         type: CompActionTypes.RENAME,
         path: [],
+        editDSL: true,
         oldName: oldName,
         name: name,
     };
     return {
         type: CompActionTypes.BROADCAST,
         path: [],
+        editDSL: true,
         action: value,
     };
 }
@@ -3146,21 +3155,17 @@ function routeByNameAction(name, action) {
         type: CompActionTypes.ROUTE_BY_NAME,
         path: [],
         name: name,
+        editDSL: action.editDSL,
         action: action,
     };
 }
-function addChildAction(key, value) {
-    return {
-        type: CompActionTypes.ADD_CHILD,
-        path: [],
-        key: key,
-        value: value,
-    };
-}
 function multiChangeAction(changes) {
+    var editDSL = Object.values(changes).some(function (action) { return !!action.editDSL; });
+    console.assert(Object.values(changes).every(function (action) { return !_.isNil(action.editDSL) && action.editDSL === editDSL; }), "multiChangeAction should wrap actions with the same editDSL value in property. editDSL: ".concat(editDSL, "\nchanges:"), changes);
     return {
         type: CompActionTypes.MULTI_CHANGE,
         path: [],
+        editDSL: editDSL,
         changes: changes,
     };
 }
@@ -3168,12 +3173,14 @@ function deleteCompAction() {
     return {
         type: CompActionTypes.DELETE_COMP,
         path: [],
+        editDSL: true,
     };
 }
 function replaceCompAction(compFactory) {
     return {
         type: CompActionTypes.REPLACE_COMP,
         path: [],
+        editDSL: false,
         compFactory: compFactory,
     };
 }
@@ -3181,6 +3188,7 @@ function onlyEvalAction() {
     return {
         type: CompActionTypes.ONLY_EVAL,
         path: [],
+        editDSL: false,
     };
 }
 function wrapChildAction(childName, action) {
@@ -3193,13 +3201,14 @@ function isChildAction(action) {
 function unwrapChildAction(action) {
     return [action.path[0], __assign(__assign({}, action), { path: action.path.slice(1) })];
 }
-function changeChildAction(childName, value) {
-    return wrapChildAction(childName, changeValueAction(value));
+function changeChildAction(childName, value, editDSL) {
+    return wrapChildAction(childName, changeValueAction(value, editDSL));
 }
 function updateNodesV2Action(value) {
     return {
         type: CompActionTypes.UPDATE_NODES_V2,
         path: [],
+        editDSL: false,
         value: value,
     };
 }
@@ -3208,6 +3217,9 @@ function wrapActionExtraInfo(action, extraInfos) {
 }
 function deferAction(action) {
     return __assign(__assign({}, action), { priority: "defer" });
+}
+function changeEditDSLAction(action, editDSL) {
+    return __assign(__assign({}, action), { editDSL: editDSL });
 }
 
 var CACHE_PREFIX = "__cache__";
@@ -3284,7 +3296,10 @@ var AbstractComp = /** @class */ (function () {
      * trigger changeValueAction, type safe
      */
     AbstractComp.prototype.dispatchChangeValueAction = function (value) {
-        this.dispatch(changeValueAction(value));
+        this.dispatch(this.changeValueAction(value));
+    };
+    AbstractComp.prototype.changeValueAction = function (value) {
+        return changeValueAction(value, true);
     };
     /**
      * don't override the function, override nodeWithout function instead
@@ -3423,6 +3438,9 @@ var MultiBaseComp = /** @class */ (function (_super) {
                     return comp.reduce(action);
                 }));
             }
+            case CompActionTypes.ONLY_EVAL: {
+                return this;
+            }
         }
     };
     MultiBaseComp.prototype.setChild = function (childName, newChild) {
@@ -3492,6 +3510,9 @@ var MultiBaseComp = /** @class */ (function (_super) {
     // FIXME: autoHeight should be encapsulated in UIComp/UICompBuilder
     MultiBaseComp.prototype.autoHeight = function () {
         return true;
+    };
+    MultiBaseComp.prototype.changeChildAction = function (childName, value) {
+        return wrapChildAction(childName, this.children[childName].changeValueAction(value));
     };
     return MultiBaseComp;
 }(AbstractComp));
@@ -11271,4 +11292,4 @@ function getI18nObjects(fileData, filterLocales) {
     return getDataByLocale(fileData, "Obj", filterLocales).data;
 }
 
-export { AbstractComp, AbstractNode, CachedNode, CodeNode, CompActionTypes, FetchCheckNode, FunctionNode, MultiBaseComp, RecordNode, RelaxedJsonParser, SimpleAbstractComp, SimpleComp, SimpleNode, Translator, ValueAndMsg, WrapContextNodeV2, WrapNode, addChildAction, changeChildAction, changeDependName, changeValueAction, clearMockWindow, clearStyleEval, customAction, deferAction, deleteCompAction, dependingNodeMapEquals, evalFunc, evalFunctionResult, evalNodeOrMinor, evalPerfUtil, evalScript, evalStyle, executeQueryAction, fromRecord, fromUnevaledValue, fromValue, fromValueWithCache, getDynamicStringSegments, getI18nObjects, getValueByLocale, i18n, isBroadcastAction, isChildAction, isCustomAction, isDynamicSegment, isFetching, isMyCustomAction, mergeExtra, multiChangeAction, nodeIsRecord, onlyEvalAction, relaxedJSONToJSON, renameAction, replaceCompAction, routeByNameAction, transformWrapper, triggerModuleEventAction, unwrapChildAction, updateActionContextAction, updateNodesV2Action, withFunction, wrapActionExtraInfo, wrapChildAction, wrapContext, wrapDispatch };
+export { AbstractComp, AbstractNode, CachedNode, CodeNode, CompActionTypes, FetchCheckNode, FunctionNode, MultiBaseComp, RecordNode, RelaxedJsonParser, SimpleAbstractComp, SimpleComp, SimpleNode, Translator, ValueAndMsg, WrapContextNodeV2, WrapNode, changeChildAction, changeDependName, changeEditDSLAction, changeValueAction, clearMockWindow, clearStyleEval, customAction, deferAction, deleteCompAction, dependingNodeMapEquals, evalFunc, evalFunctionResult, evalNodeOrMinor, evalPerfUtil, evalScript, evalStyle, executeQueryAction, fromRecord, fromUnevaledValue, fromValue, fromValueWithCache, getDynamicStringSegments, getI18nObjects, getValueByLocale, i18n, isBroadcastAction, isChildAction, isCustomAction, isDynamicSegment, isFetching, isMyCustomAction, mergeExtra, multiChangeAction, nodeIsRecord, onlyEvalAction, relaxedJSONToJSON, renameAction, replaceCompAction, routeByNameAction, transformWrapper, triggerModuleEventAction, unwrapChildAction, updateActionContextAction, updateNodesV2Action, withFunction, wrapActionExtraInfo, wrapChildAction, wrapContext, wrapDispatch };

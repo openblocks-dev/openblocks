@@ -35,6 +35,7 @@ export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
       {...omit(props, "onChange")}
       value={[props.start, props.end]}
       order={true}
+      hideDisabledOptions
       onCalendarChange={(time) => {
         props.onChange(time?.[0], time?.[1]);
       }}

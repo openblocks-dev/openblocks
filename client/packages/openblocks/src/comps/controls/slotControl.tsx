@@ -12,8 +12,10 @@ import { Layers } from "constants/Layers";
 import { trans } from "i18n";
 import { changeChildAction, ConstructorToView } from "openblocks-core";
 import { HintPlaceHolder, TacoButton } from "openblocks-design";
-import { useContext } from "react";
+import { createContext, useContext } from "react";
 import styled from "styled-components";
+import { NameGenerator } from "comps/utils";
+import { JSONValue } from "util/jsonTypes";
 
 const ModalStyled = styled.div<{ $background?: string }>`
   .ant-modal-content {
@@ -34,6 +36,12 @@ const ModalWrapper = styled.div`
   }
 `;
 
+export const SlotConfigContext = createContext<{
+  modalWidth?: string | number;
+}>({
+  modalWidth: 520,
+});
+
 const ContainerView = (props: ContainerBaseProps) => {
   return <InnerGrid {...props} emptyRows={15} autoHeight />;
 };
@@ -45,12 +53,14 @@ function ModalConfigView(props: {
 }) {
   const { visible, containerProps, onCancel } = props;
   const background = useContext(BackgroundColorContext);
+  const { modalWidth = 520 } = useContext(SlotConfigContext);
   if (!visible) {
     return null;
   }
   return (
     <ModalWrapper>
       <Modal
+        width={modalWidth}
         visible={visible}
         onCancel={onCancel}
         getContainer={() => document.querySelector(`#${CanvasContainerID}`) || document.body}
@@ -80,20 +90,37 @@ const childrenMap = {
   showConfigModal: stateComp<boolean>(false),
 };
 
-export const SlotControl = new MultiCompBuilder(childrenMap, (props, dispatch) => {
+const SlotInitControl = new MultiCompBuilder(childrenMap, (props, dispatch) => {
   return (
     <ModalConfigView
       containerProps={props.container}
       visible={props.showConfigModal}
-      onCancel={() => dispatch(changeChildAction("showConfigModal", false))}
+      onCancel={() => dispatch(changeChildAction("showConfigModal", false, false))}
     />
   );
 })
   .setPropertyViewFn((children, dispatch) => {
     return (
-      <TacoButton onClick={() => dispatch(changeChildAction("showConfigModal", true))}>
+      <TacoButton onClick={() => dispatch(changeChildAction("showConfigModal", true, false))}>
         {trans("slotControl.configSlotView")}
       </TacoButton>
     );
   })
   .build();
+
+export class SlotControl extends SlotInitControl {
+  propertyView(params: { buttonText: string }) {
+    return (
+      <TacoButton onClick={() => this.dispatch(this.changeChildAction("showConfigModal", true))}>
+        {params.buttonText}
+      </TacoButton>
+    );
+  }
+
+  getPasteValue(nameGenerator: NameGenerator): JSONValue {
+    return {
+      ...this.toJsonValue(),
+      container: this.children.container.getPasteValue(nameGenerator),
+    };
+  }
+}

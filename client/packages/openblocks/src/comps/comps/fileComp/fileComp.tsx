@@ -2,11 +2,18 @@ import { Button, message, Upload as AntdUpload } from "antd";
 import { UploadChangeParam } from "antd/lib/upload";
 import { UploadFile, UploadProps } from "antd/lib/upload/interface";
 import { Buffer } from "buffer";
+import { darkenColor } from "components/colorSelect/colorUtils";
+import { Section, sectionNames } from "components/Section";
+import { IconControl } from "comps/controls/iconControl";
+import { styleControl } from "comps/controls/styleControl";
+import { FileStyle, FileStyleType } from "comps/controls/styleControlConstants";
+import { withMethodExposing } from "comps/generators/withMethodExposing";
+import { hasIcon } from "comps/utils";
+import { getComponentDocUrl } from "comps/utils/compDocUtil";
+import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import { trans } from "i18n";
 import _ from "lodash";
-import { UploadRequestOption } from "rc-upload/lib/interface";
-import { useEffect, useState } from "react";
-import styled, { css } from "styled-components";
-import { JSONObject, JSONValue } from "../../../util/jsonTypes";
+import mime from "mime";
 import {
   changeValueAction,
   CompAction,
@@ -14,6 +21,11 @@ import {
   RecordConstructorToComp,
   RecordConstructorToView,
 } from "openblocks-core";
+import { UploadRequestOption } from "rc-upload/lib/interface";
+import { useEffect, useState } from "react";
+import styled, { css } from "styled-components";
+import { JSONObject, JSONValue } from "../../../util/jsonTypes";
+import { BoolControl, BoolPureControl } from "../../controls/boolControl";
 import {
   ArrayStringControl,
   BoolCodeControl,
@@ -21,23 +33,11 @@ import {
   NumberControl,
   StringControl,
 } from "../../controls/codeControl";
-import { BoolControl, BoolPureControl } from "../../controls/boolControl";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { changeEvent, eventHandlerControl } from "../../controls/eventHandlerControl";
 import { stateComp, UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
-import { withMethodExposing } from "comps/generators/withMethodExposing";
-import { styleControl } from "comps/controls/styleControl";
-import { FileStyle, FileStyleType } from "comps/controls/styleControlConstants";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
-import { trans } from "i18n";
-import { getComponentDocUrl } from "comps/utils/compDocUtil";
-import mime from "mime";
-import { IconControl } from "comps/controls/iconControl";
-import { hasIcon } from "comps/utils";
-import { darkenColor } from "components/colorSelect/colorUtils";
-import { Section, sectionNames } from "components/Section";
 
 const FileSizeControl = codeControl((value) => {
   if (typeof value === "number") {
@@ -284,18 +284,18 @@ const Upload = (
           const index = props.files.findIndex((f) => f.uid === param.file.uid);
           dispatch(
             multiChangeAction({
-              value: changeValueAction([
-                ...props.value.slice(0, index),
-                ...props.value.slice(index + 1),
-              ]),
-              files: changeValueAction([
-                ...props.files.slice(0, index),
-                ...props.files.slice(index + 1),
-              ]),
-              parsedValue: changeValueAction([
-                ...props.parsedValue.slice(0, index),
-                ...props.parsedValue.slice(index + 1),
-              ]),
+              value: changeValueAction(
+                [...props.value.slice(0, index), ...props.value.slice(index + 1)],
+                false
+              ),
+              files: changeValueAction(
+                [...props.files.slice(0, index), ...props.files.slice(index + 1)],
+                false
+              ),
+              parsedValue: changeValueAction(
+                [...props.parsedValue.slice(0, index), ...props.parsedValue.slice(index + 1)],
+                false
+              ),
             })
           );
           props.onEvent("change");
@@ -310,18 +310,20 @@ const Upload = (
           ]).then(([value, parsedValue]) => {
             dispatch(
               multiChangeAction({
-                value: changeValueAction([...props.value, ...value].slice(-maxFiles)),
+                value: changeValueAction([...props.value, ...value].slice(-maxFiles), false),
                 files: changeValueAction(
                   uploadedFiles
                     .map((file) => _.pick(file, ["uid", "name", "type", "size", "lastModified"]))
-                    .slice(-maxFiles)
+                    .slice(-maxFiles),
+                  false
                 ),
                 ...(props.parseFiles
                   ? {
-                    parsedValue: changeValueAction(
-                      [...props.parsedValue, ...parsedValue].slice(-maxFiles)
-                    ),
-                  }
+                      parsedValue: changeValueAction(
+                        [...props.parsedValue, ...parsedValue].slice(-maxFiles),
+                        false
+                      ),
+                    }
                   : {}),
               })
             );
@@ -425,8 +427,8 @@ FileTmpComp = withMethodExposing(FileTmpComp, [
     execute: (comp) =>
       comp.dispatch(
         multiChangeAction({
-          value: changeValueAction([]),
-          files: changeValueAction([]),
+          value: changeValueAction([], false),
+          files: changeValueAction([], false),
         })
       ),
   },

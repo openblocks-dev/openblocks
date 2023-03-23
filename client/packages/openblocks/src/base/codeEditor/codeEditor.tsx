@@ -39,7 +39,6 @@ const styles: Record<StyleName, StyleConfig> = {
 };
 
 const textStyle = css`
-  font-family: PingFangSC-Regular;
   word-wrap: break-word;
   word-break: break-all;
   white-space: pre-wrap;
@@ -146,6 +145,7 @@ export const CodeEditorTooltipContainer = styled.div`
   .cm-tooltip.cm-tooltip-autocomplete > ul {
     min-width: 200px;
     scrollbar-gutter: stable;
+    font-family: RobotoMono;
   }
 
   // each li style

@@ -68,10 +68,8 @@ public class QueryExecutionService {
             QueryVisitorContext queryVisitorContext) {
         var queryExecutor = datasourceMetaInfoService.getQueryExecutor(datasource.getType());
 
-        Mono<QueryExecutionContext> queryContext = Mono.fromSupplier(() -> queryExecutor.doBuildQueryExecutionContext(datasource.getDetailConfig(),
-                queryConfig, requestParams, queryVisitorContext));
-
-        return queryContext.zipWhen(context -> datasourceConnectionPool.getOrCreateConnection(datasource))
+        return queryExecutor.buildQueryExecutionContextMono(datasource.getDetailConfig(), queryConfig, requestParams, queryVisitorContext)
+                .zipWhen(context -> datasourceConnectionPool.getOrCreateConnection(datasource))
                 .flatMap(tuple -> {
                     QueryExecutionContext queryExecutionRequest = tuple.getT1();
                     DatasourceConnectionHolder connectionHolder = tuple.getT2();

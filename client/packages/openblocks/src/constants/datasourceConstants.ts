@@ -33,7 +33,7 @@ export interface Datasource {
   organizationId: string;
   datasourceConfig: DatasourceConfigType;
   // USER_CREATED(0):  user self create
-  // SYSTEM_TEMPLATE(1) for example: onboard datasource、template datasource
+  // SYSTEM_TEMPLATE(1) for example: onboard datasource, template datasource
   // SYSTEM_PREDEFINED(2) for example: rest api empty datasource
   creationSource: 0 | 1 | 2;
   createTime: number;

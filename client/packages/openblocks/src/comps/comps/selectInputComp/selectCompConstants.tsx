@@ -228,8 +228,8 @@ export const SelectUIView = (
     onSearch={
       props.showSearch
         ? (value) => {
-          props.dispatch(changeChildAction("inputValue", value));
-        }
+            props.dispatch(changeChildAction("inputValue", value, false));
+          }
         : undefined
     }
   >

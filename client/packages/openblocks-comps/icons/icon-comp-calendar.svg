@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g transform="translate(6.000000, 5.000000)">
+            <rect stroke="#D7D9E0" stroke-width="2" fill="#FFFFFF" x="1" y="4" width="34" height="30" rx="3"></rect>
+            <g transform="translate(5.000000, 14.000000)">
+                <rect fill="#3377FF" x="14" y="0" width="5" height="5" rx="1.5"></rect>
+                <rect fill="#8B8FA3" x="7" y="0" width="5" height="5" rx="1.5"></rect>
+                <rect fill="#3377FF" x="14" y="6" width="5" height="5" rx="1.5"></rect>
+                <rect fill="#8B8FA3" x="7" y="6" width="5" height="5" rx="1.5"></rect>
+                <rect fill="#8B8FA3" x="0" y="6" width="5" height="5" rx="1.5"></rect>
+                <rect fill="#8B8FA3" x="7" y="12" width="5" height="5" rx="1.5"></rect>
+                <rect fill="#8B8FA3" x="0" y="12" width="5" height="5" rx="1.5"></rect>
+                <rect fill="#8B8FA3" x="21" y="0" width="5" height="5" rx="1.5"></rect>
+                <rect fill="#8B8FA3" x="21" y="6" width="5" height="5" rx="1.5"></rect>
+            </g>
+            <path d="M3,3 L33,3 C34.6568542,3 36,4.34314575 36,6 L36,12 L36,12 L0,12 L0,6 C-2.02906125e-16,4.34314575 1.34314575,3 3,3 Z" fill="#D7D9E0"></path>
+            <rect fill="#D7D9E0" x="7" y="0" width="4" height="8" rx="1"></rect>
+            <rect fill="#D7D9E0" x="25" y="0" width="4" height="8" rx="1"></rect>
+        </g>
+    </g>
+</svg>

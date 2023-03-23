@@ -1,10 +1,6 @@
----
-description: >-
-  With Openblocks plugins, you can develop customized components that are
-  consistent with native components for your specific scenarios.
----
+# Develop UI component plugins
 
-# Develop customized plugins
+With Openblocks plugins, you can develop customized components that are consistent with native components for your specific scenarios.
 
 ## Initialization
 

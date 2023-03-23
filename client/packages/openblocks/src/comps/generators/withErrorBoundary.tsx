@@ -1,5 +1,5 @@
 import { trans } from "i18n";
-import { MultiCompConstructor } from "openblocks-core";
+import { CompConstructor } from "openblocks-core";
 import React, { ErrorInfo } from "react";
 import styled from "styled-components";
 
@@ -54,7 +54,7 @@ class CompErrorBoundary extends React.Component<
   }
 }
 
-export function withErrorBoundary<T extends MultiCompConstructor>(VariantComp: T): T {
+export function withErrorBoundary<T extends CompConstructor>(VariantComp: T): T {
   // @ts-ignore
   return class extends VariantComp {
     override getView() {

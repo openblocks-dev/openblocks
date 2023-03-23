@@ -1,8 +1,8 @@
-import { hookToStateComp, simpleValueComp } from "comps/generators/hookToComp";
-import _ from "lodash";
-import moment from "moment";
-import { useInterval, useTitle, useWindowSize } from "react-use";
-import React, { useContext, useEffect, useMemo } from "react";
+import { CompName } from "components/CompName";
+import { getAllCompItems } from "comps/comps/containerBase/utils";
+import { SimpleNameComp } from "comps/comps/simpleNameComp";
+import { StringControl } from "comps/controls/codeControl";
+import { EditorContext } from "comps/editorState";
 import {
   simpleMultiComp,
   withDefault,
@@ -10,24 +10,24 @@ import {
   withTypeAndChildren,
   withViewFn,
 } from "comps/generators";
-import { StringControl } from "comps/controls/codeControl";
+import { hookToStateComp, simpleValueComp } from "comps/generators/hookToComp";
 import { withSimpleExposing } from "comps/generators/withExposing";
-import { ModalComp } from "comps/hooks/modalComp";
-import { SimpleNameComp } from "comps/comps/simpleNameComp";
-import { Section, sectionNames } from "openblocks-design";
-import { CompName } from "components/CompName";
-import { EditorContext } from "comps/editorState";
-import { changeChildAction, ConstructorToComp } from "openblocks-core";
+import { DrawerComp } from "comps/hooks/drawerComp";
 import { HookCompConstructor, HookCompMapRawType, HookCompType } from "comps/hooks/hookCompTypes";
-import { getAllCompItems } from "comps/comps/containerBase/utils";
+import { ModalComp } from "comps/hooks/modalComp";
+import { trans } from "i18n";
+import _ from "lodash";
+import moment from "moment";
+import { ConstructorToComp } from "openblocks-core";
+import { Section, sectionNames } from "openblocks-design";
+import React, { useContext, useEffect, useMemo } from "react";
+import { useInterval, useTitle, useWindowSize } from "react-use";
+import { useCurrentUser } from "util/currentUser";
+import { LocalStorageComp } from "./localStorageComp";
+import { MessageComp } from "./messageComp";
+import { ThemeComp } from "./themeComp";
 import UrlParamsHookComp from "./UrlParamsHookComp";
 import { UtilsComp } from "./utilsComp";
-import { MessageComp } from "./messageComp";
-import { LocalStorageComp } from "./localStorageComp";
-import { DrawerComp } from "comps/hooks/drawerComp";
-import { trans } from "i18n";
-import { useCurrentUser } from "util/currentUser";
-import { ThemeComp } from "./themeComp";
 
 window._ = _;
 window.moment = moment;
@@ -118,16 +118,22 @@ function SelectHookView(props: {
     } else if ((selectedComp as any).children.comp === props.comp) {
       // Select the current modal to display the modal
       !props.comp.children.visible.getView().value &&
-        props.comp.children.visible.dispatch(changeChildAction("value", true));
+        props.comp.children.visible.dispatch(
+          props.comp.children.visible.changeChildAction("value", true)
+        );
     } else {
       // all child components of modal
       const allChildComp = getAllCompItems((props.comp as any).getCompTree());
       const selectChildComp = Object.values(allChildComp).find((child) => child === selectedComp);
       const visible = props.comp.children.visible.getView().value;
       if (selectChildComp && !visible) {
-        props.comp.children.visible.dispatch(changeChildAction("value", true));
+        props.comp.children.visible.dispatch(
+          props.comp.children.visible.changeChildAction("value", true)
+        );
       } else if (!selectChildComp && visible) {
-        props.comp.children.visible.dispatch(changeChildAction("value", false));
+        props.comp.children.visible.dispatch(
+          props.comp.children.visible.changeChildAction("value", false)
+        );
       }
     }
   }, [selectedComp, editorState.selectSource]);

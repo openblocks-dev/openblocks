@@ -1,8 +1,6 @@
-import { Input } from "openblocks-design";
 import { SimpleComp } from "openblocks-core";
-import { ControlPropertyViewWrapper } from "openblocks-design";
+import { ControlPropertyViewWrapper, Input } from "openblocks-design";
 import { ReactNode } from "react";
-import { changeValueAction } from "openblocks-core";
 import { ControlParams } from "./controlParams";
 
 export function stringSimpleControl(defaultValue?: string) {
@@ -24,7 +22,7 @@ export function stringSimpleControl(defaultValue?: string) {
         >
           <Input
             value={this.value}
-            onChange={(e) => this.dispatch(changeValueAction(e.target.value))}
+            onChange={(e) => this.dispatchChangeValueAction(e.target.value)}
             width="100%"
             style={{ margin: "0px" }}
             placeholder={params.placeholder}

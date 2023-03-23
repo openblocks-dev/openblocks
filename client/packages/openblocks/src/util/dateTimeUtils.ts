@@ -2,6 +2,7 @@ import moment from "moment";
 
 export const TIME_FORMAT = "HH:mm:ss";
 export const TIME_12_FORMAT = "HH:mm:ss:a";
+export const TIME_FORMAT_MINUTES = "HH:mm"
 export const DATE_FORMAT = "YYYY-MM-DD";
 export const DATE_FORMAT_EN = "MM/DD/YYYY";
 export const DATE_TIME_FORMAT = "YYYY-MM-DD HH:mm:ss";

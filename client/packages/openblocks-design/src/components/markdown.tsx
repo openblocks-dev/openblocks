@@ -63,6 +63,7 @@ export const TacoMarkDown = (props: TacoMarkDownProps) => {
               "*": [
                 ...((defaultSchema.attributes && defaultSchema.attributes["*"]) || []),
                 "style",
+                "className",
               ],
             },
           },

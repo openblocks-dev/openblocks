@@ -11,7 +11,6 @@ import _ from "lodash";
 import {
   AbstractComp,
   changeDependName,
-  changeValueAction,
   CodeFunction,
   CodeNode,
   CodeNodeOptions,
@@ -142,7 +141,7 @@ export function codeControl<
               codeType === "Function"
             );
             if (newValue !== this.unevaledValue) {
-              return this.reduce(changeValueAction(newValue));
+              return this.reduce(this.changeValueAction(newValue));
             }
             return this;
           }
@@ -276,6 +275,7 @@ function getCardContent<T>(
       unevaledValue
     )
   ) {
+    // eslint-disable-next-line only-ascii/only-ascii
     return toReadableString(midValue).trim() + " → " + content;
   }
   return content;
@@ -516,7 +516,6 @@ export const RadiusControl = codeControl<string>(
     expectedType: "CSS",
   }
 );
-
 
 export const FunctionControl = codeControl<CodeFunction>(
   (value) => {

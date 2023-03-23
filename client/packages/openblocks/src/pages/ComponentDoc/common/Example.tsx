@@ -14,6 +14,8 @@ import {
 import { BorderContext } from "./BorderContext";
 import { ExampleContext } from "../ExampleContext";
 import { trans } from "i18n";
+import { EditorContext, EditorState } from "comps/editorState";
+import { RootComp } from "comps/comps/rootComp";
 
 const Wrapper = styled.div`
   border: 1px solid #d7d9e0;
@@ -188,6 +190,8 @@ const externalState: ExternalEditorContextState = {
   appType: AppTypeEnum.Application,
 };
 
+const editorState = new EditorState(new RootComp({ value: {} }), () => {});
+
 export default function Example(props: IProps) {
   const {
     config,
@@ -246,7 +250,7 @@ export default function Example(props: IProps) {
             </OperationBtn>
           </OperationWrapper>
           <Bound show={isBorderShow} style={{ width, height }}>
-            {view}
+            <EditorContext.Provider value={editorState}>{view}</EditorContext.Provider>
           </Bound>
         </div>
         {!hideSettings && (

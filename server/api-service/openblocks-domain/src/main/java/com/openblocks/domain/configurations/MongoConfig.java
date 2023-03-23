@@ -25,8 +25,6 @@ import com.github.cloudyrock.spring.v5.MongockSpring5;
 import com.mongodb.ReadConcern;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
-import com.openblocks.domain.encryption.EncryptionService;
-import com.openblocks.domain.encryption.ModelEncryptionEventListener;
 import com.openblocks.domain.user.model.User;
 import com.openblocks.sdk.config.MaterialProperties;
 import com.openblocks.sdk.models.HasIdAndAuditing;
@@ -104,10 +102,4 @@ public class MongoConfig {
     public MongoTemplate mongoTemplate(MongoDatabaseFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
         return new MongoTemplate(mongoDbFactory, mappingMongoConverter);
     }
-
-    @Bean
-    public <E> ModelEncryptionEventListener<E> encryptionMongoEventListener(EncryptionService encryptionService) {
-        return new ModelEncryptionEventListener<>(encryptionService);
-    }
-
 }

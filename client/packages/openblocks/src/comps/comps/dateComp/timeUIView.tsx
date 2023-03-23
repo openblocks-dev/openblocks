@@ -31,6 +31,7 @@ export const TimeUIView = (props: TimeUIViewProps) => {
     <TimePickerStyled
       {...props}
       ref={props.viewRef}
+      hideDisabledOptions
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
     />
   );

@@ -1,8 +1,9 @@
 import { trans } from "i18n/design";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styled from "styled-components";
 import { ReactComponent as Packup } from "icons/icon-Pack-up.svg";
 import { labelCss } from "./Label";
+import React from "react";
 
 const SectionItem = styled.div<{ width?: number }>`
   width: ${(props) => (props.width ? props.width : 312)}px;
@@ -68,20 +69,46 @@ interface ISectionConfig {
   style?: React.CSSProperties;
   children: any;
 }
-export const Section = (props: ISectionConfig) => {
-  const [showditems, setshowitems] = useState<number>(1);
-  const handlechangeshow = () => {
-    showditems ? setshowitems(0) : setshowitems(1);
+
+export interface PropertySectionState {
+  [compName: string]: {
+    [sectionName: string]: boolean;
   };
+}
+
+export interface PropertySectionContextType {
+  toggle: (compName: string, sectionName: string) => void;
+  compName: string;
+  state: PropertySectionState;
+}
+
+export const PropertySectionContext = React.createContext<PropertySectionContextType>({
+  toggle: () => {},
+  compName: "",
+  state: {},
+});
+
+export const Section = (props: ISectionConfig) => {
+  const { name } = props;
+  const { compName, state, toggle } = useContext(PropertySectionContext);
+  const open = name ? state[compName]?.[name] !== false : true;
+
+  const handleToggle = () => {
+    if (!name) {
+      return;
+    }
+    toggle(compName, name);
+  };
+
   return (
     <SectionItem width={props.width} style={props.style}>
       {props.name && (
-        <SectionlabelDiv onClick={handlechangeshow}>
+        <SectionlabelDiv onClick={handleToggle}>
           <Sectionlabel>{props.name}</Sectionlabel>
-          <PackupIcon deg={showditems ? "rotate(0deg)" : "rotate(180deg)"} />
+          <PackupIcon deg={open ? "rotate(0deg)" : "rotate(180deg)"} />
         </SectionlabelDiv>
       )}
-      <ShowChildren show={showditems ? "flex" : "none"} noMargin={props.noMargin}>
+      <ShowChildren show={open ? "flex" : "none"} noMargin={props.noMargin}>
         {props.children}
       </ShowChildren>
     </SectionItem>

@@ -99,6 +99,7 @@ public enum BizError {
     DISABLE_AUTH_CONFIG_FORBIDDEN(403, 5617),
     USER_NOT_EXIST(400, 5618),
     JWT_NOT_FIND(400, 5619),
+    ID_NOT_EXIST(500, 5620),
 
 
     // asset related, code range 5700 - 5799

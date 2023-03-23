@@ -14,7 +14,7 @@
     "start:ee": "REACT_APP_EDITION=enterprise yarn workspace openblocks start",
     "start:ee-global": "REACT_APP_EDITION=enterprise-global yarn workspace openblocks start",
     "build": "yarn node ./scripts/build.js",
-    "test": "jest",
+    "test": "jest && yarn workspace openblocks-comps test",
     "prepare": "yarn workspace openblocks prepare",
     "build:core": "yarn workspace openblocks-core build",
     "test:core": "yarn workspace openblocks-core test"
@@ -69,7 +69,8 @@
     "@types/react": "^17",
     "moment": "2.29.2",
     "canvas": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.2.1.tgz",
-    "react-virtualized@^9.22.3": "patch:react-virtualized@npm%3A9.22.3#./.yarn/patches/react-virtualized-npm-9.22.3-0fff3cbf64.patch"
+    "react-virtualized@^9.22.3": "patch:react-virtualized@npm%3A9.22.3#./.yarn/patches/react-virtualized-npm-9.22.3-0fff3cbf64.patch",
+    "eslint-plugin-only-ascii@^0.0.0": "patch:eslint-plugin-only-ascii@npm%3A0.0.0#./.yarn/patches/eslint-plugin-only-ascii-npm-0.0.0-29e3417685.patch"
   },
   "dependencies": {
     "@lottiefiles/react-lottie-player": "^3.5.0",

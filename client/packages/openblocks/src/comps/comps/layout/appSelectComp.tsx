@@ -50,7 +50,7 @@ export class AppSelectComp extends ModuleComp {
     return this.children.appId.getView();
   }
 
-  propertyView(param: { onChange?: (label: string) => void }) {
+  propertyView(param: { onAppChange?: (label: string) => void }) {
     return (
       <AppSelectPropertyView
         appId={this.children.appId.getView()}
@@ -58,7 +58,7 @@ export class AppSelectComp extends ModuleComp {
           this.dispatchChangeValueAction({
             appId: value,
           });
-          param.onChange && param.onChange(label);
+          param.onAppChange && param.onAppChange(label);
         }}
       />
     );

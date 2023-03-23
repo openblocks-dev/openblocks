@@ -306,10 +306,13 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
           // FIXME: kill setTimeout ?
           setTimeout(() => {
             this.dispatch(
-              customAction<SetDataAction>({
-                type: "setData",
-                initialData: (action.value["initialData"] as ValueAndMsg<JSONObject>).value || {},
-              })
+              customAction<SetDataAction>(
+                {
+                  type: "setData",
+                  initialData: (action.value["initialData"] as ValueAndMsg<JSONObject>).value || {},
+                },
+                false
+              )
             );
           });
         }

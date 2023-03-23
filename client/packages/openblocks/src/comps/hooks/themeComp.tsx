@@ -45,7 +45,7 @@ let ThemeTempComp = withViewFn(
       [commonThemes, globalThemes]
     );
     const editorState = useContext(EditorContext);
-    const appThemeId = editorState.getAppSettings().themeId;
+    const appThemeId = editorState?.getAppSettings().themeId;
     const currentTheme = getCurrentTheme(themeList, appThemeId);
     useEffect(() => {
       comp.children.stateValue.dispatchChangeValueAction({

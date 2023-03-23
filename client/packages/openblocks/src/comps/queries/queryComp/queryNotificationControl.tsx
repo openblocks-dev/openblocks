@@ -162,10 +162,13 @@ export const QueryNotificationControl = class extends QueryNotificationTmpContro
 
   dispatchContextChanged(result: QueryResult) {
     this.dispatch(
-      customAction<ActionDataType>({
-        type: "resultUpdate",
-        result: result,
-      })
+      customAction<ActionDataType>(
+        {
+          type: "resultUpdate",
+          result: result,
+        },
+        false
+      )
     );
   }
 

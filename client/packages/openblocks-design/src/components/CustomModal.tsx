@@ -277,7 +277,6 @@ CustomModal.confirm = (props: {
     okText: trans("ok"),
     cancelText: trans("cancel"),
     bodyStyle: {
-      fontFamily: "PingFangSC-Regular",
       fontSize: "14px",
       color: "#333333",
       lineHeight: "22px",

@@ -294,8 +294,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
 
     private void disableAuthConfig(Organization organization, String authId) {
         Optional.of(organization)
-                .map(Organization::getOrganizationDomain)
-                .map(OrganizationDomain::getAuthConfigs)
+                .map(Organization::getAuthConfigs)
                 .orElse(Collections.emptyList())
                 .stream()
                 .filter(abstractAuthConfig -> Objects.equals(abstractAuthConfig.getId(), authId))
@@ -312,7 +311,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
             organization.setOrganizationDomain(organizationDomain);
         }
 
-        Map<String, AbstractAuthConfig> authConfigMap = organizationDomain.getAuthConfigs()
+        Map<String, AbstractAuthConfig> authConfigMap = organizationDomain.getConfigs()
                 .stream()
                 .collect(Collectors.toMap(AbstractAuthConfig::getId, Function.identity()));
         // Under the organization, the source can uniquely identify the whole auth config.
@@ -321,7 +320,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
             newAuthConfig.merge(old);
         }
         authConfigMap.put(newAuthConfig.getId(), newAuthConfig);
-        organizationDomain.setAuthConfigs(new ArrayList<>(authConfigMap.values()));
+        organizationDomain.setConfigs(new ArrayList<>(authConfigMap.values()));
     }
 
     // static inner class

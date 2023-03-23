@@ -2,7 +2,7 @@
 import { ReactNode } from "react";
 
 declare type EvalMethods = Record<string, Record<string, Function>>;
-declare type CodeType = undefined | "JSON" | "Function";
+declare type CodeType = undefined | "JSON" | "Function" | "PureJSON";
 declare type CodeFunction = (args?: Record<string, unknown>, runInHost?: boolean) => any;
 
 declare type NodeToValue<NodeT> = NodeT extends Node<infer ValueType> ? ValueType : never;
@@ -356,6 +356,10 @@ interface SandBoxOption {
    * the scope this sandbox works in, which will use different blacklist
    */
   scope?: SandboxScope;
+  /**
+   * handler when set global variables to sandbox, only be called when scope is function
+   */
+  onSetGlobalVars?: (name: string) => void;
 }
 declare function evalScript(script: string, context: any, methods?: EvalMethods): any;
 declare function evalFunc(
@@ -430,6 +434,7 @@ interface Comp<
    * used when the comp is moved across the tree structure.
    */
   changeDispatch(dispatch: DispatchType): this;
+  changeValueAction(value: DataType): ChangeValueAction;
 }
 declare abstract class AbstractComp<
   ViewReturn = any,
@@ -449,6 +454,7 @@ declare abstract class AbstractComp<
    * trigger changeValueAction, type safe
    */
   dispatchChangeValueAction(value: DataType): void;
+  changeValueAction(value: DataType): ChangeValueAction;
   /**
    * don't override the function, override nodeWithout function instead
    * FIXME: node reference mustn't be changed if this object is changed
@@ -489,12 +495,9 @@ declare enum CompActionTypes {
   CHANGE_VALUE = "CHANGE_VALUE",
   RENAME = "RENAME",
   MULTI_CHANGE = "MULTI_CHANGE",
-  ADD_CHILD = "ADD_CHILD",
   DELETE_COMP = "DELETE_COMP",
   REPLACE_COMP = "REPLACE_COMP",
   ONLY_EVAL = "NEED_EVAL",
-  ASYNC = "ASYNC",
-  ASYNC_END = "ASYNC_END",
   UPDATE_NODES_V2 = "UPDATE_NODES_V2",
   EXECUTE_QUERY = "EXECUTE_QUERY",
   TRIGGER_MODULE_EVENT = "TRIGGER_MODULE_EVENT",
@@ -536,6 +539,7 @@ declare type ActionExtraInfo = {
 declare type ActionPriority = "sync" | "defer";
 interface ActionCommon {
   path: Array<string>;
+  editDSL: boolean;
   skipHistory?: boolean;
   extraInfo?: ActionExtraInfo;
   priority?: ActionPriority;
@@ -564,11 +568,6 @@ interface BroadcastAction<Action extends ActionCommon = ActionCommon> extends Ac
 interface MultiChangeAction extends ActionCommon {
   type: CompActionTypes.MULTI_CHANGE;
   changes: Record<string, CompAction>;
-}
-interface AddChildAction extends ActionCommon {
-  type: CompActionTypes.ADD_CHILD;
-  key: string;
-  value: JSONValue;
 }
 interface SimpleCompAction extends ActionCommon {
   type: CompActionTypes.DELETE_COMP | CompActionTypes.ONLY_EVAL;
@@ -603,7 +602,6 @@ declare type CompAction<DataType extends JSONValue = JSONValue> =
   | BroadcastAction
   | RenameAction
   | ReplaceCompAction
-  | AddChildAction
   | MultiChangeAction
   | SimpleCompAction
   | ExecuteQueryAction
@@ -612,7 +610,7 @@ declare type CompAction<DataType extends JSONValue = JSONValue> =
   | TriggerModuleEventAction
   | UpdateNodesV2Action;
 
-declare function customAction<DataType>(value: DataType): CustomAction<DataType>;
+declare function customAction<DataType>(value: DataType, editDSL: boolean): CustomAction<DataType>;
 declare function updateActionContextAction(
   context: ActionContextType
 ): BroadcastAction<UpdateActionContextAction>;
@@ -635,14 +633,13 @@ declare function triggerModuleEventAction(name: string): TriggerModuleEventActio
 /**
  * better to use comp.dispatchChangeValueAction to keep type safe
  */
-declare function changeValueAction(value: JSONValue): ChangeValueAction;
+declare function changeValueAction(value: JSONValue, editDSL: boolean): ChangeValueAction;
 declare function isBroadcastAction<T extends CompAction>(
   action: CompAction,
   type: T["type"]
 ): action is BroadcastAction<T>;
 declare function renameAction(oldName: string, name: string): BroadcastAction<RenameAction>;
 declare function routeByNameAction(name: string, action: CompAction<any>): RouteByNameAction;
-declare function addChildAction(key: string, value: JSONValue): AddChildAction;
 declare function multiChangeAction(changes: Record<string, CompAction>): MultiChangeAction;
 declare function deleteCompAction(): SimpleCompAction;
 declare function replaceCompAction(compFactory: CompConstructor): ReplaceCompAction;
@@ -650,13 +647,18 @@ declare function onlyEvalAction(): SimpleCompAction;
 declare function wrapChildAction(childName: string, action: CompAction): CompAction;
 declare function isChildAction(action: CompAction): boolean;
 declare function unwrapChildAction(action: CompAction): [string, CompAction];
-declare function changeChildAction(childName: string, value: JSONValue): CompAction;
+declare function changeChildAction(
+  childName: string,
+  value: JSONValue,
+  editDSL: boolean
+): CompAction;
 declare function updateNodesV2Action(value: any): UpdateNodesV2Action;
 declare function wrapActionExtraInfo<T extends CompAction>(
   action: T,
   extraInfos: ActionExtraInfo
 ): T;
 declare function deferAction<T extends CompAction>(action: T): T;
+declare function changeEditDSLAction<T extends CompAction>(action: T, editDSL: boolean): T;
 
 /**
  * MultiBaseCompConstructor with abstract function implemented
@@ -714,6 +716,10 @@ declare abstract class MultiBaseComp<
   readonly IGNORABLE_DEFAULT_VALUE: {};
   toJsonValue(): DataType;
   autoHeight(): boolean;
+  changeChildAction(
+    childName: string & keyof ChildrenType,
+    value: ConstructorToDataType<new (...params: any) => ChildrenType[typeof childName]>
+  ): CompAction<JSONValue>;
 }
 declare function mergeExtra(e1: ExtraNodeType | undefined, e2: ExtraNodeType): ExtraNodeType;
 
@@ -794,7 +800,6 @@ export {
   ActionContextType,
   ActionExtraInfo,
   ActionPriority,
-  AddChildAction,
   BroadcastAction,
   CachedNode,
   ChangeValueAction,
@@ -849,9 +854,9 @@ export {
   WrapContextFn,
   WrapContextNodeV2,
   WrapNode,
-  addChildAction,
   changeChildAction,
   changeDependName,
+  changeEditDSLAction,
   changeValueAction,
   clearMockWindow,
   clearStyleEval,

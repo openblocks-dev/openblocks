@@ -1,0 +1,69 @@
+diff --git a/lib/rules/only-ascii.js b/lib/rules/only-ascii.js
+index 7d76f9d37a99be35bab91d7a437073b112e2e985..b6ccac270f309232471d8e26ad8ec1bb782079f7 100644
+--- a/lib/rules/only-ascii.js
++++ b/lib/rules/only-ascii.js
+@@ -39,7 +39,7 @@ function create (context) {
+ 
+       // Get tokens which include non-ascii characters
+       var sourceCode = context.getSourceCode();
+-      var tokens     = sourceCode.getTokens(node);
++      var tokens     = sourceCode.tokensAndComments;
+ 
+       tokens.forEach(function (token) {
+         var value = token.value;
+diff --git a/package.json b/package.json
+index b6a4e0e402ed2c934cca2124e8ab9d2b43a198a2..d781a469e7a7d502a20e0dab27fc9c8adad4ffd8 100644
+--- a/package.json
++++ b/package.json
+@@ -16,11 +16,14 @@
+     "requireindex": "~1.1.0"
+   },
+   "devDependencies": {
+-    "eslint": "~3.9.1",
++    "eslint": "^8.0.0",
+     "mocha": "^3.1.2"
+   },
+   "engines": {
+     "node": ">=0.10.0"
+   },
+-  "license": "ISC"
++  "license": "ISC",
++  "peerDependencies": {
++    "eslint": "8"
++  }
+ }
+diff --git a/tests/lib/rules/only-ascii.js b/tests/lib/rules/only-ascii.js
+index 21cca9c932ac41804bb36ccd35787cdf121b4f16..a84c5a5dbf7ddb89637b88059432484b215ae098 100644
+--- a/tests/lib/rules/only-ascii.js
++++ b/tests/lib/rules/only-ascii.js
+@@ -8,15 +8,19 @@ var ruleTester = new RuleTester();
+ ruleTester.run('no-japanese', rule, {
+ 
+   valid : [
+-    { code : 'console.log("hello")', options : [] },
++    { code : 'console.log("hello") // ok', options : [] },
+     { code : 'console.log("hello☆")', options : [{ allowedChars : '☆' }] },
+     { code : 'console.log("☆")', filename : 'foo', options : [{ excludePaths : ['foo'] }] },
+   ],
+ 
+-  invalid : [{
++  invalid : [
++    {
++    code   : 'console.info("hello"); // console.log("ハロー")',
++    errors : [{ message : 'Non-ascii character "ハロー" found' }],
++  },{
+     code   : 'console.log("ハロー")',
+     errors : [{ message : 'Non-ascii character "ハロー" found' }],
+-  }, {
++  },{
+     code    : 'console.log("ハロー☆")',
+     options : [{ allowedChars : '☆' }],
+     errors  : [{ message : 'Non-ascii character "ハロー" found' }],
+@@ -25,5 +29,6 @@ ruleTester.run('no-japanese', rule, {
+     filename : 'foo',
+     options  : [{ excludePaths : ['bar'] }],
+     errors   : [{ message : 'Non-ascii character "☆" found' }],
+-  }],
++  }
++  ],
+ });

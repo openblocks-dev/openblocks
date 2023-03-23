@@ -2,14 +2,12 @@ package com.openblocks.runner.migrations;
 
 import static com.openblocks.domain.util.QueryDslUtils.fieldName;
 import static com.openblocks.sdk.util.IDUtils.generate;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
-import org.springframework.data.mongodb.core.index.PartialIndexFilter;
 
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -29,6 +27,7 @@ import com.openblocks.infra.birelation.BiRelation;
 import com.openblocks.infra.config.model.ServerConfig;
 import com.openblocks.infra.eventlog.EventLog;
 import com.openblocks.infra.serverlog.ServerLog;
+import com.openblocks.runner.migrations.job.CompleteAuthType;
 import com.openblocks.runner.migrations.job.MigrateAuthConfigJob;
 
 import lombok.extern.slf4j.Slf4j;
@@ -120,11 +119,7 @@ public class DatabaseChangelog {
 
     @ChangeSet(order = "009", id = "add-group-type-indexes", author = "")
     public void addGroupTypeIndex(MongockTemplate mongoTemplate) {
-        ensureIndexes(mongoTemplate, Group.class,
-                makeIndex("organizationId", "type")
-                        .partial(PartialIndexFilter.of(where("type").exists(true)))
-                        .unique()
-        );
+        ensureIndexes(mongoTemplate, Group.class, makeIndex("organizationId", "type"));
     }
 
     @ChangeSet(order = "010", id = "add-event-log-indexes", author = "")
@@ -173,6 +168,11 @@ public class DatabaseChangelog {
     @ChangeSet(order = "017", id = "migrate-auth-configs", author = "")
     public void migrateAuthConfigs(MigrateAuthConfigJob migrateAuthConfigJob) {
         migrateAuthConfigJob.migrateAuthConfig();
+    }
+
+    @ChangeSet(order = "018", id = "complete-auth-type", author = "")
+    public void completeAuthType(CompleteAuthType completeAuthType) {
+        completeAuthType.complete();
     }
 
     public static Index makeIndex(String... fields) {

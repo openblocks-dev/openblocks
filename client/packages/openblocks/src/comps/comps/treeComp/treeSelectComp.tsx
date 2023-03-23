@@ -146,7 +146,7 @@ const TreeCompView = (
         // fix inputValue when select an option or lose focus
         autoClearSearchValue={false}
         onSearch={(value) => {
-          props.dispatch(changeChildAction("inputValue", value));
+          props.dispatch(changeChildAction("inputValue", value, false));
         }}
         onFocus={() => props.onEvent("focus")}
         onBlur={() => props.onEvent("blur")}

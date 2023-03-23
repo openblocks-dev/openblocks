@@ -36,7 +36,7 @@ export function useAppHistory(compContainer: CompContainer, readOnly: boolean, a
         return;
       }
       // maybe slow: comparing dsl by `toJson`
-      // debounce may cause action missed when dispatching two actions continuously (such as add table， delete)
+      // debounce may cause action missed when dispatching two actions continuously (such as add table, delete)
       // tried with 100 comps in 1.5ms, resolve this if further slower
       showCost("addHistory", () => addHistory(actions));
     });

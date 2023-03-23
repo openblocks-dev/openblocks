@@ -18,6 +18,7 @@ import { ParamsStringControl } from "../controls/paramsControl";
 import { SQLQuery } from "../queries/sqlQuery/SQLQuery";
 import { uiCompRegistry } from "../uiCompRegistry";
 import { AppLayoutComp } from "./gridLayoutComp";
+import { ListViewComp } from "./listViewComp";
 import { RootComp } from "./rootComp";
 import { CheckboxComp } from "./selectInputComp/checkboxComp";
 import { TableComp } from "./tableComp";
@@ -56,6 +57,7 @@ const COMPS_MAP = {
   params: ParamsStringControl,
   layout: AppLayoutComp,
   root: RootComp,
+  listView: ListViewComp,
   table: TableComp,
   tableColumn: ColumnComp,
   tableColumnRender: RenderComp,

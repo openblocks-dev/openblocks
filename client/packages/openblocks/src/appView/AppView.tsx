@@ -1,12 +1,12 @@
-import { HTMLAttributes, useEffect, useMemo, useRef } from "react";
-import { createBrowserHistory } from "history";
-import { Provider } from "react-redux";
-import { Router, Route } from "react-router";
-import { GetContainerParams, useCompInstance } from "comps/utils/useCompInstance";
 import { RootComp } from "comps/comps/rootComp";
+import { GetContainerParams, useCompInstance } from "comps/utils/useCompInstance";
+import { createBrowserHistory } from "history";
+import { CompActionTypes, deferAction } from "openblocks-core";
+import { HTMLAttributes, useEffect, useMemo, useRef } from "react";
+import { Provider } from "react-redux";
+import { Route, Router } from "react-router";
 import { reduxStore } from "redux/store/store";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
-import { changeValueAction, CompActionTypes, deferAction } from "openblocks-core";
 
 const browserHistory = createBrowserHistory();
 
@@ -80,7 +80,7 @@ export function AppView(props: AppViewProps) {
       const nextValue = moduleInputs[name];
       if (nextValue !== undefined) {
         input.children.defaultValue.children.comp.dispatch(
-          deferAction(changeValueAction(nextValue))
+          deferAction(input.children.defaultValue.children.comp.changeValueAction(nextValue as any))
         );
       }
     });

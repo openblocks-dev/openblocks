@@ -118,7 +118,7 @@ function getOperationDesc(context: AppSnapshotContext) {
         o.snapshotCreateTime ? moment(o.snapshotCreateTime).format(TIME_FORMAT) : ""
       );
     })
-    .join("，");
+    .join(", ");
   if (context.operations.length > 5) {
     desc += trans("history.andSoOn");
   }

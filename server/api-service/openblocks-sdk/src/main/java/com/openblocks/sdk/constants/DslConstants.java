@@ -10,5 +10,6 @@ public class DslConstants {
         public static final String HIDE_WHEN_NO_PERMISSION = "hideWhenNoPermission";
         public static final String APP = "app";
         public static final String APP_ID = "appId";
+        public static final String ACTION = "action";
     }
 }

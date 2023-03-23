@@ -70,8 +70,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                                 .stream()
                                 .map(abstractAuthConfig -> new FindAuthConfig(abstractAuthConfig, organization))
                                 .collect(Collectors.toList())
-                )
-                .doOnNext(__ -> log.info("find auth configs by domain"));
+                );
     }
 
     protected Flux<FindAuthConfig> findAllAuthConfigsForEnterpriseMode() {
@@ -84,15 +83,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                                 .stream()
                                 .map(abstractAuthConfig -> new FindAuthConfig(abstractAuthConfig, organization))
                                 .collect(Collectors.toList())
-                )
-                .doOnNext(__ -> log.info("find auth configs for enterprise mode."));
+                );
     }
 
     private Flux<FindAuthConfig> findAllAuthConfigsForSaasMode() {
         if (commonConfig.getWorkspace().getMode() == WorkspaceMode.SAAS) {
             return Flux.fromIterable(authProperties.getAuthConfigs())
-                    .map(abstractAuthConfig -> new FindAuthConfig(abstractAuthConfig, null))
-                    .doOnNext(__ -> log.info("find auth configs for saas mode"));
+                    .map(abstractAuthConfig -> new FindAuthConfig(abstractAuthConfig, null));
         }
         return Flux.empty();
     }

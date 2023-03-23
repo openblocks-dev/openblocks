@@ -4,7 +4,6 @@ import { JSONValue } from "util/jsonTypes";
 import {
   ActionContextType,
   ActionExtraInfo,
-  AddChildAction,
   BroadcastAction,
   ChangeValueAction,
   CompAction,
@@ -21,11 +20,12 @@ import {
   UpdateNodesV2Action,
 } from "./actionTypes";
 
-export function customAction<DataType>(value: DataType): CustomAction<DataType> {
+export function customAction<DataType>(value: DataType, editDSL: boolean): CustomAction<DataType> {
   return {
     type: CompActionTypes.CUSTOM,
     path: [],
     value: value,
+    editDSL,
   };
 }
 
@@ -35,11 +35,13 @@ export function updateActionContextAction(
   const value: UpdateActionContextAction = {
     type: CompActionTypes.UPDATE_ACTION_CONTEXT,
     path: [],
+    editDSL: false,
     context: context,
   };
   return {
     type: CompActionTypes.BROADCAST,
     path: [],
+    editDSL: false,
     action: value,
   };
 }
@@ -68,6 +70,7 @@ export function executeQueryAction(props: {
   return {
     type: CompActionTypes.EXECUTE_QUERY,
     path: [],
+    editDSL: false,
     ...props,
   };
 }
@@ -76,6 +79,7 @@ export function triggerModuleEventAction(name: string): TriggerModuleEventAction
   return {
     type: CompActionTypes.TRIGGER_MODULE_EVENT,
     path: [],
+    editDSL: false,
     name,
   };
 }
@@ -83,10 +87,11 @@ export function triggerModuleEventAction(name: string): TriggerModuleEventAction
 /**
  * better to use comp.dispatchChangeValueAction to keep type safe
  */
-export function changeValueAction(value: JSONValue): ChangeValueAction {
+export function changeValueAction(value: JSONValue, editDSL: boolean): ChangeValueAction {
   return {
     type: CompActionTypes.CHANGE_VALUE,
     path: [],
+    editDSL,
     value: value,
   };
 }
@@ -102,12 +107,14 @@ export function renameAction(oldName: string, name: string): BroadcastAction<Ren
   const value: RenameAction = {
     type: CompActionTypes.RENAME,
     path: [],
+    editDSL: true,
     oldName: oldName,
     name: name,
   };
   return {
     type: CompActionTypes.BROADCAST,
     path: [],
+    editDSL: true,
     action: value,
   };
 }
@@ -117,23 +124,24 @@ export function routeByNameAction(name: string, action: CompAction<any>): RouteB
     type: CompActionTypes.ROUTE_BY_NAME,
     path: [],
     name: name,
+    editDSL: action.editDSL,
     action: action,
   };
 }
 
-export function addChildAction(key: string, value: JSONValue): AddChildAction {
-  return {
-    type: CompActionTypes.ADD_CHILD,
-    path: [],
-    key: key,
-    value: value,
-  };
-}
-
 export function multiChangeAction(changes: Record<string, CompAction>): MultiChangeAction {
+  const editDSL = Object.values(changes).some((action) => !!action.editDSL);
+  console.assert(
+    Object.values(changes).every(
+      (action) => !_.isNil(action.editDSL) && action.editDSL === editDSL
+    ),
+    `multiChangeAction should wrap actions with the same editDSL value in property. editDSL: ${editDSL}\nchanges:`,
+    changes
+  );
   return {
     type: CompActionTypes.MULTI_CHANGE,
     path: [],
+    editDSL,
     changes: changes,
   };
 }
@@ -142,6 +150,7 @@ export function deleteCompAction(): SimpleCompAction {
   return {
     type: CompActionTypes.DELETE_COMP,
     path: [],
+    editDSL: true,
   };
 }
 
@@ -149,6 +158,7 @@ export function replaceCompAction(compFactory: CompConstructor): ReplaceCompActi
   return {
     type: CompActionTypes.REPLACE_COMP,
     path: [],
+    editDSL: false,
     compFactory: compFactory,
   };
 }
@@ -157,6 +167,7 @@ export function onlyEvalAction(): SimpleCompAction {
   return {
     type: CompActionTypes.ONLY_EVAL,
     path: [],
+    editDSL: false,
   };
 }
 
@@ -175,14 +186,19 @@ export function unwrapChildAction(action: CompAction): [string, CompAction] {
   return [action.path[0], { ...action, path: action.path.slice(1) }];
 }
 
-export function changeChildAction(childName: string, value: JSONValue): CompAction {
-  return wrapChildAction(childName, changeValueAction(value));
+export function changeChildAction(
+  childName: string,
+  value: JSONValue,
+  editDSL: boolean
+): CompAction {
+  return wrapChildAction(childName, changeValueAction(value, editDSL));
 }
 
 export function updateNodesV2Action(value: any): UpdateNodesV2Action {
   return {
     type: CompActionTypes.UPDATE_NODES_V2,
     path: [],
+    editDSL: false,
     value: value,
   };
 }
@@ -196,4 +212,8 @@ export function wrapActionExtraInfo<T extends CompAction>(
 
 export function deferAction<T extends CompAction>(action: T): T {
   return { ...action, priority: "defer" };
+}
+
+export function changeEditDSLAction<T extends CompAction>(action: T, editDSL: boolean): T {
+  return { ...action, editDSL };
 }

@@ -1,6 +1,3 @@
-import { JSONValue } from "util/jsonTypes";
-import { CompAction, CompActionTypes } from "openblocks-core";
-import { CompConstructor } from "openblocks-core";
 import { evalAndReduceWithExposing } from "comps/utils";
 import {
   CALM_DOWN_TIMEOUT,
@@ -9,8 +6,11 @@ import {
   UPDATE_ROOT_VIEW_DEBOUNCE,
 } from "constants/perf";
 import _ from "lodash";
+import log from "loglevel";
+import { CompAction, CompActionTypes, CompConstructor } from "openblocks-core";
 import { useEffect, useMemo, useState } from "react";
 import { PriorityQueue, Queue } from "typescript-collections";
+import { JSONValue } from "util/jsonTypes";
 import {
   MarkAppCalmDown,
   MarkAppDSLLoaded,
@@ -22,7 +22,6 @@ import {
 import { wrapWithPromiseHandling } from "util/promiseUtils";
 import { cancelIdleCallback, requestIdleCallback } from "util/scheduleUtils";
 import { PartialReduceContext, reduceInContext } from "./reduceContext";
-import log from "loglevel";
 
 interface ActionHandlerParams {
   action?: CompAction;
@@ -204,10 +203,17 @@ export function getCompContainer<T extends CompConstructor>(params: GetContainer
       const actions: CompAction[] = [];
       // 1ms
       const reduceFn = wrapWithPromiseHandling((act: CompAction) => {
+        let action = act;
+        if (reduceContext && reduceContext.readOnly && action.editDSL) {
+          log.error("editDSL should be false in view mode, action: ", action);
+          action = { ...action, editDSL: false };
+        }
+
+        // console.info("~~ action: ", action);
         tmpComp = reduceContext
-          ? reduceInContext(reduceContext, () => tmpComp.reduce(act))
-          : tmpComp.reduce(act);
-        actions.push(act);
+          ? reduceInContext(reduceContext, () => tmpComp.reduce(action))
+          : tmpComp.reduce(action);
+        actions.push(action);
 
         // record the time of the first calm down
         if (!this.appCalmDowned) {

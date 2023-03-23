@@ -1,21 +1,47 @@
-import { clearMockWindow, createBlackHole, evalFunc, evalScript } from "./evalScript";
+import {
+  clearMockWindow,
+  createBlackHole,
+  evalFunc,
+  evalScript,
+  SandBoxOption,
+} from "./evalScript";
 
 test("evalFunc", () => {
   expect(() => evalFunc("return fetch();", {})).not.toThrow();
-  expect(() => evalFunc("return fetch();", {}, undefined, { disableLimit: true })).not.toThrow();
+  expect(() =>
+    evalFunc("return fetch('https://example.com/');", {}, undefined, { disableLimit: true })
+  ).not.toThrow();
   expect(() =>
     evalFunc("setTimeout(() => {});", {}, undefined, { disableLimit: true })
   ).not.toThrow();
   expect(evalFunc("console.info(window.fetch);return window.fetch;", {}, {})).not.toBe(
     window.fetch
   );
-  expect(evalFunc("return window.fetch", {}, {}, { disableLimit: true })).toBe(window.fetch);
   expect(evalFunc("return window.seTimeout", {}, {}, { scope: "expression" })).not.toBe(
     window.setTimeout
   );
   expect(evalFunc("return window.setTimeout", {}, {}, { scope: "function" })).toBe(
     window.setTimeout
   );
+});
+
+test("evalFuncDisableLimit", async () => {
+  const st = evalFunc("return window.setTimeout", {}, {}, { disableLimit: true });
+  let i = 1;
+  await new Promise((r) => {
+    st(() => {
+      i += 1;
+      r("");
+    });
+  });
+  expect(i).toBe(2);
+
+  const stMock = evalFunc("return window.setTimeout", {});
+  const p = await Promise.race([
+    new Promise((r) => stMock(r)),
+    new Promise((r) => setTimeout(() => r(1), 100)),
+  ]);
+  expect(p).toBe(1);
 });
 
 describe("evalScript", () => {
@@ -130,8 +156,26 @@ describe("evalScript", () => {
     expect(evalScript("this.crypto", {})).not.toBeUndefined();
     expect(evalScript("crypto", {})).not.toBeUndefined();
 
-    evalFunc("window.a = 1;", {});
-    expect(evalScript("window.a", {})).toBe(1);
+    evalFunc("window.a1 = 1;", {});
+    expect(evalScript("window.a1", {})).toBe(1);
+  });
+
+  it("onSetGlobalVars", () => {
+    clearMockWindow();
+
+    let globalVars: string[] = [];
+    const onSetGlobalVars = (v: string) => {
+      if (!globalVars.includes(v)) {
+        globalVars.push(v);
+      }
+    };
+    const options: SandBoxOption = { onSetGlobalVars, scope: "function" };
+    evalFunc("a = 1; window.b = 2; this.c = 3;", {}, {}, options);
+    expect(globalVars).toEqual(["a", "b", "c"]);
+
+    globalVars = [];
+    evalFunc("d = 1; window.e = 2; ; window.window.g = 2; this.f = 3;", {}, {}, options);
+    expect(globalVars).toEqual(["d", "e", "g", "f"]);
   });
 
   it("black hole is everything", () => {

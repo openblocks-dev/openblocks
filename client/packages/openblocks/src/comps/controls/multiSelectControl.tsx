@@ -1,4 +1,4 @@
-import { DropdownContainer, DropdownIcon, OptionsType, ValueFromOption } from "components/Dropdown";
+import { DropdownContainer, OptionsType, ValueFromOption } from "components/Dropdown";
 import { SimpleComp } from "openblocks-core";
 import { ControlParams, ControlPlacement } from "./controlParams";
 import { ReactNode } from "react";
@@ -94,7 +94,6 @@ export function multiSelectControl<T extends OptionsType>(
                   }
                   params.onChange?.(value);
                 }}
-                suffixIcon={<DropdownIcon />}
                 disabled={params.disabled}
                 allowClear={true}
                 placeholder={params.placeholder}

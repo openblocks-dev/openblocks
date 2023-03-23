@@ -1,34 +1,28 @@
-import { Section, sectionNames, UndoIcon } from "openblocks-design";
-import { UICompBuilder } from "../generators";
-import {
-  NameConfigHidden,
-  NameConfig,
-  withExposingConfigs,
-} from "../generators/withExposing";
-import styled from "styled-components";
+
+import { DeleteOutlined } from "@ant-design/icons";
+import { Skeleton } from "antd";
+import { BoolControl } from "comps/controls/boolControl";
+import { StringControl } from "comps/controls/codeControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
-import { trans } from "i18n";
 import { LabelControl } from "comps/controls/labelControl";
-import {
-  formDataChildren,
-  FormDataPropertyView,
-} from "./formComp/formDataConstants";
+import { styleControl } from "comps/controls/styleControl";
 import {
   contrastColor,
   SignatureStyle,
   SignatureStyleType,
 } from "comps/controls/styleControlConstants";
-import { styleControl } from "comps/controls/styleControl";
 import { stateComp, withDefault } from "comps/generators/simpleGenerators";
-import { StringControl } from "comps/controls/codeControl";
-import type SignatureCanvasType from "react-signature-canvas";
+import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { trans } from "i18n";
 import { changeValueAction, multiChangeAction } from "openblocks-core";
-import { BoolControl } from "comps/controls/boolControl";
-import { DeleteOutlined } from "@ant-design/icons";
-import { Skeleton } from "antd";
-import React, { useState, Suspense } from "react";
+import { Section, sectionNames, UndoIcon } from "openblocks-design";
+import React, { Suspense, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
+import type SignatureCanvasType from "react-signature-canvas";
+import styled from "styled-components";
+import { UICompBuilder } from "../generators";
+import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
+import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
 
 const Wrapper = styled.div<{ $style: SignatureStyleType; isEmpty: boolean }>`
   height: 100%;
@@ -116,7 +110,7 @@ let SignatureTmpComp = (function () {
         clear && canvas?.clear();
         dispatch(
           multiChangeAction({
-            value: changeValueAction(clear ? "" : canvas.toDataURL()),
+            value: changeValueAction(clear ? "" : canvas.toDataURL(), false),
           })
         );
       }

@@ -69,7 +69,7 @@ const LabelWrapper = styled.div<{
   align-items: center;
   line-height: 100%;
   margin-right: 8px;
-  margin-bottom: ${(props) => (props.position === "row" ? 0 : props.hasToolTip ? "3.5px" : "6px")};
+  margin-bottom: ${(props) => (props.position === "row" ? 0 : "3.5px")};
   justify-content: ${(props) => (props.align === "left" ? "start" : "end")};
   max-width: ${(props) => (props.position === "row" ? "80%" : "100%")};
   flex-shrink: 0;
@@ -78,6 +78,7 @@ const LabelWrapper = styled.div<{
 const Label = styled.span<{ border: boolean }>`
   ${labelCss};
   ${(props) => props.border && UnderlineCss};
+  padding-bottom: 2.5px;
   width: fit-content;
   user-select: text;
   white-space: nowrap;
