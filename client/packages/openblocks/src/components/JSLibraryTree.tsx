@@ -34,6 +34,7 @@ const DescWrapper = styled(Typography.Paragraph)`
   line-height: 1.5em;
   font-size: 13px;
   color: #8b8fa3;
+  margin-bottom: 8px !important;
 `;
 export const JSLibraryInfo = (props: { exportedAs?: string; description?: string }) => {
   return (
@@ -45,7 +46,9 @@ export const JSLibraryInfo = (props: { exportedAs?: string; description?: string
         </div>
       )}
       {props.description && (
-        <DescWrapper ellipsis={{ tooltip: true, rows: 2 }}>{props.description}</DescWrapper>
+        <DescWrapper ellipsis={{ tooltip: { placement: "right" }, rows: 2 }}>
+          {props.description}
+        </DescWrapper>
       )}
     </InfoWrapper>
   );
@@ -101,14 +104,12 @@ const JSLibraryCollapse = styled(Collapse)<{ mode: "row" | "column" }>`
           }
         `
       : css`
-          width: 270px;
-
           .ant-typography {
             margin-bottom: 10px;
           }
 
           .lib-label {
-            margin-right: 15px;
+            margin-right: 16px;
             width: 256px;
           }
         `}
@@ -118,6 +119,7 @@ const JSLibraryCollapse = styled(Collapse)<{ mode: "row" | "column" }>`
 
   .ant-collapse-ghost > .ant-collapse-item > .ant-collapse-content > .ant-collapse-content-box {
     padding-left: 14px;
+    margin-right: 16px;
   }
 
   .lib-label {

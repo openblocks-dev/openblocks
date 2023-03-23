@@ -57,6 +57,7 @@ export class RecordNode<T extends Record<string, Node<unknown>>> extends Abstrac
     return ret;
   }
 
+  @memoized()
   override fetchInfo(exposingNodes: Record<string, Node<unknown>>, options?: FetchInfoOptions) {
     let isFetching = false;
     let ready = true;

@@ -58,6 +58,7 @@ const CloseIconWrapper = styled.div`
   width: 16px;
   height: 16px;
   cursor: pointer;
+  color: #7a7c80;
 
   :hover svg g line {
     stroke: #ffffff;

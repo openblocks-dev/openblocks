@@ -1921,6 +1921,7 @@ export const en = {
     jsLibraryHelpText:
       "Add JavaScript libraries to your current application via URL addresses. lodash, moment, uuid, numbro are built into the system for immediate use.  JavaScript libraries are loaded before the application is initialized, which can have an impact on application performance.",
     exportedAs: "Exported as",
+    urlTooltip: "URL address of the JavaScript library, unpkg.com or jsdelivr.net is recommended",
     recommended: "Recommended",
     viewJSLibraryDocument: "Document",
     jsLibraryURLError: "Invalid URL",
@@ -1928,8 +1929,9 @@ export const en = {
     jsLibraryEmptyContent: "No JavaScript libraries added",
     jsLibraryDownloadError: "JavaScript library download error",
     jsLibraryInstallSuccess: "JavaScript library installed successfully",
+    jsLibraryInstallFailed: "JavaScript library installation failed",
     jsLibraryInstallFailedCloud:
-      "JavaScript library installation failed\nPerhaps the library is not available in the sandbox, [Documentation](https://docs.openblocks.dev/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+      "JavaScript library installation failed. Perhaps the library is not available in the sandbox, [Documentation](https://docs.openblocks.dev/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
     jsLibraryInstallFailedHost: "JavaScript library installation failed\n{message}",
     add: "Add New",
     jsHelpText: "Add a global method or variable to the current application.",

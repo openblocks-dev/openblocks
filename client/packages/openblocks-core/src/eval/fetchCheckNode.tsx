@@ -28,6 +28,7 @@ export class FetchCheckNode extends AbstractNode<FetchInfo> {
     return this.child.dependValues();
   }
 
+  @memoized()
   override fetchInfo(exposingNodes: Record<string, Node<unknown>>) {
     return this.child.fetchInfo(exposingNodes, this.options);
   }

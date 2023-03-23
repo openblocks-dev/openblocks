@@ -100,23 +100,10 @@ const HelpDiv = styled.div`
     right: auto;
     height: 28px;
     bottom: 36px;
-    cursor: pointer;
 
     > div.shortcutList {
       left: 42px;
       bottom: 2px;
-    }
-
-    svg {
-      height: 26px;
-      width: 26px;
-      padding: 5px;
-
-      &:hover,
-      &:active {
-        background: #8b8fa37f;
-        border-radius: 4px;
-      }
     }
   }
 `;
