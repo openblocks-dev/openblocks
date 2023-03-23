@@ -123,7 +123,7 @@ export const en = {
     friday: "Friday",
     saturday: "Saturday",
     sunday: "Sunday",
-    startWeek: "Start week on",
+    startWeek: "Start from",
     creatEvent: "Create event",
     editEvent: "Edit event",
     eventName: "Event name",

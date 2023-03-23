@@ -131,7 +131,10 @@ export const EditText = (props: EditTextProps) => {
             {props.text}
           </TextWrapper>
           <EditIcon
-            onClick={() => !props.disabled && setEditing(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              !props.disabled && setEditing(true);
+            }}
             className={"taco-edit-text-icon"}
           />
         </EditTextWrapper>

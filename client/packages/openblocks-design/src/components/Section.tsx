@@ -118,7 +118,7 @@ export const BaseSection = (props: ISectionConfig<ReactNode>) => {
         <SectionLabelDiv onClick={handleToggle} className={"section-header"}>
           <SectionLabel>{props.name}</SectionLabel>
           <div style={{ display: "flex" }}>
-            {props.additionalButton}
+            {open && props.additionalButton}
             <PackupIcon deg={open ? "rotate(0deg)" : "rotate(180deg)"} />
           </div>
         </SectionLabelDiv>

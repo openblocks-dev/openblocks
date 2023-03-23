@@ -35,6 +35,7 @@ export class FunctionNode<T, OutputType> extends AbstractNode<OutputType> {
     return this.child.dependValues();
   }
 
+  @memoized()
   override fetchInfo(exposingNodes: Record<string, Node<unknown>>, options?: FetchInfoOptions) {
     return this.child.fetchInfo(exposingNodes, options);
   }

@@ -279,6 +279,13 @@ let CalendarBasicComp = (function () {
       });
     };
 
+    let initialDate = defaultDate;
+    try {
+      initialDate = new Date(defaultDate).toISOString();
+    } catch (error) {
+      initialDate = undefined;
+    }
+
     return (
       <Wrapper
         ref={ref}
@@ -287,6 +294,7 @@ let CalendarBasicComp = (function () {
         theme={theme?.theme}
         onDoubleClick={handleDbClick}
         left={left}
+        key={initialDate ? defaultView + initialDate : defaultView}
       >
         <FullCalendar
           slotEventOverlap={false}
@@ -323,7 +331,7 @@ let CalendarBasicComp = (function () {
           slotLabelFormat={slotLabelFormat}
           viewClassNames={viewClassNames}
           moreLinkText={trans("calendar.more")}
-          initialDate={defaultDate}
+          initialDate={initialDate}
           initialView={defaultView}
           editable={editable}
           selectable={editable}

@@ -307,6 +307,9 @@ var FunctionNode = /** @class */ (function (_super) {
     __decorate([
         memoized()
     ], FunctionNode.prototype, "filterNodes", null);
+    __decorate([
+        memoized()
+    ], FunctionNode.prototype, "fetchInfo", null);
     return FunctionNode;
 }(AbstractNode));
 function withFunction(child, func) {
@@ -387,6 +390,9 @@ var RecordNode = /** @class */ (function (_super) {
     __decorate([
         memoized()
     ], RecordNode.prototype, "filterNodes", null);
+    __decorate([
+        memoized()
+    ], RecordNode.prototype, "fetchInfo", null);
     return RecordNode;
 }(AbstractNode));
 function fromRecord(record) {
@@ -1709,6 +1715,9 @@ var CodeNode = /** @class */ (function (_super) {
     __decorate([
         memoized()
     ], CodeNode.prototype, "filterDirectDepends", null);
+    __decorate([
+        memoized()
+    ], CodeNode.prototype, "fetchInfo", null);
     return CodeNode;
 }(AbstractNode));
 /**
@@ -1757,6 +1766,9 @@ var FetchCheckNode = /** @class */ (function (_super) {
     __decorate([
         memoized()
     ], FetchCheckNode.prototype, "filterNodes", null);
+    __decorate([
+        memoized()
+    ], FetchCheckNode.prototype, "fetchInfo", null);
     return FetchCheckNode;
 }(AbstractNode));
 function isFetching(node) {
@@ -2885,6 +2897,9 @@ var WrapNode = /** @class */ (function (_super) {
     __decorate([
         memoized()
     ], WrapNode.prototype, "filterNodes", null);
+    __decorate([
+        memoized()
+    ], WrapNode.prototype, "fetchInfo", null);
     return WrapNode;
 }(AbstractNode));
 

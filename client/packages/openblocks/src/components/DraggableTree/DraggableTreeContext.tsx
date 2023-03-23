@@ -8,6 +8,7 @@ export interface DraggableTreeContextValue {
   showPositionLineDot?: boolean;
   positionLineDotDiameter?: number;
   showSubInDragOverlay?: boolean;
+  showDropInPositionLine?: boolean;
   positionLineIndent?(path: number[], dropInAsSub: boolean): number;
 
   toggleFold(id: string): void;
