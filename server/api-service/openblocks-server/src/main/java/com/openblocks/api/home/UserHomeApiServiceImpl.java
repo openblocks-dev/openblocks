@@ -212,7 +212,9 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                             })
                             .filter(application -> isNull(applicationType) || application.getApplicationType() == applicationType.getValue())
                             .filter(application -> isNull(applicationStatus) || application.getApplicationStatus() == applicationStatus)
-                            .cache();
+                            .cache()
+                            .collectList()
+                            .flatMapIterable(Function.identity());
 
                     // last view time
                     Mono<Map<String, Instant>> applicationLastViewTimeMapMono = userApplicationInteractionService.findByUserId(visitorId)
