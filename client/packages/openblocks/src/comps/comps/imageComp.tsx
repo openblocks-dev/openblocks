@@ -43,6 +43,9 @@ const getStyle = (style: ImageStyleType) => {
     img {
       border: 1px solid ${style.border};
       border-radius: ${style.radius};
+          margin: ${style.margin};
+    padding: ${style.padding};
+
     }
 
     .ant-image-mask {
@@ -60,7 +63,7 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
   const [height, setHeight] = useState(0);
 
   const imgOnload = (img: HTMLImageElement) => {
-    img.onload = function () {
+    img.onload = function() {
       setWidth(img.naturalWidth);
       setHeight(img.naturalHeight);
     };
@@ -70,13 +73,13 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
     const newImage = new Image(0, 0);
     newImage.src = props.src.value;
     imgOnload(newImage);
-    newImage.onerror = function (e) {
+    newImage.onerror = function(e) {
       newImage.src = DEFAULT_IMG_URL;
       imgOnload(newImage);
     };
   }, [props.src.value]);
 
-  useEffect(() =>{
+  useEffect(() => {
     if (height && width) {
       onResize();
     }
