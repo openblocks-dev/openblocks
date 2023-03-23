@@ -135,7 +135,17 @@ const SpanStyled = styled.span<{ selected?: boolean }>`
   display: block;
   width: 26px;
   height: 26px;
+  cursor: pointer;
   svg {
+    height: 26px;
+    width: 26px;
+    padding: 5px;
+
+    &:hover,
+    &:active {
+      background: #8b8fa37f;
+      border-radius: 4px;
+    }
     ${(props) =>
       props.selected &&
       `

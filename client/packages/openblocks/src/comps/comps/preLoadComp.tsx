@@ -275,10 +275,9 @@ const PreloadCompBase = new MultiCompBuilder(childrenMap, () => {})
   .setPropertyViewFn((children) => <PreloadConfigModal {...children} />)
   .build();
 
-const AddIcon = styled(PlusIcon)`
-  margin: 15px 16px 0 0;
-  position: absolute;
+const AddJSLibraryButton = styled.div`
   cursor: pointer;
+  margin-right: 16px;
 
   g g {
     stroke: #8b8fa3;
@@ -293,10 +292,6 @@ const AddIcon = styled(PlusIcon)`
 
 const JSLibraryWrapper = styled.div`
   position: relative;
-
-  .section-header svg {
-    margin-right: 13px;
-  }
 `;
 
 export class PreloadComp extends PreloadCompBase {
@@ -325,15 +320,15 @@ export class PreloadComp extends PreloadCompBase {
             backgroundColor: "#fff",
           }}
           additionalButton={
-            <div style={{ marginRight: "16px", width: "16px" }}>
+            <AddJSLibraryButton>
               <JSLibraryModal
                 runInHost={libs.runInHost}
-                trigger={<AddIcon />}
+                trigger={<PlusIcon height={"46px"} />}
                 onCheck={(url) => !libs.getAllLibs().includes(url)}
                 onLoad={(url) => libs.loadScript(url)}
                 onSuccess={(url) => libs.dispatch(libs.pushAction(url))}
               />
-            </div>
+            </AddJSLibraryButton>
           }
         >
           {this.children.libs.getPropertyView()}
