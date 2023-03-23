@@ -1,21 +1,41 @@
 import { Switch } from "antd";
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
-import { changeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import {
+  changeEvent,
+  eventHandlerControl,
+} from "comps/controls/eventHandlerControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { styleControl } from "comps/controls/styleControl";
-import { SwitchStyle, SwitchStyleType } from "comps/controls/styleControlConstants";
+import {
+  SwitchStyle,
+  SwitchStyleType,
+} from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { Section, sectionNames } from "openblocks-design";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../generators";
-import { CommonNameConfig, NameConfig, withExposingConfigs } from "../generators/withExposing";
-import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
-import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
+import {
+  CommonNameConfig,
+  NameConfig,
+  withExposingConfigs,
+} from "../generators/withExposing";
+import {
+  formDataChildren,
+  FormDataPropertyView,
+} from "./formComp/formDataConstants";
+import {
+  hiddenPropertyView,
+  disabledPropertyView,
+} from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { refMethods } from "comps/generators/withMethodExposing";
-import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
+import {
+  blurMethod,
+  clickMethod,
+  focusWithOptions,
+} from "comps/utils/methodUtils";
 
 const EventOptions = [
   changeEvent,
@@ -33,6 +53,9 @@ const EventOptions = [
 
 const getStyle = (style: SwitchStyleType) => {
   return css`
+    margin: ${style.margin};
+    padding: ${style.padding};
+
     .ant-switch-handle::before {
       background-color: ${style.handle};
     }
@@ -46,7 +69,10 @@ const getStyle = (style: SwitchStyleType) => {
   `;
 };
 
-const SwitchWrapper = styled.div<{ disabled: boolean; $style: SwitchStyleType }>`
+const SwitchWrapper = styled.div<{
+  disabled: boolean;
+  $style: SwitchStyleType;
+}>`
   min-height: 32px;
   display: flex;
   align-items: center;
@@ -124,13 +150,19 @@ let SwitchTmpComp = (function () {
             {disabledPropertyView(children)}
           </Section>
 
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+          <Section name={sectionNames.layout}>
+            {hiddenPropertyView(children)}
+          </Section>
 
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
         </>
       );
     })
-    .setExposeMethodConfigs(refMethods([focusWithOptions, blurMethod, clickMethod]))
+    .setExposeMethodConfigs(
+      refMethods([focusWithOptions, blurMethod, clickMethod])
+    )
     .build();
 })();
 

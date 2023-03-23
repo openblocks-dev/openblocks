@@ -81,7 +81,7 @@ const DragPlaceHolder = styled.div<{ compType: UICompType }>`
  */
 class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
   static defaultProps: Partial<GridLayoutProps> = {
-    cols: 12,
+    cols: 24,
     className: "",
     style: {},
     isRowCountLocked: false,

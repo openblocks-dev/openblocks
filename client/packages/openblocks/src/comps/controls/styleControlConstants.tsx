@@ -50,8 +50,8 @@ export const defaultTheme: ThemeDetail = {
   canvas: "#F5F5F6",
   primarySurface: "#FFFFFF",
   borderRadius: "4px",
-  margin: "0px",
-  padding: "0px",
+  margin: "5px",
+  padding: "5px",
 };
 
 export const SURFACE_COLOR = "#FFFFFF";
@@ -359,6 +359,8 @@ export const TextStyle = [
     transformer: toSelf,
   },
   TEXT,
+  MARGIN,
+  PADDING,
   {
     name: "links",
     label: trans("style.links"),
@@ -404,12 +406,17 @@ export const SliderStyle = [
     color: SURFACE_COLOR,
   },
   TRACK,
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const InputLikeStyle = [
   LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
+  MARGIN,
+  PADDING,
+
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -425,6 +432,8 @@ export const RatingStyle = [
     label: trans("style.unchecked"),
     color: SECOND_SURFACE_COLOR,
   },
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const SwitchStyle = [
@@ -447,6 +456,8 @@ export const SwitchStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const SelectStyle = [
@@ -454,12 +465,16 @@ export const SelectStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
   ...ACCENT_VALIDATE,
+  MARGIN,
+  PADDING
 ] as const;
 
 const multiSelectCommon = [
   LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
+  MARGIN,
+  PADDING,
   {
     name: "tags",
     label: trans("style.tags"),
@@ -515,6 +530,8 @@ export const CascaderStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
   ACCENT,
+  MARGIN,
+  PADDING
 ] as const;
 
 function checkAndUncheck() {
@@ -553,6 +570,8 @@ export const CheckboxStyle = [
   RADIUS,
   STATIC_TEXT,
   VALIDATE,
+  MARGIN,
+  PADDING
 ] as const;
 
 export const RadioStyle = [
@@ -567,6 +586,8 @@ export const RadioStyle = [
   },
   STATIC_TEXT,
   VALIDATE,
+  MARGIN,
+  PADDING
 ] as const;
 
 export const SegmentStyle = [
@@ -591,6 +612,8 @@ export const SegmentStyle = [
   },
   RADIUS,
   VALIDATE,
+  MARGIN,
+  PADDING
 ] as const;
 
 export const TableStyle = [
@@ -685,7 +708,7 @@ export const LinkStyle = [
     transformer: toSelf,
   },
   MARGIN,
-  PADDING
+  PADDING,
 ] as const;
 
 export const DividerStyle = [
