@@ -22,7 +22,6 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { RecommendedJSLibraryMeta } from "api/jsLibraryApi";
 import log from "loglevel";
 import { TacoMarkDown } from "components/markdown";
-import { HelpText } from "components/HelpText";
 
 const ModalLabel = styled.div`
   display: flex;
@@ -209,6 +208,13 @@ const Error = (props: {
   </ErrorWrapper>
 );
 
+const HelpText = styled(TacoMarkDown)`
+  font-size: 13px;
+  color: ${GreyTextColor};
+  margin: 8px 0;
+  line-height: 13px;
+`;
+
 interface JSLibraryModalProps {
   trigger: ReactNode;
   runInHost: boolean;
@@ -268,9 +274,7 @@ export function JSLibraryModal(props: JSLibraryModalProps) {
         width="648px"
       >
         <div style={{ lineHeight: "10px" }}>URL</div>
-        <HelpText style={{ lineHeight: "13px", margin: "8px 0 " }}>
-          {trans("preLoad.urlTooltip")}
-        </HelpText>
+        <HelpText>{trans("preLoad.urlTooltip")}</HelpText>
         <InputWrapper>
           <Input
             status={urlError || installError ? "error" : undefined}
@@ -326,12 +330,16 @@ export function JSLibraryModal(props: JSLibraryModalProps) {
           />
         )}
 
-        <div style={{ marginTop: "24px" }}>{trans("preLoad.recommended")}</div>
-        <JSLibraryRecommends>
-          {recommends.map((r, idx) => (
-            <JSLibraryCard key={idx} meta={r} {...props} setError={setInstallError} />
-          ))}
-        </JSLibraryRecommends>
+        {recommends.length > 0 && (
+          <>
+            <div style={{ marginTop: "24px" }}>{trans("preLoad.recommended")}</div>
+            <JSLibraryRecommends>
+              {recommends.map((r, idx) => (
+                <JSLibraryCard key={idx} meta={r} {...props} setError={setInstallError} />
+              ))}
+            </JSLibraryRecommends>
+          </>
+        )}
       </CustomModal>
     </div>
   );
