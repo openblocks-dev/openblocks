@@ -1,4 +1,8 @@
-import { changeChildAction, DispatchType, RecordConstructorToView } from "openblocks-core";
+import {
+  changeChildAction,
+  DispatchType,
+  RecordConstructorToView,
+} from "openblocks-core";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames, ValueFromOption } from "openblocks-design";
@@ -6,7 +10,10 @@ import { TreeSelect } from "antd";
 import { useEffect } from "react";
 import styled from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
-import { TreeSelectStyle, TreeSelectStyleType } from "comps/controls/styleControlConstants";
+import {
+  TreeSelectStyle,
+  TreeSelectStyleType,
+} from "comps/controls/styleControlConstants";
 import { LabelControl } from "comps/controls/labelControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import {
@@ -20,7 +27,10 @@ import {
   useTree,
   valuePropertyView,
 } from "./treeUtils";
-import { baseSelectRefMethods, getStyle } from "../selectInputComp/selectCompConstants";
+import {
+  baseSelectRefMethods,
+  getStyle,
+} from "../selectInputComp/selectCompConstants";
 import { useSelectInputValidate } from "../selectInputComp/selectInputConstants";
 import { StringControl } from "comps/controls/codeControl";
 import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
@@ -37,6 +47,9 @@ import { RefControl } from "comps/controls/refControl";
 
 const StyledTreeSelect = styled(TreeSelect)<{ $style: TreeSelectStyleType }>`
   width: 100%;
+  margin: ${(props) => props.$style.margin};
+  padding: ${(props) => props.$style.padding};
+
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
@@ -79,7 +92,9 @@ function getCheckedStrategy(v: ValueFromOption<typeof checkedStrategyOptions>) {
 }
 
 const TreeCompView = (
-  props: RecordConstructorToView<typeof childrenMap> & { dispatch: DispatchType }
+  props: RecordConstructorToView<typeof childrenMap> & {
+    dispatch: DispatchType;
+  }
 ) => {
   const { treeData, selectType, value, expanded, style, inputValue } = props;
   const isSingle = selectType === "single";
@@ -116,7 +131,11 @@ const TreeCompView = (
           expanded.onChange(keys);
         }}
         onChange={(keys) => {
-          const nextValue = Array.isArray(keys) ? keys : keys !== undefined ? [keys] : [];
+          const nextValue = Array.isArray(keys)
+            ? keys
+            : keys !== undefined
+            ? [keys]
+            : [];
           handleValidate(nextValue);
           value.onChange(nextValue);
           props.onEvent("change");
@@ -144,10 +163,14 @@ let TreeBasicComp = (function () {
       <>
         <Section name={sectionNames.basic}>
           {treeDataPropertyView(children)}
-          {children.selectType.propertyView({ label: trans("tree.selectType") })}
+          {children.selectType.propertyView({
+            label: trans("tree.selectType"),
+          })}
           {valuePropertyView(children)}
           {children.selectType.getView() === "check" &&
-            children.checkedStrategy.propertyView({ label: trans("tree.checkedStrategy") })}
+            children.checkedStrategy.propertyView({
+              label: trans("tree.checkedStrategy"),
+            })}
           {placeholderPropertyView(children)}
         </Section>
         {formSection(children)}
@@ -161,7 +184,9 @@ let TreeBasicComp = (function () {
             {showSearchPropertyView(children)}
           </>
         )}
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+        </Section>
       </>
     ))
     .setExposeMethodConfigs(baseSelectRefMethods)

@@ -245,6 +245,8 @@ export const TextInputValidationSection = (children: TextInputComp) => (
 export function getStyle(style: InputLikeStyleType) {
   return css`
     border-radius: ${style.radius};
+    margin: ${style.margin};
+    padding: ${style.padding};
     // still use antd style when disabled
     &:not(.ant-input-disabled, .ant-input-affix-wrapper-disabled),
     input {

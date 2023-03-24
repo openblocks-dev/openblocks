@@ -58,6 +58,8 @@ const getStyle = (style: InputLikeStyleType) => {
       color: ${style.text};
       background-color: ${style.background};
       border-color: ${style.border};
+    margin: ${style.margin};
+    padding: ${style.padding};
 
       &.ant-input-number-focused {
         border-color: ${style.accent};

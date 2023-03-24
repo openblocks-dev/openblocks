@@ -59,6 +59,9 @@ export const getStyle = (
     | TreeSelectStyleType
 ) => {
   return css`
+    margin: ${style.margin};
+    padding: ${style.padding};
+
     &.ant-select .ant-select-selector,
     &.ant-select-multiple .ant-select-selection-item {
       border-radius: ${style.radius};
@@ -89,18 +92,18 @@ export const getStyle = (
       .ant-select-clear {
         background-color: ${style.background};
         color: ${style.text === "#222222"
-          ? "#8B8FA3"
-          : isDarkColor(style.text)
-          ? lightenColor(style.text, 0.2)
-          : style.text};
+      ? "#8B8FA3"
+      : isDarkColor(style.text)
+        ? lightenColor(style.text, 0.2)
+        : style.text};
       }
 
       .ant-select-clear:hover {
         color: ${style.text === "#222222"
-          ? "#8B8FA3"
-          : isDarkColor(style.text)
-          ? lightenColor(style.text, 0.1)
-          : style.text};
+      ? "#8B8FA3"
+      : isDarkColor(style.text)
+        ? lightenColor(style.text, 0.1)
+        : style.text};
       }
 
       &.ant-select-multiple .ant-select-selection-item {
@@ -148,7 +151,7 @@ const getDropdownStyle = (style: MultiSelectStyleType) => {
   `;
 };
 
-const Select = styled(AntdSelect)<{
+const Select = styled(AntdSelect) <{
   $style: SelectStyleType & MultiSelectStyleType;
 }>`
   width: 100%;
@@ -229,16 +232,6 @@ export const SelectUIView = (
           }
         : undefined
     }
-    style={{
-      marginTop: props.margin.top ? props.margin.top : 0,
-      marginRight: props.margin.right ? props.margin.right : 0,
-      marginBottom: props.margin.bottom ? props.margin.bottom : 0,
-      marginLeft: props.margin.left ? props.margin.left : 0,
-      paddingTop: props.padding.top ? props.padding.top : 0,
-      paddingRight: props.padding.right ? props.padding.right : 0,
-      paddingBottom: props.padding.bottom ? props.padding.bottom : 0,
-      paddingLeft: props.padding.left ? props.padding.left : 0,
-    }}
   >
     {props.options
       .filter((option) => option.value !== undefined && !option.hidden)
@@ -293,12 +286,6 @@ export const SelectPropertyView = (
     <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     <Section name={sectionNames.style}>
       {children.style.getPropertyView()}
-    </Section>
-    <Section name={trans("style.margin")}>
-      {children.margin.getPropertyView()}
-    </Section>
-    <Section name={trans("style.padding")}>
-      {children.padding.getPropertyView()}
     </Section>
   </>
 );

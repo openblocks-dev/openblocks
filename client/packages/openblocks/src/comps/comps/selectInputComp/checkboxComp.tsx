@@ -25,10 +25,16 @@ import { RefControl } from "comps/controls/refControl";
 
 export const getStyle = (style: CheckboxStyleType) => {
   return css`
+    margin: ${style.margin};
+    padding: ${style.padding};
+
     &,
     .ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled) {
       color: ${style.staticText};
       max-width: calc(100% - 8px);
+
+      margin: ${style.margin};
+      padding: ${style.padding};
 
       span:not(.ant-checkbox) {
         ${EllipsisTextCss};
@@ -72,7 +78,7 @@ export const getStyle = (style: CheckboxStyleType) => {
   `;
 };
 
-const CheckboxGroup = styled(Checkbox.Group)<{
+const CheckboxGroup = styled(Checkbox.Group) <{
   $style: CheckboxStyleType;
   $layout: ValueFromOption<typeof RadioLayoutOptions>;
 }>`
@@ -99,7 +105,7 @@ const CheckboxGroup = styled(Checkbox.Group)<{
   }}
 `;
 
-const CheckboxBasicComp = (function () {
+const CheckboxBasicComp = (function() {
   const childrenMap = {
     value: arrayStringExposingStateControl("value", ["1"]),
     label: LabelControl,

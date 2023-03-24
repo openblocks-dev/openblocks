@@ -3,16 +3,32 @@ import styled, { css } from "styled-components";
 import { Section, sectionNames } from "openblocks-design";
 import { NumberControl } from "../controls/codeControl";
 import { BoolControl } from "../controls/boolControl";
-import { changeEvent, eventHandlerControl } from "../controls/eventHandlerControl";
+import {
+  changeEvent,
+  eventHandlerControl,
+} from "../controls/eventHandlerControl";
 import { LabelControl } from "../controls/labelControl";
 import { numberExposingStateControl } from "../controls/codeStateControl";
 import { UICompBuilder, withDefault } from "../generators";
-import { CommonNameConfig, NameConfig, withExposingConfigs } from "../generators/withExposing";
-import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
+import {
+  CommonNameConfig,
+  NameConfig,
+  withExposingConfigs,
+} from "../generators/withExposing";
+import {
+  formDataChildren,
+  FormDataPropertyView,
+} from "./formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { RatingStyle, RatingStyleType } from "comps/controls/styleControlConstants";
+import {
+  RatingStyle,
+  RatingStyleType,
+} from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import {
+  disabledPropertyView,
+  hiddenPropertyView,
+} from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
 const EventOptions = [changeEvent] as const;
@@ -82,9 +98,13 @@ const RatingBasicComp = (function () {
             {disabledPropertyView(children)}
           </Section>
 
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+          <Section name={sectionNames.layout}>
+            {hiddenPropertyView(children)}
+          </Section>
 
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
         </>
       );
     })
@@ -99,6 +119,9 @@ export const RatingComp = withExposingConfigs(RatingBasicComp, [
 
 const getStyle = (style: RatingStyleType) => {
   return css`
+    margin: ${style.margin};
+    padding: ${style.padding};
+
     .ant-rate {
       color: ${style.checked};
     }

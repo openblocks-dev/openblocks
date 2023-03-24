@@ -50,8 +50,8 @@ export const defaultTheme: ThemeDetail = {
   canvas: "#F5F5F6",
   primarySurface: "#FFFFFF",
   borderRadius: "4px",
-  margin: "0px",
-  padding: "0px",
+  margin: "5px",
+  padding: "5px",
 };
 
 export const SURFACE_COLOR = "#FFFFFF";
@@ -399,6 +399,8 @@ export const TextStyle = [
     transformer: toSelf,
   },
   TEXT,
+  MARGIN,
+  PADDING,
   {
     name: "links",
     label: trans("style.links"),
@@ -426,6 +428,8 @@ export const ContainerStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
+  MARGIN,
+  PADDING
 ] as const;
 
 export const SliderStyle = [
@@ -444,12 +448,17 @@ export const SliderStyle = [
     color: SURFACE_COLOR,
   },
   TRACK,
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const InputLikeStyle = [
   LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
+  MARGIN,
+  PADDING,
+
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -465,6 +474,8 @@ export const RatingStyle = [
     label: trans("style.unchecked"),
     color: SECOND_SURFACE_COLOR,
   },
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const SwitchStyle = [
@@ -487,6 +498,8 @@ export const SwitchStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const SelectStyle = [
@@ -494,12 +507,16 @@ export const SelectStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
   ...ACCENT_VALIDATE,
+  MARGIN,
+  PADDING,
 ] as const;
 
 const multiSelectCommon = [
   LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
+  MARGIN,
+  PADDING,
   {
     name: "tags",
     label: trans("style.tags"),
@@ -546,6 +563,8 @@ export const TabContainerStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const ModalStyle = getBgBorderRadiusByBg();
@@ -555,6 +574,8 @@ export const CascaderStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
   ACCENT,
+  MARGIN,
+  PADDING,
 ] as const;
 
 function checkAndUncheck() {
@@ -593,6 +614,8 @@ export const CheckboxStyle = [
   RADIUS,
   STATIC_TEXT,
   VALIDATE,
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const RadioStyle = [
@@ -607,6 +630,8 @@ export const RadioStyle = [
   },
   STATIC_TEXT,
   VALIDATE,
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const SegmentStyle = [
@@ -631,6 +656,8 @@ export const SegmentStyle = [
   },
   RADIUS,
   VALIDATE,
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const TableStyle = [
@@ -695,18 +722,24 @@ export const FileStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
   ACCENT,
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const FileViewerStyle = [
   getStaticBackground("#FFFFFF"),
   getStaticBorder("#00000000"),
   RADIUS,
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const IframeStyle = [
   getBackground(),
   getStaticBorder("#00000000"),
   RADIUS,
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const DateTimeStyle = [
@@ -714,6 +747,8 @@ export const DateTimeStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
   ...ACCENT_VALIDATE,
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const LinkStyle = [
@@ -725,7 +760,7 @@ export const LinkStyle = [
     transformer: toSelf,
   },
   MARGIN,
-  PADDING
+  PADDING,
 ] as const;
 
 export const DividerStyle = [
@@ -740,6 +775,8 @@ export const DividerStyle = [
     depName: "color",
     transformer: handleToDividerText,
   },
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const ProgressStyle = [
@@ -753,6 +790,8 @@ export const ProgressStyle = [
   TRACK,
   FILL,
   SUCCESS,
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const LottieStyle = [
@@ -763,6 +802,8 @@ export const LottieStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const NavigationStyle = [
@@ -776,9 +817,16 @@ export const NavigationStyle = [
   ACCENT,
   getStaticBackground("#FFFFFF00"),
   getStaticBorder("#FFFFFF00"),
+  MARGIN,
+  PADDING,
 ] as const;
 
-export const ImageStyle = [getStaticBorder("#00000000"), RADIUS] as const;
+export const ImageStyle = [
+  getStaticBorder("#00000000"),
+  RADIUS,
+  MARGIN,
+  PADDING,
+] as const;
 
 export const ListViewStyle = BG_STATIC_BORDER_RADIUS;
 
@@ -788,6 +836,8 @@ export const MasonryStyle = [
   CARD_COLOR,
   CARD_BORDER,
   CARD_RADIUS,
+  MARGIN,
+  PADDING,
 ];
 
 export const JsonSchemaFormStyle = BG_STATIC_BORDER_RADIUS;
@@ -799,6 +849,8 @@ export const QRCodeStyle = [
     label: trans("color"),
     color: "#000000",
   },
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const TreeStyle = [
@@ -806,6 +858,8 @@ export const TreeStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
   VALIDATE,
+  MARGIN,
+  PADDING,
 ] as const;
 
 export const TreeSelectStyle = [
@@ -864,6 +918,8 @@ export const CalendarStyle = [
 export const SignatureStyle = [
   LABEL,
   ...getBgBorderRadiusByBg(),
+  MARGIN,
+  PADDING,
   {
     name: "pen",
     label: trans("style.pen"),

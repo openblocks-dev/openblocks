@@ -1,5 +1,8 @@
 import { styleControl } from "comps/controls/styleControl";
-import { FileViewerStyle, FileViewerStyleType } from "comps/controls/styleControlConstants";
+import {
+  FileViewerStyle,
+  FileViewerStyleType,
+} from "comps/controls/styleControlConstants";
 import { isEmpty } from "lodash";
 import { useState } from "react";
 import { DocumentViewer } from "react-documents";
@@ -7,12 +10,19 @@ import styled, { css } from "styled-components";
 import { Section, sectionNames } from "openblocks-design";
 import { StringControl } from "../controls/codeControl";
 import { UICompBuilder } from "../generators";
-import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
+import {
+  NameConfig,
+  NameConfigHidden,
+  withExposingConfigs,
+} from "../generators/withExposing";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
 const getStyle = (style: FileViewerStyleType) => {
   return css`
+    margin: ${style.margin};
+    padding: ${style.padding};
+
     overflow: hidden;
     background-color: ${style.background};
     border: 1px solid ${style.border};
@@ -33,7 +43,10 @@ const StyledDiv = styled.div<{ $style: FileViewerStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
-const DraggableFileViewer = (props: { src: string; style: FileViewerStyleType }) => {
+const DraggableFileViewer = (props: {
+  src: string;
+  style: FileViewerStyleType;
+}) => {
   const [isActive, setActive] = useState(false);
 
   return (
@@ -62,7 +75,11 @@ let FileViewerBasicComp = (function () {
   };
   return new UICompBuilder(childrenMap, (props) => {
     if (isEmpty(props.src)) {
-      return <ErrorWrapper $style={props.style}>{trans("fileViewer.invalidURL")}</ErrorWrapper>;
+      return (
+        <ErrorWrapper $style={props.style}>
+          {trans("fileViewer.invalidURL")}
+        </ErrorWrapper>
+      );
     }
     return <DraggableFileViewer src={props.src} style={props.style} />;
   })
@@ -73,14 +90,20 @@ let FileViewerBasicComp = (function () {
             {children.src.propertyView({
               label: trans("fileViewer.src"),
               tooltip: (
-                <span style={{ wordBreak: "break-all" }}>{trans("fileViewer.srcTooltip")}</span>
+                <span style={{ wordBreak: "break-all" }}>
+                  {trans("fileViewer.srcTooltip")}
+                </span>
               ),
             })}
           </Section>
 
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+          <Section name={sectionNames.layout}>
+            {hiddenPropertyView(children)}
+          </Section>
 
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
         </>
       );
     })

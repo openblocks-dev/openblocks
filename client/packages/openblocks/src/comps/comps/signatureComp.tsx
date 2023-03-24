@@ -1,3 +1,4 @@
+
 import { DeleteOutlined } from "@ant-design/icons";
 import { Skeleton } from "antd";
 import { BoolControl } from "comps/controls/boolControl";
@@ -33,6 +34,8 @@ const Wrapper = styled.div<{ $style: SignatureStyleType; isEmpty: boolean }>`
   overflow: hidden;
   width: 100%;
   height: 100%;
+  margin: ${(props)=>props.$style.margin};
+  padding: ${(props)=>props.$style.padding};
 
   .signature {
     background-color: ${(props) => props.$style.background};
@@ -177,7 +180,9 @@ let SignatureTmpComp = (function () {
                 )}
               </div>
             )}
-            {!(isBegin || props.value) && <div className="empty">{props.tips}</div>}
+            {!(isBegin || props.value) && (
+              <div className="empty">{props.tips}</div>
+            )}
           </Wrapper>
         </ReactResizeDetector>
       ),
@@ -191,13 +196,21 @@ let SignatureTmpComp = (function () {
           </Section>
           <FormDataPropertyView {...children} />
           {children.label.getPropertyView()}
-          <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+          </Section>
           <Section name={sectionNames.layout}>
-            {children.showUndo.propertyView({ label: trans("signature.showUndo") })}
-            {children.showClear.propertyView({ label: trans("signature.showClear") })}
+            {children.showUndo.propertyView({
+              label: trans("signature.showUndo"),
+            })}
+            {children.showClear.propertyView({
+              label: trans("signature.showClear"),
+            })}
             {hiddenPropertyView(children)}
           </Section>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
         </>
       );
     })

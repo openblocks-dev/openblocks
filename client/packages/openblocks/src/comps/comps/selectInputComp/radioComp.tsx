@@ -2,8 +2,16 @@ import { Radio as AntdRadio } from "antd";
 import { RadioStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";
-import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { RadioChildrenMap, RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
+import {
+  CommonNameConfig,
+  NameConfig,
+  withExposingConfigs,
+} from "../../generators/withExposing";
+import {
+  RadioChildrenMap,
+  RadioLayoutOptions,
+  RadioPropertyView,
+} from "./radioCompConstants";
 import {
   selectDivRefMethods,
   SelectInputInvalidConfig,
@@ -14,10 +22,16 @@ import { trans } from "i18n";
 
 const getStyle = (style: RadioStyleType) => {
   return css`
+    margin: ${style.margin};
+    padding: ${style.padding};
+
     .ant-radio-wrapper:not(.ant-radio-wrapper-disabled) {
       color: ${style.staticText};
       height: 22px;
       max-width: calc(100% - 8px);
+
+      margin: ${style.margin};
+      padding: ${style.padding};
 
       span:not(.ant-radio) {
         ${EllipsisTextCss};

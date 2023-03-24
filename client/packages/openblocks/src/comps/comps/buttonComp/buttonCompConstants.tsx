@@ -21,6 +21,7 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
     border-radius: ${buttonStyle.radius};
     margin: ${buttonStyle.margin};
     padding: ${buttonStyle.padding};
+
     &:not(:disabled) {
       // click animation color
       --antd-wave-shadow-color: ${buttonStyle.border};
@@ -53,7 +54,8 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
 
 export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
   ${(props) => props.$buttonStyle && getButtonStyle(props.$buttonStyle)}
-  width: 100%;
+  width: fit-content;
+  height: auto;
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -62,7 +64,7 @@ export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  gap: 6px;
+  gap: 0px;
 `;
 
 export const ButtonCompWrapper = styled.div<{ disabled: boolean }>`

@@ -3,9 +3,16 @@ import { Section, sectionNames } from "openblocks-design";
 import { numberExposingStateControl } from "../controls/codeStateControl";
 import { BoolControl } from "../controls/boolControl";
 import { UICompBuilder } from "../generators";
-import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
+import {
+  NameConfig,
+  NameConfigHidden,
+  withExposingConfigs,
+} from "../generators/withExposing";
 import { styleControl } from "comps/controls/styleControl";
-import { ProgressStyle, ProgressStyleType } from "comps/controls/styleControlConstants";
+import {
+  ProgressStyle,
+  ProgressStyleType,
+} from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -16,6 +23,9 @@ const getStyle = (style: ProgressStyleType) => {
     .ant-progress-text {
       color: ${style.text};
     }
+    margin: ${style.margin};
+    padding: ${style.padding};
+
     .ant-progress-inner {
       background-color: ${style.track};
       .ant-progress-bg {
@@ -64,8 +74,12 @@ const ProgressBasicComp = (function () {
               label: trans("progress.showInfo"),
             })}
           </Section>
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          <Section name={sectionNames.layout}>
+            {hiddenPropertyView(children)}
+          </Section>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
         </>
       );
     })

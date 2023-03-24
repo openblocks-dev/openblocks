@@ -45,18 +45,6 @@ let CascaderBasicComp = (function () {
             props.value.onChange(value as string[]);
             props.onEvent("change");
           }}
-          style={{
-            margin: `${props.margin.top ? props.margin.top : 0} ${
-              props.margin.right ? props.margin.right : 0
-            } ${props.margin.bottom ? props.margin.bottom : 0} ${
-              props.margin.left ? props.margin.left : 0
-            }`,
-            padding: `${props.padding.top ? props.padding.top : 0} ${
-              props.padding.right ? props.padding.right : 0
-            } ${props.padding.bottom ? props.padding.bottom : 0} ${
-              props.padding.left ? props.padding.left : 0
-            }`,
-          }}
         />
       ),
     });
