@@ -1,6 +1,10 @@
 import _ from "lodash";
 import { useEffect, useState } from "react";
-import { ConfigItem, Radius } from "../pages/setting/theme/styledComponents";
+import {
+  ConfigItem,
+  GridColumns,
+  Radius,
+} from "../pages/setting/theme/styledComponents";
 import { isValidColor, toHex } from "components/colorSelect/colorUtils";
 import { ColorSelect } from "components/colorSelect";
 import { TacoInput } from "components/tacoInput";
@@ -10,6 +14,7 @@ export type configChangeParams = {
   color?: string;
   radius?: string;
   chart?: string;
+  gridColumns?: string;
 };
 
 type ColorConfigProps = {
@@ -19,6 +24,7 @@ type ColorConfigProps = {
   desc?: string;
   color?: string;
   radius?: string;
+  gridColumns?: string;
   configChange: (params: configChangeParams) => void;
   showVarName?: boolean;
 };
@@ -30,12 +36,14 @@ export default function ColorPicker(props: ColorConfigProps) {
     desc,
     color: defaultColor,
     radius: defaultRadius,
+    gridColumns: defaultGridColumns,
     configChange,
     showVarName = true,
   } = props;
   const configChangeWithDebounce = _.debounce(configChange, 0);
   const [color, setColor] = useState(defaultColor);
   const [radius, setRadius] = useState(defaultRadius);
+  const [gridColumns, setGridColumns] = useState(defaultGridColumns);
   const varName = `(${colorKey})`;
 
   const colorInputBlur = () => {
@@ -62,6 +70,17 @@ export default function ColorPicker(props: ColorConfigProps) {
     configChange({ colorKey, radius: result });
   };
 
+  const gridColumnsInputBlur = (gridColumns: string) => {
+    let result = "";
+    if (!gridColumns) {
+      result = "0";
+    } else {
+      result = gridColumns;
+    }
+    setGridColumns(result);
+    configChange({ colorKey, gridColumns: result });
+  };
+
   useEffect(() => {
     if (color && isValidColor(color)) {
       configChangeWithDebounce({ colorKey, color });
@@ -77,6 +96,10 @@ export default function ColorPicker(props: ColorConfigProps) {
     setRadius(defaultRadius);
   }, [defaultRadius]);
 
+  useEffect(() => {
+    setGridColumns(defaultGridColumns);
+  }, [defaultGridColumns]);
+
   return (
     <ConfigItem className={props.className}>
       <div className="text-desc">
@@ -85,7 +108,7 @@ export default function ColorPicker(props: ColorConfigProps) {
         </div>
         <div className="desc">{desc}</div>
       </div>
-      {colorKey !== "borderRadius" ? (
+      {colorKey !== "borderRadius" && colorKey !== "gridColumns" && (
         <div className="config-input">
           <ColorSelect
             changeColor={_.debounce(setColor, 500, {
@@ -102,7 +125,8 @@ export default function ColorPicker(props: ColorConfigProps) {
             onKeyUp={(e) => e.nativeEvent.key === "Enter" && colorInputBlur()}
           />
         </div>
-      ) : (
+      )}
+      {colorKey === "borderRadius" && (
         <div className="config-input">
           <Radius radius={defaultRadius || "0"}>
             <div>
@@ -113,7 +137,28 @@ export default function ColorPicker(props: ColorConfigProps) {
             value={radius}
             onChange={(e) => setRadius(e.target.value)}
             onBlur={(e) => radiusInputBlur(e.target.value)}
-            onKeyUp={(e) => e.nativeEvent.key === "Enter" && radiusInputBlur(e.currentTarget.value)}
+            onKeyUp={(e) =>
+              e.nativeEvent.key === "Enter" &&
+              radiusInputBlur(e.currentTarget.value)
+            }
+          />
+        </div>
+      )}
+      {colorKey === "gridColumns" && (
+        <div className="config-input">
+          <GridColumns gridColumns={defaultGridColumns || "24"}>
+            <div>
+              <div />
+            </div>
+          </GridColumns>
+          <TacoInput
+            value={gridColumns}
+            onChange={(e) => setGridColumns(e.target.value)}
+            onBlur={(e) => gridColumnsInputBlur(e.target.value)}
+            onKeyUp={(e) =>
+              e.nativeEvent.key === "Enter" &&
+              gridColumnsInputBlur(e.currentTarget.value)
+            }
           />
         </div>
       )}

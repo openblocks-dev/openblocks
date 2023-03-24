@@ -8,10 +8,15 @@ import {
 import history from "util/history";
 import { CodeEditor } from "base/codeEditor";
 import { BASE_URL, THEME_SETTING } from "constants/routesURL";
-import ColorPicker, { configChangeParams } from "../../../../components/ColorPicker";
+import ColorPicker, {
+  configChangeParams,
+} from "../../../../components/ColorPicker";
 import React from "react";
 import { connect } from "react-redux";
-import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
+import {
+  fetchCommonSettings,
+  setCommonSettings,
+} from "redux/reduxActions/commonSettingsActions";
 import { AppState } from "redux/reducers";
 import { DETAIL_TYPE } from "../themeConstant";
 import { ArrowIcon, CustomModal, ResetIcon } from "openblocks-design";
@@ -57,7 +62,10 @@ type ThemeDetailPageState = {
   canLeave: boolean;
 };
 
-class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailPageState> {
+class ThemeDetailPage extends React.Component<
+  ThemeDetailPageProps,
+  ThemeDetailPageState
+> {
   themeDefault: ThemeDetail;
   readonly id: string;
   readonly type: string;
@@ -71,7 +79,6 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
       history.replace(BASE_URL);
       window.location.reload();
     }
-
     if (theme.chart) {
       this.themeDefault = theme;
     } else {
@@ -127,11 +134,11 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
     this.setState({
       theme: {
         ...this.state.theme,
-        [params.colorKey]: params.color || params.radius || params.chart,
+        [params.colorKey]:
+          params.color || params.radius || params.chart || params.gridColumns,
       },
     });
   }
-
   isThemeNotChange() {
     return (
       JSON.stringify({ ...this.state.theme }) ===
@@ -180,15 +187,19 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
               e.currentTarget.scrollHeight - 2
             ) {
               // scroll to the bottom
-              this.footerRef.current && this.footerRef.current.classList.remove("no-bottom");
+              this.footerRef.current &&
+                this.footerRef.current.classList.remove("no-bottom");
             } else {
-              this.footerRef.current && this.footerRef.current.classList.add("no-bottom");
+              this.footerRef.current &&
+                this.footerRef.current.classList.add("no-bottom");
             }
           }}
         >
           <Header>
             <HeaderBack>
-              <span onClick={() => this.goList()}>{trans("settings.theme")}</span>
+              <span onClick={() => this.goList()}>
+                {trans("settings.theme")}
+              </span>
               <ArrowIcon />
               <span>{this.state.name}</span>
             </HeaderBack>
@@ -247,29 +258,51 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                 />
               </div>
             </div>
-            <PreviewApp style={{marginTop: '3px'}} theme={this.state.theme} dsl={dsl} />
+            <div>
+              <DetailTitle>{trans("themeDetail.gridColumns")}</DetailTitle>
+              <ColorPicker
+                colorKey="gridColumns"
+                name={trans("themeDetail.gridColumns")}
+                desc={trans("themeDetail.borderRadiusDesc")}
+                gridColumns={this.state.theme.gridColumns}
+                configChange={(params) => this.configChange(params)}
+              />
+            </div>
+
+            <PreviewApp
+              style={{ marginTop: "3px" }}
+              theme={this.state.theme}
+              dsl={dsl}
+            />
             <div className="chart">
               <DetailTitle>{trans("themeDetail.chart")}</DetailTitle>
               <ChartDesc>
                 {trans("themeDetail.chartDesc")}
-                <a target="_blank" href="https://echarts.apache.org/en/theme-builder.html">
+                <a
+                  target="_blank"
+                  href="https://echarts.apache.org/en/theme-builder.html"
+                >
                   {" "}
                   {trans("themeDetail.echartsJson")}
                 </a>
               </ChartDesc>
               <ChartInput>
-              <div className="code-editor">
-                <CodeEditor
-                  value={this.state.theme.chart || ""}
-                  onChange={(value) => this.configChange({
-                    colorKey: "chart",
-                    chart: value.doc.toString() ? value.doc.toString() : undefined,
-                  })}
-                  styleName="higher"
-                  codeType="Function"
-                  showLineNum
-                  bordered
-                />
+                <div className="code-editor">
+                  <CodeEditor
+                    value={this.state.theme.chart || ""}
+                    onChange={(value) =>
+                      this.configChange({
+                        colorKey: "chart",
+                        chart: value.doc.toString()
+                          ? value.doc.toString()
+                          : undefined,
+                      })
+                    }
+                    styleName="higher"
+                    codeType="Function"
+                    showLineNum
+                    bordered
+                  />
                 </div>
               </ChartInput>
             </div>
@@ -307,9 +340,12 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  setCommonSettings: (params: SetCommonSettingPayload) => dispatch(setCommonSettings(params)),
-  fetchCommonSettings: (orgId: string, onSuccess?: (data: CommonSettingResponseData) => void) =>
-    dispatch(fetchCommonSettings({ orgId, onSuccess })),
+  setCommonSettings: (params: SetCommonSettingPayload) =>
+    dispatch(setCommonSettings(params)),
+  fetchCommonSettings: (
+    orgId: string,
+    onSuccess?: (data: CommonSettingResponseData) => void
+  ) => dispatch(fetchCommonSettings({ orgId, onSuccess })),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ThemeDetailPage);
