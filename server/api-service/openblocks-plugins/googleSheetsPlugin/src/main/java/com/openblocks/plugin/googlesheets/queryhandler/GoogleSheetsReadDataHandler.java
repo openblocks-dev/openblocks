@@ -37,12 +37,20 @@ public class GoogleSheetsReadDataHandler extends GoogleSheetsActionHandler {
         return Mono.fromCallable(() -> {
                     GoogleSheetsReadDataRequest googleSheetsActionRequest = (GoogleSheetsReadDataRequest) context.getGoogleSheetsActionRequest();
                     Sheets service = GoogleSheetsGetPreParameters.GetSheetsService(context);
-                    ValueRange valueRange;
-                    valueRange = service.spreadsheets()
-                            .values()
-                            .get(googleSheetsActionRequest.getSpreadsheetId(), googleSheetsActionRequest.getSheetName())
-                            .execute();
-                    List<Map<String, String>> result = transformToFinalValues(valueRange);
+                    String spreadsheetId = googleSheetsActionRequest.getSpreadsheetId();
+                    String sheetName = googleSheetsActionRequest.getSheetName();
+                    List<Map<String, String>> result = new ArrayList<>();
+                    String pageToken = null;
+                    do {
+                        ValueRange valueRange = service.spreadsheets()
+                                .values()
+                                .get(spreadsheetId, sheetName)
+                                .setPageToken(pageToken)
+                                .execute();
+                        List<Map<String, String>> pageResult = transformToFinalValues(valueRange);
+                        result.addAll(pageResult);
+                        pageToken = valueRange.getNextPageToken();
+                    } while (pageToken != null);
                     return QueryExecutionResult.success(result);
                 })
                 .subscribeOn(QueryExecutionUtils.querySharedScheduler());
