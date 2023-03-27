@@ -194,7 +194,7 @@ export function DatasourceModalFooter(props: DatasourceModalFooterProps) {
             )
           }
         >
-          {!testLoading && trans("query.testConnection")}
+          {trans("query.testConnection")}
         </ModalButton>
       )}
       <ModalButton

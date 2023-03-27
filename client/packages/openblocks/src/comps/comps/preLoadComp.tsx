@@ -1,21 +1,29 @@
 import { EmptyContent } from "components/EmptyContent";
 import { HelpText } from "components/HelpText";
 import { Tabs } from "components/Tabs";
-import { ConstructorToComp, RecordConstructorToComp } from "openblocks-core";
+import {
+  clearMockWindow,
+  clearStyleEval,
+  ConstructorToComp,
+  evalFunc,
+  evalStyle,
+  RecordConstructorToComp,
+} from "openblocks-core";
 import { CodeTextControl } from "comps/controls/codeTextControl";
 import SimpleStringControl from "comps/controls/simpleStringControl";
-import { MultiCompBuilder } from "comps/generators";
+import { MultiCompBuilder, withPropertyViewFn } from "comps/generators";
 import { list } from "comps/generators/list";
-import { CustomModal, DocLink, TacoButton } from "openblocks-design";
-import { clearMockWindow, evalFunc } from "openblocks-core";
-import { clearStyleEval, evalStyle } from "openblocks-core";
-import { useContext, useEffect, useState } from "react";
+import { BaseSection, CustomModal, PlusIcon, ScrollBar } from "openblocks-design";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
-import { loadScript, runScriptInHost } from "util/commonUtils";
+import { runScriptInHost } from "util/commonUtils";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { trans } from "i18n";
 import log from "loglevel";
+import { JSLibraryModal } from "components/JSLibraryModal";
+import { JSLibraryTree } from "components/JSLibraryTree";
+import { fetchJSLibrary } from "util/jsLibraryUtils";
 
 export interface ExternalPreload {
   css?: string;
@@ -24,88 +32,55 @@ export interface ExternalPreload {
   runJavaScriptInHost?: boolean;
 }
 
-const LibListWrapper = styled.div`
-  .lib-list {
-    margin-bottom: 12px;
-  }
-  .lib-item {
-    margin-bottom: 8px;
-    display: flex;
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-  .lib-item-input {
-    flex: 1;
-    margin-right: 8px;
-  }
-  .lib-list-add-btn-wrapper {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    .lib-list-add-btn {
-      margin-right: 8px;
-    }
-  }
-`;
-
-function runScript(code: string, inHost?: boolean) {
-  if (inHost) {
-    runScriptInHost(code);
-    return;
-  }
-  try {
-    evalFunc(code, {}, {});
-  } catch (e) {
-    log.error(e);
-  }
-}
-
 interface RunAndClearable<T> {
   run(id: string, externalPreload?: T): Promise<any>;
+
   clear(): Promise<any>;
 }
 
-class LibsComp extends list(SimpleStringControl) implements RunAndClearable<string[]> {
+class LibsCompBase extends list(SimpleStringControl) implements RunAndClearable<string[]> {
   success: Record<string, boolean> = {};
+  globalVars: Record<string, string[]> = {};
   externalLibs: string[] = [];
   runInHost: boolean = false;
+
+  getAllLibs() {
+    return this.externalLibs.concat(this.getView().map((i) => i.getView()));
+  }
+
   async loadScript(url: string) {
     if (this.success[url]) {
-      return async () => {};
+      return;
     }
-    if (this.runInHost) {
-      return async () => {
-        await loadScript(url);
-        this.success[url] = true;
-      };
-    } else {
-      const res = await fetch(url);
-      const code = await res.text();
-      return async () => {
-        runScript(code);
-        this.success[url] = true;
-      };
-    }
+    return fetchJSLibrary(url).then((code) => {
+      evalFunc(
+        code,
+        {},
+        {},
+        {
+          scope: "function",
+          disableLimit: this.runInHost,
+          onSetGlobalVars: (v: string) => {
+            this.globalVars[url] = this.globalVars[url] || [];
+            if (!this.globalVars[url].includes(v)) {
+              this.globalVars[url].push(v);
+            }
+          },
+        }
+      );
+      this.success[url] = true;
+    });
   }
 
   async loadAllLibs() {
-    const scriptRunners: Promise<() => Promise<void>>[] = [];
-    const appLibs = this.getView().map((i) => i.getView());
-    this.externalLibs.concat(appLibs).forEach((url) => {
-      const trimUrl = url.trim();
-      if (!/^https?.+\.js$/.test(trimUrl)) {
-        return;
-      }
-      scriptRunners.push(this.loadScript(trimUrl));
-    });
+    const scriptRunners = this.getAllLibs().map((url) =>
+      this.loadScript(url).catch((e) => {
+        log.warn(e);
+      })
+    );
 
     try {
-      const runners = await Promise.all(scriptRunners);
-      for await (const runner of runners) {
-        await runner();
-      }
+      await Promise.all(scriptRunners);
     } catch (e) {
       log.warn("load preload libs error:", e);
     }
@@ -122,8 +97,54 @@ class LibsComp extends list(SimpleStringControl) implements RunAndClearable<stri
   }
 }
 
+const LibsComp = withPropertyViewFn(LibsCompBase, (comp) => {
+  useEffect(() => {
+    comp.loadAllLibs();
+  }, [comp.getView().length]);
+  return (
+    <ScrollBar style={{ height: "295px" }}>
+      {comp.getAllLibs().length === 0 && (
+        <EmptyContent text={trans("preLoad.jsLibraryEmptyContent")} style={{ margin: "0 16px" }} />
+      )}
+      <JSLibraryTree
+        mode={"column"}
+        libs={comp
+          .getView()
+          .map((i) => ({
+            url: i.getView(),
+            deletable: true,
+            exportedAs: comp.globalVars[i.getView()]?.[0],
+          }))
+          .concat(
+            comp.externalLibs.map((l) => ({
+              url: l,
+              deletable: false,
+              exportedAs: comp.globalVars[l]?.[0],
+            }))
+          )}
+        onDelete={(idx) => {
+          comp.dispatch(comp.deleteAction(idx));
+        }}
+      />
+    </ScrollBar>
+  );
+});
+
+function runScript(code: string, inHost?: boolean) {
+  if (inHost) {
+    runScriptInHost(code);
+    return;
+  }
+  try {
+    evalFunc(code, {}, {});
+  } catch (e) {
+    log.error(e);
+  }
+}
+
 class ScriptComp extends CodeTextControl implements RunAndClearable<string> {
   runInHost: boolean = false;
+
   runPreloadScript() {
     const code = this.getView();
     if (!code) {
@@ -131,6 +152,7 @@ class ScriptComp extends CodeTextControl implements RunAndClearable<string> {
     }
     runScript(code, this.runInHost);
   }
+
   async run(id: string, externalScript: string = "", runInHost: boolean = false) {
     this.runInHost = runInHost;
     if (externalScript) {
@@ -138,6 +160,7 @@ class ScriptComp extends CodeTextControl implements RunAndClearable<string> {
     }
     this.runPreloadScript();
   }
+
   async clear(): Promise<any> {
     clearMockWindow();
   }
@@ -170,58 +193,6 @@ const childrenMap = {
 };
 
 type ChildrenInstance = RecordConstructorToComp<typeof childrenMap>;
-
-function LibsTabPane(props: { libsComp: ChildrenInstance["libs"] }) {
-  const libComps = props.libsComp.getView();
-
-  useEffect(() => {
-    try {
-      props.libsComp.loadAllLibs();
-    } catch (e) {}
-  }, [props.libsComp]);
-
-  return (
-    <LibListWrapper>
-      <HelpText style={{ marginBottom: 20 }}>{trans("preLoad.jsLibraryHelpText")}</HelpText>
-      <div className="lib-list">
-        {libComps.length === 0 && <EmptyContent text={trans("preLoad.jsLibraryEmptyContent")} />}
-        {libComps.map((i, idx) => {
-          return (
-            <div className="lib-item" key={idx}>
-              <div className="lib-item-input">
-                {i.propertyView({
-                  placeholder: "https://cdn.example.com/example.min.js",
-                })}
-              </div>
-              <TacoButton
-                onClick={() => {
-                  props.libsComp.dispatch(props.libsComp.deleteAction(idx));
-                }}
-              >
-                {trans("remove")}
-              </TacoButton>
-            </div>
-          );
-        })}
-      </div>
-      <div className="lib-list-add-btn-wrapper">
-        <TacoButton
-          ghost
-          className="lib-list-add-btn"
-          buttonType="primary"
-          onClick={() => {
-            props.libsComp.dispatch(props.libsComp.pushAction(""));
-          }}
-        >
-          {trans("preLoad.add")}
-        </TacoButton>
-        {trans("docUrls.thirdLib") && (
-          <DocLink href={trans("docUrls.thirdLib")}>{trans("docUrls.thirdLibUrlText")}</DocLink>
-        )}
-      </div>
-    </LibListWrapper>
-  );
-}
 
 function JavaScriptTabPane(props: { comp: ConstructorToComp<typeof ScriptComp> }) {
   useEffect(() => {
@@ -265,13 +236,12 @@ function CSSTabPane(props: { comp: CSSComp }) {
 }
 
 enum TabKey {
-  Lib = "lib",
   JavaScript = "js",
   CSS = "css",
 }
 
 function PreloadConfigModal(props: ChildrenInstance) {
-  const [activeKey, setActiveKey] = useState(TabKey.Lib);
+  const [activeKey, setActiveKey] = useState(TabKey.JavaScript);
   const { showScriptsAndStyleModal, changeExternalState } = useContext(ExternalEditorContext);
   return (
     <CustomModal
@@ -290,9 +260,6 @@ function PreloadConfigModal(props: ChildrenInstance) {
         style={{ marginBottom: 8, marginTop: 4 }}
         activeKey={activeKey}
       >
-        <Tabs.TabPane key={TabKey.Lib} tab={trans("preLoad.jsLibrary")}>
-          <LibsTabPane libsComp={props.libs} />
-        </Tabs.TabPane>
         <Tabs.TabPane key={TabKey.JavaScript} tab="JavaScript">
           <JavaScriptTabPane comp={props.script} />
         </Tabs.TabPane>
@@ -308,6 +275,25 @@ const PreloadCompBase = new MultiCompBuilder(childrenMap, () => {})
   .setPropertyViewFn((children) => <PreloadConfigModal {...children} />)
   .build();
 
+const AddJSLibraryButton = styled.div`
+  cursor: pointer;
+  margin-right: 16px;
+
+  g g {
+    stroke: #8b8fa3;
+  }
+
+  :hover {
+    g g {
+      stroke: #222222;
+    }
+  }
+`;
+
+const JSLibraryWrapper = styled.div`
+  position: relative;
+`;
+
 export class PreloadComp extends PreloadCompBase {
   async clear() {
     return Promise.allSettled(Object.values(this.children).map((i) => i.clear()));
@@ -319,5 +305,35 @@ export class PreloadComp extends PreloadCompBase {
     await this.children.css.run(id, preloadCSS || "");
     await this.children.libs.run(id, preloadLibs || [], !!runJavaScriptInHost);
     await this.children.script.run(id, preloadJavaScript || "", !!runJavaScriptInHost);
+  }
+
+  getJSLibraryPropertyView() {
+    const libs = this.children.libs;
+    return (
+      <JSLibraryWrapper>
+        <BaseSection
+          name={trans("preLoad.jsLibrary")}
+          width={288}
+          noMargin
+          style={{
+            borderTop: "1px solid #e1e3eb",
+            backgroundColor: "#fff",
+          }}
+          additionalButton={
+            <AddJSLibraryButton>
+              <JSLibraryModal
+                runInHost={libs.runInHost}
+                trigger={<PlusIcon height={"46px"} />}
+                onCheck={(url) => !libs.getAllLibs().includes(url)}
+                onLoad={(url) => libs.loadScript(url)}
+                onSuccess={(url) => libs.dispatch(libs.pushAction(url))}
+              />
+            </AddJSLibraryButton>
+          }
+        >
+          {this.children.libs.getPropertyView()}
+        </BaseSection>
+      </JSLibraryWrapper>
+    );
   }
 }

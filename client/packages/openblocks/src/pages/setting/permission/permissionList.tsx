@@ -46,6 +46,8 @@ export default function PermissionSetting() {
   const dispatch = useDispatch();
   const [needRenameId, setNeedRenameId] = useState<string | undefined>(undefined);
   const { nameSuffixFunc, menuItemsFunc, menuExtraView } = usePermissionMenuItems(orgId);
+  const [groupCreating, setGroupCreating] = useState(false);
+
   useEffect(() => {
     if (!orgId) {
       return;
@@ -56,6 +58,7 @@ export default function PermissionSetting() {
     return null;
   }
   const handleGroupCreate = () => {
+    setGroupCreating(true);
     OrgApi.createGroup({
       name: getNextEntityName(
         NEW_GROUP_PREFIX,
@@ -71,6 +74,9 @@ export default function PermissionSetting() {
       })
       .catch((e) => {
         message.error(e.message);
+      })
+      .finally(() => {
+        setGroupCreating(false);
       });
   };
   const handleGroupDelete = (groupId: string) => {
@@ -114,6 +120,7 @@ export default function PermissionSetting() {
         {trans("settings.member")}
         {currentOrgAdmin(user) && (
           <CreateButton
+            loading={groupCreating}
             buttonType={"primary"}
             icon={<AddIcon />}
             onClick={() => handleGroupCreate()}

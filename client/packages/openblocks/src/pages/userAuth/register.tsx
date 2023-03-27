@@ -10,7 +10,6 @@ import {
 import { FormInput, PasswordInput } from "openblocks-design";
 import { AUTH_LOGIN_URL } from "constants/routesURL";
 import UserApi from "api/userApi";
-import { message } from "antd";
 import { useRedirectUrl } from "util/hooks";
 import { checkEmailValid } from "util/stringUtils";
 import styled from "styled-components";
@@ -18,7 +17,7 @@ import { requiresUnAuth } from "./authHOC";
 import { useLocation } from "react-router-dom";
 import { UserConnectionSource } from "@openblocks-ee/constants/userConstants";
 import { trans } from "i18n";
-import { AuthContext, authRespValidate, checkPassWithMsg } from "pages/userAuth/authUtils";
+import { AuthContext, checkPassWithMsg, useAuthSubmit } from "pages/userAuth/authUtils";
 
 const StyledFormInput = styled(FormInput)`
   margin-bottom: 16px;
@@ -52,25 +51,22 @@ function UserRegister() {
   const location = useLocation();
   const { systemConfig, inviteInfo } = useContext(AuthContext);
   const authId = systemConfig.form.id;
+  const { loading, onSubmit } = useAuthSubmit(
+    () =>
+      UserApi.formLogin({
+        register: true,
+        loginId: account,
+        password: password,
+        invitationId: inviteInfo?.invitationId,
+        source: UserConnectionSource.email,
+        authId,
+      }),
+    false,
+    redirectUrl
+  );
   if (!systemConfig || !systemConfig.form.enableRegister) {
     return null;
   }
-  const onSubmit = () => {
-    UserApi.formLogin({
-      register: true,
-      loginId: account,
-      password: password,
-      invitationId: inviteInfo?.invitationId,
-      source: UserConnectionSource.email,
-      authId,
-    })
-      .then((resp) => {
-        authRespValidate(resp, false, redirectUrl);
-      })
-      .catch((e) => {
-        message.error(e.message);
-      });
-  };
 
   return (
     <AuthContainer title={trans("userAuth.register")} type="large">
@@ -92,7 +88,11 @@ function UserRegister() {
           onChange={(value, valid) => setPassword(valid ? value : "")}
           doubleCheck
         />
-        <ConfirmButton disabled={!account || !password || submitBtnDisable} onClick={onSubmit}>
+        <ConfirmButton
+          disabled={!account || !password || submitBtnDisable}
+          onClick={onSubmit}
+          loading={loading}
+        >
           {trans("userAuth.register")}
         </ConfirmButton>
         <TermsAndPrivacyInfoWrapper>

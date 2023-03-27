@@ -29,6 +29,7 @@ import {
   ControlPropertyViewWrapper,
   isValidColor,
   toHex,
+  wrapperToControlItem,
 } from "openblocks-design";
 import { ReactNode } from "react";
 import {
@@ -161,7 +162,7 @@ export function codeControl<
       return this.unevaledValue;
     }
 
-    propertyView(params: ControlParams): ReactNode {
+    propertyView(params: ControlParams) {
       const layout: ControlLayout = (() => {
         if (params.placement === "bottom") {
           return "horizontal";
@@ -171,7 +172,7 @@ export function codeControl<
           (lineFeed(this.unevaledValue) ? "vertical" : "horizontal")
         );
       })();
-      return (
+      return wrapperToControlItem(
         <ControlPropertyViewWrapper
           key={typeof params.label === "string" ? params.label : params.key}
           placement={params.placement}
@@ -275,6 +276,7 @@ function getCardContent<T>(
       unevaledValue
     )
   ) {
+    // eslint-disable-next-line only-ascii/only-ascii
     return toReadableString(midValue).trim() + " → " + content;
   }
   return content;

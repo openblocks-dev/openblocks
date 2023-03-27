@@ -26,7 +26,6 @@ import {
   evalNodeOrMinor,
   updateNodesV2Action,
 } from "openblocks-core";
-import { ReactNode } from "react";
 import { memo } from "util/cacheUtils";
 import {
   toBoolean,
@@ -134,7 +133,7 @@ function withTmpState<T extends CodeControlJSONType>(
       };
     }
 
-    propertyView(params: ControlParams): ReactNode {
+    propertyView(params: ControlParams) {
       return this.children.defaultValue.propertyView(params);
     }
   }

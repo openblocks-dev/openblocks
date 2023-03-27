@@ -549,6 +549,10 @@ QueryCompTmp = class extends QueryCompTmp implements BottomResComp {
     return BottomResTypeEnum.Query;
   }
 
+  id(): string {
+    return this.name();
+  }
+
   name(): string {
     return this.children.name.getView();
   }
@@ -609,9 +613,22 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
     return result;
   }
 
+  autoSelectAfterCreate(): boolean {
+    return true;
+  }
+
+  genNewName(editorState: EditorState) {
+    const name = editorState.getNameGenerator().genItemName("query");
+    return name;
+  }
+
+  select(editorState: EditorState, id: string) {
+    editorState.setSelectedBottomRes(id, BottomResTypeEnum.Query);
+  }
+
   add(editorState: EditorState, extraInfo?: any) {
     const id = genQueryId();
-    const name = editorState.getNameGenerator().genItemName("query");
+    const name = this.genNewName(editorState);
     const compType = extraInfo?.compType || "js";
     const dataSourceId = extraInfo?.dataSourceId;
 
@@ -637,7 +654,8 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
         }
       )
     );
-    editorState.setSelectedBottomRes(name, BottomResTypeEnum.Query);
+    this.select(editorState, name);
+    return name;
   }
 
   copy(editorState: EditorState, name: string) {
@@ -647,7 +665,7 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
     if (!originQuery) {
       return;
     }
-    const newQueryName = editorState.getNameGenerator().genItemName("query");
+    const newQueryName = this.genNewName(editorState);
     const id = genQueryId();
     this.dispatch(
       wrapActionExtraInfo(

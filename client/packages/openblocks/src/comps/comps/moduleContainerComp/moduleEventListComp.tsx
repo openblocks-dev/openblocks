@@ -7,7 +7,7 @@ import { simpleMultiComp, valueComp } from "comps/generators";
 import { list } from "comps/generators/list";
 import { NameGenerator } from "comps/utils";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
-import { Section, Switch, SwitchWrapper } from "openblocks-design";
+import { controlItem, Section, Switch, SwitchWrapper } from "openblocks-design";
 import { trans } from "i18n";
 import { ModuleEventListItemComp } from "./moduleEventListItemComp";
 import { ConfigViewSection } from "./styled";
@@ -44,20 +44,22 @@ export class ModuleEventComp extends simpleMultiComp({
   getTestView() {
     const hasEvents = this.children.list.getView().length > 0;
     const enableTestMessage = this.children.enableEventTestMessage.getView();
+    const label = trans("module.globalPromptWhenEventTriggered");
     return (
       <Section name={trans("moduleContainer.eventTest")}>
-        {hasEvents ? (
-          <SwitchWrapper label={trans("module.globalPromptWhenEventTriggered")}>
-            <Switch
-              value={enableTestMessage}
-              onChange={(value) => {
-                this.children.enableEventTestMessage.dispatchChangeValueAction(value);
-              }}
-            />
-          </SwitchWrapper>
-        ) : (
-          <EmptyContent text={trans("module.emptyEventTest")} />
-        )}
+        {hasEvents
+          ? controlItem(
+              { filterText: label },
+              <SwitchWrapper label={label}>
+                <Switch
+                  value={enableTestMessage}
+                  onChange={(value) => {
+                    this.children.enableEventTestMessage.dispatchChangeValueAction(value);
+                  }}
+                />
+              </SwitchWrapper>
+            )
+          : controlItem({}, <EmptyContent text={trans("module.emptyEventTest")} />)}
       </Section>
     );
   }

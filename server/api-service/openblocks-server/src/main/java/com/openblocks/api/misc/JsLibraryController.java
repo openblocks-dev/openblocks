@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -24,12 +26,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.openblocks.api.framework.view.ResponseView;
 import com.openblocks.infra.constant.NewUrl;
 import com.openblocks.infra.localcache.ReloadableCache;
+import com.openblocks.sdk.util.JsonUtils;
 import com.openblocks.sdk.webclient.WebClientBuildHelper;
 
 import lombok.Builder;
@@ -63,19 +67,25 @@ public class JsLibraryController {
             .build();
 
     static {
-        try (InputStream is = JsLibraryController.class.getClassLoader().getResourceAsStream("recommendedJsLibraries")) {
+        try (InputStream is = JsLibraryController.class.getClassLoader().getResourceAsStream("recommendedJsLibraries.json")) {
             if (is != null) {
-                List<String> names = IOUtils.readLines(is, Charset.defaultCharset());
-                log.info("find recommended js library names: {}", names);
-                for (String libName : names) {
+                String content = IOUtils.toString(is, Charset.defaultCharset());
+                List<Map<String, Object>> recommendedJsLibraries = JsonUtils.fromJsonSafely(content, new TypeReference<>() {
+                }, Collections.emptyList());
+                Map<String, Map<String, Object>> recommendedJsLibraryMap = recommendedJsLibraries.stream()
+                        .collect(Collectors.toMap(map -> MapUtils.getString(map, "name"), Function.identity()));
+
+                log.info("find recommended js library names: {}", recommendedJsLibraryMap.keySet());
+                for (String libName : recommendedJsLibraryMap.keySet()) {
                     ReloadableCache<JsLibraryMeta> reloadableCache = ReloadableCache.<JsLibraryMeta> newBuilder()
                             .setName(libName)
                             .setInterval(Duration.ofDays(1))
-                            .setFactory(() -> {
-                                Mono<JsLibraryMeta> fetch = fetch(libName);
-                                log.info("reloaded recommended js library: {}", libName);
-                                return fetch;
-                            })
+                            .setFactory(() -> fetch(libName)
+                                    .doOnNext(jsLibraryMeta -> {
+                                        Map<String, Object> map = recommendedJsLibraryMap.get(libName);
+                                        jsLibraryMeta.setDownloadUrl(MapUtils.getString(map, "downloadUrl"));
+                                    })
+                                    .doOnNext(jsLibraryMeta -> log.info("reloaded recommended js library: {}", JsonUtils.toJson(jsLibraryMeta))))
                             .build();
                     RECOMMENDED_JS_LIB_META_CACHE.put(libName, reloadableCache);
                 }
@@ -154,5 +164,6 @@ public class JsLibraryController {
         private String latestVersion;
         private String homepage;
         private String description;
+        private String downloadUrl;
     }
 }

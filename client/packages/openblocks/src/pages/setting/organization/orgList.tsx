@@ -1,9 +1,6 @@
-import { ADMIN_ROLE, Org } from "constants/orgConstants";
+import { ADMIN_ROLE } from "constants/orgConstants";
 import { AddIcon, CustomModal, DangerIcon, EditPopover } from "openblocks-design";
-import { connect, useDispatch, useSelector } from "react-redux";
-import { StaticContext } from "react-router";
-import { RouteComponentProps } from "react-router-dom";
-import { AppState } from "redux/reducers";
+import { useDispatch, useSelector } from "react-redux";
 import { createOrgAction, deleteOrgAction } from "redux/reduxActions/orgActions";
 import styled from "styled-components";
 import { trans, transToNode } from "i18n";
@@ -22,6 +19,8 @@ import { timestampToHumanReadable } from "util/dateTimeUtils";
 import { isSaasMode } from "util/envUtils";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import { Form, Input } from "antd";
+import { getUser } from "redux/selectors/usersSelectors";
+import { getOrgCreateStatus } from "redux/selectors/orgSelectors";
 
 const OrgName = styled.div`
   display: flex;
@@ -60,27 +59,34 @@ const Content = styled.div`
     font-size: 13px;
     line-height: 19px;
   }
+
   .ant-input {
     font-size: 13px;
     line-height: 20px;
     padding: 5px 11px;
+
     &::-webkit-input-placeholder {
       color: #b8b9bf;
     }
   }
+
   .ant-form-item-label {
     margin-top: 13px;
     padding-bottom: 5px;
+
     label {
       display: inline;
+
       ::before {
         vertical-align: bottom;
       }
     }
   }
+
   .ant-form-item {
     margin-bottom: 12px;
   }
+
   .ant-form-item-explain-error {
     font-size: 13px;
     line-height: 12px;
@@ -97,9 +103,11 @@ const Tip = styled.div`
   display: flex;
   line-height: 20px;
   margin-top: 8px;
+
   span {
     margin-left: 8px;
   }
+
   svg {
     min-width: 16px;
     width: 16px;
@@ -107,11 +115,6 @@ const Tip = styled.div`
     margin-top: 2px;
   }
 `;
-
-type OrgSettingProp = {
-  orgs: Org[];
-  adminOrgs: Org[];
-} & RouteComponentProps<any, StaticContext, { routeAction: string }>;
 
 type DataItemInfo = {
   id: string;
@@ -121,8 +124,11 @@ type DataItemInfo = {
   logoUrl: string;
 };
 
-function OrganizationSetting(props: OrgSettingProp) {
-  const { orgs, adminOrgs } = props;
+function OrganizationSetting() {
+  const user = useSelector(getUser);
+  const orgs = user.orgs;
+  const adminOrgs = orgs.filter((org) => user.orgRoleMap.get(org.id) === ADMIN_ROLE);
+  const orgCreateStatus = useSelector(getOrgCreateStatus);
   const dispatch = useDispatch();
   const sysConfig = useSelector(selectSystemConfig);
   const [form] = Form.useForm();
@@ -141,6 +147,7 @@ function OrganizationSetting(props: OrgSettingProp) {
         {trans("settings.organization")}
         {isSaasMode(sysConfig) && (
           <CreateButton
+            loading={orgCreateStatus === "requesting"}
             buttonType={"primary"}
             icon={<AddIcon />}
             onClick={() => dispatch(createOrgAction(orgs))}
@@ -224,7 +231,10 @@ function OrganizationSetting(props: OrgSettingProp) {
                                   ),
                                 })}
                                 rules={[
-                                  { required: true, message: trans("orgSettings.deleteModalTip") },
+                                  {
+                                    required: true,
+                                    message: trans("orgSettings.deleteModalTip"),
+                                  },
                                 ]}
                               >
                                 <Input placeholder={trans("orgSettings.orgName")} />
@@ -241,7 +251,10 @@ function OrganizationSetting(props: OrgSettingProp) {
                               form.resetFields();
                             } else {
                               form.setFields([
-                                { name: "name", errors: [trans("orgSettings.deleteModalErr")] },
+                                {
+                                  name: "name",
+                                  errors: [trans("orgSettings.deleteModalErr")],
+                                },
                               ]);
                               throw new Error();
                             }
@@ -267,13 +280,4 @@ function OrganizationSetting(props: OrgSettingProp) {
   );
 }
 
-const mapStateToProps = (state: AppState, props: OrgSettingProp) => {
-  const orgs = state.ui.users.user.orgs;
-  const orgRoleMap = state.ui.users.user.orgRoleMap;
-  return {
-    orgs: orgs,
-    adminOrgs: orgs.filter((org) => orgRoleMap.get(org.id) === ADMIN_ROLE),
-  };
-};
-
-export const OrgList = connect(mapStateToProps)(OrganizationSetting);
+export const OrgList = OrganizationSetting;

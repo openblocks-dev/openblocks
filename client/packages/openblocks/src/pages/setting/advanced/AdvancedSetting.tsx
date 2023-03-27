@@ -2,11 +2,9 @@ import { message } from "antd";
 import { CodeEditor } from "base/codeEditor";
 import { EmptyContent } from "components/EmptyContent";
 import { HelpText } from "components/HelpText";
-import InputList from "components/InputList";
 import { GreyTextColor } from "constants/style";
 import { CustomModal, CustomSelect, TacoButton } from "openblocks-design";
-import _ from "lodash";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { getCommonSettings } from "redux/selectors/commonSettingSelectors";
@@ -21,22 +19,31 @@ import { Prompt } from "react-router";
 import history from "util/history";
 import { Location } from "history";
 import { useExtraAdvanceSettings } from "@openblocks-ee/pages/setting/advanced/extraAdvancedSetting";
+import { JSLibraryModal } from "components/JSLibraryModal";
+import { JSLibraryTree } from "components/JSLibraryTree";
+import { getGlobalSettings } from "comps/utils/globalSettings";
+import { fetchJSLibrary } from "util/jsLibraryUtils";
+import { evalFunc } from "openblocks-core";
 
 const AdvancedSettingContent = styled.div`
   max-width: 840px;
+
   .section-title {
     font-size: 14px;
     font-weight: 500;
     margin-bottom: 8px;
   }
+
   .section-content {
     margin-bottom: 28px;
   }
+
   .section-option {
     color: ${GreyTextColor};
     margin-bottom: 14px;
     font-size: 13px;
   }
+
   .code-editor {
     margin-bottom: 12px;
   }
@@ -63,7 +70,7 @@ export function AdvancedSetting() {
   const commonSettings = useShallowEqualSelector(getCommonSettings);
   const [settings, setSettings] = useState(commonSettings);
   const appList = useSelector(normalAppListSelector);
-  const [canLeave, setCanleave] = useState(false);
+  const [canLeave, setCanLeave] = useState(false);
   const appListOptions = appList.map((app) => ({
     value: app.applicationId,
     label: app.name,
@@ -111,6 +118,8 @@ export function AdvancedSetting() {
 
   const isNotChange = JSON.stringify(commonSettings) === JSON.stringify(settings);
   const extraAdvanceSettings = useExtraAdvanceSettings();
+
+  const runJSInHost = getGlobalSettings().orgCommonSettings?.runJavaScriptInHost ?? false;
   return (
     <Level1SettingPageContent>
       <Prompt
@@ -118,7 +127,7 @@ export function AdvancedSetting() {
           locationInfo = location;
 
           if (!canLeave && isNotChange) {
-            setCanleave(true);
+            setCanLeave(true);
           }
           if (canLeave) {
             return true;
@@ -128,7 +137,7 @@ export function AdvancedSetting() {
             content: trans("theme.leaveTipContent"),
             okText: trans("theme.leaveTipOkText"),
             onConfirm: () => {
-              setCanleave(true);
+              setCanLeave(true);
             },
           });
           return false;
@@ -209,22 +218,48 @@ export function AdvancedSetting() {
         <div className="section-title">{trans("advanced.preloadLibsTitle")}</div>
         <HelpText style={{ marginBottom: 12 }}>{trans("advanced.preloadLibsHelp")}</HelpText>
         <div className="section-content">
-          {(settings.preloadLibs || [])?.length === 0 && (
-            <EmptyContent text={trans("advanced.preloadLibsEmpty")} style={{ marginBottom: 2 }} />
-          )}
-          <InputList
-            addBtnText={trans("advanced.preloadLibsAddBtn")}
-            value={settings.preloadLibs || []}
-            placeholder="https://cdn.example.com/example.min.js"
-            onChange={(value) => setSettings((v) => ({ ...v, preloadLibs: value }))}
+          <JSLibraryModal
+            trigger={<SaveButton buttonType="primary">{trans("addItem")}</SaveButton>}
+            runInHost={runJSInHost}
+            onCheck={(url) => !commonSettings.preloadLibs?.includes(url)}
+            onLoad={(url) =>
+              fetchJSLibrary(url).then((code) => {
+                evalFunc(
+                  code,
+                  {},
+                  {},
+                  {
+                    scope: "function",
+                    disableLimit: runJSInHost,
+                  }
+                );
+              })
+            }
+            onSuccess={(url) => {
+              handleSave("preloadLibs")([...(settings.preloadLibs || []), url]);
+            }}
           />
-          <SaveButton
-            buttonType="primary"
-            disabled={settings.preloadLibs === commonSettings.preloadLibs}
-            onClick={() => handleSave("preloadLibs")()}
-          >
-            {trans("advanced.saveBtn")}
-          </SaveButton>
+          {(settings.preloadLibs || [])?.length === 0 && (
+            <EmptyContent
+              text={trans("advanced.preloadLibsEmpty")}
+              style={{ marginBottom: 2, marginTop: "18px" }}
+            />
+          )}
+
+          {settings.preloadLibs && !!settings.preloadLibs.length && (
+            <JSLibraryTree
+              mode={"row"}
+              libs={settings.preloadLibs.map((url) => ({
+                url,
+                deletable: true,
+              }))}
+              onDelete={(idx) =>
+                handleSave("preloadLibs")([
+                  ...(settings.preloadLibs?.filter((a, b) => b !== idx) || []),
+                ])
+              }
+            />
+          )}
         </div>
         {extraAdvanceSettings}
       </AdvancedSettingContent>

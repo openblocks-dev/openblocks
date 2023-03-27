@@ -6,6 +6,7 @@ import {
   ConstructorToComp,
   ConstructorToNodeType,
   customAction,
+  deferAction,
   isChildAction,
   isMyCustomAction,
   MultiBaseComp,
@@ -52,11 +53,12 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
 
   class CacheParamsMap {
     private readonly cacheParamsMap: Record<string, ParamValues> = {};
-    private readonly changedKeys = new Set<string>();
+    // private readonly changedKeys = new Set<string>();
 
     set(key: string, params: ParamValues) {
       if (!paramsEqual(this.cacheParamsMap[key], params)) {
-        this.changedKeys.add(key);
+        // console.info("withMultiContext CacheParamsMap set. key: ", key, "params: ", params);
+        // this.changedKeys.add(key);
         this.cacheParamsMap[key] = params;
       }
     }
@@ -69,11 +71,11 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
       return this.cacheParamsMap;
     }
 
-    popToDeleteKeys() {
-      const keys = [...this.changedKeys];
-      this.changedKeys.clear();
-      return keys;
-    }
+    // popToDeleteKeys() {
+    //   const keys = [...this.changedKeys];
+    //   this.changedKeys.clear();
+    //   return keys;
+    // }
   }
 
   class WithMultiContextComp
@@ -119,6 +121,11 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
       let comp = this.getCachedComp(key);
       const params = this.cacheParamsMap.get(key);
       if (_.isNil(comp) && !_.isNil(params)) {
+        const mapComps = this.getMap();
+        if (mapComps.hasOwnProperty(key) && !paramsEqual(params, mapComps[key].getParams())) {
+          // refresh the item, since params changed
+          this.dispatch(deferAction(wrapChildAction(MAP_KEY, MapCtor.batchDeleteAction([key]))));
+        }
         comp = this.getOriginalComp()
           .setParams(params)
           .changeDispatch(wrapDispatch(wrapDispatch(this.dispatch, MAP_KEY), key));
@@ -131,7 +138,7 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
     }
 
     override reduce(action: CompAction): this {
-      let comp = this.tryDeleteKeys(Array.from(this.cacheParamsMap.popToDeleteKeys()));
+      let comp = this; //.tryDeleteKeys(Array.from(this.cacheParamsMap.popToDeleteKeys()));
 
       const thisCompMap = comp.getMap();
       if (isMyCustomAction<ClearAction>(action, "clear")) {
@@ -144,8 +151,9 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
 
         if (!paramsEqual(cacheParamsMap.getMap(), comp.cacheParamsMap.getMap())) {
           comp = setFieldsNoTypeCheck(comp, { cacheParamsMap });
+          comp = comp.tryDeleteKeys(Object.keys(paramsMap));
         }
-        comp = comp.tryDeleteKeys(comp.cacheParamsMap.popToDeleteKeys());
+        // comp = comp.tryDeleteKeys(comp.cacheParamsMap.popToDeleteKeys());
       } else if (
         isChildAction(action) &&
         action.path[0] === MAP_KEY &&
@@ -188,9 +196,11 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
           mapComps.hasOwnProperty(key) &&
           !paramsEqual(mapComps[key].getParams(), this.cacheParamsMap.get(key))
       );
-      return _.isEmpty(toDeleteKeys)
-        ? this
-        : super.reduce(WithMultiContextComp.batchDeleteAction(toDeleteKeys));
+      let comp = this;
+      if (!_.isEmpty(toDeleteKeys)) {
+        comp = super.reduce(WithMultiContextComp.batchDeleteAction(toDeleteKeys));
+      }
+      return comp;
     }
 
     getCachedParams(key: string): ParamValues | undefined {

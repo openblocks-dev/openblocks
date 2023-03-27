@@ -145,6 +145,7 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
     return ret;
   }
 
+  @memoized()
   override fetchInfo(
     exposingNodes: Record<string, Node<unknown>>,
     options?: FetchInfoOptions

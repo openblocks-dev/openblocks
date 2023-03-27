@@ -53,42 +53,58 @@ const AuthCardTitle = styled.div<{ type?: string }>`
   }
 `;
 
-const AuthBottom = styled.div<{ $isOverflow: boolean }>`
+const AuthBottom = styled.div`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 
   > button {
-    margin-left: 24px;
+    margin-right: 24px;
+    margin-bottom: 16px;
     outline: 0;
   }
 
-  ${(props) =>
-    props.$isOverflow &&
-    `
-    > button > .auth-label {
-       display: none; 
-    }
-    > button {
-       margin-left: 12px;
-    }
-  `}
   > button:first-child {
-    margin-left: 0;
+    // over 5 children, hide the button label
+    :nth-last-child(n + 5),
+    :nth-last-child(n + 5) ~ button {
+      margin-right: 16px;
+
+      .auth-label {
+        display: none;
+      }
+    }
+  }
+
+  @media screen and (min-width: 640px) {
+    > button:nth-child(7n + 1):nth-last-child(-n + 7) {
+      &,
+      ~ button {
+        margin-bottom: 0;
+      }
+    }
   }
 
   @media screen and (max-width: 640px) {
+    > button:nth-child(5n + 1):nth-last-child(-n + 5) {
+      &,
+      ~ button {
+        margin-bottom: 0;
+      }
+    }
+
     > button {
-      margin-left: 22px;
+      margin-right: 22px;
+
+      .auth-label {
+        display: none;
+      }
     }
 
     img {
       width: 38px;
       height: 38px;
       margin-right: 0;
-    }
-
-    p {
-      display: none;
     }
   }
 `;
@@ -113,22 +129,7 @@ export const AuthContainer = (props: { children: any; title?: string; type?: str
 
 export function AuthBottomView(props: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [overflow, setOverflow] = useState(false);
-  useEffect(() => {
-    if (!ref.current) {
-      return;
-    }
-    const element = ref.current;
-    setOverflow(
-      element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth
-    );
-  }, []);
-
-  return (
-    <AuthBottom ref={ref} $isOverflow={overflow}>
-      {props.children}
-    </AuthBottom>
-  );
+  return <AuthBottom ref={ref}>{props.children}</AuthBottom>;
 }
 
 export const ConfirmButton = (props: {

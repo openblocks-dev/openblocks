@@ -36,10 +36,10 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBasedDatasourceConnectionConfig,
         HikariPerfWrapper, SqlBasedQueryExecutionContext> {
 
-    private final HikariSqlExecutor hikariSqlExecutor;
+    private final GeneralSqlExecutor generalSqlExecutor;
 
-    protected SqlBasedQueryExecutor(HikariSqlExecutor hikariSqlExecutor) {
-        this.hikariSqlExecutor = hikariSqlExecutor;
+    protected SqlBasedQueryExecutor(GeneralSqlExecutor generalSqlExecutor) {
+        this.generalSqlExecutor = generalSqlExecutor;
     }
 
     @Override
@@ -96,7 +96,7 @@ public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBas
         );
 
         try (Connection connection = getConnection(dataSource)) {
-            return hikariSqlExecutor.execute(connection, context);
+            return generalSqlExecutor.execute(connection, context);
         } catch (SQLException e) {
             throw wrapException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e);
         }

@@ -35,12 +35,13 @@ import {
   MultiBaseComp,
   withFunction,
 } from "openblocks-core";
-import { AutoArea, Option } from "openblocks-design";
+import { AutoArea, controlItem, Option } from "openblocks-design";
 import styled from "styled-components";
 import { lastValueIfEqual } from "util/objectUtils";
 import { getNextEntityName } from "util/stringUtils";
-import { JSONValue } from "../../util/jsonTypes";
+import { JSONValue } from "util/jsonTypes";
 import { ButtonEventHandlerControl } from "./eventHandlerControl";
+import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
 
 const OptionTypes = [
   {
@@ -173,7 +174,9 @@ export function manualOptionsControl<T extends OptionsControlType>(
     propertyView(param: OptionControlParam) {
       const manualComp = this.children.manual;
       const { autoIncField } = config;
-      return (
+      const title = param.title ?? trans("optionsControl.optionList");
+      return controlItem(
+        { filterText: title },
         <Option
           itemTitle={(comp) => comp.children.label.getView()}
           popoverTitle={() => trans("edit")}
@@ -215,7 +218,7 @@ export function manualOptionsControl<T extends OptionsControlType>(
             config.uniqField &&
             ((comp) => (comp.children as any)[config.uniqField].getView())
           }
-          title={param.title}
+          title={title}
         />
       );
     }
@@ -270,7 +273,8 @@ export function mapOptionsControl<T extends OptionsControlType>(
   }
 
   const MapDataComp = withContext(TempComp, ["item", "i"] as const);
-  const TmpOptionControl = new MultiCompBuilder(
+  const label = trans("data");
+  const TmpOptionControl = new ControlItemCompBuilder(
     {
       data: withDefault(ArrayControl, "[]"),
       mapData: MapDataComp,
@@ -285,9 +289,10 @@ export function mapOptionsControl<T extends OptionsControlType>(
       return uniqField ? distinctValue(view, uniqField) : view;
     }
   )
+    .setControlItemData({ filterText: label })
     .setPropertyViewFn((children) => (
       <>
-        {children.data.propertyView({ label: trans("data") })}
+        {children.data.propertyView({ label })}
         <AutoArea>
           {children.mapData.getPropertyView()}
           {OptionTip}
@@ -390,15 +395,18 @@ export function optionsControl<T extends OptionsControlType>(
     }
 
     propertyView(param: OptionControlParam) {
-      return (
+      const item =
+        this.children.optionType.getView() === "manual"
+          ? this.children.manual.propertyView(param)
+          : this.children.mapData.getPropertyView();
+      return controlItem(
+        { searchChild: true },
         <>
           {this.children.optionType.propertyView({
             radioButton: true,
             type: "oneline",
           })}
-          {this.children.optionType.getView() === "manual"
-            ? this.children.manual.propertyView(param)
-            : this.children.mapData.getPropertyView()}
+          {item}
         </>
       );
     }

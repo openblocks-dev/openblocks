@@ -27,7 +27,7 @@ public class MssqlStructureParser {
     public static final String COLUMNS_QUERY = """
             SELECT
               table_schema as "table_schema",
-              concat(table_schema, '.', table_name) as "table_name",
+              table_schema + '.' + table_name as "table_name",
               column_name as "column_name",
               data_type as "column_type",
               ordinal_position as "ordinal_position",

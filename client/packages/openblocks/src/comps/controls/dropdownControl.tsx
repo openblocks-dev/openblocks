@@ -6,6 +6,7 @@ import {
   AlignLeft,
   AlignRight,
   AlignTop,
+  controlItem,
   Dropdown,
   OptionsType,
   ValueFromOption,
@@ -83,12 +84,13 @@ export function dropdownAbstractControl<T extends OptionsType>(
       return defaultValue;
     }
 
-    propertyView(params: DropdownControlParams<T>): ReactNode {
+    propertyView(params: DropdownControlParams<T>) {
       let finalOptions = options;
       if (finalOptions.length === 0 && typeof finalOptions !== "function" && params.options) {
         finalOptions = params.options;
       }
-      return (
+      return controlItem(
+        { filterText: params.label },
         <DropdownPropertyView<T>
           value={this.value}
           options={finalOptions}

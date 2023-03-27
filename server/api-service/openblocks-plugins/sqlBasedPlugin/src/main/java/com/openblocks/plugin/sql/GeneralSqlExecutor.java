@@ -13,10 +13,13 @@ import static java.util.Collections.emptyList;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,24 +36,25 @@ import com.openblocks.sdk.plugin.common.sql.ResultSetParser;
 import com.openblocks.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand;
 import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand.GuiSqlCommandRenderResult;
+import com.openblocks.sdk.plugin.sqlcommand.command.UpdateOrDeleteSingleCommandRenderResult;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class HikariSqlExecutor {
+public class GeneralSqlExecutor {
 
     private final boolean supportGenerateKeys;
 
-    public HikariSqlExecutor(boolean supportGenerateKeys) {
+    public GeneralSqlExecutor(boolean supportGenerateKeys) {
         this.supportGenerateKeys = supportGenerateKeys;
     }
 
-    public HikariSqlExecutor() {
+    public GeneralSqlExecutor() {
         this(true);
     }
 
     @Nonnull
-    public QueryExecutionResult execute(Connection connection, SqlBasedQueryExecutionContext context) {
+    public final QueryExecutionResult execute(Connection connection, SqlBasedQueryExecutionContext context) {
 
         GuiSqlCommand guiSqlCommand = context.getGuiSqlCommand();
         boolean guiMode = guiSqlCommand != null;
@@ -58,8 +62,12 @@ public class HikariSqlExecutor {
         boolean isPreparedStatement = guiMode || !context.isDisablePreparedStatement();
         Map<String, Object> requestParams = new HashMap<>(context.getRequestParams());
 
-        SqlExecutionInput sqlExecutionInput = getSqlExecutionInput(guiSqlCommand, query, isPreparedStatement, requestParams);
-        Pair<Statement, Boolean> executionResult = getStatementAndExecute(connection, sqlExecutionInput);
+        StatementInput statementInput = getSqlExecutionInput(guiSqlCommand, query, isPreparedStatement, requestParams);
+        return doExecute(connection, statementInput);
+    }
+
+    private QueryExecutionResult doExecute(Connection connection, StatementInput statementInput) {
+        Pair<Statement, Boolean> executionResult = getStatementAndExecute(connection, statementInput);
 
         boolean isResultSet = executionResult.getRight();
         try (Statement statement = executionResult.getLeft()) {
@@ -76,7 +84,7 @@ public class HikariSqlExecutor {
         do {
             if (isResultSet) {
                 try (ResultSet resultSet = statement.getResultSet()) {
-                    List<Map<String, Object>> dataRows = ResultSetParser.parseRows(resultSet);
+                    List<Map<String, Object>> dataRows = parseDataRows(resultSet);
                     if (!isGeneratedKeysWithNullValue(dataRows)) {
                         result.add(dataRows);
                     }
@@ -94,6 +102,10 @@ public class HikariSqlExecutor {
         }
 
         return QueryExecutionResult.success(result);
+    }
+
+    protected List<Map<String, Object>> parseDataRows(ResultSet resultSet) throws SQLException {
+        return ResultSetParser.parseRows(resultSet);
     }
 
     private Map<String, Object> getAffectRowsAndGeneratedKeys(Statement statement, int updateCount) throws SQLException {
@@ -134,11 +146,21 @@ public class HikariSqlExecutor {
         return false;
     }
 
-    private Pair<Statement, Boolean> getStatementAndExecute(Connection connection, SqlExecutionInput sqlExecutionInput) {
+    private Pair<Statement, Boolean> getStatementAndExecute(Connection connection, StatementInput statementInput) {
+
+        if (statementInput instanceof UpdateOrDeleteSingleRowStatementInput comboInput) {
+            StatementInput selectInput = comboInput.getSelectInput();
+            QueryExecutionResult selectResult = doExecute(connection, selectInput);
+            int selectCount = getSelectCount(selectResult);
+            if (selectCount > 1) {
+                throw new PluginException(QUERY_EXECUTION_ERROR, "AFFECT_MORE_THAN_ONE_ROWS_FOR_SINGLE_COMMAND");
+            }
+        }
+
         try {
-            if (sqlExecutionInput.preparedStatement()) {
-                String sql = sqlExecutionInput.sql();
-                List<Object> params = sqlExecutionInput.params();
+            if (statementInput.isPreparedStatement()) {
+                String sql = statementInput.getSql();
+                List<Object> params = statementInput.getParams();
                 var statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
                 bindPreparedStatementParams(statement, params);
@@ -149,9 +171,9 @@ public class HikariSqlExecutor {
             var statement = connection.createStatement();
             boolean isResultSet;
             if (supportGenerateKeys) {
-                isResultSet = statement.execute(sqlExecutionInput.sql(), Statement.RETURN_GENERATED_KEYS);
+                isResultSet = statement.execute(statementInput.getSql(), Statement.RETURN_GENERATED_KEYS);
             } else {
-                isResultSet = statement.execute(sqlExecutionInput.sql());
+                isResultSet = statement.execute(statementInput.getSql());
             }
             return Pair.of(statement, isResultSet);
         } catch (Exception e) {
@@ -159,27 +181,44 @@ public class HikariSqlExecutor {
         }
     }
 
-    private SqlExecutionInput getSqlExecutionInput(GuiSqlCommand guiSqlCommand, String query, boolean isPreparedStatement,
+    @SuppressWarnings("unchecked")
+    private static int getSelectCount(QueryExecutionResult queryExecutionResult) {
+        List<Map<String, Object>> selectResult = (List<Map<String, Object>>) queryExecutionResult.getData();
+        if (selectResult.get(0).get("count") instanceof Number count) {
+            return count.intValue();
+        }
+        throw new PluginException(QUERY_EXECUTION_ERROR, "FAIL_TO_GET_AFFECTED_ROW_COUNT");
+    }
+
+    private StatementInput getSqlExecutionInput(GuiSqlCommand guiSqlCommand, String query, boolean isPreparedStatement,
             Map<String, Object> requestParams) {
         if (isPreparedStatement) {
             return getPreparedStatementSqlInput(guiSqlCommand, query, requestParams);
         }
         String renderedSql = renderMustacheString(query, requestParams);
-        return new SqlExecutionInput(false, renderedSql, emptyList());
+        return StatementInput.fromSql(false, renderedSql, emptyList());
     }
 
-    private SqlExecutionInput getPreparedStatementSqlInput(GuiSqlCommand guiSqlCommand, String query, Map<String, Object> requestParams) {
+    private StatementInput getPreparedStatementSqlInput(GuiSqlCommand guiSqlCommand, String query, Map<String, Object> requestParams) {
         if (guiSqlCommand != null) {
             GuiSqlCommandRenderResult renderResult = guiSqlCommand.render(requestParams);
-            return new SqlExecutionInput(true, renderResult.sql(), renderResult.bindParams());
+            if (renderResult instanceof UpdateOrDeleteSingleCommandRenderResult updateOrDeleteSingle) {
+                return StatementInput.fromUpdateOrDeleteSingleRowSql(updateOrDeleteSingle);
+            }
+
+            return StatementInput.fromSql(true, renderResult.sql(), renderResult.bindParams());
         }
 
+        return getPreparedStatementInput(query, requestParams);
+    }
+
+    protected StatementInput getPreparedStatementInput(String query, Map<String, Object> requestParams) {
         List<String> mustacheKeysInOrder = extractMustacheKeysInOrder(query);
-        var preparedSql = doPrepareStatement(query, mustacheKeysInOrder, requestParams);
+        String preparedSql = doPrepareStatement(query, mustacheKeysInOrder, requestParams);
         List<Object> bindParams = mustacheKeysInOrder.stream()
                 .map(requestParams::get)
                 .toList();
-        return new SqlExecutionInput(true, preparedSql, bindParams);
+        return StatementInput.fromSql(true, preparedSql, bindParams);
     }
 
     private void bindPreparedStatementParams(PreparedStatement preparedQuery, List<Object> bindParams) {
@@ -221,6 +260,11 @@ public class HikariSqlExecutor {
             preparedStatement.setBigDecimal(bindIndex, new BigDecimal(String.valueOf(value)));
             return;
         }
+        if (value instanceof BigDecimal bigDecimal) {
+            preparedStatement.setBigDecimal(bindIndex, bigDecimal);
+            return;
+        }
+
         if (value instanceof Boolean boolValue) {
             preparedStatement.setBoolean(bindIndex, boolValue);
             return;
@@ -233,10 +277,86 @@ public class HikariSqlExecutor {
             preparedStatement.setString(bindIndex, strValue);
             return;
         }
+
+        if (value instanceof byte[] bytesValue) {
+            preparedStatement.setBytes(bindIndex, bytesValue);
+            return;
+        }
+
+        if (value instanceof Date date) {
+            preparedStatement.setDate(bindIndex, date);
+            return;
+        }
+
+        if (value instanceof Time time) {
+            preparedStatement.setTime(bindIndex, time);
+            return;
+        }
+
+        if (value instanceof Timestamp timestamp) {
+            preparedStatement.setTimestamp(bindIndex, timestamp);
+            return;
+        }
+
         throw new PluginException(PREPARED_STATEMENT_BIND_PARAMETERS_ERROR, "PS_BIND_ERROR", bindKeyName, value.getClass().getSimpleName());
     }
 
-    private record SqlExecutionInput(boolean preparedStatement, String sql, List<Object> params) {
+    public static class StatementInput {
 
+        private final boolean preparedStatement;
+        private final String sql;
+        private final List<Object> params;
+
+        private StatementInput(boolean preparedStatement, String sql, List<Object> params) {
+            this.preparedStatement = preparedStatement;
+            this.sql = sql;
+            this.params = params;
+        }
+
+        public static StatementInput fromSql(boolean preparedStatement, String sql, List<Object> params) {
+            return new StatementInput(preparedStatement, sql, params);
+        }
+
+        public static StatementInput fromUpdateOrDeleteSingleRowSql(UpdateOrDeleteSingleCommandRenderResult updateOrDeleteSingle) {
+            return new UpdateOrDeleteSingleRowStatementInput(updateOrDeleteSingle.sql(), updateOrDeleteSingle.bindParams(),
+                    updateOrDeleteSingle.getSelectQuery(), updateOrDeleteSingle.getSelectBindParams());
+        }
+
+        public boolean isPreparedStatement() {
+            return preparedStatement;
+        }
+
+        public String getSql() {
+            return sql;
+        }
+
+        public List<Object> getParams() {
+            return params;
+        }
+
+    }
+
+    public static class UpdateOrDeleteSingleRowStatementInput extends StatementInput {
+
+        private final String selectSql;
+        private final List<Object> selectParams;
+
+        private UpdateOrDeleteSingleRowStatementInput(String sql, List<Object> params, String selectSql, List<Object> selectParams) {
+            super(true, sql, params);
+            this.selectSql = selectSql;
+            this.selectParams = selectParams;
+        }
+
+        public StatementInput getSelectInput() {
+            return StatementInput.fromSql(isPreparedStatement(), selectSql(), selectBindParams());
+        }
+
+        public String selectSql() {
+            return selectSql;
+        }
+
+        public List<Object> selectBindParams() {
+            return selectParams;
+        }
     }
 }

@@ -9,7 +9,7 @@ import java.util.Map;
 
 import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand;
 import com.openblocks.sdk.plugin.sqlcommand.command.DeleteCommand;
-import com.openblocks.sdk.plugin.sqlcommand.command.UpdateOrDeleteSingleCommandResult;
+import com.openblocks.sdk.plugin.sqlcommand.command.UpdateOrDeleteSingleCommandRenderResult;
 import com.openblocks.sdk.plugin.sqlcommand.filter.FilterSet;
 import com.openblocks.sdk.util.MustacheHelper;
 import com.openblocks.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
@@ -35,7 +35,7 @@ public class PostgresDeleteCommand extends DeleteCommand {
         deleteSql.append("delete from ").append(renderedTable);
         if (filterSet.isEmpty()) {
             if (!allowMultiModify) {
-                return new UpdateOrDeleteSingleCommandResult("select count(1) as count from " + table, emptyList(),
+                return new UpdateOrDeleteSingleCommandRenderResult("select count(1) as count from " + table, emptyList(),
                         deleteSql.toString(), emptyList());
             }
             return new GuiSqlCommandRenderResult(deleteSql.toString(), emptyList());
@@ -48,7 +48,7 @@ public class PostgresDeleteCommand extends DeleteCommand {
         String selectSql = "select count(1) as count from " + renderedTable + filterRender.sql();
 
         if (!allowMultiModify) {
-            return new UpdateOrDeleteSingleCommandResult(selectSql, filterRender.bindParams(),
+            return new UpdateOrDeleteSingleCommandRenderResult(selectSql, filterRender.bindParams(),
                     deleteSql.toString(), filterRender.bindParams());
         }
         return new GuiSqlCommandRenderResult(deleteSql.toString(), filterRender.bindParams());

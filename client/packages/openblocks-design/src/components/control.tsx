@@ -1,6 +1,13 @@
 import { ToolTipLabel } from "./toolTip";
 import styled, { css } from "styled-components";
-import { PropsWithChildren, ReactNode } from "react";
+import React, {
+  PropsWithChildren,
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 type ControlLayout = "horizontal" | "vertical"; // set propertyView's layout, default horizontal;
 type ControlPlacement = "bottom" | "right" | "modal"; // set propertyView's position, default right;
@@ -165,3 +172,103 @@ export const ControlPropertyViewWrapper = (
     </Wrapper>
   );
 };
+
+export const SearchTextContext = React.createContext("");
+
+const OnMatchContext = React.createContext<(() => void) | undefined>(undefined);
+
+function MatchWrapper(props: { children: ReactNode }) {
+  const onMatch = useContext(OnMatchContext);
+  useEffect(() => {
+    onMatch?.();
+  }, [onMatch]);
+  return <OnMatchContext.Provider value={undefined}>{props.children}</OnMatchContext.Provider>;
+}
+
+function SearchChildWrapper(props: { children: (hasChildMatch: boolean) => ReactNode }) {
+  const searchText = useContext(SearchTextContext);
+  const [matchText, setMatchText] = useState("");
+  const onMatch = useContext(OnMatchContext);
+  return (
+    <OnMatchContext.Provider
+      value={() => {
+        onMatch?.();
+        setMatchText(searchText);
+      }}
+    >
+      {props.children(matchText === searchText)}
+    </OnMatchContext.Provider>
+  );
+}
+
+const ForceShowContext = React.createContext(false);
+
+function ControlItemWrapper(props: {
+  filterText: string;
+  searchChild?: boolean;
+  children: ReactNode;
+}) {
+  const { filterText, searchChild, children } = props;
+  const searchText = useContext(SearchTextContext);
+  const forceShow = useContext(ForceShowContext);
+  if (!searchText) {
+    return <>{props.children}</>;
+  }
+  if (filterText.toLowerCase().includes(searchText.toLowerCase())) {
+    return (
+      <MatchWrapper>
+        {!searchChild ? (
+          <SearchTextContext.Provider value="">{children}</SearchTextContext.Provider>
+        ) : (
+          <SearchChildWrapper>
+            {(hasChildMatch) => (
+              <ForceShowContext.Provider value={!hasChildMatch}>
+                {children}
+              </ForceShowContext.Provider>
+            )}
+          </SearchChildWrapper>
+        )}
+      </MatchWrapper>
+    );
+  }
+  if (!searchChild) {
+    return forceShow ? (
+      <SearchTextContext.Provider value="">{children}</SearchTextContext.Provider>
+    ) : null;
+  }
+  return (
+    <SearchChildWrapper>
+      {(hasChildMatch) =>
+        hasChildMatch || forceShow ? children : <div style={{ display: "none" }}>{children}</div>
+      }
+    </SearchChildWrapper>
+  );
+}
+
+export type ControlItemData = {
+  filterText?: ReactNode;
+  searchChild?: boolean;
+};
+export type ControlItem = ReactElement & { __control__: true };
+// extends ReactNode
+export type ControlNode = ControlItem | ControlNode[] | boolean | undefined | "";
+
+export function controlItem(data: ControlItemData, propertyView: ReactElement): ControlItem {
+  const { filterText, searchChild } = data;
+  const item = (
+    <ControlItemWrapper
+      filterText={typeof filterText === "string" ? filterText : ""}
+      searchChild={searchChild}
+      key={propertyView.key ?? (typeof filterText === "string" ? filterText : null)}
+    >
+      {propertyView}
+    </ControlItemWrapper>
+  );
+  return { ...item, __control__: true };
+}
+
+// ControlPropertyViewWrapper to ControlItem
+export function wrapperToControlItem(controlPropertyViewWrapper: ReactElement) {
+  const { label } = controlPropertyViewWrapper.props as ControlPropertyViewWrapperProps;
+  return controlItem({ filterText: label }, controlPropertyViewWrapper);
+}

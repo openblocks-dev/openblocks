@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.internal.Base64;
 import org.pf4j.Extension;
@@ -306,14 +307,19 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
             }
 
             if (request.isForwardAllCookies()) {
-                requestCookies.forEach(
-                        (cookieName, httpCookies) -> currentCookies.addAll(cookieName, collectList(httpCookies, HttpCookie::getValue)));
+                requestCookies.forEach((cookieName, httpCookies) -> {
+                    if (StringUtils.equals(cookieName, commonConfig.getCookieName())) {
+                        return;
+                    }
+                    currentCookies.addAll(cookieName, collectList(httpCookies, HttpCookie::getValue));
+                });
                 return;
             }
 
             requestCookies.entrySet()
                     .stream()
                     .filter(it -> forwardCookies.contains(it.getKey()))
+                    .filter(it -> ObjectUtils.notEqual(it.getKey(), commonConfig.getCookieName()))
                     .forEach(entry -> {
                         String cookieName = entry.getKey();
                         List<HttpCookie> httpCookies = entry.getValue();

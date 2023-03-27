@@ -1,6 +1,6 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { EditPopoverItemType, PointIcon } from "openblocks-design";
+import { EditPopoverItemType, PointIcon, Search, SearchOutlinedIcon } from "openblocks-design";
 import { EditPopover } from "openblocks-design";
 import { EditorContext } from "comps/editorState";
 import { GridCompOperator } from "comps/utils/gridCompOperator";
@@ -13,20 +13,16 @@ import { trans } from "i18n";
 import { getComponentDocUrl } from "comps/utils/compDocUtil";
 import { parseCompType } from "comps/utils/remote";
 
-const CompDiv = styled.div<{ width?: number }>`
+const CompDiv = styled.div<{ width?: number; hasSearch?: boolean; showSearch?: boolean }>`
   width: ${(props) => (props.width ? props.width : 312)}px;
-  height: 46px;
+  height: ${(props) => (props.showSearch ? 45 : 46)}px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e1e3eb;
+  border-bottom: ${(props) => (props.showSearch ? 0 : 1)}px solid #e1e3eb;
 
   .taco-edit-text-wrapper {
-    width: 252px;
+    width: ${(props) => (props.hasSearch ? 226 : 252)}px;
     color: #222222;
     font-size: 16px;
     margin-left: 8px;
@@ -37,7 +33,7 @@ const CompDiv = styled.div<{ width?: number }>`
   }
 
   .taco-edit-text-input {
-    width: 252px;
+    width: ${(props) => (props.hasSearch ? 226 : 252)}px;
     color: #222222;
     font-size: 16px;
     background-color: #f5f5f6;
@@ -60,9 +56,17 @@ const Icon = styled(PointIcon)`
   }
 `;
 
+const SearchIcon = styled(SearchOutlinedIcon)`
+  font-size: 20px;
+  margin-left: 6px;
+  margin-right: 16px;
+  cursor: pointer;
+`;
+
 interface Iprops {
   name: string;
   width?: number;
+  search?: { searchText: string; setSearchText: (t: string) => void };
 }
 
 export const CompName = (props: Iprops) => {
@@ -104,8 +108,13 @@ export const CompName = (props: Iprops) => {
     });
   }
 
-  return (
-    <CompDiv width={props.width}>
+  const [showSearch, setShowSearch] = useState<boolean>(false);
+  const { search } = props;
+  useEffect(() => {
+    setShowSearch(false);
+  }, [props.name]);
+  const compName = (
+    <CompDiv width={props.width} hasSearch={!!search} showSearch={showSearch}>
       <div>
         <EditText
           text={props.name}
@@ -125,7 +134,15 @@ export const CompName = (props: Iprops) => {
           hasError={!!error}
         />
       </div>
-
+      {!!search && (
+        <SearchIcon
+          onClick={() => {
+            setShowSearch(!showSearch);
+            search?.setSearchText("");
+          }}
+          style={{ color: showSearch ? "#315EFB" : "#8B8FA3" }}
+        />
+      )}
       <EditPopover
         items={items}
         del={() => GridCompOperator.deleteComp(editorState, editorState.selectedComps())}
@@ -133,5 +150,19 @@ export const CompName = (props: Iprops) => {
         <Icon tabIndex={-1} />
       </EditPopover>
     </CompDiv>
+  );
+  return (
+    <div>
+      {compName}
+      {search && showSearch && (
+        <Search
+          placeholder={trans("comp.searchProp")}
+          value={search.searchText}
+          onChange={(e) => search.setSearchText(e.target.value)}
+          allowClear={true}
+          style={{ padding: "0 16px", margin: "0 0 4px 0" }}
+        />
+      )}
+    </div>
   );
 };

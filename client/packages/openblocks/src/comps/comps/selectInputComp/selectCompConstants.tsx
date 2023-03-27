@@ -10,6 +10,7 @@ import { BoolCodeControl, StringControl } from "../../controls/codeControl";
 import { PaddingControl } from "../../controls/paddingControl";
 import { MarginControl } from "../../controls/marginControl";
 import {
+  ControlNode,
   isDarkColor,
   lightenColor,
   MultiselectTagIcon,
@@ -265,8 +266,8 @@ export const SelectPropertyView = (
       hidden: typeof BoolCodeControl;
     }
   > & {
-    value: { propertyView: (params: ControlParams) => ReactNode };
-    style: { getPropertyView: () => ReactNode };
+    value: { propertyView: (params: ControlParams) => ControlNode };
+    style: { getPropertyView: () => ControlNode };
   }
 ) => (
   <>

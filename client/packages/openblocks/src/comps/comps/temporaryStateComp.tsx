@@ -1,6 +1,6 @@
 import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { jsonValueStateControl } from "comps/controls/codeStateControl";
-import { MultiCompBuilder, valueComp } from "comps/generators";
+import { MultiCompBuilder } from "comps/generators";
 import { bottomResListComp } from "comps/generators/bottomResList";
 import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
@@ -17,7 +17,6 @@ import { SimpleNameComp } from "./simpleNameComp";
 const TemporaryStateItemCompBase = new MultiCompBuilder(
   {
     name: SimpleNameComp,
-    order: valueComp<number>(0),
     value: jsonValueStateControl(null),
   },
   () => null
@@ -56,14 +55,14 @@ class TemporaryStateAsBottomRes extends TemporaryStateItemCompBase implements Bo
   type(): BottomResTypeEnum {
     return BottomResTypeEnum.TempState;
   }
+  id(): string {
+    return this.name();
+  }
   name(): string {
     return this.children.name.getView();
   }
   icon(): ReactNode {
     return getBottomResIcon(BottomResTypeEnum.TempState);
-  }
-  order(): number {
-    return this.children.order.getView();
   }
 }
 
@@ -127,7 +126,7 @@ export const TemporaryStateItemComp = withExposingConfigs(TemporaryStateItemComp
 
 export const TemporaryStateListComp = bottomResListComp(
   TemporaryStateItemComp,
-  "tempState",
+  BottomResTypeEnum.TempState,
   { value: "null" },
   "state"
 );

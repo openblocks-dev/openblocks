@@ -35,9 +35,9 @@ import static com.openblocks.plugin.postgres.utils.PostgresDataTypeUtils.Postgre
 import static com.openblocks.plugin.postgres.utils.PostgresDataTypeUtils.PostgresDataType.VARCHAR;
 
 import java.lang.reflect.Field;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -156,72 +156,74 @@ public class PostgresDataTypeUtils {
         return inputDataTypes;
     }
 
-    public static String toPostgresqlPrimitiveTypeName(DataType type) {
-        return switch (type) {
-            case LONG -> PostgresDataType.INT8;
-            case INTEGER -> PostgresDataType.INT4;
-            case FLOAT -> PostgresDataType.DECIMAL;
-            case STRING -> PostgresDataType.VARCHAR;
-            case BOOLEAN -> PostgresDataType.BOOL;
-            case DATE -> PostgresDataType.DATE;
-            case TIME -> PostgresDataType.TIME;
-            case DOUBLE -> PostgresDataType.FLOAT8;
-            case ARRAY -> throw new IllegalArgumentException("Array of Array datatype is not supported.");
-            default -> throw new IllegalArgumentException("Unable to map the computed data type to primitive Postgresql type");
-        };
-    }
-
-    public static DataType parseObjectDataType(Object input) {
-
-        if (input == null || input.equals("null")) {
-            return DataType.NULL;
+    public static Object castValueWithTargetType(Object value, DataType targetType) {
+        switch (targetType) {
+            case NULL -> {
+                return null;
+            }
+            case INTEGER -> {
+                if (!(value instanceof Integer)) {
+                    return Integer.parseInt(String.valueOf(value));
+                }
+                return value;
+            }
+            case LONG -> {
+                if (!(value instanceof Long)) {
+                    return Long.parseLong(String.valueOf(value));
+                }
+                return value;
+            }
+            case FLOAT -> {
+                if (!(value instanceof Float)) {
+                    return Float.parseFloat(String.valueOf(value));
+                }
+                return value;
+            }
+            case DOUBLE -> {
+                if (!(value instanceof Double)) {
+                    return Double.parseDouble(String.valueOf(value));
+                }
+                return value;
+            }
+            case BOOLEAN -> {
+                if (!(value instanceof Boolean)) {
+                    return Boolean.parseBoolean(String.valueOf(value));
+                }
+                return value;
+            }
+            case DATE -> {
+                if (!(value instanceof Date)) {
+                    return Date.valueOf(String.valueOf(value));
+                }
+                return value;
+            }
+            case TIME -> {
+                if (!(value instanceof Time)) {
+                    return Time.valueOf(String.valueOf(value));
+                }
+                return value;
+            }
+            case TIMESTAMP -> {
+                if (!(value instanceof Timestamp)) {
+                    return Timestamp.valueOf(String.valueOf(value));
+                }
+                return value;
+            }
+            case ARRAY -> {
+                if (!(value instanceof Collection<?>)) {
+                    return String.valueOf(value);
+                }
+                return value;
+            }
+            case JSON_OBJECT -> {
+                if (value instanceof Map<?, ?> || value instanceof Collection<?>) {
+                    return value;
+                }
+                return String.valueOf(value);
+            }
+            default -> {
+                return String.valueOf(value);
+            }
         }
-
-        if (input instanceof String) {
-            return DataType.STRING;
-        }
-
-        if (input instanceof Collection<?>) {
-            // In case of no values in the array, set this as null. Otherwise, plugins like postgres and ms-sql
-            // would break while creating a SQL array.
-            return DataType.ARRAY;
-        }
-
-        if (input instanceof Map<?, ?>) {
-            return DataType.JSON_OBJECT;
-        }
-
-        if (input instanceof Integer) {
-            return DataType.INTEGER;
-        }
-
-        if (input instanceof Long) {
-            return DataType.LONG;
-        }
-
-        if (input instanceof Float) {
-            return DataType.FLOAT;
-        }
-
-        if (input instanceof Double) {
-            return DataType.DOUBLE;
-        }
-
-        if (input instanceof Boolean) {
-            return DataType.BOOLEAN;
-        }
-
-        if (input instanceof LocalDateTime) {
-            return DataType.TIMESTAMP;
-        }
-
-        if (input instanceof LocalDate) {
-            return DataType.DATE;
-        }
-        if (input instanceof LocalTime) {
-            return DataType.TIME;
-        }
-
-        return DataType.STRING;
     }
 }

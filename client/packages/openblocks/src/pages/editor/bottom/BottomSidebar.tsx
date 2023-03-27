@@ -3,17 +3,28 @@ import {
   BluePlusIcon,
   EditPopover,
   EditText,
+  FoldedIcon,
   PointIcon,
   PopupCard,
   ScrollBar,
+  Search,
+  SearchIcon,
   TacoButton,
+  UnfoldIcon,
 } from "openblocks-design";
-import { CSSProperties, ReactNode, useContext, useState } from "react";
+import { CSSProperties, useContext, useEffect, useState } from "react";
 import { EditorContext } from "comps/editorState";
 import { useSelector } from "react-redux";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import { BottomResComp, BottomResTypeEnum } from "types/bottomRes";
 import { trans } from "i18n";
+import { DraggableTree } from "components/DraggableTree/DraggableTree";
+import {
+  DraggableTreeNode,
+  DraggableTreeNodeItemRenderProps,
+} from "components/DraggableTree/types";
+import RefTreeComp from "comps/comps/refTreeComp";
+import { ActiveTextColor, BorderActiveColor, NormalMenuIconColor } from "constants/style";
 
 const Contain = styled.div`
   flex-grow: 1;
@@ -44,12 +55,34 @@ const TitleSpan = styled.span`
   white-space: nowrap;
   user-select: none;
 `;
+const TitleRight = styled.div`
+  display: flex;
+  align-items: center;
+`;
+const SearchWrapper = styled.div`
+  height: 28px;
+  padding: 0 16px;
+  margin-bottom: 4px;
+  .ant-input-affix-wrapper {
+    height: 28px;
+  }
+`;
+const SearchIconBtn = styled(SearchIcon)`
+  height: 16px;
+  width: 16px;
+  margin-right: 16px;
+  color: #9195a3;
+  cursor: pointer;
+  &:hover {
+    color: ${ActiveTextColor};
+  }
+`;
 const AddIcon = styled(BluePlusIcon)`
   height: 12px;
   width: 12px;
   margin-right: 2px;
 `;
-const Rightbtn = styled(TacoButton)`
+const AddBtn = styled(TacoButton)`
   height: 24px;
   width: 64px;
   padding: 4px 12px;
@@ -88,19 +121,109 @@ const Rightbtn = styled(TacoButton)`
   }
 `;
 
+type RefTreeCompType = InstanceType<typeof RefTreeComp>;
+
 interface BottomSidebarProps {
   style?: CSSProperties;
   dataSourceId?: string;
+  refTreeComp: RefTreeCompType;
   items: BottomResComp[];
   onCopy: (type: BottomResTypeEnum, name: string) => void;
-  onDelete: (type: BottomResTypeEnum, name: string) => void;
+  onDelete: (type: BottomResTypeEnum, name: string) => boolean;
+  onSelect: (type: BottomResTypeEnum, name: string) => void;
   onOpenCreatePanel: () => void;
 }
 
 export function BottomSidebar(props: BottomSidebarProps) {
-  const { items, onOpenCreatePanel, onCopy, onDelete } = props;
+  const { items, refTreeComp, onOpenCreatePanel, onSelect, onCopy, onDelete } = props;
   const readOnly = useSelector(showAppSnapshotSelector);
-  const editorState = useContext(EditorContext);
+  const [isSearchShow, showSearch] = useState(false);
+  const [search, setSearch] = useState("");
+  const getById = (id: string) => items.find((i) => i.id() === id);
+
+  const convertRefTree = (refTreeComp: InstanceType<typeof RefTreeComp>) => {
+    const bottomResComp = getById(refTreeComp.children.value.getView());
+    const currentNodeType = bottomResComp?.type();
+    const childrenItems = refTreeComp.children.items
+      ?.getView()
+      .map((i) => convertRefTree(i as InstanceType<typeof RefTreeComp>))
+      .filter((i): i is DraggableTreeNode<BottomResComp> => !!i);
+    const node: DraggableTreeNode<BottomResComp> = {
+      id: bottomResComp?.id(),
+      canDropBefore: (source) => {
+        if (currentNodeType === BottomResTypeEnum.Folder) {
+          return source?.type() === BottomResTypeEnum.Folder;
+        }
+
+        return source?.type() !== BottomResTypeEnum.Folder;
+      },
+      canDropAfter: (source) => {
+        if (
+          currentNodeType !== BottomResTypeEnum.Folder &&
+          source?.type() === BottomResTypeEnum.Folder
+        ) {
+          return false;
+        }
+        return true;
+      },
+      canDropIn: (source) => {
+        if (currentNodeType !== BottomResTypeEnum.Folder) {
+          return false;
+        }
+        if (!source) {
+          return true;
+        }
+        if (source.type() === BottomResTypeEnum.Folder) {
+          return false;
+        }
+        return true;
+      },
+      items: childrenItems,
+      data: bottomResComp,
+      addSubItem(value) {
+        const pushAction = refTreeComp.children.items.pushAction({ value: value.id() });
+        refTreeComp.children.items.dispatch(pushAction);
+      },
+      deleteItem(index) {
+        const deleteAction = refTreeComp.children.items.deleteAction(index);
+        refTreeComp.children.items.dispatch(deleteAction);
+      },
+      addItem(value) {
+        const pushAction = refTreeComp.children.items.pushAction({ value: value.id() });
+        refTreeComp.children.items.dispatch(pushAction);
+      },
+      moveItem(from, to) {
+        const moveAction = refTreeComp.children.items.arrayMoveAction(from, to);
+        refTreeComp.children.items.dispatch(moveAction);
+      },
+    };
+
+    if (
+      search &&
+      bottomResComp &&
+      !bottomResComp.name().toLowerCase().includes(search.toLowerCase()) &&
+      childrenItems.length === 0
+    ) {
+      return;
+    }
+    return node;
+  };
+
+  const node = convertRefTree(refTreeComp);
+  const idsInTree = refTreeComp.getAllValuesInTree();
+  const itemsNotInTree = items.filter((i) => !idsInTree.includes(i.id())).map((i) => i.id());
+
+  useEffect(() => {
+    if (itemsNotInTree.length > 0) {
+      itemsNotInTree.forEach((i) => {
+        const pushAction = refTreeComp.children.items.pushAction({
+          value: i,
+          items: [],
+        });
+        refTreeComp.children.items.dispatch(pushAction);
+      });
+    }
+  }, [itemsNotInTree, refTreeComp.children.items]);
 
   return (
     <Contain style={props.style}>
@@ -108,35 +231,83 @@ export function BottomSidebar(props: BottomSidebarProps) {
         <TitleSpan>
           {trans("bottomPanel.title")} ({items.length})
         </TitleSpan>
-        <Rightbtn
-          disabled={readOnly}
-          onClick={() => {
-            onOpenCreatePanel();
-            editorState.setSelectedBottomRes("", undefined);
-          }}
-        >
-          <AddIcon />
-          {trans("newItem")}
-        </Rightbtn>
+        <TitleRight>
+          <SearchIconBtn
+            onClick={() => {
+              showSearch(!isSearchShow);
+              setSearch("");
+            }}
+          />
+          <AddBtn
+            disabled={readOnly}
+            onClick={() => {
+              onOpenCreatePanel();
+            }}
+          >
+            <AddIcon />
+            {trans("newItem")}
+          </AddBtn>
+        </TitleRight>
       </Title>
+      {isSearchShow && (
+        <SearchWrapper>
+          <Search
+            autoFocus
+            allowClear
+            value={search}
+            placeholder="Search"
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ marginTop: 0, height: 28 }}
+          />
+        </SearchWrapper>
+      )}
       <ScrollBar>
-        {items.length > 0 ? (
-          <div style={{ padding: "0 8px" }}>
-            {items.map((item) => {
-              const type = item.type();
-              const name = item.name();
-              const icon = item.icon();
-              return (
-                <BottomSidebarItem
-                  type={type}
-                  icon={icon}
-                  key={name}
-                  name={name}
-                  onCopy={() => onCopy(type, name)}
-                  onDelete={() => onDelete(type, name)}
-                />
-              );
-            })}
+        {items.length > 0 && node ? (
+          <div style={{ paddingTop: 4, paddingBottom: 100, overflow: "hidden" }}>
+            <DraggableTree<BottomResComp>
+              node={node}
+              disable={!!search}
+              unfoldAll={!!search}
+              showSubInDragOverlay={false}
+              showDropInPositionLine={false}
+              showPositionLineDot
+              positionLineDotDiameter={4}
+              positionLineHeight={1}
+              itemHeight={25}
+              positionLineIndent={(path, dropInAsSub) => {
+                const indent = 2 + (path.length - 1) * 30;
+                if (dropInAsSub) {
+                  return indent + 12;
+                }
+                return indent;
+              }}
+              renderItemContent={(params) => {
+                const { node, onToggleFold, onDelete: onDeleteTreeItem, ...otherParams } = params;
+                const resComp = node.data;
+                if (!resComp) {
+                  return null;
+                }
+                const id = resComp.id();
+                const type = resComp.type();
+                return (
+                  <BottomSidebarItem
+                    id={id}
+                    key={id}
+                    node={node}
+                    resComp={resComp}
+                    onToggleFold={onToggleFold}
+                    onCopy={() => onCopy(type, id)}
+                    onSelect={() => onSelect(type, id)}
+                    onDelete={() => {
+                      if (onDelete(type, id)) {
+                        onDeleteTreeItem();
+                      }
+                    }}
+                    {...otherParams}
+                  />
+                );
+              }}
+            />
           </div>
         ) : (
           !readOnly && <EmptyQueryList newColumn={onOpenCreatePanel} />
@@ -146,19 +317,35 @@ export function BottomSidebar(props: BottomSidebarProps) {
   );
 }
 
-const ColumnDiv = styled.div<{ $color?: boolean }>`
+const HighlightBorder = styled.div<{ active: boolean; foldable: boolean; level: number }>`
+  flex: 1;
+  display: flex;
+  padding-left: ${(props) => props.level * 20 + (props.foldable ? 0 : 14)}px;
+  border-radius: 4px;
+  border: 1px solid ${(props) => (props.active ? BorderActiveColor : "transparent")};
+  align-items: center;
+  justify-content: center;
+`;
+
+interface ColumnDivProps {
+  $color?: boolean;
+  isOverlay: boolean;
+}
+
+const ColumnDiv = styled.div<ColumnDivProps>`
   width: 100%;
   height: 25px;
   display: flex;
-  margin: 2px 0;
+  user-select: none;
+  padding-left: 2px;
+  padding-right: 15px;
+  /* background-color: #ffffff; */
+  /* margin: 2px 0; */
+  background-color: ${(props) => (props.isOverlay ? "rgba(255, 255, 255, 0.11)" : "")};
 
   &&& {
-    background-color: ${(props) => (props.$color ? "#f2f7fc" : null)};
+    background-color: ${(props) => (props.$color && !props.isOverlay ? "#f2f7fc" : null)};
   }
-
-  border-radius: 4px;
-  align-items: center;
-  padding: 0 8px 0 8px;
 
   :hover {
     background-color: #f2f7fc80;
@@ -172,6 +359,7 @@ const ColumnDiv = styled.div<{ $color?: boolean }>`
     color: #222222;
     margin-left: 0;
     font-size: 13px;
+    padding-left: 0;
 
     :hover {
       background-color: transparent;
@@ -196,68 +384,118 @@ const ColumnDiv = styled.div<{ $color?: boolean }>`
   }
 `;
 const Icon = styled(PointIcon)`
+  width: 16px;
+  height: 16px;
   cursor: pointer;
   flex-shrink: 0;
+  color: ${NormalMenuIconColor};
 
-  &:hover g {
-    fill: #315efb;
+  &:hover {
+    color: #315efb;
   }
 `;
 
-interface BottomSidebarItemProps {
-  name: string;
-  type: BottomResTypeEnum;
-  icon: ReactNode;
+const FoldIconBtn = styled.div`
+  width: 12px;
+  height: 12px;
+  display: flex;
+  margin-right: 2px;
+`;
+
+interface BottomSidebarItemProps extends DraggableTreeNodeItemRenderProps {
+  id: string;
+  resComp: BottomResComp;
   onCopy: () => void;
+  onSelect: () => void;
   onDelete: () => void;
+  onToggleFold: () => void;
 }
 
 function BottomSidebarItem(props: BottomSidebarItemProps) {
-  const { name, type, icon, onDelete, onCopy } = props;
+  const {
+    id,
+    resComp,
+    isOver,
+    isOverlay,
+    path,
+    isFolded,
+    onDelete,
+    onCopy,
+    onSelect,
+    onToggleFold,
+  } = props;
   const [error, setError] = useState<string | undefined>(undefined);
   const [editing, setEditing] = useState(false);
   const editorState = useContext(EditorContext);
   const readOnly = useSelector(showAppSnapshotSelector);
   const { selectedBottomResName, selectedBottomResType } = editorState;
-  const isSelected = type === selectedBottomResType && name === selectedBottomResName;
+  const level = path.length - 1;
+  const type = resComp.type();
+  const name = resComp.name();
+  const icon = resComp.icon();
+  const isSelected = type === selectedBottomResType && id === selectedBottomResName;
+  const isFolder = type === BottomResTypeEnum.Folder;
+
+  const handleFinishRename = (value: string) => {
+    let success = false;
+    let compId = name;
+    if (resComp.rename) {
+      compId = resComp.rename(value);
+      success = !!compId;
+    } else {
+      compId = name;
+      success = editorState.rename(name, value);
+    }
+    if (success) {
+      editorState.setSelectedBottomRes(compId, type);
+      setError(undefined);
+    }
+  };
+
+  const handleNameChange = (value: string) => {
+    let err = "";
+    if (resComp.checkName) {
+      err = resComp.checkName(value);
+    } else {
+      err = editorState.checkRename(name, value);
+    }
+    setError(err);
+  };
+
+  const handleClickItem = () => {
+    if (isFolder) {
+      onToggleFold();
+    }
+    onSelect();
+  };
+
   return (
-    <ColumnDiv
-      onClick={() => {
-        editorState.setSelectedBottomRes(name, type);
-      }}
-      $color={isSelected}
-    >
-      {/* {switchIcon(props.type)} */}
-      {icon}
-      <div style={{ flexGrow: 1, marginRight: "8px", width: "calc(100% - 52px)" }}>
-        <EditText
-          text={name}
-          disabled={!isSelected || readOnly}
-          onFinish={(value) => {
-            if (editorState.rename(props.name, value)) {
-              editorState.setSelectedBottomRes(value, type);
-              setError(undefined);
-            }
-          }}
-          onChange={(value) => setError(editorState.checkRename(props.name, value))}
-          onEditStateChange={(editing) => setEditing(editing)}
-        />
-        <PopupCard
-          editorFocus={!!error && editing}
-          title={error ? trans("error") : ""}
-          content={error}
-          hasError={!!error}
-        />
-      </div>
-      {!readOnly && (
-        <EditPopover
-          // rename={() => setRenameData({ show: true, value: value })}
-          copy={onCopy}
-          del={onDelete}
-        >
-          <Icon tabIndex={-1} />
-        </EditPopover>
-      )}
+    <ColumnDiv onClick={handleClickItem} $color={isSelected} isOverlay={isOverlay}>
+      <HighlightBorder active={isOver && isFolder} level={level} foldable={isFolder}>
+        {isFolder && <FoldIconBtn>{!isFolded ? <FoldedIcon /> : <UnfoldIcon />}</FoldIconBtn>}
+        {icon}
+        <div style={{ flexGrow: 1, marginRight: "8px", width: "calc(100% - 62px)" }}>
+          <EditText
+            text={name}
+            forceClickIcon={isFolder}
+            disabled={!isSelected || readOnly || isOverlay}
+            onFinish={handleFinishRename}
+            onChange={handleNameChange}
+            onEditStateChange={(editing) => setEditing(editing)}
+          />
+          <PopupCard
+            editorFocus={!!error && editing}
+            title={error ? trans("error") : ""}
+            content={error}
+            hasError={!!error}
+          />
+        </div>
+        {!readOnly && !isOverlay && (
+          <EditPopover copy={!isFolder ? onCopy : undefined} del={onDelete}>
+            <Icon tabIndex={-1} />
+          </EditPopover>
+        )}
+      </HighlightBorder>
     </ColumnDiv>
   );
 }

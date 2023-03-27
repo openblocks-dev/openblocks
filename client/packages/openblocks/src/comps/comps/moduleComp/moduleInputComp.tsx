@@ -8,6 +8,7 @@ import { Node } from "openblocks-core";
 import { Fragment, ReactNode } from "react";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { inputControls, InputTypeEnum } from "../moduleContainerComp/ioComp/inputListItemComp";
+import { controlItem, ControlNode } from "openblocks-design";
 
 interface InputItem {
   name: string;
@@ -30,18 +31,20 @@ export default class ModuleInputsComp extends ModuleInputsCompBase {
     return this.children;
   }
 
-  getPropertyView(): ReactNode {
+  getPropertyView(): ControlNode {
     if (this.inputs.length === 0) {
-      return null;
+      return;
     }
     return this.inputs.map(({ name, description }) => {
       const child = this.children[name];
       if (!child) {
-        return null;
+        return;
       }
-      return (
+      const label = name;
+      return controlItem(
+        { filterText: label },
         <Fragment key={name}>
-          {(child as any).propertyView({ label: name, tooltip: description, layout: "vertical" })}
+          {(child as any).propertyView({ label, tooltip: description, layout: "vertical" })}
         </Fragment>
       );
     });

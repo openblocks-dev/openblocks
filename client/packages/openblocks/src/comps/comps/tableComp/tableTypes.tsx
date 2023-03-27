@@ -27,6 +27,7 @@ import {
   RecordConstructorToComp,
   RecordConstructorToView,
 } from "openblocks-core";
+import { controlItem } from "openblocks-design";
 import { JSONObject } from "util/jsonTypes";
 import { ExpansionControl } from "./expansionControl";
 import { PaginationControl } from "./paginationControl";
@@ -97,17 +98,25 @@ export type SortValue = {
 
 const TableEventControl = eventHandlerControl(TableEventOptions);
 
-export const RowColorComp = withContext(
+const rowColorLabel = trans("table.rowColor");
+const RowColorTempComp = withContext(
   new MultiCompBuilder({ color: ColorOrBoolCodeControl }, (props) => props.color)
     .setPropertyViewFn((children) =>
       children.color.propertyView({
-        label: trans("table.rowColor"),
+        label: rowColorLabel,
         tooltip: trans("table.rowColorDesc"),
       })
     )
     .build(),
   ["currentRow", "currentIndex", "currentOriginalIndex", "columnTitle"] as const
 );
+
+// @ts-ignore
+export class RowColorComp extends RowColorTempComp {
+  override getPropertyView() {
+    return controlItem({ filterText: rowColorLabel }, super.getPropertyView());
+  }
+}
 
 // fixme, should be infer from RowColorComp, but withContext type incorrect
 export type RowColorViewType = (param: {

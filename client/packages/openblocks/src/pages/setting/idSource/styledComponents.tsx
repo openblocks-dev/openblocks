@@ -1,6 +1,7 @@
 import styled, { css } from "styled-components";
 import { Table } from "components/Table";
 import { Button, Checkbox, Form } from "antd";
+import { UnderlineCss } from "openblocks-design";
 
 const btnLoadingCss = css`
   > .ant-btn-loading-icon .anticon {
@@ -23,8 +24,9 @@ export const ManualWapper = styled.div`
   .tip {
     font-size: 12px;
     color: #8b8fa3;
-    line-height: 18px;
-    margin-top: 2px;
+    line-height: 12px;
+    margin-top: 8px;
+    font-weight: 400;
   }
 
   .ant-btn {
@@ -150,8 +152,6 @@ export const SaveButton = styled(Button)`
 export const FormStyled = styled(Form)`
   .ant-form-item-control-input-content > input,
   .ant-input-password {
-    padding: 8px 11px;
-
     &:hover {
       border-color: #8b8fa3;
     }
@@ -165,6 +165,9 @@ export const FormStyled = styled(Form)`
   .ant-form-item-label > label {
     font-size: 13px;
     line-height: 19px;
+    .has-tip {
+      ${UnderlineCss};
+    }
   }
 
   .ant-input-password-icon.anticon {
@@ -198,6 +201,40 @@ export const FormStyled = styled(Form)`
   .register {
     margin: -4px 0 20px 0;
   }
+
+  .ant-input-prefix {
+    margin-right: 8px;
+    svg {
+      path,
+      rect:nth-of-type(1) {
+        stroke: #8b8fa3;
+      }
+      rect:nth-of-type(2) {
+        fill: #8b8fa3;
+      }
+    }
+  }
+  .lock {
+    margin-bottom: 0;
+    .ant-input-affix-wrapper {
+      .ant-input-prefix {
+        cursor: pointer;
+      }
+    }
+  }
+  .lock-tip {
+    font-size: 12px;
+    line-height: 20px;
+    color: #b8b9bf;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    svg {
+      width: 12px;
+      height: 12px;
+      margin: 0 4px;
+    }
+  }
 `;
 
 export const PasswordLabel = styled.span`
@@ -206,10 +243,9 @@ export const PasswordLabel = styled.span`
 
   svg {
     margin: 0 4px 0 10px;
-  }
-
-  span:nth-of-type(2) {
-    color: #b8b9bf;
+    g {
+      fill: #d7d9e0;
+    }
   }
 `;
 
