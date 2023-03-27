@@ -37,6 +37,9 @@ import { trans } from "i18n";
 import { useEffect } from "react";
 const getStyle = (style: SegmentStyleType, orientation: string) => {
   return css`
+    margin: ${style.margin};
+    padding: ${style.padding};
+
     &.ant-segmented:not(.ant-segmented-disabled) {
       background-color: ${style.background};
       &,
@@ -73,7 +76,7 @@ const orientationOptions = [
   },
 ] as const;
 
-const Segmented = styled(AntdSegmented) <{
+const Segmented = styled(AntdSegmented)<{
   $style: SegmentStyleType;
   $orientation: string;
 }>`
@@ -92,7 +95,7 @@ export const SegmentChildrenMap = {
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
-export const SegmentedControlBasicComp = (function() {
+export const SegmentedControlBasicComp = (function () {
   return new UICompBuilder(SegmentChildrenMap, (props) => {
     const [validateState, handleValidate] = useSelectInputValidate(props);
     useEffect(() => {

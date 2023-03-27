@@ -1,16 +1,26 @@
 import { Progress } from "antd";
 import { styleControl } from "comps/controls/styleControl";
-import { ProgressStyle, ProgressStyleType } from "comps/controls/styleControlConstants";
+import {
+  ProgressStyle,
+  ProgressStyleType,
+} from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { Section, sectionNames } from "openblocks-design";
 import { numberExposingStateControl } from "../controls/codeStateControl";
 import { UICompBuilder } from "../generators";
-import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
+import {
+  NameConfig,
+  NameConfigHidden,
+  withExposingConfigs,
+} from "../generators/withExposing";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
 const getStyle = (style: ProgressStyleType) => {
   return css`
+    margin: ${style.margin};
+    padding: ${style.padding};
+
     .ant-progress-text {
       color: ${style.text};
     }
@@ -31,7 +41,9 @@ const getStyle = (style: ProgressStyleType) => {
   `;
 };
 
-export const StyledProgressCircle = styled(Progress)<{ $style: ProgressStyleType }>`
+export const StyledProgressCircle = styled(Progress)<{
+  $style: ProgressStyleType;
+}>`
   width: 100%;
   height: 100%;
   padding: 2px;
@@ -70,8 +82,12 @@ let ProgressCircleTmpComp = (function () {
               tooltip: trans("progress.valueTooltip"),
             })}
           </Section>
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          <Section name={sectionNames.layout}>
+            {hiddenPropertyView(children)}
+          </Section>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
         </>
       );
     })

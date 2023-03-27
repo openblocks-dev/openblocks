@@ -133,6 +133,9 @@ const getStyle = (style: FileStyleType) => {
   return css`
     .ant-btn {
       border-radius: ${style.radius};
+          margin: ${style.margin};
+    padding: ${style.padding};
+
     }
 
     .ant-btn:not(:disabled) {
@@ -154,7 +157,7 @@ const getStyle = (style: FileStyleType) => {
   `;
 };
 
-const StyledUpload = styled(AntdUpload)<{ $style: FileStyleType }>`
+const StyledUpload = styled(AntdUpload) <{ $style: FileStyleType }>`
   .ant-upload,
   .ant-btn {
     width: 100%;

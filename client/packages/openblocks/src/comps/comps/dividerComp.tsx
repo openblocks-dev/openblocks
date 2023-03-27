@@ -8,7 +8,10 @@ import { Section, sectionNames } from "openblocks-design";
 import _ from "lodash";
 import styled from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
-import { DividerStyle, DividerStyleType } from "comps/controls/styleControlConstants";
+import {
+  DividerStyle,
+  DividerStyleType,
+} from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -22,7 +25,10 @@ const StyledDivider = styled(Divider)<IProps>`
     display: flex;
     align-items: center;
   }
-  border-top: 1px ${(props) => (props.dashed ? "dashed" : "solid")} ${(props) => props.$style.color};
+  margin: ${(props) => props.$style.margin};
+  padding: ${(props) => props.$style.padding};
+  border-top: 1px ${(props) => (props.dashed ? "dashed" : "solid")}
+    ${(props) => props.$style.color};
 
   &.ant-divider-horizontal.ant-divider-with-text {
     margin: 0;
@@ -55,7 +61,11 @@ function fixOldStyleData(oldData: any) {
 export const DividerComp = migrateOldData(
   new UICompBuilder(childrenMap, (props) => {
     return (
-      <StyledDivider orientation={props.align} dashed={props.dashed} $style={props.style}>
+      <StyledDivider
+        orientation={props.align}
+        dashed={props.dashed}
+        $style={props.style}
+      >
         {props.title}
       </StyledDivider>
     );
@@ -71,7 +81,9 @@ export const DividerComp = migrateOldData(
                 radioButton: true,
               })}
           </Section>
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+          <Section name={sectionNames.layout}>
+            {hiddenPropertyView(children)}
+          </Section>
           <Section name={sectionNames.style}>
             {children.dashed.propertyView({ label: trans("divider.dashed") })}
             {children.style.getPropertyView()}

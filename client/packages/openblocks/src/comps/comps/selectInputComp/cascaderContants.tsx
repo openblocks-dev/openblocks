@@ -70,11 +70,5 @@ export const CascaderPropertyView = (
     <Section name={sectionNames.style}>
       {children.style.getPropertyView()}
     </Section>
-    <Section name={trans("style.margin")}>
-      {children.margin.getPropertyView()}
-    </Section>
-    <Section name={trans("style.padding")}>
-      {children.padding.getPropertyView()}
-    </Section>
   </>
 );

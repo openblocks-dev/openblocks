@@ -5,11 +5,21 @@ import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { SelectOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
-import { SegmentStyle, SegmentStyleType } from "comps/controls/styleControlConstants";
+import {
+  SegmentStyle,
+  SegmentStyleType,
+} from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";
-import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
+import {
+  CommonNameConfig,
+  NameConfig,
+  withExposingConfigs,
+} from "../../generators/withExposing";
+import {
+  formDataChildren,
+  FormDataPropertyView,
+} from "../formComp/formDataConstants";
 import {
   selectDivRefMethods,
   SelectInputInvalidConfig,
@@ -18,13 +28,19 @@ import {
   useSelectInputValidate,
 } from "./selectInputConstants";
 import { Section, sectionNames } from "openblocks-design";
-import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
+import {
+  hiddenPropertyView,
+  disabledPropertyView,
+} from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
 
 const getStyle = (style: SegmentStyleType) => {
   return css`
+    margin: ${style.margin};
+    padding: ${style.padding};
+
     &.ant-segmented:not(.ant-segmented-disabled) {
       background-color: ${style.background};
 
@@ -116,16 +132,23 @@ const SegmentedControlBasicComp = (function () {
 
         <SelectInputValidationSection {...children} />
 
-        <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        <Section name={sectionNames.layout}>
+          {hiddenPropertyView(children)}
+        </Section>
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+        </Section>
       </>
     ))
     .setExposeMethodConfigs(selectDivRefMethods)
     .build();
 })();
 
-export const SegmentedControlComp = withExposingConfigs(SegmentedControlBasicComp, [
-  new NameConfig("value", trans("selectInput.valueDesc")),
-  SelectInputInvalidConfig,
-  ...CommonNameConfig,
-]);
+export const SegmentedControlComp = withExposingConfigs(
+  SegmentedControlBasicComp,
+  [
+    new NameConfig("value", trans("selectInput.valueDesc")),
+    SelectInputInvalidConfig,
+    ...CommonNameConfig,
+  ]
+);
