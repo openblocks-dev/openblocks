@@ -47,6 +47,7 @@
   * [JavaScript query](build-apps/write-javascript/javascript-query.md)
   * [Transformers](build-apps/write-javascript/transformers.md)
   * [Temporary state](build-apps/write-javascript/temporary-state.md)
+  * [Data responder](build-apps/write-javascript/data-responder.md)
   * [Built-in JavaScript functions](build-apps/write-javascript/built-in-javascript-functions.md)
   * [Use third-party libraries](build-apps/use-third-party-libraries.md)
 * [Component guides](build-apps/component-guides/README.md)
