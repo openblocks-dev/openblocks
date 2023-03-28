@@ -28,7 +28,7 @@ import {
   SelectInputValidationSection,
   useSelectInputValidate,
 } from "./selectInputConstants";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames, ControlNode } from "openblocks-design";
 import {
   hiddenPropertyView,
   disabledPropertyView,
@@ -154,7 +154,7 @@ export const SegmentedControlBasicComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.options.propertyView({})}
+          {children.options.propertyView({}) as ControlNode}
           {children.value.propertyView({ label: trans("prop.defaultValue") })}
         </Section>
         <FormDataPropertyView {...children} />
