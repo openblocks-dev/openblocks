@@ -4,7 +4,7 @@ Every developer learns one of the most important principles of software engineer
 
 ## Built-in libraries
 
-Openblocks provides some JavaScript built-in libraries for use:
+Openblocks provides some JavaScript built-in libraries for use.
 
 | Library   | Docs                                                                 | Version                    |
 | --------- | -------------------------------------------------------------------- | -------------------------- |
@@ -14,9 +14,9 @@ Openblocks provides some JavaScript built-in libraries for use:
 | numbro    | [https://numbrojs.com/format.html](https://numbrojs.com/format.html) | 2.3.6                      |
 | papaparse | [https://www.papaparse.com/docs](https://www.papaparse.com/docs)     | 5.3.2                      |
 
-## Manually import libraries
+## Manually import third-party libraries
 
-Openblocks supports setting up preloaded JavaScript and libraries which can be **app-level** or **workspace-level**.
+Openblocks supports setting up preloaded JavaScript and libraries which can be at **app-level** or **workspace-level**.
 
 * **App-level** libraries **** get loaded only in the app where defined. Plus, app A cannot use libraries that are set up for app B.
 * **Workspace-level** libraries **** will be loaded when you open any application in your workspace. All the apps can access those libraries. There can be a certain impact on app performance, especially when you have complex JavaScript functions that aren't being used in every app.
@@ -57,35 +57,29 @@ Openblocks supports setting up preloaded JavaScript and libraries which can be *
     <mark style="background-color:yellow;">`MutationObserver`</mark>
 {% endhint %}
 
-\
-Now let's take [<mark style="color:blue;">**cowsay**</mark>](https://github.com/piuccio/cowsay) as an example and import it on app-level and workspace-level.
+Now let's take **cowsay** as an example and import it at app-level and workspace-level.
 
-Library link:
+* GitHub page: [https://github.com/piuccio/cowsay](https://github.com/piuccio/cowsay)
+* Library link: [https://unpkg.com/cowsay@1.5.0/build/cowsay.umd.js](https://unpkg.com/cowsay@1.5.0/build/cowsay.umd.js)
 
-```url
-https://unpkg.com/cowsay@1.5.0/build/cowsay.umd.js
-```
+### At app-level
 
-### Import on App-level
+Navigate to the settings page and then click the plus sign **+** under the **JavaScript library** tab. Paste the **cowsay** link and click **Add New**. You can also click the download icon to quickly download any recommended JS library.
 
-Navigate to the left sidebar, click <img src="../.gitbook/assets/image (1).png" alt="" data-size="line"> > **Other** > **Scripts and style** > **Add a library**. Then paste the **cowsay** link here.
+<figure><img src="../.gitbook/assets/third-party-lib-1.png" alt=""><figcaption></figcaption></figure>
 
-<figure><img src="../.gitbook/assets/Add a library (1) (1) (1) (1) (1) (1) (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
+Create a JS query and insert code.
 
-Now you can write code in **JS query** to test its usage with `cowsay.say`:
+<figure><img src="../.gitbook/assets/third-party-lib-2.png" alt=""><figcaption></figcaption></figure>
 
-<figure><img src="../.gitbook/assets/write code in JS query (1) (1) (1) (1) (1) (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
+You can obtain the same result by calling the `cowsay.say()` method in the value of the text component.
 
-or in component **Properties**:
+<figure><img src="../.gitbook/assets/third-party-lib-3.png" alt=""><figcaption></figcaption></figure>
 
-<figure><img src="../.gitbook/assets/or in Properties (1) (1) (1) (1) (1) (1) (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
+Note that the cowsay library is imported at app-level and you can not use it in any other app within your workspace.
 
-And since you have set up cowsay just for **Openblocks's new application 1,** you can not use cowsay in another app.
+### At workspace-level
 
-<figure><img src="../.gitbook/assets/in another app (1) (1) (1) (1) (1) (1) (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
+Go to [Opneblocks homepage](https://cloud.openblocks.dev/), select **Settings** > **Advanced**, and then click **Add** under the **JavaScript library** tab. Paste the link of the third-party JS library and click **Add New** to add it to your workspace. You can also click the download icon to quickly add any recommended JS library. The installed libraries are accessible from any app within your workspace.
 
-### Import on Workspace-level
-
-On Openblocks homepage, go to **Settings** > **Advanced** > **JavaScript library**. Click **+ Add a library**, paste the **cowsay** link here and click **Save**. Then you can use **cowsay** library **** in any app of your workspace.
-
-<figure><img src="../.gitbook/assets/thirdparty library-5.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/third-party-lib-4.png" alt=""><figcaption></figcaption></figure>
