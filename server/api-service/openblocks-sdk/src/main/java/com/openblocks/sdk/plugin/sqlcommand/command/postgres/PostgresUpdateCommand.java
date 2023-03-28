@@ -14,7 +14,7 @@ import com.openblocks.sdk.exception.PluginException;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.ChangeSet;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.ChangeSetRow;
 import com.openblocks.sdk.plugin.sqlcommand.command.UpdateCommand;
-import com.openblocks.sdk.plugin.sqlcommand.command.UpdateOrDeleteSingleCommandResult;
+import com.openblocks.sdk.plugin.sqlcommand.command.UpdateOrDeleteSingleCommandRenderResult;
 import com.openblocks.sdk.plugin.sqlcommand.filter.FilterSet;
 import com.openblocks.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
@@ -54,13 +54,13 @@ public class PostgresUpdateCommand extends UpdateCommand {
         appendTable(renderedTable, updateSql);
         appendSet(updateRow, updateSql, updateBindParams);
         if (filterSet.isEmpty()) {
-            return new UpdateOrDeleteSingleCommandResult(selectSql.toString(), selectBindParams, updateSql.toString(), updateBindParams);
+            return new UpdateOrDeleteSingleCommandRenderResult(selectSql.toString(), selectBindParams, updateSql.toString(), updateBindParams);
         }
 
         appendFilter(requestMap, updateSql, updateBindParams);
         // there is no limit 1 here
 
-        return new UpdateOrDeleteSingleCommandResult(selectSql.toString(), selectBindParams, updateSql.toString(), updateBindParams);
+        return new UpdateOrDeleteSingleCommandRenderResult(selectSql.toString(), selectBindParams, updateSql.toString(), updateBindParams);
 
     }
 

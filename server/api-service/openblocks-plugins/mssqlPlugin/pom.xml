@@ -33,6 +33,12 @@
             <artifactId>mssql-jdbc</artifactId>
             <version>10.2.1.jre11</version>
         </dependency>
+        <dependency>
+            <groupId>com.openblocks</groupId>
+            <artifactId>sqlBasedPlugin</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>
@@ -46,17 +52,6 @@
             <artifactId>mssqlserver</artifactId>
             <version>1.16.3</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>5.0.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>

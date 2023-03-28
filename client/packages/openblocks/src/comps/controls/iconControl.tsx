@@ -14,6 +14,7 @@ import {
 } from "openblocks-core";
 import {
   BlockGrayLabel,
+  controlItem,
   ControlPropertyViewWrapper,
   DeleteInputIcon,
   iconPrefix,
@@ -24,6 +25,7 @@ import {
   SwitchWrapper,
   TacoButton,
   useIcon,
+  wrapperToControlItem,
 } from "openblocks-design";
 import { ReactNode, useCallback, useState } from "react";
 import styled from "styled-components";
@@ -237,7 +239,7 @@ export class IconControl extends AbstractComp<ReactNode, string, Node<ValueAndMs
     return customAction<ChangeModeAction>({ useCodeEditor: !this.useCodeEditor }, true);
   }
 
-  propertyView(params: ControlParams): ReactNode {
+  propertyView(params: ControlParams) {
     const jsContent = (
       <SwitchJsIcon
         checked={this.useCodeEditor}
@@ -245,14 +247,15 @@ export class IconControl extends AbstractComp<ReactNode, string, Node<ValueAndMs
       />
     );
     if (this.useCodeEditor) {
-      return (
+      return controlItem(
+        { filterText: params.label },
         <Wrapper>
           <SwitchWrapper label={params.label} tooltip={params.tooltip} lastNode={jsContent} />
           {this.useCodeEditor && <IconCodeEditor codeControl={this.codeControl} params={params} />}
         </Wrapper>
       );
     }
-    return (
+    return wrapperToControlItem(
       <ControlPropertyViewWrapper {...params} lastNode={jsContent}>
         {!this.useCodeEditor && (
           <IconPicker

@@ -12,6 +12,7 @@ import {
 } from "comps/utils/propertyUtils";
 import {
   CommonBlueLabel,
+  controlItem,
   Dropdown,
   Section,
   sectionNames,
@@ -90,12 +91,14 @@ function getFormEventHandlerPropertyView(
 
 class SelectFormControl extends SimpleNameComp {
   override getPropertyView() {
-    return (
+    const label = trans("button.formToSubmit");
+    return controlItem(
+      { filterText: label },
       <EditorContext.Consumer>
         {(editorState) => (
           <>
             <Dropdown
-              label={trans("button.formToSubmit")}
+              label={label}
               value={this.value}
               options={getFormOptions(editorState)}
               onChange={(value) => this.dispatchChangeValueAction(value)}
@@ -185,15 +188,13 @@ const ButtonTmpComp = (function () {
             label: trans("prop.type"),
             radioButton: true,
           })}
-          {isDefault(children.type.getView()) ? (
-            <>
-              {children.onEvent.getPropertyView()}
-              {disabledPropertyView(children)}
-              {loadingPropertyView(children)}
-            </>
-          ) : (
-            children.form.getPropertyView()
-          )}
+          {isDefault(children.type.getView())
+            ? [
+                children.onEvent.getPropertyView(),
+                disabledPropertyView(children),
+                loadingPropertyView(children),
+              ]
+            : children.form.getPropertyView()}
         </Section>
 
         <Section name={sectionNames.layout}>

@@ -109,7 +109,11 @@ const ScannerTmpComp = (function () {
       if (typeof err === "string") {
         setErrMessage(err);
       } else {
-        setErrMessage(err.message);
+        if (err.message === "getUserMedia is not implemented in this browser") {
+          setErrMessage(trans("scanner.errTip"));
+        } else {
+          setErrMessage(err.message);
+        }
       }
       setSuccess(false);
     };

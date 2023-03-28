@@ -90,6 +90,9 @@ export function ThirdPartyAuth(props: {
   const configs = systemConfig.authConfigs;
   // auto redirect when only one login method
   const socialLoginButtons = configs.map((config) => {
+    if (props.autoJumpSource && config.sourceType !== props.autoJumpSource) {
+      return null;
+    }
     return (
       <ThirdPartyLoginButton
         authGoal={props.authGoal}

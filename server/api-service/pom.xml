@@ -25,6 +25,8 @@
         <project.version>1.0-SNAPSHOT</project.version>
         <skipDockerBuild>true</skipDockerBuild>
         <log4j2.version>2.17.0</log4j2.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
     <repositories>

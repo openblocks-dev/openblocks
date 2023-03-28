@@ -1,5 +1,5 @@
 import { ColorCodeControl } from "./codeControl";
-import { ColorSelect, ControlPropertyViewWrapper, IconDep } from "openblocks-design";
+import { ColorSelect, controlItem, ControlPropertyViewWrapper, IconDep } from "openblocks-design";
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
 import { ControlParams } from "./controlParams";
@@ -75,8 +75,11 @@ type PropertyViewParam = {
 };
 
 export class ColorControl extends ColorCodeControl {
-  propertyView(param: PropertyViewParam): React.ReactNode {
-    return <ColorItem param={param} controlThis={this} propertyView={super.propertyView} />;
+  propertyView(param: PropertyViewParam) {
+    return controlItem(
+      { filterText: param.label },
+      <ColorItem param={param} controlThis={this} propertyView={super.propertyView} />
+    );
   }
 }
 

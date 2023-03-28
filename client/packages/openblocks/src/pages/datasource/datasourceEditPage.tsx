@@ -242,7 +242,7 @@ export const DatasourceEditPage = () => {
                       )
                     }
                   >
-                    {!testLoading && trans("query.testConnection")}
+                    {trans("query.testConnection")}
                   </TacoButton>
                 )}
                 <TacoButton

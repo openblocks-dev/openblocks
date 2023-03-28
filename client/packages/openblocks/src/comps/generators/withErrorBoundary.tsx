@@ -5,18 +5,24 @@ import styled from "styled-components";
 
 const ErrorMsg = styled.div`
   padding: 8px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const ErrorView = (props: { msg: string; onReload: () => void }) => {
   return (
     <ErrorMsg>
-      {trans("errorBoundary.encounterError")}
-      <a type="button" onClick={props.onReload}>
-        {trans("errorBoundary.clickToReload")}
-      </a>
-      <br />
-      {trans("errorBoundary.errorMsg")}
-      {props.msg}
+      <div>
+        {trans("errorBoundary.encounterError")}
+        <a type="button" onClick={props.onReload}>
+          {trans("errorBoundary.clickToReload")}
+        </a>
+        <br />
+        {trans("errorBoundary.errorMsg")}
+        {props.msg}
+      </div>
     </ErrorMsg>
   );
 };

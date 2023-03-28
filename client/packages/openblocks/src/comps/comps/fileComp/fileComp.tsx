@@ -104,20 +104,18 @@ const commonChildren = {
   ...validationChildren,
 };
 
-const commonValidationFields = (children: RecordConstructorToComp<typeof validationChildren>) => (
-  <>
-    {children.minSize.propertyView({
-      label: trans("file.minSize"),
-      placeholder: "1kb",
-      tooltip: trans("file.minSizeTooltip"),
-    })}
-    {children.maxSize.propertyView({
-      label: trans("file.maxSize"),
-      placeholder: "10kb",
-      tooltip: trans("file.maxSizeTooltip"),
-    })}
-  </>
-);
+const commonValidationFields = (children: RecordConstructorToComp<typeof validationChildren>) => [
+  children.minSize.propertyView({
+    label: trans("file.minSize"),
+    placeholder: "1kb",
+    tooltip: trans("file.minSizeTooltip"),
+  }),
+  children.maxSize.propertyView({
+    label: trans("file.maxSize"),
+    placeholder: "10kb",
+    tooltip: trans("file.maxSizeTooltip"),
+  }),
+];
 
 const commonProps = (
   props: RecordConstructorToView<typeof commonChildren> & {
@@ -399,11 +397,9 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => (
       </Section>
 
       <Section name={sectionNames.validation}>
-        <>
-          {children.uploadType.getView() !== "single" &&
-            children.maxFiles.propertyView({ label: trans("file.maxFiles") })}
-          {commonValidationFields(children)}
-        </>
+        {children.uploadType.getView() !== "single" &&
+          children.maxFiles.propertyView({ label: trans("file.maxFiles") })}
+        {commonValidationFields(children)}
       </Section>
 
       <Section name={sectionNames.layout}>
@@ -429,6 +425,7 @@ FileTmpComp = withMethodExposing(FileTmpComp, [
         multiChangeAction({
           value: changeValueAction([], false),
           files: changeValueAction([], false),
+          parsedValue: changeValueAction([], false),
         })
       ),
   },

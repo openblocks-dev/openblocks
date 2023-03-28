@@ -29,6 +29,7 @@ import { Fragment, useEffect } from "react";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { handlePromiseAndDispatch } from "util/promiseUtils";
 import { trans } from "i18n";
+import { controlItem } from "openblocks-design";
 
 export enum InputTypeEnum {
   Data = "data",
@@ -131,7 +132,7 @@ class InputCompWithMethods extends InputCompBase {
 
   getTestView() {
     const { name } = this.getView();
-    return <TestView key={name} itemComp={this} />;
+    return controlItem({ filterText: name }, <TestView key={name} itemComp={this} />);
   }
 
   private internalReduce(action: CompAction): this {

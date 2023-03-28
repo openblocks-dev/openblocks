@@ -195,7 +195,7 @@ function Option<T extends ConstructorToComp<MultiCompConstructor>>(props: {
   onCopy?: (comp: T) => void;
   onMove: (fromIndex: number, toIndex: number) => void;
   content: (comp: T, index: number) => React.ReactNode | JSX.Element;
-  itemTitle: (comp: T) => string;
+  itemTitle: (comp: T) => JSX.Element | string;
   popoverTitle: (comp: T) => string;
   dataIndex: (comp: T) => string;
   // unique value for deduplication
@@ -239,7 +239,7 @@ function Option<T extends ConstructorToComp<MultiCompConstructor>>(props: {
       {optionToolbar ? (
         optionToolbar
       ) : (
-        <AddLine title={props.title || trans("optionsControl.optionList")} add={props.onAdd} />
+        <AddLine title={props.title} add={props.onAdd} />
       )}
       {items.length > 0 || headerItem ? (
         <OptionDiv>

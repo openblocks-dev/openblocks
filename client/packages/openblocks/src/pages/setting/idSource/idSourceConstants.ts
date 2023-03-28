@@ -1,3 +1,4 @@
+import { DefaultOptionType } from "antd/lib/select";
 import { trans } from "i18n";
 
 export enum AuthType {
@@ -8,28 +9,14 @@ export enum AuthType {
 
 export const IdSource = [AuthType.Google, AuthType.Github, AuthType.Form];
 
-export const validatorOptions = [
-  {
-    label: "CAS_30_SERVICE_TICKET_VALIDATOR",
-    value: "CAS_30_SERVICE_TICKET_VALIDATOR",
-  },
-  {
-    label: "CAS_30_JSON_SERVICE_TICKET_VALIDATOR",
-    value: "CAS_30_JSON_SERVICE_TICKET_VALIDATOR",
-  },
-  {
-    label: "CAS_20_SERVICE_TICKET_VALIDATOR",
-    value: "CAS_20_SERVICE_TICKET_VALIDATOR",
-  },
-  {
-    label: "CAS_10_TICKET_VALIDATOR",
-    value: "CAS_10_TICKET_VALIDATOR",
-  },
-];
+export const validatorOptions = [];
 
 export const clientIdandSecretConfig = {
   clientId: "Client ID",
-  clientSecret: "Client secret",
+  clientSecret: {
+    label: "Client secret",
+    isPassword: true,
+  },
 };
 
 export const authConfig = {
@@ -45,7 +32,7 @@ export const authConfig = {
     sourceName: "Google",
     form: clientIdandSecretConfig,
   },
-} as { [key: string]: { sourceName: string; form: { [k: string]: string } } };
+} as { [key: string]: { sourceName: string; form: FormItemType } };
 
 export const FreeTypes = [AuthType.Google, AuthType.Github, AuthType.Form];
 
@@ -54,3 +41,41 @@ export const authTypeDisabled = (type: AuthType, enableEnterpriseLogin?: boolean
 };
 
 export const ManualSyncTypes: Array<AuthType> = [];
+
+export type ListForm = {
+  template?: FormItemType;
+  ldapsearch?: FormItemType;
+}
+
+export type ItemType = {
+  label: string;
+  options?: DefaultOptionType[];
+  isList?: boolean;
+  isRequire?: boolean;
+  isPassword?: boolean;
+  hasLock?: boolean;
+  tip?: string;
+}
+
+export type FormItemType = {
+  clientId?: string;
+  clientSecret?: ItemType;
+  loginUri?: string;
+  prefixUri?: string;
+  source?: ItemType;
+  sourceName?: ItemType;
+  validator?: ItemType;
+  url?: string;
+  subType?: ItemType;
+  distinguishedNameTemplate?: ItemType;
+  searchBase?: ItemType;
+  filter?: ItemType;
+  bindDn?: ItemType;
+  password?: ItemType;
+  idAttribute?: ItemType;
+  domainPrefix?: string;
+  authServerId?: string;
+  publicKey?: ItemType;
+  domain?: string;
+  realm?: string;
+};

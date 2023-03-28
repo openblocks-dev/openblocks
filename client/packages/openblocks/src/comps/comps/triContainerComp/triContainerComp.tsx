@@ -21,6 +21,7 @@ import {
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
+import { ControlNode } from "openblocks-design";
 
 const childrenMap = {
   header: SimpleContainerComp,
@@ -107,23 +108,16 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
     return lastValueIfEqual(this, "exposing_node", fromRecord(allNodes), checkEquals);
   }
 
-  getPropertyView(): ReactNode {
-    return (
-      <>
-        {this.areaPropertyView()}
-        {this.heightPropertyView()}
-      </>
-    );
+  getPropertyView(): ControlNode {
+    return [this.areaPropertyView(), this.heightPropertyView()];
   }
 
   areaPropertyView() {
-    return (
-      <>
-        {this.children.showHeader.propertyView({ label: trans("prop.showHeader") })}
-        {this.children.showBody.propertyView({ label: trans("prop.showBody") })}
-        {this.children.showFooter.propertyView({ label: trans("prop.showFooter") })}
-      </>
-    );
+    return [
+      this.children.showHeader.propertyView({ label: trans("prop.showHeader") }),
+      this.children.showBody.propertyView({ label: trans("prop.showBody") }),
+      this.children.showFooter.propertyView({ label: trans("prop.showFooter") }),
+    ];
   }
 
   heightPropertyView() {
@@ -131,7 +125,7 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
   }
 
   stylePropertyView() {
-    return <>{this.children.style.getPropertyView()}</>;
+    return this.children.style.getPropertyView();
   }
 }
 

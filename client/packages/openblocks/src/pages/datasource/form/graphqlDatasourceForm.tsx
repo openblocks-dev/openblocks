@@ -16,6 +16,7 @@ import {
   CertValidationFormItem,
   DatasourceNameFormInputItem,
   encryptedPlaceholder,
+  ForwardCookiesFormItem,
   GeneralSettingFormSectionLabel,
 } from "../form";
 import { DatasourceFormProps } from "./datasourceFormRegistry";
@@ -143,6 +144,7 @@ export const GraphqlDatasourceForm = (props: DatasourceFormProps) => {
       <FormSection size={props.size}>
         <AdvancedSettingFormSectionLabel />
         <CertValidationFormItem datasource={props.datasource} />
+        <ForwardCookiesFormItem datasource={props.datasource} />
       </FormSection>
     </DatasourceForm>
   );

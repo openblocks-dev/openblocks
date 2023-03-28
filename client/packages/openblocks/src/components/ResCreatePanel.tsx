@@ -23,6 +23,7 @@ import { Upload } from "antd";
 import { useSelector } from "react-redux";
 import { getUser } from "../redux/selectors/usersSelectors";
 import DataSourceIcon from "./DataSourceIcon";
+import { genRandomKey } from "comps/utils/idGenerator";
 
 const Wrapper = styled.div<{ placement: PageType }>`
   width: 100%;
@@ -103,6 +104,7 @@ const ResButton = (props: {
     | BottomResTypeEnum.TempState
     | BottomResTypeEnum.Transformer
     | BottomResTypeEnum.DateResponder
+    | BottomResTypeEnum.Folder
     | Datasource;
 }) => {
   let label = "";
@@ -115,57 +117,86 @@ const ResButton = (props: {
       }
     />
   );
-  if (props.identifier === BottomResTypeEnum.TempState) {
-    label = trans("query.tempState");
-    handleClick = () => props.onSelect(BottomResTypeEnum.TempState);
-  } else if (props.identifier === BottomResTypeEnum.DateResponder) {
-    label = trans("query.dataResponder");
-    handleClick = () => props.onSelect(BottomResTypeEnum.DateResponder);
-  } else if (props.identifier === BottomResTypeEnum.Transformer) {
-    label = trans("query.transformer");
-    handleClick = () => props.onSelect(BottomResTypeEnum.Transformer);
-  } else if (props.identifier === "js") {
-    label = trans("query.executeJSCode");
-    handleClick = () =>
-      props.onSelect(BottomResTypeEnum.Query, {
+  const data: any = {
+    [BottomResTypeEnum.TempState]: {
+      label: trans("query.tempState"),
+      type: BottomResTypeEnum.TempState,
+    },
+    [BottomResTypeEnum.Transformer]: {
+      label: trans("query.transformer"),
+      type: BottomResTypeEnum.Transformer,
+    },
+    [BottomResTypeEnum.DateResponder]: {
+      label: trans("query.dataResponder"),
+      type: BottomResTypeEnum.DateResponder,
+    },
+    [BottomResTypeEnum.Folder]: {
+      label: trans("query.folder"),
+      type: BottomResTypeEnum.Folder,
+      extra: () => {
+        return {
+          id: genRandomKey(),
+        };
+      },
+    },
+    js: {
+      label: trans("query.executeJSCode"),
+      type: BottomResTypeEnum.Query,
+      extra: {
         compType: "js",
-      });
-  } else if (props.identifier === "libraryQuery") {
-    label = trans("query.importFromQueryLibrary");
-    handleClick = () =>
-      props.onSelect(BottomResTypeEnum.Query, {
+      },
+    },
+    libraryQuery: {
+      label: trans("query.importFromQueryLibrary"),
+      type: BottomResTypeEnum.Query,
+      extra: {
         compType: "libraryQuery",
-      });
-  } else if (props.identifier === "restApi") {
-    label = trans("query.quickRestAPI");
-    handleClick = () =>
-      props.onSelect(BottomResTypeEnum.Query, {
+      },
+    },
+    restApi: {
+      label: trans("query.quickRestAPI"),
+      type: BottomResTypeEnum.Query,
+      extra: {
         compType: "restApi",
         dataSourceId: QUICK_REST_API_ID,
-      });
-  } else if (props.identifier === "graphql") {
-    label = trans("query.quickGraphql");
-    handleClick = () =>
-      props.onSelect(BottomResTypeEnum.Query, {
+      },
+    },
+    graphql: {
+      label: trans("query.quickGraphql"),
+      type: BottomResTypeEnum.Query,
+      extra: {
         compType: "graphql",
         dataSourceId: QUICK_GRAPHQL_ID,
-      });
-  } else if (props.identifier === "openblocksApi") {
-    label = OPENBLOCKS_API_INFO.name;
-    handleClick = () =>
-      props.onSelect(BottomResTypeEnum.Query, {
+      },
+    },
+    openblocksApi: {
+      icon: OPENBLOCKS_API_INFO.icon,
+      label: OPENBLOCKS_API_INFO.name,
+      type: BottomResTypeEnum.Query,
+      extra: {
         compType: "openblocksApi",
         dataSourceId: OPENBLOCKS_API_ID,
-      });
-    icon = OPENBLOCKS_API_INFO.icon;
-  } else if (typeof props.identifier === "object") {
+      },
+    },
+  };
+
+  if (typeof props.identifier === "object") {
     const identifier = props.identifier;
     label = identifier.name;
-    handleClick = () =>
+    handleClick = () => {
       props.onSelect(BottomResTypeEnum.Query, {
         compType: identifier.type,
         dataSourceId: identifier.id,
       });
+    };
+  } else if (data[props.identifier]) {
+    const info = data[props.identifier];
+    icon = info.icon ?? icon;
+    label = info.label;
+    handleClick = () => {
+      const extra = typeof info.extra === "function" ? info.extra() : info.extra;
+      props.onSelect(info.type, extra);
+    };
   }
 
   return (
@@ -217,25 +248,16 @@ export function ResCreatePanel(props: ResCreateModalProps) {
       <Content>
         <ScrollBar scrollableNodeProps={{ onScroll: handleScroll }}>
           <InnerContent>
-            {recentlyUsed.length > 0 && (
-              <>
-                <div className="section-title">{trans("query.recentlyUsed")}</div>
-                <div ref={ref} className="section">
-                  <DataSourceListWrapper placement={placement}>
-                    {_.uniq(recentlyUsed)
-                      .slice(0, count)
-                      .map((id, idx) => (
-                        <ResButton
-                          key={idx}
-                          size={buttonSize}
-                          identifier={id}
-                          onSelect={onSelect}
-                        />
-                      ))}
-                  </DataSourceListWrapper>
-                </div>
-              </>
-            )}
+            <div className="section-title">{trans("query.recentlyUsed")}</div>
+            <div ref={ref} className="section">
+              <DataSourceListWrapper placement={placement}>
+                {_.uniq(recentlyUsed)
+                  .slice(0, count)
+                  .map((id, idx) => (
+                    <ResButton key={idx} size={buttonSize} identifier={id} onSelect={onSelect} />
+                  ))}
+              </DataSourceListWrapper>
+            </div>
 
             {placement === "editor" && (
               <>
@@ -259,6 +281,11 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                     />
                     <ResButton size={buttonSize} identifier={"js"} onSelect={onSelect} />
                     <ResButton size={buttonSize} identifier={"libraryQuery"} onSelect={onSelect} />
+                    <ResButton
+                      size={buttonSize}
+                      identifier={BottomResTypeEnum.Folder}
+                      onSelect={onSelect}
+                    />
                   </DataSourceListWrapper>
                 </div>
               </>

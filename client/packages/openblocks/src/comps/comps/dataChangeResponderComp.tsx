@@ -21,8 +21,6 @@ import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { QueryTutorials } from "util/tutorialUtils";
 import { SimpleNameComp } from "./simpleNameComp";
 
-const DataResponderCompType = "dataResponder";
-
 const dataChangeEvent: EventConfigType = {
   label: "onDataChange",
   value: "dataChange",
@@ -88,6 +86,9 @@ class DataChangeResponderAsBottomRes extends DataResponderItemCompBase implement
   type(): BottomResTypeEnum {
     return BottomResTypeEnum.DateResponder;
   }
+  id(): string {
+    return this.name();
+  }
   name(): string {
     return this.children.name.getView();
   }
@@ -132,7 +133,7 @@ export const DataChangeResponderItemComp = withExposingConfigs(DataChangeRespond
 
 export const DataChangeResponderListComp = bottomResListComp(
   DataChangeResponderItemComp,
-  DataResponderCompType,
+  BottomResTypeEnum.DateResponder,
   {
     data: "",
   }

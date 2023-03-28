@@ -13,6 +13,7 @@ import { ResCreatePanel } from "components/ResCreatePanel";
 import { trans } from "i18n";
 import { getDataSource } from "redux/selectors/datasourceSelectors";
 import { useMetaData } from "util/hooks";
+import { message } from "antd";
 
 const Container = styled.div`
   width: 100%;
@@ -67,31 +68,38 @@ export const BottomContent = () => {
   const queryItems = editorState.getQueriesComp().getView();
   const tempStateItems = editorState.getTempStatesComp().getView();
   const transformerItems = editorState.getTransformersComp().getView();
+  const folderItems = editorState.getFoldersComp().getView();
+  const dataResponderItems = editorState.getDataRespondersComp().getView();
+  const isFolderSelected = editorState.selectedBottomResType === BottomResTypeEnum.Folder;
+  const refTreeComp = editorState.rootComp.children.refTree;
 
   const bottomResItems = [
     ...queryItems,
     ...tempStateItems,
     ...transformerItems,
+    ...folderItems,
+    ...dataResponderItems,
   ] as unknown as BottomResComp[];
 
-  bottomResItems.sort((a, b) => a.order() - b.order());
-  const recentlyUsed = bottomResItems
-    .reverse()
-    .map((i) => {
-      if (i.type() === BottomResTypeEnum.Query) {
-        const dsi = datasourceInfos.find(
-          (info) => info.datasource.id === (i as any).children.datasourceId?.getView()
-        );
-        return dsi?.datasource || (i as any).children.compType?.getView();
-      }
-      return i.type();
-    })
-    .filter((i) => !!i);
+  const recentlyUsed = bottomResItems.reverse().map((i) => {
+    if (i.type() === BottomResTypeEnum.Query) {
+      const dsi = datasourceInfos.find(
+        (info) => info.datasource.id === (i as any).children.datasourceId?.getView()
+      );
+      return dsi?.datasource || (i as any).children.compType?.getView();
+    }
+    return i.type();
+  });
 
   const handleAdd = (type: BottomResTypeEnum, extraInfo?: any) => {
     const listComp = editorState.getBottomResListComp(type);
-    listComp.add(editorState, extraInfo);
+    const id = listComp.add(editorState, extraInfo);
     showCreatePanel(false);
+
+    const isFolder = type === BottomResTypeEnum.Folder;
+    const parent = isFolderSelected && !isFolder ? editorState.selectedBottomResName : "";
+    const index = isFolder ? folderItems.length : undefined;
+    editorState.rootComp.children.refTree.appendRef(parent, id, index);
   };
 
   const handleCopy = (type: BottomResTypeEnum, name: string) => {
@@ -101,12 +109,23 @@ export const BottomContent = () => {
 
   const handleDelete = (type: BottomResTypeEnum, name: string) => {
     const listComp = editorState.getBottomResListComp(type);
+    if (type === BottomResTypeEnum.Folder && refTreeComp.hasChildren(name)) {
+      message.error(trans("query.folderNotEmpty"));
+      return false;
+    }
     listComp.delete(name);
+    return true;
+  };
+
+  const handleSelect = (type: BottomResTypeEnum, name: string) => {
+    const listComp = editorState.getBottomResListComp(type);
+    listComp.select(editorState, name);
   };
 
   useEffect(() => {
     editorState.selectedBottomResName && showCreatePanel(false);
-  }, [editorState.selectedBottomResName]);
+  }, [editorState.selectedBottomResName, showCreatePanel]);
+
   // keep reference unchanged when metaData unchange, avoid re-configure when auto-completion changes
   const selectedDatasourceId =
     editorState.selectedQueryComp()?.children.datasourceId.getView() || "";
@@ -115,9 +134,11 @@ export const BottomContent = () => {
     <Container className={editorBottomClassName}>
       <Left>
         <BottomLeft
+          items={bottomResItems}
           onOpenCreatePanel={() => showCreatePanel(true)}
           onDelete={handleDelete}
           onCopy={handleCopy}
+          onSelect={handleSelect}
         />
       </Left>
       <Drag />
@@ -130,7 +151,7 @@ export const BottomContent = () => {
               {selectedComp ? selectedComp.getPropertyView() : EmptyQuery}
             </CompNameContext.Provider>
           </MetaDataContext.Provider>
-          {isCreatePanelShow && (
+          {(isCreatePanelShow || isFolderSelected) && (
             <ResCreatePanel
               recentlyUsed={recentlyUsed}
               datasource={datasourceInfos
@@ -149,36 +170,26 @@ export const BottomContent = () => {
 interface BottomLeftProps {
   onOpenCreatePanel: () => void;
   onCopy: (type: BottomResTypeEnum, name: string) => void;
-  onDelete: (type: BottomResTypeEnum, name: string) => void;
+  onDelete: (type: BottomResTypeEnum, name: string) => boolean;
+  onSelect: (type: BottomResTypeEnum, name: string) => void;
+  items: BottomResComp[];
 }
 
 function BottomLeft(props: BottomLeftProps) {
-  const { onOpenCreatePanel, onCopy, onDelete } = props;
+  const { items, onOpenCreatePanel, onCopy, onSelect, onDelete } = props;
   const editorState = useContext(EditorContext);
   const selectedDataSourceId = editorState.selectedQueryComp()?.children.datasourceId.getView();
   const selectedQueryType = editorState.selectedQueryComp()?.children.compType.getView();
 
-  const queryItems = editorState.getQueriesComp().getView();
-  const tempStateItems = editorState.getTempStatesComp().getView();
-  const transformerItems = editorState.getTransformersComp().getView();
-  const dataChangeResponders = editorState.getDataRespondersComp().getView();
-
-  const bottomResItems = [
-    ...queryItems,
-    ...tempStateItems,
-    ...transformerItems,
-    ...dataChangeResponders,
-  ] as unknown as BottomResComp[];
-
-  bottomResItems.sort((a, b) => a.order() - b.order());
-
   return (
     <>
       <BottomSidebar
+        refTreeComp={editorState.rootComp.children.refTree}
         dataSourceId={selectedDataSourceId}
-        items={bottomResItems}
+        items={items}
         onCopy={onCopy}
         onDelete={onDelete}
+        onSelect={onSelect}
         onOpenCreatePanel={onOpenCreatePanel}
       />
       {selectedDataSourceId && selectedQueryType && (

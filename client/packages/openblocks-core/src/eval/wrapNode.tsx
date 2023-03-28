@@ -47,6 +47,7 @@ export class WrapNode<T> extends AbstractNode<T> {
     return this.delegate.evaluate(this.wrap(exposingNodes, methods), this.moduleExposingMethods);
   }
 
+  @memoized()
   override fetchInfo(exposingNodes: Record<string, Node<unknown>>) {
     return this.delegate.fetchInfo(this.wrap(exposingNodes, {}));
   }

@@ -1,30 +1,35 @@
 import { trans } from "i18n/design";
-import { useContext, useState } from "react";
+import React, { ReactNode, useContext } from "react";
 import styled from "styled-components";
 import { ReactComponent as Packup } from "icons/icon-Pack-up.svg";
 import { labelCss } from "./Label";
-import React from "react";
+import { controlItem, ControlNode } from "./control";
 
 const SectionItem = styled.div<{ width?: number }>`
   width: ${(props) => (props.width ? props.width : 312)}px;
   border-bottom: 1px solid #e1e3eb;
+
   &:last-child {
     border-bottom: none;
   }
 `;
-const Sectionlabel = styled.span`
+const SectionLabel = styled.div`
   ${labelCss};
+  flex-grow: 1;
   font-size: 14px;
   color: #8b8fa3;
   line-height: 46px;
   font-weight: 600;
+
   :hover {
     cursor: pointer;
   }
 `;
+
 interface Irotate {
   deg: string;
 }
+
 const PackupIcon = styled(Packup)<Irotate>`
   height: 20px;
   width: 20px;
@@ -33,20 +38,26 @@ const PackupIcon = styled(Packup)<Irotate>`
   margin-right: 16px;
   color: #8b8fa3;
   transform: ${(props) => props.deg};
+
   :hover {
     cursor: pointer;
   }
 `;
 
-const SectionlabelDiv = styled.div`
+const SectionLabelDiv = styled.div`
+  display: flex;
+  justify-content: space-between;
   height: 46px;
   margin-left: 16px;
+
   :hover {
     cursor: pointer;
   }
-  &:hover ${Sectionlabel} {
+
+  &:hover ${SectionLabel} {
     color: #222222;
   }
+
   &:hover ${PackupIcon} path {
     fill: #222222;
   }
@@ -62,12 +73,13 @@ const ShowChildren = styled.div<{ show?: string; noMargin?: boolean }>`
   padding-right: ${(props) => (props.noMargin ? 0 : "16px")};
 `;
 
-interface ISectionConfig {
+interface ISectionConfig<T> {
   name?: string;
   width?: number;
   noMargin?: boolean;
   style?: React.CSSProperties;
-  children: any;
+  children: T;
+  additionalButton?: React.ReactNode;
 }
 
 export interface PropertySectionState {
@@ -88,7 +100,7 @@ export const PropertySectionContext = React.createContext<PropertySectionContext
   state: {},
 });
 
-export const Section = (props: ISectionConfig) => {
+export const BaseSection = (props: ISectionConfig<ReactNode>) => {
   const { name } = props;
   const { compName, state, toggle } = useContext(PropertySectionContext);
   const open = name ? state[compName]?.[name] !== false : true;
@@ -103,10 +115,13 @@ export const Section = (props: ISectionConfig) => {
   return (
     <SectionItem width={props.width} style={props.style}>
       {props.name && (
-        <SectionlabelDiv onClick={handleToggle}>
-          <Sectionlabel>{props.name}</Sectionlabel>
-          <PackupIcon deg={open ? "rotate(0deg)" : "rotate(180deg)"} />
-        </SectionlabelDiv>
+        <SectionLabelDiv onClick={handleToggle} className={"section-header"}>
+          <SectionLabel>{props.name}</SectionLabel>
+          <div style={{ display: "flex" }}>
+            {open && props.additionalButton}
+            <PackupIcon deg={open ? "rotate(0deg)" : "rotate(180deg)"} />
+          </div>
+        </SectionLabelDiv>
       )}
       <ShowChildren show={open ? "flex" : "none"} noMargin={props.noMargin}>
         {props.children}
@@ -114,6 +129,10 @@ export const Section = (props: ISectionConfig) => {
     </SectionItem>
   );
 };
+
+export function Section(props: ISectionConfig<ControlNode>) {
+  return controlItem({ filterText: props.name, searchChild: true }, <BaseSection {...props} />);
+}
 
 // common section names
 export const sectionNames = {

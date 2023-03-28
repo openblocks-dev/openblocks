@@ -29,7 +29,7 @@ import {
 import RightPanel from "pages/editor/right/RightPanel";
 import EditorTutorials from "pages/tutorials/editorTutorials";
 import { editorContentClassName, UserGuideLocationState } from "pages/tutorials/tutorialsConstant";
-import { useCallback, useContext, useLayoutEffect, useMemo, useState } from "react";
+import React, { useCallback, useContext, useLayoutEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
@@ -100,27 +100,18 @@ const HelpDiv = styled.div`
     right: auto;
     height: 28px;
     bottom: 36px;
-    cursor: pointer;
 
     > div.shortcutList {
       left: 42px;
       bottom: 2px;
     }
-
-    svg {
-      height: 26px;
-      width: 26px;
-      padding: 5px;
-
-      &:hover,
-      &:active {
-        background: #8b8fa37f;
-        border-radius: 4px;
-      }
-    }
   }
 `;
 const SettingsDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
   .ant-divider {
     margin: 16px 0;
     border-color: #e1e3eb;
@@ -357,8 +348,8 @@ function EditorView(props: EditorViewProps) {
             <LeftPanel>
               {menuKey === SiderKey.State && <LeftContent uiComp={uiComp} />}
               {menuKey === SiderKey.Setting && (
-                <ScrollBar>
-                  <SettingsDiv>
+                <SettingsDiv>
+                  <ScrollBar>
                     {application &&
                       !isAggregationApp(AppUILayoutType[application.applicationType]) && (
                         <>
@@ -376,8 +367,10 @@ function EditorView(props: EditorViewProps) {
                       <LeftPreloadIcon />
                       {trans("leftPanel.toolbarPreload")}
                     </PreloadDiv>
-                  </SettingsDiv>
-                </ScrollBar>
+                  </ScrollBar>
+
+                  {props.preloadComp.getJSLibraryPropertyView()}
+                </SettingsDiv>
               )}
             </LeftPanel>
           )}

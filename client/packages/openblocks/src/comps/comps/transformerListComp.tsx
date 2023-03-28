@@ -1,7 +1,7 @@
 import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
 import { codeControl, TransformerCodeControl } from "comps/controls/codeControl";
 import { EditorContext } from "comps/editorState";
-import { MultiCompBuilder, valueComp } from "comps/generators";
+import { MultiCompBuilder } from "comps/generators";
 import { bottomResListComp } from "comps/generators/bottomResList";
 import { withExposingRaw } from "comps/generators/withExposing";
 import { trans } from "i18n";
@@ -16,7 +16,6 @@ import { SimpleNameComp } from "./simpleNameComp";
 const TransformerItemCompBase = new MultiCompBuilder(
   {
     name: SimpleNameComp,
-    order: valueComp<number>(0),
     script: TransformerCodeControl,
   },
   (props) => props
@@ -78,12 +77,12 @@ class TransformerAsBottomRes extends TransformerItemCompBase implements BottomRe
     };
   }
 
-  order(): number {
-    return this.children.order.getView();
-  }
-
   type(): BottomResTypeEnum {
     return BottomResTypeEnum.Transformer;
+  }
+
+  id(): string {
+    return this.name();
   }
 
   name(): string {
@@ -108,6 +107,10 @@ const TransformerItemComp = withExposingRaw(
   }
 );
 
-export const TransformerListComp = bottomResListComp(TransformerItemComp, "transformer", {
-  script: "return currentUser.name",
-});
+export const TransformerListComp = bottomResListComp(
+  TransformerItemComp,
+  BottomResTypeEnum.Transformer,
+  {
+    script: "return currentUser.name",
+  }
+);

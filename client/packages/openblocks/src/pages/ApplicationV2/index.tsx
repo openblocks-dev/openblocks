@@ -98,6 +98,7 @@ const FolderNameWrapper = styled.div<{ selected: boolean }>`
   }}
   .ant-typography {
     max-width: 138px;
+    line-height: 16px;
   }
 
   :hover {

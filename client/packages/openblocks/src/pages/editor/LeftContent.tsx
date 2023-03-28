@@ -1,5 +1,6 @@
 import { CompInfo, EditorContext } from "comps/editorState";
 import {
+  BaseSection,
   Collapse,
   CollapseLabel as Label,
   CollapseTitle as Title,
@@ -10,7 +11,6 @@ import {
   LeftOpen,
   PadDiv,
   ScrollBar,
-  Section,
   Tooltip,
   UnfoldIcon,
   UnShow,
@@ -496,18 +496,18 @@ export const LeftContent = (props: LeftContentProps) => {
   const stateContent = (
     <ScrollBar>
       <div style={{ paddingBottom: 80 }}>
-        <Section name={trans("leftPanel.components")} width={288} noMargin>
+        <BaseSection name={trans("leftPanel.components")} width={288} noMargin>
           <span className={leftCompListClassName}>{uiCollapse}</span>
-        </Section>
-        <Section name={trans("leftPanel.modals")} width={288} noMargin>
+        </BaseSection>
+        <BaseSection name={trans("leftPanel.modals")} width={288} noMargin>
           <span>{modalsCollapse}</span>
-        </Section>
-        <Section name={trans("leftPanel.queries")} width={288} noMargin>
+        </BaseSection>
+        <BaseSection name={trans("leftPanel.queries")} width={288} noMargin>
           <span>{bottomResCollapse}</span>
-        </Section>
-        <Section name={trans("leftPanel.globals")} width={288} noMargin>
+        </BaseSection>
+        <BaseSection name={trans("leftPanel.globals")} width={288} noMargin>
           <span>{hookCompsCollapse}</span>
-        </Section>
+        </BaseSection>
       </div>
     </ScrollBar>
   );
@@ -528,9 +528,9 @@ export const LeftContent = (props: LeftContentProps) => {
         >
           <ScrollBar>
             <div style={{ paddingBottom: 80, paddingTop: 16 }}>
-              <Section width={288} noMargin>
+              <BaseSection width={288} noMargin>
                 <span>{moduleLayoutComp.getConfigView()}</span>
-              </Section>
+              </BaseSection>
             </div>
           </ScrollBar>
         </Tabs.TabPane>

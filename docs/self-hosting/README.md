@@ -155,8 +155,8 @@ For developers who require stateless containers in a cluster environment, we off
 Run the following commands to update services to the latest:
 
 ```bash
-docker-compose pull
-docker-compose up -d
+docker-compose -f docker-compose-multi.yml pull
+docker-compose -f docker-compose-multi.yml up -d
 ```
 
 ## Customize configurations

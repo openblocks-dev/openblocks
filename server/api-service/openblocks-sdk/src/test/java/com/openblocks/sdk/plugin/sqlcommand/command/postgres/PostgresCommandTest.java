@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import com.openblocks.sdk.plugin.sqlcommand.GuiSqlCommand.GuiSqlCommandRenderResult;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.BulkObjectChangeSet;
 import com.openblocks.sdk.plugin.sqlcommand.changeset.KeyValuePairChangeSet;
-import com.openblocks.sdk.plugin.sqlcommand.command.UpdateOrDeleteSingleCommandResult;
+import com.openblocks.sdk.plugin.sqlcommand.command.UpdateOrDeleteSingleCommandRenderResult;
 import com.openblocks.sdk.plugin.sqlcommand.filter.FilterSet;
 import com.openblocks.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
@@ -90,8 +90,8 @@ public class PostgresCommandTest {
                 updateSql);
         Assertions.assertThat(updateBindParams).isEqualTo(List.of());
 
-        Assert.assertTrue(renderResult instanceof UpdateOrDeleteSingleCommandResult);
-        var pgUpdateRenderResult = (UpdateOrDeleteSingleCommandResult) renderResult;
+        Assert.assertTrue(renderResult instanceof UpdateOrDeleteSingleCommandRenderResult);
+        var pgUpdateRenderResult = (UpdateOrDeleteSingleCommandRenderResult) renderResult;
         String selectQuery = pgUpdateRenderResult.getSelectQuery();
         List<Object> selectBindParams = pgUpdateRenderResult.getSelectBindParams();
 
@@ -127,8 +127,8 @@ public class PostgresCommandTest {
                         delete from user where "name" = $$jack$$ and "status" > 1 and "id" IN (1,2,3) and "phone" IS null\s""",
                 sql);
 
-        Assert.assertTrue(renderResult instanceof UpdateOrDeleteSingleCommandResult);
-        var pgUpdateRenderResult = (UpdateOrDeleteSingleCommandResult) renderResult;
+        Assert.assertTrue(renderResult instanceof UpdateOrDeleteSingleCommandRenderResult);
+        var pgUpdateRenderResult = (UpdateOrDeleteSingleCommandRenderResult) renderResult;
         String selectQuery = pgUpdateRenderResult.getSelectQuery();
         List<Object> selectBindParams = pgUpdateRenderResult.getSelectBindParams();
 

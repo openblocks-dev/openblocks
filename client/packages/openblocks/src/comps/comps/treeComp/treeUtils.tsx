@@ -4,7 +4,7 @@ import { jsonExposingStateControl, jsonStateControl } from "comps/controls/codeS
 import { NewChildren } from "comps/generators/uiCompBuilder";
 import { CommonNameConfig, NameConfig } from "comps/generators/withExposing";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
-import { Section, sectionNames } from "openblocks-design";
+import { ControlNode, Section, sectionNames } from "openblocks-design";
 import { trans } from "i18n";
 import { RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
 import { ReactNode, useEffect } from "react";
@@ -99,7 +99,7 @@ export const valuePropertyView = (children: TreeCommonComp) =>
 
 export const formSection = (children: TreeCommonComp) => <FormDataPropertyView {...children} />;
 
-export const expandSection = (children: TreeCommonComp, other?: ReactNode) => (
+export const expandSection = (children: TreeCommonComp, other?: ControlNode) => (
   <Section name={trans("prop.expand")}>
     {children.expanded.propertyView({ label: trans("tree.expanded") })}
     {children.defaultExpandAll.propertyView({ label: trans("tree.defaultExpandAll") })}
@@ -107,14 +107,14 @@ export const expandSection = (children: TreeCommonComp, other?: ReactNode) => (
   </Section>
 );
 
-export const intersectSection = (children: TreeCommonComp, onEvent?: ReactNode) => (
+export const intersectSection = (children: TreeCommonComp, onEvent?: ControlNode) => (
   <Section name={sectionNames.interaction}>
     {onEvent}
     {disabledPropertyView(children)}
   </Section>
 );
 
-export const advancedSection = (children: TreeCommonComp, other?: ReactNode) => (
+export const advancedSection = (children: TreeCommonComp, other?: ControlNode) => (
   <>
     <Section name={sectionNames.advanced}>
       {children.showLine.propertyView({ label: trans("tree.showLine") })}
