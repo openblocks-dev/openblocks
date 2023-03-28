@@ -5,7 +5,12 @@ import {
 } from "openblocks-core";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
-import { Section, sectionNames, ValueFromOption } from "openblocks-design";
+import {
+  Section,
+  sectionNames,
+  ValueFromOption,
+  ControlNode,
+} from "openblocks-design";
 import { TreeSelect } from "antd";
 import { useEffect } from "react";
 import styled from "styled-components";
@@ -177,13 +182,10 @@ let TreeBasicComp = (function () {
         {children.label.getPropertyView()}
         {expandSection(children)}
         {intersectSection(children, children.onEvent.getPropertyView())}
-        {advancedSection(
-          children,
-          <>
-            {allowClearPropertyView(children)}
-            {showSearchPropertyView(children)}
-          </>
-        )}
+        {advancedSection(children, [
+          allowClearPropertyView(children),
+          showSearchPropertyView(children),
+        ])}
         <Section name={sectionNames.style}>
           {children.style.getPropertyView()}
         </Section>
