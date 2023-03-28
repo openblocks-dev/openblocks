@@ -31,7 +31,11 @@ The following is an example of connecting to [GitHub GraphQL API](https://docs.g
 
 ## SSL Cert Verification
 
-For detailed information, see [SSL Cert Verification](graphql.md#ssl-cert-verification).
+For detailed information, see [SSL Cert Verification](rest-apis.md#ssl-cert-verification).
+
+## Forward cookies
+
+For detailed information, see [Forward cookies](rest-apis.md#forward-cookies).
 
 ## Create a GraphQL query
 

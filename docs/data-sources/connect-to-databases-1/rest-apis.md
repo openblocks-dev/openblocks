@@ -1,4 +1,4 @@
-# REST APIs
+# REST API
 
 ## Connect REST API to Openblocks
 
@@ -35,7 +35,7 @@ Note that for self-signed certificate, the information should be provided in .[P
 
 <figure><img src="../../.gitbook/assets/rest-api-5.png" alt=""><figcaption></figcaption></figure>
 
-## Forward Cookies
+## Forward cookies
 
 If you are self-hosting Openblocks in your own domain, you can make REST API requests with cookies to existing services under that domain. You can either toggle the option "Forward all cookies" or specify certain cookies to forward in the text box. This feature can be helpful in cases where you use cookies to share common context (like identity info in JWT format) across different services.
 
