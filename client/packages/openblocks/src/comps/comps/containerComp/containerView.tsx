@@ -354,7 +354,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
           margin: [0, 0],
           containerPadding: [0, 0],
           containerWidth: width,
-          cols: 48,
+          cols: DEFAULT_GRID_COLUMNS,
           rowHeight: currentRowHeight,
           maxRows: currentRowCount,
         };
