@@ -51,7 +51,6 @@ type ThemeDetailPageProps = {
     orgId: string,
     onSuccess?: (data: CommonSettingResponseData) => void
   ) => void;
-  themeList?: ThemeType[];
   orgId: string;
   location: Location & { state: LocationProp };
 };
@@ -87,7 +86,6 @@ class ThemeDetailPage extends React.Component<
         chart: undefined,
       };
     }
-
     this.id = id;
     this.type = type;
     this.state = {
@@ -118,7 +116,6 @@ class ThemeDetailPage extends React.Component<
           return theme;
         }
       });
-
       this.props.setCommonSettings({
         orgId: this.props.orgId,
         data: { key: "themeList", value: list },
@@ -265,7 +262,7 @@ class ThemeDetailPage extends React.Component<
                 name={trans("themeDetail.gridColumns")}
                 desc={trans("themeDetail.borderRadiusDesc")}
                 gridColumns={this.state.theme.gridColumns}
-                configChange={(params) => this.configChange(params)}
+                configChange={(params) => { this.configChange(params); localStorage.setItem("GridColumns", JSON.stringify(params.gridColumns)) }}
               />
             </div>
 
