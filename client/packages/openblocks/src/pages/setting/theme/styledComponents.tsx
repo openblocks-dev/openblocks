@@ -329,7 +329,7 @@ export const ThemeBtn = styled.div<{ theme: ThemeDetail }>`
         justify-content: center;
         background-color: ${(props) => props.theme.primary};
         color: ${(props) =>
-          isDarkColor(props.theme.primary) ? props.theme.textLight : props.theme.textDark};
+    isDarkColor(props.theme.primary) ? props.theme.textLight : props.theme.textDark};
       }
     }
   }
@@ -450,6 +450,24 @@ export const Radius = styled.div<{ radius: string }>`
       width: 24px;
       border: 2px solid #777;
       border-radius: ${(props) => props.radius};
+    }
+  }
+`;
+
+export const GridColumns = styled.div<{ gridColumns: string }>`
+  width: 24px;
+  height: 24px;
+  border-radius: 4px 0 0 4px;
+  border: 1px solid #d7d9e0;
+  > div {
+    margin: 7px;
+    overflow: hidden;
+    height: 13px;
+    width: 13px;
+    > div {
+      height: 24px;
+      width: 24px;
+      border: 2px solid #777;
     }
   }
 `;

@@ -4,12 +4,16 @@ import { GridLayoutProps } from "./gridLayoutPropTypes";
 import type { Position } from "./utils";
 export type PositionParams = Pick<
   GridItemProps,
-  "margin" | "containerPadding" | "containerWidth" | "cols" | "rowHeight" | "maxRows"
+  | "margin"
+  | "containerPadding"
+  | "containerWidth"
+  | "cols"
+  | "rowHeight"
+  | "maxRows"
 >;
-
-export const DEFAULT_GRID_COLUMNS = 24;
+const gridColumns = Number(localStorage.getItem("GridColumns"));
+export const DEFAULT_GRID_COLUMNS = gridColumns;
 export const DEFAULT_ROW_HEIGHT = 8;
-
 export const DEFAULT_POSITION_PARAMS: PositionParams = {
   margin: [0, 0],
   containerPadding: [0, 0],
@@ -22,11 +26,18 @@ export const DEFAULT_POSITION_PARAMS: PositionParams = {
 // Helper for generating column width
 export function calcGridColWidth(positionParams: PositionParams): number {
   const { margin, containerPadding, containerWidth, cols } = positionParams;
-  return (containerWidth - margin[0] * (cols - 1) - containerPadding[0] * 2) / cols;
+  return (
+    (containerWidth - margin[0] * (cols - 1) - containerPadding[0] * 2) / cols
+  );
 }
 
 // check whether touch the right or bottom boundary
-export function isTouchBound(maxUnits: number, unitSize: number, size: number, offsetPx: number) {
+export function isTouchBound(
+  maxUnits: number,
+  unitSize: number,
+  size: number,
+  offsetPx: number
+) {
   const offset = Math.round(offsetPx / unitSize);
   return offset + size >= maxUnits;
 }
@@ -43,7 +54,9 @@ export function calcGridItemWHPx(
 ): number {
   // 0 * Infinity === NaN, which causes problems with resize contraints
   if (!Number.isFinite(gridUnits)) return gridUnits;
-  let ret = Math.round(colOrRowSize * gridUnits + Math.max(0, gridUnits - 1) * marginPx);
+  let ret = Math.round(
+    colOrRowSize * gridUnits + Math.max(0, gridUnits - 1) * marginPx
+  );
   return ret;
   // NOTE(2022-08-26): there's not clear reason for the addition 1.5; keep the 1.5 for a while, and then delete it.
   return isTouchEndBound ? ret : ret + 1.5;
@@ -171,7 +184,11 @@ export function calcWH(
   positionParams: PositionParams,
   width: number,
   height: number,
-  needClamp: { w: boolean; h: boolean; ceil?: boolean } = { w: true, h: true, ceil: false }
+  needClamp: { w: boolean; h: boolean; ceil?: boolean } = {
+    w: true,
+    h: true,
+    ceil: false,
+  }
 ): { w: number; h: number } {
   const { margin, maxRows, cols, rowHeight } = positionParams;
   const colWidth = calcGridColWidth(positionParams);
@@ -191,7 +208,11 @@ export function calcWH(
 }
 
 // Similar to _.clamp
-export function clamp(num: number, lowerBound?: number, upperBound?: number): number {
+export function clamp(
+  num: number,
+  lowerBound?: number,
+  upperBound?: number
+): number {
   if (!_.isNil(lowerBound)) {
     num = Math.max(num, lowerBound);
   }
@@ -233,7 +254,9 @@ export function calcRowCount(
   containerTopBottomPadding: number,
   rowHeight: number
 ): number {
-  return Math.floor((containerHeight - containerTopBottomPadding * 2) / rowHeight);
+  return Math.floor(
+    (containerHeight - containerTopBottomPadding * 2) / rowHeight
+  );
 }
 
 export function calcRowHeight(

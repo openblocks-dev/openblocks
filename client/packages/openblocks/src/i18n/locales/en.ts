@@ -299,6 +299,7 @@ export const en = {
     chart: "Chart style",
     chartDesc: "Input Echarts",
     echartsJson: "Theme JSON",
+    gridColumns: "Grid Columns"
   },
   style: {
     resetTooltip:

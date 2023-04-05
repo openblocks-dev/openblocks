@@ -57,6 +57,20 @@ let ThemeTempComp = withViewFn(
   }
 );
 
+
+export function CurrentThemeComp() {
+  const commonThemes = useSelector(getThemeList);
+  const globalThemes = getGlobalSettings().orgCommonSettings?.themeList;
+  const themeList = useMemo(
+    () => commonThemes || globalThemes || [],
+    [commonThemes, globalThemes]
+  );
+  const editorState = useContext(EditorContext);
+  const appThemeId = editorState?.getAppSettings().themeId;
+  const currentTheme = getCurrentTheme(themeList, appThemeId);
+  return currentTheme;
+}
+
 export let ThemeComp = withSimpleExposing(ThemeTempComp, (comp) =>
   comp.children.stateValue.getView()
 );

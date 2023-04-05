@@ -46,6 +46,7 @@ export interface ThemeDetail {
   chart?: string;
   margin?: string;
   padding?: string;
+  gridColumns?: string;
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {
@@ -66,6 +67,8 @@ export function getThemeDetailName(key: keyof ThemeDetail) {
       return trans("style.margin");
     case "padding":
       return trans("style.padding");
+    case "gridColumns":
+      return trans("themeDetail.gridColumns");
   }
   return "";
 }
@@ -77,6 +80,7 @@ export function isThemeColorKey(key: string) {
     case "textLight":
     case "canvas":
     case "primarySurface":
+    case "gridColumns":
       return true;
   }
   return false;
