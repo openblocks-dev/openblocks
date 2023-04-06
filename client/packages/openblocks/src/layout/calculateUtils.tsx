@@ -11,8 +11,8 @@ export type PositionParams = Pick<
   | "rowHeight"
   | "maxRows"
 >;
-const gridColumns = Number(localStorage.getItem("GridColumns"));
-export const DEFAULT_GRID_COLUMNS = gridColumns;
+const gridColumns = localStorage.getItem("GridColumns");
+export const DEFAULT_GRID_COLUMNS = Number(gridColumns);
 export const DEFAULT_ROW_HEIGHT = 8;
 export const DEFAULT_POSITION_PARAMS: PositionParams = {
   margin: [0, 0],

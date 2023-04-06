@@ -260,9 +260,15 @@ class ThemeDetailPage extends React.Component<
               <ColorPicker
                 colorKey="gridColumns"
                 name={trans("themeDetail.gridColumns")}
-                desc={trans("themeDetail.borderRadiusDesc")}
+                desc={trans("themeDetail.gridColumnsDesc")}
                 gridColumns={this.state.theme.gridColumns}
-                configChange={(params) => { this.configChange(params); localStorage.setItem("GridColumns", JSON.stringify(params.gridColumns)) }}
+                configChange={(params) => {
+                  this.configChange(params);
+                  localStorage.setItem(
+                    "GridColumns",
+                    params.gridColumns as string
+                  );
+                }}
               />
             </div>
 
