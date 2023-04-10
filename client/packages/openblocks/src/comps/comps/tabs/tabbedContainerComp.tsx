@@ -65,6 +65,8 @@ const getStyle = (style: TabContainerStyleType) => {
       border: 1px solid ${style.border};
       border-radius: ${style.radius};
       overflow: hidden;
+      margin: ${style.margin};
+      padding: ${style.padding};
 
       > .ant-tabs-content-holder > .ant-tabs-content > div > .react-grid-layout {
         background-color: ${style.background};
