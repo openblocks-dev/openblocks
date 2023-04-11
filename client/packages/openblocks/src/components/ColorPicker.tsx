@@ -8,6 +8,7 @@ import {
 import { isValidColor, toHex } from "components/colorSelect/colorUtils";
 import { ColorSelect } from "components/colorSelect";
 import { TacoInput } from "components/tacoInput";
+import { TableCellsIcon as GridIcon } from "openblocks-design";
 
 export type configChangeParams = {
   colorKey: string;
@@ -148,7 +149,7 @@ export default function ColorPicker(props: ColorConfigProps) {
         <div className="config-input">
           <GridColumns gridColumns={defaultGridColumns || "24"}>
             <div>
-              <div />
+              <GridIcon title="" />
             </div>
           </GridColumns>
           <TacoInput
