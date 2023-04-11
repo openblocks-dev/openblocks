@@ -11,7 +11,7 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
 import _ from "lodash";
-import { controlItem, IconRadius, IconReset } from "openblocks-design";
+import { controlItem, IconRadius, IconReset , ExpandIcon, CompressIcon} from "openblocks-design";
 import { useContext } from "react";
 import styled from "styled-components";
 import { useIsMobile } from "util/hooks";
@@ -242,6 +242,14 @@ const RadiusIcon = styled(IconRadius)`
   margin: 0 8px 0 -2px;
 `;
 
+const MarginIcon = styled(ExpandIcon)`
+  margin: 0 8px 0 -2px;
+`;
+
+const PaddingIcon = styled(CompressIcon)`
+  margin: 0 8px 0 -2px;
+`;
+
 const ResetIcon = styled(IconReset)`
   &:hover g g {
     stroke: #315efb;
@@ -348,24 +356,36 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                   { filterText: config.label },
                   <div key={index}>
                     {name === "radius" ||
-                    name === "margin" ||
-                    name === "padding" ||
-                    name === "gap" ||
-                    name === "cardRadius"
+                      name === "gap" ||
+                      name === "cardRadius"
                       ? (
-                          children[name] as InstanceType<typeof RadiusControl>
-                        ).propertyView({
+                        children[name] as InstanceType<typeof RadiusControl>
+                      ).propertyView({
+                        label: config.label,
+                        preInputNode: <RadiusIcon title="" />,
+                        placeholder: props[name],
+                      })
+                      : name === "margin" ?  (
+                        children[name] as InstanceType<typeof RadiusControl>
+                      ).propertyView({
                           label: config.label,
-                          preInputNode: <RadiusIcon title="" />,
+                          preInputNode: <MarginIcon title="" />,
                           placeholder: props[name],
                         })
-                      : children[name].propertyView({
-                          label: config.label,
-                          panelDefaultColor: props[name],
-                          // isDep: isDepColorConfig(config),
-                          isDep: true,
-                          depMsg: depMsg,
-                        })}
+                        : name === "padding" ?  (
+                          children[name] as InstanceType<typeof RadiusControl>
+                        ).propertyView({
+                            label: config.label,
+                            preInputNode: <PaddingIcon title="" />,
+                            placeholder: props[name],
+                          })
+                          : children[name].propertyView({
+                            label: config.label,
+                            panelDefaultColor: props[name],
+                            // isDep: isDepColorConfig(config),
+                            isDep: true,
+                            depMsg: depMsg,
+                          })}
                   </div>
                 );
               })}
