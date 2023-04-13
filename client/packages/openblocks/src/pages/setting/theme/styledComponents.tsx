@@ -455,19 +455,12 @@ export const Radius = styled.div<{ radius: string }>`
 `;
 
 export const GridColumns = styled.div<{ gridColumns: string }>`
-  width: 24px;
-  height: 24px;
-  border-radius: 4px 0 0 4px;
-  border: 1px solid #d7d9e0;
   > div {
-    margin: 7px;
+    margin: 3px;
     overflow: hidden;
-    height: 13px;
-    width: 13px;
-    > div {
-      height: 24px;
-      width: 24px;
-      border: 2px solid #777;
+      > svg {
+        fill: currentColor;
+      }
     }
   }
 `;

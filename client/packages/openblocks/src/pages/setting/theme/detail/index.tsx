@@ -125,6 +125,7 @@ class ThemeDetailPage extends React.Component<
         },
       });
     });
+    window.location.reload();
   }
 
   configChange(params: configChangeParams) {
@@ -261,7 +262,12 @@ class ThemeDetailPage extends React.Component<
                 colorKey="gridColumns"
                 name={trans("themeDetail.gridColumns")}
                 desc={trans("themeDetail.gridColumnsDesc")}
-                gridColumns={this.state.theme.gridColumns}
+                gridColumns={
+                  this.state.theme.gridColumns !==
+                    localStorage.getItem("GridColumns") || undefined
+                    ? localStorage.getItem("GridColumns") || undefined
+                    : this.state.theme.gridColumns
+                }
                 configChange={(params) => {
                   this.configChange(params);
                   localStorage.setItem(
@@ -284,6 +290,7 @@ class ThemeDetailPage extends React.Component<
                 <a
                   target="_blank"
                   href="https://echarts.apache.org/en/theme-builder.html"
+                  rel="noreferrer"
                 >
                   {" "}
                   {trans("themeDetail.echartsJson")}

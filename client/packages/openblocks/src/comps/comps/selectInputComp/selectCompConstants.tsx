@@ -66,6 +66,7 @@ export const getStyle = (
     &.ant-select .ant-select-selector,
     &.ant-select-multiple .ant-select-selection-item {
       border-radius: ${style.radius};
+      border-width: ${style.borderWidth};
     }
 
     &.ant-select:not(.ant-select-disabled) {
@@ -93,18 +94,18 @@ export const getStyle = (
       .ant-select-clear {
         background-color: ${style.background};
         color: ${style.text === "#222222"
-      ? "#8B8FA3"
-      : isDarkColor(style.text)
-        ? lightenColor(style.text, 0.2)
-        : style.text};
+          ? "#8B8FA3"
+          : isDarkColor(style.text)
+          ? lightenColor(style.text, 0.2)
+          : style.text};
       }
 
       .ant-select-clear:hover {
         color: ${style.text === "#222222"
-      ? "#8B8FA3"
-      : isDarkColor(style.text)
-        ? lightenColor(style.text, 0.1)
-        : style.text};
+          ? "#8B8FA3"
+          : isDarkColor(style.text)
+          ? lightenColor(style.text, 0.1)
+          : style.text};
       }
 
       &.ant-select-multiple .ant-select-selection-item {
@@ -152,7 +153,7 @@ const getDropdownStyle = (style: MultiSelectStyleType) => {
   `;
 };
 
-const Select = styled(AntdSelect) <{
+const Select = styled(AntdSelect)<{
   $style: SelectStyleType & MultiSelectStyleType;
 }>`
   width: 100%;

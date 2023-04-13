@@ -1,16 +1,32 @@
 import { message, Tabs } from "antd";
 import { JSONObject, JSONValue } from "util/jsonTypes";
-import { CompAction, CompActionTypes, deleteCompAction, wrapChildAction } from "openblocks-core";
-import { DispatchType, RecordConstructorToView, wrapDispatch } from "openblocks-core";
+import {
+  CompAction,
+  CompActionTypes,
+  deleteCompAction,
+  wrapChildAction,
+} from "openblocks-core";
+import {
+  DispatchType,
+  RecordConstructorToView,
+  wrapDispatch,
+} from "openblocks-core";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { TabsOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
-import { TabContainerStyle, TabContainerStyleType } from "comps/controls/styleControlConstants";
+import {
+  TabContainerStyle,
+  TabContainerStyleType,
+} from "comps/controls/styleControlConstants";
 import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
-import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
+import {
+  NameConfig,
+  NameConfigHidden,
+  withExposingConfigs,
+} from "comps/generators/withExposing";
 import { NameGenerator } from "comps/utils";
 import { Section, sectionNames } from "openblocks-design";
 import { HintPlaceHolder } from "openblocks-design";
@@ -26,7 +42,10 @@ import {
   InnerGrid,
 } from "../containerComp/containerView";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import {
+  disabledPropertyView,
+  hiddenPropertyView,
+} from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
@@ -62,13 +81,16 @@ type TabbedContainerProps = ViewProps & { dispatch: DispatchType };
 const getStyle = (style: TabContainerStyleType) => {
   return css`
     &.ant-tabs {
-      border: 1px solid ${style.border};
+      border: ${style.borderWidth} solid ${style.border};
       border-radius: ${style.radius};
       overflow: hidden;
       margin: ${style.margin};
       padding: ${style.padding};
 
-      > .ant-tabs-content-holder > .ant-tabs-content > div > .react-grid-layout {
+      > .ant-tabs-content-holder
+        > .ant-tabs-content
+        > div
+        > .react-grid-layout {
         background-color: ${style.background};
         border-radius: 0;
       }
@@ -98,7 +120,10 @@ const getStyle = (style: TabContainerStyleType) => {
   `;
 };
 
-const StyledTabs = styled(Tabs)<{ $style: TabContainerStyleType; $isMobile?: boolean }>`
+const StyledTabs = styled(Tabs)<{
+  $style: TabContainerStyleType;
+  $isMobile?: boolean;
+}>`
   &.ant-tabs {
     height: 100%;
   }
@@ -131,7 +156,12 @@ const StyledTabs = styled(Tabs)<{ $style: TabContainerStyleType; $isMobile?: boo
 
 const ContainerInTab = (props: ContainerBaseProps) => {
   return (
-    <InnerGrid {...props} emptyRows={15} bgColor={"white"} hintPlaceholder={HintPlaceHolder} />
+    <InnerGrid
+      {...props}
+      emptyRows={15}
+      bgColor={"white"}
+      hintPlaceholder={HintPlaceHolder}
+    />
   );
 };
 
@@ -139,7 +169,9 @@ const TabbedContainer = (props: TabbedContainerProps) => {
   let { tabs, containers, dispatch, style } = props;
 
   const visibleTabs = tabs.filter((tab) => !tab.hidden);
-  const selectedTab = visibleTabs.find((tab) => tab.key === props.selectedTabKey.value);
+  const selectedTab = visibleTabs.find(
+    (tab) => tab.key === props.selectedTabKey.value
+  );
   const activeKey = selectedTab
     ? selectedTab.key
     : visibleTabs.length > 0
@@ -147,7 +179,12 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     : undefined;
 
   const onTabClick = useCallback(
-    (key: string, event: React.KeyboardEvent<Element> | React.MouseEvent<Element, MouseEvent>) => {
+    (
+      key: string,
+      event:
+        | React.KeyboardEvent<Element>
+        | React.MouseEvent<Element, MouseEvent>
+    ) => {
       // log.debug("onTabClick. event: ", event);
       const target = event.target;
       (target as any).parentNode.click
@@ -182,7 +219,10 @@ const TabbedContainer = (props: TabbedContainerProps) => {
       {visibleTabs.map((tab) => {
         // log.debug("Tab. tab: ", tab, " containers: ", containers);
         const id = String(tab.id);
-        const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
+        const childDispatch = wrapDispatch(
+          wrapDispatch(dispatch, "containers"),
+          id
+        );
         const containerProps = containers[id].children;
         const hasIcon = tab.icon.props.value;
         const label = (
@@ -231,22 +271,31 @@ export const TabbedContainerBaseComp = (function () {
               title: trans("tabbedContainer.tab"),
               newOptionLabel: "Tab",
             })}
-            {children.selectedTabKey.propertyView({ label: trans("prop.defaultValue") })}
+            {children.selectedTabKey.propertyView({
+              label: trans("prop.defaultValue"),
+            })}
             {children.autoHeight.getPropertyView()}
           </Section>
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {disabledPropertyView(children)}
           </Section>
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          <Section name={sectionNames.layout}>
+            {hiddenPropertyView(children)}
+          </Section>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
         </>
       );
     })
     .build();
 })();
 
-class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContainer {
+class TabbedContainerImplComp
+  extends TabbedContainerBaseComp
+  implements IContainer
+{
   private syncContainers(): this {
     const tabs = this.children.tabs.getView();
     const ids: Set<string> = new Set(tabs.map((tab) => String(tab.id)));
@@ -256,7 +305,9 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
     Object.keys(containers).forEach((id) => {
       if (!ids.has(id)) {
         // log.debug("syncContainers delete. ids=", ids, " id=", id);
-        actions.push(wrapChildAction("containers", wrapChildAction(id, deleteCompAction())));
+        actions.push(
+          wrapChildAction("containers", wrapChildAction(id, deleteCompAction()))
+        );
       }
     });
     // new
@@ -264,7 +315,10 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
       if (!containers.hasOwnProperty(id)) {
         // log.debug("syncContainers new containers: ", containers, " id: ", id);
         actions.push(
-          wrapChildAction("containers", addMapChildAction(id, { layout: {}, items: {} }))
+          wrapChildAction(
+            "containers",
+            addMapChildAction(id, { layout: {}, items: {} })
+          )
         );
       }
     });
@@ -310,7 +364,8 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
   realSimpleContainer(key?: string): SimpleContainerComp | undefined {
     let selectedTabKey = this.children.selectedTabKey.getView().value;
     const tabs = this.children.tabs.getView();
-    const selectedTab = tabs.find((tab) => tab.key === selectedTabKey) ?? tabs[0];
+    const selectedTab =
+      tabs.find((tab) => tab.key === selectedTabKey) ?? tabs[0];
     const id = String(selectedTab.id);
     if (_.isNil(key)) return this.children.containers.children[id];
     return Object.values(this.children.containers.children).find((container) =>
@@ -320,7 +375,9 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
 
   getCompTree(): CompTree {
     const containerMap = this.children.containers.getView();
-    const compTrees = Object.values(containerMap).map((container) => container.getCompTree());
+    const compTrees = Object.values(containerMap).map((container) =>
+      container.getCompTree()
+    );
     return mergeCompTrees(compTrees);
   }
 
@@ -349,7 +406,13 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
   }
 }
 
-export const TabbedContainerComp = withExposingConfigs(TabbedContainerImplComp, [
-  new NameConfig("selectedTabKey", trans("tabbedContainer.selectedTabKeyDesc")),
-  NameConfigHidden,
-]);
+export const TabbedContainerComp = withExposingConfigs(
+  TabbedContainerImplComp,
+  [
+    new NameConfig(
+      "selectedTabKey",
+      trans("tabbedContainer.selectedTabKeyDesc")
+    ),
+    NameConfigHidden,
+  ]
+);

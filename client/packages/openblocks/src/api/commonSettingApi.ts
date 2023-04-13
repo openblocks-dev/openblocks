@@ -47,6 +47,7 @@ export interface ThemeDetail {
   margin?: string;
   padding?: string;
   gridColumns?: string;
+  borderWidth?: string;
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {
@@ -69,6 +70,8 @@ export function getThemeDetailName(key: keyof ThemeDetail) {
       return trans("style.padding");
     case "gridColumns":
       return trans("themeDetail.gridColumns");
+    case "borderWidth":
+      return trans("style.borderWidth");
   }
   return "";
 }
