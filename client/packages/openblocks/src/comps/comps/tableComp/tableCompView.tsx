@@ -1,6 +1,9 @@
 import { message, Table } from "antd";
 import { TableProps } from "antd/es/table";
-import { TableCellContext, TableRowContext } from "comps/comps/tableComp/tableContext";
+import {
+  TableCellContext,
+  TableRowContext,
+} from "comps/comps/tableComp/tableContext";
 import { TableToolbar } from "comps/comps/tableComp/tableToolbarComp";
 import { RowColorViewType } from "comps/comps/tableComp/tableTypes";
 import {
@@ -25,7 +28,14 @@ import { PrimaryColor } from "constants/style";
 import { trans } from "i18n";
 import _ from "lodash";
 import { darkenColor, isDarkColor } from "openblocks-design";
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Resizable } from "react-resizable";
 import styled, { css } from "styled-components";
 import { useUserViewMode } from "util/hooks";
@@ -57,8 +67,16 @@ const getStyle = (style: TableStyleType) => {
   return css`
     border-color: ${style.border};
     border-radius: ${style.radius};
+    border-width: ${style.borderWidth};
 
-    & > div > div > div > .ant-table > .ant-table-container > .ant-table-content > table {
+    &
+      > div
+      > div
+      > div
+      > .ant-table
+      > .ant-table-container
+      > .ant-table-content
+      > table {
       > thead > tr > th,
       > tbody > tr > td {
         border-color: ${style.border};
@@ -78,7 +96,9 @@ const getStyle = (style: TableStyleType) => {
           }
 
           > .ant-table-column-sorters > .ant-table-column-sorter {
-            color: ${style.headerText === defaultTheme.textDark ? "#bfbfbf" : style.headerText};
+            color: ${style.headerText === defaultTheme.textDark
+              ? "#bfbfbf"
+              : style.headerText};
           }
         }
       }
@@ -152,7 +172,8 @@ const getStyle = (style: TableStyleType) => {
 
           > td.ant-table-cell-row-hover,
           &:hover > td {
-            background: ${hoverRowBackground}, ${selectedRowBackground}, ${background};
+            background: ${hoverRowBackground}, ${selectedRowBackground},
+              ${background};
           }
         }
 
@@ -163,7 +184,8 @@ const getStyle = (style: TableStyleType) => {
 
           > td.ant-table-cell-row-hover,
           &:hover > td {
-            background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground};
+            background: ${hoverRowBackground}, ${selectedRowBackground},
+              ${alternateBackground};
           }
         }
 
@@ -195,7 +217,8 @@ const TableWrapper = styled.div<{
   border: 1px solid #d7d9e0;
 
   .ant-table-wrapper {
-    border-top: ${(props) => (props.toolbarPosition === "above" ? "1px solid" : "unset")};
+    border-top: ${(props) =>
+      props.toolbarPosition === "above" ? "1px solid" : "unset"};
     border-color: inherit;
   }
 
@@ -209,11 +232,15 @@ const TableWrapper = styled.div<{
     left: 4px;
   }
 
-  .ant-table.ant-table-small .ant-table-cell-with-append .ant-table-row-expand-icon {
+  .ant-table.ant-table-small
+    .ant-table-cell-with-append
+    .ant-table-row-expand-icon {
     top: 10px;
   }
 
-  .ant-table.ant-table-middle .ant-table-cell-with-append .ant-table-row-expand-icon {
+  .ant-table.ant-table-middle
+    .ant-table-cell-with-append
+    .ant-table-row-expand-icon {
     top: 14px;
   }
 
@@ -304,7 +331,8 @@ const TableTd = styled.td<{ background: string; $isEditing: boolean }>`
 `;
 
 const ResizeableTitle = (props: any) => {
-  const { onResize, onResizeStop, width, viewModeResizable, ...restProps } = props;
+  const { onResize, onResizeStop, width, viewModeResizable, ...restProps } =
+    props;
   const [widthChild, setWidthChild] = useState(0);
   const elementRef = useRef(null);
   const isUserViewMode = useUserViewMode();
@@ -334,9 +362,10 @@ const ResizeableTitle = (props: any) => {
     <Resizable
       width={width > 0 ? width : widthChild}
       height={0}
-      onResize={(e: React.SyntheticEvent, { size }: { size: { width: number } }) =>
-        onResize(size.width)
-      }
+      onResize={(
+        e: React.SyntheticEvent,
+        { size }: { size: { width: number } }
+      ) => onResize(size.width)}
       onResizeStart={(e) => {
         setChildWidth();
         e.stopPropagation();
@@ -358,7 +387,10 @@ const ResizeableTitle = (props: any) => {
   );
 };
 
-type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | "columns"> & {
+type CustomTableProps<RecordType> = Omit<
+  TableProps<RecordType>,
+  "components" | "columns"
+> & {
   columns: CustomColumnType<RecordType>[];
   viewModeResizable: boolean;
   rowColor: RowColorViewType;
@@ -389,7 +421,8 @@ function TableCellView(props: {
       background = genLinerGradient(color);
     }
     if (color && rowContext.selected) {
-      background = genLinerGradient(handleToSelectedRow(color)) + "," + background;
+      background =
+        genLinerGradient(handleToSelectedRow(color)) + "," + background;
     }
     if (color && rowContext.hover) {
       background = genLinerGradient(handleToHoverRow(color)) + "," + background;
@@ -402,7 +435,9 @@ function TableCellView(props: {
   }
 
   return (
-    <TableCellContext.Provider value={{ isEditing: editing, setIsEditing: setEditing }}>
+    <TableCellContext.Provider
+      value={{ isEditing: editing, setIsEditing: setEditing }}
+    >
       {tdView}
     </TableCellContext.Provider>
   );
@@ -428,7 +463,9 @@ function TableRowView(props: any) {
 /**
  * A table with adjustable column width, width less than 0 means auto column width
  */
-function ResizeableTable<RecordType extends object>(props: CustomTableProps<RecordType>) {
+function ResizeableTable<RecordType extends object>(
+  props: CustomTableProps<RecordType>
+) {
   const [resizeData, setResizeData] = useState({
     index: -1,
     width: -1,
@@ -436,7 +473,8 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
   let allColumnFixed = true;
   const columns = props.columns.map((col, index) => {
     const { width, ...restCol } = col;
-    const resizeWidth = (resizeData.index === index ? resizeData.width : col.width) ?? 0;
+    const resizeWidth =
+      (resizeData.index === index ? resizeData.width : col.width) ?? 0;
     let colWidth: number | string = "auto";
     let minWidth: number | string = COL_MIN_WIDTH;
     if (resizeWidth > 0) {
@@ -476,7 +514,10 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
             });
           }
         },
-        onResizeStop: (e: React.SyntheticEvent, { size }: { size: { width: number } }) => {
+        onResizeStop: (
+          e: React.SyntheticEvent,
+          { size }: { size: { width: number } }
+        ) => {
           setResizeData({
             index: -1,
             width: -1,
@@ -512,7 +553,10 @@ ResizeableTable.whyDidYouRender = true;
 
 export function TableCompView(props: {
   comp: InstanceType<typeof TableImplComp>;
-  onRefresh: (allQueryNames: Array<string>, setLoading: (loading: boolean) => void) => void;
+  onRefresh: (
+    allQueryNames: Array<string>,
+    setLoading: (loading: boolean) => void
+  ) => void;
   onDownload: (fileName: string) => void;
 }) {
   const editorState = useContext(EditorContext);
@@ -527,23 +571,41 @@ export function TableCompView(props: {
   const { comp, onDownload, onRefresh } = props;
   const compChildren = comp.children;
   const style = compChildren.style.getView();
-  const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
+  const changeSet = useMemo(
+    () => compChildren.columns.getChangeSet(),
+    [compChildren.columns]
+  );
   const hasChange = useMemo(() => !_.isEmpty(changeSet), [changeSet]);
-  const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
+  const columns = useMemo(
+    () => compChildren.columns.getView(),
+    [compChildren.columns]
+  );
   const columnViews = useMemo(() => columns.map((c) => c.getView()), [columns]);
   const data = comp.filterData;
   const sort = useMemo(() => compChildren.sort.getView(), [compChildren.sort]);
-  const toolbar = useMemo(() => compChildren.toolbar.getView(), [compChildren.toolbar]);
-  const pagination = useMemo(() => compChildren.pagination.getView(), [compChildren.pagination]);
+  const toolbar = useMemo(
+    () => compChildren.toolbar.getView(),
+    [compChildren.toolbar]
+  );
+  const pagination = useMemo(
+    () => compChildren.pagination.getView(),
+    [compChildren.pagination]
+  );
   const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
-  const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
+  const onEvent = useMemo(
+    () => compChildren.onEvent.getView(),
+    [compChildren.onEvent]
+  );
   const dynamicColumn = compChildren.dynamicColumn.getView();
   const dynamicColumnConfig = useMemo(
     () => compChildren.dynamicColumnConfig.getView(),
     [compChildren.dynamicColumnConfig]
   );
   const columnsAggrData = comp.columnAggrData;
-  const expansion = useMemo(() => compChildren.expansion.getView(), [compChildren.expansion]);
+  const expansion = useMemo(
+    () => compChildren.expansion.getView(),
+    [compChildren.expansion]
+  );
   const antdColumns = useMemo(
     () =>
       columnsToAntdFormat(
@@ -593,7 +655,10 @@ export function TableCompView(props: {
 
   const handleChangeEvent = useCallback(
     (eventName) => {
-      if (eventName === "saveChanges" && !compChildren.onEvent.isBind(eventName)) {
+      if (
+        eventName === "saveChanges" &&
+        !compChildren.onEvent.isBind(eventName)
+      ) {
         !viewMode && message.warn(trans("table.saveChangesNotBind"));
         return;
       }
@@ -647,7 +712,14 @@ export function TableCompView(props: {
           {...compChildren.selection.getView()(onEvent)}
           bordered={!compChildren.hideBordered.getView()}
           onChange={(pagination, filters, sorter, extra) => {
-            onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
+            onTableChange(
+              pagination,
+              filters,
+              sorter,
+              extra,
+              comp.dispatch,
+              onEvent
+            );
           }}
           showHeader={!compChildren.hideHeader.getView()}
           columns={antdColumns}
@@ -664,7 +736,9 @@ export function TableCompView(props: {
           }
         />
         {toolbar.position === "below" && toolbarView}
-        <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>
+        <SlotConfigContext.Provider
+          value={{ modalWidth: width && Math.max(width, 300) }}
+        >
           {expansion.expandModalView}
         </SlotConfigContext.Provider>
       </TableWrapper>

@@ -1,15 +1,25 @@
 import styled, { css } from "styled-components";
 import { Section, sectionNames } from "openblocks-design";
-import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
+import {
+  clickEvent,
+  eventHandlerControl,
+} from "../controls/eventHandlerControl";
 import { StringStateControl } from "../controls/codeStateControl";
 import { UICompBuilder, withDefault } from "../generators";
-import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
+import {
+  NameConfig,
+  NameConfigHidden,
+  withExposingConfigs,
+} from "../generators/withExposing";
 import { RecordConstructorToView } from "openblocks-core";
 import { useEffect, useRef, useState } from "react";
 import _ from "lodash";
 import ReactResizeDetector from "react-resize-detector";
 import { styleControl } from "comps/controls/styleControl";
-import { ImageStyle, ImageStyleType } from "comps/controls/styleControlConstants";
+import {
+  ImageStyle,
+  ImageStyleType,
+} from "comps/controls/styleControlConstants";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
@@ -41,11 +51,10 @@ const Container = styled.div<{ $style: ImageStyleType | undefined }>`
 const getStyle = (style: ImageStyleType) => {
   return css`
     img {
-      border: 1px solid ${style.border};
+      border: ${style.borderWidth} solid ${style.border};
       border-radius: ${style.radius};
-          margin: ${style.margin};
-    padding: ${style.padding};
-
+      margin: ${style.margin};
+      padding: ${style.padding};
     }
 
     .ant-image-mask {
@@ -63,17 +72,17 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
   const [height, setHeight] = useState(0);
 
   const imgOnload = (img: HTMLImageElement) => {
-    img.onload = function() {
+    img.onload = function () {
       setWidth(img.naturalWidth);
       setHeight(img.naturalHeight);
     };
-  }
+  };
 
   useEffect(() => {
     const newImage = new Image(0, 0);
     newImage.src = props.src.value;
     imgOnload(newImage);
-    newImage.onerror = function(e) {
+    newImage.onerror = function (e) {
       newImage.src = DEFAULT_IMG_URL;
       imgOnload(newImage);
     };
@@ -83,7 +92,7 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
     if (height && width) {
       onResize();
     }
-  }, [height, width])
+  }, [height, width]);
 
   // on safari
   const setStyle = (height: string, width: string) => {
@@ -117,7 +126,12 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
   return (
     <ReactResizeDetector onResize={onResize}>
       <Container ref={conRef} $style={props.style}>
-        <div ref={imgRef} style={props.autoHeight ? { width: "100%", height: "100%" } : undefined}>
+        <div
+          ref={imgRef}
+          style={
+            props.autoHeight ? { width: "100%", height: "100%" } : undefined
+          }
+        >
           <AntImage
             src={props.src.value}
             referrerPolicy="same-origin"
@@ -156,14 +170,18 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
           })}
         </Section>
 
-        <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>
+        <Section name={sectionNames.interaction}>
+          {children.onEvent.getPropertyView()}
+        </Section>
 
         <Section name={sectionNames.layout}>
           {children.autoHeight.getPropertyView()}
           {hiddenPropertyView(children)}
         </Section>
 
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+        </Section>
       </>
     );
   })
