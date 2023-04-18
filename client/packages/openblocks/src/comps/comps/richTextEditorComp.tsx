@@ -4,13 +4,20 @@ import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { UICompBuilder, withDefault } from "comps/generators";
-import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
+import {
+  NameConfig,
+  NameConfigHidden,
+  withExposingConfigs,
+} from "comps/generators/withExposing";
 import { Section, sectionNames } from "openblocks-design";
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import type ReactQuill from "react-quill";
 import { useDebounce } from "react-use";
 import styled, { css } from "styled-components";
-import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
+import {
+  formDataChildren,
+  FormDataPropertyView,
+} from "./formComp/formDataConstants";
 import { INPUT_DEFAULT_ONCHANGE_DEBOUNCE } from "constants/perf";
 import {
   hiddenPropertyView,
@@ -21,7 +28,10 @@ import _ from "lodash";
 import { trans } from "i18n";
 import { Skeleton } from "antd";
 import { styleControl } from "comps/controls/styleControl";
-import { RichTextEditorStyle, RichTextEditorStyleType } from "comps/controls/styleControlConstants";
+import {
+  RichTextEditorStyle,
+  RichTextEditorStyleType,
+} from "comps/controls/styleControlConstants";
 
 const localizeStyle = css`
   & .ql-snow {
@@ -95,9 +105,13 @@ const commonStyle = (style: RichTextEditorStyleType) => css`
   }
   & .ql-toolbar {
     border-radius: ${style.radius} ${style.radius} 0 0;
+    border-width: ${style.borderWidth} ${style.borderWidth} 1px
+      ${style.borderWidth};
   }
   & .ql-container {
     border-radius: 0 0 ${style.radius} ${style.radius};
+    border-width: 1px ${style.borderWidth} ${style.borderWidth}
+      ${style.borderWidth};
   }
 `;
 
@@ -111,7 +125,7 @@ const hideToolbarStyle = (style: RichTextEditorStyleType) => css`
   }
   .quill .ql-snow.ql-container {
     border-radius: ${style.radius};
-    border: 1px solid ${style.border};
+    border: ${style.borderWidth} solid ${style.border};
   }
 `;
 
@@ -196,7 +210,10 @@ function RichTextEditor(props: IProps) {
     debounce > 0
       ? _.debounce((v: string) => {
           window.clearTimeout(isTypingRef.current);
-          isTypingRef.current = window.setTimeout(() => (isTypingRef.current = 0), 100);
+          isTypingRef.current = window.setTimeout(
+            () => (isTypingRef.current = 0),
+            100
+          );
           originOnChangeRef.current?.(v);
         })
       : (v: string) => originOnChangeRef.current?.(v)
@@ -309,11 +326,15 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
           {readOnlyPropertyView(children)}
         </Section>
         <Section name={sectionNames.layout}>
-          {children.hideToolbar.propertyView({ label: trans("richTextEditor.hideToolbar") })}
+          {children.hideToolbar.propertyView({
+            label: trans("richTextEditor.hideToolbar"),
+          })}
           {children.autoHeight.getPropertyView()}
           {hiddenPropertyView(children)}
         </Section>
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+        </Section>
       </>
     );
   })
@@ -325,9 +346,15 @@ class RichTextEditorCompAutoHeight extends RichTextEditorCompBase {
   }
 }
 
-export const RichTextEditorComp = withExposingConfigs(RichTextEditorCompAutoHeight, [
-  new NameConfig("value", trans("export.richTextEditorValueDesc")),
-  new NameConfig("readOnly", trans("export.richTextEditorReadOnlyDesc")),
-  new NameConfig("hideToolbar", trans("export.richTextEditorHideToolBarDesc")),
-  NameConfigHidden,
-]);
+export const RichTextEditorComp = withExposingConfigs(
+  RichTextEditorCompAutoHeight,
+  [
+    new NameConfig("value", trans("export.richTextEditorValueDesc")),
+    new NameConfig("readOnly", trans("export.richTextEditorReadOnlyDesc")),
+    new NameConfig(
+      "hideToolbar",
+      trans("export.richTextEditorHideToolBarDesc")
+    ),
+    NameConfigHidden,
+  ]
+);

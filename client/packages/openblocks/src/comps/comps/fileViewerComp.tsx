@@ -25,7 +25,7 @@ const getStyle = (style: FileViewerStyleType) => {
 
     overflow: hidden;
     background-color: ${style.background};
-    border: 1px solid ${style.border};
+    border: ${style.borderWidth} solid ${style.border};
     border-radius: calc(min(${style.radius}, 20px));
   `;
 };

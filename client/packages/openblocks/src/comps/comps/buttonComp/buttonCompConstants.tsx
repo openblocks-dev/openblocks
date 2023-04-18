@@ -17,10 +17,12 @@ import {
 export function getButtonStyle(buttonStyle: ButtonStyleType) {
   const hoverColor = genHoverColor(buttonStyle.background);
   const activeColor = genActiveColor(buttonStyle.background);
+  console.log("border radius", buttonStyle.radius);
   return css`
     border-radius: ${buttonStyle.radius};
     margin: ${buttonStyle.margin};
     padding: ${buttonStyle.padding};
+    border-width: ${buttonStyle.borderWidth};
 
     &:not(:disabled) {
       // click animation color
@@ -31,6 +33,7 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
       border-radius: ${buttonStyle.radius};
       margin: ${buttonStyle.margin};
       padding: ${buttonStyle.padding};
+      border-width: ${buttonStyle.borderWidth};
 
       :hover,
       :focus {
@@ -54,7 +57,7 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
 
 export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
   ${(props) => props.$buttonStyle && getButtonStyle(props.$buttonStyle)}
-  width: fit-content;
+  width: -webkit-fill-available;
   height: auto;
   display: inline-flex;
   justify-content: center;

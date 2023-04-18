@@ -33,7 +33,7 @@ const Container = styled.div<TreeStyleType>`
   height: 100%;
   padding: 4px;
   background: ${(props) => props.background};
-  border: 1px solid ${(props) => props.border};
+  border: ${(props) => props.borderWidth} solid ${(props) => props.border};
   border-radius: ${(props) => props.radius};
   .ant-tree-show-line .ant-tree-switcher {
     background: ${(props) => props.background};
@@ -111,7 +111,9 @@ const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
                 : undefined
             }
             checkStrictly={checkStrictly}
-            showLine={props.showLine ? { showLeafIcon: props.showLeafIcon } : false}
+            showLine={
+              props.showLine ? { showLeafIcon: props.showLeafIcon } : false
+            }
             expandedKeys={expanded.value}
             autoExpandParent={props.autoExpandParent}
             onSelect={(keys) => {
@@ -140,8 +142,11 @@ let TreeBasicComp = (function () {
       <>
         <Section name={sectionNames.basic}>
           {treeDataPropertyView(children)}
-          {children.selectType.propertyView({ label: trans("tree.selectType") })}
-          {children.selectType.getView() !== "none" && valuePropertyView(children)}
+          {children.selectType.propertyView({
+            label: trans("tree.selectType"),
+          })}
+          {children.selectType.getView() !== "none" &&
+            valuePropertyView(children)}
           {children.selectType.getView() === "check" &&
             children.checkStrictly.propertyView({
               label: trans("tree.checkStrictly"),
@@ -152,11 +157,15 @@ let TreeBasicComp = (function () {
         {children.label.getPropertyView()}
         {expandSection(
           children,
-          children.autoExpandParent.propertyView({ label: trans("tree.autoExpandParent") })
+          children.autoExpandParent.propertyView({
+            label: trans("tree.autoExpandParent"),
+          })
         )}
         {intersectSection(children, children.onEvent.getPropertyView())}
         {advancedSection(children)}
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+        </Section>
       </>
     ))
     .build();

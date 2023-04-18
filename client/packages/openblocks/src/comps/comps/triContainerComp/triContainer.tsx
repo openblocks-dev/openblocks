@@ -15,6 +15,7 @@ const getStyle = (style: ContainerStyleType) => {
   return css`
     border-color: ${style.border};
     border-radius: ${style.radius};
+    border-width: ${style.borderWidth};
     overflow: hidden;
     margin: ${style.margin};
     padding: ${style.padding};

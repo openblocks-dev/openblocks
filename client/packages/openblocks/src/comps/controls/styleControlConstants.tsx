@@ -30,17 +30,23 @@ export type PaddingConfig = CommonColorConfig & {
   readonly padding: string;
 };
 
+export type BorderWidthConfig = CommonColorConfig & {
+  readonly borderWidth: string;
+};
+
 export type DepColorConfig = CommonColorConfig & {
   readonly depName?: string;
   readonly depTheme?: keyof ThemeDetail;
   readonly depType?: DEP_TYPE;
   transformer: (color: string, ...rest: string[]) => string;
 };
+
 export type SingleColorConfig =
   | SimpleColorConfig
   | DepColorConfig
   | MarginConfig
   | PaddingConfig
+  | BorderWidthConfig
   | RadiusConfig;
 
 export const defaultTheme: ThemeDetail = {
@@ -50,8 +56,9 @@ export const defaultTheme: ThemeDetail = {
   canvas: "#F5F5F6",
   primarySurface: "#FFFFFF",
   borderRadius: "4px",
-  margin: "5px",
-  padding: "5px",
+  borderWidth: "1px",
+  margin: "3px",
+  padding: "3px",
 };
 
 export const SURFACE_COLOR = "#FFFFFF";
@@ -195,7 +202,11 @@ export function handleToCalendarToday(color: string) {
 }
 
 // return calendar text
-function handleCalendarText(color: string, textDark: string, textLight: string) {
+function handleCalendarText(
+  color: string,
+  textDark: string,
+  textLight: string
+) {
   return isDarkColor(color) ? textLight : lightenColor(textDark, 0.1);
 }
 
@@ -253,6 +264,12 @@ const RADIUS = {
   radius: "borderRadius",
 } as const;
 
+const BORDERWIDTH = {
+  name: "borderWidth",
+  label: trans("style.borderWidth"),
+  borderWidth: "borderWidth",
+} as const;
+
 const MARGIN = {
   name: "margin",
   label: trans("style.margin"),
@@ -293,11 +310,11 @@ const CARD_RADIUS = {
 } as const;
 
 const getStaticBorder = (color: string = SECOND_SURFACE_COLOR) =>
-({
-  name: "border",
-  label: trans("style.border"),
-  color,
-} as const);
+  ({
+    name: "border",
+    label: trans("style.border"),
+    color,
+  } as const);
 
 const HEADER_BACKGROUND = {
   name: "headerBackground",
@@ -310,6 +327,7 @@ const HEADER_BACKGROUND = {
 const BG_STATIC_BORDER_RADIUS = [
   getBackground(),
   getStaticBorder(),
+  BORDERWIDTH,
   RADIUS,
 ] as const;
 
@@ -340,6 +358,7 @@ function getStaticBgBorderRadiusByBg(
   return [
     getStaticBackground(background),
     platform ? { ...BORDER, platform } : BORDER,
+    platform ? { ...BORDERWIDTH, platform } : BORDERWIDTH,
     platform ? { ...RADIUS, platform } : RADIUS,
   ] as const;
 }
@@ -347,7 +366,7 @@ function getStaticBgBorderRadiusByBg(
 function getBgBorderRadiusByBg(
   background: keyof ThemeDetail = "primarySurface"
 ) {
-  return [getBackground(background), BORDER, RADIUS] as const;
+  return [getBackground(background), BORDER, BORDERWIDTH, RADIUS] as const;
 }
 
 function getBackground(depTheme: keyof ThemeDetail = "primarySurface") {
@@ -385,6 +404,7 @@ export const ToggleButtonStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
+  BORDERWIDTH,
   RADIUS,
   MARGIN,
   PADDING,
@@ -429,7 +449,7 @@ export const ContainerStyle = [
     transformer: toSelf,
   },
   MARGIN,
-  PADDING
+  PADDING,
 ] as const;
 
 export const SliderStyle = [
@@ -729,6 +749,7 @@ export const FileStyle = [
 export const FileViewerStyle = [
   getStaticBackground("#FFFFFF"),
   getStaticBorder("#00000000"),
+  BORDERWIDTH,
   RADIUS,
   MARGIN,
   PADDING,
@@ -823,6 +844,7 @@ export const NavigationStyle = [
 
 export const ImageStyle = [
   getStaticBorder("#00000000"),
+  BORDERWIDTH,
   RADIUS,
   MARGIN,
   PADDING,
@@ -856,6 +878,7 @@ export const QRCodeStyle = [
 export const TreeStyle = [
   LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
+  BORDERWIDTH,
   TEXT,
   VALIDATE,
   MARGIN,
@@ -939,7 +962,11 @@ export const SignatureStyle = [
 
 export const CarouselStyle = [getBackground("canvas")] as const;
 
-export const RichTextEditorStyle = [getStaticBorder(), RADIUS] as const;
+export const RichTextEditorStyle = [
+  getStaticBorder(),
+  BORDERWIDTH,
+  RADIUS,
+] as const;
 
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
@@ -978,4 +1005,6 @@ export type JsonEditorStyleType = StyleConfigType<typeof JsonEditorStyle>;
 export type CalendarStyleType = StyleConfigType<typeof CalendarStyle>;
 export type SignatureStyleType = StyleConfigType<typeof SignatureStyle>;
 export type CarouselStyleType = StyleConfigType<typeof CarouselStyle>;
-export type RichTextEditorStyleType = StyleConfigType<typeof RichTextEditorStyle>;
+export type RichTextEditorStyleType = StyleConfigType<
+  typeof RichTextEditorStyle
+>;

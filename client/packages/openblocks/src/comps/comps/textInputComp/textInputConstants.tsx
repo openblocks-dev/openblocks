@@ -247,6 +247,7 @@ export function getStyle(style: InputLikeStyleType) {
     border-radius: ${style.radius};
     margin: ${style.margin};
     padding: ${style.padding};
+    border-width: ${style.borderWidth};
     // still use antd style when disabled
     &:not(.ant-input-disabled, .ant-input-affix-wrapper-disabled),
     input {
