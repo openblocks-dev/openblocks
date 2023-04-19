@@ -107,13 +107,7 @@ function calcColors<ColorMap extends Record<string, string>>(
   colorConfigs.forEach((config) => {
     const name = config.name;
     if (!isEmptyRadius(props[name]) && isRadiusConfig(config)) {
-      if (/^[0-9]+$/.test(props[name])) {
-        res[name] = props[name] + "px";
-      } else if (/^[0-9]+(px|%)$/.test(props[name])) {
-        res[name] = props[name];
-      } else {
-        res[name] = config.radius;
-      }
+      res[name] = props[name];
       return;
     }
     if (!isEmptyMargin(props[name]) && isMarginConfig(config)) {
@@ -141,6 +135,7 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = config.color;
     }
     if (isRadiusConfig(config)) {
+      console.log(config.radius);
       res[name] = themeWithDefault[config.radius];
     }
     if (isMarginConfig(config)) {
@@ -293,7 +288,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
       name === "cardRadius" ||
       name === "borderWidth"
     ) {
-      childrenMap[name] = RadiusControl;
+      childrenMap[name] = StringControl;
     } else if (name === "margin" || name === "padding") {
       childrenMap[name] = StringControl;
     } else {
@@ -390,7 +385,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                     name === "cardRadius" ||
                     name === "borderWidth"
                       ? (
-                          children[name] as InstanceType<typeof RadiusControl>
+                          children[name] as InstanceType<typeof StringControl>
                         ).propertyView({
                           label: config.label,
                           preInputNode: <RadiusIcon title="" />,
@@ -398,7 +393,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                         })
                       : name === "margin"
                       ? (
-                          children[name] as InstanceType<typeof RadiusControl>
+                          children[name] as InstanceType<typeof StringControl>
                         ).propertyView({
                           label: config.label,
                           preInputNode: <MarginIcon title="" />,
@@ -406,7 +401,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                         })
                       : name === "padding"
                       ? (
-                          children[name] as InstanceType<typeof RadiusControl>
+                          children[name] as InstanceType<typeof StringControl>
                         ).propertyView({
                           label: config.label,
                           preInputNode: <PaddingIcon title="" />,
