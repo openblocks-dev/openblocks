@@ -135,7 +135,6 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = config.color;
     }
     if (isRadiusConfig(config)) {
-      console.log(config.radius);
       res[name] = themeWithDefault[config.radius];
     }
     if (isMarginConfig(config)) {
