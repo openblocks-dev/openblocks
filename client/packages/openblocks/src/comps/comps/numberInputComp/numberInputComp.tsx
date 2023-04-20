@@ -26,11 +26,20 @@ import styled, { css } from "styled-components";
 import { RecordConstructorToView } from "openblocks-core";
 import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
 import { UICompBuilder, withDefault } from "../../generators";
-import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
-import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
+import {
+  formDataChildren,
+  FormDataPropertyView,
+} from "../formComp/formDataConstants";
+import {
+  withMethodExposing,
+  refMethods,
+} from "../../generators/withMethodExposing";
 import { RefControl } from "../../controls/refControl";
 import { styleControl } from "comps/controls/styleControl";
-import { InputLikeStyle, InputLikeStyleType } from "comps/controls/styleControlConstants";
+import {
+  InputLikeStyle,
+  InputLikeStyleType,
+} from "comps/controls/styleControlConstants";
 import {
   disabledPropertyView,
   hiddenPropertyView,
@@ -53,13 +62,14 @@ import {
 const getStyle = (style: InputLikeStyleType) => {
   return css`
     border-radius: ${style.radius};
+    border-width: ${style.borderWidth};
     // still use antd style when disabled
     &:not(.ant-input-number-disabled) {
       color: ${style.text};
       background-color: ${style.background};
       border-color: ${style.border};
-    margin: ${style.margin};
-    padding: ${style.padding};
+      margin: ${style.margin};
+      padding: ${style.padding};
 
       &.ant-input-number-focused {
         border-color: ${style.accent};
@@ -163,7 +173,11 @@ function format(
   }
 }
 
-function toNumberValue(value: number, allowNull: boolean, formatter: Formatter) {
+function toNumberValue(
+  value: number,
+  allowNull: boolean,
+  formatter: Formatter
+) {
   const num = value;
   if (isNaN(num)) {
     return allowNull ? null : 0;
@@ -248,11 +262,19 @@ const childrenMap = {
   ...formDataChildren,
 };
 
-const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) => {
+const CustomInputNumber = (
+  props: RecordConstructorToView<typeof childrenMap>
+) => {
   const ref = useRef<HTMLInputElement | null>(null);
 
   const formatFn = (value: number) =>
-    format(value, props.allowNull, props.formatter, props.precision, props.thousandsSeparator);
+    format(
+      value,
+      props.allowNull,
+      props.formatter,
+      props.precision,
+      props.thousandsSeparator
+    );
 
   const [tmpValue, setTmpValue] = useState(formatFn(props.value.value));
 
@@ -354,13 +376,21 @@ const NumberInputTmpComp = (function () {
         <Section name={sectionNames.basic}>
           {children.value.propertyView({ label: trans("prop.defaultValue") })}
           {placeholderPropertyView(children)}
-          {children.formatter.propertyView({ label: trans("numberInput.formatter") })}
-          {children.precision.propertyView({ label: trans("numberInput.precision") })}
-          {children.allowNull.propertyView({ label: trans("numberInput.allowNull") })}
+          {children.formatter.propertyView({
+            label: trans("numberInput.formatter"),
+          })}
+          {children.precision.propertyView({
+            label: trans("numberInput.precision"),
+          })}
+          {children.allowNull.propertyView({
+            label: trans("numberInput.allowNull"),
+          })}
           {children.thousandsSeparator.propertyView({
             label: trans("numberInput.thousandsSeparator"),
           })}
-          {children.controls.propertyView({ label: trans("numberInput.controls") })}
+          {children.controls.propertyView({
+            label: trans("numberInput.controls"),
+          })}
         </Section>
 
         <FormDataPropertyView {...children} />
@@ -375,7 +405,9 @@ const NumberInputTmpComp = (function () {
         <Section name={sectionNames.advanced}>
           {children.step.propertyView({ label: trans("numberInput.step") })}
           {readOnlyPropertyView(children)}
-          {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+          {children.prefixIcon.propertyView({
+            label: trans("button.prefixIcon"),
+          })}
         </Section>
 
         <Section name={sectionNames.validation}>
@@ -385,9 +417,13 @@ const NumberInputTmpComp = (function () {
           {children.customRule.propertyView({})}
         </Section>
 
-        <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+        <Section name={sectionNames.layout}>
+          {hiddenPropertyView(children)}
+        </Section>
 
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+        </Section>
       </>
     ))
     .build();
@@ -410,7 +446,8 @@ export const NumberInputComp = withExposingConfigs(NumberInputTmp2Comp, [
     name: "value",
     desc: trans("export.inputValueDesc"),
     depKeys: ["value", "allowNull", "formatter"],
-    func: (input) => toNumberValue(input.value, input.allowNull, input.formatter),
+    func: (input) =>
+      toNumberValue(input.value, input.allowNull, input.formatter),
   }),
   NameConfigPlaceHolder,
   NameConfigRequired,

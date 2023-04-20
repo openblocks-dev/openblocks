@@ -56,9 +56,9 @@ export const defaultTheme: ThemeDetail = {
   canvas: "#F5F5F6",
   primarySurface: "#FFFFFF",
   borderRadius: "4px",
-  borderWidth: "2px",
-  margin: "5px",
-  padding: "5px",
+  borderWidth: "1px",
+  margin: "3px",
+  padding: "3px",
 };
 
 export const SURFACE_COLOR = "#FFFFFF";
@@ -749,6 +749,7 @@ export const FileStyle = [
 export const FileViewerStyle = [
   getStaticBackground("#FFFFFF"),
   getStaticBorder("#00000000"),
+  BORDERWIDTH,
   RADIUS,
   MARGIN,
   PADDING,
@@ -877,6 +878,7 @@ export const QRCodeStyle = [
 export const TreeStyle = [
   LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
+  BORDERWIDTH,
   TEXT,
   VALIDATE,
   MARGIN,
@@ -960,7 +962,11 @@ export const SignatureStyle = [
 
 export const CarouselStyle = [getBackground("canvas")] as const;
 
-export const RichTextEditorStyle = [getStaticBorder(), RADIUS] as const;
+export const RichTextEditorStyle = [
+  getStaticBorder(),
+  BORDERWIDTH,
+  RADIUS,
+] as const;
 
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;

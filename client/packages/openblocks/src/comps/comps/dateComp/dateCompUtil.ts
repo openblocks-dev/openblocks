@@ -71,7 +71,7 @@ export const disabledTime = (min: string, max: string) => {
 export const getStyle = (style: DateTimeStyleType) => {
   return css`
     border-radius: ${style.radius};
-
+    border-width: ${style.borderWidth};
     margin: ${style.margin};
     padding: ${style.padding};
 
