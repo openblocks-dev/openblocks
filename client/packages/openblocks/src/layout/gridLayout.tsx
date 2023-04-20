@@ -4,10 +4,19 @@ import { UICompType } from "comps/uiCompRegistry";
 import { ModulePrimaryColor, PrimaryColor } from "constants/style";
 import _ from "lodash";
 import log from "loglevel";
-import React, { DragEvent, DragEventHandler, MouseEventHandler, ReactElement } from "react";
+import React, {
+  DragEvent,
+  DragEventHandler,
+  MouseEventHandler,
+  ReactElement,
+} from "react";
 import ReactResizeDetector from "react-resize-detector";
 import styled from "styled-components";
-import { isDirectionKey, isFilterInputTarget, modKeyPressed } from "util/keyUtils";
+import {
+  isDirectionKey,
+  isFilterInputTarget,
+  modKeyPressed,
+} from "util/keyUtils";
 import {
   calcGridItemPosition,
   calcGridItemSizePx,
@@ -158,7 +167,10 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     return null;
   }
 
-  shouldComponentUpdate(nextProps: GridLayoutProps, nextState: GridLayoutState): boolean {
+  shouldComponentUpdate(
+    nextProps: GridLayoutProps,
+    nextState: GridLayoutState
+  ): boolean {
     return (
       // NOTE: this is almost always unequal. Therefore the only way to get better performance
       // from SCU is if the user intentionally memoizes children. If they do, and they can
@@ -177,7 +189,11 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
       // log.debug("render. clear ops. layout: ", uiLayout);
       // only change in changeHs, don't change state
       if (_.size(this.state.ops) > 0) {
-        this.setState({ layout: uiLayout, changedHs: undefined, ops: undefined });
+        this.setState({
+          layout: uiLayout,
+          changedHs: undefined,
+          ops: undefined,
+        });
       }
     }
     if (!draggingUtils.isDragging() && _.isNil(this.state.ops)) {
@@ -217,13 +233,20 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     return height;
   }
 
-  onDragStart = (i: string, e: DragEvent<HTMLDivElement>, node: HTMLDivElement) => {
+  onDragStart = (
+    i: string,
+    e: DragEvent<HTMLDivElement>,
+    node: HTMLDivElement
+  ) => {
     let { transformScale, extraLayout, droppingItem } = this.props;
     const droppingKey = droppingItem?.i as string;
 
     // don't drag the input component when focus
     const activeElement = document.activeElement;
-    if (activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement) {
+    if (
+      activeElement instanceof HTMLInputElement ||
+      activeElement instanceof HTMLTextAreaElement
+    ) {
       e.preventDefault();
       return;
     }
@@ -246,14 +269,18 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     this.props.onFlyStart?.(layout, draggingLayout);
 
     // layout
-    layout = _.mapValues(layout, (item, key) => (key === i ? { ...item, i: droppingKey } : item));
+    layout = _.mapValues(layout, (item, key) =>
+      key === i ? { ...item, i: droppingKey } : item
+    );
     layout = _.mapKeys(layout, (item, key) => (key === i ? droppingKey : key));
     // keys
     keys = keys.map((key) => (key === i ? droppingKey : key));
     keys = _.sortBy(keys, (key) => layout[key].x);
     // extraLayout
     if (extraLayout) {
-      extraLayout = _.mapKeys(extraLayout, (value, key) => (key === i ? droppingKey : key));
+      extraLayout = _.mapKeys(extraLayout, (value, key) =>
+        key === i ? droppingKey : key
+      );
     }
     // solve the neighbor collision problem when dragging multiple comps
     draggingLayout = _.pick(layout, keys);
@@ -261,7 +288,11 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     // position params
     const positionParams = genPositionParams(this.props);
     // coordinate
-    let { offsetX, offsetY } = calcOffsetXY(e, this.ref.current as HTMLDivElement, transformScale);
+    let { offsetX, offsetY } = calcOffsetXY(
+      e,
+      this.ref.current as HTMLDivElement,
+      transformScale
+    );
 
     const recoverDragStartFn = () => {
       this.setState({ ops: undefined });
@@ -316,7 +347,11 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
       this.setState({ startOps: startOps });
 
       this.mayDelayOver(
-        keys.map((key) => ({ ...layout[key], isDragging: true, placeholder: true })),
+        keys.map((key) => ({
+          ...layout[key],
+          isDragging: true,
+          placeholder: true,
+        })),
         startOps,
         true
       );
@@ -332,12 +367,12 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     }
   }
 
-  onResizeStart: (i: string, w: number, h: number, arg3: GridResizeEvent) => void = (
-    i,
-    w,
-    h,
-    { e, node }
-  ) => {
+  onResizeStart: (
+    i: string,
+    w: number,
+    h: number,
+    arg3: GridResizeEvent
+  ) => void = (i, w, h, { e, node }) => {
     draggingUtils.clearData();
     const { layout } = this.state;
     const l = layout[i];
@@ -368,16 +403,23 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     const oldResizeItem = draggingUtils.getData<LayoutItem>(DRAGGING_ITEM);
     this.props.onResize?.(layout, oldResizeItem, layout[i], undefined, e, node);
   };
-  onResizeStop: (i: string, w: number, h: number, arg3: GridResizeEvent) => void = (
-    i,
-    w,
-    h,
-    { e, node }
-  ) => {
+  onResizeStop: (
+    i: string,
+    w: number,
+    h: number,
+    arg3: GridResizeEvent
+  ) => void = (i, w, h, { e, node }) => {
     const layout = this.getUILayout();
     const oldResizeItem = draggingUtils.getData<LayoutItem>(DRAGGING_ITEM);
 
-    this.props.onResizeStop?.(layout, oldResizeItem, layout[i], undefined, e, node);
+    this.props.onResizeStop?.(
+      layout,
+      oldResizeItem,
+      layout[i],
+      undefined,
+      e,
+      node
+    );
     draggingUtils.clearData();
     this.onLayoutMaybeChanged(this.getUILayout());
   };
@@ -396,10 +438,15 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     item: LayoutItem,
     childrenMap: _.Dictionary<React.ReactElement>
   ): React.ReactElement | undefined {
-    const draggingExtraLayout = draggingUtils.getData<FlyStartInfo>(FLY_START_INFO)?.flyExtraLayout;
-    const extraItem = this.props.extraLayout?.[item.i] ?? draggingExtraLayout?.[item.i];
+    const draggingExtraLayout =
+      draggingUtils.getData<FlyStartInfo>(FLY_START_INFO)?.flyExtraLayout;
+    const extraItem =
+      this.props.extraLayout?.[item.i] ?? draggingExtraLayout?.[item.i];
     const child = item.placeholder ? (
-      <DragPlaceHolder compType={extraItem?.compType} className="react-grid-placeholder" />
+      <DragPlaceHolder
+        compType={extraItem?.compType}
+        className="react-grid-placeholder"
+      />
     ) : (
       childrenMap[item.i]
     );
@@ -419,7 +466,6 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     } = this.props as Required<GridLayoutProps>;
     const { showName } = this.props;
     const selectable = isSelectable;
-    const positionParams = genPositionParams(this.props);
     return (
       <GridItem
         compType={extraItem?.compType}
@@ -427,7 +473,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
         containerWidth={width}
         cols={cols}
         margin={margin}
-        containerPadding={positionParams.containerPadding}
+        containerPadding={[0, 0]}
         maxRows={maxRows}
         rowHeight={rowHeight}
         onDragStart={this.onDragStart}
@@ -462,7 +508,8 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
         clickItem={clickItem}
         showName={{
           top: showName?.top ?? 0,
-          bottom: (showName?.bottom ?? 0) + (this.ref.current?.scrollHeight ?? 0),
+          bottom:
+            (showName?.bottom ?? 0) + (this.ref.current?.scrollHeight ?? 0),
         }}
       >
         {child}
@@ -500,7 +547,10 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     // log.debug("layout: getFinalDroppingItem. w: ", w, " h: ", h, " sourcePositinParams: ", sourcePositionParams, " width: ", width, " height: ", height);
     left -= width * 0.5;
     top -= height * 0.5;
-    const calculatedPosition = calcXY(positionParams, top, left, w, h, { x: false, y: true });
+    const calculatedPosition = calcXY(positionParams, top, left, w, h, {
+      x: false,
+      y: true,
+    });
     let finalItem = {
       ...droppingItem,
       w: w,
@@ -541,14 +591,26 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
         left: sourcePosition.left + deltaX,
         top: sourcePosition.top + deltaY,
       };
-      let { w, h } = calcWH(positionParams, newPosition.width, newPosition.height, {
-        w: false,
-        h: true,
-      });
-      let { x, y } = calcXY(positionParams, newPosition.top, newPosition.left, w, h, {
-        x: false,
-        y: false,
-      });
+      let { w, h } = calcWH(
+        positionParams,
+        newPosition.width,
+        newPosition.height,
+        {
+          w: false,
+          h: true,
+        }
+      );
+      let { x, y } = calcXY(
+        positionParams,
+        newPosition.top,
+        newPosition.left,
+        w,
+        h,
+        {
+          x: false,
+          y: false,
+        }
+      );
       const finalItem = {
         ...item,
         x,
@@ -569,14 +631,20 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
       const x = _.max(
         flyLeftAdjItems[item.i]
           ?.filter((leftItemKey) => !_.isNil(adjOKItemMap[leftItemKey]))
-          ?.map((leftItemKey) => adjOKItemMap[leftItemKey].x + adjOKItemMap[leftItemKey].w)
+          ?.map(
+            (leftItemKey) =>
+              adjOKItemMap[leftItemKey].x + adjOKItemMap[leftItemKey].w
+          )
       );
       !_.isNil(x) && (item.x = x);
       adjOKItemMap[item.i] = item;
     });
 
     // handle the boundary problems for multi-drag
-    const narrowedItems = narrowItems(Object.values(adjOKItemMap), positionParams.cols);
+    const narrowedItems = narrowItems(
+      Object.values(adjOKItemMap),
+      positionParams.cols
+    );
     const finalItems = shiftInside(positionParams, narrowedItems);
 
     return finalItems;
@@ -639,7 +707,11 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     return items;
   }
 
-  mayDelayOver = (items: LayoutItem[], startOps?: LayoutOps, isFlyStart: boolean = false) => {
+  mayDelayOver = (
+    items: LayoutItem[],
+    startOps?: LayoutOps,
+    isFlyStart: boolean = false
+  ) => {
     const flyStartInfo = draggingUtils.getData<FlyStartInfo>(FLY_START_INFO);
     const flyOverInfo = draggingUtils.getData<FlyOverInfo>(FLY_OVER_INFO);
     const checkFlyStart = !!flyStartInfo && !flyOverInfo;
@@ -722,10 +794,18 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
         .map((item) => item.i),
       [...items.map((item) => item.i), flyStartInfo?.flyItemI, ...movedItemKeys]
     );
-    if (standingDelayKeys.some((key) => !_.isEqual(originalLayout[key], nextLayout[key]))) {
+    if (
+      standingDelayKeys.some(
+        (key) => !_.isEqual(originalLayout[key], nextLayout[key])
+      )
+    ) {
       return DELAY_COLLISION_MS;
     }
-    if (autoHeight && bottom(nextLayout) > bottom(currentLayout) && !this.props.isCanvas) {
+    if (
+      autoHeight &&
+      bottom(nextLayout) > bottom(currentLayout) &&
+      !this.props.isCanvas
+    ) {
       return DELAY_HIGHER_MS;
     }
     return 0;
@@ -752,7 +832,8 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     //   return false;
     // }
 
-    const { onDropDragOver, transformScale } = this.props as Required<GridLayoutProps>;
+    const { onDropDragOver, transformScale } = this
+      .props as Required<GridLayoutProps>;
     // Allow user to customize the dropping item or short-circuit the drop based on the results
     // of the `onDragOver(e: Event)` callback.
     const onDragOverResult = onDropDragOver(e);
@@ -773,7 +854,11 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     let items = [];
     if (!startDragInfo) {
       // drag a new comp from the pannel
-      const item = this.getFinalDroppingItem(onDragOverResult, offsetX, offsetY);
+      const item = this.getFinalDroppingItem(
+        onDragOverResult,
+        offsetX,
+        offsetY
+      );
       items.push(item);
       this.mayDelayOver(items);
     } else {
@@ -787,7 +872,10 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     const flyStartInfo = draggingUtils.getData<FlyStartInfo>(FLY_START_INFO);
     if (!flyStartInfo) {
       const { droppingItem } = this.props as Required<GridLayoutProps>;
-      const ops = layoutOpUtils.push(this.state.ops, deleteItemOp(droppingItem.i as string));
+      const ops = layoutOpUtils.push(
+        this.state.ops,
+        deleteItemOp(droppingItem.i as string)
+      );
       this.setState({ ops });
     }
   }
@@ -877,7 +965,11 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     draggingUtils.clearData();
   };
 
-  onDragEnd = (i: string, e: DragEvent<HTMLDivElement>, node: HTMLDivElement) => {
+  onDragEnd = (
+    i: string,
+    e: DragEvent<HTMLDivElement>,
+    node: HTMLDivElement
+  ) => {
     if (!draggingUtils.isDragging()) return;
 
     let flyStartInfo = draggingUtils.getData<FlyStartInfo>(FLY_START_INFO);
@@ -902,7 +994,10 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     }
   };
 
-  getUILayout(ops?: LayoutOps, setHiddenCompHeightZero: boolean = false): Layout {
+  getUILayout(
+    ops?: LayoutOps,
+    setHiddenCompHeightZero: boolean = false
+  ): Layout {
     return getUILayout(
       this.state.layout,
       this.props.extraLayout,
@@ -917,7 +1012,9 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     const flyOverInfo = draggingUtils.getData<FlyOverInfo>(FLY_OVER_INFO);
     if (flyOverInfo?.layoutRef === this.ref) {
       const flyOverMinHeight = flyOverInfo.innerHeight + "px";
-      minHeight = minHeight ? `max(${minHeight}, ${flyOverMinHeight})` : flyOverMinHeight;
+      minHeight = minHeight
+        ? `max(${minHeight}, ${flyOverMinHeight})`
+        : flyOverMinHeight;
     }
 
     const style: Record<string, any> = {
@@ -928,7 +1025,9 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
   }
 
   getSelectedKeys() {
-    return Object.keys(_.pickBy(this.props.extraLayout, (extraItem) => !!extraItem.isSelected));
+    return Object.keys(
+      _.pickBy(this.props.extraLayout, (extraItem) => !!extraItem.isSelected)
+    );
   }
 
   hintPlaceholder(): React.ReactNode | undefined {
@@ -941,7 +1040,11 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
   }
 
   onKeyDown = (e: React.KeyboardEvent) => {
-    if (this.props.disableDirectionKey || !isDirectionKey(e) || isFilterInputTarget(e)) {
+    if (
+      this.props.disableDirectionKey ||
+      !isDirectionKey(e) ||
+      isFilterInputTarget(e)
+    ) {
       return;
     }
     const isResize = modKeyPressed(e);
@@ -968,7 +1071,11 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     const { containerPadding, rowHeight, containerWidth } = positionParams;
 
     const [left, top] = containerPadding;
-    const rowCount = calcRowCount(this.innerHeight, containerPadding[1], rowHeight);
+    const rowCount = calcRowCount(
+      this.innerHeight,
+      containerPadding[1],
+      rowHeight
+    );
     const height = rowCount * rowHeight + 1;
     const width = containerWidth - containerPadding[0] * 2 + 1;
     const position: Position = { left, top, width, height };
@@ -978,7 +1085,11 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
 
     // log.log( "GridLines. bgColor: ", this.props.bgColor, " computedBgColor: ", bgColor, " contrastBgColor: ", contrastBgColor);
     return (
-      <GridLines positionParams={positionParams} position={position} lineColor={contrastBgColor} />
+      <GridLines
+        positionParams={positionParams}
+        position={position}
+        lineColor={contrastBgColor}
+      />
     );
   }
 
@@ -1026,7 +1137,9 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
           <div style={contentStyle}>
             {showGridLines && this.gridLines()}
             {mounted &&
-              Object.values(layout).map((item) => this.processGridItem(item, childrenMap))}
+              Object.values(layout).map((item) =>
+                this.processGridItem(item, childrenMap)
+              )}
             {this.hintPlaceholder()}
           </div>
         </ReactResizeDetector>
@@ -1064,7 +1177,9 @@ function moveOrResize(
   extraLayout: ExtraLayout,
   positionParams: PositionParams
 ) {
-  const selectedKeys = Object.keys(layout).filter((k) => extraLayout[k]?.isSelected);
+  const selectedKeys = Object.keys(layout).filter(
+    (k) => extraLayout[k]?.isSelected
+  );
   if (selectedKeys.length === 0 || (isResize && selectedKeys.length !== 1)) {
     return;
   }
@@ -1072,7 +1187,12 @@ function moveOrResize(
   const newSelectLayout: Layout = {};
   const newOps: LayoutOps = [];
   for (const key of selectedKeys) {
-    const newItem = getNewLayoutItem(e, isResize, layout[key], extraLayout[key]);
+    const newItem = getNewLayoutItem(
+      e,
+      isResize,
+      layout[key],
+      extraLayout[key]
+    );
     if (!newItem || !isValidLayoutItem(newItem, positionParams)) {
       return;
     }
@@ -1107,8 +1227,10 @@ function getNewLayoutItem(
       }
     }
   } else if (isItemDraggable(item)) {
-    const x = item.x + (e.key === "ArrowLeft" ? -1 : e.key === "ArrowRight" ? 1 : 0);
-    const y = item.y + (e.key === "ArrowUp" ? -1 : e.key === "ArrowDown" ? 1 : 0);
+    const x =
+      item.x + (e.key === "ArrowLeft" ? -1 : e.key === "ArrowRight" ? 1 : 0);
+    const y =
+      item.y + (e.key === "ArrowUp" ? -1 : e.key === "ArrowDown" ? 1 : 0);
     return { ...item, x, y };
   }
 }
