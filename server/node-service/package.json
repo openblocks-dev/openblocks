@@ -67,7 +67,7 @@
     "stylis": "^4.1.3",
     "swagger-client": "^3.18.5",
     "typescript": "^4.9.3",
-    "yaml": "^2.2.1"
+    "yaml": "^2.2.2"
   },
   "resolutions": {
     "@apidevtools/json-schema-ref-parser": "9.0.7"
