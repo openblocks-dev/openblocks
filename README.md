@@ -1,3 +1,6 @@
+> **Note**  
+> Openblocks project has been abandoned. The community edition continues as [Lowcoder](https://github.com/lowcoder-org/lowcoder).
+
 <div align="center">
 <h1 style="border-bottom: none">
     <b><a href="https://openblocks.dev/">Openblocks</a></b><br />
