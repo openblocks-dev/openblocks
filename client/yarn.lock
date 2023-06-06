@@ -14276,7 +14276,7 @@ __metadata:
     openblocks-cli: "workspace:^"
     openblocks-sdk: "workspace:^"
     typescript: ^4.8.4
-    vite: ^3.2.4
+    vite: ^3.2.7
   languageName: unknown
   linkType: soft
 
@@ -14297,7 +14297,7 @@ __metadata:
     react-json-view: ^1.21.3
     rollup-plugin-external-globals: ^0.7.1
     typescript: ^4.8.4
-    vite: ^3.2.4
+    vite: ^3.2.7
     vite-plugin-css-injected-by-js: ^2.1.1
     vite-plugin-svgr: ^2.2.2
   peerDependencies:
@@ -14328,7 +14328,7 @@ __metadata:
     react: 17
     react-dom: 17
     typescript: 4.8.4
-    vite: ^3.2.4
+    vite: ^3.2.7
     vite-tsconfig-paths: ^3.6.0
   languageName: unknown
   linkType: soft
@@ -14407,7 +14407,7 @@ __metadata:
     react: 17
     react-dom: 17
     typescript: 4.8.4
-    vite: ^3.2.4
+    vite: ^3.2.7
   languageName: unknown
   linkType: soft
 
@@ -14431,7 +14431,7 @@ __metadata:
     rollup-plugin-terser: ^7.0.2
     rollup-plugin-typescript: ^1.0.1
     typescript: ^4.8.4
-    vite: ^3.2.4
+    vite: ^3.2.7
     vite-plugin-svgr: ^2.2.2
     vite-tsconfig-paths: ^3.6.0
   peerDependencies:
@@ -14548,7 +14548,7 @@ __metadata:
     typescript-collections: ^1.3.3
     ua-parser-js: ^1.0.2
     uuid: ^9.0.0
-    vite: ^3.2.4
+    vite: ^3.2.7
     vite-plugin-checker: ^0.5.1
     vite-plugin-html: ^3.2.0
     vite-plugin-svgr: ^2.2.2
@@ -19489,9 +19489,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^3.2.4":
-  version: 3.2.4
-  resolution: "vite@npm:3.2.4"
+"vite@npm:^3.2.7":
+  version: 3.2.7
+  resolution: "vite@npm:3.2.7"
   dependencies:
     esbuild: ^0.15.9
     fsevents: ~2.3.2
@@ -19523,7 +19523,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 0f3e8f89c15809bd6bd8dec54b04b7c9b87374314d00928035f9d70190b4b220e8206b5d77a1e4097a5019cebf7862df4fbc11fbbb35c4f75f359999123d2c25
+  checksum: 4c5883b721b6ec406419e61d0b3fae8528e80f8c2eb20c087c7b1b76daec3665a0a49c83cd8ac7fdda6089625094b70c6a132daa5edc650c515ddc9f5eed44f0
   languageName: node
   linkType: hard
 

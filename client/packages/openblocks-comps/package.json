@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "jest": "29.3.0",
-    "vite": "^3.2.4",
+    "vite": "^3.2.7",
     "vite-tsconfig-paths": "^3.6.0"
   }
 }

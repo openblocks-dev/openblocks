@@ -35,6 +35,6 @@
     "openblocks-cli": "workspace:^",
     "openblocks-sdk": "workspace:^",
     "typescript": "4.8.4",
-    "vite": "^3.2.4"
+    "vite": "^3.2.7"
   }
 }
