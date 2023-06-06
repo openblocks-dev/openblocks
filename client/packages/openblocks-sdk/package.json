@@ -44,7 +44,7 @@
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript": "^1.0.1",
     "typescript": "^4.8.4",
-    "vite": "^3.2.4",
+    "vite": "^3.2.7",
     "vite-plugin-svgr": "^2.2.2",
     "vite-tsconfig-paths": "^3.6.0"
   },

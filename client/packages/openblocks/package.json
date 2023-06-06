@@ -122,7 +122,7 @@
     "openblocks-dev-utils": "workspace:^",
     "rollup-plugin-visualizer": "^5.8.3",
     "typescript": "^4.8.4",
-    "vite": "^3.2.4",
+    "vite": "^3.2.7",
     "vite-plugin-checker": "^0.5.1",
     "vite-plugin-html": "^3.2.0",
     "vite-plugin-svgr": "^2.2.2",
