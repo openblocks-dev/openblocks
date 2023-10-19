@@ -7,6 +7,7 @@
   * [DigitalOcean](self-hosting/digitalocean.md)
   * [AWS AMI](self-hosting/aws-ami.md)
   * [Heroku](self-hosting/heroku.md)
+  * [Elestio](self-hosting/elestio.md)
 * [Security](security.md)
 
 ## Data sources

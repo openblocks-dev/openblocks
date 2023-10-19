@@ -62,6 +62,7 @@ You can access Openblocks from [cloud-hosted version](https://cloud.openblocks.d
 - [Docker](https://docs.openblocks.dev/self-hosting)
 - [AWS AMI](https://docs.openblocks.dev/self-hosting/aws-ami)
 - [DigitalOcean](https://docs.openblocks.dev/self-hosting/digitalocean)
+- [Elestio](https://docs.openblocks.dev/self-hosting/elestio)
 
 ## 💪 Contributing
 - Language support: If you have experience with a language that isn't currently supported by our product, send us a pull request.
